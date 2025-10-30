@@ -743,16 +743,31 @@ void CvCity::doTurn()
 
 		if (bNeedFallback)
 		{
-			const int iCurrentEra = kOwner.getCurrentEra();
+			const EraTypes eCurrentEra = kOwner.getCurrentEra();
 			// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
-			// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
-			// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
-			// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
-			// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
-			// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
-			// 401,5: 			<Type>ERA_MODERN</Type> (5)
-			// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+			// 18,5: 			<Type>ERA_ANCIENT</Type>
+			// 79,5: 			<Type>ERA_CLASSICAL</Type>
+			// 154,5: 			<Type>ERA_MEDIEVAL</Type>
+			// 237,5: 			<Type>ERA_RENAISSANCE</Type>
+			// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
+			// 401,5: 			<Type>ERA_MODERN</Type>
+			// 477,5: 			<Type>ERA_FUTURE</Type>
+			// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
+			// cache once; uses hidden-assert overload if available in your DLL
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
+
+			// <!-- custom: added as recommended by chatgpt 5; as of now untested since i don't use asserts at least barely did so yet, check if accurate anyways etc -->
+			FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
+
+			const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
+
+			// CvGame::getCurrentEra()
+			// It returns an EraTypes (enum), computed as the rounded average of alive players’ eras (barbs excluded) via intdiv::uround.
+			// Your pattern is fine: keep variables as EraTypes for comparisons and cast to int only when doing arithmetic.
+			const int iCurrentEra = static_cast<int>(eCurrentEra);
 			static const int iMaxHammerPerEra = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA");
+			// <!-- custom: note: i assume first era starts at 0 and code seems to run fine as such, but check to be sure as this is just a guess of mine, anyways etc -->
 			const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);  // Era 0→50, 1→100, ... 6→350
 
 			static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
@@ -792,10 +807,6 @@ void CvCity::doTurn()
 
 			static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
 
-			// <!-- custom: magic number as chatgpt had noted long ago or in its thoughts, not ideal to do as such but hopefully works well enough and seems used in other places of the code if i remember it correctly but anways etc -->
-			static const int iEraRenaissance = 3;
-			const bool bEraRenaissanceOrAfter = (iCurrentEra >= iEraRenaissance);
-
 			static const bool bSAS_INFLATE_CIV_SPECIFIC_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_UNIT");
 			static const bool bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
 
@@ -829,7 +840,7 @@ void CvCity::doTurn()
 			static const int iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT");
 
 			// <!-- custom: compute everything once cleanly before the loop to avoid multi counting inside the loop but anyways etc; and as chatgpt 5 confirms after asking it; check if accurate but anyways etc -->
-			if (!bEraRenaissanceOrAfter)
+			if (!bRenaissancePlus)
 			{
 				static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
 
@@ -924,7 +935,7 @@ void CvCity::doTurn()
 				const bool bLoopUnitCombatSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
 				if (bLoopUnitCombatSiege)
 				{
-					if (!bEraRenaissanceOrAfter)
+					if (!bRenaissancePlus)
 					{
 						const int iCityAttackModifier = kU.getCityAttackModifier();
 						const bool bTrebuchetLike = (iCityAttackModifier >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD);
@@ -1178,6 +1189,11 @@ void CvCity::doTurn()
 			{
 				// only if something unusable is there
 				const bool bReplaceHead = (!bQueueEmpty);
+				// and Python maps bAppend → iPosition via:
+				// bAppend == true → iPosition = -1 (append)
+				// bAppend == false → iPosition = 0 (insert at head)
+				// So in C++ you should comment the arg as /*iPosition=*/..., not /*bAppend=*/....
+				//
 				// make it the head so it starts immediately next turn
 				pushOrder(ORDER_TRAIN,
 						ePick,

@@ -12322,24 +12322,31 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		const bool bHaveAnyMetal  = (bHaveIron || bHaveCopper);
 		const bool bHaveAnyMount  = (bHaveHorse || bHaveCamel);
 
-		const int iCurrentEra = getCurrentEra();
+		const EraTypes eCurrentEra = getCurrentEra();
 		// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
-		// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
-		// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
-		// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
-		// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
-		// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
-		// 401,5: 			<Type>ERA_MODERN</Type> (5)
-		// 477,5: 			<Type>ERA_FUTURE</Type> (6)
-		static const int ERA_MEDIEVAL     = 2;
-		static const int ERA_RENAISSANCE  = 3;
-		static const int ERA_INDUSTRIAL   = 4;
-		static const int ERA_MODERN       = 5;
+		// 18,5: 			<Type>ERA_ANCIENT</Type>
+		// 79,5: 			<Type>ERA_CLASSICAL</Type>
+		// 154,5: 			<Type>ERA_MEDIEVAL</Type>
+		// 237,5: 			<Type>ERA_RENAISSANCE</Type>
+		// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
+		// 401,5: 			<Type>ERA_MODERN</Type>
+		// 477,5: 			<Type>ERA_FUTURE</Type>
+		// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
+		// cache once; uses hidden-assert overload if available in your DLL
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const EraTypes eERA_MEDIEVAL     = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL");
+		static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
+		static const EraTypes eERA_INDUSTRIAL   = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL");
+		static const EraTypes eERA_MODERN       = (EraTypes)GC.getInfoTypeForString("ERA_MODERN");
 
-		const bool isPreMed        = (iCurrentEra != NO_ERA && iCurrentEra <  ERA_MEDIEVAL);
-		const bool isMedieval      = (iCurrentEra == ERA_MEDIEVAL);
-		const bool isRenaissance   = (iCurrentEra == ERA_RENAISSANCE);
-		const bool isModernPlus    = (iCurrentEra >= ERA_MODERN);
+		// <!-- custom: added as recommended by chatgpt 5; as of now untested since i don't use asserts at least barely did so yet, check if accurate anyways etc -->
+		FAssertMsg(((eERA_MEDIEVAL != NO_ERA) && (eERA_RENAISSANCE != NO_ERA) && (eERA_INDUSTRIAL != NO_ERA) && (eERA_MODERN != NO_ERA)), "Era key missing; check CIV4EraInfos.xml");
+
+		const bool bPreMedieval    = (eCurrentEra < eERA_MEDIEVAL);
+		const bool bMedieval       = (eCurrentEra == eERA_MEDIEVAL);
+		const bool bRenaissance    = (eCurrentEra == eERA_RENAISSANCE);
+		const bool bIndustrialPlus = (eCurrentEra >= eERA_INDUSTRIAL);
+		const bool bModernPlus     = (eCurrentEra >= eERA_MODERN);
 
 		int pct = 100;
 
@@ -12347,7 +12354,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		static const int MED_COPPER_ANY_PCT                     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT");
 
 		// ===== PRE-MEDIEVAL =====
-		if (isPreMed)
+		if (bPreMedieval)
 		{
 			// Tunables (percents)
 			static const int PREMED_NO_MOUNT_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT");
@@ -12365,7 +12372,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		}
 
 		// ===== MEDIEVAL =====
-		else if (isMedieval)
+		else if (bMedieval)
 		{
 			static const int MED_NO_MOUNT_WITH_METAL_PCT            = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT");
 			static const int MED_NO_MOUNT_NO_METAL_PCT              = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT");
@@ -12408,7 +12415,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		}
 
 		// ===== RENAISSANCE =====
-		else if (isRenaissance)
+		else if (bRenaissance)
 		{
 			// Yep—good catch. Let’s make the checks Iron-specific instead of “any metal”, so Copper never fools the logic for Cannons.
 			// What this does:
@@ -12445,7 +12452,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		}
 
 		// ===== INDUSTRIAL+ / MODERN+ =====
-		else // iEra >= Industrial
+		else if (bIndustrialPlus)
 		{
 			static const int IND_PLUS_CAMEL_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT");
 			static const int IND_HORSE_BASE_PCT                     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT");
@@ -12459,7 +12466,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			// Horse: OK in Industrial (Cavalry), but fades by Modern+
 			else if (eBonus == B_HORSE && !bHaveHorse)
 			{
-				pct = (isModernPlus ? MOD_PLUS_HORSE_ANY_PCT : IND_HORSE_BASE_PCT);
+				pct = (bModernPlus ? MOD_PLUS_HORSE_ANY_PCT : IND_HORSE_BASE_PCT);
 			}
 
 			// Carry over clamps

@@ -3258,7 +3258,7 @@ void CvUnit::automate(AutomateTypes eAutomate)
 // <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50 but anyways etc, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken anyways etc), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change but anyways etc, while also not overdoing it in case it collapses our economy, here or/and in other places, see known issue as of now 52 for details anyways etc; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate, anyways etc -->
 // <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks! But anyways etc), implementing our logic here as well, check if accurate anyways etc -->
 // Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
-// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run abnkrupt at leats early, else i don't care too much or as much, and give AI best chances anyways etc, see known issue as of now 52 for details anyways etc; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these but anyways etc, see known issue mentionned here in these code comments for details but anyways etc, and we otherwise kept function the same anyways etc -->
+// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances anyways etc, see known issue as of now 52 for details anyways etc; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these but anyways etc, see known issue mentionned here in these code comments for details but anyways etc, and we otherwise kept function the same anyways etc -->
 bool CvUnit::canScrap() const
 {
 	// <!-- custom: old function was a 3 liner anyways etc... -->
@@ -3275,7 +3275,9 @@ bool CvUnit::canScrap() const
 	// 	}
 	// }
 
-	if (!isHuman())
+	static const bool bSAS_CAN_SCRAP_OPTIMIZE = GC.getDefineBOOL("SAS_CAN_SCRAP_OPTIMIZE");
+
+	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
 	{
 		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below but anyways etc), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or/and updated info known issue as of now 52 or other related docs anyways etc)
 		const UnitAITypes eUnitAI = AI_getUnitAIType();
@@ -3417,20 +3419,33 @@ bool CvUnit::canScrap() const
 				int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
 				// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time but anyways etc, but some amount is needed to grow especially early but anyways etc -->
 
-				const int iCurrentEra = kPlayer.getCurrentEra();
+				const EraTypes eCurrentEra = kPlayer.getCurrentEra();
 				// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
-				// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
-				// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
-				// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
-				// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
-				// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
-				// 401,5: 			<Type>ERA_MODERN</Type> (5)
-				// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+				// 18,5: 			<Type>ERA_ANCIENT</Type>
+				// 79,5: 			<Type>ERA_CLASSICAL</Type>
+				// 154,5: 			<Type>ERA_MEDIEVAL</Type>
+				// 237,5: 			<Type>ERA_RENAISSANCE</Type>
+				// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
+				// 401,5: 			<Type>ERA_MODERN</Type>
+				// 477,5: 			<Type>ERA_FUTURE</Type>
+				// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
+				// cache once; uses hidden-assert overload if available in your DLL
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 
-				static const int iEraRenaissance = 3;
+				// <!-- custom: added as recommended by chatgpt 5; as of now untested since i don't use asserts at least barely did so yet, check if accurate anyways etc -->
+				FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
+
+				const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
+
+				// CvGame::getCurrentEra()
+				// It returns an EraTypes (enum), computed as the rounded average of alive players’ eras (barbs excluded) via intdiv::uround.
+				// Your pattern is fine: keep variables as EraTypes for comparisons and cast to int only when doing arithmetic.
+				const int iCurrentEra = static_cast<int>(eCurrentEra);
+				static const int iERA_RENAISSANCE  = static_cast<int>(eERA_RENAISSANCE);
 
 				// <!-- custom: don't scrap before renaissance anyways etc -->
-				if (iCurrentEra < iEraRenaissance)
+				if (!bRenaissancePlus)
 				{
 					return false;
 				}
@@ -3438,7 +3453,7 @@ bool CvUnit::canScrap() const
 				{
 					// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply but anyways etc -->
 					// clamp to avoid negative
-					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iEraRenaissance) + 1);
+					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
 					// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described sugegsted although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
 					// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
@@ -3474,9 +3489,9 @@ bool CvUnit::canScrap() const
 			CvGame const& kGame = GC.getGame();
 			const int iCurrentTurn = kGame.getGameTurn();
 
-			static const int iNoDisbandAtAllTurnsNormal = 150;
+			static const int iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL = GC.getDefineINT("SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL");
 			// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me anyways etc) -->
-			const int iNoDisbandAtAllTurnsAdjusted = iNoDisbandAtAllTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
+			const int iNoDisbandAtAllTurnsAdjusted = iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
 			const bool bNoDisbandAtAllPhase = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
 
 			if (bNoDisbandAtAllPhase)

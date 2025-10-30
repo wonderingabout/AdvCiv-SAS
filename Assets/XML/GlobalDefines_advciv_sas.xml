@@ -517,13 +517,13 @@
 	<!-- custom: extremely effective code ingame, seemingly even better than the no excess defender or excess siege code due to it being written differently, i'd still recommend all of these enabled. As for this no very early units, here are some tunables/knobs but anyways etc to customize/configure them.
 	Era info is as follows if i am not mistaken (check if accurate as i am not 100% sure it starts at 0 for first era but i guess so, check to be sure anyways etc). (found with vs code global search, these are the results in an xml file in our mod anyways etc):
 
-	// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
-	// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
-	// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
-	// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
-	// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
-	// 401,5: 			<Type>ERA_MODERN</Type> (5)
-	// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+	// 18,5: 			<Type>ERA_ANCIENT</Type>
+	// 79,5: 			<Type>ERA_CLASSICAL</Type>
+	// 154,5: 			<Type>ERA_MEDIEVAL</Type>
+	// 237,5: 			<Type>ERA_RENAISSANCE</Type>
+	// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
+	// 401,5: 			<Type>ERA_MODERN</Type>
+	// 477,5: 			<Type>ERA_FUTURE</Type>
 	
 	The below code allows to restrict very cheap units, as they are very likely to make us bankrupt due to how easy they are to overproduce, so AI is most likely to overbuild them. Plus, they are not very effective (expected as they are cheap), so apply strict gating. Note: is per unitclass, so for example the rome legionary and the generic swordsman belong to the same class swordsman and are gated to the same threshold per class (we can't build both legionaries and generic sworsdmen but is to explain anyways etc)
 
@@ -614,6 +614,7 @@
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: safety value, recommended to not change this except increasing it if you have very expensive units you want to build anyways etc. -->
+	<!-- custom: note: i assume first era starts at 0 and code seems to run fine as such, but check to be sure as this is just a guess of mine, anyways etc -->
 	<!-- Era 0→50, 1→100, ... 6→350 -->
 	<Define>
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA</DefineName>
@@ -680,6 +681,20 @@
 	<Define>
 		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT_ADD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: set to 1 (enable, strongly recommended) to use advciv-sas' smart scrapping control/optimization -->
+	<!-- custom: note: the can_scrap logic has been written with the choose_unit logic in mind (don't over or under produce this or that unit, don't scrap needlessly this or that unit in more or less same ratios or conditions minus some adjustments if any), so it is strongly recommended to have the same value for the as of now can_scrap_optimize and choose_unit (and do_turn fallback unit code logic as well since it changes production of units as well): i.e. enable all or disable, but weird results may happen such as infinite loop or such if one is enabled and not the other or vice versa, check if accurate as well if needed as this is just a guess of mine but if i remember it correctly it is indeed as such, but check to be sure if needed, anyways etc -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: turn until which we won't scrap at all, adjusted to game speed. E.g. turn 150 at gamespeed_normal would be turn (150 * 150 / 100) = turn 225 at gamespeed epic, or turn (150 * 200) / 100 = turn 300 at gamespeed marathon, etc. -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 
 

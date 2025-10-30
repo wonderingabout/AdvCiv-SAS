@@ -4581,7 +4581,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 		if (!bWonder)
 		{
-			// <!-- custom: 0) but anyways etc; always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly but anyways etc, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now if i'm not mistaken but anyways etc) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case but anyways etc. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go abnkrupt too soon with unit excess but anyways etc -->
+			// <!-- custom: 0) but anyways etc; always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly but anyways etc, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now if i'm not mistaken but anyways etc) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case but anyways etc. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go bankrupt too soon with unit excess but anyways etc -->
 			// --- Fast path: water-food buildings (Harbor in AdvCiv-SAS) always first ---
 			const bool bWaterFoodBuilding = (
 				(kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0) ||
@@ -11305,19 +11305,30 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		// <!-- custom: note: all values here are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
 		if (!bBarbarian)
 		{
-			const int iCurrentEra = kPlayer.getCurrentEra();
+			const EraTypes eCurrentEra = kPlayer.getCurrentEra();
 			// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
-			// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
-			// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
-			// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
-			// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
-			// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
-			// 401,5: 			<Type>ERA_MODERN</Type> (5)
-			// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+			// 18,5: 			<Type>ERA_ANCIENT</Type>
+			// 79,5: 			<Type>ERA_CLASSICAL</Type>
+			// 154,5: 			<Type>ERA_MEDIEVAL</Type>
+			// 237,5: 			<Type>ERA_RENAISSANCE</Type>
+			// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
+			// 401,5: 			<Type>ERA_MODERN</Type>
+			// 477,5: 			<Type>ERA_FUTURE</Type>
+			// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
+			// cache once; uses hidden-assert overload if available in your DLL
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 
-			// <!-- custom: magic number as chatgpt had noted long ago or in its thoughts, not ideal to do as such but hopefully works well enough and seems used in other places of the code if i remember it correctly but anways etc -->
-			static const int iEraRenaissance = 3;
-			const bool bEraRenaissanceOrAfter = (iCurrentEra >= iEraRenaissance);
+			// <!-- custom: added as recommended by chatgpt 5; as of now untested since i don't use asserts at least barely did so yet, check if accurate anyways etc -->
+			FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
+
+			const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
+
+			// CvGame::getCurrentEra()
+			// It returns an EraTypes (enum), computed as the rounded average of alive players’ eras (barbs excluded) via intdiv::uround.
+			// Your pattern is fine: keep variables as EraTypes for comparisons and cast to int only when doing arithmetic.
+			const int iCurrentEra = static_cast<int>(eCurrentEra);
+			static const int iERA_RENAISSANCE  = static_cast<int>(eERA_RENAISSANCE);
 
 			// Situation read
 			// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
@@ -11407,7 +11418,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						return false;
 					}
 
-					if (!bEraRenaissanceOrAfter)
+					if (!bRenaissancePlus)
 					{
 						// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
 						const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
@@ -11438,7 +11449,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					int iTotalMainUnits;
 
 					// <!-- custom: a few catapults are a valid alternative if we have nothing else to build but longbows, these can help our rush or versatility, just don't overdo it anyways etc -->
-					if (!bEraRenaissanceOrAfter)
+					if (!bRenaissancePlus)
 					{
 						iCapSiegesAll = 40;
 
@@ -11591,7 +11602,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								int         iBestCost  = MIN_INT;
 
 								// same era cap you use elsewhere
-								static const int iMaxHammerPerEra = 50;
+								static const int iMaxHammerPerEra = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA");
 								const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);
 
 								// prefetch civ UU mapping once
@@ -12043,7 +12054,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: no reason to have too many of these, but early we may need quite a few -->
 					int iMaxUnits;
-					if (!bEraRenaissanceOrAfter)
+					if (!bRenaissancePlus)
 					{
 						iMaxUnits = iNumCities;
 						// if (bNavalHeavyMapname)
@@ -12073,7 +12084,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: no reason to have too many of these, but early we may need quite a few -->
 					int iMaxUnits;
-					if (!bEraRenaissanceOrAfter)
+					if (!bRenaissancePlus)
 					{
 						iMaxUnits = iNumCities;
 						// if (bNavalHeavyMapname)
@@ -12215,11 +12226,11 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
 					// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time but anyways etc, but some amount is needed to grow especially early but anyways etc -->
 
-					if (bEraRenaissanceOrAfter)
+					if (bRenaissancePlus)
 					{
 						// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply but anyways etc -->
 						// clamp to avoid negative
-						const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iEraRenaissance) + 1);
+						const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
 						// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described sugegsted although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
 						// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
@@ -12248,7 +12259,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: peacetime or early: spread religion (capped as they are national units if i am not mistaken but adding an extra check here just in case anyways etc), and also with more conditions and fine tuning but anyways etc, so else don't or do less anyways etc -->
 					int iMaxUnits;
-					if (!bEraRenaissanceOrAfter)
+					if (!bRenaissancePlus)
 					{
 						iMaxUnits = iNumCities;
 					}
