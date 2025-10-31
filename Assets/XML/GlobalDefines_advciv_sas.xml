@@ -947,7 +947,7 @@
 		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: note 3: higher increments like 3, 4, 5, etc. not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed anyways etc. -->
+	<!-- custom: note 3: higher increments like 3, 4, 5, etc. are not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed anyways etc. -->
 
 
 
@@ -983,6 +983,48 @@
 	<Define>
 		<DefineName>SAS_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST</DefineName>
 		<iDefineIntVal>100000</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: multiply the valuing of a great general being transformed into a great general by this value (was 4 if met civs, 2 if didn't meet any civ in base advciv anyways etc (note: new value applies regardless of civs we met to simplify code a bit anyways etc)) -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_EXTRA_VALUING</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: city needs to be in this top N number of cities in hammer production to be extra valued as a military instructor candidate (e.g. if city is in top 3 hammer cities, extra value it to be chosen as a military instructor candidate city anyways etc). -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_CITY_THRESHOLD</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: extra valuing if city is in top hammer cities, and the higher the rank the more we value it: e.g. 1000 means city will be extra valued with an added value of 1000 - (10 * 1) = 990 * the military instructor's specialist experience in top 1 hammer city (mostly additive and conservative addition, so made numbers high enough to make it significant while trying to avoid overflow anyways etc), or 1000 - (10 * 2) = 980 in top 2 hammer city, or 1000 - (10 * 3) = 970 in top 3 hammer city. -->
+	<!-- Extra additive weight for GG Military Instructor in Top-N hammer cities.
+		Added amount = 100 * iExperience * (TOP_N_HAMMER_EXTRA_VALUING - 10 * rank),
+		where rank = 1 is best.
+		Example with TOP_N_HAMMER_EXTRA_VALUING = 1000:
+		rank 1 → add 100 * iExperience * 990
+		rank 2 → add 100 * iExperience * 980
+		rank 3 → add 100 * iExperience * 970 -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING</DefineName>
+		<iDefineIntVal>1000</iDefineIntVal>
+	</Define>
+	<!-- custom: if city has or is building this buildingclass, increase the above value by this number (adjust as per your xml for which building it is anyways etc) -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_HEROIC_EPIC</DefineTextVal>
+	</Define>
+	<!-- custom: from the previous examples, the actual values would in fact be 990 + 500 = 1540 in top 1 hammer city if city has the heroic epic (or equivalent in your mod as per your xml building infos if you updated the define of the buildingclass name here in sas defines as well but anyways etc) effect building, or 980 + 500 = 1530 in top 2 hammer city if it has the heroic epic effect building, or 970 + 500 = 1520 in top 3 hammer city if it has the heroic epic effect building effect -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING</DefineName>
+		<iDefineIntVal>500</iDefineIntVal>
+	</Define>
+
+	<!-- custom: was 1 in base advciv -->
+	<!-- High iMaxCount means we don't care about existing instructors -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT</DefineName>
+		<iDefineIntVal>999</iDefineIntVal>
 	</Define>
 
 

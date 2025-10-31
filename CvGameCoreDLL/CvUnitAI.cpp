@@ -6448,6 +6448,22 @@ void CvUnitAI::AI_generalMove()
 {
 	PROFILE_FUNC();
 
+	// <!-- custom: we have the issue of AI going for general units, while having a military instructor would be a much better choice, especially in top hammer cities, and even more so if they have the heroic epic or whichever equivalent of it is if changed in a mod mod. Code added with the help of chatgpt 5 and claude sonnet 4.5, check if accurate anyways etc -->
+	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: after we have our acamedy anyways etc -->
+	// “Try to construct a Military Academy if our empire currently has fewer than X academies.”
+	if (AI_construct(1))
+	{
+		return;
+	}
+
+	// NEW: Try joining FIRST <!-- custom: before and instead of any great general leader, but after we have our academy (if we can) --> (allow multiple instructors per city)
+	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled.”
+	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
+	if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+	{
+		return;
+	}
+
 	std::vector<UnitAITypes> aeUnitAITypes;
 	bool const bOffenseWar = (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE);
 
@@ -6462,15 +6478,18 @@ void CvUnitAI::AI_generalMove()
 		}
 	}
 
-	if (AI_construct(1))
-	{
-		return;
-	}
+    if (AI_construct(1))
+    {
+        return;
+    }
+    
+    // Try joining again
+    if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+    {
+        return;
+    }
+	// Rest of original logic...
 
-	if (AI_join(1))
-	{
-		return;
-	}
 	// BETTER_BTS_AI_MOD, Unit AI, 05/14/10, jdog5000: START
 	if (bOffenseWar && (AI_getBirthmark() % 2 == 0))
 	{
@@ -14065,6 +14084,9 @@ bool CvUnitAI::AI_join(int iMaxCount)
 		// BETTER_BTS_AI_MOD: END
 		FOR_EACH_ENUM(Specialist)
 		{
+			// <!-- custom: we have the issue of AI going for general units, while having a military instructor would be a much better choice, especially in top hammer cities, and even more so if they have the heroic epic or whichever equivalent of it is if changed in a mod mod. Code added with the help of chatgpt 5 and claude sonnet 4.5, check if accurate anyways etc -->
+			// 3. Optional: Remove the stacking check in AI_join()
+			// <!-- custom: but since we pass now an extremely high for this purpose value of iMaxCount in as of now SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, then it's fine to allow this gating for flexibility and in case players want to customize it as they prefer in sas defines. As of now, value of 999 is so high this will never be reached during a game and so effectively it will be always ignored and allowed to stack military instructors in same city, so no change is needed here it seems if i'm not mistaken anyways etc. -->
 			bool bDoesJoin = false;
 			if (getUnitInfo().getGreatPeoples(eLoopSpecialist))
 				bDoesJoin = true;
@@ -17241,7 +17263,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 	const int iCurrentTurn = kGame.getGameTurn();
 	const bool bEarly = (iCurrentTurn <= iEarlyCutoff); // Allow risky settling early
 	static const int iSAS_FOUND_BSAFE_IGNORE_NUM_CITIES = GC.getDefineINT("SAS_FOUND_BSAFE_IGNORE_NUM_CITIES");
-	const bool bNotEnoughCities = kOwner.getNumCities() <= 1; // Always allow 2nd city
+	const bool bNotEnoughCities = kOwner.getNumCities() <= iSAS_FOUND_BSAFE_IGNORE_NUM_CITIES; // Always allow 2nd city
 	const bool bSafeOverride = (bSAS_FOUND_OPTIMIZE && (bEarly || bNotEnoughCities));
 	const bool bGoSettleAnyway = (bSafe || bSafeOverride);
 	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)

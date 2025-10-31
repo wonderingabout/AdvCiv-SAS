@@ -362,21 +362,54 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
 		iValue += iTempValue;
 	}
 
+	// <!-- custom: we have the issue of AI going for general units, while having a military instructor would be a much better choice, especially in top hammer cities, and even more so if they have the heroic epic or whichever equivalent of it is if changed in a mod mod. Code added with the help of chatgpt 5 and claude sonnet 4.5, check if accurate anyways etc -->
+	// 1. Modify AI_permanentSpecialistValue() - Boost Military Instructor Value
 	int iExperience = GC.getInfo(eSpecialist).getExperience();
 	if (iExperience != 0)
 	{
-		int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
-		int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+		// <!-- custom: make const since seems safe to do so anyways etc -->
+		const int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
 
-		int iTempValue = 100 * iExperience * ((iHasMetCount > 0) ? 4 : 2);
-		if (iProductionRank <= kPlayer.getNumCities()/2 + 1)
+		// CHANGE: Much higher base value for military instructors
+		static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_EXTRA_VALUING = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_EXTRA_VALUING");
+		int iTempValue = 100 * iExperience * iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_EXTRA_VALUING;
+
+		// CHANGE: Massive bonus for top production cities (top N)
+		static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_CITY_THRESHOLD = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_CITY_THRESHOLD");
+		if (iProductionRank <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_CITY_THRESHOLD)
 		{
-			iTempValue += 100 * iExperience *  4;
+			static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING");
+
+			// <!-- custom: performance optimization: compute this only once if i'm not mistaken anyways etc; e.g. "BUILDINGCLASS_HARBOR", check defines for string value anyways etc. -->
+			static const BuildingClassTypes eHeroicEpicEffectBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME"));
+			static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING");
+			const CvCivilizationInfo& kCivInfo = GC.getInfo(kPlayer.getCivilizationType());
+			BuildingTypes eHeroicEpicEffectBuilding = NO_BUILDING;
+			if (eHeroicEpicEffectBuildingClass != NO_BUILDINGCLASS)
+			{
+				eHeroicEpicEffectBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings(eHeroicEpicEffectBuildingClass);
+			}
+			int iHeroicEffectBuildingExtraAddedExtraValue = 0;
+			if (eHeroicEpicEffectBuilding != NO_BUILDING)
+			{
+				const bool bHasHeroicEffectBuilding = (getNumBuilding(eHeroicEpicEffectBuilding) > 0);
+				const bool bBuildingHeroicEffectBuilding = (getProductionBuilding() == eHeroicEpicEffectBuilding);
+				if (bHasHeroicEffectBuilding || bBuildingHeroicEffectBuilding)
+				{
+					iHeroicEffectBuildingExtraAddedExtraValue = iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING;
+				}
+			}
+
+			// <!-- custom: the higher the rank the more we value it -->
+			// <!-- custom: extra value if city has or is building the heroic epic, it will be top hammer for military anyway -->
+			const int iMilitaryInstructorExtraValue = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING - (10 * iProductionRank) + iHeroicEffectBuildingExtraAddedExtraValue);
+			iTempValue += 100 * iExperience * iMilitaryInstructorExtraValue;
 		}
 		iTempValue += (getMilitaryProductionModifier() * iExperience * 6); // was * 8
 
-		iTempValue *= 100;
-		iTempValue /= (100+15*(getFreeExperience()/5));
+		// CHANGE: No penalty from existing free experience (stacking is fine)
+		// iTempValue *= 100;
+		// iTempValue /= (100+15*(getFreeExperience()/5));
 
 		iValue += iTempValue;
 	}
