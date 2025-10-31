@@ -1,3 +1,242 @@
+commit d975fc2a129a8b6fbea03665d939910e90c04922
+Author: wonderingabout <hidden>
+Date:   2025-10-31 09:02:16 +0100
+
+(Tremendously Improved) AI now favours a military instructor specialist rather than a great general leader, as this is much stronger and scales better with late game
+added logic to favour decremntially top 3 hammer cities especially more, and especially more so if they have or are building the heroic epic effect building, and also removed the limit on military instructors per city. Should lead to much stronger AI.
+
+commit b2ed0d14d96748ae2549345efb0c6df042b6b807
+Author: wonderingabout <hidden>
+Date:   2025-10-30 15:29:31 +0100
+
+(Tremendously improved/addressed) fix/address AI settlers staying parked for a very long time in cities when it should be safe enough or urgent enough to do so
+- also add min turn for force/emergency walls and castle logic, so that we don't overshadow a settler or such being produced when it is not as/so urgent early and key focus should be to expand even if a bit risky (later in the game, not delaying too much walls though as we need to prepare for invasion anyways etc).
+
+commit 1787dea4ff0991ee4c0926f25760b40e3e08a98c
+Author: wonderingabout <hidden>
+Date:   2025-10-30 07:56:22 +0100
+
+add a define to enable/disable chooseUnit sas optimizations but anyways etc
+
+commit 18010669679692c16dc7fbc46e3477935222c0a1
+Author: wonderingabout <hidden>
+Date:   2025-10-30 07:14:38 +0100
+
+Refactor to use proper era xml lookups, and some other fixes and tweaks (added more defines as well anyways etc)
+as is done in civ4 reimagined mod and as recommended by chatgpt 5, so seems safe to do as such, but check to be sure anyways etc
+- slight nerf the UNIT_HOLY_ROMAN_HOUFNICE iCombatLimit from 85 to 80 (now same as the generic cannon anyways etc)
+
+commit c91f2e0463ab436113c1d6d5e4adb98b962187df
+Author: wonderingabout <hidden>
+Date:   2025-10-29 16:51:08 +0100
+
+multiple balance changes
+- further reduce wonders' costs:
+225->200
+250->225
+300->250
+375->300
+450->375
+500->425
+550->500
+600->575
+625->600
+650(pentagon)->625
+675(eiffel)->600
+700(kremlin)->625
+700(three gorges dam)->650
+725->650
+750->700
+
+- swap BUILDING_PENTAGON and BUILDING_EIFFEL_TOWER tech prereqs to be more historically accurate in the tech tree timeline, plus it is also thematically relevant ingame this way i would say i mean but anyways etc
+- move BUILDING_THREE_GORGES_DAM to TECH_MARINE_TECHNOLOGY prereq anyways etc
+- BUILDING_PUBLIC_TRANSPORTATION 's iUnhealthyPopulationModifier effect from -15 to -20, increase cost from 150 to 200
+- increase TECH_DEPOPULATION 's negative health + happiness effect from -6 to -8. Adjusted and rebalanced the health and happiness gains from other future era techs. The total is +8 / +8 health / happiness gain. Moved effects so that they mostly apply in later techs to increase their strategical importance. Also Adjust tech flavors and such if any other such but anyways etc to match these changes anyways etc
+- "Barbarian civ-specific **buildings** can be captured (`iConquestProb`) with **half the chance** of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML."
+- other minor changes or not anyways etc
+
+commit ce8cc2aa4d966a9ed164381e089c35752bc2e442
+Author: wonderingabout <hidden>
+Date:   2025-10-29 14:58:02 +0100
+
+other AI worker fixes and efficiency improvements
+(no pun but anyways etc)
+
+claude sonnet 4.5 and chatgpt 5 after feeding it claude sonnet 4.5's review, plus our entire .cpp file but anyways etc also agrees it seems, although it says it's fine to conservatively fix our current approach rather, although claude sonnet 4.5's entire deelte solutio works too according to chatgpt 5 (check if accurate, i don't know too much about these, but since these seem like fixes they agree on it seems, plus i also found it to be too strict how fast we move to another city or such, i implemented conservatively their fixes. In autoplay it seems our cities are overall slightly more improved as well, although it is hard to tell precisely or reliably, it does seem to be so, but check if accurate anyways etc).
+
+so if the former is correct, this fixes our previous implementation's flaw(s) at https://github.com/wonderingabout/AdvCiv-SAS/commit/efcf539c1dad1f40cb61a7752278c69c63cd2dbe, and additionally also nicely adds other fixes and tweaks if i'm not mistaken but check if accurate anyways etc.
+
+commit 60fb4cffd1feb2fc98fa18bbe4304844238dd7cd
+Author: wonderingabout <hidden>
+Date:   2025-10-29 14:08:28 +0100
+
+Seemingly reduce AI worker parking and improve their efficiency
+conservative change that seems to yield better results ingame in autoplay, check if accurate anyways etc
+
+commit 37fdd430a54fd250d99c47fabad867e77a154e8e
+Author: wonderingabout <hidden>
+Date:   2025-10-29 07:14:31 +0100
+
+enhance AI promotion choices
+e.g. more restrictive city raider force promotion (if we are weaker, etc.), add optimal naval unitais promotion support, move some / a few settings to sas defines, add support for combat promotions and/or such and other fixes and tweaks anyways etc
+
+commit 88d099b120e12c04a73741ea237795cd0f4a65d4
+Author: wonderingabout <hidden>
+Date:   2025-10-28 18:01:36 +0100
+
+make civ specific unit cost inflation lower and tunable, and other tweaks or fixes
+addresses the case of japan ai relyign too much on samurais when knight units are available, and now it is tunable in sas defines.
+
+other minor or not tweaks or fixes as well anyways etc
+
+commit 6b42984519c57f4937bcaec4a94e23ea52f4f9f0
+Author: wonderingabout <hidden>
+Date:   2025-10-28 14:01:30 +0100
+
+(Beyond Tremendously Improved) Add emergency defense buildings to build at highest priority if invasion risk is high enough, in CvCity::doTurn
+This seems to lead in autoplay in much harder snowball, and games lasting significantly longer, so that game is not decided as soon in the early game. Removes the early easy cheese of backstabbing an AI, or in AI vs AI, at least reduces it, while trying to have a balance of not overdoing it in case it hidners growth too much or needlessly when not most effective or effective enough but anyways etc.
+
+As a side effect, it also reduces a bit unit spam which should slightly improve economy and bankruptcy risk (without resulting in decreased AI military strength, if anything the opposite if i'm not mistaken but anyways etc) so all in all quite nice if i may say but anyways etc.
+
+This change should make AI players significantly stronger, at least it appears so in autoplay, and each decision having a more critical impact in the overall game, which may still give an edge to human players if they carefully plan who to invade and when and how, but check to be sure as is just a guess of mine, and i think AI should perform significantly better / be stronger thanks to this change which chatgpt 5 helped me do as many other ones thanks but that i also wanted to do and helped do xd if i may say etc but anyways etc.
+
+commit 9795f45348ad7bd1d6c54c20c93ad6ba61188508
+Author: wonderingabout <hidden>
+Date:   2025-10-28 08:13:50 +0100
+
+documentation/comments cleanup/tweaks/fixes
+
+commit 1a28467981ad0fbda3d53052263d6c09e8f83c1d
+Author: wonderingabout <hidden>
+Date:   2025-10-28 08:03:10 +0100
+
+performance optimization: switch bonus specific builds code from map to vector
+as recommended by chatgpt 5, i don't know too much about these but it is faster according to chatgpt 5, check if accurate anyways etc.
+
+commit 0efd42054b8f437ae816a58149981dccf87d4a30
+Author: wonderingabout <hidden>
+Date:   2025-10-28 06:41:14 +0100
+
+(Much nicer) Bonus specific builds logic is now fully customizable in sas defines, and refactor/enhance code anyways etc
+
+commit fc4b91a31f5d27a6485480f3ba81479d06ae5625
+Author: wonderingabout <hidden>
+Date:   2025-10-27 21:39:59 +0100
+
+(Tremendously Improved) Force emergency buildingclass_harbor if city is coastal (ocean) and low food per turn (tunable in sas defines anyways etc)
+The same 2 AI cities are mostly surrounded by tundra, and at turn 200 they were stagnant, low pop, and trying to build units with no harbor in autoplay. Now they build a harbor asap and get it after a few dozen turns aftyer they are captured since their production is low, but i believe it is a very nice enhancement that should hopefully but check to be sure be useful in many other situations anyways etc.
+
+commit 8a12b125dd634ab11ab5535fccddb39c451ac9d2
+Author: wonderingabout <hidden>
+Date:   2025-10-27 12:46:12 +0100
+
+(Tremendously Improved) Force one artist if we don't have BFC and city culture per turn is low, until we do, in CvCity::doTurn
+2 AI cities captured around turn 140 still did not have their BFC at turn 200 and were stagnant due to being in tundra + coast.
+
+They absolutely need their BFC no matter what to go coastal and grow their pop there. Now they have their BFC around turn 158 (should be as soon as possible if i'm not mistaken, as they didn't have caste system yet at turn 150) in autoplay which is much better anyways etc.
+
+commit a18c4ade7549259821ad558d8ba1ea6c99960fa5
+Author: wonderingabout <hidden>
+Date:   2025-10-26 10:20:31 +0100
+
+performance optimizations
+
+commit a550f8772c388af06c42f05bd8045ea0e8a6398a
+Author: wonderingabout <hidden>
+Date:   2025-10-23 20:49:38 +0200
+
+more more sevopedia leader performance optimizations and also refactoring thanks to chatgpt 5 and me too i mean if i may say but anyways etc
+
+commit e1dcfe8f412f694b5ce9e2a6dddfb410490b9e3a
+Author: wonderingabout <hidden>
+Date:   2025-10-23 20:26:49 +0200
+
+more sevopedia leader performance optimizations by / thansk to chatgpt 5 and me too i mean but anyways etc
+
+commit 158f4efe45dfd845da135b9278a5747c56737462
+Author: wonderingabout <hidden>
+Date:   2025-10-23 20:14:31 +0200
+
+performance optimizations in sevopedia leader thanks to chatgpt 5 and me too + also other minor other changes or tweaks or not anyways etc
+
+commit 51964a6c72425de1886bf018b54fd1ad67e08b62
+Author: wonderingabout <hidden>
+Date:   2025-10-22 18:06:48 +0200
+
+fix/tweak sevopedia terrain peak or/and such 's unit(s) panels anyways etc and minor other fixes/tweaks or not or ye or etc but anyways etc
+
+commit 3c8f353c1a046c7125d68f1cd2b24b866c3bd6c4
+Author: wonderingabout <hidden>
+Date:   2025-10-22 14:06:11 +0200
+
+fix/tweak incorrect sevopedia ice cap information in displayed unit(s) panels
+- relevant units panel had units like the scout or the quechua warrior but these are domain land units so they can't walk here just with canmoveimpassable
+- other domain land units such the gunship, air ship, recon drone, can "walk" on ice cap though due to having canmoveallterrain if i'm not mistaken and as happens ingame as well it seems but anyways etc
+- as for the impassable units, displayed all and any unit that cannot walk on ice cap for clarity, even land/air ones but anyways etc.
+- update docs and other minor changes or not or yes or etc but anyways etc.
+
+commit 6df4f199b07e6891239c67a25a6c3c3cf89345e3
+Author: wonderingabout <hidden>
+Date:   2025-10-14 11:16:22 +0200
+
+reduce most wonder costs
+- they were too high to be affordable but anyways etc
+- also minor buff hollywood wonder culture output and other minor changes or not but anyways etc
+
+275->250
+325->300
+425->375
+500->450
+525->500
+575->550
+650 cristo+statue liberty->625
+700(pentagon)->650
+700(eiffel)->675
+900->700
+800(e.g. hollywood etc)->750
+
+apostolic 340->325
+
+commit 6539df9873aacd8af4fbb25dfb7e782745deac4b
+Author: wonderingabout <hidden>
+Date:   2025-10-12 10:28:52 +0200
+
+increase siege threshold pre renaissance if we have no key strategic bonus (as of now iron, copper, horse, camel, elephants)
+- increase siege threshold pre renaissance if we have no key strategic bonus (as of now iron, copper, horse, camel, elephants): we need more catapults and trebuchets if we have no key strategic bonus, helps reduce longbow spam, and make a successful longbow + catapult +/- trebuchets rush (not tested in a practical example where it might help (a player having no bonus at all and fitting other requirements to need more offense units but anyways etc), but i hope it helps, anyways etc))
+- fix theoretical multi counting siege bug (didn't happen in practice i think if i'm not mistaken but better fix it anyways etc) in no production fallback unit code anyways etc
+
+commit efcf539c1dad1f40cb61a7752278c69c63cd2dbe
+Author: wonderingabout <hidden>
+Date:   2025-10-12 07:30:28 +0200
+
+Beyond Tremendously Improved AI worker efficiency: generalized 1 worker per tile, improve our city if no other city to improve rather than bailing entirely
+- generalize 1 worker per tile: some functions were still not using 1 worker per tile leading to overcrowding and very ienfficient movement of many workers in a tile (especially high movement cost ones not roaded or similar anyways etc) while other cities stayed unimproved. I don't know if we caught all, but hopefully betetr now with these functions also using it anyways etc.
+- add logic to attempt to improve our own city rather than bailing entirely if no other city to improve. I have noticed workers stay quite often parked while some cities are not fully improved, might as well use our workers to imrpvoe them since they are doing nothing else in this case i mean but anyways etc. I don't know if i patched this in all places, but this change in CvUnitAI::AI_nextCityToImprove leads to much much much better worker improvements +/- timing in this case i mean but anyways etc.
+
+The combination of these 2 seem to lead to tremendously improved worker builds in autoplay, with cities being improbed up to 40 turns earlier (at turn +/- 200 if i may say but anyways etc) which is very nice but anyways etc.
+
+commit 74cac2561304b9157c92ed66db2081c740223714
+Author: wonderingabout <hidden>
+Date:   2025-10-11 02:27:02 +0200
+
+fix japan doujou missing happiness from organized trait
+
+commit b3f3c120273321231ea71afa329969521dbd7195
+Author: wonderingabout <hidden>
+Date:   2025-10-11 02:02:54 +0200
+
+update docs
+
+commit b8c861af13f28c070022e1bcca3c48e6040bc174
+Author: wonderingabout <hidden>
+Date:   2025-10-10 12:24:09 +0200
+
+update 48 civs DLL, minor or not other changes or not anyways etc, update docs
+- update 48 civs DLL
+- rebalance trait_charismatic: reduce iLevelExperienceModifier from as of now -25 to 0 (i.e. now disabled if i'm not mistaken anyways etc), increase iGreatGeneralRateModifier from as of now 50 to 100 (was redundant with trait_aggressive's xp from promotion_leadership if i'm not mistaken but anyways etc)
+- minor beautify sevopedia traits effects panel upper padding anyways etc
+- update docs
+
 commit 08c73df0c72844dbcafb90ab38cf3490b4adae0c
 Author: wonderingabout <hidden>
 Date:   2025-10-10 08:57:40 +0200
