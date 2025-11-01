@@ -20536,8 +20536,10 @@ void CvPlayerAI::AI_doCommerce()
 		{
 			if (eStealTechMission != NO_ESPIONAGEMISSION)
 			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
 				iMinModifier *= 100 - GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) *
-						GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+						iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE;
 				iMinModifier /= 100;
 				iMinModifier *= 100 + GC.getInfo(eStealTechMission).getBuyTechCostFactor();
 				iMinModifier /= 100;
@@ -20906,8 +20908,10 @@ void CvPlayerAI::AI_doReligion()
 		{
 			if (gPlayerLogLevel > 0) logBBAI("    %S decides to convert to %S (value: %d vs %d)", getCivilizationDescription(0), GC.getInfo(eBestReligion).getDescription(0), eBestReligion == NO_RELIGION ? 0 : AI_religionValue(eBestReligion), getStateReligion() == NO_RELIGION ? 0 : AI_religionValue(getStateReligion()));
 			convert(eBestReligion);
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
 			AI_setReligionTimer(getMaxAnarchyTurns() == 0 ?
-					GC.getDefineINT("MIN_CONVERSION_TURNS") * 2 :
+					iMIN_CONVERSION_TURNS * 2 :
 					RELIGION_CHANGE_DELAY);
 		}
 	}
@@ -25988,8 +25992,10 @@ void CvPlayerAI::AI_updateStrategyHash()
 		if (iWarSuccessRating < -50 ||
 			(iMaxWarCounter < 10 /* advc: */ && iMaxWarCounter > 0))
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iBBAI_TURTLE_ENEMY_POWER_RATIO = GC.getDefineINT("BBAI_TURTLE_ENEMY_POWER_RATIO");
 			if (kTeam.AI_getEnemyPowerPercent(true) >
-				std::max(150, GC.getDefineINT("BBAI_TURTLE_ENEMY_POWER_RATIO")) &&
+				std::max(150, iBBAI_TURTLE_ENEMY_POWER_RATIO) &&
 				// <advc.107>
 				getNumMilitaryUnits() <=
 				(5 + AI_getCurrEraFactor() * fixp(1.5)) * getNumCities()) // </advc.107>
@@ -28064,11 +28070,14 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
 	}
 
 	int iStartingPoints = getAdvancedStartPoints();
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_VISIBILITY_COST = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST");
+	static const int iADVANCED_START_VISIBILITY_COST_INCREASE = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE");
 	//int iRevealPoints = (iStartingPoints * 10) / 100;
 	// <advc.250c> Replacing the above
 	int iRevealPoints = ((fixp(1.5) *
-			GC.getDefineINT("ADVANCED_START_VISIBILITY_COST") *
-			GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE")) / 100).round();
+			iADVANCED_START_VISIBILITY_COST *
+			iADVANCED_START_VISIBILITY_COST_INCREASE) / 100).round();
 	// </advc.250c>
 	int iMilitaryPoints = (iStartingPoints * (isHuman() ? 17 :
 			(10 + (GC.getInfo(getPersonalityType()).getBuildUnitProb() / 3)))) / 100;
@@ -28078,6 +28087,9 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
 		AI_advancedStartPlaceCity(getCapital()->plot());
 	else
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const int iADVANCED_START_SIGHT_RANGE = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
 		for (int iPass = 0; iPass < 2 &&
 			!hasCapital(); ++iPass)
 		{
@@ -28101,7 +28113,7 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
 						CvPlot* pPlot = GC.getMap().plotByIndex(iPlotLoop);
 						if (plotDistance(pPlot->getX(), pPlot->getY(),
 							pStartingPlot->getX(), pStartingPlot->getY()) <=
-							GC.getDefineINT("ADVANCED_START_SIGHT_RANGE"))
+							iADVANCED_START_SIGHT_RANGE)
 						{
 							pPlot->setRevealed(getTeam(), true, false, NO_TEAM, false);
 						}
@@ -30165,8 +30177,10 @@ void CvPlayerAI::AI_setHuman(bool b)
 // advc.031c:
 void CvPlayerAI::logFoundValue(CvPlot const& kPlot, bool bStartingLoc) const
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMIN_BARBARIAN_CITY_STARTING_DISTANCE = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
 	CitySiteEvaluator eval(*this, isBarbarian() ?
-			GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE") : -1, bStartingLoc);
+			iMIN_BARBARIAN_CITY_STARTING_DISTANCE : -1, bStartingLoc);
 	eval.log(kPlot);
 }
 

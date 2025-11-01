@@ -277,6 +277,7 @@
 	</Define>
 
 
+
 	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
 	<!-- custom: note: very low food tiles like flatland desert, hill desert, snow, and including peak for example count double (2 low food tiles), whie high food tiles like flood plains or oasis count -1 as they give food. Note: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much if i am not mistaken but anyways etc -->
 	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. anyways etc if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city site but anyways etc is updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists anyways etc -->
@@ -834,6 +835,7 @@
 	</Define>
 
 
+
 	<!-- custom: note: as of now copper exception (alternative bonus to iron anyways etc) for Holy Roman Empire's new HOLY_ROMAN_HOUFNICE is not handled to simplify and as is bit tedious, may or not do so in the future (ideally would but not guaranteed, i may or i may not but anyways etc) but anyways etc -->
 	<!-- Renaissance: LACK mounts + HAVE IRON → modest mount boost (Cuirassiers path) -->
 	<Define>
@@ -1304,5 +1306,7 @@
 	</Define>
 
 	<!-- // Add other bonus-specific mappings here as needed. -->
-	
+
+
+
 </Civ4Defines>
