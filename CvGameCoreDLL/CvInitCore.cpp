@@ -429,13 +429,41 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 		If I'd just set everything to NO_..., I'd have to set proper values at
 		some later point though. */
 	{
-		bool cd = GC.isCachingDone();
-		m_eClimate = cd ? (ClimateTypes)GC.getDefineINT("STANDARD_CLIMATE") : NO_CLIMATE;			// NO_ option?
-		m_eSeaLevel = cd ? (SeaLevelTypes)GC.getDefineINT("STANDARD_SEALEVEL") : NO_SEALEVEL;		// NO_ option?
-		m_eEra = cd ? (EraTypes)GC.getDefineINT("STANDARD_ERA") : NO_ERA;							// NO_ option?
-		m_eGameSpeed = cd ? (GameSpeedTypes)GC.getDefineINT("STANDARD_GAMESPEED") : NO_GAMESPEED;	// NO_ option?
-		m_eTurnTimer = cd ? (TurnTimerTypes)GC.getDefineINT("STANDARD_TURNTIMER") : NO_TURNTIMER;	// NO_ option?
-		m_eCalendar = cd ? (CalendarTypes)GC.getDefineINT("STANDARD_CALENDAR") : NO_CALENDAR;		// NO_ option?
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: doesn't seem safe to static const these if XML is not loaded as per the base advciv code comment, so using an if else instead anyways etc; done with the help of chatgpt 5, check if accurate anyways etc -->
+		// bool cd = GC.isCachingDone();
+		// m_eClimate = cd ? (ClimateTypes)GC.getDefineINT("STANDARD_CLIMATE") : NO_CLIMATE;			// NO_ option?
+		// m_eSeaLevel = cd ? (SeaLevelTypes)GC.getDefineINT("STANDARD_SEALEVEL") : NO_SEALEVEL;		// NO_ option?
+		// m_eEra = cd ? (EraTypes)GC.getDefineINT("STANDARD_ERA") : NO_ERA;							// NO_ option?
+		// m_eGameSpeed = cd ? (GameSpeedTypes)GC.getDefineINT("STANDARD_GAMESPEED") : NO_GAMESPEED;	// NO_ option?
+		// m_eTurnTimer = cd ? (TurnTimerTypes)GC.getDefineINT("STANDARD_TURNTIMER") : NO_TURNTIMER;	// NO_ option?
+		// m_eCalendar = cd ? (CalendarTypes)GC.getDefineINT("STANDARD_CALENDAR") : NO_CALENDAR;		// NO_ option?
+		const bool cd = GC.isCachingDone();
+		if (cd)
+		{
+			static const ClimateTypes    eStdClimate   = (ClimateTypes)GC.getDefineINT("STANDARD_CLIMATE");
+			static const SeaLevelTypes   eStdSeaLevel  = (SeaLevelTypes)GC.getDefineINT("STANDARD_SEALEVEL");
+			static const EraTypes        eStdEra       = (EraTypes)GC.getDefineINT("STANDARD_ERA");
+			static const GameSpeedTypes  eStdSpeed     = (GameSpeedTypes)GC.getDefineINT("STANDARD_GAMESPEED");
+			static const TurnTimerTypes  eStdTimer     = (TurnTimerTypes)GC.getDefineINT("STANDARD_TURNTIMER");
+			static const CalendarTypes   eStdCalendar  = (CalendarTypes)GC.getDefineINT("STANDARD_CALENDAR");
+
+			m_eClimate   = eStdClimate;
+			m_eSeaLevel  = eStdSeaLevel;
+			m_eEra       = eStdEra;
+			m_eGameSpeed = eStdSpeed;
+			m_eTurnTimer = eStdTimer;
+			m_eCalendar  = eStdCalendar;
+		}
+		else
+		{
+			m_eClimate   = NO_CLIMATE;
+			m_eSeaLevel  = NO_SEALEVEL;
+			m_eEra       = NO_ERA;
+			m_eGameSpeed = NO_GAMESPEED;
+			m_eTurnTimer = NO_TURNTIMER;
+			m_eCalendar  = NO_CALENDAR;
+		}
 	} // </advc.003c>
 	// Map-specific custom parameters
 	clearCustomMapOptions();
@@ -602,10 +630,23 @@ void CvInitCore::resetPlayer(PlayerTypes eID,
 	m_abLeaderChosenRandomly.resetVal(eID);
 	// </advc.190c>
 	m_aeTeam.set(eID, static_cast<TeamTypes>(eID));
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: doesn't seem safe to static const these if XML is not loaded as per the base advciv code comment, so using an if else instead anyways etc; done with the help of chatgpt 5, check if accurate anyways etc -->
 	// <advc.003c> See comment in resetGame
-	m_aeHandicap.set(eID, GC.isCachingDone() ?
-			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP") : NO_HANDICAP);
-	// </advc.003c>
+	// m_aeHandicap.set(eID, GC.isCachingDone() ?
+	// 		(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP") : NO_HANDICAP);
+	// // </advc.003c>
+    if (GC.isCachingDone())
+    {
+        static const HandicapTypes eStdHandicap = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+        m_aeHandicap.set(eID, eStdHandicap);
+    }
+    else
+    {
+        m_aeHandicap.set(eID, NO_HANDICAP);
+    }
+
 	m_aeColor.resetVal(eID);
 	m_aeArtStyle.resetVal(eID);
 

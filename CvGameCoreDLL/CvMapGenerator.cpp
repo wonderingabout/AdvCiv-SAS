@@ -183,9 +183,10 @@ void CvMapGenerator::addLakes()
 
 	gDLL->NiTextOut("Adding Lakes...");
 	// <advc.129e>
-	int const iLAKE_PLOT_RAND = GC.getDefineINT("LAKE_PLOT_RAND");
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iLAKE_PLOT_RAND = GC.getDefineINT("LAKE_PLOT_RAND");
 	int iLakeRollSides = iLAKE_PLOT_RAND;
-	TerrainTypes const eDesert = (TerrainTypes)GC.getDefineINT("BARREN_TERRAIN");
+	static const TerrainTypes eDesert = (TerrainTypes)GC.getDefineINT("BARREN_TERRAIN");
 	int iDesert = 0;
 	std::vector<std::pair<CvPlot*,bool> > apbCandidates;
 	FOR_EACH_ENUM(PlotNum)
@@ -238,19 +239,24 @@ void CvMapGenerator::addRivers()
 
 	gDLL->NiTextOut("Adding Rivers...");
 
-	int const iRiverSourceRange = GC.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
-	int const iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
-	int const iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
+	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file if i'm not mistaken in doing so anyways etc -->
+	// <!-- custom: note: not using const as it causes a compile error: "CvMapGenerator.cpp(287): error C2662: 'CvMap::findWater' : cannot convert 'this' pointer from 'const CvMap' to 'CvMap &'" -->
+	CvMap& kMap = GC.getMap();
+	const int nPlots = kMap.numPlots();
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iRiverSourceRange = GC.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
+	static const int iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
+	static const int iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
 	// advc.129: Randomize the traversal
-	int* aiShuffledIndices = mapRand().shuffle(GC.getMap().numPlots());
+	int* aiShuffledIndices = mapRand().shuffle(kMap.numPlots());
 	for (int iPass = 0; iPass < 4; iPass++)
 	{
 		int iRiverSourceRangeLoop = (iPass <= 1 ? iRiverSourceRange : iRiverSourceRange / 2);
 		int iSeaWaterRangeLoop =  (iPass <= 1 ? iSeaWaterRange : iSeaWaterRange / 2);
 
-		for (int i = 0; i < GC.getMap().numPlots(); i++)
+		for (int i = 0; i < nPlots; i++)
 		{
-			CvPlot const& p = GC.getMap().getPlotByIndex(
+			CvPlot const& p = kMap.getPlotByIndex(
 					aiShuffledIndices[i]); // advc.129
 			if (p.isWater())
 				continue;
@@ -279,8 +285,8 @@ void CvMapGenerator::addRivers()
 				continue;
 
 			gDLL->callUpdater(); // advc.opt: Moved down; shouldn't need to update the UI in every iteration.
-			if (!GC.getMap().findWater(&p, iRiverSourceRangeLoop, true) &&
-				!GC.getMap().findWater(&p, iSeaWaterRangeLoop, false))
+			if (!kMap.findWater(&p, iRiverSourceRangeLoop, true) &&
+				!kMap.findWater(&p, iSeaWaterRangeLoop, false))
 			{
 				CvPlot* pStartPlot = p.getInlandCorner();
 				if (pStartPlot != NULL)

@@ -110,18 +110,28 @@ bool CvPlayer::initOtherData()
 	setAlive(true);
 	changePersonalityType(); // advc.003q: Use BBAI subroutine
 
-	changeBaseFreeUnits(GC.getDefineINT("INITIAL_BASE_FREE_UNITS"));
-	changeBaseFreeMilitaryUnits(GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS"));
-	changeFreeUnitsPopulationPercent(GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT"));
-	changeFreeMilitaryUnitsPopulationPercent(GC.getDefineINT("INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT"));
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+    static const int iINITIAL_BASE_FREE_UNITS                   = GC.getDefineINT("INITIAL_BASE_FREE_UNITS");
+    static const int iINITIAL_BASE_FREE_MILITARY_UNITS          = GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS");
+    static const int iINITIAL_FREE_UNITS_POPULATION_PERCENT     = GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT");
+    static const int iINITIAL_MILITARY_UNITS_POPULATION_PERCENT = GC.getDefineINT("INITIAL_MILITARY_UNITS_POPULATION_PERCENT");
+    static const int iINITIAL_GOLD_PER_UNIT                     = GC.getDefineINT("INITIAL_GOLD_PER_UNIT");
+    static const int iINITIAL_TRADE_ROUTES                      = GC.getDefineINT("INITIAL_TRADE_ROUTES");
+    static const int iINITIAL_STATE_RELIGION_HAPPINESS          = GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS");
+    static const int iINITIAL_NON_STATE_RELIGION_HAPPINESS      = GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS");
+
+	changeBaseFreeUnits(iINITIAL_BASE_FREE_UNITS);
+	changeBaseFreeMilitaryUnits(iINITIAL_BASE_FREE_MILITARY_UNITS);
+	changeFreeUnitsPopulationPercent(iINITIAL_FREE_UNITS_POPULATION_PERCENT);
+	changeFreeMilitaryUnitsPopulationPercent(iINITIAL_MILITARY_UNITS_POPULATION_PERCENT);
 	changeGoldPerUnit(
 			/*	kekm.14: (advc: had been implemented in getGoldPerUnit,
 				getGoldPerMilitaryUnit; the latter seems entirely unnecessary.) */
 			isBarbarian() ? 0 :
-			GC.getDefineINT("INITIAL_GOLD_PER_UNIT"));
-	changeTradeRoutes(GC.getDefineINT("INITIAL_TRADE_ROUTES"));
-	changeStateReligionHappiness(GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS"));
-	changeNonStateReligionHappiness(GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS"));
+			iINITIAL_GOLD_PER_UNIT);
+	changeTradeRoutes(iINITIAL_TRADE_ROUTES );
+	changeStateReligionHappiness(iINITIAL_STATE_RELIGION_HAPPINESS);
+	changeNonStateReligionHappiness(iINITIAL_NON_STATE_RELIGION_HAPPINESS);
 
 	FOR_EACH_ENUM2(Yield, eYield)
 		changeTradeYieldModifier(eYield, GC.getInfo(eYield).getTradeModifier());
@@ -640,7 +650,8 @@ void CvPlayer::changePersonalityType()
 
 	int iBestValue = 0;
 	LeaderHeadTypes eBestPersonality = NO_LEADER;
-	int const iBARBARIAN_LEADER = GC.getDefineINT("BARBARIAN_LEADER"); // advc.opt
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iBARBARIAN_LEADER = GC.getDefineINT("BARBARIAN_LEADER"); // advc.opt
 	FOR_EACH_ENUM2(LeaderHead, eLoopPersonality)
 	{
 		if (eLoopPersonality == iBARBARIAN_LEADER) // XXX minor civ???
@@ -773,8 +784,9 @@ void CvPlayer::changeCiv(CivilizationTypes eNewCiv,
 		return;
 
 	PlayerColorTypes eColor = (PlayerColorTypes)GC.getInfo(eNewCiv).getDefaultPlayerColor();
-	PlayerColorTypes const eBarbarianColor = (PlayerColorTypes)GC.getInfo((CivilizationTypes)
-			GC.getDefineINT("BARBARIAN_CIVILIZATION")).getDefaultPlayerColor();
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const CivilizationTypes eBARBARIAN_CIVILIZATION = (CivilizationTypes)GC.getDefineINT("BARBARIAN_CIVILIZATION");
+	const PlayerColorTypes eBarbarianColor = (PlayerColorTypes)GC.getInfo(eBARBARIAN_CIVILIZATION).getDefaultPlayerColor();
 	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
 		CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)i);
@@ -968,10 +980,13 @@ void CvPlayer::initFreeUnits()
 		// Starting visibility
 		if (pStartingPlot != NULL)
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iADVANCED_START_SIGHT_RANGE = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
+
 			/*  advc.108: BtS code moved into a new function (b/c I need the same
 				behavior elsewhere). */
 			GET_TEAM(getID()).revealSurroundingPlots(*pStartingPlot,
-					GC.getDefineINT("ADVANCED_START_SIGHT_RANGE"));
+					iADVANCED_START_SIGHT_RANGE);
 		}
 	}
 	else
@@ -1125,8 +1140,11 @@ void CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 	// <advc.108> Centered on the Settler, not on the starting plot.
 	if(bFound)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iSTART_SIGHT_RANGE = GC.getDefineINT("START_SIGHT_RANGE");
+
 		GET_TEAM(getID()).revealSurroundingPlots(*pBestPlot,
-				GC.getDefineINT("START_SIGHT_RANGE"));
+				iSTART_SIGHT_RANGE);
 	} // </advc.108>
 	initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY(), eUnitAI);
 }
@@ -1329,8 +1347,9 @@ CvPlot* CvPlayer::findStartingPlot(
 		areasByValue = findStartingAreas( // kekm.35
 				pbAreaFoundByMapScript); // advc.027
 	}
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 	// <advc.opt> Compute this upfront for kekm.35
-	int const iStartingRange = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
+	static const int iStartingRange = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
 	EagerEnumMap<PlotNumTypes,bool> abPlotTaken;
 	FOR_EACH_ENUM(PlotNum)
 	{
@@ -1884,9 +1903,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 	if (bConquest) // Set occupation timer, bump units
 	{
 		int iTeamCulturePercent = kNewCity.calculateTeamCulturePercent(getTeam());
-		if (iTeamCulturePercent < GC.getDefineINT("OCCUPATION_CULTURE_PERCENT_THRESHOLD"))
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iOCCUPATION_CULTURE_PERCENT_THRESHOLD = GC.getDefineINT("OCCUPATION_CULTURE_PERCENT_THRESHOLD");
+
+		if (iTeamCulturePercent < iOCCUPATION_CULTURE_PERCENT_THRESHOLD)
 		{
-			int iPopPercent = GC.getDefineINT("OCCUPATION_TURNS_POPULATION_PERCENT");
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iOCCUPATION_TURNS_POPULATION_PERCENT = GC.getDefineINT("OCCUPATION_TURNS_POPULATION_PERCENT");
+			static const int iBASE_OCCUPATION_TURNS = GC.getDefineINT("BASE_OCCUPATION_TURNS");	
+
+			int iPopPercent = iOCCUPATION_TURNS_POPULATION_PERCENT;
 			kNewCity.changeOccupationTimer(
 					/*  advc.023: Population size as upper bound, and iPopPercent set to
 						0 through XML. (Im multiplying by 1+100*iPopPercent so that the
@@ -1894,7 +1921,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 						NB: iTeamCulturePercent is city culture, not tile culture;
 						only relevant when a city is reconquered. */
 					std::min(kNewCity.getPopulation() * (1 + iPopPercent * 100),
-					((GC.getDefineINT("BASE_OCCUPATION_TURNS") +
+					((iBASE_OCCUPATION_TURNS +
 					((kNewCity.getPopulation() * iPopPercent) / 100)) *
 					(100 - iTeamCulturePercent)) / 100));
 		}
@@ -4440,8 +4467,10 @@ void CvPlayer::killAllDeals()
 
 void CvPlayer::findNewCapital()
 {
-	BuildingTypes const eCapitalBuilding = getCivilization().getBuilding((BuildingClassTypes)
-			GC.getDefineINT("CAPITAL_BUILDINGCLASS"));
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const BuildingClassTypes eCAPITAL_BUILDINGCLASS = (BuildingClassTypes)GC.getDefineINT("CAPITAL_BUILDINGCLASS");
+
+	BuildingTypes const eCapitalBuilding = getCivilization().getBuilding(eCAPITAL_BUILDINGCLASS);
 	if (eCapitalBuilding == NO_BUILDING)
 		return;
 
@@ -5009,7 +5038,8 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit, /* advc.314: */ GoodyTypes 
 		FAssertMsg(pPlot->isOwned(), "Barbarians should remove hut only when receiving a city");
 		return;
 	} // </advc>
-	int const iAttempts = GC.getDefineINT("NUM_DO_GOODY_ATTEMPTS"); // advc.opt
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iAttempts = GC.getDefineINT("NUM_DO_GOODY_ATTEMPTS"); // advc.opt
 	for (int i = 0; i < iAttempts; i++)
 	{
 		if (GC.getInfo(getHandicapType()).getNumGoodies() <= 0)
@@ -6036,13 +6066,29 @@ int CvPlayer::calculatePollution(PollutionFlags ePollution) const
 	int iTotal = 0;
 	int iBuildingWeight = 0, iBonusWeight = 0, iPowerWeight = 0, iPopWeight = 0;
 	if (ePollution & POLLUTION_BUILDINGS)
-		iBuildingWeight = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGLOBAL_WARMING_BUILDING_WEIGHT = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+		iBuildingWeight = iGLOBAL_WARMING_BUILDING_WEIGHT;
+	}
 	if (ePollution & POLLUTION_BONUSES)
-		iBonusWeight = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGLOBAL_WARMING_BONUS_WEIGHT = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+		iBonusWeight = iGLOBAL_WARMING_BONUS_WEIGHT;
+	}
 	if (ePollution & POLLUTION_POWER)
-		iPowerWeight = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGLOBAL_WARMING_POWER_WEIGHT = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+		iPowerWeight = iGLOBAL_WARMING_POWER_WEIGHT;
+	}
 	if (ePollution & POLLUTION_POPULATION)
-		iPopWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGLOBAL_WARMING_POPULATION_WEIGHT = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+		iPopWeight = iGLOBAL_WARMING_POPULATION_WEIGHT;
+	}
 
 	FOR_EACH_CITY(pCity, *this)
 	{
@@ -6179,8 +6225,9 @@ int CvPlayer::calculateUnitSupply(/* advc.004b: */ int iExtraOutsideUnits) const
 int CvPlayer::calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost,
 		int iExtraOutsideUnits) const // advc.004b
 {
-	static int iINITIAL_FREE_OUTSIDE_UNITS = GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"); // advc.opt
-	static int iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = GC.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT"); // advc.opt
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iINITIAL_FREE_OUTSIDE_UNITS = GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"); // advc.opt
+	static const int iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = GC.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT"); // advc.opt
 
 	int iFreeOutsideUnits = iINITIAL_FREE_OUTSIDE_UNITS +
 			// <advc.252>
@@ -6328,7 +6375,8 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech,  // <advc.910>
 		int const iPossibleKnownCount = TeamIter<CIV_ALIVE>::count();
 		if (iPossibleKnownCount > 0)
 		{
-			static int iTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER = GC.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER"); // advc.opt
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER = GC.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER"); // advc.opt
 			iFromOtherKnown += // advc.910
 				(iTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER * iKnownCount) / iPossibleKnownCount;
 		}
@@ -6969,8 +7017,10 @@ void CvPlayer::convert(ReligionTypes eReligion, /* <advc.001v> */ bool bForce)
 	int const iAnarchyLength = getReligionAnarchyLength();
 	changeAnarchyTurns(iAnarchyLength);
 	setLastStateReligion(eReligion);
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
 	setConversionTimer(std::max(1, ((100 + getAnarchyModifier()) *
-			GC.getDefineINT("MIN_CONVERSION_TURNS")) / 100) + iAnarchyLength);
+			iMIN_CONVERSION_TURNS) / 100) + iAnarchyLength);
 	// <advc.004x>
 	if (isActive())
 	{
@@ -7030,6 +7080,11 @@ void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligio
 
 	int iBestValue = 0;
 	CvCity* pBestCity = NULL;
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iFOUND_RELIGION_CITY_RAND = GC.getDefineINT("FOUND_RELIGION_CITY_RAND");
+
 	FOR_EACH_CITY_VAR(pLoopCity, *this)
 	{
 		if (bStarting && pLoopCity->isHolyCity())
@@ -7037,7 +7092,7 @@ void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligio
 
 		int iValue = 10;
 		iValue += pLoopCity->getPopulation();
-		iValue += SyncRandNum(GC.getDefineINT("FOUND_RELIGION_CITY_RAND"));
+		iValue += SyncRandNum(iFOUND_RELIGION_CITY_RAND);
 		iValue /= pLoopCity->getReligionCount() + 1;
 		if (pLoopCity->isCapital())
 			iValue /= 8;
@@ -7112,6 +7167,11 @@ void CvPlayer::foundCorporation(CorporationTypes eCorporation)
 
 	int iBestValue = 0;
 	CvCity* pBestCity = NULL;
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iFOUND_CORPORATION_CITY_RAND = GC.getDefineINT("FOUND_CORPORATION_CITY_RAND");
+
 	FOR_EACH_CITY_VAR(pLoopCity, *this)
 	{
 		if (bStarting && pLoopCity->isHeadquarters())
@@ -7123,7 +7183,7 @@ void CvPlayer::foundCorporation(CorporationTypes eCorporation)
 			iValue += 10 * pLoopCity->getNumBonuses(
 					GC.getInfo(eCorporation).getPrereqBonus(i));
 		}
-		iValue += SyncRandNum(GC.getDefineINT("FOUND_CORPORATION_CITY_RAND"));
+		iValue += SyncRandNum(iFOUND_CORPORATION_CITY_RAND);
 		iValue /= (pLoopCity->getCorporationCount() + 1);
 		iValue = std::max(1, iValue);
 		if (iValue > iBestValue)
@@ -7645,7 +7705,9 @@ void CvPlayer::changeAnarchyTurns(int iChange) // advc: Refactored
 
 void CvPlayer::updateMaxAnarchyTurns()
 {
-	int iBestValue = GC.getDefineINT("MAX_ANARCHY_TURNS");
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMAX_ANARCHY_TURNS = GC.getDefineINT("MAX_ANARCHY_TURNS");
+	int iBestValue = iMAX_ANARCHY_TURNS;
 	FOR_EACH_ENUM2(Trait, eTrait)
 	{
 		if (hasTrait(eTrait) && GC.getInfo(eTrait).getMaxAnarchy() >= 0)
@@ -9431,9 +9493,11 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
 				getID(), szBuffer, eColorAltHighlightText);
 	} // </advc.106>
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iREPLAY_TEXTURE_ERA = GC.getDefineINT("REPLAY_TEXTURE_ERA");
 	// <advc.106n> Save pre-Industrial minimap terrain for replay
 	if (GC.getGame().isFinalInitialized() &&
-		getCurrentEra() >= GC.getDefineINT("REPLAY_TEXTURE_ERA"))
+		getCurrentEra() >= iREPLAY_TEXTURE_ERA)
 	{
 		CvMap& kMap = GC.getMap();
 		if (kMap.getReplayTexture() == NULL)
@@ -11206,8 +11270,10 @@ int CvPlayer::getStartOfTurnMessageLimit() const
 	if (!BUGOption::isEnabled("MainInterface__AutoOpenEventLog", true))
 		return -1;
 	int iR = BUGOption::getValue("MainInterface__MessageLimit", 3);
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMESSAGE_LIMIT_WITHOUT_MPU = GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU");
 	if (!isOption(PLAYEROPTION_MINIMIZE_POP_UPS) &&
-		GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU") == 0)
+		iMESSAGE_LIMIT_WITHOUT_MPU == 0)
 	{
 		return -1;
 	}
@@ -12642,9 +12708,11 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_SWITCH_RELIGION",
 				GC.getInfo(eReligion).getDescription()).GetCString();
 		GET_PLAYER(eTargetPlayer).setLastStateReligion(eReligion);
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
 		GET_PLAYER(eTargetPlayer).setConversionTimer(std::max(1,
 				((100 + GET_PLAYER(eTargetPlayer).getAnarchyModifier()) *
-				GC.getDefineINT("MIN_CONVERSION_TURNS")) / 100));
+				iMIN_CONVERSION_TURNS) / 100));
 		bSomethingHappened = true;
 	}
 
@@ -13251,7 +13319,9 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot const*
 	else
 	{
 		CvCity* pCity = NULL;
-		if (GC.getDefineINT("ADVANCED_START_ALLOW_UNITS_OUTSIDE_CITIES") == 0)
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iADVANCED_START_ALLOW_UNITS_OUTSIDE_CITIES = GC.getDefineINT("ADVANCED_START_ALLOW_UNITS_OUTSIDE_CITIES");
+		if (iADVANCED_START_ALLOW_UNITS_OUTSIDE_CITIES == 0)
 		{
 			pCity = pPlot->getPlotCity();
 			if (pCity == NULL || pCity->getOwner() != getID())
@@ -13272,7 +13342,8 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot const*
 
 		if (bAdd)
 		{
-			int iMaxUnitsPerCity = GC.getDefineINT("ADVANCED_START_MAX_UNITS_PER_CITY");
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iMaxUnitsPerCity = GC.getDefineINT("ADVANCED_START_MAX_UNITS_PER_CITY");
 			if (iMaxUnitsPerCity >= 0)
 			{
 				if (GC.getInfo(eUnit).isMilitarySupport() &&
@@ -13379,10 +13450,12 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot) const
 			else return -1;
 		}
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: moved above as it was weirdly reused before if i may say as well but anyways etc -->
+		static const int iADVANCED_START_CITY_PLACEMENT_MAX_RANGE = GC.getDefineINT("ADVANCED_START_CITY_PLACEMENT_MAX_RANGE"); // advc.opt
 		// Is there a distance limit on how far a city can be placed from a player's start/another city?
-		if (GC.getDefineINT("ADVANCED_START_CITY_PLACEMENT_MAX_RANGE") > 0)
+		if (iADVANCED_START_CITY_PLACEMENT_MAX_RANGE > 0)
 		{
-			static int const iADVANCED_START_CITY_PLACEMENT_MAX_RANGE = GC.getDefineINT("ADVANCED_START_CITY_PLACEMENT_MAX_RANGE"); // advc.opt
 			PlayerTypes eClosestPlayer = NO_PLAYER;
 			int iClosestDistance = MAX_INT;
 			for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -13412,15 +13485,17 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot) const
 		}
 	}
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_CITY_COST_INCREASE = GC.getDefineINT("ADVANCED_START_CITY_COST_INCREASE");
 	// Increase cost if the XML defines that additional cities will cost more
-	if (GC.getDefineINT("ADVANCED_START_CITY_COST_INCREASE") != 0)
+	if (iADVANCED_START_CITY_COST_INCREASE != 0)
 	{
 		int iCities = getNumCities();
 		if (!bAdd)
 			iCities--;
 		if (iCities > 0)
 		{
-			iCost *= 100 + GC.getDefineINT("ADVANCED_START_CITY_COST_INCREASE") * iCities;
+			iCost *= 100 + iADVANCED_START_CITY_COST_INCREASE * iCities;
 			iCost /= 100;
 		}
 	} // <advc.250c> <kekm>
@@ -13444,11 +13519,13 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity const* pCity) const
 {
 	if (getNumCities() <= 0)
 		return -1;
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_POPULATION_COST = GC.getDefineINT("ADVANCED_START_POPULATION_COST");
 	if (pCity == NULL)
 	{
 		return adjustAdvStartPtsToSpeed( // advc.250c
 				(getGrowthThreshold(1) *
-				GC.getDefineINT("ADVANCED_START_POPULATION_COST")) / 100);
+				iADVANCED_START_POPULATION_COST) / 100);
 	}
 	if (pCity->getOwner() != getID())
 		return -1;
@@ -13457,7 +13534,9 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity const* pCity) const
 	if (!bAdd) // Need to have Population to remove it
 	{
 		iPopulation--;
-		if (iPopulation < GC.getDefineINT("INITIAL_CITY_POPULATION") +
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iINITIAL_CITY_POPULATION = GC.getDefineINT("INITIAL_CITY_POPULATION");
+		if (iPopulation < iINITIAL_CITY_POPULATION +
 			GC.getInfo(GC.getGame().getStartEra()).getFreePopulation())
 		{
 			return -1;
@@ -13465,16 +13544,18 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity const* pCity) const
 	}
 
 	int iCost = (getGrowthThreshold(iPopulation) *
-			GC.getDefineINT("ADVANCED_START_POPULATION_COST")) / 100;
+			iADVANCED_START_POPULATION_COST) / 100;
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_POPULATION_COST_INCREASE = GC.getDefineINT("ADVANCED_START_POPULATION_COST_INCREASE");
 	// Increase cost if the XML defines that additional Pop will cost more
-	if (GC.getDefineINT("ADVANCED_START_POPULATION_COST_INCREASE") != 0)
+	if (iADVANCED_START_POPULATION_COST_INCREASE != 0)
 	{
 		iPopulation--;
 		if (iPopulation > 0)
 		{
 			iCost *= 100 + iPopulation *
-					GC.getDefineINT("ADVANCED_START_POPULATION_COST_INCREASE");
+					iADVANCED_START_POPULATION_COST_INCREASE;
 			iCost /= 100;
 		}
 	}
@@ -13487,7 +13568,9 @@ int CvPlayer::getAdvancedStartCultureCost(bool bAdd, CvCity const* pCity) const
 {
 	if (getNumCities() <= 0)
 		return -1;
-	int iCost = GC.getDefineINT("ADVANCED_START_CULTURE_COST");
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_CULTURE_COST = GC.getDefineINT("ADVANCED_START_CULTURE_COST");
+	int iCost = iADVANCED_START_CULTURE_COST;
 	if (iCost < 0)
 		return -1;
 	if (pCity == NULL)
@@ -13610,8 +13693,10 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot con
 	if (iCost < 0)
 		return -1; // cannot be purchased through Advanced Start
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_WORKER_BUILD_MODIFIER = GC.getDefineINT("ADVANCED_START_WORKER_BUILD_MODIFIER");
 	// <advc.250c>
-	iCost *= GC.getDefineINT("ADVANCED_START_WORKER_BUILD_MODIFIER");
+	iCost *= iADVANCED_START_WORKER_BUILD_MODIFIER;
 	iCost /= 100; // </advc.250c>
 
 	iCost *= GC.getInfo(GC.getGame().getGameSpeedType()).getBuildPercent();
@@ -13688,8 +13773,10 @@ int CvPlayer::getAdvancedStartImprovementCost(ImprovementTypes eImprovement, boo
 	if (iCost < 0)
 		return -1; // Cannot be purchased through Advanced Start
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_WORKER_BUILD_MODIFIER = GC.getDefineINT("ADVANCED_START_WORKER_BUILD_MODIFIER");
 	// <advc.250c>
-	iCost *= GC.getDefineINT("ADVANCED_START_WORKER_BUILD_MODIFIER");
+	iCost *= iADVANCED_START_WORKER_BUILD_MODIFIER;
 	iCost /= 100; // </advc.250c>
 
 	iCost *= GC.getInfo(GC.getGame().getGameSpeedType()).getBuildPercent();
@@ -13871,7 +13958,9 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
 	if (getNumCities() <= 0)
 		return -1;
 
-	int iCost = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST");
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_VISIBILITY_COST = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST");
+	int iCost = iADVANCED_START_VISIBILITY_COST;
 	// This denotes Visibility may not be purchased through Advanced Start
 	if (iCost == -1)
 		return -1;
@@ -13894,8 +13983,10 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
 			return -1;
 	}
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_VISIBILITY_COST_INCREASE = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE");
 	// Increase cost if the XML defines that additional units will cost more
-	if (GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE") != 0)
+	if (iADVANCED_START_VISIBILITY_COST_INCREASE != 0)
 	{
 		int iVisible = -NUM_CITY_PLOTS; // advc.210c
 		for (int i = 0; i < GC.getMap().numPlots(); i++)
@@ -13910,7 +14001,7 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
 
 		if (iVisible > 0)
 		{
-			iCost *= 100 + GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE") * iVisible;
+			iCost *= 100 + iADVANCED_START_VISIBILITY_COST_INCREASE * iVisible;
 			iCost /= 100;
 		}
 	}
@@ -13975,9 +14066,12 @@ void CvPlayer::verifyGoldCommercePercent()
 	}*/ // BtS
 	// K-Mod
 	bool bValid = isCommerceFlexible(COMMERCE_GOLD);
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iCOMMERCE_PERCENT_CHANGE_INCREMENTS = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
 	while (bValid && getCommercePercent(COMMERCE_GOLD) < 100 && getGold() + calculateGoldRate() < 0)
 	{
-		bValid = changeCommercePercent(COMMERCE_GOLD, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+		bValid = changeCommercePercent(COMMERCE_GOLD, iCOMMERCE_PERCENT_CHANGE_INCREMENTS);
 	} // K-Mod end
 }
 
@@ -14947,13 +15041,17 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
 	if (bIncrementThreshold)
 	{
 		incrementGreatPeopleCreated();
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const int iGREAT_PEOPLE_THRESHOLD_INCREASE = GC.getDefineINT("GREAT_PEOPLE_THRESHOLD_INCREASE");
+		static const int iGREAT_PEOPLE_THRESHOLD_INCREASE_TEAM = GC.getDefineINT("GREAT_PEOPLE_THRESHOLD_INCREASE_TEAM");
 		changeGreatPeopleThresholdModifier(
-				GC.getDefineINT("GREAT_PEOPLE_THRESHOLD_INCREASE") *
+				iGREAT_PEOPLE_THRESHOLD_INCREASE *
 				((getGreatPeopleCreated() / 10) + 1));
 		for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 		{
 			itMember->changeGreatPeopleThresholdModifier(
-					GC.getDefineINT("GREAT_PEOPLE_THRESHOLD_INCREASE_TEAM") *
+					iGREAT_PEOPLE_THRESHOLD_INCREASE_TEAM *
 					((getGreatPeopleCreated() / 10) + 1));
 		}
 	}
@@ -14961,13 +15059,17 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
 	if (bIncrementExperience)
 	{
 		incrementGreatGeneralsCreated();
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const int iGREAT_GENERALS_THRESHOLD_INCREASE = GC.getDefineINT("GREAT_GENERALS_THRESHOLD_INCREASE");
+		static const int iGREAT_GENERALS_THRESHOLD_INCREASE_TEAM = GC.getDefineINT("GREAT_GENERALS_THRESHOLD_INCREASE_TEAM");
 		changeGreatGeneralsThresholdModifier(
-				GC.getDefineINT("GREAT_GENERALS_THRESHOLD_INCREASE") *
+				iGREAT_GENERALS_THRESHOLD_INCREASE *
 				((getGreatGeneralsCreated() / 10) + 1));
 		for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 		{
 			itMember->changeGreatGeneralsThresholdModifier(
-					GC.getDefineINT("GREAT_GENERALS_THRESHOLD_INCREASE_TEAM") *
+					iGREAT_GENERALS_THRESHOLD_INCREASE_TEAM *
 					((getGreatGeneralsCreated() / 10) + 1));
 		}
 	}
@@ -16613,15 +16715,19 @@ void CvPlayer::doEvents()
 	// <advc.252>
 	int const iSpeedAdjustPercent = GC.getInfo(GC.getGame().getGameSpeedType()).
 			get(CvGameSpeedInfo::EventRollSidesPercent); // </advc.252>
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iFIRST_EVENT_DELAY_TURNS = GC.getDefineINT("FIRST_EVENT_DELAY_TURNS");
 	bool bNewEventEligible = true;
 	if (GC.getGame().getElapsedGameTurns() /* <advc.252> */ * 100 <
-		GC.getDefineINT("FIRST_EVENT_DELAY_TURNS") * iSpeedAdjustPercent)
+		iFIRST_EVENT_DELAY_TURNS * iSpeedAdjustPercent)
 		// </advc.252>
 	{
 		bNewEventEligible = false;
 	}
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iEVENT_PROBABILITY_ROLL_SIDES = GC.getDefineINT("EVENT_PROBABILITY_ROLL_SIDES");
 	if (bNewEventEligible &&
-		SyncRandNum(GC.getDefineINT("EVENT_PROBABILITY_ROLL_SIDES")
+		SyncRandNum(iEVENT_PROBABILITY_ROLL_SIDES
 		* iSpeedAdjustPercent) >= 100 * // advc.252
 		GC.getInfo(getCurrentEra()).getEventChancePerTurn())
 	{
@@ -17429,10 +17535,13 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId
 	GET_PLAYER(eNewPlayer).AI_updateAttitude(getID());
 	AI().AI_updateAttitude(eNewPlayer);
 	// K-Mod end
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iCOLONY_NUM_FREE_DEFENDERS = GC.getDefineINT("COLONY_NUM_FREE_DEFENDERS");
 	// <advc.104r>
 	for(size_t i = 0; i < apAcquiredCities.size(); i++)
 	{
-		for(int j = 0; j < GC.getDefineINT("COLONY_NUM_FREE_DEFENDERS"); j++)
+		for(int j = 0; j < iCOLONY_NUM_FREE_DEFENDERS; j++)
 			apAcquiredCities[i]->initConscriptedUnit();
 	}
 	if (getUWAI().isEnabled())
@@ -18316,18 +18425,27 @@ int CvPlayer::getNewCityProductionValue() const
 		}
 	}
 
-	iValue *= 100 + GC.getDefineINT("NEW_CITY_BUILDING_VALUE_MODIFIER");
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iNEW_CITY_BUILDING_VALUE_MODIFIER = GC.getDefineINT("NEW_CITY_BUILDING_VALUE_MODIFIER");
+	iValue *= 100 + iNEW_CITY_BUILDING_VALUE_MODIFIER;
 	iValue /= 100;
 
-	iValue += (GC.getDefineINT("ADVANCED_START_CITY_COST") *
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iADVANCED_START_CITY_COST = GC.getDefineINT("ADVANCED_START_CITY_COST");
+	iValue += (iADVANCED_START_CITY_COST *
 			GC.getGame().getSpeedPercent()) / 100;
 
-	int iPopulation = GC.getDefineINT("INITIAL_CITY_POPULATION") +
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iINITIAL_CITY_POPULATION = GC.getDefineINT("INITIAL_CITY_POPULATION");
+	int iPopulation = iINITIAL_CITY_POPULATION +
 			GC.getInfo(GC.getGame().getStartEra()).getFreePopulation();
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iADVANCED_START_POPULATION_COST = GC.getDefineINT("ADVANCED_START_POPULATION_COST");
 	for (int i = 1; i <= iPopulation; ++i)
 	{
 		iValue += (getGrowthThreshold(i) *
-				GC.getDefineINT("ADVANCED_START_POPULATION_COST")) / 100;
+				iADVANCED_START_POPULATION_COST) / 100;
 	}
 	// <advc.251>
 	iValue = (iValue *
@@ -19900,7 +20018,11 @@ const CvArtInfoUnit* CvPlayer::getUnitArtInfo(UnitTypes eUnit, int iMeshGroup) c
 {
 	CivilizationTypes eCivilization = getCivilizationType();
 	if (eCivilization == NO_CIVILIZATION)
-		eCivilization = (CivilizationTypes)GC.getDefineINT("BARBARIAN_CIVILIZATION");
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const CivilizationTypes eBARBARIAN_CIVILIZATION = (CivilizationTypes)GC.getDefineINT("BARBARIAN_CIVILIZATION");
+		eCivilization = eBARBARIAN_CIVILIZATION;
+	}
 	// <advc.001> Redirect the call to the city owner
 	if(gDLL->UI().isCityScreenUp())
 	{

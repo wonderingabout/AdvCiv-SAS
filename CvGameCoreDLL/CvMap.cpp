@@ -274,12 +274,18 @@ void CvMap::setupGraphical() // graphical only setup
 			getPlotByIndex(i).setupGraphical();
 		}
 	}
+	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file if i'm not mistaken in doing so anyways etc -->
+	// <!-- custom: note: not using const as it causes a compile error: "CvMap.cpp(287): error C2662: 'CvGame::setUpdateTimer' : cannot convert 'this' pointer from 'const CvGame' to 'CvGame &'" -->
+	CvGame& kGame = GC.getGame();
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iREPLAY_TEXTURE_ERA = GC.getDefineINT("REPLAY_TEXTURE_ERA");
+
 	// <advc.106n> For games starting in a later era
 	if (getReplayTexture() == NULL &&
-		GC.getGame().getHighestEra() >= GC.getDefineINT("REPLAY_TEXTURE_ERA"))
+		kGame.getHighestEra() >= iREPLAY_TEXTURE_ERA)
 	{
 		// The EXE isn't quite ready here to provide the texture
-		GC.getGame().setUpdateTimer(CvGame::UPDATE_STORE_REPLAY_TEXTURE, 5);
+		kGame.setUpdateTimer(CvGame::UPDATE_STORE_REPLAY_TEXTURE, 5);
 	} // </advc.106n>
 }
 
