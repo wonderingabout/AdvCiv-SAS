@@ -467,6 +467,9 @@ void CvCityAI::AI_chooseProduction()
 	CvCityAI const* pCapital = kPlayer.AI_getCapital();
 	// </advc>
 
+	// <!-- custom: performance optimizations -->
+	CvPlot const& kPlot = getPlot();
+	
 	if (isProduction())
 	{
 		if (getProduction() > 0)
@@ -486,7 +489,7 @@ void CvCityAI::AI_chooseProduction()
 			UnitTypes eProductionUnit = getProductionUnit();
 			if (eProductionUnit != NO_UNIT)
 			{
-				if (getPlot().getNumDefenders(getOwner()) == 0)
+				if (kPlot.getNumDefenders(getOwner()) == 0)
 				{
 					if (GC.getInfo(eProductionUnit).getCombat() > 0)
 						return;
@@ -635,7 +638,7 @@ void CvCityAI::AI_chooseProduction()
 		bMaybeWaterArea = true;
 		if (!kTeam.AI_isWaterAreaRelevant(*pWaterArea))
 			pWaterArea = NULL;
-		bWaterDanger = kPlayer.AI_isAnyWaterDanger(getPlot(), 4);
+		bWaterDanger = kPlayer.AI_isAnyWaterDanger(kPlot, 4);
 	}
 
 	// advc: Some old and unused code deleted
@@ -876,7 +879,7 @@ void CvCityAI::AI_chooseProduction()
 		} // </advc.192>
 	}
 
-	if (getPlot().getNumDefenders(getOwner()) == 0) // XXX check for other team's units?
+	if (kPlot.getNumDefenders(getOwner()) == 0) // XXX check for other team's units?
 	{
 		if (gCityLogLevel >= 2) logBBAI("      City %S uses no defenders", sCityName);
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
@@ -941,14 +944,14 @@ void CvCityAI::AI_chooseProduction()
 	} // K-Mod end
 
 	// So what's the right detection of defense which works in early game too?
-	int iPlotSettlerCount = (iNumSettlers == 0) ? 0 : getPlot().plotCount(
+	int iPlotSettlerCount = (iNumSettlers == 0) ? 0 : kPlot.plotCount(
 			PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwner());
 	int iPlotCityDefenderCount = /* advc.107: */ std::max(
-			getPlot().plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwner()),
+			kPlot.plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwner()),
 			/*	<advc.107> I guess we want non-CITY_DEFENSE units on GUARD_CITY mission to
 				switch to different missions eventually. But not counting them at all
 				sometimes leads to too much unit production before the 2nd city. */
-			getPlot().plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner()) /
+			kPlot.plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner()) /
 			iNumCitiesInArea); // </advc.107>
 	if (iOwnerEra == 0)
 	{
@@ -958,7 +961,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (kPlayer.AI_bestCityUnitAIValue(UNITAI_CITY_DEFENSE, this) == 0)
 			{
-				iPlotCityDefenderCount = getPlot().plotCount(PUF_canDefend, -1, -1,
+				iPlotCityDefenderCount = kPlot.plotCount(PUF_canDefend, -1, -1,
 						getOwner(), NO_TEAM, PUF_isDomainType, DOMAIN_LAND);
 			}
 		}
@@ -1103,7 +1106,7 @@ void CvCityAI::AI_chooseProduction()
 	if(!kPlayer.isHuman() && kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE4) &&
 		!isCoastal() && !isCapital() && bCapitalArea && !bDanger && !bLandWar &&
 		pCapital != NULL && pCapital->isCoastal() &&
-		getPlot().calculateCulturePercent(getOwner()) >= 50 &&
+		kPlot.calculateCulturePercent(getOwner()) >= 50 &&
 		// Dave_uk's code (directly) based on AI_cityThreat looked too slow
 		AI_neededFloatingDefenders(true) <= pCapital->AI_neededFloatingDefenders(true) &&
 		AI_chooseBuilding(BUILDINGFOCUS_CAPITAL, 12))
@@ -1117,7 +1120,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		int iAttackNeeded = 4;
 		iAttackNeeded += std::max(0, AI_neededDefenders() -
-				getPlot().plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwner()));
+				kPlot.plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwner()));
 
 		if (kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK) <  iAttackNeeded)
 		{
@@ -1638,7 +1641,7 @@ void CvCityAI::AI_chooseProduction()
 	int iSpreadUnitThreshold = 1000;
 	if (bLandWar)
 		iSpreadUnitThreshold += 800 - 10*iWarSuccessRating;
-	iSpreadUnitThreshold += 1000*getPlot().plotCount(
+	iSpreadUnitThreshold += 1000*kPlot.plotCount(
 			PUF_isUnitAIType, UNITAI_MISSIONARY, -1, getOwner());
 	UnitTypes eBestSpreadUnit = NO_UNIT;
 	int iBestSpreadUnitValue = -1;
@@ -1691,7 +1694,7 @@ void CvCityAI::AI_chooseProduction()
 		so that we don't count targetmissionAIs when we don't need to) */
 	if (!bSpendingExempt &&
 		iPlotCityDefenderCount < iMinDefenders &&
-		iPlotCityDefenderCount < iMinDefenders - kPlayer.AI_plotTargetMissionAIs(getPlot(), MISSIONAI_GUARD_CITY))
+		iPlotCityDefenderCount < iMinDefenders - kPlayer.AI_plotTargetMissionAIs(kPlot, MISSIONAI_GUARD_CITY))
 	// K-Mod end
 	{
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
@@ -1719,7 +1722,7 @@ void CvCityAI::AI_chooseProduction()
 				b/c the AI reconsiders orders during the first few production turns */
 			std::vector<int> aiInputs;
 			aiInputs.push_back(getID());
-			aiInputs.push_back(GC.getGame().getGameTurn() / 8);
+			aiInputs.push_back(kGame.getGameTurn() / 8);
 			scaled rTrainProb(iNukeWeight * (iNukesWant - iNukesHave), 425 * iNukesWant);
 			if (scaled::hash(aiInputs, getOwner()) < rTrainProb)
 			{
@@ -2207,7 +2210,7 @@ void CvCityAI::AI_chooseProduction()
 				if (!bAssaultTargetFound)
 					pAssaultWaterArea = NULL;
 				if (bAssaultTargetFound && // </advc.030b>
-					!GET_TEAM(getTeam()).AI_isHasPathToEnemyCity(getPlot()))
+					!GET_TEAM(getTeam()).AI_isHasPathToEnemyCity(kPlot))
 				{
 					bBuildAssault = true;
 				}
@@ -3079,7 +3082,7 @@ void CvCityAI::AI_chooseProduction()
 	// K-Mod end
 
 	// advc.017: Moved here; used to come before the Process check
-	if (!bUnitExempt && getPlot().plotCheck(PUF_isUnitAIType, UNITAI_CITY_COUNTER, -1, getOwner()) == NULL)
+	if (!bUnitExempt && kPlot.plotCheck(PUF_isUnitAIType, UNITAI_CITY_COUNTER, -1, getOwner()) == NULL)
 	{
 		if (AI_chooseUnit(UNITAI_CITY_COUNTER))
 		{
@@ -3118,6 +3121,9 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		*peBestUnitAI = NO_UNITAI;
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+
+	// <!-- custom: performance optimizations -->
+	CvGame const& kGame = GC.getGame();
 
 	// BETTER_BTS_AI_MOD, City AI, 11/30/08, jdog5000: bNoImpassable=true
 	CvArea* pWaterArea = waterArea(true);
@@ -3218,13 +3224,13 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 	if (bPrimaryArea)
 	{
-		//aiUnitAIVal[UNITAI_ICBM] += std::max((kOwner.getTotalPopulation() / 25), ((GC.getGame().countCivPlayersAlive() + GC.getGame().countTotalNukeUnits()) / (GC.getGame().countCivPlayersAlive() + 1)));
+		//aiUnitAIVal[UNITAI_ICBM] += std::max((kOwner.getTotalPopulation() / 25), ((kGame.countCivPlayersAlive() + kGame.countTotalNukeUnits()) / (kGame.countCivPlayersAlive() + 1)));
 		// K-Mod
 		aiUnitAIVal[UNITAI_ICBM] += std::max(kOwner.getTotalPopulation() / 25,
-				(GC.getGame().countFreeTeamsAlive() +
-				GC.getGame().countTotalNukeUnits() +
-				GC.getGame().getNukesExploded()) /
-				(GC.getGame().countFreeTeamsAlive() + 1));
+				(kGame.countFreeTeamsAlive() +
+				kGame.countTotalNukeUnits() +
+				kGame.getNukesExploded()) /
+				(kGame.countFreeTeamsAlive() + 1));
 	}
 
 	// <!-- custom: update this doesn't seem to do too much in the early game, code at chooseProduction we added there too is much more effective it seems, but kept just in case it helps too but anyways etc, i don't know if it applies similarly to all unit ais but doing as such for now anyways etc -->
@@ -3520,11 +3526,11 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 		// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
-		bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
+		bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
 		bool bNavalHeavyMapname = false;
 		if (!bLandHeavyMapname)
 		{
-			bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
+			bNavalHeavyMapname = kGame.isNavalHeavyMapnameCached();
 		}
 
 		// <!-- custom: war strategy, first the offense block: favour offensive unitAI types, like attack_city, etc, avoid defensive ones as well anyways etc. Also as a general rule for war best units: no naval units (favour land warfare for better or worse is more efficient anyways etc, no civilian units (no settler, no worker, etc if any more), allow air since it's so late anyway, i didn't play long enough in late game to know if air units are strong or not, but as a general rule we'll deprioritize them while not strictly forbidding them -->
@@ -8896,22 +8902,22 @@ int CvCityAI::AI_minDefenders() const
 	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose anyways etc ; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig but anyways etc ; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that? Although we could lose the benefit of it better guarding cities possibly maybe but anyways etc, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses but anyways etc, chatgpt 5 said it's also fine, check if accurate to be sure anyways etc -->
 	CvGame const& kGame = GC.getGame();
 	const int iMaxTurnDefendWeakerCitiesHarderNormal = 120;
-	const int iMaxTurnDefendWeakerCitiesHarderAdjusted = (iMaxTurnDefendWeakerCitiesHarderNormal * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent()) / 100;
+	const int iMaxTurnDefendWeakerCitiesHarderAdjusted = (iMaxTurnDefendWeakerCitiesHarderNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent()) / 100;
 	if (kGame.getElapsedGameTurns() <= iMaxTurnDefendWeakerCitiesHarderAdjusted)
 	{
 		// <!-- custom: not sure how exactly this works or effective it is, but in autoplay it doesn't seem worse at least, maybe even a bit better although may be fluctuation so kept as such, code provided thanks to chatgpt 5 also too anyways etc and my prompts too but anyways etc, as for its notes/explaantions check if accurate, and thanks for them too if i may say in this case but anyways etc ; see known issue as of now 49 for details anyways etc -->
 		// It raises the need only where it actually helps, so overstocked cities feel a pull from frontier/new cities.
 		// --- Early anti-barb buffer: conditional 3rd defender where it matters ---
-		if (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		if (!kGame.isOption(GAMEOPTION_NO_BARBARIANS))
 		{
 			const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 			if (kOwner.AI_isDefenseFocusOnBarbarians(getArea()))
 			{
 				// ~10 turns, speed-scaled
 				const int iNewCityWindow =
-					10 * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100;
+					10 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
 
-				const bool bNewCity  = (GC.getGame().getGameTurn() - getGameTurnAcquired() < iNewCityWindow);
+				const bool bNewCity  = (kGame.getGameTurn() - getGameTurnAcquired() < iNewCityWindow);
 				const bool bFrontier = (getCultureLevel() <= 1) ||
 									(getPlot().calculateCulturePercent(kOwner.getID()) < 60);
 				const bool bThreat   = (AI_cityThreat() > 0);
@@ -15398,6 +15404,9 @@ void CvCityAI::AI_barbChooseProduction()
 {
 	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
+	// <!-- custom: performance optimizations -->
+	CvPlot const& kPlot = getPlot();
+	
 	CvArea const* pWaterArea = waterArea(true);
 	bool bMaybeWaterArea = false;
 	bool bWaterDanger = false;
@@ -15407,7 +15416,7 @@ void CvCityAI::AI_barbChooseProduction()
 		if (!GET_TEAM(getTeam()).AI_isWaterAreaRelevant(*pWaterArea))
 			pWaterArea = NULL;
 
-		bWaterDanger = kPlayer.AI_isAnyWaterDanger(getPlot(), 4);
+		bWaterDanger = kPlayer.AI_isAnyWaterDanger(kPlot, 4);
 	}
 	int const iWaterPercent = AI_calculateWaterWorldPercent();
 	bool const bDanger = AI_isDanger();
@@ -15419,7 +15428,7 @@ void CvCityAI::AI_barbChooseProduction()
 
 	int iBuildUnitProb = AI_buildUnitProb();
 
-	if (!AI_isDefended(getPlot().plotCount(
+	if (!AI_isDefended(kPlot.plotCount(
 		PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwner()))) // XXX check for other team's units?
 	{
 		if (AI_chooseDefender())
@@ -15518,7 +15527,7 @@ void CvCityAI::AI_barbChooseProduction()
 		}
 	}
 
-	if (getPlot().plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwner()) > 0)
+	if (kPlot.plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwner()) > 0)
 	{
 		if (AI_chooseUnit(UNITAI_ATTACK_CITY))
 		{
@@ -15582,7 +15591,7 @@ void CvCityAI::AI_barbChooseProduction()
 	unitAIWeight.set(UNITAI_ATTACK, //125
 			// <advc.300>
 			std::max(65, 100 - 15 *
-			getPlot().plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwner())));
+			kPlot.plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwner())));
 	AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam()); // </advc.300>
 	unitAIWeight.set(UNITAI_ATTACK_CITY,
 			//bRepelColonists ? 100 : 50
@@ -15592,13 +15601,13 @@ void CvCityAI::AI_barbChooseProduction()
 	unitAIWeight.set(UNITAI_COUNTER, //100
 			// <advc.300>
 			std::max(25, 100 - 20 *
-			getPlot().plotCount(PUF_isUnitAIType, UNITAI_COUNTER, -1, getOwner())));
+			kPlot.plotCount(PUF_isUnitAIType, UNITAI_COUNTER, -1, getOwner())));
 			// </advc.300>
 	unitAIWeight.set(UNITAI_CITY_DEFENSE, //50
 			// <advc.300>
 			25 + 10 * std::max(0,
 			GC.getInfo(GC.getGame().getHandicapType()).getBarbarianInitialDefenders() -
-			getPlot().plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner())));
+			kPlot.plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner())));
 			// </advc.300>
 	if (AI_chooseLeastRepresentedUnit(unitAIWeight))
 		return;

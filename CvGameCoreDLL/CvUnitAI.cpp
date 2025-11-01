@@ -67,9 +67,13 @@ bool CvUnitAI::AI_update()
 	// <advc.128>
 	m_iSearchRangeRandPercent = syncRand().get(101, "SearchRangeRand",
 			getX() * 1000 + getY(), getID()); // </advc.128>
+	
+	// <!-- custom: performance optimizations -->
+	CvPlot const& kPlot = getPlot();
+	
 	if (getDomainType() == DOMAIN_LAND)
 	{
-		if (getPlot().isWater() && !canMoveAllTerrain())
+		if (kPlot.isWater() && !canMoveAllTerrain())
 		{
 			getGroup()->pushMission(MISSION_SKIP);
 			return false;
@@ -182,7 +186,7 @@ bool CvUnitAI::AI_update()
 	}
 	// <advc.139>
 	UnitAITypes const eUnitAI = AI_getUnitAIType();
-	if (getPlot().isCity() && getPlot().getTeam() == getTeam() && !isBarbarian())
+	if (kPlot.isCity() && kPlot.getTeam() == getTeam() && !isBarbarian())
 	{
 		bool bEvacAI = false;
 		switch(eUnitAI)
@@ -211,7 +215,7 @@ bool CvUnitAI::AI_update()
 	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose anyways etc; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig but anyways etc; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that? Although we could lose the benefit of it better guarding cities possibly maybe but anyways etc, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses but anyways etc, chatgpt 5 said it's also fine, check if accurate to be sure anyways etc -->
 	CvGame const& kGame = GC.getGame();
 	const int iMaxTurnDefendWeakerCitiesHarderNormal = 120;
-	const int iMaxTurnDefendWeakerCitiesHarderAdjusted = (iMaxTurnDefendWeakerCitiesHarderNormal * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent()) / 100;
+	const int iMaxTurnDefendWeakerCitiesHarderAdjusted = (iMaxTurnDefendWeakerCitiesHarderNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent()) / 100;
 	if (kGame.getElapsedGameTurns() <= iMaxTurnDefendWeakerCitiesHarderAdjusted)
 	{
 		// <!-- custom: currently we have an issue as i assume is in base advciv +/- civ4 as well and originally but anyways etc that barbarians capture cities too much early, however AI has plenty/enough units, but 4 are in capital, while 1 only is in city B, so if AI is not lucky with barbarians avoiding city B, its city would be captured, and capital is needlessly overly defended which is inefficient as well. Production seems fine, but movement of units should be fixed ideally. Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xd but anyways etc or refine based on each other's output anyways etc, check if accurate, i refined i helped format the code comment too if i may say but anyways etc ; see known issue as of now 49 for details anyways etc -->
@@ -243,7 +247,7 @@ bool CvUnitAI::AI_update()
 
 			if (bMilAI)
 			{
-				CvCityAI const* pHere = getPlot().AI_getPlotCity();
+				CvCityAI const* pHere = kPlot.AI_getPlotCity();
 				if (pHere != NULL && pHere->getOwner() == getOwner())
 				{
 					// Count any unit that can defend, not just GUARD_CITY mission
@@ -252,9 +256,9 @@ bool CvUnitAI::AI_update()
 
 					// <!-- custom: this seemingly works very well, all cities at least most i looked at but anyways etc properly now have 2 defenders not 1 defender per new city anymore or so it seems in cities that had the issue, but we can probably enhance this, maybe make it a general rule as well, also we can actually count on capital to replenish its units faster, so make it give more units rather anyways etc at trying to do so anyways etc ; update: not much change after increasing iExtraWant from 1 to 2, and to be honest i don't know too much or exactly what and hwo this does what it does xd, but results are not worse, perhaps slightly better with the window removed or capital check (as i said i want capitals in particular to pump and give units if i may say but anyways etc as they can replenish faster, hopefully this doesn't make capital cities too weak if ever applied but at least smaller cities are better guarded and less barbarian invasions it seems, but check if accurate as i don't know too much about these anyways etc-->
 					// Early barbarian buffer: ask every non-capital for +1 (for shuffling only)
-					// int iBarbWindowTurns = 60 * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100; // ~60 @ Normal
-					// bool bEarlyBarbs = (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) &&
-					// 					GC.getGame().getGameTurn() < iBarbWindowTurns &&
+					// int iBarbWindowTurns = 60 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100; // ~60 @ Normal
+					// bool bEarlyBarbs = (!kGame.isOption(GAMEOPTION_NO_BARBARIANS) &&
+					// 					kGame.getGameTurn() < iBarbWindowTurns &&
 					// 					!pHere->isCapital());
 					// int iExtraWant = bEarlyBarbs ? 1 : 0;
 					const int iExtraWant = 2;
@@ -281,7 +285,7 @@ bool CvUnitAI::AI_update()
 	/*	<advc> A frequent breakpoint for debugging, and usually on the stack
 		when breaking elsewhere. */
 #ifdef _DEBUG
-	CvCity* pCityDbg = getPlot().getPlotCity();
+	CvCity* pCityDbg = kPlot.getPlotCity();
 	int iGroupSzDbg = getGroup()->getNumUnits();
 	char const* szTypeDbg = m_pUnitInfo->getType();
 #endif

@@ -257,6 +257,8 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 		}
 	}
 	FAssert(GC.getNumTraitInfos() > 0);
+	// <!-- custom: performance optimizations -->
+	UnitCombatTypes const eUnitCombat = getUnitCombatType();
 	FOR_EACH_ENUM2(Trait, eTrait)
 	{
 		if (!kOwner.hasTrait(eTrait))
@@ -268,8 +270,8 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 			{
 				if (kTrait.isFreePromotion(eLoopPromotion))
 				{
-					if (getUnitCombatType() != NO_UNITCOMBAT &&
-						kTrait.isFreePromotionUnitCombat(getUnitCombatType()))
+					if (eUnitCombat != NO_UNITCOMBAT &&
+						kTrait.isFreePromotionUnitCombat(eUnitCombat))
 					{
 						setHasPromotion(eLoopPromotion, true);
 					}
@@ -277,11 +279,11 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 			}
 		}
 	}
-	if (getUnitCombatType() != NO_UNITCOMBAT)
+	if (eUnitCombat != NO_UNITCOMBAT)
 	{
 		FOR_EACH_ENUM(Promotion)
 		{
-			if (kOwner.isFreePromotion(getUnitCombatType(), eLoopPromotion))
+			if (kOwner.isFreePromotion(eUnitCombat, eLoopPromotion))
 				setHasPromotion(eLoopPromotion, true);
 		}
 	}
@@ -646,9 +648,12 @@ void CvUnit::doTurn()
 
 	testPromotionReady();
 
+	// <!-- custom: performance optimizations -->
+	CvPlot const& kPlot = getPlot();
+
 	if (isBlockading())
 	{
-		if(canPlunder(getPlot())) // advc.033
+		if(canPlunder(kPlot)) // advc.033
 			collectBlockadeGold();
 		// <advc.033>
 		else
@@ -662,17 +667,17 @@ void CvUnit::doTurn()
 		getGroup()->setActivityType(ACTIVITY_AWAKE); // </advc.004k>
 	if (isSpy() && isIntruding() && !isCargo())
 	{
-		TeamTypes eTeam = getPlot().getTeam();
+		TeamTypes eTeam = kPlot.getTeam();
 		if (NO_TEAM != eTeam)
 		{
 			if (GET_TEAM(getTeam()).isOpenBorders(eTeam))
 			{
-				testSpyIntercepted(getPlot().getOwner(), false,
+				testSpyIntercepted(kPlot.getOwner(), false,
 						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_NO_INTRUDE_INTERCEPT_MOD));
 			}
 			else
 			{
-				testSpyIntercepted(getPlot().getOwner(), false,
+				testSpyIntercepted(kPlot.getOwner(), false,
 						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_INTERCEPT_MOD));
 			}
 		}
@@ -680,7 +685,7 @@ void CvUnit::doTurn()
 
 	if (baseCombatStr() > 0)
 	{
-		FeatureTypes eFeature = getPlot().getFeatureType();
+		FeatureTypes eFeature = kPlot.getFeatureType();
 		if (eFeature != NO_FEATURE && GC.getInfo(eFeature).getTurnDamage() != 0)
 		{
 			// (advc, note: Should show an on-screen message here.)
