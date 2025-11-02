@@ -458,6 +458,53 @@
 
 
 
+	<Define>
+		<DefineName>SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1</DefineName>
+		<DefineTextVal>BONUS_COPPER</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2</DefineName>
+		<DefineTextVal>BONUS_IRON</DefineTextVal>
+	</Define>
+
+
+
+	<!-- custom: used in various places in the advciv-sas added AI code, adjust as per your XML anyways etc. -->
+	<Define>
+		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_1</DefineName>
+		<DefineTextVal>BONUS_HORSE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_2</DefineName>
+		<DefineTextVal>BONUS_CAMEL</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_3</DefineName>
+		<DefineTextVal>BONUS_ELEPHANTS</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MOUNTED_UNITS_TECH_NAME</DefineName>
+		<DefineTextVal>TECH_MOUNTED_COMBAT</DefineTextVal>
+	</Define>
+
+
+
+	<!-- custom: e.g. as of now in advciv-sas, "stable" class buildings (including civ-specific variants) to give exp to mounted untis such as horse knights, chariots, camel cuirassiers, war elephants, etc.). Adjust as per your xml. -->
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_STABLE</DefineTextVal>
+	</Define>
+
+
+
+	<!-- custom: e.g. as of now in advciv-sas is as such; adjust as per your xml. -->
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_PALACE</DefineTextVal>
+	</Define>
+
+
+
 	<!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units if i'm not mistaken anyways etc -->
 	<!-- custom: hopefully enough just with the modifier that trebuchets use if i am not mistaken as of now (but check if accurate as i didn't check in detail but anyways etc) but anyways etc -->
 	<Define>

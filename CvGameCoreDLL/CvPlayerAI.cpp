@@ -12307,14 +12307,14 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 
 	if (bValueMoreIronCopperHorseCamelRelatively)
 	{
-		static const BonusTypes B_IRON   = (BonusTypes)GC.getInfoTypeForString("BONUS_IRON");
-		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString("BONUS_COPPER");
-		static const BonusTypes B_HORSE  = (BonusTypes)GC.getInfoTypeForString("BONUS_HORSE");
-		static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString("BONUS_CAMEL");
-		static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
+		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"));
+		static const BonusTypes B_IRON   = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2"));
+		static const BonusTypes B_HORSE  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_1"));
+		static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_2"));
+		static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_3"));
 
-		const bool bHaveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
 		const bool bHaveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
+		const bool bHaveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
 		const bool bHaveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
 		const bool bHaveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
 		const bool bHaveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
