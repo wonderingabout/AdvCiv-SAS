@@ -4546,6 +4546,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		}
 	}
 
+	// <!-- custom: moved here and added const, for reuse anyways etc -->
+	const int iMilitaryProductionModifier = kBuilding.getMilitaryProductionModifier();
+	const int iHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION);
+	// <!-- custom: renamed iExistingUpkeep to iMaintenanceTimes100 -->
+	const int iMaintenanceTimes100 = getMaintenanceTimes100();
+	// <!-- custom: performance optimizations -->
+	const int iFreeExperience = kBuilding.getFreeExperience();
+	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
+
 	// <!-- custom: add some sanity / optimization rules of when to not build and sometimes when to always build some buildings rather than others. For example, walls are a waste of hammer at peace, or we are stronger than our ennemies, these could be used to produce almost 2 more axemen or half a settler or a worker as of now more or less, and similarly for many buildings there is a time when they are most relevant and other times when they really aren't yet AI inefficiently builds them anyway. Added these rules with chatgpt 5 thanks to my prompts and adjustments too if i may say but anyways etc, check if accurate, it somehow seems strongly passionate if i may say in these/its code comments hehe, sometimes mentionning K-Mod when i am not sure it is K-Mod, check if accurate xd and maybe enjoy or not or yes or etc but anyways etc, hopefully this makes AI a lot stronger or/and sharper but anyways etc with its best building management, and is similarly done to how we fine-tuned with a set or pre-rules the promotions AI would choose in CvUnitAI::AI_promotionValue anyways etc -->
 
 	// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
@@ -4575,12 +4584,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		const bool bAtWarAndEnemyWeak = (bAtWar && (iEnemyPowerPercent <= iOffenseModeThreshold));
 
 		const bool bLandXp = (
-			(kBuilding.getFreeExperience() >= 2) ||
+			(iFreeExperience >= 2) ||
 			(kBuilding.getDomainFreeExperience(DOMAIN_LAND) >= 2)
 		);
 
 		const bool bLandProd = (
-			(kBuilding.getMilitaryProductionModifier() >= 20) ||
+			(iMilitaryProductionModifier >= 20) ||
 			(kBuilding.getDomainProductionModifier(DOMAIN_LAND) >= 20)
 		);
 
@@ -4589,18 +4598,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 		const int iElapsedTurns = kGame.getElapsedGameTurns();
 
-		const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
 		const int iBeakersPerTurn = getCommerceRate(COMMERCE_RESEARCH);
-
-		const int iMaintenanceTimes100 = getMaintenanceTimes100();
 
 		// <!-- custom: adjust the AI's building priorities based on handicap -->
 		CvHandicapInfo const& hGame = GC.getInfo(kGame.getHandicapType());       // human’s level
 		CvHandicapInfo const& hAI   = GC.getInfo(kOwner.getHandicapType());     // this AI’s level
 
 		const int iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent(); // 100, 150, 200...
-
-		const int iHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION);
 
 		// <!-- custom: then after considering building time, let's consider our expected gains, hammer modifiers (e.g forge gives +25% hammer after it is built), this is not related to modifiers that reduce time to build the forge for example, but modifiers we gain in city after city is built, as chatgpt 5 explained to me after i made the mistake so i hope this comment is helpful but anyways etc -->
 		// 1) Identify “ironworks-like”: sum BonusYieldModifiers for PRODUCTION
@@ -5341,13 +5345,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 
 			// Reuse a single loop for all stats we need
+			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate anyways etc -->
+			// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control. It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
 			int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0;
 			int iBestMaint100Global = 0, iSecondBestMaint100Global = 0;
 			int iTopPop1 = 0, iTopPop2 = 0;
-			const int iGateMTimes100 = 600; // 6 gpt
+			static const int iGateMTimes100 = 600; // 6 gpt
 			int iNumCitiesHighMaintCountGlobal = 0;
 
-			FOR_EACH_CITY(pLoopCity, GET_PLAYER(getOwner()))
+			FOR_EACH_CITY(pLoopCity, kOwner)
 			{
 				// --- top-3 base hammers -----------------------------------------------
 				const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
@@ -5712,8 +5718,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 	// <!-- custom: moved these below our pre-checks / pre-filtering out since we don't use them and they may interfere with our logic or/and cost performance needlessly -->
 	// <!-- custom: beginning of moved block -->
-	int const iOwnerEra = kOwner.getCurrentEra();
+	// <!-- custom: rename iOwnerEra to iCurrentEra for consistency with other parts of our code anyways etc -->
+	int const iCurrentEra = kOwner.getCurrentEra();
 	int const iCitizenValue = AI_citizenValue(); // advc
+	// <!-- custom: performance optimizations -->
+	const int iProductionRank = findBaseYieldRateRank(YIELD_PRODUCTION);
 
 	int const iLimitedWonderLimit = GC.getInfo(eBuildingClass).getLimit();
 	bool const bLimitedWonder = (iLimitedWonderLimit >= 0);
@@ -5729,10 +5738,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	int const iCitiesTarget = GC.getInfo(GC.getMap().getWorldSize()).
 			getTargetNumCities(); // </K-Mod>
 
-	bool const bHighProductionCity = (findBaseYieldRateRank(YIELD_PRODUCTION) <=
+	bool const bHighProductionCity = (iProductionRank <=
 			std::max(3, iNumCities / 2));
 
-	int const iCultureRank = findCommerceRateRank(COMMERCE_CULTURE);
+	// <!-- custom: renamed iCultureRank to iCultureRateRank for consistency with other variables in this function anyways etc -->
+	const int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+	// <!-- custom: performance optimizations -->
+	const int iGoldRateRank = findCommerceRateRank(COMMERCE_GOLD);
+
 	int const iCulturalVictoryNumCultureCities = kGame.culturalVictoryNumCultureCities();
 
 	bool const bFinancialTrouble = kOwner.AI_isFinancialTrouble();
@@ -5778,7 +5791,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	if (iFocusFlags & BUILDINGFOCUS_WORLDWONDER)
 	{
 		if (!bWorldWonder ||
-			findBaseYieldRateRank(YIELD_PRODUCTION) <= 3)
+			iProductionRank <= 3)
 		{
 			/*	Note / TODO: the production condition is from the original BtS code.
 				I intend to remove / change that condition in the future. */
@@ -5950,7 +5963,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			int iFutureHealthLevel = iHealthLevel;
 			/*  Pretend that we have one less health than we actually do (b/c the
 				future holds electrical power and other baddies) */
-			if (iOwnerEra >= CvEraInfo::AI_getAgeOfPollution() && !isPower())
+			if (iCurrentEra >= CvEraInfo::AI_getAgeOfPollution() && !isPower())
 			{	// NB: POWER_HEALTH_CHANGE is negative
 				iFutureHealthLevel += GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE) / 2;
 			}
@@ -6009,10 +6022,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			iWeight /= iHasMetCount > 0 ? 1 : 2;
 			iWeight /= (bWarPlan || (bHighProductionCity &&
 					// <advc.017> Avoid Barracks before first Settler
-					(isBarbarian() || kOwner.getNumCities() > 1 ||
+					(isBarbarian() || iNumCities > 1 ||
 					kOwner.AI_getNumAIUnits(UNITAI_SETTLE) > 0 ||
 					kOwner.AI_getNumCitySites() <= 0)) ? 1 : 4); // </advc.017>
-			iValue += kBuilding.getFreeExperience() * iWeight;
+			iValue += iFreeExperience * iWeight;
 
 			FOR_EACH_NON_DEFAULT_PAIR(kBuilding.
 				getUnitCombatFreeExperience(), UnitCombat, int)
@@ -6050,7 +6063,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		// since this duplicates BUILDINGFOCUS_EXPERIENCE checks, do not repeat on pass 1
 		if ((iFocusFlags & BUILDINGFOCUS_DOMAINSEA))
 		{
-			iValue += (kBuilding.getFreeExperience() * (iHasMetCount > 0 ? 16 : 8));
+			iValue += (iFreeExperience * (iHasMetCount > 0 ? 16 : 8));
 			CvCivilization const& kCiv = getCivilization(); // advc.003w
 			for (int i = 0; i < kCiv.getNumUnits(); i++)
 			{
@@ -6087,14 +6100,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				but doing it this way is slightly faster.) */
 			if (kBuilding.getMaintenanceModifier())
 			{
-				int iExistingUpkeep = getMaintenanceTimes100();
-				int iBaseMaintenance = 100 * iExistingUpkeep /
+				int iBaseMaintenance = 100 * iMaintenanceTimes100 /
 						std::max(1, 100 + getMaintenanceModifier());
 				int iNewUpkeep = (iBaseMaintenance * std::max(0,
 						100 + getMaintenanceModifier() +
 						kBuilding.getMaintenanceModifier())) / 100;
 				// slightly more then 4x savings, just to accommodate growth.
-				int iTempValue = (iExistingUpkeep - iNewUpkeep) / 22;
+				int iTempValue = (iMaintenanceTimes100 - iNewUpkeep) / 22;
 				// We want absolute savings, including inflation.
 				iTempValue = iTempValue * (100+kOwner.calculateInflationRate()) / 100;
 				/*	(note, not just for this particular city -
@@ -6164,7 +6176,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			/*	1.2 * average population seems wrong. Instead, do something
 				roughly comparable to what's used in CvPlayerAI::AI_civicValue.*/
 			int iGlobalTradeValue = (bForeignTrade ? 5 : 3) *
-					(2 * (iOwnerEra + 1) + GC.getNumEraInfos()) / GC.getNumEraInfos();
+					(2 * (iCurrentEra + 1) + GC.getNumEraInfos()) / GC.getNumEraInfos();
 
 			iTempValue += 5 * kBuilding.getTradeRouteModifier() *
 					getTradeYield(YIELD_COMMERCE) / std::max(1, iTotalTradeModifier);
@@ -6239,7 +6251,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						depending on the state of the civilzation.
 						The upshot is that the value here is going to be rough... */
 					iGoldenPercent += 3 * kBuilding.getGoldenAgeModifier() *
-							(GC.getNumEraInfos() - iOwnerEra) / (GC.getNumEraInfos() + 1);
+							(GC.getNumEraInfos() - iCurrentEra) / (GC.getNumEraInfos() + 1);
 				}
 				if (iGoldenPercent > 0)
 				{
@@ -6351,7 +6363,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				iTemp *= getFreeExperience() + 1;
 				iTemp /= getFreeExperience() + 2;
 				iValue += iTemp;
-				// cf. iValue += (kBuilding.getFreeExperience() * ((iHasMetCount > 0) ? 12 : 6));
+				// cf. iValue += (iFreeExperience * ((iHasMetCount > 0) ? 12 : 6));
 				// K-Mod end
 			}
 
@@ -6381,7 +6393,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						// Devalue civics that we'll soon unlock anyway
 						TechTypes eTech = GC.getInfo(eLoopCivic).getTechPrereq();
 						if (!kTeam.isHasTech(eTech) && 
-							GC.getInfo(eTech).getEra() <= kOwner.getCurrentEra())
+							GC.getInfo(eTech).getEra() <= iCurrentEra)
 						{
 							rCivicValue /= 2;
 						}
@@ -6400,7 +6412,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			{
 				int iGreatPeopleRate = getBaseGreatPeopleRate();
 				// advc.131: was 10 flat
-				int const iTargetGPRate = 5 + 2 * std::max(1, iOwnerEra);
+				int const iTargetGPRate = 5 + 2 * std::max(1, iCurrentEra);
 
 				// either not a wonder, or a wonder and our GP rate is at least the target rate
 				if (!bLimitedWonder || iGreatPeopleRate >= iTargetGPRate)
@@ -6474,7 +6486,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			iValue += ((kBuilding.getWorkerSpeedModifier() *
 					kOwner.AI_getNumAIUnits(UNITAI_WORKER)) / 10);
 
-			int iMilitaryProductionModifier = kBuilding.getMilitaryProductionModifier();
 			if (iHasMetCount > 0 && iMilitaryProductionModifier > 0)
 			{
 				// either not a wonder, or a wonder and we are a high production city
@@ -6485,11 +6496,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					if (bLimitedWonder)
 					{
 						// if one of the top 3 production cities, give a big boost
-						if (findBaseYieldRateRank(YIELD_PRODUCTION) <=
+						if (iProductionRank <=
 							2 + iLimitedWonderLimit)
 						{
 							iValue += (2 * iMilitaryProductionModifier) /
-									(2 + findBaseYieldRateRank(YIELD_PRODUCTION));
+									(2 + iProductionRank);
 						}
 					}
 					// otherwise, any of the top half of cities will do
@@ -6505,7 +6516,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				else
 				{
 					iValue -= (iMilitaryProductionModifier *
-							findBaseYieldRateRank(YIELD_PRODUCTION)) / 5;
+							iProductionRank) / 5;
 				}
 			}
 
@@ -6677,7 +6688,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 								AI_buildingValue(eFreeBuilding, 0, 0, bConstCache, false),
 								kOwner.getProductionNeeded(eFreeBuilding) / 2);
 						iValue += iFreeBuildingValue *
-								(std::max(iCitiesTarget, kOwner.getNumCities()*2/3) -
+								(std::max(iCitiesTarget, iNumCities*2/3) -
 								kOwner.getBuildingClassCountPlusMaking(eFreeClass));
 					}
 				}
@@ -7156,10 +7167,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 			if (iFocusFlags & BUILDINGFOCUS_PRODUCTION)
 			{
-				int iTempValue = (kBuilding.getYieldModifier(YIELD_PRODUCTION) *
-						getBaseYieldRate(YIELD_PRODUCTION)) / 20;
+				int iTempValue = (iHammersModifier *
+						iBaseHammersPerTurn) / 20;
 				iTempValue += (kBuilding.getPowerYieldModifier(YIELD_PRODUCTION) *
-						getBaseYieldRate(YIELD_PRODUCTION)) /
+						iBaseHammersPerTurn) /
 						((bProvidesPower || isPower()) ? 24 : 30);
 				if (kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION) > 0)
 				{
@@ -7179,15 +7190,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				if (bProvidesPower && !isPower())
 				{
 					iTempValue += (getPowerYieldRateModifier(YIELD_PRODUCTION) *
-							//getBaseYieldRate(YIELD_PRODUCTION)) / 12;
-							getBaseYieldRate(YIELD_PRODUCTION)) / 24; // K-Mod, consistency
+							//iBaseHammersPerTurn) / 12;
+							iBaseHammersPerTurn) / 24; // K-Mod, consistency
 				}
 
 				/*	if this is a limited wonder, and we are not in the top 4
 					of this category, subtract the value -  we do _not_ want this here
 					(unless the value was small anyway) */
 				if (bLimitedWonder &&
-					findBaseYieldRateRank(YIELD_PRODUCTION) >
+					iProductionRank >
 					3 + iLimitedWonderLimit)
 				{
 					iTempValue *= -1;
@@ -7205,13 +7216,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				iTempValue /= 3000;
 
 				/*if (MAX_INT == aiCommerceRank[COMMERCE_GOLD])
-					aiCommerceRank[COMMERCE_GOLD] = findCommerceRateRank(COMMERCE_GOLD);*/
+					aiCommerceRank[COMMERCE_GOLD] = iGoldRateRank;*/
 
 				/*	if this is a limited wonder, and we are not in the top 4
 					of this category, subtract the value -  we do _not_ want this here
 					(unless the value was small anyway) */
 				if (bLimitedWonder &&
-					findCommerceRateRank(COMMERCE_GOLD) >
+					iGoldRateRank >
 					3 + iLimitedWonderLimit)
 				{
 					iTempValue *= -1;
@@ -7305,7 +7316,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						{
 							/*	All cities could benefit ... possibly, and we'll need
 								a worker; therefore halve the value. */
-							iClaimValue += (iClaimedBonusVal * kOwner.getNumCities()) / 2;
+							iClaimValue += (iClaimedBonusVal * iNumCities) / 2;
 							iClaimValue += (9 * scaled(iClaimedBonuses).
 									pow(fixp(0.75))).uround();
 						}
@@ -7371,7 +7382,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						/*	if this is one of our top culture cities,
 							then we want to build this here first! */
-						if (iCultureRank <= iCulturalVictoryNumCultureCities)
+						if (iCultureRateRank <= iCulturalVictoryNumCultureCities)
 						{
 							iCommerceMultiplierValue /= 15; // was 8
 
@@ -7431,7 +7442,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							/*	if we have enough and our rank is close to the top,
 								then possibly build here too */
 							if (bHaveEnough &&
-								(iCultureRank - iCulturalVictoryNumCultureCities) <= 3)
+								(iCultureRateRank - iCulturalVictoryNumCultureCities) <= 3)
 							{
 								iCommerceMultiplierValue /= 20; // was 12
 							}
@@ -7511,10 +7522,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						iTempValue += 10;*/
 					// K-Mod
 					int iExpectedSpread = kGame.countReligionLevels(eGlobalCommerceReligion);
-					iExpectedSpread += ((//GC.getNumEraInfos() - iOwnerEra +
+					iExpectedSpread += ((//GC.getNumEraInfos() - iCurrentEra +
 							// <advc.erai> Current era plus subsequent eras
 							1 + CvEraInfo::normalizeEraNum(
-							GC.getNumEraInfos() - iOwnerEra - 1) + // </advc.erai>
+							GC.getNumEraInfos() - iCurrentEra - 1) + // </advc.erai>
 							(eStateReligion == eGlobalCommerceReligion ? 2 : 0)) *
 							//GC.getInfo(GC.getMap().getWorldSize()).getDefaultPlayers()
 							kGame.getRecommendedPlayers()).round(); // advc.137
@@ -7536,6 +7547,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						iTempValue++;
 					}
 				}
+				// <!-- custom: performance optimizations -->
+				const int iLoopCommerceRateRank1 = findCommerceRateRank(eLoopCommerce);
 				if (iTempValue != 0)
 				{
 					if (bFinancialTrouble && eLoopCommerce == COMMERCE_GOLD)
@@ -7552,7 +7565,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						of this category, subtract the value - we do _not_ want this here
 						(unless the value was small anyway) */
 					/*if (MAX_INT == aiCommerceRank[eLoopCommerce])
-						aiCommerceRank[eLoopCommerce] = findCommerceRateRank(eLoopCommerce);*/
+						aiCommerceRank[eLoopCommerce] = iLoopCommerceRateRank1;*/
 					/*if (bLimitedWonder && aiCommerceRank[eLoopCommerce] > 3 + iLimitedWonderLimit)
 						|| (bCulturalVictory1 && eLoopCommerce == COMMERCE_CULTURE && aiCommerceRank[eLoopCommerce] == 1))
 					{
@@ -7572,14 +7585,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						{
 							if (bCulturalVictory1 &&
 								((bCulturalVictory2 &&
-								findCommerceRateRank(eLoopCommerce) == 1) ||
-								findCommerceRateRank(eLoopCommerce) >
+								iLoopCommerceRateRank1 == 1) ||
+								iLoopCommerceRateRank1 >
 								iNumCities/3 + 1 + iLimitedWonderLimit))
 							{
 								iTempValue = 0;
 							}
 						}
-						else if (findCommerceRateRank(eLoopCommerce) >
+						else if (iLoopCommerceRateRank1 >
 							iNumCities/3 + 1 + iLimitedWonderLimit)
 						{
 							iTempValue *= -1;
@@ -7637,6 +7650,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							kBuilding.getGlobalCorporationCommerce());
 					if (iExpectedSpread > 0)
 					{
+						// <!-- custom: note: be careful, this is from another loop so increment variable name and redefine it as a new variable if i'm not mistaken in my thinking but anyways etc -->
+						const int iLoopCommerceRateRank2 = findCommerceRateRank(eLoopCommerce);
 						FOR_EACH_ENUM(Commerce)
 						{
 							int iHqValue = 4 * GC.getInfo(
@@ -7655,7 +7670,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							if (iHqValue > 0)
 							{
 								iHqValue *= 3*iNumCities
-										- findCommerceRateRank(eLoopCommerce)
+										- iLoopCommerceRateRank2
 										- getNumNationalWonders() / 2;
 								iHqValue /= 2*iNumCities;
 							}
@@ -7695,13 +7710,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						iTempValue *= 2;
 
 					/*if (MAX_INT == aiCommerceRank[COMMERCE_GOLD])
-						aiCommerceRank[COMMERCE_GOLD] = findCommerceRateRank(COMMERCE_GOLD);*/
+						aiCommerceRank[COMMERCE_GOLD] = iGoldRateRank;*/
 
 					/*	if this is a limited wonder, and we are not one of the top 4 in
 						this category, subtract the value. we do _not_ want to build this here.
 						(unless the value was small anyway) */
 					if (bLimitedWonder &&
-						findCommerceRateRank(COMMERCE_GOLD) > 3 + iLimitedWonderLimit)
+						iGoldRateRank > 3 + iLimitedWonderLimit)
 					{
 						iTempValue *= -1;
 					}
@@ -7760,21 +7775,21 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				if (iTempValue != 0)
 				{
 					/*if (MAX_INT == aiCommerceRank[COMMERCE_CULTURE])
-						aiCommerceRank[COMMERCE_CULTURE] = findCommerceRateRank(COMMERCE_CULTURE);*/
+						aiCommerceRank[COMMERCE_CULTURE] = iCultureRateRank;*/
 
 					/*	if this is a limited wonder, and we are not one of the top 4
 						in this category, do not count the culture value.
 						we probably do not want to build this here (but we might). */
-					/*if (bLimitedWonder && (findCommerceRateRank(COMMERCE_CULTURE) > (3 + iLimitedWonderLimit)))
+					/*if (bLimitedWonder && (iCultureRateRank > (3 + iLimitedWonderLimit)))
 						iTempValue  = 0;*/ // BtS
 					/*	K-Mod. The original code doesn't take prereq buildings into account,
 						and it was in the wrong place. To be honest, I think this
 						"building focus" flag system is pretty bad; but I'm fixing it anyway. */
-					if (findCommerceRateRank(COMMERCE_CULTURE) > iCulturalVictoryNumCultureCities)
+					if (iCultureRateRank > iCulturalVictoryNumCultureCities)
 					{
 						bool bAvoid = false;
 						if (bLimitedWonder &&
-							findCommerceRateRank(COMMERCE_CULTURE)
+							iCultureRateRank
 							- iLimitedWonderLimit >= iCulturalVictoryNumCultureCities)
 						{
 							bAvoid = true;
@@ -7810,11 +7825,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				if (iTempValue != 0)
 				{
 					/*if (MAX_INT == aiCommerceRank[COMMERCE_CULTURE])
-						aiCommerceRank[COMMERCE_CULTURE] = findCommerceRateRank(COMMERCE_CULTURE);*/
+						aiCommerceRank[COMMERCE_CULTURE] = iCultureRateRank;*/
 
 					// (see comment above)
 					if (bLimitedWonder &&
-						findCommerceRateRank(COMMERCE_CULTURE) >
+						iCultureRateRank >
 						3 + iLimitedWonderLimit)
 					{
 						iTempValue  = 0;
@@ -7913,7 +7928,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		iTotalBonusYieldMod < 40 &&
 		kBuilding.getGreatGeneralRateModifier() < 40 &&
 		kBuilding.getMilitaryProductionModifier() < 40 &&
-		kBuilding.getFreeExperience() < 4)
+		iFreeExperience < 4)
 	{
 		int iTotalCommerceMod = 0;
 		FOR_EACH_ENUM(Commerce)
