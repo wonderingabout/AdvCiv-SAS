@@ -4558,9 +4558,16 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
 
 	// <!-- custom: add some sanity / optimization rules of when to not build and sometimes when to always build some buildings rather than others. For example, walls are a waste of hammer at peace, or we are stronger than our ennemies, these could be used to produce almost 2 more axemen or half a settler or a worker as of now more or less, and similarly for many buildings there is a time when they are most relevant and other times when they really aren't yet AI inefficiently builds them anyway. Added these rules with chatgpt 5 thanks to my prompts and adjustments too if i may say but anyways etc, check if accurate, it somehow seems strongly passionate if i may say in these/its code comments hehe, sometimes mentionning K-Mod when i am not sure it is K-Mod, check if accurate xd and maybe enjoy or not or yes or etc but anyways etc, hopefully this makes AI a lot stronger or/and sharper but anyways etc with its best building management, and is similarly done to how we fine-tuned with a set or pre-rules the promotions AI would choose in CvUnitAI::AI_promotionValue anyways etc -->
-
 	// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
-	static const int AI_BUILDING_ALWAYS_PICK_FIRST = 999999;
+	// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
+	// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
+	// Why I’m confident:
+	// - EIP is inside CvGameCoreDLL at +0x4E043 and WinDbg labels it CvCity::cheat+0x15B3, but the instruction is mov eax, [ebp+eax*4]. That pattern is classic for indexing a small local jump/lookup table with eax. Your eax is 0x618063D8 (!), so the index is astronomically out of range → AV.
+	// - Your recent edits introduce sentinel returns like AI_BUILDING_ALWAYS_PICK_FIRST = 999999 and several return AI_BUILDING_ALWAYS_PICK_FIRST +/- …;. Downstream code multiplies building values by weights and divides by small turn counts. With a 32-bit signed int, it’s easy to overflow (wrap negative) and then use the result as an index / size / switch key. The heap frames in your stack (_heap_alloc) are consistent with “someone tried to allocate/size something absurd after overflow”.
+	// - This also explains why you can reproduce the crash even after removing the cache: the oversized return path still fires.
+	//
+	// Your giant sentinel (999,999) is overflowing downstream math (multiplied/divided by tiny denominators), producing a wild index that ends up as [ebp+eax*4] → AV. Cap the value (e.g., 50k), clamp the final iValue to ±200k, prefer return iThreshold+1 when you only need to “win”, and fix the small inverted world-wonder filter. That should make this crash disappear.*]()
+	static const int AI_BUILDING_ALWAYS_PICK_FIRST = 100000;
 
 	const bool bMinor = kOwner.isMinorCiv();
 	const bool bBarbarian = kOwner.isBarbarian();
@@ -4624,9 +4631,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		// <!-- custom: also account for the base production modifiers (e.g. that the forge or factory has if i'm not mistaken but anyways etc) to asses the building's worth/value as a production modifier building (here national wonder) type but anyways etc -->
 		const int iTotalHammersModifier = iHammersModifier + iTotalBonusHammersModifier;
 
-		static const int iGateMTimes100RegularBuildings = 600; // 6 gpt
-		static const int iGateMTimes100Wonders = 600; // 6 gpt
-		static const int iGateMTimes100NationalWonders = 600; // 6 gpt
+		static const int iSAS_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS = GC.getDefineINT("SAS_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS");
+		static const int iSAS_BUILDING_VALUE_GATE_M100_WONDERS = GC.getDefineINT("SAS_BUILDING_VALUE_GATE_M100_WONDERS");
 
 		if (!bWonder)
 		{
@@ -4801,7 +4807,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			if (bCityMaintenanceBuilding)
 			{
-				if (iMaintenanceTimes100 < iGateMTimes100RegularBuildings) // < 6 gpt => not worth it yet
+				if (iMaintenanceTimes100 < iSAS_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS) // < 6 gpt => not worth it yet
 				{
 					return 0;
 				}
@@ -5439,7 +5445,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				{
 					iSecondBestM100 = m100;
 				}
-				if (m100 >= iGateMTimes100Wonders)
+				if (m100 >= iSAS_BUILDING_VALUE_GATE_M100_WONDERS)
 				{
 					++iNumCitiesHighM100;
 				}
@@ -5681,11 +5687,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							{
 								// <!-- custom: don't build in highest hammer cities, they may already be low maintenance so no need especially if capital, build instead in highest maintenance city anyways etc -->
 								// <!-- custom: note: capital not in these checks as should be naturally excluded due to having lowest maintenance but just in case, and also as advised by chatgpt 5 as well, we could have handled mods reverting logic (e.g. capital causing higher costs) but maybe tedious, so i hope if some mod someday is based on ours and somehow implements this, they remember to change building picking logic or rather pre-picking logic if i may say but anyways etc -->
-								bool const bHighEnoughMaintenanceCostsInCities = (
-									iSecondBestM100 >= iGateMTimes100NationalWonders
-								);
-
-								if ((iMaintenanceTimes100 >= iSecondBestM100) && bHighEnoughMaintenanceCostsInCities)
+								if (iMaintenanceTimes100 >= iSecondBestM100)
 								{
 									// still respect pressure gates
 									if (bAtWar || bWarPlan || bDanger)

@@ -489,14 +489,22 @@
 
 
 
+	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we would favour building maintenance per turn reducer building(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the courthouse class building (or civ-specific variants) in this city -->
+	<!-- // < 6 gpt => not worth it yet -->
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS</DefineName>
+		<iDefineIntVal>600</iDefineIntVal>
+	</Define>
+	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we may favour building maintenance per turn reducer wonder(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the forbidden palace class building (or civ-specific variants) in this city -->
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_GATE_M100_WONDERS</DefineName>
+		<iDefineIntVal>600</iDefineIntVal>
+	</Define>
 	<!-- custom: e.g. as of now in advciv-sas, "stable" class buildings (including civ-specific variants) to give exp to mounted untis such as horse knights, chariots, camel cuirassiers, war elephants, etc.). Adjust as per your xml. -->
 	<Define>
 		<DefineName>SAS_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_STABLE</DefineTextVal>
 	</Define>
-
-
-
 	<!-- custom: e.g. as of now in advciv-sas is as such; adjust as per your xml. -->
 	<Define>
 		<DefineName>SAS_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
