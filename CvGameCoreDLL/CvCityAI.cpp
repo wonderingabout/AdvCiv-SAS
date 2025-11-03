@@ -4558,22 +4558,22 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
 
 	// <!-- custom: add some sanity / optimization rules of when to not build and sometimes when to always build some buildings rather than others. For example, walls are a waste of hammer at peace, or we are stronger than our ennemies, these could be used to produce almost 2 more axemen or half a settler or a worker as of now more or less, and similarly for many buildings there is a time when they are most relevant and other times when they really aren't yet AI inefficiently builds them anyway. Added these rules with chatgpt 5 thanks to my prompts and adjustments too if i may say but anyways etc, check if accurate, it somehow seems strongly passionate if i may say in these/its code comments hehe, sometimes mentionning K-Mod when i am not sure it is K-Mod, check if accurate xd and maybe enjoy or not or yes or etc but anyways etc, hopefully this makes AI a lot stronger or/and sharper but anyways etc with its best building management, and is similarly done to how we fine-tuned with a set or pre-rules the promotions AI would choose in CvUnitAI::AI_promotionValue anyways etc -->
-	// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
-	// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
-	// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
-	// Why I’m confident:
-	// - EIP is inside CvGameCoreDLL at +0x4E043 and WinDbg labels it CvCity::cheat+0x15B3, but the instruction is mov eax, [ebp+eax*4]. That pattern is classic for indexing a small local jump/lookup table with eax. Your eax is 0x618063D8 (!), so the index is astronomically out of range → AV.
-	// - Your recent edits introduce sentinel returns like AI_BUILDING_ALWAYS_PICK_FIRST = 999999 and several return AI_BUILDING_ALWAYS_PICK_FIRST +/- …;. Downstream code multiplies building values by weights and divides by small turn counts. With a 32-bit signed int, it’s easy to overflow (wrap negative) and then use the result as an index / size / switch key. The heap frames in your stack (_heap_alloc) are consistent with “someone tried to allocate/size something absurd after overflow”.
-	// - This also explains why you can reproduce the crash even after removing the cache: the oversized return path still fires.
-	//
-	// Your giant sentinel (999,999) is overflowing downstream math (multiplied/divided by tiny denominators), producing a wild index that ends up as [ebp+eax*4] → AV. Cap the value (e.g., 50k), clamp the final iValue to ±200k, prefer return iThreshold+1 when you only need to “win”, and fix the small inverted world-wonder filter. That should make this crash disappear.*]()
-	static const int AI_BUILDING_ALWAYS_PICK_FIRST = 100000;
-
 	const bool bMinor = kOwner.isMinorCiv();
 	const bool bBarbarian = kOwner.isBarbarian();
 
 	if (!bBarbarian && !bMinor)
 	{
+		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
+		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
+		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
+		// Why I’m confident:
+		// - EIP is inside CvGameCoreDLL at +0x4E043 and WinDbg labels it CvCity::cheat+0x15B3, but the instruction is mov eax, [ebp+eax*4]. That pattern is classic for indexing a small local jump/lookup table with eax. Your eax is 0x618063D8 (!), so the index is astronomically out of range → AV.
+		// - Your recent edits introduce sentinel returns like AI_BUILDING_ALWAYS_PICK_FIRST = 999999 and several return AI_BUILDING_ALWAYS_PICK_FIRST +/- …;. Downstream code multiplies building values by weights and divides by small turn counts. With a 32-bit signed int, it’s easy to overflow (wrap negative) and then use the result as an index / size / switch key. The heap frames in your stack (_heap_alloc) are consistent with “someone tried to allocate/size something absurd after overflow”.
+		// - This also explains why you can reproduce the crash even after removing the cache: the oversized return path still fires.
+		//
+		// Your giant sentinel (999,999) is overflowing downstream math (multiplied/divided by tiny denominators), producing a wild index that ends up as [ebp+eax*4] → AV. Cap the value (e.g., 50k), clamp the final iValue to ±200k, prefer return iThreshold+1 when you only need to “win”, and fix the small inverted world-wonder filter. That should make this crash disappear.*]()
+		static const int AI_BUILDING_ALWAYS_PICK_FIRST = 100000;
+
 		// Quick threat read
 		bool const bDanger = AI_isDanger();
 		bool const bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
@@ -4636,14 +4636,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 		if (!bWonder)
 		{
+			const bool bCoastalBuilding = isCoastal();
 			// <!-- custom: 0) but anyways etc; always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly but anyways etc, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now if i'm not mistaken but anyways etc) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case but anyways etc. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go bankrupt too soon with unit excess but anyways etc -->
 			// --- Fast path: water-food buildings (Harbor in AdvCiv-SAS) always first ---
 			const bool bWaterFoodBuilding = (
-				(kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0) ||
-				(kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0)
+				bCoastalBuilding &&
+				((kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0) ||
+				(kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0))
 			);
 
-			if (bWaterFoodBuilding && iFoodDifference <= 1 && !isFoodProduction())
+			static const int iWaterFoodBuildingFirstMinEnoughFood = 2;
+			if (bWaterFoodBuilding && (iFoodDifference < iWaterFoodBuildingFirstMinEnoughFood) && !isFoodProduction())
 			{
 				return AI_BUILDING_ALWAYS_PICK_FIRST;
 			}
@@ -4778,8 +4781,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 
 			const bool bNavalUnitsBuilding = (
-				(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0) ||
-				(kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0)
+				bCoastalBuilding &&
+				((kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0) ||
+				(kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0))
 			);
 
 			if (bNavalUnitsBuilding)
@@ -5345,34 +5349,30 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			// <!-- custom: e.g. building our build 25% faster with stone (not related to yields/hammers gained after building is completed! But anyways etc) -->
 			// Full production modifier (traits, resources, state religion, etc.)
 			const int iProductionModifier = getProductionModifier(eBuilding);
-
 			// “Can we realistically <!-- custom: build as i assume this is about starting new buildings --> it?” (turn cap)
 			// Use a simple time-to-build gate rather than only a flat hpt cut. It auto-scales with cost and modifiers.
 			int const iCost      = getProductionNeeded(eBuilding);
 			int const iWWMul100  = 100 + iProductionModifier; // 100 + (traits/stone/marble/religion/etc.)
-
 			// Estimated turns (ceil): cost / (hpt * (1+mods))
 			/*
 			Examples:
 			A) cost=300, hpt=10, modifier=+25% (iWWMul100=125)
 			Turns = ceil(300 / (10*1.25)) = ceil(300/12.5) = ceil(24.0) = 24
 			Integer: (300*100 + 10*125 - 1) / (10*125) = (30000+1250-1)/1250 = 31249/1250 = 24
-
+			//
 			B) cost=275, hpt=8, modifier=0% (iWWMul100=100)
 			Turns = ceil(275 / (8*1.0)) = ceil(34.375) = 35
 			Integer: (27500 + 800 - 1) / (800) = 28300/800 = 35
-
+			//
 			C) cost=450, hpt=15, modifier=+50% (iWWMul100=150)
 			Turns = ceil(450 / (15*1.5)) = ceil(450/22.5) = 20
 			Integer: (45000 + 15*150 - 1) / (2250) = (45000+2250-1)/2250 = 47249/2250 = 20
 			*/
 			int const iTurnsWW = (iCost * 100 + iBaseHammersPerTurn * iWWMul100 - 1) / (std::max(1, iBaseHammersPerTurn) * iWWMul100);
-
 			// Window scales by speed a bit
 			// <!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it anyways etc -->
 			static const int iMinWondersBaseSoftCapNormal = 20;  // @Normal
 			int iSoftTurnCapNormal = iMinWondersBaseSoftCapNormal; // @Normal
-
 			// <!-- custom: adjust based on game difficulty: on lower difficulties, we have penalties, so unlikely we compete with the human player(s?), so use our hammers conservatively and more towards self-preservation anyways etc, so do not increase turn time allowed to complete this, but at higher difficulties, we have more leeway and enough discounts, unlikely the human can compete with us, however it would be strange that we would spend too much time on wonders despite our discounts, which would mean most likely we are doing something inefficient or wrong, so don't build the wonder with a tighter window if is beyond this window if i may say in this case but anyways etc -->
 			// AdvCiv: no human WCP <!-- custom: at least i didn't find it easily with a global search vs code so hopefully accurate enough as such as provided by chatgpt 5 but check if accurate and if my guess of doing as such as well is fine as i didn't check further but anyways etc -->; treat as 100%
 			static const int iHumanWCPDefine = 100;
@@ -5384,15 +5384,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			static const int iMaxConstructGap = 20;
 			static const int iMaxConstructGapMult = 9;
 			static const int iMaxConstructGapDiv = std::max(1, 10);
-
 			if (iConstructGap >= iMaxConstructGap)
 			{
 				iSoftTurnCapNormal = (iSoftTurnCapNormal * iMaxConstructGapMult) / iMaxConstructGapDiv;
 			}
-
 			// <!-- custom: then in all cases adjust based on game speed anyways etc -->
 			int const iSoftTurnCapAdjusted = iSoftTurnCapNormal * iGameSpeedMultiplier / 100;
-
 			// <!-- custom: note: this also handles turn to build calculation for production bonus based wonders if i'm not mistaken but anyways etc such as the ironworks -->
 			// If it's going to sit in the queue forever, skip.
 			if (iTurnsWW > iSoftTurnCapAdjusted)
@@ -5400,19 +5397,148 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				return 0;
 			}
 
-			// Reuse a single loop for all stats we need
+			// <!-- custom: may save a lot of computation by checking this early and forwarding the early rejects (note: make sure to not push ahead / forward the always pick first blocks else it may alter history (unless is as you want it i mean but anyways etc)), since we'll reject anyway later (especialyl for the loop code). -->
+			// <!-- custom: more early checks to save computation before the loop computation anyways etc -->
+			// <!-- custom: especially if losing, don't build wonder for our ennemies, do something else instead useful to help us survive. Note: there is a code somewhere that i saw that tells the AI to not ditch a wonder being built if >= a certain percentage of completion, which i think is 50%, if i find it heavily tighten it as well anyways etc, even at 50% completion, we can still produce several longbowmen or such instead that may increase our odds a lot, ideally don't start the wonder at all, but if didn't see it (surprise war, etc), then don't continue building it somewhere as well if i find where again in this case i mean but anyways etc, as for this code only handles new buildings to start if i'm not mistaken but anyways etc, and tightening it heavily here in war or war-related context but anyways etc ; update: i found it and tweaked it there as well, it's as of now in CvCityAI::AI_chooseProduction (ctrl+f "completion" to find it xd luckily found it again thankfully maybe rather i should say to myself xd or chatgpt 5 i'm tlaking to in this case if i may say but anyways etc) -->
+			// hard skips: don’t throw the game to build a shiny thing
+			if (bWorldWonder)
+			{
+				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
+				if (!bLandUnitsBuilding)
+				{
+					if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
+					{
+						return 0;
+					}
+				}
+				else
+				{
+					// <!-- custom: world wonders are generally costlier, so don't build them if danger but also if at war anyways etc -->
+					if (bAtWar || bDanger)
+					{
+						return 0;
+					}
+				}
+
+				// <!-- custom: even if we don't have bonuses early, we may get a lucky stonehenge if rivals have not connected their stone yet or/and we got lucky with our start that would have high production maybe so give it a try in these early turns for wonders cases but anyways etc, else don't risk wasting precious early hammer on incompleted wonder vs say units or anything else instead (a granary + barracks + worker for example more or less if i may say but anyways etc) ; note: modifiers are not only bonuses, a civic or religion modifier may be equal or even stronger than the bonus one, even if we don't have the bonus, so look rather at the final modifier no matetr where it comes from -->
+				// Early window (scaled to speed)
+				static const int iEarlyTurnsNoModifierNormal = 35; // @Normal
+				const int iEarlyTurnsNoModifierAdjusted = iEarlyTurnsNoModifierNormal * iGameSpeedMultiplier / 100;
+				const bool bEarlyTurnsNoModifier = (iElapsedTurns < iEarlyTurnsNoModifierAdjusted);
+				if (!bEarlyTurnsNoModifier)
+				{
+					// <!-- custom: our rivals will beat us (most likely, but assume so for efficiency anyways etc) to it, better build something else than end up with a lot of wasted hammer anyways etc -->
+					if (iProductionModifier < 25) // no stone/marble/trait/religion oomph? skip
+					{
+						return 0;
+					}
+					// <!-- custom: else don't incentivize it either, wonders are not necessarily the better choice, keep as is as per AI selection in other parts of the code wherever it is handled at least as of now but anyways etc -->
+				}
+
+				// <!-- custom: note: cannot try to save computation by checking bCoastalBuilding, as in some weird xml mod mods or such (or maybe we would too or would not but anyways etc), maybe a non-coastal city would give a coastal cities scaling effect, so do not check bCoastalBuilding to avoid overlooking these as chatgpt 5 advised/noted if i understood it correctly i mean but anyways etc -->
+				// --- Naval / Coastal-scaling WW: require a real coastline -----------------
+				// // 1) City-local coastal wonders (benefit tied to THIS city’s water/naval use)
+				// const bool bCoastalLeaningWonder = (
+				// 	(kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0) ||
+				// 	(kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION) > 0) ||
+				// 	(kBuilding.getSeaPlotYieldChange(YIELD_COMMERCE) > 0) ||
+				// 	(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0) ||
+				// 	(kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0)
+				// );
+				// Why this helps
+				// - Colossus-type (city-local): allowed even with a single coastal city, as long as that city really leverages water tiles.
+				// - Great-Lighthouse-type (empire-scaling): requires multiple coastal cities; otherwise it’s usually a trap.
+				// 2) Empire-scaling coastal wonders (benefit grows with # of coastal cities)
+				const bool bCoastalScalingWonder = (
+					((kBuilding.getCoastalTradeRoutes() > 0) ||
+					(kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0) ||
+					(kBuilding.getGlobalSeaPlotYieldChange(YIELD_PRODUCTION) > 0) ||
+					(kBuilding.getGlobalSeaPlotYieldChange(YIELD_COMMERCE) > 0))
+				);
+				// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if coastal leaning if i understand it correctly but anyways etc -->
+				if (bCoastalScalingWonder && !bLandUnitsBuilding)
+				{
+					// Flat rule: need at least 3 coastal cities empire-wide <-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefully overlaps fine or fine enough with this but anyways etc ; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later anyways etc -->.
+					const int iCoastalCities = kOwner.countNumCoastalCities();
+					static const int iMinCoastalCitiesCoastalWonder = 3;
+					if (iCoastalCities < iMinCoastalCitiesCoastalWonder)
+					{
+						return 0;
+					}
+				}
+			}
+			else if (bNationalWonder)
+			{
+				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
+				// <!-- custom: as a side effect i mean but anyways etc, may indirectly reduce early spam in favour of betting on a higher unit production late game, where multipliers help more, economy is stronger to sustain it, tech lead higher to not fall behind if we produce a bit more units maybe, and scaling is important to face rivals but anyways etc. It may also indirectly slightly improve early economy and reduce bankruptcy risk / imrpvoe economical performance but anyways etc. If one AI is running away, it may give it an extra lead while rivals build heroic epics, possibly (i guess and happened in autoplay map i tried it on it seems), however if the game is closer, this should improve mid and late game performance and competitiveness of the AI (i think/guess). And if an AI is running away, not sure avoiding the heroic epic would ultimately help prevent that, although a short term patch-up strategy may help salvage things sometimes possibly, but generally i think encouraging AIs to build more often and earlier heroic epics (or whichever wonder in your xml) should generally, in theory help, but i didn't test it too much to be sure, check if accurate anyways etc. -->
+				// Short version: I agree with the direction. Earlier HE in the right city usually improves mid-/late-game military tempo and doesn’t hurt runaways (your war/danger caps already prevent self-sabotage). I’d just tone down a couple causal claims in the comment.
+				// What I agree with
+				// 	- Tradeoff is real: a short early tempo dip (hammers into HE) for higher sustained unit throughput later. That’s the key benefit.
+				// 	- Economy side-effect: if it replaces early unit spam, upkeep pressure eases a bit. That’s a side-effect, not a guarantee.
+				// 	- Runaway leader: this change won’t stop one; it’s mostly neutral there because of your danger/enemy-strong skips.
+				// 	- Closer games: more AIs placing HE early in real pump cities raises their floor. Net effect: tougher midgame wars.
+				// What I’d soften in the comment
+				// 	- “tech lead higher” and “economy stronger to sustain it” aren’t direct effects of HE; they’re contingent on building fewer early units or getting safer growth windows. I’d state those as may and keep the mechanism explicit: fewer early units → lower upkeep → sometimes more budget for research.
+				// <!-- custom: after testing it ingame, it seems effect is very good and impressive: despite being behind early, we still build an early heroic epic, and stay relevant despite enemy being stronger, until they win, but our empire didnt collapse and bounced back multiple times (they delayed a bit their heroic epics but there are enough among other rivals' empires). I don't know how much randomness influences this, but in this other autoplay map i autoplayed (redundant but anyways etc), it seems to greatly help so left as such, hopefully helps other AIs as well but anyways etc -->
+				if (!bLandUnitsBuilding)
+				{
+					// Don’t invest if we’re about to get rolled
+					if (bEnemyStrong || bDanger)
+					{
+						return 0;
+					}
+				}
+				else
+				{
+					if (bDanger)
+					{
+						return 0;
+					}
+				}
+			}
+
+			// <!-- custom: common logic for unhealthiness removing wonders (world + national) anyways etc -->
+			// --- National Park style (skip when already healthy / too small ) -------------
+			// Detect NP by either “no pop unhealthiness”
+			const bool bUnhealthinessReducerWonder = kBuilding.getUnhealthyPopulationModifier() <= -50;
+
+			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that but anyways etc) but anyways etc -->
+			if (bUnhealthinessReducerWonder && !bLandUnitsBuilding)
+			{
+				// Don’t do this under pressure
+				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
+				{
+					return 0;
+				}
+
+				// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate anyways etc -->
+				// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control. It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
+				const int iPopulationRank = findPopulationRank();
+				const bool bTop2Population = (iPopulationRank <= 2);
+
+				// <!-- custom: worth considering the health gains if city is big enough and has enough unhealthiness from population already anyways etc ; also note anyways etc: as clarified to chatgpt 5, this logic is a bit too simplistic in case population doesn't provide enough some unheathiness in some mod or scenairo or such to justify building this, but htis should still be a fine approximation, as high enough pop cities should generally have other sources of unheathiness that may make this a recommendable building to build. As for us not suggesting such here, but making sure we don't build it if not efficient, else let other functions handle that anyways etc -->
+				// <!-- custom: unlikely to have enough gains if we build this in our city size 12 when we have a city size 20 that could build it instead, at least in most cases so go with this anyways etc ; also note: < not <= so if city 3 or city 4 exactly have same pop as city 2 or/and city 1, then build in any as i clarified to chatgpt 5 hehe if i may say but anyways etc, don't reject these cities anyways etc -->
+				static const int iUnhealthinessReducerWonderMinPop = 12;
+				if ((iPop < iUnhealthinessReducerWonderMinPop) || !bTop2Population)
+				{
+					return 0;
+				}
+				static const int iUnhealthinessReducerWonderMaxHealthLevel = 1;
+				// <!-- custom: city is healthy enough for now, no need to build this -->
+				if (iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel)
+				{
+					return 0;
+				}
+				// else: let normal scoring handle it <!-- custom: (don't prioritize here, just make sure we don't build it when inefficient anyways etc) -->
+			}
+
 			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate anyways etc -->
 			// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control. It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
-			const int iPopulationRank = findPopulationRank();
-			const bool bTop2Population = (iPopulationRank <= 2);
 			// const bool bTop1Hammer = (iProductionRank == 1);
 			const bool bTop2Hammer = (iProductionRank <= 2);
 			// const bool bTop3Hammer = (iProductionRank <= 3);
 
 			int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0;
-			int iBestM100 = 0, iSecondBestM100 = 0;
-			int iNumCitiesHighM100 = 0;
-
 			FOR_EACH_CITY(pLoopCity, kOwner)
 			{
 				// --- top-3 base hammers -----------------------------------------------
@@ -5432,27 +5558,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				{
 					iThirdBestHpt = h;
 				}
-
-				// --- maintenance×100 (global + same landmass) --------------------------
-				// global top-2
-				const int m100 = pLoopCity->getMaintenanceTimes100();
-				if (m100 > iBestM100)
-				{
-					iSecondBestM100 = iBestM100;
-					iBestM100 = m100;
-				}
-				else if (m100 > iSecondBestM100)
-				{
-					iSecondBestM100 = m100;
-				}
-				if (m100 >= iSAS_BUILDING_VALUE_GATE_M100_WONDERS)
-				{
-					++iNumCitiesHighM100;
-				}
 			}
 			// const bool bTop2Hammer = (iBaseHammersPerTurn >= iSecondBestHpt);
 			// <!-- custom: note: if we have only one city, second best is 0, handle that as per your own logic depending on what you want to do anyways etc -->
-			
 
 			// <!-- custom: if we have top 1 hammer city at 200 hammers somehow for example, and top 2 city at 90 hammers + top 3 city at 85 hammers, then top 4 city at 84 hammers, then the top 4 city is still good enough, so use the leeway formula of a top as an alternative anyways etc (frees top city for unit production if it is busy or prioritizing doing so or unavailable for some reason or another anyways etc (helps versatiltiy i guess / would say but anyways etc)) -->
 			static const int iTopHammerLeeway = 5;
@@ -5464,35 +5572,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			const bool bTop2HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iSecondBestHpt) || bEnoughHammersVsTop1Hammers);
 			const bool bTop3HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iThirdBestHpt) || bEnoughHammersVsTop1Hammers);
 
-			// <!-- custom: common logic for unhealthiness removing wonders (world + national) anyways etc -->
-			// --- National Park style (skip when already healthy / too small ) -------------
-			// Detect NP by either “no pop unhealthiness”
-			const bool bUnhealthinessReducerWonder = kBuilding.getUnhealthyPopulationModifier() <= -50;
-
-			if (bUnhealthinessReducerWonder)
-			{
-				// Don’t do this under pressure
-				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
-				{
-					return 0;
-				}
-
-				// <!-- custom: worth considering the health gains if city is big enough and has enough unhealthiness from population already anyways etc ; also note anyways etc: as clarified to chatgpt 5, this logic is a bit too simplistic in case population doesn't provide enough some unheathiness in some mod or scenairo or such to justify building this, but htis should still be a fine approximation, as high enough pop cities should generally have other sources of unheathiness that may make this a recommendable building to build. As for us not suggesting such here, but making sure we don't build it if not efficient, else let other functions handle that anyways etc -->
-				// <!-- custom: unlikely to have enough gains if we build this in our city size 12 when we have a city size 20 that could build it instead, at least in most cases so go with this anyways etc ; also note: < not <= so if city 3 or city 4 exactly have same pop as city 2 or/and city 1, then build in any as i clarified to chatgpt 5 hehe if i may say but anyways etc, don't reject these cities anyways etc -->
-				static const int iUnhealthinessReducerWonderMinPop = 12;
-				if ((iPop < iUnhealthinessReducerWonderMinPop) || !bTop2Population)
-				{
-					return 0;
-				}
-				static const int iUnhealthinessReducerWonderMaxHealthLevel = 1;
-				// <!-- custom: city is healthy enough for now, no need to build this -->
-				if (iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel)
-				{
-					return 0;
-				}
-				// else: let normal scoring handle it <!-- custom: (don't prioritize here, just make sure we don't build it when inefficient anyways etc) -->
-			}
-
 			// <!-- custom: for production modifier wonders (e.g city increases by +25% hammer or such but anyways etc), only do so in top cities. Note: could handle other yields but would be tedious and we don't necessarily have too many if at all such wonders -->
 			const bool bProductionWonder = (
 				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anyways etc -->
@@ -5500,7 +5579,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				//kBuilding.isPower() ||                                  // Plant gives power
 				//kBuilding.isAreaCleanPower()
 			);
-			if (bProductionWonder)
+			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that but anyways etc) but anyways etc -->
+			if (bProductionWonder && !bLandUnitsBuilding)
 			{
 				// <!-- custom: for scaling hammer wonders (world and national anyways etc), pick best or among best hammer cities for best scaling of benefits if i am not mistaken anyways etc -->
 				if (!bTop2HammerLeeway)
@@ -5515,61 +5595,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			if (bWorldWonder)
 			{
-				// <!-- custom: especially if losing, don't build wonder for our ennemies, do something else instead useful to help us survive. Note: there is a code somewhere that i saw that tells the AI to not ditch a wonder being built if >= a certain percentage of completion, which i think is 50%, if i find it heavily tighten it as well anyways etc, even at 50% completion, we can still produce several longbowmen or such instead that may increase our odds a lot, ideally don't start the wonder at all, but if didn't see it (surprise war, etc), then don't continue building it somewhere as well if i find where again in this case i mean but anyways etc, as for this code only handles new buildings to start if i'm not mistaken but anyways etc, and tightening it heavily here in war or war-related context but anyways etc ; update: i found it and tweaked it there as well, it's as of now in CvCityAI::AI_chooseProduction (ctrl+f "completion" to find it xd luckily found it again thankfully maybe rather i should say to myself xd or chatgpt 5 i'm tlaking to in this case if i may say but anyways etc) -->
-				// hard skips: don’t throw the game to build a shiny thing
-				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
-				{
-					return 0;
-				}
-
-				// <!-- custom: even if we don't have bonuses early, we may get a lucky stonehenge if rivals have not connected their stone yet or/and we got lucky with our start that would have high production maybe so give it a try in these early turns for wonders cases but anyways etc, else don't risk wasting precious early hammer on incompleted wonder vs say units or anything else instead (a granary + barracks + worker for example more or less if i may say but anyways etc) ; note: modifiers are not only bonuses, a civic or religion modifier may be equal or even stronger than the bonus one, even if we don't have the bonus, so look rather at the final modifier no matetr where it comes from -->
-				// Early window (scaled to speed)
-				static const int iEarlyTurnsNoModifierNormal = 35; // @Normal
-				const int iEarlyTurnsNoModifierAdjusted = iEarlyTurnsNoModifierNormal * iGameSpeedMultiplier / 100;
-				const bool bEarlyTurnsNoModifier = (iElapsedTurns < iEarlyTurnsNoModifierAdjusted);
-
-				const bool bEnoughEarlyHammerToGoForWonders = (iBaseHammersPerTurn > 7);
-
-				if (!bEarlyTurnsNoModifier)
-				{
-					// <!-- custom: our rivals will beat us (most likely, but assume so for efficiency anyways etc) to it, better build something else than end up with a lot of wasted hammer anyways etc -->
-					if (iProductionModifier < 25) // no stone/marble/trait/religion oomph? skip
-					{
-						return 0;
-					}
-					// <!-- custom: else don't incentivize it either, wonders are not necessarily the better choice, keep as is as per AI selection in other parts of the code wherever it is handled at least as of now but anyways etc -->
-				}
-				// <!-- custom: unlikely we complete them before that, consider skipping anyways etc -->
-				else if (!bEnoughEarlyHammerToGoForWonders)
-				{
-					return 0;
-				}
-
 				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base anyways etc -->
 				if (!bTop2HammerLeeway)
 				{
 					return 0;
-				}
-
-				// --- Naval / Coastal-leaning WW: require a real coastline -----------------
-				const bool bCoastalLeanWonder = (
-					(kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0) ||
-					(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0)     ||
-					(kBuilding.getCoastalTradeRoutes() > 0)                 ||
-					(kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0)       ||
-					(kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION) > 0) ||
-					(kBuilding.getSeaPlotYieldChange(YIELD_COMMERCE) > 0)
-				);
-
-				if (bCoastalLeanWonder)
-				{
-					// Flat rule: need at least 3 coastal cities empire-wide <-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefully overlaps fine or fine enough with this but anyways etc ; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later anyways etc -->.
-					const int iCoastalCities = kOwner.countNumCoastalCities();
-					static const int iMinCoastalCitiesCoastalWonder = 3;
-					if (iCoastalCities < iMinCoastalCitiesCoastalWonder)
-					{
-						return 0;
-					}
 				}
 
 				// <!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time anyways etc, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code anyways etc ; note: in autoplay i did notice wonder races, i don't know if far from completing them rivals would attempt them or if it's only for close calls, but adding an extra safety to prevent inefficient ones just in case if i may say but anyways etc -->
@@ -5608,12 +5637,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// <!-- custom: military national wonders, in particular heroic epic, etc if any more anyways etc -->
 				if (bLandUnitsBuilding)
 				{
-					// Don’t invest if we’re about to get rolled
-					if (bEnemyStrong || bDanger)
-					{
-						return 0;
-					}
-
 					// <!-- custom: this is one of the scaling national wonders where we really want top hammer to take best benefits from it if i may say but anyways etc, so use tighter requirement with some leeway but anyways etc -->
 					if (!bTop2HammerLeeway)
 					{
@@ -5626,31 +5649,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						{
 							// commit when pressing <!-- custom: with a positive nudge to really motivate for it as we expect nice rewards from it anyways etc -->
 							return AI_BUILDING_ALWAYS_PICK_FIRST + 1000;
-						}
-					}
-
-					// otherwise, let normal scoring decide
-				}
-				// <!-- custom: as of now i don't think such a wonder exists-->
-				else if (bLandXp)
-				{
-					// Don’t invest if we’re about to get rolled
-					if (bEnemyStrong || bDanger)
-					{
-						return 0;
-					}
-
-					// <!-- custom: if it existed/exists, this would be / is one of the scaling national wonders where we really want top hammer to take best benefits from it if i may say but anyways etc, so use tighter requirement with some leeway but anyways etc -->
-					if (!bTop2HammerLeeway)
-					{
-						return 0;
-					}
-
-					if (bWarPlan || bAtWarAndEnemyWeak)
-					{
-						if (bTop2Hammer)
-						{
-							return AI_BUILDING_ALWAYS_PICK_FIRST; // commit when pressing <!-- custom: a bit less than say for the heroic epic, having a military pump is slightly better than having stronger exp units i would say in terms of efficiency, although this depends on the nature of the modifiers and their value(s) most importantly, assume they are both equally good and the game is balanced anyways etc -->
 						}
 					}
 
@@ -5679,26 +5677,48 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							}
 							// <!-- custom: note since chatgpt 5 asks about it many times: the code seems to not/never at least sometimes not check for null here so we don't, no need to complicate in this case, if there is an error they'll run into it as well, if not fine, and we don't risk causing any weird behavioru as such maybe anyways etc -->
 							// don’t drop it in the capital; almost no benefit
-							else if (isCapital())
+							if (isCapital())
 							{
 								return 0;
 							}
-							else if (iNumCitiesHighM100 > iMinNumCitiesHighM100)
+							// still respect pressure gates
+							if (bAtWar || bWarPlan || bDanger)
+							{
+								return 0;
+							}
+
+							// <!-- custom: save computation by computing this only when/where we need it, as of now only in this block, anyways etc -->
+							// Yep—smartest path is to compute heavy stuff only when a candidate actually needs it, and only for the duration of the single AI_buildingValue call (no cross-call cache).
+							// Minimal patch sketch (lazy, per-call only)
+							int iBestM100 = 0, iSecondBestM100 = 0;
+							int iNumCitiesHighM100 = 0;
+							FOR_EACH_CITY(pLoopCity, kOwner)
+							{
+								// --- maintenance×100 (global + same landmass) --------------------------
+								// global top-2
+								const int m100 = pLoopCity->getMaintenanceTimes100();
+								if (m100 > iBestM100)
+								{
+									iSecondBestM100 = iBestM100;
+									iBestM100 = m100;
+								}
+								else if (m100 > iSecondBestM100)
+								{
+									iSecondBestM100 = m100;
+								}
+								if (m100 >= iSAS_BUILDING_VALUE_GATE_M100_WONDERS)
+								{
+									++iNumCitiesHighM100;
+								}
+							}
+							if (iNumCitiesHighM100 > iMinNumCitiesHighM100)
 							{
 								// <!-- custom: don't build in highest hammer cities, they may already be low maintenance so no need especially if capital, build instead in highest maintenance city anyways etc -->
 								// <!-- custom: note: capital not in these checks as should be naturally excluded due to having lowest maintenance but just in case, and also as advised by chatgpt 5 as well, we could have handled mods reverting logic (e.g. capital causing higher costs) but maybe tedious, so i hope if some mod someday is based on ours and somehow implements this, they remember to change building picking logic or rather pre-picking logic if i may say but anyways etc -->
 								if (iMaintenanceTimes100 >= iSecondBestM100)
 								{
-									// still respect pressure gates
-									if (bAtWar || bWarPlan || bDanger)
-									{
-										return 0;
-									}
-									else
-									{
-										// <!-- custom: small negative nudge as tie breaker as this is a long to build building (redundant word but anyways etc) -->
-										return AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
-									}
+									// <!-- custom: small negative nudge as tie breaker as this is a long to build building (redundant word but anyways etc) -->
+									return AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
 								}
 							}
 						}
@@ -5752,19 +5772,26 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 				// <!-- custom: note: ironworks like buildings (bonus based production modifiers) already handled as part of the generic all wonders (world + national) production modifier calculation as of now above in the common wonder scope/block anyways etc -->
 				// <!-- custom: note 2 anyways etc: same for national park anyways etc so not handled here see before/above anyways etc -->
-
-				// <!-- custom: fallback to war heuristics general checks otherwise anyways etc -->
-				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
-				{
-					return 0;
-				}
 			}
 			// <!-- custom: if we somehow still don't know what this unidentified building is, not a normal building that is not a world wonder nor a national wonder, nor a world wonder, nor a national wonder, and somehow still have to decide about this unidentified building in this case i mean but anyways etc, then proceed with base war heuristics just in case i.e. to not build it if in danger or and such anyways etc, i don't think we should ever land here or extremely rarely if at all, but just in case and in case i am mistaken as well if i may say, hopefully helpful to the AI or code maintainers or players or etc but anyways etc -->
 			else
 			{
-				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
+				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
+				if (!bLandUnitsBuilding)
 				{
-					return 0;
+					// <!-- custom: fallback to war heuristics general checks otherwise anyways etc -->
+					if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
+					{
+						return 0;
+					}
+				}
+				else
+				{
+					// <!-- custom: this code should never be reached if i'm not mistaken, i think i mean but anyways etc, but just in case but anyways etc -->
+					if (bAtWar || bDanger)
+					{
+						return 0;
+					}
 				}
 			}
 		}
