@@ -104,6 +104,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#70---seemingly-fixed-base-advciv-bug-of-forcing-an-artist-specialist-even-if-it-is-invalid-and-then-firing-a-failed-assert-in-cvcityaiai_assignworkingplots)  
 [71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#71---seemingly-fixed-base-advciv-bug-of-calling-cvbuildinfoisfeatureremove-when-efeature-is-not-a-valid-feature-then-firing-a-failed-assert)  
 [72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#72---seemingly-fixedaddressed-base-advciv-bug-of-calling-getint-in-cvrandomh-when-inum-is-negative-then-firing-a-failed-assert)  
+[73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#73---seemingly-fixedaddressed-base-advciv-bug-of-calling-scout-units-stuck-in-a-loop-related-to-iattempts-and-imaxattempts-in-cvselectiongroupaiai_update-then-firing-a-failed-assert)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2748,14 +2749,26 @@ Update/note: most likely was caused by the forced artist code we added (see [Spe
 
 ## 71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert
 
-See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details anyways etc.
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1grZBqkHYUqtXAhdqRxpSqqa759_Q7gsI?usp=sharing) anyways etc.
 
-WinDbg !analyze -v result viewable in .txt at [Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt) for reference i mean but anyways etc (full dmp with a debug dll anyways etc (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too i mean but anyways etc)).
+WinDbg !analyze -v result viewable in .txt as of now at above link for reference i mean but anyways etc (full dmp with a debug dll anyways etc (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too i mean but anyways etc)).
+
+See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details anyways etc.
 
 ## 72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert
 
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1oWBp58ADUKAHAAUnXGIARciHF47ncuW8?usp=sharing) anyways etc.
+
 I patched 3 locations in `CvCityAI::AI_chooseProduction` and 1 location in `CvCityAI::AI_bestBuildingThreshold` that caused the assert to fire i mean, but i may have missed some, so i hope the general extra assert (if iNum is negative if i understand it correctly i mean but anyways etc) we added in `getInt` with chatgpt 5 i mean thanks i mean but anyways etc will be helpful to spot other similar issues.
+
+WinDbg !analyze -v result viewable in .txt as of now at above link.
 
 See code comments there i.e. in `getInt` in for details anyways etc.
 
-WinDbg !analyze -v result viewable in .txt at [Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt)
+## 73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1wkIJ-7KouMqDezmXmY_hlpmyk2vajrye?usp=sharing) anyways etc.
+
+WinDbg !analyze -v result viewable in .txt as of now at above link.
+
+See code comments there i.e. in `CvSelectionGroupAI::AI_update` in for details anyways etc.
