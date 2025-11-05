@@ -846,7 +846,28 @@ int CvGlobals::getDefineINT(char const* szName,
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, iReturn);
-	FAssert(bSuccess); // advc.003c
+	// <!-- custom: this assert fired at map load when starting a new game, but the info in the assert is not helpful by itself in assert message to me i mean, add more info as chatgpt 5 advised/suggested, check if accurate anyways etc -->
+	// FAssert(bSuccess); // advc.003c
+	#ifdef _DEBUG
+	if (!bSuccess)
+	{
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing INT define '%s' — using default=%d%s",
+                  szName, iDefault,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(false, buf);
+		// <!-- custom: now with the info we can spot it i mean but anyways etc -->
+		// Assert Failed
+		// File:  ..\.\CvGlobals.cpp
+		// Line:  858
+		// Func:  CvGlobals::getDefineINT
+		// Expression:  false
+		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' â€” using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
+		//
+		// <!-- custom: now fixed by renaming it to INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT (was a typo/bug i introduced while refactoring, still detailed assert is very helpful in identifying which and fixing the issue if possible i mean to me but in this case i mean but anyways etc) -->
+	}
+	#endif
 	return iReturn;
 }
 
@@ -859,9 +880,22 @@ float CvGlobals::getDefineFLOAT(char const* szName) const
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, fReturn);
-	/*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
-		fails but doesn't cause any problems. */
-	FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate anyways etc -->
+	#ifdef _DEBUG
+	const bool bAssertCondition = (bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+	if (!bAssertCondition)
+	{
+		// /*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
+		// 	fails but doesn't cause any problems. */
+		// FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing FLOAT define '%s' — using default=%g%s",
+                  szName, fReturn,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(bAssertCondition, buf);
+	}
+	#endif
 	return fReturn;
 }
 
@@ -873,7 +907,19 @@ char const* CvGlobals::getDefineSTRING(char const* szName) const
 	bool bSuccess =
 	#endif// </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, szReturn);
-	FAssert(bSuccess); // advc.003c
+	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate anyways etc -->
+	// FAssert(bSuccess); // advc.003c
+	#ifdef _DEBUG
+	if (!bSuccess)
+	{
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing STRING define '%s'%s",
+                  szName,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(bSuccess, buf);
+	}
+	#endif
 	return szReturn;
 }
 

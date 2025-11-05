@@ -111,19 +111,19 @@ bool CvPlayer::initOtherData()
 	changePersonalityType(); // advc.003q: Use BBAI subroutine
 
 	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-    static const int iINITIAL_BASE_FREE_UNITS                   = GC.getDefineINT("INITIAL_BASE_FREE_UNITS");
-    static const int iINITIAL_BASE_FREE_MILITARY_UNITS          = GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS");
-    static const int iINITIAL_FREE_UNITS_POPULATION_PERCENT     = GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT");
-    static const int iINITIAL_MILITARY_UNITS_POPULATION_PERCENT = GC.getDefineINT("INITIAL_MILITARY_UNITS_POPULATION_PERCENT");
-    static const int iINITIAL_GOLD_PER_UNIT                     = GC.getDefineINT("INITIAL_GOLD_PER_UNIT");
-    static const int iINITIAL_TRADE_ROUTES                      = GC.getDefineINT("INITIAL_TRADE_ROUTES");
-    static const int iINITIAL_STATE_RELIGION_HAPPINESS          = GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS");
-    static const int iINITIAL_NON_STATE_RELIGION_HAPPINESS      = GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS");
+    static const int iINITIAL_BASE_FREE_UNITS                        = GC.getDefineINT("INITIAL_BASE_FREE_UNITS");
+    static const int iINITIAL_BASE_FREE_MILITARY_UNITS               = GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS");
+    static const int iINITIAL_FREE_UNITS_POPULATION_PERCENT          = GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT");
+    static const int iINITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT = GC.getDefineINT("INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT");
+    static const int iINITIAL_GOLD_PER_UNIT                          = GC.getDefineINT("INITIAL_GOLD_PER_UNIT");
+    static const int iINITIAL_TRADE_ROUTES                           = GC.getDefineINT("INITIAL_TRADE_ROUTES");
+    static const int iINITIAL_STATE_RELIGION_HAPPINESS               = GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS");
+    static const int iINITIAL_NON_STATE_RELIGION_HAPPINESS           = GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS");
 
 	changeBaseFreeUnits(iINITIAL_BASE_FREE_UNITS);
 	changeBaseFreeMilitaryUnits(iINITIAL_BASE_FREE_MILITARY_UNITS);
 	changeFreeUnitsPopulationPercent(iINITIAL_FREE_UNITS_POPULATION_PERCENT);
-	changeFreeMilitaryUnitsPopulationPercent(iINITIAL_MILITARY_UNITS_POPULATION_PERCENT);
+	changeFreeMilitaryUnitsPopulationPercent(iINITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT);
 	changeGoldPerUnit(
 			/*	kekm.14: (advc: had been implemented in getGoldPerUnit,
 				getGoldPerMilitaryUnit; the latter seems entirely unnecessary.) */
