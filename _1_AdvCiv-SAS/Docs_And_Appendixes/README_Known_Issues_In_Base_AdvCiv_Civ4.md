@@ -2776,8 +2776,4 @@ See code comments there i.e. in `CvSelectionGroupAI::AI_update` in for details a
 
 ## 74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1Af0NsOLAv6_yMhmW0dK1FKL8XgwqQ86v?usp=sharing) anyways etc.
-
-WinDbg !analyze -v result viewable in .txt as of now at above link.
-
 See code comments there i.e. in parent callers in `CvCityAI::AI_chooseProduction` and `CvCityAI::AI_buildGovernorChooseProduction` in for details anyways etc.

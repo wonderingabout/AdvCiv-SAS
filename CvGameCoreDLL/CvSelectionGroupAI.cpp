@@ -171,37 +171,42 @@ bool CvSelectionGroupAI::AI_update()
 		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate anyways etc, so i moved the assert so it is inside the debug flag as it advised, check if accurate i mean but anyways etc -->
 	#ifdef _DEBUG
 		// Do it lazily and safely like this (drop-in):
-        CvUnitAI const* u = AI_getHeadUnit();
-        int x = -1, y = -1, moves = -1, uid = -1, uai = -1, dom = -1;
-        const wchar* udesc = L"NONE";
-        if (u)
+		// <!-- custom: added an extra layer with this assert condition we check first to not do it for each and every unit or such (i don't know too much so check if accurate, but seems much more efficient as such even in debug, anyways etc). Note: i didn't test if the assert fires correctly again, but since our fix is unchanged by this extra condition i added by moving it out of the assert, hopefully fine as such to save computation, but check if accurate as i don't know too much about these anyways etc -->
+		const bool bAssertCondition = (iAttempts != iMaxAttempts);
+		if (!bAssertCondition)
 		{
-            x    = u->getX(); 
-            y    = u->getY();
-            moves= u->movesLeft();
-            uid  = u->getID();
-            uai  = u->AI_getUnitAIType();
-            dom  = u->getDomainType();
-            udesc= GC.getUnitInfo(u->getUnitType()).getDescription();
-        }
-        FAssertMsg(iAttempts != iMaxAttempts, CvString::format(
-            "Unit stuck in a loop | grp=%d owner=%d at=(%d,%d) unit=%S id=%d AI=%d dom=%d "
-            "moves=%d ready=%d busy=%d queue=%d forceUpd=%d grpAtk=%d forceSep=%d attempts=%d max=%d",
-            getID(), getOwner(), x, y, udesc, uid, uai, dom, moves,
-            (int)readyToMove(), (int)isBusy(), getLengthMissionQueue(),
-            (int)isForceUpdate(), (int)AI_isGroupAttack(), (int)AI_isForceSeparate(),
-            iAttempts, iMaxAttempts
-        ).c_str());
-		// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well i mean but anyways etc -->
-		// Assert Failed
-		// File:  ..\.\CvSelectionGroupAI.cpp
-		// Line:  180
-		// Func:  CvSelectionGroupAI::AI_update
-		// Expression:  iAttempts != iMaxAttempts
-		// Message:  Unit stuck in a loop | grp=73732 owner=8 at=(61,28) unit=Scout id=57348 AI=13 dom=2 moves=120 ready=1 busy=0 queue=0 forceUpd=0 grpAtk=0 forceSep=0 attempts=16 max=16
-		//
-		// <!-- custom: note: happens many times after first one, with various owner's units, but udesc is seemingly always a scout unit in all of these. -->
-		//
+			CvUnitAI const* u = AI_getHeadUnit();
+			int x = -1, y = -1, moves = -1, uid = -1, uai = -1, dom = -1;
+			const wchar* udesc = L"NONE";
+			if (u)
+			{
+				x    = u->getX(); 
+				y    = u->getY();
+				moves= u->movesLeft();
+				uid  = u->getID();
+				uai  = u->AI_getUnitAIType();
+				dom  = u->getDomainType();
+				udesc= GC.getUnitInfo(u->getUnitType()).getDescription();
+			}
+			FAssertMsg(bAssertCondition, CvString::format(
+				"Unit stuck in a loop | grp=%d owner=%d at=(%d,%d) unit=%S id=%d AI=%d dom=%d "
+				"moves=%d ready=%d busy=%d queue=%d forceUpd=%d grpAtk=%d forceSep=%d attempts=%d max=%d",
+				getID(), getOwner(), x, y, udesc, uid, uai, dom, moves,
+				(int)readyToMove(), (int)isBusy(), getLengthMissionQueue(),
+				(int)isForceUpdate(), (int)AI_isGroupAttack(), (int)AI_isForceSeparate(),
+				iAttempts, iMaxAttempts
+			).c_str());
+			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well i mean but anyways etc -->
+			// Assert Failed
+			// File:  ..\.\CvSelectionGroupAI.cpp
+			// Line:  180
+			// Func:  CvSelectionGroupAI::AI_update
+			// Expression:  iAttempts != iMaxAttempts
+			// Message:  Unit stuck in a loop | grp=73732 owner=8 at=(61,28) unit=Scout id=57348 AI=13 dom=2 moves=120 ready=1 busy=0 queue=0 forceUpd=0 grpAtk=0 forceSep=0 attempts=16 max=16
+			//
+			// <!-- custom: note: happens many times after first one, with various owner's units, but udesc is seemingly always a scout unit in all of these. -->
+			//
+		}
 		iMaxAttempts += 4; // Restore extra iterations
 	#endif
 		if (iAttempts >= iMaxAttempts) // was > 100 </advc.001y>
