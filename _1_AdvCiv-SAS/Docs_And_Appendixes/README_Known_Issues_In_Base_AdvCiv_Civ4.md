@@ -105,6 +105,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#71---seemingly-fixed-base-advciv-bug-of-calling-cvbuildinfoisfeatureremove-when-efeature-is-not-a-valid-feature-then-firing-a-failed-assert)  
 [72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#72---seemingly-fixedaddressed-base-advciv-bug-of-calling-getint-in-cvrandomh-when-inum-is-negative-then-firing-a-failed-assert)  
 [73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#73---seemingly-fixedaddressed-base-advciv-bug-of-calling-scout-units-stuck-in-a-loop-related-to-iattempts-and-imaxattempts-in-cvselectiongroupaiai_update-then-firing-a-failed-assert)  
+[74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#74---seemingly-fixedaddressed-base-advciv-bug-of-ai_bestspreadunit-returning-true-even-if-ebestspreadunit-is-no_unit-then-firing-a-failed-assert)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2772,3 +2773,11 @@ See some screenshots and files about/related(ing? Anyways etc) to this issue in 
 WinDbg !analyze -v result viewable in .txt as of now at above link.
 
 See code comments there i.e. in `CvSelectionGroupAI::AI_update` in for details anyways etc.
+
+## 74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1Af0NsOLAv6_yMhmW0dK1FKL8XgwqQ86v?usp=sharing) anyways etc.
+
+WinDbg !analyze -v result viewable in .txt as of now at above link.
+
+See code comments there i.e. in parent callers in `CvCityAI::AI_chooseProduction` and `CvCityAI::AI_buildGovernorChooseProduction` in for details anyways etc.

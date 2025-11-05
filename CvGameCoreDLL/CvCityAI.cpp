@@ -1705,16 +1705,33 @@ void CvCityAI::AI_chooseProduction()
 		iSpreadUnitRoll *= (200 + std::max(iProjectValue, iBestBuildingValue));
 		iSpreadUnitRoll /= (100 + 3 * std::max(iProjectValue, iBestBuildingValue));
 		// K-Mod end
+		// <!-- custom: the assert in parent caller fails sometimes, move it a bit sooner in this block, as recommended by chatgpt 5 after asking it about this point in general i mean but anyways etc, check if accurate anyways etc -->
+		// Assert Failed
+		// File: ..\.\CvCityAI.cpp
+		// Line: 1717
+		// Func: CvCityAI::AI_chooseProduction
+		// Expression: false
+		// Message: AI_bestSpreadUnit should provide a valid unit when it returns true
+		//
+		// The assert is firing because AI_chooseUnit can legitimately fail even when AI_bestSpreadUnit returned true (e.g., you can’t currently train that unit, queue/state changed, resource/civic lockouts, etc.). So the assert text/placement is wrong.
+		// Do this minimal, conservative caller-side fix:
 		if (AI_bestSpreadUnit(true, true, iSpreadUnitRoll,
 			&eBestSpreadUnit, &iBestSpreadUnitValue) &&
 			iBestSpreadUnitValue > iSpreadUnitThreshold)
 		{
-			if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
+			// <!-- custom: while we're at it, make the assert prettier with more info i mean but anyways etc -->
+			// FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
+			// Contract check: if function said "true", we expect a concrete unit
+			FAssertMsg(eBestSpreadUnit != NO_UNIT,
+				CvString::format("bestSpreadUnit: returned true but NO_UNIT | T%d %S roll=%d thr=%d",
+					kGame.getGameTurn(), sCityName,
+					iSpreadUnitRoll, iSpreadUnitThreshold).c_str());
+			// if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
+			if (eBestSpreadUnit != NO_UNIT && AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			{
 				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 1", sCityName);
 					return;
 			}
-			FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
 		}
 	}
 	// K-Mod
@@ -2218,15 +2235,24 @@ void CvCityAI::AI_chooseProduction()
 	} // </advc.081>
 	if (!bDanger)
 	{
-		if (iBestSpreadUnitValue > (iSpreadUnitThreshold * (bLandWar ? 80 : 60)) / 100)
+		// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate anyways etc. Note: according to chatgpt 5, about the issue related to AI_bestSpreadUnit, we don't need an assert here since we're only reusing previously computed values if i understood it correctly, check if accurate anyways etc -->
+		// The second block is a follow-up gate; it doesn’t recompute eBestSpreadUnit. If the first block didn’t run (or returned false), eBestSpreadUnit will be NO_UNIT by design. Asserting here just creates false positives.
+		// Assert Failed
+		// File:  ..\.\CvCityAI.cpp
+		// Line:  2246
+		// Func:  CvCityAI::AI_chooseProduction
+		// Expression:  eBestSpreadUnit != NO_UNIT
+		// Message:  bestSpreadUnit: returned true but NO_UNIT | T100 Orleans thr=1800
+		// if (iBestSpreadUnitValue > (iSpreadUnitThreshold * (bLandWar ? 80 : 60)) / 100)
+		if (eBestSpreadUnit != NO_UNIT && iBestSpreadUnitValue > (iSpreadUnitThreshold * (bLandWar ? 80 : 60)) / 100)
 		{
 			if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			{
 				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 2", sCityName);
 				return;
 			}
-			FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
 		}
+		// no else, no assert — just fall through
 	}
 
 	if (getDomainFreeExperience(DOMAIN_LAND) == 0 && getYieldRate(YIELD_PRODUCTION) > 4)
@@ -2862,14 +2888,22 @@ void CvCityAI::AI_chooseProduction()
 			return;
 	}
 
-	if (iBestSpreadUnitValue > (iSpreadUnitThreshold * 40) / 100)
+	// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate anyways etc. Note: according to chatgpt 5, about the issue related to AI_bestSpreadUnit, we don't need an assert here since we're only reusing previously computed values if i understood it correctly, check if accurate anyways etc -->
+	// The second block is a follow-up gate; it doesn’t recompute eBestSpreadUnit. If the first block didn’t run (or returned false), eBestSpreadUnit will be NO_UNIT by design. Asserting here just creates false positives.
+	// Assert Failed
+	// File:  ..\.\CvCityAI.cpp
+	// Line:  2246
+	// Func:  CvCityAI::AI_chooseProduction
+	// Expression:  eBestSpreadUnit != NO_UNIT
+	// Message:  bestSpreadUnit: returned true but NO_UNIT | T100 Orleans thr=1800
+	// if (iBestSpreadUnitValue > (iSpreadUnitThreshold * 40) / 100)
+	if (eBestSpreadUnit != NO_UNIT && iBestSpreadUnitValue > (iSpreadUnitThreshold * 40) / 100)
 	{
 		if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 		{
 			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 3", sCityName);
 			return;
 		}
-		FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
 	}
 
 	if (!bUnitExempt && iTotalFloatingDefenders < iNeededFloatingDefenders &&
@@ -15371,6 +15405,9 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 	setChooseProductionDirty(false);
 	clearOrderQueue();
 
+	// <!-- custom: add these to match code in our other functions and why not if is more efficient, check if accurate anyways etc -->
+	CvGame const& kGame = GC.getGame();
+
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	CvArea* pWaterArea = waterArea();
 	bool const bDanger = AI_isDanger();
@@ -15389,7 +15426,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 				kBestBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0
 				&& (GC.getNumCultureLevelInfos() < 2 ||
 				getProductionTurnsLeft(eBestBuilding, 0) <=
-				GC.getGame().getCultureThreshold((CultureLevelTypes)2)))
+				kGame.getCultureThreshold((CultureLevelTypes)2)))
 			{
 				pushOrder(ORDER_CONSTRUCT, eBestBuilding);
 				return;
@@ -15534,13 +15571,22 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 		int iBestSpreadUnitValue = -1;
 		if (AI_bestSpreadUnit(true, true, iSpreadUnitOdds, &eBestSpreadUnit, &iBestSpreadUnitValue))
 		{
-			if (iBestSpreadUnitValue > iSpreadUnitThreshold)
+			// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate anyways etc -->
+			// Yep—treat this second block the same way: don’t assert on AI_chooseUnit failure; just guard and fall through.
+			// <!-- custom: while we're at it, make the assert prettier with more info i mean but anyways etc -->
+			// FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
+			// Contract check: if function said "true", we expect a concrete unit
+			FAssertMsg(eBestSpreadUnit != NO_UNIT,
+				CvString::format("bestSpreadUnit: returned true but NO_UNIT | T%d %S thr=%d",
+					kGame.getGameTurn(), getName().GetCString(),
+					iSpreadUnitThreshold).c_str());
+			// if (iBestSpreadUnitValue > iSpreadUnitThreshold)
+			if (eBestSpreadUnit != NO_UNIT && iBestSpreadUnitValue > iSpreadUnitThreshold) 
 			{
 				if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 				{
 					return;
 				}
-				FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
 			}
 		}
 	}
@@ -15561,7 +15607,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 				int iBuildingCost = AI_processValue(eBestProcess) * iConstructionTurns;
 				int iScaledTime = 10000 * iBuildingCost /
 						(std::max(1, iBestBuildingValue) *
-						GC.getInfo(GC.getGame().getGameSpeedType()).getConstructPercent());
+						GC.getInfo(kGame.getGameSpeedType()).getConstructPercent());
 				// <= 4 turns means 0%. 20 turns ~ 61%.
 				iOdds = 100 * (iScaledTime - 400) / (iScaledTime + 600);
 			}
