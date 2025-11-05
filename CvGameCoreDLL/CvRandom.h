@@ -24,7 +24,32 @@ public:
 	} // New name to avoid issues in CyRandomPythonInterface
 	unsigned short getInt(int iNum, TCHAR const* szMsg,
 		int iData1, int iData2 = MIN_INT)
-	{	/*	</advc.001n>  <advc.006> The compiler doesn't warn when an int variable gets
+	{	
+		// <!-- custom: this assert fails sometimes, so fixing the issue as recommended by chatgpt 5, minimally fixed here so that we don't have to tediously check every place where it may be called or not and if it is done correctly (patched the places throwing this failed assert as well but others may remain in other functions maybe, as i didn't check them all only the ones that fired these failed asserts ingame). Sanity check maybe as well and possibly future proof as chatgpt 5 said and as i would also think too before that xd thanks i mean but check if accurate i mean but anyways etc, see known issue as of now 72 for details, and check if accurate i mean too anyways etc -->
+		// Assert Failed
+		// File: c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
+		// Line: 31
+		// Func: CvRandom::getInt
+		// Expression: static_cast<int>(iNum) >= static_cast<int>(0)
+		// Message: Index expected to be >= 0. (value: -4)
+		//
+		// Good catch. This assert means someone called the RNG with a negative range. Your dump shows:
+		// CvRandom::getInt
+		// → CvGame::getSorenRandNum
+		// → CvCityAI::AI_chooseProduction
+		// → CvCity::popOrder → CvCity::doProduction → …
+		// So a branch in AI_chooseProduction computed iNum = -4 and passed it to getSorenRandNum(iNum, …).
+		// Safety net (tiny, future-proof)
+		// Make CvRandom::getInt(int …) tolerant so you can keep playing while you hunt the caller:
+		if (iNum <= 0)
+		{
+			FAssertMsg(iNum >= 0, CvString::format(
+				"getInt: range<0 (%d) msg=%s d1=%d d2=%d",
+				iNum, (szMsg ? szMsg : ""), iData1, iData2).c_str());
+			// preserve old semantics: return 0 when range is 0/invalid
+			return 0;
+		}
+		/*	</advc.001n>  <advc.006> The compiler doesn't warn when an int variable gets
 			passed as a short int. It does warn when a large int literal is passed, but
 			I think that's not quite good enough. (At the least, the wrapper functions at
 			CvGame would have to take their param as unsigned short too.)*/

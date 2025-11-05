@@ -1630,14 +1630,29 @@ void CvCityAI::AI_chooseProduction()
 		// K-Mod. Don't do this if there is any war at all.
 		if (kArea.getAreaAIType(getTeam()) == AREAAI_NEUTRAL)
 		{
-			int iWonderTime = SyncRandNum(GC.getInfo(getPersonalityType()).
-					getWonderConstructRand());
-			iWonderTime /= 5;
-			iWonderTime += 7;
-			if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime))
+			// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details anyways etc -->
+			// Assert Failed
+			// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
+			// Line:  48
+			// Func:  CvRandom::getInt
+			// Expression:  iNum >= 0
+			// Message:  getInt: range<0 (-4) msg=CvCityAI::AI_chooseProduction@L1634 d1=-2147483648 d2=-2147483648
+			//
+			// Yep—that crash is because this line can pass a negative range into the RNG:
+			// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
+			// Minimal, correct fix (skip the roll when disabled)
+			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
+			const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
+			if (iWC > 0) // <-- guard: only roll with a valid positive range
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 1", sCityName);
-				return;
+				int iWonderTime = SyncRandNum(iWC);
+				iWonderTime /= 5;
+				iWonderTime += 7;
+				if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime))
+				{
+					if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 1", sCityName);
+					return;
+				}
 			}
 		}
 	}
@@ -2108,28 +2123,43 @@ void CvCityAI::AI_chooseProduction()
 		// For civ at war, don't build wonders if losing
 		if (!bTotalWar && (!bLandWar || iWarSuccessRating > 0)) // was -30
 		{
-			int iWonderTime = SyncRandNum(GC.getInfo(getPersonalityType()).
-					getWonderConstructRand());
-			iWonderTime /= 5;
-			iWonderTime += 8;
-			/*if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime)) {
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
-				return;
-			}*/
-			// K-Mod
-			/*	Reduce the max time when at war
-				(arbitrary - but then again, this part of the AI is not for strategy.
-				It's for flavour.) */
-			if (kArea.getAreaAIType(getTeam()) != AREAAI_NEUTRAL)
-				iWonderTime = iWonderTime * 2/3;
-			// And only build the wonder if it is at least as valuable as the building we would have chosen anyway.
-			BuildingTypes eBestWonder = AI_bestBuildingThreshold(BUILDINGFOCUS_WORLDWONDER, iWonderTime);
-			if (eBestWonder != NO_BUILDING && AI_buildingValue(eBestWonder) >= iBestBuildingValue)
+			// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details anyways etc -->
+			// Assert Failed
+			// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
+			// Line:  48
+			// Func:  CvRandom::getInt
+			// Expression:  iNum >= 0
+			// Message:  getInt: range<0 (-4) msg=CvCityAI::AI_chooseProduction@L2112 d1=-2147483648 d2=-2147483648
+			//
+			// Yep—that crash is because this line can pass a negative range into the RNG:
+			// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
+			// Minimal, correct fix (skip the roll when disabled)
+			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
+			const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
+			if (iWC > 0) // <-- guard: only roll with a valid positive range
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
-				pushOrder(ORDER_CONSTRUCT, eBestWonder);
-				return;
-			} // K-Mod end
+				int iWonderTime = SyncRandNum(iWC);
+				iWonderTime /= 5;
+				iWonderTime += 8;
+				/*if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime)) {
+					if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
+					return;
+				}*/
+				// K-Mod
+				/*	Reduce the max time when at war
+					(arbitrary - but then again, this part of the AI is not for strategy.
+					It's for flavour.) */
+				if (kArea.getAreaAIType(getTeam()) != AREAAI_NEUTRAL)
+					iWonderTime = iWonderTime * 2/3;
+				// And only build the wonder if it is at least as valuable as the building we would have chosen anyway.
+				BuildingTypes eBestWonder = AI_bestBuildingThreshold(BUILDINGFOCUS_WORLDWONDER, iWonderTime);
+				if (eBestWonder != NO_BUILDING && AI_buildingValue(eBestWonder) >= iBestBuildingValue)
+				{
+					if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
+					pushOrder(ORDER_CONSTRUCT, eBestWonder);
+					return;
+				} // K-Mod end
+			}
 		}
 	}
 
@@ -2885,62 +2915,78 @@ void CvCityAI::AI_chooseProduction()
 	// Ideally we'd look at relative production, not just rank.
 	if (iProductionRank <= iNumCities / 9 + 2 && iCityPopulation > 3)
 	{
-		int iWonderRand = 8 + SyncRandNum(GC.getInfo(getPersonalityType()).
-				getWonderConstructRand());
-
-		// increase chance of going for an early wonder
-		if (kGame.getElapsedGameTurns() * 100 <
-			100 * GC.getInfo(kGame.getGameSpeedType()).getConstructPercent() &&
-			iNumCitiesInArea > 1)
+		// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details anyways etc -->
+		// Assert Failed
+		// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
+		// Line:  48
+		// Func:  CvRandom::getInt
+		// Expression:  iNum >= 0
+		// Message:  getInt: range<0 (-4) msg=CvCityAI::AI_chooseProduction@L2889 d1=-2147483648 d2=-2147483648
+		//
+		// Yep—that crash is because this line can pass a negative range into the RNG:
+		// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
+		// Minimal, correct fix (skip the roll when disabled)
+		// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
+		const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
+		if (iWC > 0) // <-- guard: only roll with a valid positive range
 		{
-			iWonderRand *= 35;
-			iWonderRand /= 100;
-		}
-		else if (iNumCitiesInArea >= 3)
-		{
-			iWonderRand *= 30;
-			iWonderRand /= 100;
-		}
-		else
-		{
-			iWonderRand *= 25;
-			iWonderRand /= 100;
-		}
+			const int iWonderTime = SyncRandNum(iWC);
+			int iWonderRand = 8 + iWonderTime;
 
-		if (bAggressiveAI)
-		{
-			iWonderRand *= 2;
-			iWonderRand /= 3;
-		}
-
-		/* if (bLandWar && bTotalWar)
-		{
-			iWonderRand *= 2;
-			iWonderRand /= 3;
-		} */
-		// K-Mod. When losing a war, it's not really an "opportune" time to build a wonder...
-		if (bLandWar)
-			iWonderRand = iWonderRand * 2/3;
-		if (bTotalWar)
-			iWonderRand = iWonderRand * 2/3;
-		if (iWarSuccessRating < 0)
-			iWonderRand = iWonderRand * 10/(10-iWarSuccessRating);
-		// K-Mod end
-
-		int iWonderRoll = SyncRandNum(100);
-
-		if (iProductionRank == 1)
-			iWonderRoll /= 2;
-
-		if (iWonderRoll < iWonderRand)
-		{
-			int iWonderMaxTurns = 20 + ((iWonderRand - iWonderRoll) * 2);
-			if (bLandWar)
-				iWonderMaxTurns /= 2;
-			if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderMaxTurns))
+			// increase chance of going for an early wonder
+			if (kGame.getElapsedGameTurns() * 100 <
+				100 * GC.getInfo(kGame.getGameSpeedType()).getConstructPercent() &&
+				iNumCitiesInArea > 1)
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 3", sCityName);
-				return;
+				iWonderRand *= 35;
+				iWonderRand /= 100;
+			}
+			else if (iNumCitiesInArea >= 3)
+			{
+				iWonderRand *= 30;
+				iWonderRand /= 100;
+			}
+			else
+			{
+				iWonderRand *= 25;
+				iWonderRand /= 100;
+			}
+
+			if (bAggressiveAI)
+			{
+				iWonderRand *= 2;
+				iWonderRand /= 3;
+			}
+
+			/* if (bLandWar && bTotalWar)
+			{
+				iWonderRand *= 2;
+				iWonderRand /= 3;
+			} */
+			// K-Mod. When losing a war, it's not really an "opportune" time to build a wonder...
+			if (bLandWar)
+				iWonderRand = iWonderRand * 2/3;
+			if (bTotalWar)
+				iWonderRand = iWonderRand * 2/3;
+			if (iWarSuccessRating < 0)
+				iWonderRand = iWonderRand * 10/(10-iWarSuccessRating);
+			// K-Mod end
+
+			int iWonderRoll = SyncRandNum(100);
+
+			if (iProductionRank == 1)
+				iWonderRoll /= 2;
+
+			if (iWonderRoll < iWonderRand)
+			{
+				int iWonderMaxTurns = 20 + ((iWonderRand - iWonderRoll) * 2);
+				if (bLandWar)
+					iWonderMaxTurns /= 2;
+				if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderMaxTurns))
+				{
+					if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 3", sCityName);
+					return;
+				}
 			}
 		}
 	}
@@ -4347,20 +4393,34 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 		{
 			if (iProductionRank <= std::min(3, ((kOwner.getNumCities() + 2) / 3)))
 			{
-				int iTempValue;
-				if (bAsync)
+				// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details anyways etc -->
+				// Assert Failed
+				// File: c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
+				// Line: 48
+				// Func: CvRandom::getInt
+				// Expression: iNum >= 0
+				// Message: getInt: range<0 (-4) msg=CvCityAI::AI_bestBuildingThreshold@L4405 d1=-2147483648 d2=-2147483648
+				//
+				// Yep—that crash is because this line can pass a negative range into the RNG:
+				// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
+				// Minimal, correct fix (skip the roll when disabled)
+				// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
+				const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
+				if (iWC > 0) // only roll if the range is positive
 				{
-					iTempValue = GC.getASyncRand().get(GC.getInfo(getPersonalityType()).
-							getWonderConstructRand(), "Wonder Construction Rand ASYNC");
+					int iTempValue;
+					if (bAsync)
+					{
+						iTempValue = GC.getASyncRand().get(iWC, "Wonder Construction Rand ASYNC");
+					}
+					else
+					{
+						iTempValue = SyncRandNum(iWC);
+					}
+					if (bAreaAlone)
+						iTempValue *= 2;
+					iValue += iTempValue;
 				}
-				else
-				{
-					iTempValue = SyncRandNum(GC.getInfo(getPersonalityType()).
-							getWonderConstructRand());
-				}
-				if (bAreaAlone)
-					iTempValue *= 2;
-				iValue += iTempValue;
 			}
 		}
 

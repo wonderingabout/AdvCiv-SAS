@@ -103,6 +103,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [69 - (Tremendously Improved) AI going for great general leaders, while military instructors are much better (with added logic to favour top hammer cities, remove military instructor per city limit, favour it further if have or building heroic epic effect building, etc.)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc)  
 [70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#70---seemingly-fixed-base-advciv-bug-of-forcing-an-artist-specialist-even-if-it-is-invalid-and-then-firing-a-failed-assert-in-cvcityaiai_assignworkingplots)  
 [71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#71---seemingly-fixed-base-advciv-bug-of-calling-cvbuildinfoisfeatureremove-when-efeature-is-not-a-valid-feature-then-firing-a-failed-assert)  
+[72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#72---seemingly-fixedaddressed-base-advciv-bug-of-calling-getint-in-cvrandomh-when-inum-is-negative-then-firing-a-failed-assert)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -1217,7 +1218,7 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this 
 
 It is from when i was still playing base advciv if i may say but anyways etc, but it is an issue i had found (that i had named example 148, to be more precise 148.1 for the screenshot file but or not but or yes but or etc but anyways etc), so the save file(s) and/or screenhsots linked in this google drive issue come from base advciv nor our mod anyways etc, see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made but anyways etc.
 
-I did not test it since then, but i hope the patch/tweak/ tentative fix i added in as of now but anyways etc `CvCityAI::AI_bestUnit` helps and adresses that, making AI much more land-focused and overall stronger, even if it would now come i assume although i didn't check/test in this case if i may say but anyways etc at the cost of being military weaker on naval warfare, but i hope in most cases it would most benefit AI largely to do so anyways etc.
+I did not test it since then, but i hope the patch/tweak/ tentative fix i added in as of now but anyways etc `CvCityAI::AI_bestUnit` helps and addresses that, making AI much more land-focused and overall stronger, even if it would now come i assume although i didn't check/test in this case if i may say but anyways etc at the cost of being military weaker on naval warfare, but i hope in most cases it would most benefit AI largely to do so anyways etc.
 
 I also fixed thanks to gemini ai various other conditions where we don't want the AI focusing on military naval units, such as before war (build more military land units rather relatively (didn't change land production although i'd want to but maybe fine as such for now but anyways etc, only removed naval military unit one)), or if city is landlocked (i.e. coastal but on a lake, then military naval units would be pointless there, leave it as it is for simplicity, but do not prioritize further in this case if i may say but anyways etc).
 
@@ -2743,8 +2744,18 @@ I have noticed AI goes for great general leader, when it is much better to go fo
 
 See code comments i.e. in `CvCityAI::AI_assignWorkingPlots` there for details, seemingly now fixed with the help of chatgpt 5 and my prompts or/and such, check if accurate anyways etc.
 
+Update/note: most likely was caused by the forced artist code we added (see [Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#specialists-ai) for details anyways etc), although i am not totally sure, as it fires only for artists, and in the early game only in first turns, which aligns with it stopping to fire after we have our BFC, which is when we stop forcing an artist in our code and so it seems likely our code caused it and not base advciv itself, although this is just a guess of mine so check to be sure if want i mean but anyways etc. Still, this is a nice fix and guard to have regardless as sanity i'd say maybe if i may say and guess i mean, but i don't know too much about these, also the extra assert info in the message detailed i mean is nice too i mean but anyways etc.
+
 ## 71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert
 
 See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details anyways etc.
 
 WinDbg !analyze -v result viewable in .txt at [Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt) for reference i mean but anyways etc (full dmp with a debug dll anyways etc (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too i mean but anyways etc)).
+
+## 72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert
+
+I patched 3 locations in `CvCityAI::AI_chooseProduction` and 1 location in `CvCityAI::AI_bestBuildingThreshold` that caused the assert to fire i mean, but i may have missed some, so i hope the general extra assert (if iNum is negative if i understand it correctly i mean but anyways etc) we added in `getInt` with chatgpt 5 i mean thanks i mean but anyways etc will be helpful to spot other similar issues.
+
+See code comments there i.e. in `getInt` in for details anyways etc.
+
+WinDbg !analyze -v result viewable in .txt at [Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt)
