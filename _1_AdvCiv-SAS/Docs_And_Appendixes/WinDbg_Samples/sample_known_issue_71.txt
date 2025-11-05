@@ -1,0 +1,218 @@
+************* Preparing the environment for Debugger Extensions Gallery repositories **************
+   ExtensionRepository : Implicit
+   UseExperimentalFeatureForNugetShare : true
+   AllowNugetExeUpdate : true
+   NonInteractiveNuget : true
+   AllowNugetMSCredentialProviderInstall : true
+   AllowParallelInitializationOfLocalRepositories : true
+   EnableRedirectToChakraJsProvider : false
+
+   -- Configuring repositories
+      ----> Repository : LocalInstalled, Enabled: true
+      ----> Repository : UserExtensions, Enabled: true
+
+>>>>>>>>>>>>> Preparing the environment for Debugger Extensions Gallery repositories completed, duration 0.000 seconds
+
+************* Waiting for Debugger Extensions Gallery to Initialize **************
+
+>>>>>>>>>>>>> Waiting for Debugger Extensions Gallery to Initialize completed, duration 0.016 seconds
+   ----> Repository : UserExtensions, Enabled: true, Packages count: 0
+   ----> Repository : LocalInstalled, Enabled: true, Packages count: 46
+
+Microsoft (R) Windows Debugger Version 10.0.29457.1000 X86
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+
+Loading Dump File [C:\Users\PC\AppData\Local\Temp\Civ4BeyondSword.exe.dmp]
+User Mini Dump File with Full Memory : Only application data is available
+
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+Deferred                                       srv*
+Symbol search path is: srv*
+Executable search path is: 
+Windows 8 Version 9200 MP (16 procs) Free x86 compatible
+Product: WinNt, suite: SingleUserTS
+Debug session time: Wed Nov  5 07:16:36.000 2025 (UTC + 1:00)
+System Uptime: 0 days 1:28:34.344
+Process Uptime: 0 days 0:01:02.000
+................................................................
+.............................................................
+Loading unloaded module list
+.............
+This dump file has a breakpoint exception stored in it.
+The stored exception information can be accessed via .ecxr.
+For analysis of this file, run !analyze -v
+*** WARNING: Unable to verify checksum for CvGameCoreDLL.dll
+eax=00000000 ebx=011cb218 ecx=00000001 edx=00000000 esi=011cb1f0 edi=011cb248
+eip=76fc411c esp=0019baf4 ebp=0019bb00 iopl=0         nv up ei pl nz na po nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202
+ntdll!NtGetContextThread+0xc:
+76fc411c c20800          ret     8
+0:000> !analyze -v
+................................................................
+.............................................................
+Loading unloaded module list
+.............
+*******************************************************************************
+*                                                                             *
+*                        Exception Analysis                                   *
+*                                                                             *
+*******************************************************************************
+
+*** WARNING: Unable to verify checksum for Mss32.dll
+
+KEY_VALUES_STRING: 1
+
+    Key  : Analysis.CPU.mSec
+    Value: 1828
+
+    Key  : Analysis.Elapsed.mSec
+    Value: 9372
+
+    Key  : Analysis.IO.Other.Mb
+    Value: 0
+
+    Key  : Analysis.IO.Read.Mb
+    Value: 73
+
+    Key  : Analysis.IO.Write.Mb
+    Value: 73
+
+    Key  : Analysis.Init.CPU.mSec
+    Value: 234
+
+    Key  : Analysis.Init.Elapsed.mSec
+    Value: 13505
+
+    Key  : Analysis.Memory.CommitPeak.Mb
+    Value: 161
+
+    Key  : Analysis.Version.DbgEng
+    Value: 10.0.29457.1000
+
+    Key  : Analysis.Version.Description
+    Value: 10.2506.23.01 x86fre
+
+    Key  : Analysis.Version.Ext
+    Value: 1.2506.23.1
+
+    Key  : Failure.Bucket
+    Value: BREAKPOINT_80000003_CvGameCoreDLL.dll!enum_traits_detail::assertEnumBounds_enum_FeatureTypes_
+
+    Key  : Failure.Exception.Code
+    Value: 0x80000003
+
+    Key  : Failure.Exception.IP.Address
+    Value: 0x62fd8bc
+
+    Key  : Failure.Exception.IP.Module
+    Value: CvGameCoreDLL
+
+    Key  : Failure.Exception.IP.Offset
+    Value: 0x5ad8bc
+
+    Key  : Failure.Hash
+    Value: {3df03b79-8467-d7cf-f402-60ecdd9baed9}
+
+    Key  : Failure.ProblemClass.Primary
+    Value: BREAKPOINT
+
+    Key  : Timeline.OS.Boot.DeltaSec
+    Value: 5314
+
+    Key  : Timeline.Process.Start.DeltaSec
+    Value: 62
+
+    Key  : WER.Process.Version
+    Value: 3.1.9.0
+
+
+FILE_IN_CAB:  Civ4BeyondSword.exe.dmp
+
+NTGLOBALFLAG:  0
+
+APPLICATION_VERIFIER_FLAGS:  0
+
+CONTEXT:  (.ecxr)
+eax=00000001 ebx=05d7937a ecx=00000001 edx=00000000 esi=0019d278 edi=0019d4a0
+eip=062fd8bc esp=0019d278 ebp=0019d4a0 iopl=0         nv up ei pl nz na po nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202
+CvGameCoreDLL!enum_traits_detail::assertEnumBounds<enum FeatureTypes>+0x8c:
+062fd8bc cc              int     3
+Resetting default scope
+
+EXCEPTION_RECORD:  (.exr -1)
+ExceptionAddress: 062fd8bc (CvGameCoreDLL!enum_traits_detail::assertEnumBounds<enum FeatureTypes>+0x0000008c)
+   ExceptionCode: 80000003 (Break instruction exception)
+  ExceptionFlags: 00000000
+NumberParameters: 1
+   Parameter[0]: 00000000
+
+PROCESS_NAME:  Civ4BeyondSword.exe
+
+ERROR_CODE: (NTSTATUS) 0x80000003 - {EXCEPTION}  Point d arr t  Un point d arr t a  t  atteint.
+
+EXCEPTION_CODE_STR:  80000003
+
+EXCEPTION_PARAMETER1:  00000000
+
+STACK_TEXT:  
+0019d4a0 06358ed0     ffffffff cccccccc 1ffff4e8 CvGameCoreDLL!enum_traits_detail::assertEnumBounds<enum FeatureTypes>+0x8c
+0019d4b4 0682ae92     ffffffff 0019d7e4 0019ee18 CvGameCoreDLL!CvBuildInfo::isFeatureRemove+0x20
+0019d7a4 06826f47     4ba6849c 0000000c 0019e2ec CvGameCoreDLL!CvUnitAI::AI_betterPlotBuild+0x4d2
+0019d7e4 067d2b5e     4c3b1a58 0019ee00 0019ee18 CvGameCoreDLL!CvUnitAI::AI_improveCity+0x117
+0019e2f8 067d24b8     00000000 0019f19c 0019ee18 CvGameCoreDLL!CvUnitAI::AI_workerMove+0x6fe
+0019ee0c 067c796e     00000001 0019f4bc 0019f4d0 CvGameCoreDLL!CvUnitAI::AI_workerMove+0x58
+0019f1a8 066bba40     0019f5c8 0019f4d0 cccccccc CvGameCoreDLL!CvUnitAI::AI_update+0xb8e
+0019f4c8 06515f2c     0019f8a4 0019fbcc cccccccc CvGameCoreDLL!CvSelectionGroupAI::AI_update+0x370
+0019f5d4 06175afd     0019fbc4 0019fbcc cccccccc CvGameCoreDLL!CvPlayerAI::AI_unitUpdate+0x3fc
+0019f8a4 0614ef78     0019fe20 0019fbcc cccccccc CvGameCoreDLL!CvGame::updateMoves+0x25d
+0019fbc4 0614ec5c     00671a78 079b7ee0 05c551b0 CvGameCoreDLL!CvGame::updateUnprofiled+0x208
+0019fe20 00415951     76aa3580 02e59a38 00000000 CvGameCoreDLL!CvGame::update+0x27c
+WARNING: Stack unwind information not available. Following frames may be wrong.
+0019feb8 006873e8     76d10d00 004d7356 011c46fa Civ4BeyondSword+0x15951
+0019ff70 76d0fcc9     002b0000 76d0fcb0 0019ffdc Civ4BeyondSword+0x2873e8
+0019ff80 76fb82ae     002b0000 6700473e 00000000 kernel32!BaseThreadInitThunk+0x19
+0019ffdc 76fb827e     ffffffff 76fd93e8 00000000 ntdll!__RtlUserThreadStart+0x2f
+0019ffec 00000000     00fad2f0 002b0000 00000000 ntdll!_RtlUserThreadStart+0x1b
+
+
+STACK_COMMAND: ~0s; .ecxr ; kb
+
+FAULTING_SOURCE_LINE:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\enumtraits.h
+
+FAULTING_SOURCE_FILE:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\enumtraits.h
+
+FAULTING_SOURCE_LINE_NUMBER:  193
+
+FAULTING_SOURCE_CODE:  
+   189: {
+   190: 	template<typename E>
+   191: 	void assertEnumBounds(E eIndex)
+   192: 	{
+>  193: 		FAssertBounds(0, enum_traits<E>::length(), eIndex);
+   194: 	}
+   195: 	template<typename E>
+   196: 	void assertInfoEnum(E eIndex)
+   197: 	{
+   198: 		FAssertBounds(-1, enum_traits<E>::length(), eIndex);
+
+
+SYMBOL_NAME:  CvGameCoreDLL!enum_traits_detail::assertEnumBounds<enum FeatureTypes>+8c
+
+MODULE_NAME: CvGameCoreDLL
+
+IMAGE_NAME:  CvGameCoreDLL.dll
+
+FAILURE_BUCKET_ID:  BREAKPOINT_80000003_CvGameCoreDLL.dll!enum_traits_detail::assertEnumBounds_enum_FeatureTypes_
+
+OSPLATFORM_TYPE:  x86
+
+OSNAME:  Windows 8
+
+FAILURE_ID_HASH:  {3df03b79-8467-d7cf-f402-60ecdd9baed9}
+
+Followup:     MachineOwner
+---------

@@ -102,6 +102,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [68 - (Tremendously Improved) AI having a settler parked from turn +/- 45 to turn 100 and still didn't found any city, fixed/addressed in CvUnitAI::AI_found](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found)  
 [69 - (Tremendously Improved) AI going for great general leaders, while military instructors are much better (with added logic to favour top hammer cities, remove military instructor per city limit, favour it further if have or building heroic epic effect building, etc.)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc)  
 [70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#70---seemingly-fixed-base-advciv-bug-of-forcing-an-artist-specialist-even-if-it-is-invalid-and-then-firing-a-failed-assert-in-cvcityaiai_assignworkingplots)  
+[71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#71---seemingly-fixed-base-advciv-bug-of-calling-cvbuildinfoisfeatureremove-when-efeature-is-not-a-valid-feature-then-firing-a-failed-assert)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2201,6 +2202,8 @@ Note: i noticed during testing rare crashes at turn 90-100 in a few autoplay map
 
 Update: we as of now now favour civ-specific counter units just as much, with an optional config flag not to in sas defines but anyways etc.
 
+Update 2: see another example of windbg usage to bugfix (i don't know too much about these but seems to help looking at these error messages and .dmp analyze results and feeding them to chatgpt 5 or such other ai for review i mean but anyways etc, check if accurate anyways etc): [Known issue #71](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#71---seemingly-fixed-base-advciv-bug-of-calling-cvbuildinfoisfeatureremove-when-efeature-is-not-a-valid-feature-then-firing-a-failed-assert)
+
 ## 53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only anyways etc
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/180Hnkhno1HgQb9rzPu-EA9ahH0dr-36K?usp=sharing).
@@ -2739,3 +2742,9 @@ I have noticed AI goes for great general leader, when it is much better to go fo
 ## 70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots
 
 See code comments i.e. in `CvCityAI::AI_assignWorkingPlots` there for details, seemingly now fixed with the help of chatgpt 5 and my prompts or/and such, check if accurate anyways etc.
+
+## 71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert
+
+See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details anyways etc.
+
+WinDbg !analyze -v result viewable in .txt at [Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt) for reference i mean but anyways etc (full dmp with a debug dll anyways etc (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too i mean but anyways etc)).
