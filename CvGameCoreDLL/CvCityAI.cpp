@@ -137,7 +137,16 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 			if (getForceSpecialistCount(e) > getMaxSpecialistCount(e))
 				setForceSpecialistCount(e, getMaxSpecialistCount(e));
 
-			FAssert(isSpecialistValid(e));
+			// <!-- custom: adding a more detailed assert here just in case if it helps or if it fires too but anyways etc -->
+			// FAssert(isSpecialistValid(e));
+			FAssertMsg(isSpecialistValid(e),
+				CvString::format("T%03d %S %s e=%d value=%d",
+					GC.getGame().getGameTurn(),
+					getName().GetCString(),
+					GC.getInfo(e).getType(), // gives e.g. SPECIALIST_CITIZEN
+					(int)e,
+					getSpecialistCount(e)   // <- 'value'. swap to isSpecialistValid(e) or getMaxSpecialistCount(e) if you prefer
+				).c_str());
 		}
 	}
 
@@ -194,11 +203,34 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 		{
 			int iForcedSpecialistCount = getForceSpecialistCount(e);
 
+			// <!-- custom: since it is always the artist that is being forced early when invalid, adding this fix thanks to chatgpt 5, check if accurate anyways etc -->
+			// simple rule: never force an invalid specialist
+			if (!isSpecialistValid(e)) continue;
+			// don't exceed available slots
+			iForcedSpecialistCount = std::min(iForcedSpecialistCount, getMaxSpecialistCount(e));
+
 			if (getSpecialistCount(e) < iForcedSpecialistCount)
 			{
 				setSpecialistCount(e, iForcedSpecialistCount);
 				bNewlyForcedSpecialists = true;
-				FAssert(isSpecialistValid(e));
+				// <!-- custom: this very often fires with a debug dll at turn 0 and turn 1, detailing the assert to investigate, added with the help of chatgpt 5, check if accurate anyways etc -->
+				// FAssert(isSpecialistValid(e));
+				FAssertMsg(isSpecialistValid(e),
+					CvString::format("T%03d %S %s e=%d value=%d",
+						GC.getGame().getGameTurn(),
+						getName().GetCString(),
+						GC.getInfo(e).getType(), // gives e.g. SPECIALIST_CITIZEN
+						(int)e,
+						getSpecialistCount(e)   // <- 'value'. swap to isSpecialistValid(e) or getMaxSpecialistCount(e) if you prefer
+					).c_str());
+				// <<!-- custom: example with the detailed message thanks chatgpt 5 anyways etc: -->
+				// Assert Failed
+				// File:  ..\.\CvCityAI.cpp
+				// Line:  219
+				// Func:  CvCityAI::AI_assignWorkingPlots
+				// Expression:  isSpecialistValid(e)
+				// Message:  T001 Thebes SPECIALIST_ARTIST e=2 value=1
+				// <!-- custom: note: in all these cities, at least early up to when i checked, it is always the artist specialist that fails the assert. -->
 			}
 		}
 	}

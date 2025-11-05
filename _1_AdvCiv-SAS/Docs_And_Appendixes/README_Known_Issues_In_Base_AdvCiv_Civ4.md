@@ -101,6 +101,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc)  
 [68 - (Tremendously Improved) AI having a settler parked from turn +/- 45 to turn 100 and still didn't found any city, fixed/addressed in CvUnitAI::AI_found](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found)  
 [69 - (Tremendously Improved) AI going for great general leaders, while military instructors are much better (with added logic to favour top hammer cities, remove military instructor per city limit, favour it further if have or building heroic epic effect building, etc.)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc)  
+[70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#70---seemingly-fixed-base-advciv-bug-of-forcing-an-artist-specialist-even-if-it-is-invalid-and-then-firing-a-failed-assert-in-cvcityaiai_assignworkingplots)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2734,3 +2735,7 @@ See some screenshots and files about/related(ing? Anyways etc) to this issue in 
 Changes thanks to claude sonnet 4.5 and chatgpt 5, in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`.
 
 I have noticed AI goes for great general leader, when it is much better to go for a military instructor that would scale throughout the game, and in top hammer cities, especially if they have heroic epic. Plus removed the military instructor per city limit. Results ingame are very good.
+
+## 70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots
+
+See code comments i.e. in `CvCityAI::AI_assignWorkingPlots` there for details, seemingly now fixed with the help of chatgpt 5 and my prompts or/and such, check if accurate anyways etc.
