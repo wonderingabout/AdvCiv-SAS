@@ -20198,8 +20198,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY ; as for the civ-specific unit of (the) korea(n) civilization but anyways etc anyways etc anyways etc, was TECH_CHEMISTRY in the generic canon unit anyways etc -->
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<!-- custom: was TECH_CHEMISTRY in the generic cannon unit anyways etc -->
+			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<TechTypes/>
 			<!-- custom: was BONUS_IRON in the generic cannon as of now at least if not always or not but anyways etc -->
 			<BonusType/>
@@ -20321,11 +20321,10 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was empty anyways etc, info below by chatgpt 5 quite similarly if i may say i mean but anyways etc thanks anyways etc -->
-			<!-- "The Hwacha fires singijeon rocket arrows and has a unique "shoot-and-scoot" withdrawal mechanic due to its light cart. Giving it free "Retreat I" would work for this, although it's largely thematic." -->
+			<!-- custom: was empty. Note: this as of now new free PROMOTION_COLLATERAL_DAMAGE1 is also thematically more relevant according to chatgpt 5 as the unit fires many rockets if i understood it correctly but check if accurate anyways etc. -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_RETREAT1</PromotionType>
+					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -20554,10 +20553,11 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was empty -->
+			<!-- custom: was empty. Note: this as of now new free PROMOTION_CITY_BOMBARD_DAMAGE is also thematically more relevant according to chatgpt 5 as the unit fires longer range rockets above defensive lines if i understood it correctly, which may be represented by this doing more damage to defenses effect indirectly perhaps (attacking civilian houses or such means their defenses are more affected sort of maybe but anyways etc). In terms of gameplay, making it an anti wall unit is interesting as well without making it an op unit stack wiper so maybe fine as such, check if accurate, anyways etc -->
+			<!-- Houfnice (Bohemian “howitzer” ancestor) = short-barrel, high-arc field piece meant to lob shot over cover and into crowds; more about dropping fire behind defenses than battering walls head-on. -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
+					<PromotionType>PROMOTION_CITY_BOMBARD_DAMAGE</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>

@@ -143,7 +143,6 @@
 				<PrereqTech>TECH_MUSIC</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MEDITATION_QUOTE</Quote>
@@ -611,7 +610,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 300 -->
-			<iCost>650</iCost>
+			<iCost>475</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -642,7 +641,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>8</iGridX>
+			<iGridX>7</iGridX>
 			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<!-- advc.120g: Added the espionage row (no functional change) -->
@@ -673,10 +672,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MEDITATION</PrereqTech>
+				<PrereqTech>TECH_MUSIC</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ENGINEERING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_DRAMA_QUOTE</Quote>
 			<Sound>AS2D_TECH_DRAMA</Sound>
@@ -745,11 +744,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
-			</OrPreReqs>
-			<AndPreReqs>
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+			</OrPreReqs>
+			<AndPreReqs>
+				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_FEUDALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_FEUDALISM</Sound>
@@ -989,7 +988,7 @@
 				<PrereqTech>TECH_MEDITATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CIVIL_SERVICE_QUOTE</Quote>
 			<Sound>AS2D_TECH_CIVIL_SERVICE</Sound>
@@ -1055,7 +1054,7 @@
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_DRAMA</PrereqTech>
+				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CHIVALRY_QUOTE</Quote>
 			<Sound>AS2D_TECH_CHIVALRY</Sound>
@@ -1133,7 +1132,6 @@
 				<PrereqTech>TECH_DRAMA</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			</AndPreReqs>
@@ -1448,7 +1446,6 @@
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_BANKING</PrereqTech>
-				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_LIBERALISM_QUOTE</Quote>
@@ -3652,7 +3649,7 @@
 				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MEDICINE_QUOTE</Quote>
 			<Sound>AS2D_TECH_MEDICINE</Sound>
@@ -5467,10 +5464,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ENGINEERING_QUOTE</Quote>
 			<Sound>AS2D_TECH_ENGINEERING</Sound>
@@ -5625,8 +5623,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: as nicely recommended by chatgpt 5 thanks (more balanced as more easily reachable, and also i mean but anyways etc it mentionned very relevantly if i may say thanks but anyways etc alchemy being related to it which historically i guess is more or less the case thanks really i mean i added it as of now as such i mean but anyways etc), instead of my original TECH_BROADER_EDUCATION idea that was too strict/stiff i mean in this case but anyways etc -->
 			<AndPreReqs>
-				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_MEDICINE</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_GUNPOWDER_QUOTE</Quote>
 			<Sound>AS2D_TECH_GUNPOWDER</Sound>
