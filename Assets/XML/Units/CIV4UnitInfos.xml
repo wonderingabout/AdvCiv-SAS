@@ -20012,7 +20012,12 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
-			<TechTypes/>
+			<!-- custom: was empty anyways etc -->
+			<TechTypes>
+				<PrereqTech>TECH_MACHINERY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>BONUS_IRON</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -20200,7 +20205,12 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CHEMISTRY in the generic cannon unit anyways etc -->
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
-			<TechTypes/>
+			<!-- custom: was empty anyways etc -->
+			<TechTypes>
+				<PrereqTech>TECH_MACHINERY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<!-- custom: was BONUS_IRON in the generic cannon as of now at least if not always or not but anyways etc -->
 			<BonusType/>
 			<PrereqBonuses/>
@@ -20418,7 +20428,12 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
-			<TechTypes/>
+			<!-- custom: was empty anyways etc -->
+			<TechTypes>
+				<PrereqTech>TECH_MACHINERY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<!-- custom: fine to change according to chatgpt 5 after i asked it about it, reasnoning below, check if accurate anyways etc, was iron only in generic cannon in advciv-sas as of now but anyways etc. Note: for now not changed for all cannons so including the generic cannon but anyways etc, as bit tedious to consider in this case i mean but anyways etc, plus it would remove some of the strategic importance of iron, which is fine in itself but not needed for now if not always or not so left as such as of now for other units but anyways etc -->
 			<!-- "The early gunpowder artillery, like bombards and hand cannons, often used bronze (copper alloys) or wrought iron. Bronze was preferred for its mobility and shock resistance, with iron being cheaper but more brittle. The 15th-century Bohemian houfnice, key in the Hussite wars, may have used wrought iron early on but later cast in bronze." -->
 			<!-- "Hussite artillery used small field guns and howitzers, often wrought iron but sometimes bronze. By the 16th century, Habsburgs used bronze howitzers more widely, so requiring copper as an alternative to iron in Civ4 fits historically." -->
@@ -22646,7 +22661,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -22833,8 +22848,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<!-- custom: adjusted as per reworked tech tree to a closer tech if i am not mistaken anyways etc, was TECH_MILITARY_SCIENCE and techTypes TECH_ASTRONOMY -->
 			<PrereqTech>TECH_PHYSICS</PrereqTech>
 			<TechTypes>
+				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
 			<BonusType>NONE</BonusType>
