@@ -114,7 +114,9 @@ As for the changelog between releases of AdvCiv-SAS, see the [github tags](https
 
 If the below quick get started guide is too lengthy or hard to read or as alternative perhaps, please also consider viewing the very quick version of it written by chatgpt 5.
 
-It is more likely to be outdated as i would not update it as often, but most if not all info should hopefully be there as well. Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing). I adjusted/updated it a little in this case i mean but anyways etc bit or such but didn't check too much if accurate i mean (and i contributed more generally to it without messing it up unlike below one xd i mostly wrote myself but that is more detailed if i may say but anyways etc), hopefully informative and helpful though but check if accurate again anyways etc.
+Most if not all info should hopefully be there as well, and i reviewed it as well, sometimes edited it. This version is more concise, although it is not "very quick" per se i mean if i may say but anyways etc. It should otherwise (ideally) contain exact same entries (if not would be a mistaken of mine but anyways etc). Hopefully fast enough to read and as of now much clearer than my longer one that was used as a base for it.
+
+Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing) so check if accurate if in doubt i mean but anyways etc.
 
 You can view it here anyways etc [README_Very_Quick_Get_Started_Guide_By_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md).
 
