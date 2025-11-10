@@ -3491,8 +3491,10 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: nicely fits copernic theme and fighting previous religious or such preconceptions with the power of reality i mean if i may say for better or worse xd i mean but anyways etc -->
 			<AndPreReqs>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+				<PrereqTech>TECH_NATURALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_PHYSICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_PHYSICS</Sound>
@@ -4299,7 +4301,10 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<!-- custom: added this extra as of now tech_electricity prereq nicely i mean if i may say but anyways etc recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking it and it was replying i mean if i may say but anyways etc, thanks for help and confirming lot! I mean if i may say but anyways etc. Also, as i explained to chatgpt 5 as it asked me i mean if i may say but anyways etc, it (i.e. tech_nationalism i mean but anyways etc) also seems to be a great fit i mean but anyways etc as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time) i mean as well but anyways etc) though i mean if i may say but anyways etc), and tech_liberalism is a bit too soon for that (tech chatgpt 5 sugegsted as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time i mean if i may say but anyways etc. -->
+			<AndPreReqs>
+				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_GENETICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_GENETICS</Sound>
 			<SoundMP>AS2D_TECH_MP_GENETICS</SoundMP>
@@ -5692,8 +5697,10 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe i mean but anyways etc, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well but anyways etc)  too much here for variety or such i mean as well but anyways etc -->
 			<AndPreReqs>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
 			<Sound>AS2D_TECH_GAME_THEORY</Sound>
