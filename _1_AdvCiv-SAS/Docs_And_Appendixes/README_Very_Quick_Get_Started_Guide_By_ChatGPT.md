@@ -340,8 +340,8 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 
 ### Civics (non-exhaustive)
 
-- **Civics rework/rebalance:** Examples: **Representation** adjusted since it unlocks earlier in AdvCiv-SAS (effects tweaked accordingly); **Serfdom** buffed (removed `IMPROVEMENT_TOWN` gold penalty; added water-tile food improvements); **Slavery** buffed (upkeep **Medium → Low**); **Caste System** nerfed (upkeep **Medium → High** to curb early OP use). See Sevopedia/XML.
-- Some civics moved on the tech tree for history/balance/variety. **Slavery** is now at **Agriculture** (earlier), which weakens the **Bronze Working** beeline and opens non-military paths.
+- **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball. See Sevopedia/XML.
+- **(Requires AdvCiv-SAS 5104+) Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. Net effect: more viable paths, fewer must-picks.
 
 ### Buildings (non-exhaustive)
 

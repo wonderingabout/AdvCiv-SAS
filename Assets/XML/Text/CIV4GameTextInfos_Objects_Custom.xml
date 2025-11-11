@@ -214,6 +214,10 @@
 		<Tag>TXT_KEY_CIVIC_PREHISTORIC_RELIGION</Tag>
 		<English>Prehistoric Religion</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_WAGE_LABOR</Tag>
+		<English>Wage Labor</English>
+	</TEXT>
 
 
 

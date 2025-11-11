@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need anyways etc, record the button Path as a txtKey for reference (centralized) (multibly possible now but anyways etc) as well as forgot my sentence but maybe for exhaustiveness as well if i may say but anyways etc.
 
-See also (adjust to your mod path if need(ed) anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs_And_Appendixes\Modding_Ressources\README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but anyways etc.
+See also /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but anyways etc.
 
 See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there anyways etc anyways etc anyways etc) anyways etc
 -->

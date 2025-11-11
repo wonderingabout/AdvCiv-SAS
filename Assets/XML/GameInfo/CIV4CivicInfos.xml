@@ -335,12 +335,8 @@
 				<iCommerce>15</iCommerce>
 			</CapitalCommerceModifiers>
 			<SpecialistExtraCommerces/>
-			<Hurrys>
-				<Hurry>
-					<HurryType>HURRY_GOLD</HurryType>
-					<bHurry>1</bHurry>
-				</Hurry>
-			</Hurrys>
+			<!-- custom: was HURRY_GOLD 1 -->
+			<Hurrys/>
 			<SpecialBuildingNotRequireds/>
 			<SpecialistValids/>
 			<BuildingHappinessChanges/>
@@ -868,7 +864,8 @@
 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
 			<iExtraHealth>0</iExtraHealth>
 			<iFreeExperience>0</iFreeExperience>
-			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
+			<!-- custom: was 50 -->
+			<iWorkerSpeedModifier>25</iWorkerSpeedModifier>
 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
 			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
 			<iBaseFreeUnits>0</iBaseFreeUnits>
@@ -897,7 +894,12 @@
 			<iStateReligionUnitProductionModifier>0</iStateReligionUnitProductionModifier>
 			<iStateReligionBuildingProductionModifier>0</iStateReligionBuildingProductionModifier>
 			<iStateReligionFreeExperience>0</iStateReligionFreeExperience>
-			<YieldModifiers/>
+			<!-- custom: was empty -->
+			<YieldModifiers>
+				<iYield>10</iYield>
+				<iYield>0</iYield>
+				<iYield>0</iYield>
+			</YieldModifiers>
 			<CapitalYieldModifiers/>
 			<TradeYieldModifiers/>
 			<CommerceModifiers/>
@@ -1036,12 +1038,17 @@
 		</CivicInfo>
 		<CivicInfo>
 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
-			<Type>CIVIC_EMANCIPATION</Type>
-			<Description>TXT_KEY_CIVIC_EMANCIPATION</Description>
-			<Civilopedia>TXT_KEY_CIVIC_EMANCIPATION_PEDIA</Civilopedia>
+			<Type>CIVIC_WAGE_LABOR</Type>
+			<Description>TXT_KEY_CIVIC_WAGE_LABOR</Description>
+			<Civilopedia>TXT_KEY_CIVIC_WAGE_LABOR_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Button>,Art/Interface/Buttons/Civics/Emancipation.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,6,1</Button>
-			<TechPrereq>TECH_DEMOCRACY</TechPrereq>
+			<!-- custom: button import from c2c mod's TECH_WARRANTS_AND_DECREES anyways etc -->
+			<Button>Art/AdvCiv_SAS/Civics/Wage_Labor/decrees.dds</Button>
+			<!-- custom: hopefully having it sooner also increases strategic options as well anyways etc, was TECH_DEMOCRACY -->
+			<!-- Short version: yes, if what you want is the rise of monetized, contract-based work rather than “the modern proletariat.”
+				- Wage labor existed well before the Industrial Revolution (soldiers, artisans, day/harvest laborers, urban craftsmen, ship crews). It accelerates from the 13th–15th c. with coin monetization, towns, and guild production, then expands massively later.
+				- Tying it to Banking (Italian city-states, credit networks, bills of exchange) is thematically solid. -->
+			<TechPrereq>TECH_BANKING</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- custom: was UPKEEP_LOW -->
 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
@@ -1076,7 +1083,8 @@
 			<bNoForeignTrade>0</bNoForeignTrade>
 			<bNoCorporations>0</bNoCorporations>
 			<bNoForeignCorporations>0</bNoForeignCorporations>
-			<iCivicPercentAnger>400</iCivicPercentAnger>
+			<!-- custom: was 400 -->
+			<iCivicPercentAnger>0</iCivicPercentAnger>
 			<bStateReligion>0</bStateReligion>
 			<bNoNonStateReligionSpread>0</bNoNonStateReligionSpread>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
@@ -1090,9 +1098,21 @@
 			<CommerceModifiers/>
 			<CapitalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
-			<Hurrys/>
+			<!-- custom: was empty -->
+			<Hurrys>
+				<Hurry>
+					<HurryType>HURRY_GOLD</HurryType>
+					<bHurry>1</bHurry>
+				</Hurry>
+			</Hurrys>
 			<SpecialBuildingNotRequireds/>
-			<SpecialistValids/>
+			<!-- custom: was empty anyways etc -->
+			<SpecialistValids>
+				<SpecialistValid>
+					<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+					<bValid>1</bValid>
+				</SpecialistValid>
+			</SpecialistValids>
 			<BuildingHappinessChanges/>
 			<BuildingHealthChanges/>
 			<FeatureHappinessChanges/>
@@ -1170,7 +1190,8 @@
 			<Civilopedia>TXT_KEY_CIVIC_MERCANTILISM_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Button>,Art/Interface/Buttons/Civics/Mercantilism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,4,3</Button>
-			<TechPrereq>TECH_BANKING</TechPrereq>
+			<!-- custom: change as recommended by chatgpt 5 and to avoid redundancy with our other civic change as of now at this tech but anyways etc, was TECH_BANKING -->
+			<TechPrereq>TECH_PRINTING_PRESS</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- K-Mod: was MEDIUM -->
 			<Upkeep>UPKEEP_LOW</Upkeep>

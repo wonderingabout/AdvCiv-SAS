@@ -6883,7 +6883,7 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_EMANCIPATION</FavoriteCivic>
+			<FavoriteCivic>CIVIC_WAGE_LABOR</FavoriteCivic>
 			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: lincoln seems to lean much more towards agnosticism, see notes for details -->
 			<Traits>
 				<Trait>

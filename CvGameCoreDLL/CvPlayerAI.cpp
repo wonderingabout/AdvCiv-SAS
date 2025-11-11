@@ -17958,7 +17958,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	// K-Mod end
 
 
-	// <!-- custom: civic_emancipation is overvalued when it's really not a so great civic especially vs civic_caste_system and civic_serfdom, so reduce the overvaluation potential causes. Use another formula. Use another formula counting unhappiness in cities rather, with the help of chatgpt 5, check if accurate anyways etc -->
+	// <!-- custom: the former civic_emancipation was overvalued when it was really not a so great civic especially vs civic_caste_system and civic_serfdom, so reduce the overvaluation potential causes. Use another formula counting unhappiness in cities rather, with the help of chatgpt 5, check if accurate anyways etc -->
 	// Short answer: the AI is over-valuing Emancipation because of the two civic-percent-anger terms in AI_civicValue. With your current XML (iCivicPercentAnger = 400 and low upkeep), those lines alone can outweigh Emancipation’s weak direct effects, so AIs “auto-snap” to it.
 	// if (kCivic.getCivicPercentAnger() != 0)
 	// {

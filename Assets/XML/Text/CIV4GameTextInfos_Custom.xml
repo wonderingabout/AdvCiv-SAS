@@ -200,4 +200,11 @@
 		<Tag>TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION</Tag>
 		<English>Effects with some AI information</English>
 	</TEXT>
+
+
+	<!-- custom: was <English>U.N. Resolution #743 (Global Civic - Emancipation)</English> anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_VOTE_WAGE_LABOR</Tag>
+		<English>U.N. Resolution #743 (Global Civic - Wage Labor)</English>
+	</TEXT>
 </Civ4GameText>
