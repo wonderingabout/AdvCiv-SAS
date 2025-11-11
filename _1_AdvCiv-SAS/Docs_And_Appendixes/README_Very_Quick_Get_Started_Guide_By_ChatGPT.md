@@ -342,6 +342,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 
 - **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball. See Sevopedia/XML.
 - **(Requires AdvCiv-SAS 5104+) Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. Net effect: more viable paths, fewer must-picks.
+- **(Requires AdvCiv-SAS 5105+) Civics order aligned to tech pace:** Reordered civics in XML so the **Civics Advisor** (F3 key) displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Vassalage** after **Caste System**; **Pacifism** before **Organized Religion**; **Environmentalism** before **State Property**.
 
 ### Buildings (non-exhaustive)
 
