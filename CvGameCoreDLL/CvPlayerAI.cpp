@@ -17958,17 +17958,61 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	// K-Mod end
 
 
+	// <!-- custom: civic_emancipation is overvalued when it's really not a so great civic especially vs civic_caste_system and civic_serfdom, so reduce the overvaluation potential causes. Use another formula. Use another formula counting unhappiness in cities rather, with the help of chatgpt 5, check if accurate anyways etc -->
+	// Short answer: the AI is over-valuing Emancipation because of the two civic-percent-anger terms in AI_civicValue. With your current XML (iCivicPercentAnger = 400 and low upkeep), those lines alone can outweigh Emancipation’s weak direct effects, so AIs “auto-snap” to it.
+	// if (kCivic.getCivicPercentAnger() != 0)
+	// {
+	// 	/*	K-Mod version. (the original bts code was ridiculous - it is now deleted)
+	// 		value for negation of unhappiness. "percent_anger_divisor" is 1000, not 100. */
+	// 	iValue += (iCities * 12 * iS * AI_getHappinessWeight(
+	// 			iS*getCivicPercentAnger(eCivic, true)*
+	// 			100/GC.getPERCENT_ANGER_DIVISOR(), 2, true)) / 100;
+	// 	/*	value for putting pressure on other civs.
+	// 		(this should probably take into account the civics of other civs) */
+	// 	iValue += kCivic.getCivicPercentAnger() * (SQR(iCities) - iCities) /
+	// 			(5*kGame.getNumCities()); // 5* because "percent" is really per mil.
+	// }
+	// Yes—count the actual anger in your cities and weight it by how tight each city’s happy cap is. Drop this in CvPlayerAI::AI_civicValue and delete (or #if 0) any older emancipation pressure code so we don’t double-count.
+	// --- City-level valuation of "civic percent anger" (defensive only) ---
 	if (kCivic.getCivicPercentAnger() != 0)
 	{
-		/*	K-Mod version. (the original bts code was ridiculous - it is now deleted)
-			value for negation of unhappiness. "percent_anger_divisor" is 1000, not 100. */
-		iValue += (iCities * 12 * iS * AI_getHappinessWeight(
-				iS*getCivicPercentAnger(eCivic, true)*
-				100/GC.getPERCENT_ANGER_DIVISOR(), 2, true)) / 100;
-		/*	value for putting pressure on other civs.
-			(this should probably take into account the civics of other civs) */
-		iValue += kCivic.getCivicPercentAnger() * (SQR(iCities) - iCities) /
-				(5*kGame.getNumCities()); // 5* because "percent" is really per mil.
+		// Per-mil anger we'd suffer if we DON'T run this civic
+		const int iPermilIfWeDont = getCivicPercentAnger(eCivic, /*bIgnore=*/true);
+		if (iPermilIfWeDont != 0)
+		{
+			// New - current: adopt (iS>0) => negative; drop (iS<0) => positive
+			const int iPermilDelta = -iS * iPermilIfWeDont;
+
+			int iTotal = 0;
+			const int D = GC.getPERCENT_ANGER_DIVISOR();
+
+			static const int iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY = GC.getDefineINT("SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY");
+			static const int iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY = GC.getDefineINT("SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY");
+			
+			FOR_EACH_CITYAI(pCity, *this)
+			{
+				// Happy slack: how many heads we can add before going unhappy
+				const int iSlack = pCity->happyLevel() - pCity->unhappyLevel(0);
+				const bool bCityHappy = (iSlack >= 0);
+
+				// Skip truly safe cities
+				if (bCityHappy)
+					continue;
+
+				// Convert per-mil anger delta to heads (rounded)
+				const int iDeltaUnhappy = (iPermilDelta * pCity->getPopulation() + D/2) / D;
+				if (iDeltaUnhappy == 0)
+					continue;
+
+				// Weight edge / unhappy cities a bit more
+				const int iPressureScale = (!bCityHappy ? iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY); // tune if desired
+
+				// Turn “less unhappy” into a positive score for the AI
+				const int iCityVal = (12 * AI_getHappinessWeight(-iDeltaUnhappy, 1, true)) / 100;
+				iTotal += iCityVal * iPressureScale / 100;
+			}
+			iValue += iTotal;
+		}
 	}
 
 	if (kCivic.getExtraHealth() != 0)

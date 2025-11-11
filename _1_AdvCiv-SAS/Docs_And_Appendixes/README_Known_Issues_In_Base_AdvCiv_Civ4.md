@@ -106,6 +106,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#72---seemingly-fixedaddressed-base-advciv-bug-of-calling-getint-in-cvrandomh-when-inum-is-negative-then-firing-a-failed-assert)  
 [73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#73---seemingly-fixedaddressed-base-advciv-bug-of-calling-scout-units-stuck-in-a-loop-related-to-iattempts-and-imaxattempts-in-cvselectiongroupaiai_update-then-firing-a-failed-assert)  
 [74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#74---seemingly-fixedaddressed-base-advciv-bug-of-ai_bestspreadunit-returning-true-even-if-ebestspreadunit-is-no_unit-then-firing-a-failed-assert)  
+[75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2777,3 +2778,13 @@ See code comments there i.e. in `CvSelectionGroupAI::AI_update` in for details a
 ## 74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert
 
 See code comments there i.e. in parent callers in `CvCityAI::AI_chooseProduction` and `CvCityAI::AI_buildGovernorChooseProduction` in for details anyways etc.
+
+## 75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/16vQkp1ow6sy2Bi99M02HbHMPpFDU9Q1h?usp=sharing) anyways etc.
+
+AI had an issue of seemingly tremendously favouring the former civic_emancipation i guess because of the `iCivicPercentAnger` as chatgpt 5 assessed as per its review (check if accurate anyways etc) i mean but anyways etc, but the problem is that the civic itself was really bad. Just because we'd have some rivals run the civic is no reason to urgently switch to it. Only do so if our cities are unhappy because of this effect rather. Else, keep other civics like as of now civic_caste_system or anything else, unless the civic_emancipation is by itself better (e.g. due to other effects if reworked, etc).
+
+As can be seen in screenshots before/after, AI went from always picking the former civic_emancipation after a few first pick it to now depicking it even if some rivals have it.
+
+To be good, the civic would need to be reworked, and not just picked because other rivals have it, else AIs would make a weak choice vs humans who would value say civic_caste_system or such. Hopefully AIs should be stronger as such, and may open the door to some civic balance i mean hopefully in this case i mean but anyways etc
