@@ -1583,7 +1583,10 @@
 			<iDistanceMaintenanceModifier>0</iDistanceMaintenanceModifier>
 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
-			<iExtraHealth>0</iExtraHealth>
+			<!-- custom: promoting meditation or zen or such; add this as a way to buff this civic so it is relevant longer in the middle/late game + idea i got from glancing at chatgpt 5's thoughts plus it confirms it as well after asking it but anyways etc; plus also cleansing one's sould/body may fit this well after considering it in this case i mean but anyways etc, was 0 -->
+			<!-- Pros: zero micro, AI values it automatically, useful all game.
+			Cons: generic (but still thematically fine: charitable hospitals, sanitation norms). -->
+			<iExtraHealth>1</iExtraHealth>
 			<iFreeExperience>0</iFreeExperience>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
@@ -1612,7 +1615,8 @@
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iNonStateReligionHappiness>0</iNonStateReligionHappiness>
 			<iStateReligionUnitProductionModifier>0</iStateReligionUnitProductionModifier>
-			<iStateReligionBuildingProductionModifier>25</iStateReligionBuildingProductionModifier>
+			<!-- custom: breaks balance and not necessarily relevant to build any building faster just because we have a religion. Was 25 -->
+			<iStateReligionBuildingProductionModifier>0</iStateReligionBuildingProductionModifier>
 			<iStateReligionFreeExperience>0</iStateReligionFreeExperience>
 			<YieldModifiers/>
 			<CapitalYieldModifiers/>
@@ -1627,7 +1631,13 @@
 					<bNotRequired>1</bNotRequired>
 				</SpecialBuildingNotRequired>
 			</SpecialBuildingNotRequireds>
-			<SpecialistValids/>
+			<!-- custom: changed so civic stays relevant longer in the game and to buff it, was empty anyways etc -->
+			<SpecialistValids>
+				<SpecialistValid>
+					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+					<bValid>1</bValid>
+				</SpecialistValid>
+			</SpecialistValids>
 			<BuildingHappinessChanges/>
 			<BuildingHealthChanges/>
 			<FeatureHappinessChanges/>
@@ -1738,20 +1748,25 @@
 			<iExpInBorderModifier>0</iExpInBorderModifier>
 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
 			<iLargestCityHappiness>0</iLargestCityHappiness>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<!-- custom: very nice idea by chatgpt 5 thanks, was 0 -->
+			<!-- Optional, thematic: a touch less war weariness due to zeal -->
+			<iWarWearinessModifier>-25</iWarWearinessModifier>
 			<iFreeSpecialist>0</iFreeSpecialist>
 			<iTradeRoutes>0</iTradeRoutes>
 			<bNoForeignTrade>0</bNoForeignTrade>
 			<bNoCorporations>0</bNoCorporations>
 			<bNoForeignCorporations>0</bNoForeignCorporations>
-			<iCivicPercentAnger>0</iCivicPercentAnger>
+			<!-- custom: if you are not a religious state we hate you (note: lower than the old civic_emancipation's value of 400), was 0 -->
+			<iCivicPercentAnger>200</iCivicPercentAnger>
 			<bStateReligion>1</bStateReligion>
 			<bNoNonStateReligionSpread>1</bNoNonStateReligionSpread>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iNonStateReligionHappiness>0</iNonStateReligionHappiness>
-			<iStateReligionUnitProductionModifier>0</iStateReligionUnitProductionModifier>
+			<!-- custom: (so civic stays relevant longer in the game and thematically relevant (more belligerent to others anyways etc)), was 0 -->
+			<iStateReligionUnitProductionModifier>15</iStateReligionUnitProductionModifier>
 			<iStateReligionBuildingProductionModifier>0</iStateReligionBuildingProductionModifier>
-			<iStateReligionFreeExperience>2</iStateReligionFreeExperience>
+			<!-- custom: was 2 -->
+			<iStateReligionFreeExperience>0</iStateReligionFreeExperience>
 			<YieldModifiers/>
 			<CapitalYieldModifiers/>
 			<TradeYieldModifiers/>
@@ -1805,7 +1820,8 @@
 			<iExpInBorderModifier>0</iExpInBorderModifier>
 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
 			<iLargestCityHappiness>0</iLargestCityHappiness>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<!-- custom: no longer an autopick late game, weight it vs other options + also thematical (less inclined to go to war without values promoting or encouraging it but anyways etc), was 0 -->
+			<iWarWearinessModifier>25</iWarWearinessModifier>
 			<iFreeSpecialist>0</iFreeSpecialist>
 			<iTradeRoutes>0</iTradeRoutes>
 			<bNoForeignTrade>0</bNoForeignTrade>
