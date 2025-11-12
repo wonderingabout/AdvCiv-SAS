@@ -1000,6 +1000,43 @@
 
 
 
+	<!-- custom: civic excessive oscillation tentative fix. Note: issue happened before our unlimited specialists civic valuation changes based on quick autoplay testing, but they seem more prevalent now that for example civic_caste_system is no longer an autopick and civics change more. Added this with the help of chatgpt 5 to attempt to / to help reduce oscillation. Check if accurate but anyways etc. -->
+	<!--
+	Civic switch hysteresis (anti flip-flop)
+
+	What it does:
+	- Stops the AI from bouncing between near-equal civics. The AI only switches if the
+	new civic is clearly better than the current one by a small "extra lead" called slack.
+
+	How slack is calculated:
+	- slack = max( SAS_DO_CIVICS_SWITCH_MIN_SLACK ,
+				round( abs(current_value) * SAS_DO_CIVICS_SWITCH_SLACK_PERCENT / 100 ) )
+
+	Examples:
+	- Small numbers (early game): current_value=30, MIN=5, PCT=5%
+	-> slack=max(5, round(1.5))=5. New civic must be at least 30+5=35 to switch.
+	- Large numbers (late game): current_value=220, MIN=5, PCT=5%
+	-> slack=max(5, round(11))=11. New civic must be at least 220+11=231 to switch.
+
+	Tuning tips:
+	- Raise MIN to reduce early-game churn (e.g. 6-8). Lower it for more agility.
+	- Raise PCT to require a bigger lead in late game (e.g. 6-8%). Lower it for more frequent switches.
+	- Set both to 0 to disable the anti flip-flop behavior.
+	-->
+	<!-- Absolute floor in value-points; prevents tiny swings from causing a switch when current_value is small. Raise to reduce early-game oscillation; lower to make AI more eager. -->
+	<Define>
+		<DefineName>SAS_DO_CIVICS_SWITCH_MIN_SLACK</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- Percent of abs(current_value) added as extra lead required. Keeps late-game switches meaningful when values are large. Raise to add stickiness; lower for responsiveness. -->
+	<!-- custom: note: for some reason as of now sometimes bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such anyways etc. -->
+	<Define>
+		<DefineName>SAS_DO_CIVICS_SWITCH_SLACK_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) anyways etc -->
 	<Define>
 		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>

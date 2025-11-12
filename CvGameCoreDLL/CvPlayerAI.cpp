@@ -18655,7 +18655,10 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	// We can’t compute the full-set anarchy here, so use a cheap, correct-enough proxy:
 	//   - if player has zero max anarchy (Spiritual, Cristo, GA rules handled elsewhere), no penalty
 	//   - otherwise use the civic’s base anarchy length.
-	if (iS > 0) // only when considering adopting this civic
+	//
+	// In your unlimited-specialist block you devalue only when iS > 0 (adopting). That means the AI “pays” anarchy when switching to OR, but doesn’t count the anarchy cost when switching away from OR. That creates a bias toward dropping it next pass.
+	// Fix: apply the same scaling whenever we’d change the civic at all.
+	if (iS != 0) // adopting or dropping
 	{
 		int iAnTurns = 0;
 		if (getMaxAnarchyTurns() != 0) // Spiritual/CR/GA -> 0 anarchy windows
@@ -20994,6 +20997,13 @@ void CvPlayerAI::AI_doCivics()
 				AI_civicValue(aeBestCivic.get(eLoopCivicOption)));
 	}
 
+	// <!-- custom: we seem to have excessive civic oscillation, see below for details anyways etc -->
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// --- Hysteresis knobs (tunable in XML if you like) ---
+	static const int iSlackMin   = GC.getDefineINT("SAS_DO_CIVICS_SWITCH_MIN_SLACK");        // e.g. 5
+	static const int iSlackPct   = GC.getDefineINT("SAS_DO_CIVICS_SWITCH_SLACK_PERCENT");    // e.g. 10
+
 	int iAnarchyLength = 0;
 	bool bWillSwitch;
 	bool bWantSwitch;
@@ -21027,11 +21037,45 @@ void CvPlayerAI::AI_doCivics()
 					iThreshold += 15;
 				// </advc.132b>
 			}
-			if (100*iBestValue > (100 + /* advc.131: */ (iBestValue >= 0 ? 1 : -1) *
-				iThreshold) * aiCurrentValue.get(eLoopCivicOption))
+
+			// <!-- custom: we seem to have excessive civic oscillation, especially after our changes to civic valuation that stopped the civic_caste_system autopick and which may have revealed an issue that was masked before (as this oscillation happened to a lesser extent before our changes based on quick autoplay testing). Trying to reduce oscillation so we change civics only when it benefits us and not too often which may be inefficient if we don't have a no anarchy effect. Code provided by chatgpt 5, check if accurate anyways etc -->
+			// This keeps your existing percent threshold logic (which already scales with anarchy) and demands a tiny absolute lead (e.g., max(5, 5% of current)). That’s usually enough to stop OR↔Paganism bounce from rounding/upkeep noise while still allowing real upgrades.
+			// if (100*iBestValue > (100 + /* advc.131: */ (iBestValue >= 0 ? 1 : -1) *
+			// 	iThreshold) * aiCurrentValue.get(eLoopCivicOption))
+			// {
+			// 	FAssert(aeBestCivic.get(eLoopCivicOption) != NO_CIVIC);
+			// 	if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%S)", getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0), iBestValue, aiCurrentValue.get(eLoopCivicOption), bFirstPass?"" :", on recheck");
+			// 	iAnarchyLength = iTestAnarchy;
+			// 	aeBestCivic.set(eLoopCivicOption, eNewCivic);
+			// 	aiCurrentValue.set(eLoopCivicOption, iBestValue);
+			// 	bWillSwitch = true;
+			// }
+			// else
+			// {
+			// 	if (100 * iBestValue > /* advc.131: */ (iBestValue >= 0 ? 120 : 80)
+			// 		* aiCurrentValue.get(eLoopCivicOption))
+			// 	{
+			// 		bWantSwitch = true;
+			// 	}
+			// }
+			// Civic switch hysteresis (anti flip-flop)
+			const int iCurrent = aiCurrentValue.get(eLoopCivicOption);
+
+			// Require BOTH: (a) your existing percent threshold AND (b) an absolute margin.
+			const int iLHS = 100 * iBestValue;
+			const int iRHS = (100 + ((iBestValue >= 0) ? 1 : -1) * iThreshold) * iCurrent;
+
+			// Absolute margin scaled by current magnitude (handles negatives safely)
+			const int iAbsSlack = std::max(iSlackMin, (int)(std::abs(iCurrent) * iSlackPct) / 100);
+
+			if (iLHS > iRHS && (iBestValue - iCurrent) > iAbsSlack)
 			{
 				FAssert(aeBestCivic.get(eLoopCivicOption) != NO_CIVIC);
-				if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%S)", getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0), iBestValue, aiCurrentValue.get(eLoopCivicOption), bFirstPass?"" :", on recheck");
+				if (gPlayerLogLevel > 0) logBBAI(
+					"    %S switches to %S (value: %d vs %d, slack %d, thr %d)%s",
+					getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0),
+					iBestValue, iCurrent, iAbsSlack, iThreshold, bFirstPass ? "" : ", recheck");
+
 				iAnarchyLength = iTestAnarchy;
 				aeBestCivic.set(eLoopCivicOption, eNewCivic);
 				aiCurrentValue.set(eLoopCivicOption, iBestValue);
@@ -21039,12 +21083,11 @@ void CvPlayerAI::AI_doCivics()
 			}
 			else
 			{
-				if (100 * iBestValue > /* advc.131: */ (iBestValue >= 0 ? 120 : 80)
-					* aiCurrentValue.get(eLoopCivicOption))
-				{
+				// Not enough margin to commit; still remember we’d like to switch.
+				if (iBestValue > iCurrent)
 					bWantSwitch = true;
-				}
 			}
+			// End - Civic switch hysteresis (anti flip-flop)
 		}
 		bFirstPass = false;
 	} while (bWillSwitch && bWantSwitch);
