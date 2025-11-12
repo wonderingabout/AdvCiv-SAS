@@ -17222,6 +17222,80 @@ CivicTypes CvPlayerAI::AI_bestCivic(CivicOptionTypes eCivicOption, int* piBestVa
 	return eBestCivic;
 }
 
+// <-- custom: helpers provided by chatgpt 5, they may be useful if we reuse this yield and commerce valuing logic elsewhere so fine to keep as helpers thanks, check if accurate anyways etc. -->
+// Specialist weighting helpers (file-scope in CvPlayerAI.cpp)
+// 100 = neutral weight. Weights can be any positive ints.
+static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers)
+{
+	// Read once per process (static init); assumes defines exist (non-zero).
+	// If you want defensive fallbacks, replace each with a small getter that
+	// returns a default when GC.getDefineINT(...) == 0.
+	static const int iFOOD   = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE");    // e.g. 300
+	static const int iHAMMER = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE");  // e.g. 200
+	static const int iGOLDY  = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE");    // used for YIELD_COMMERCE baseline (e.g. 100)
+
+	// Culture push multiplier (applied only when we “need culture”)
+	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER");               // e.g. 2
+
+	int w = 100;
+	switch (eY)
+	{
+		case YIELD_FOOD:       w = iFOOD;   break;
+		case YIELD_PRODUCTION: w = iHAMMER; break;
+		case YIELD_COMMERCE:   w = iGOLDY;  break; // yield-level commerce (before splitting by COMMERCE_* below)
+		default:               w = 100;     break;
+	}
+
+	// Hammer “need” detection
+	if (eY == YIELD_PRODUCTION && iHAMMER_NEED_MULT > 1)
+	{
+		if (bNeedHammers)
+			w *= iHAMMER_NEED_MULT; // e.g. 200 -> 400
+	}
+
+	return w;
+}
+
+static inline int SAS_SpecCommerceBaseWeight(const CvPlayerAI& kPlayer, CommerceTypes eC, const bool bAnyCityNeedsBFC)
+{
+	// Base per-commerce weights from knobs
+	static const int iSCI   = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE");   // e.g. 300
+	static const int iGOLD  = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE");      // e.g. 300
+	static const int iCULT  = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE");   // e.g. 100
+	static const int iESP   = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE"); // e.g. 200
+
+	// Culture push multiplier (applied only when we “need culture”)
+	static const int iCULT_NEED_MULT = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER");               // e.g. 3
+
+	int w = 100;
+	switch (eC)
+	{
+		case COMMERCE_RESEARCH:  w = iSCI;  break;
+		case COMMERCE_GOLD:      w = iGOLD; break;
+		case COMMERCE_CULTURE:   w = iCULT; break;
+		case COMMERCE_ESPIONAGE: w = iESP;  break;
+		default:                 w = 100;   break;
+	}
+
+	// Culture “need” detection: strong push if going Culture VC, or if many cities
+	// still need border pops to work full radius. Tweak the condition as you like.
+	if (eC == COMMERCE_CULTURE && iCULT_NEED_MULT > 1)
+	{
+		bool const bNeedCulture = (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2) ||
+		                           kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE3) ||
+								   bAnyCityNeedsBFC);
+
+		if (bNeedCulture)
+			w *= iCULT_NEED_MULT; // e.g. 100 -> 300
+	}
+
+	// Examples you can uncomment later if desired:
+	// if (eC == COMMERCE_GOLD && kPlayer.AI_isFinancialTrouble()) w = (w * 140) / 100;
+	// if (eC == COMMERCE_ESPIONAGE && kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY)) w = (w * 150) / 100;
+
+	return w;
+}
+
 /*	The bulk of this function has been rewritten for K-Mod.
 	(some original code deleted, some edited by BBAI)
 	Note: the value is roughly in units of 1 commerce per turn.
@@ -18435,41 +18509,173 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	} */ /*	Disabled by K-Mod. This evaluation isn't accurate enough to be useful -
 			but it does sometimes cause civs to switch
 			to organized religion when they don't have a religion... */
+	// <!-- custom: this code looks very bad as per k-mod's admission but also as it seems to only value culture specialists (i don't know too much but check to be sure i mean but anyways etc), and as chatgpt 5 confirms as well (check to be sure as well anyways etc). We want to value engineer specialists for example for our as of now civic_wage_labor rework that gives unlimited engineers and that is never picked by ais, even though engineer are quite strong. So trying to value each specialist based on their strengths and time when they are relevant or/and such anyways etc. Code provided by chatgpt 5 which i adjusted or/and such, check if accurate i mean but anyways etc. -->
+	// {
+	// 	int iTempValue = 0; // advc: Moved up to reduce rounding error
+	// 	int iMaxCultureChange = 0;
+	// 	FOR_EACH_ENUM(Specialist)
+	// 	{
+	// 		if (!kCivic.isSpecialistValid(eLoopSpecialist))
+	// 			continue;
+	// 		// K-Mod todo: the current code sucks. Fix it.
+	// 		//iTempValue += iCities * (AI_atVictoryStage(AI_VICTORY_CULTURE3) ? 10 : 1) + 6;
+	// 		/*	<advc.192> For a start, let's take care just of the border pop benefit
+	// 			and Culture victory. */
+	// 		iMaxCultureChange = std::max(iMaxCultureChange,
+	// 				GC.getInfo(eLoopSpecialist).getCommerceChange(COMMERCE_CULTURE));
+	// 		iTempValue += iCities + 5; // This part is still terrible
+	// 	}
+	// 	if (iMaxCultureChange > 0)
+	// 	{
+	// 		if (!AI_isEasyCulture())
+	// 		{
+	// 			FOR_EACH_CITYAI(pCity, *this)
+	// 			{
+	// 				if (pCity->AI_needsCultureToWorkFullRadius())
+	// 					iTempValue += 5;
+	// 			}
+	// 			iTempValue += 4 * std::min(AI_totalUnitAIs(UNITAI_SETTLE),
+	// 					AI_getNumCitySites());
+	// 		}
+	// 		if (AI_atVictoryStage(AI_VICTORY_CULTURE3))
+	// 		{
+	// 			iTempValue += 5 * kGame.culturalVictoryNumCultureCities() *
+	// 					iMaxCultureChange;
+	// 		}
+	// 	}
+	// 	iValue += intdiv::uround(iTempValue, /*2*/3); // </advc.192>
+	// }
+	// --- Unlimited specialists: value the actual types we unlock ---
+	int iDelta = iS; // +1 if adopting this civic, -1 if dropping
+	int iTotal = 0;
+
+	// <!-- custom: compute this once as computationally more efficient but anyways etc -->
+	bool bLoopInfoComputed = false;
+	int iNeedy = 0;
+	bool const bAIEasyCulture = AI_isEasyCulture();
+	bool bAnyCityNeedsBFC = false;
+	// Situation read (player scope; cheap and robust)
+	const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+	const bool bNeedHammers = bEnemyStrong;
+
+	FOR_EACH_ENUM(Specialist)
 	{
-		int iTempValue = 0; // advc: Moved up to reduce rounding error
-		int iMaxCultureChange = 0;
-		FOR_EACH_ENUM(Specialist)
+		if (!kCivic.isSpecialistValid(eLoopSpecialist))
+			continue;
+
+		// 1) How many extra of this specialist could we plausibly run empire-wide?
+		int iPotential = 0;
+		FOR_EACH_CITYAI(pCity, *this)
 		{
-			if (!kCivic.isSpecialistValid(eLoopSpecialist))
-				continue;
-			// K-Mod todo: the current code sucks. Fix it.
-			//iTempValue += iCities * (AI_atVictoryStage(AI_VICTORY_CULTURE3) ? 10 : 1) + 6;
-			/*	<advc.192> For a start, let's take care just of the border pop benefit
-				and Culture victory. */
-			iMaxCultureChange = std::max(iMaxCultureChange,
-					GC.getInfo(eLoopSpecialist).getCommerceChange(COMMERCE_CULTURE));
-			iTempValue += iCities + 5; // This part is still terrible
-		}
-		if (iMaxCultureChange > 0)
-		{
-			if (!AI_isEasyCulture())
+			// Citizens not on tiles (current specialists) minus angry citizens;
+			// i.e., realistically assignable to specialist slots right now.
+			const int iSpecialistNow = std::max<int>(0,
+				pCity->getPopulation() - pCity->getWorkingPopulation() - pCity->angryPopulation());
+
+			// Tiny “food slack” bump: if city grows each turn, assume we can sustain 1 more spec.
+			const int iFoodSlackSpecs = (pCity->foodDifference() >= 2 ? 1 : 0);
+
+			const int iSurplus = iSpecialistNow + iFoodSlackSpecs;
+
+			// slots already available for this specialist without the civic
+			// Open-slot math: don’t subtract free specialists; do subtract forced
+			// Free specialists don’t consume “slots”, but forced specialists do. Use:
+			int iOpen = pCity->getMaxSpecialistCount(eLoopSpecialist)
+					  - pCity->getSpecialistCount(eLoopSpecialist); // assigned (incl. forced)
+			iOpen = std::max(0, iOpen);
+
+			// the marginal need this civic actually unlocks
+			const int iNeed = std::max(0, iSurplus - iOpen);
+
+			// keep a soft per-city cap so we don't explode on megacities
+			const int iSoftCap = 2 + pCity->getPopulation() / 8;
+			iPotential += std::min(iNeed, iSoftCap);
+
+			if (!bLoopInfoComputed && !bAIEasyCulture)
 			{
-				FOR_EACH_CITYAI(pCity, *this)
+				if (pCity->AI_needsCultureToWorkFullRadius())
 				{
-					if (pCity->AI_needsCultureToWorkFullRadius())
-						iTempValue += 5;
+					++iNeedy;
 				}
-				iTempValue += 4 * std::min(AI_totalUnitAIs(UNITAI_SETTLE),
-						AI_getNumCitySites());
-			}
-			if (AI_atVictoryStage(AI_VICTORY_CULTURE3))
-			{
-				iTempValue += 5 * kGame.culturalVictoryNumCultureCities() *
-						iMaxCultureChange;
 			}
 		}
-		iValue += intdiv::uround(iTempValue, /*2*/3); // </advc.192>
+		if (iPotential <= 0)
+			continue;
+
+		// <!-- custom: also use this loop to compute once the info we'll need later -->
+		if (iNeedy >= 1)
+		{
+			bAnyCityNeedsBFC = true;
+		}
+		bLoopInfoComputed = true;
+
+		// 2) Value ONE such specialist (yields + commerce + GPP), with weights & multipliers
+		const CvSpecialistInfo& kSpec = GC.getInfo(eLoopSpecialist);
+		int iPer = 0;
+
+		// Yields (e.g. Engineer +2h; Priest +1h)
+		FOR_EACH_ENUM2(Yield, eY)
+		{
+			const int iY = kSpec.getYieldChange(eY);
+			if (iY == 0) continue;
+
+			int w = AI_yieldWeight(eY);
+			w = w * SAS_SpecYieldBaseWeight(eY, bNeedHammers) / 100; // knob-driven base order
+			iPer += iY * AI_averageYieldMultiplier(eY) * w / 100;
+		}
+
+		// Commerce (Sci, Merch, Artist, Spy…)
+		FOR_EACH_ENUM2(Commerce, eC)
+		{
+			const int iC = kSpec.getCommerceChange(eC);
+			if (iC == 0) continue;
+
+			int w = AI_commerceWeight(eC);
+			w = w * SAS_SpecCommerceBaseWeight(*this, eC, bAnyCityNeedsBFC) / 100; // knobs (+ culture need bump)
+			iPer += iC * AI_averageCommerceMultiplier(eC) * w / 100;
+		}
+
+		// Great People Points
+		// GPP (only if the spec actually grants GPP; avoids “3 GPP citizens” myth)
+		const int iGPP = kSpec.getGreatPeopleRateChange();
+		if (iGPP > 0)
+		{
+			// modest conversion: 1 GPP ~ 0.04 “commerce” at average GP multiplier
+			iPer += iGPP * std::max(0, AI_averageGreatPeopleMultiplier() - 100) / 25;
+		}
+
+		// accumulate (iPer is already on the same “commerce-ish” scale)
+		iTotal += iPotential * iPer / 100;
 	}
+
+	// <!-- custom: new logic is great at switching more evenly between civics at different stages of the game, but we do it a bit too often. Add an anarchy weight to make it less attractive to switch too often if we'd have anarchy but anyways etc. -->
+	// Devalue this component if adopting the civic would cost anarchy turns.
+	// We can’t compute the full-set anarchy here, so use a cheap, correct-enough proxy:
+	//   - if player has zero max anarchy (Spiritual, Cristo, GA rules handled elsewhere), no penalty
+	//   - otherwise use the civic’s base anarchy length.
+	if (iS > 0) // only when considering adopting this civic
+	{
+		int iAnTurns = 0;
+		if (getMaxAnarchyTurns() != 0) // Spiritual/CR/GA -> 0 anarchy windows
+		{
+			iAnTurns = GC.getInfo(eCivic).getAnarchyLength();
+			if (isGoldenAge()) // extra guard; GA usually zeroes effective anarchy
+				iAnTurns = 0;
+		}
+
+		if (iAnTurns > 0)
+		{
+			static const int iStep = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN"); // e.g. 10
+			// Scale: 100% -> (100 - step*turns)%, clamped to [0..100]
+			int iFactor = std::max(0, 100 - iStep * iAnTurns);
+			iTotal = (iTotal * iFactor) / 100;
+		}
+	}
+
+	iValue += iDelta * iTotal;
+	// --- end - Unlimited specialists: value the actual types we unlock ---
 
 	/*	K-Mod. When aiming for a diplomatic victory,
 		consider the favourite civics of our friends! */

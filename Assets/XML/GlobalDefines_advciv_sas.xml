@@ -951,6 +951,55 @@
 
 
 
+	<!-- custom: how much we value each civic's unlimited specialist based on their yield(s) -->
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- custom: if we need hammers urgently, increase hammer value, e.g. with a multiplier of 2 and hammer value of 200, then hammer value would be 2 * 200 = 400. And since and engineer specialist gives as of now 3 hammers, its total yield value would be 3 * 400 = 1200, which is higher than a scientist that would give 300 beakers * 3 science commerce yield = 900 value. Note: only applies if we need it urgently (enemy strong, etc if any more edge cases added but anyways etc.) -->
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s) -->
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: by how much we multiply culture valuing if we urgently need culture (going for a culture need, bfc, etc.) (the old code had a similar idea it seems although as per its own admittance it was a really bad code to fix i mean which hopefully i mean that we maybe did better now hopefully i mean in a way that is maybe helpful but anyways etc). -->
+	<!-- custom: e.g. if value is 3 and commerce culture value is 100, then when culutre rushing, commerce value would instead be 3 * 100 = 300, which is much higher than base, and since an artist may give for example 4 culture, it would then be valued by 4 * 300 = 1200 which means it would be more valued than other specialists such as an engineer of for example 3 hammer * 200 hammer value which is only 600 or a scientist of for example 3 science * 300 beakers value = 3 * 300 = 900, but which would only apply when culture in culture need though. -->
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- custom: for our new unlimited specialists valuation code, it is great at spreading more evenly civics at various stages of the game vs only civic_caste_system before, but we switch a bit too ofte. Yet, it is not as attractive to change civics if we'd have anarchy, so add some devaluation depending on anarchy length. E.g. if civic value is 1000 (random number as an example anyways etc) and this knob's value is 10(%), and we have 2 anarchy turns to change civic, then the new civic value would be ((100 - (2 * 10)) * 1000) / 100 = (80 * 1000) / 100 = 800. But if anarchy length is 0 turns, then value remains 1000 and as attractive, as ((100 - (0 * 10)) * 1000) / 100 = 100 * 1000 / 100 = 1000 (100% value is same). In short, for example -10% civic value loss per turn of anarchy. -->
+	<Define>
+		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) anyways etc -->
 	<Define>
 		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>

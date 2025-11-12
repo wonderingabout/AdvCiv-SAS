@@ -107,6 +107,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#73---seemingly-fixedaddressed-base-advciv-bug-of-calling-scout-units-stuck-in-a-loop-related-to-iattempts-and-imaxattempts-in-cvselectiongroupaiai_update-then-firing-a-failed-assert)  
 [74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#74---seemingly-fixedaddressed-base-advciv-bug-of-ai_bestspreadunit-returning-true-even-if-ebestspreadunit-is-no_unit-then-firing-a-failed-assert)  
 [75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue)  
+[76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2788,3 +2789,21 @@ AI had an issue of seemingly tremendously favouring the former civic_emancipatio
 As can be seen in screenshots before/after, AI went from always picking the former civic_emancipation after a few first pick it to now depicking it even if some rivals have it.
 
 To be good, the civic would need to be reworked, and not just picked because other rivals have it, else AIs would make a weak choice vs humans who would value say civic_caste_system or such. Hopefully AIs should be stronger as such, and may open the door to some civic balance i mean hopefully in this case i mean but anyways etc
+
+## 76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1GLf_a49yosoDPFnFeO9Gh3qFOvBm83_V?usp=sharing) anyways etc.
+
+AI had an issue of seemingly tremendously favouring civic_caste_system, and then sticking to it no matter what almost always.
+
+The code in `CvPlayerAI::AI_civicValue` was itself claiming to be bad and to be ideally changed, and from what i understood of it only accounted for culture, making our rework of the now civic_wage_labor that as of now gives unlimited engineers no valued and in autoplay never picked ingame.
+
+So rewrote the logic to now value yields and commerce hierachically (i checked and the word exists i mean but anyways etc), so that for example a specialist giving food is x3 value per yield vs x2 per yield for a specialist giving hammer, and similarly a specialist giving beakers is much more valued per commerce than a specialist giving culture.
+
+Also added high need logic for culture (quite similar to previous code but anyways etc) and for hammer (new: if enemy is strong, value hammer more on a per yield base).
+
+Added logic to tone it down a bit as we were switching a bit too much, now based on anarchy turns cost.
+
+Results in autoplay are very very good i mean if i may say but anyways etc. Now even in the early game we go back and forth between caste system and slavery, and later on serfdom and in particular finally our civic_wage_labor is now quite popular among ais, and the distribution is quite even.
+
+Ideally i'd find ways to prevent oscillation or excessive oscillation at least maybe but anyways etc, but hopefully AI should be much stronger and responsive to change (no point to run scientists if we are about to be steamrolled, value engineers or serfdom or such more i mean maybe but anyways etc).
