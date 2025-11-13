@@ -175,7 +175,7 @@
 			<iExpInBorderModifier>0</iExpInBorderModifier>
 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
 			<!-- custom: was 3 -->
-			<iLargestCityHappiness>1</iLargestCityHappiness>
+			<iLargestCityHappiness>0</iLargestCityHappiness>
 			<iWarWearinessModifier>0</iWarWearinessModifier>
 			<iFreeSpecialist>0</iFreeSpecialist>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -199,7 +199,7 @@
 				<iCommerce>1</iCommerce>
 				<iCommerce>1</iCommerce>
 				<iCommerce>1</iCommerce>
-				<iCommerce>1</iCommerce>
+				<iCommerce>0</iCommerce>
 			</SpecialistExtraCommerces>
 			<Hurrys/>
 			<SpecialBuildingNotRequireds/>
@@ -219,7 +219,8 @@
 			<Button>,Art/Interface/Buttons/Civics/Universal_Sufferage.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,8,3</Button>
 			<TechPrereq>TECH_DEMOCRACY</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
-			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+			<!-- custom: was UPKEEP_MEDIUM -->
+			<Upkeep>UPKEEP_HIGH</Upkeep>
 			<iAIWeight>0</iAIWeight>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
@@ -244,8 +245,10 @@
 			<iMaxConscript>0</iMaxConscript>
 			<iExpInBorderModifier>0</iExpInBorderModifier>
 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
-			<iLargestCityHappiness>0</iLargestCityHappiness>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<!-- custom: was 0 -->
+			<iLargestCityHappiness>3</iLargestCityHappiness>
+			<!-- custom: was 0 -->
+			<iWarWearinessModifier>25</iWarWearinessModifier>
 			<iFreeSpecialist>0</iFreeSpecialist>
 			<iTradeRoutes>0</iTradeRoutes>
 			<bNoForeignTrade>0</bNoForeignTrade>
@@ -263,13 +266,7 @@
 			<CapitalYieldModifiers/>
 			<TradeYieldModifiers/>
 			<CommerceModifiers/>
-			<!-- custom: was empty -->
-			<CapitalCommerceModifiers>
-				<iCommerce>15</iCommerce>
-				<iCommerce>15</iCommerce>
-				<iCommerce>15</iCommerce>
-				<iCommerce>15</iCommerce>
-			</CapitalCommerceModifiers>
+			<CapitalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<!-- custom: was HURRY_GOLD 1 -->
 			<Hurrys/>
@@ -278,10 +275,19 @@
 			<BuildingHappinessChanges/>
 			<BuildingHealthChanges/>
 			<FeatureHappinessChanges/>
+			<!-- custom: also add smaller cities hammer boost as nicely recommended by chatgpt 5 thanks, fit the theme of all cities/people contributing nicely as well if i may say i mean but anyways etc -->
+			<!-- NEW: help midgame—Villages contribute to projects too -->
 			<ImprovementYieldChanges>
 				<ImprovementYieldChange>
+					<ImprovementType>IMPROVEMENT_VILLAGE</ImprovementType>
+					<ImprovementYields>
+						<iYield>0</iYield>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+					</ImprovementYields>
+				</ImprovementYieldChange>
+				<ImprovementYieldChange>
 					<ImprovementType>IMPROVEMENT_TOWN</ImprovementType>
-					<!-- custom: was 0 / 1 / 0 -->
 					<ImprovementYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -313,7 +319,8 @@
 			<iFreeExperience>0</iFreeExperience>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
-			<iMilitaryProductionModifier>25</iMilitaryProductionModifier>
+			<!-- custom: was 25 -->
+			<iMilitaryProductionModifier>20</iMilitaryProductionModifier>
 			<iBaseFreeUnits>0</iBaseFreeUnits>
 			<iBaseFreeMilitaryUnits>0</iBaseFreeMilitaryUnits>
 			<iFreeUnitsPopulationPercent>0</iFreeUnitsPopulationPercent>
@@ -348,7 +355,13 @@
 			<SpecialistExtraCommerces/>
 			<Hurrys/>
 			<SpecialBuildingNotRequireds/>
-			<SpecialistValids/>
+			<!-- custom: changed so civic stays relevant longer in the game and to buff it, was empty anyways etc -->
+			<SpecialistValids>
+				<SpecialistValid>
+					<SpecialistType>SPECIALIST_SPY</SpecialistType>
+					<bValid>1</bValid>
+				</SpecialistValid>
+			</SpecialistValids>
 			<BuildingHappinessChanges/>
 			<BuildingHealthChanges/>
 			<FeatureHappinessChanges/>
