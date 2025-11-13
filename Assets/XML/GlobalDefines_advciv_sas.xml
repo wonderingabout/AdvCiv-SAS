@@ -1000,6 +1000,16 @@
 
 
 
+	<!-- custom: following our rework to give commerce yields to specialists as of now in(/to?) civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks i mean but anyways etc to see if it helps, check if accurate anyways etc. -->
+	<!-- custom: use a toned down version for the multiplier, as advised and explained to em thanks by chatgpt 5 but anyways etc. In autoplay, the above as of now iSASCommerceWeight fixes to overpick of civic_heridetary_rule in favour of civic_representation, but representation is now overpicked. So toning down the weight with a percentage of this value customizable in defines as well anyways etc -->
+	<!-- custom: e.g. if value is 50 and weight of commerce beakers is 300, then the beakers commerce multiplier will be (300 * 50) / 100 = 150 (i.e. 50% of the weight), which is a toned down version of directly using the 300 weight as a multiplier (rather than dividing it by 100 since a weight is a percentage), so aim to fix as we did the issue of civic_representation being undervalued, while also not falling on the opposite issue of civic_representation now being overpicked even late into the game, by using these toned down multipliers derived from the sas commerce weights. Adjust as you see fit anyways etc -->
+	<Define>
+		<DefineName>SAS_CIVIC_SPECIALIST_COMMERCE_WEIGHT_TO_MULTIPLIER_TONING_DOWN_PERCENT</DefineName>
+		<iDefineIntVal>45</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: civic excessive oscillation tentative fix. Note: issue happened before our unlimited specialists civic valuation changes based on quick autoplay testing, but they seem more prevalent now that for example civic_caste_system is no longer an autopick and civics change more. Added this with the help of chatgpt 5 to attempt to / to help reduce oscillation. Check if accurate but anyways etc. -->
 	<!--
 	Civic switch hysteresis (anti flip-flop)

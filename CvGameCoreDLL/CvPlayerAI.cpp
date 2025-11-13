@@ -18378,15 +18378,43 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 		}
 	}
 	// K-Mod end
+	
+	// <!-- custom: compute these once as computationally more efficient but anyways etc -->
+	int iNeedy = 0;
+	bool const bAIEasyCulture = AI_isEasyCulture();
+	bool bAnyCityNeedsBFC = false;
+	if (!bAIEasyCulture)
+	{
+		FOR_EACH_CITYAI(pCity, *this)
+		{
+			if (pCity->AI_needsCultureToWorkFullRadius())
+			{
+				++iNeedy;
+			}
+		}
+		// <!-- custom: also use this loop to compute once the info we'll need later -->
+		if (iNeedy >= 1)
+		{
+			bAnyCityNeedsBFC = true;
+		}
+	}
 
+	// <!-- custom: following our rework to give commerce yields to specialists as of now in(/to?) civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks i mean but anyways etc to see if it helps, check if accurate anyways etc. -->
+	static const int iSASCommerceToningDownPercent = GC.getDefineINT("SAS_CIVIC_SPECIALIST_COMMERCE_WEIGHT_TO_MULTIPLIER_TONING_DOWN_PERCENT");
 	FOR_EACH_ENUM2(Commerce, eCommerce)
 	{
 		int iTempValue = 0;
 
+		const int iSASCommerceWeight = SAS_SpecCommerceBaseWeight(*this, eCommerce, /*bAnyCityNeedsBFC=*/false);
+		// <!-- custom: use a toned down version for the multiplier, as advised and explained to em thanks by chatgpt 5 but anyways etc. In autoplay, the above as of now iSASCommerceWeight fixes to overpick of civic_heridetary_rule in favour of civic_representation, but representation is now overpicked. So toning down the weight with a percentage of this value customizable in defines as well anyways etc -->
+		const int iSASCommerceTonedDownMult = (iSASCommerceWeight * iSASCommerceToningDownPercent) / 100;
+
 		// K-Mod
 		iTempValue += (kCivic.getCommerceModifier(eCommerce) *
 				100 * getCommerceRate(eCommerce)) /
-				AI_averageCommerceMultiplier(eCommerce);
+				// AI_averageCommerceMultiplier(eCommerce);
+				// iSASCommerceWeight;
+				iSASCommerceTonedDownMult;
 		if (pCapital != NULL)
 		{
 			iTempValue += kCivic.getCapitalCommerceModifier(eCommerce) *
@@ -18398,7 +18426,9 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 		// K-Mod
 		if (bSpecialistCommerce)
 		{
-			iTempValue += AI_averageCommerceMultiplier(eCommerce)*
+			// iTempValue += AI_averageCommerceMultiplier(eCommerce)*
+			// iTempValue += iSASCommerceWeight*
+			iTempValue += iSASCommerceTonedDownMult*	
 					(kCivic.getSpecialistExtraCommerce(eCommerce) *
 					std::max((getTotalPopulation()+10*iTotalBonusSpecialists) / 10,
 					iTotalCurrentSpecialists));
@@ -18408,7 +18438,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 		if (iTempValue > 0)
 		{
-			iTempValue *= AI_commerceWeight(eCommerce);
+			// iTempValue *= AI_commerceWeight(eCommerce);
+			iTempValue *= iSASCommerceWeight;
 			iTempValue /= 100;
 
 			iValue += iTempValue;
@@ -18549,11 +18580,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	int iDelta = iS; // +1 if adopting this civic, -1 if dropping
 	int iTotal = 0;
 
-	// <!-- custom: compute this once as computationally more efficient but anyways etc -->
-	bool bLoopInfoComputed = false;
-	int iNeedy = 0;
-	bool const bAIEasyCulture = AI_isEasyCulture();
-	bool bAnyCityNeedsBFC = false;
+	// <!-- custom: compute these once as computationally more efficient but anyways etc -->
 	// Situation read (player scope; cheap and robust)
 	const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
@@ -18592,24 +18619,9 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 			// keep a soft per-city cap so we don't explode on megacities
 			const int iSoftCap = 2 + pCity->getPopulation() / 8;
 			iPotential += std::min(iNeed, iSoftCap);
-
-			if (!bLoopInfoComputed && !bAIEasyCulture)
-			{
-				if (pCity->AI_needsCultureToWorkFullRadius())
-				{
-					++iNeedy;
-				}
-			}
 		}
 		if (iPotential <= 0)
 			continue;
-
-		// <!-- custom: also use this loop to compute once the info we'll need later -->
-		if (iNeedy >= 1)
-		{
-			bAnyCityNeedsBFC = true;
-		}
-		bLoopInfoComputed = true;
 
 		// 2) Value ONE such specialist (yields + commerce + GPP), with weights & multipliers
 		const CvSpecialistInfo& kSpec = GC.getInfo(eLoopSpecialist);
