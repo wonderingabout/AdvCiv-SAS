@@ -25902,7 +25902,7 @@
 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_NATIONALISM -->
-			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+			<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25943,7 +25943,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 700 -->
-			<iCost>375</iCost>
+			<iCost>425</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>

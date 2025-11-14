@@ -636,7 +636,8 @@
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
-			<bVassalTrading>0</bVassalTrading>
+			<!-- custom: was 0 anyways etc -->
+			<bVassalTrading>1</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
@@ -644,19 +645,16 @@
 			<iGridX>7</iGridX>
 			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
+			<!-- custom: was 0 / 0 / 1 / 0 -->
 			<!-- advc.120g: Added the espionage row (no functional change) -->
-			<CommerceFlexible>
-				<bFlexible>0</bFlexible>
-				<bFlexible>0</bFlexible>
-				<bFlexible>1</bFlexible>
-				<bFlexible>0</bFlexible>
-			</CommerceFlexible>
+			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc, reduce FLAVOR_CULTURE (was 10), remove FLAVOR_RELIGION anyways etc -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>2</iFlavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -664,7 +662,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -721,13 +719,14 @@
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
-			<bVassalTrading>1</bVassalTrading>
+			<!-- custom: was 1 -->
+			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>9</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -745,10 +744,9 @@
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+				<PrereqTech>TECH_DRAMA</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_FEUDALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_FEUDALISM</Sound>
@@ -1508,7 +1506,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
@@ -2243,9 +2241,16 @@
 			<iGridX>7</iGridX>
 			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
-			<CommerceFlexible/>
+			<!-- custom: more focused culture line, plus this tech has too little effects i mean, as nicely suggested as a general suggestion by chatgpt 5.1 which i then noticed specifically for this tech and commerceflexible effect we could put it here i mean but thanks a lot for help really i mean if i may say thanks but anyways etc, was empty anyways etc -->
+			<CommerceFlexible>
+				<bFlexible>0</bFlexible>
+				<bFlexible>0</bFlexible>
+				<bFlexible>1</bFlexible>
+				<bFlexible>0</bFlexible>
+			</CommerceFlexible>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: increase culture flavor, was 8 anyways etc -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -2257,7 +2262,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -4911,7 +4916,7 @@
 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MONARCHY</PrereqTech>
+				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_BRONZE_WORKING_QUOTE</Quote>
 			<Sound>AS2D_TECH_BRONZEWORK</Sound>
@@ -5392,7 +5397,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MACHINERY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MACHINERY</Sound>
 			<SoundMP>AS2D_TECH_MP_MACHINERY</SoundMP>

@@ -509,7 +509,12 @@
 			<Civilopedia>TXT_KEY_CIVIC_VASSALAGE_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Button>,Art/Interface/Buttons/Civics/Vassalage.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,1,4</Button>
-			<TechPrereq>TECH_FEUDALISM</TechPrereq>
+			<!-- custom: as chatgpt 5.1 confirms thanks but anyways etc; also as a side effect closer to bts early vassalage availability anyways etc, was TECH_FEUDALISM -->
+			<!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (Egypt–Canaan, Hittites, Zhou “fengjian”, Assyria, early China, etc.). These are formal overlord–subject treaties with tribute, hostages, mutual defense, and legal obligations. -->
+			<!-- Mechanically, you do not want capitulation and permanent sub-states to exist while players are still fighting over their first 3–5 cities. In SAS your wars are deadly and the AI is opportunistic; early vassalizing would produce some nasty snowballs. -->
+			<!-- So I would: Put Vassal States in the late Classical band, not earlier than that.
+			Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->
+			<TechPrereq>TECH_DRAMA</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- custom: was UPKEEP_HIGH -->
 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
@@ -1223,9 +1228,10 @@
 			<Description>TXT_KEY_CIVIC_MERCANTILISM</Description>
 			<Civilopedia>TXT_KEY_CIVIC_MERCANTILISM_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Button>,Art/Interface/Buttons/Civics/Mercantilism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,4,3</Button>
-			<!-- custom: change as recommended by chatgpt 5 and to avoid redundancy with our other civic change as of now at this tech but anyways etc, was TECH_BANKING -->
-			<TechPrereq>TECH_PRINTING_PRESS</TechPrereq>
+			<!-- custom: button from m-e mod's CIVIC_DELEGATION thanks anyways etc -->
+			<Button>Art/AdvCiv_SAS/Civics/Protectionism/Delegation.dds</Button>
+			<!-- custom: want an early competitor to as of now CIVIC_REGIONAL_TRADE and as confirmed by chatgpt 5.1 i mean thanks but anyways etc, was TECH_BANKING -->
+			<TechPrereq>TECH_PHILOSOPHY</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- K-Mod: was MEDIUM -->
 			<Upkeep>UPKEEP_LOW</Upkeep>
@@ -1353,13 +1359,14 @@
 		</CivicInfo>
 		<CivicInfo>
 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
+			<!-- custom: replace the old CIVIC ENVIRONMENTALISM: "also their entry was incredibly ideologically stupid, partisan/subjective, and bigoted, just like how the old pedia entry at TECH_ECOLOGY was (now fixed/enhanced i mean if i may say but anyways etc) (and ignorant too i mean, not that i know all but it was incredibly stupid, the old entry i mean but anyways etc) but anyways etc" -->
 			<Type>CIVIC_ENVIRONMENTALISM</Type>
 			<Description>TXT_KEY_CIVIC_ENVIRONMENTALISM</Description>
 			<Civilopedia>TXT_KEY_CIVIC_ENVIRONMENTALISM_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Button>,Art/Interface/Buttons/Civics/Environmentalism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,1</Button>
-			<!-- custom: was TECH_MEDICINE -->
-			<TechPrereq>TECH_ECOLOGY</TechPrereq>
+			<!-- custom: button from m-e mod's CIVIC_PROVINCIAL thanks anyways etc -->
+			<Button>Art/AdvCiv_SAS/Civics/Regional_Trade/Provincial.dds</Button>
+			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- K-Mod: was MEDIUM -->
 			<Upkeep>UPKEEP_HIGH</Upkeep>
@@ -1685,7 +1692,9 @@
 			<Civilopedia>TXT_KEY_CIVIC_PACIFISM_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Button>,Art/Interface/Buttons/Civics/Pacifism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,3,2</Button>
-			<TechPrereq>TECH_PHILOSOPHY</TechPrereq>
+			<!-- custom: frees a slot to put another civic there, plus is thematically more relevant i think and as chatgpt 5.1 confirms i mean thanks if i may say i mean but anyways etc, was TECH_PHILOSOPHY -->
+			<!-- Pacifist currents (Buddhism, Jainism, some early Christian strands) are much more about religious discipline than abstract Greek metaphysics anyway. -->
+			<TechPrereq>TECH_MEDITATION</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<Upkeep>NONE</Upkeep>
 			<iAIWeight>0</iAIWeight>
