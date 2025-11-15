@@ -202,6 +202,15 @@
 	</TEXT>
 
 
+
+	<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot but anyways etc, check if accurate anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_FREEDOM_ANGER</Tag>
+		<English>[ICON_BULLET]%D1_Mod iCivicPercentAnger [ICON_UNHAPPY] for civs without[SPACE]</English>
+	</TEXT>
+
+
+
 	<!-- custom: was <English>U.N. Resolution #743 (Global Civic - Emancipation)</English> anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_VOTE_WAGE_LABOR</Tag>

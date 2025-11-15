@@ -7648,9 +7648,23 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
 	//	Freedom Anger
 	if (kCivic.getCivicPercentAnger() != 0)
 	{
-		szHelpText.append(NEWLINE);
-		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_FREEDOM_ANGER",
-				kCivic.getTextKeyWide()));
+		// 	szHelpText.append(NEWLINE);
+		// 	szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_FREEDOM_ANGER",
+		// 			kCivic.getTextKeyWide()));
+		// }
+		// <!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot but anyways etc, check if accurate anyways etc -->
+		const int iPct = kCivic.getCivicPercentAnger();
+
+		CvWString szFirstBuffer;
+		szFirstBuffer.Format(L"%s%s",
+			NEWLINE,
+			gDLL->getText("TXT_KEY_CIVIC_FREEDOM_ANGER", iPct).c_str());
+
+		CvWString szItem;
+		szItem.Format(L"<link=literal>%s</link>", kCivic.getDescription());
+
+		int iLast = 0;
+		setListHelp(szHelpText, szFirstBuffer, szItem, L", ", iLast, iPct);
 	}
 
 	if (!kCivic.isStateReligion())

@@ -193,6 +193,8 @@ It allowed to polish a bit the sevopedia religion that also had a placeSpecial p
 
 Code provided by/with the help of claude ai too thanks if i may say (and thanks to me too maybe as well if i may say too but anyways etc).
 
+More recently, added the `iCivicPercentAnger` info in sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really but anyways etc.
+
 Examples of output below anyways etc:
 
 <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
