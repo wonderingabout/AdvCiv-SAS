@@ -1228,8 +1228,8 @@
 			<Description>TXT_KEY_CIVIC_MERCANTILISM</Description>
 			<Civilopedia>TXT_KEY_CIVIC_MERCANTILISM_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<!-- custom: button from m-e mod's CIVIC_DELEGATION thanks anyways etc -->
-			<Button>Art/AdvCiv_SAS/Civics/Protectionism/Delegation.dds</Button>
+			<!-- custom: button from c2c mod as nicely recommended by chatgpt 5.1 among my candidates thanks i mean but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Civics/Protectionism/charters.dds</Button>
 			<!-- custom: want an early competitor to as of now CIVIC_REGIONAL_TRADE and as confirmed by chatgpt 5.1 i mean thanks but anyways etc, was TECH_BANKING -->
 			<TechPrereq>TECH_PHILOSOPHY</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
