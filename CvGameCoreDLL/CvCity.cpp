@@ -663,7 +663,9 @@ void CvCity::doTurn()
 				}
 			}
 			// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
-			else if (!bEarlyBuildingClassName2)
+			// <!-- custom: note: this should be an if not an else if else we'd have a bug: "bugfix emergency castle gate being unreachable after we are past the emergency walls turn gate as nicely found by chatgpt 5.1 (i think chatgpt 5 had found it too but i disregarded/skipped it i mean my bad i mean but anyways etc thanks anyways etc) thanks but anyways etc". I added a !bEmergencyBuilding to avoid double orders in same turn which was my intention and which matches the water food and later unit code check but anyways etc. -->
+			// As soon as !bEarlyBuildingClassName1 is true (i.e. iCurrentTurn > cutoff1), you always go into the Walls branch, and the else if Castle branch never runs on that turn.
+			if (!bEmergencyBuilding && !bEarlyBuildingClassName2)
 			{
 				BuildingTypes eCastle = NO_BUILDING;
 				if (eCastleClass != NO_BUILDINGCLASS)
@@ -900,17 +902,19 @@ void CvCity::doTurn()
 			}
 
 			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
+			// <!-- If your intent is:
+			// 	- Anc/Class/Med caps only early, but
+			// 	- Renaissance+ cheap land caps always active,
+			// then you’d need to decouple the bEarly gate from the Renaissance+ branch (e.g. only wrap the Ancient/Class/Med tiers in if (bEarly) and leave the Renaissance+ tier under if (bNoExcessVeryCheapMilitaryUnits) alone). -->
+			// <!-- custom: note 2: as of now in CvCity::doTurn, renaissance plus land tier unaffected by this as nicely noted by chatgpt 5.1 thanks but anyways etc. As for CvCityAI:AI_ChooseUnit, this is never applied at all for very cheap units gates anyways etc -->
 			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
 			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
 			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
 
-			static const int TH_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
-			static const int TH_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
-			static const int TH_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD");
-
-			// <!-- custom: cheaper to hoist the last tier since we are doing a loop here unlike in ::AI_ChooseUnit if i'm not mistaken but anyways etc, especially in the later game tiers where more and more units would be part of it in this case i mean if i'm not mistaken but anyways etc, as for the earlier tiers probably cheaper not to hoist them as we don't access them later in the game anyway, and there are more units then as well if i'm not mistaken but anyways etc -->
-			static const int CM_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
-			static const int EX_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
+			static const int TH_ANC = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
+			static const int TH_CLA = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
+			static const int TH_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_TIER_THRESHOLD");
+			static const int TH_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD");
 
 			FOR_EACH_ENUM(Unit)
 			{
@@ -920,7 +924,8 @@ void CvCity::doTurn()
 				}
 				const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
 				// Land-only, must actually fight
-				if (kU.getDomainType() != DOMAIN_LAND)
+				const bool bLoopUnitDomainLand = (kU.getDomainType() == DOMAIN_LAND);
+				if (!bLoopUnitDomainLand)
 				{
 					continue;
 				}
@@ -1010,19 +1015,24 @@ void CvCity::doTurn()
 					continue;
 				}
 				// <!-- custom: also eliminate very cheap units as we do in CvCityAI::AI_chooseUnit as we now have many early ancient macemen early (19 ancient macemen at turn 100 with the new offense unit only code, which makes sense since longbows or archers are no longer an option, and very cheap units are uncapped (before adding it here now) if i'm not mistaken, but anyways etc -->
-				if (bEarly && bNoExcessVeryCheapMilitaryUnits)
+				if (bNoExcessVeryCheapMilitaryUnits)
 				{
 					// Classify tier (exclusive)
-					const bool bTierAnc = (iLoopXMLCost <= TH_ANC);
-					const bool bTierCla = (!bTierAnc && iLoopXMLCost <= TH_CLA);
-					const bool bTierMedPlus = (!bTierAnc && !bTierCla && iLoopXMLCost <= TH_MED_PLUS);
+					const bool bTierAnc = (bEarly && (iLoopXMLCost <= TH_ANC));
+					const bool bTierCla = (bEarly && (!bTierAnc && iLoopXMLCost <= TH_CLA));
+					const bool bTierMed = (bEarly && (!bTierAnc && !bTierCla && iLoopXMLCost <= TH_MED));
+					const bool bTierRendLandPlus = (
+						// <!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot but anyways etc -->
+						bRenaissancePlus && // only after we actually reach Renaissance
+						(!bTierAnc && !bTierCla && !bTierMed && iLoopXMLCost <= TH_REN_LAND_PLUS)
+					);
 
 					// <!-- custom: note: we already check domain_land and combat > 0 so no need to check it here again in this implementation of the very cheap code now in CvCity::doTurn if i'm not mistaken but added note for exhaustiveness if i may say in this case i mean but anyways etc -->
 
-					if (bTierAnc || bTierCla || bTierMedPlus)
+					if (bTierAnc || bTierCla || bTierMed || bTierRendLandPlus)
 					{
 						// Non-regressing cap by tier: take the minimum across tiers up to this one
-						int iVeryCheapUnitsCap = 0;
+						int iVeryCheapUnitsCap = -9999;
 						// Do you really need the “min across tiers”?
 						// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
 						// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
@@ -1057,9 +1067,24 @@ void CvCity::doTurn()
 
 							iVeryCheapUnitsCap = (CM_CLA * iNumCities) + EX_CLA;
 						}
-						else if (bTierMedPlus)
+						else if (bTierMed)
 						{
-							iVeryCheapUnitsCap = (CM_MED_PLUS * iNumCities) + EX_MED_PLUS;
+							static const int CM_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_TIER");
+							static const int EX_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_TIER");
+
+							iVeryCheapUnitsCap = (CM_MED * iNumCities) + EX_MED;
+						}
+						else if (bTierRendLandPlus)
+						{
+							// <!-- custom: make extra sure here that it applies only to domain_land units only in case we change logic later to for example include naval units in naval heavy maps or such (as of now is not the case but anyways etc), as frigates or galleons or such are still useful later in the game even though they are as of now fairly cheap but anyways etc. -->
+							// <!-- custom: see code comment in as of now sas defines at SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD anyways etc -->
+							if (bLoopUnitDomainLand)
+							{
+								static const int CM_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_RENAISSANCE_PLUS_LAND_TIER");
+								static const int EX_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_RENAISSANCE_PLUS_LAND_TIER");
+								
+								iVeryCheapUnitsCap = (CM_REN_LAND_PLUS * iNumCities) + EX_REN_LAND_PLUS;
+							}
 						}
 
 						// <!-- custom: here we don't change unit unlike in ::AI_ChooseUnit as of now if i'm not mistaken so no need to use a pointer if i'm not mistaken but anyways etc -->
@@ -1067,7 +1092,7 @@ void CvCity::doTurn()
 						const int iHaveVeryCheapThisUnits = kOwner.getUnitClassCountPlusMaking(eUnitClass);
 
 						// if iVeryCheapUnitsCap == 0, then at the very first attempt iHaveThis is 0, so 0 >= 0 is true → you block production immediately. So you’ll produce zero of that unit after the halving—not one.
-						if (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap)
+						if ((iVeryCheapUnitsCap >= 0) && (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap))
 						{
 							continue;
 						}

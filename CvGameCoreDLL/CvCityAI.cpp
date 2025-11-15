@@ -11801,13 +11801,17 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							// const bool bLaggingBehindNumCities = (iNumCities < iExpectedCities);
 							// <!-- custom: update: what matters is not that we are lagging behind, but whether we are overall strong and have met unit requriements to defend cities, which is generally the case when we have less cities than our rivals, so more units per city generally. However sometimes we have both many cities, but also many cities if we get a very good run. In such cases, the same logic of not overdefending early applies, although we should be bit more concerned about not losing our empire and consolidating it rather, still, if somehow we are much stronger than our rivals, it is useless to over defend, as happened in known issue as of now 53.2.2 in autoplay anyways etc. In that case, favour offense more, after all offensive units can defend as well if we are attacked, and generally offense is defense, so we are not too likely to be targeted if we are strong, as human players would do perhaps in some games as well and not overbuild longbows for example especially at higher difficulties where it would most likely cause us to lose the game due to handicap setting penalties especially if not in advciv-sas as their penalties are harsher generally. Still, in our mod we'd want AI to react well to overproduction of defensive units, and block it before it happens in this case i mean but anyways etc, so add this logic regardless of if we are lagging behind in cities or not, purpose is the same, see known issue as of now 53.2.2 for details or/and related info anyways etc -->
 
-							const int iCurrentTurnAdjusted = (iCurrentTurn * iTrainPct) / 100;
+							static const int iEarlyTurnNoNeedYetExtraDefendersNormal = 100;
+							const int iEarlyNoNeedYetCutoff = (iEarlyTurnNoNeedYetExtraDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+							const bool bEarlyNoNeedYetExtraDefenders = (iCurrentTurn <= iEarlyNoNeedYetCutoff);
 
 							// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
-							// cap = 2 …then +1 at ~T100, +1 at ~T150 (and you can add ~T200 too)
+							// cap = 2 …then +1 at ~T100, <!-- custom: may need, as of now removed but anyways etc: --> +1 at ~T150 (and you can add ~T200 too)
 							int iMaxDefendersPerCityEarlyAdjusted = 2;
-							if (iCurrentTurnAdjusted >= 100) iMaxDefendersPerCityEarlyAdjusted += 1;
-							// else if (iCurrentTurnAdjusted >= 155) iMaxDefendersPerCityEarlyAdjusted += 1;
+							if (!bEarlyNoNeedYetExtraDefenders)
+							{
+								iMaxDefendersPerCityEarlyAdjusted += 1;
+							}
 
 							// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else but anyways etc, but i thought in all cases but anyways etc it's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine anyways etc; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation anyways etc -->
 							// Guard against div-by-zero and define a very simple “defense overweight” signal:
@@ -12027,19 +12031,25 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					{
 						// <!-- custom: make sure to not overproduce them and risk going bankrupt or hindering our early progression, but build enough for our immediate early or defense needs anyways etc. Note: in our mod as of now archers are available at TECH_HUNTING and they are more versatile and stronger at city defense (also a bit more expensive) and require as of now no bonus, only the tech. If all else fails (then longbows), build these rather than stacking very cheap units that would be bit inefficient, but don't overdo it, as ancient macemen are better at combat outside of cities anyways etc, just they would be produced too much which would cripple our economy. Gating them early also helps us meet our quota of defenders sooner indirectly by focusing more on archers or whatever else we want to build, so that we hopefully maybe can move sooner to our no excess defender code in next productions so all in all should hopefully be good and helpful if i am not mistaken but anyways etc -->
 						// Tier thresholds
-						static const int TH_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
-						static const int TH_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
-						static const int TH_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD");
+						static const int TH_ANC           = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
+						static const int TH_CLA           = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
+						static const int TH_MED           = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_TIER_THRESHOLD");
+						static const int TH_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD");
 
 						// Classify tier (exclusive)
 						const bool bTierAnc = (iXMLCost <= TH_ANC);
 						const bool bTierCla = (!bTierAnc && iXMLCost <= TH_CLA);
-						const bool bTierMedPlus = (!bTierAnc && !bTierCla && iXMLCost <= TH_MED_PLUS);
+						const bool bTierMed = (!bTierAnc && !bTierCla && iXMLCost <= TH_MED);
+						const bool bTierRendLandPlus = (
+							// <!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot but anyways etc -->
+							bRenaissancePlus && // only after we actually reach Renaissance
+							(!bTierAnc && !bTierCla && !bTierMed && iXMLCost <= TH_REN_LAND_PLUS)
+						);
 
-						if (bTierAnc || bTierCla || bTierMedPlus)
+						if (bTierAnc || bTierCla || bTierMed || bTierRendLandPlus)
 						{
 							// Non-regressing cap by tier: take the minimum across tiers up to this one
-							int iVeryCheapUnitsCap = 0;
+							int iVeryCheapUnitsCap = -9999;
 							// Do you really need the “min across tiers”?
 							// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
 							// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
@@ -12074,12 +12084,39 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 								iVeryCheapUnitsCap = (CM_CLA * iNumCities) + EX_CLA;
 							}
-							else if (bTierMedPlus)
+							else if (bTierMed)
 							{
-								static const int CM_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
-								static const int EX_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
+								static const int CM_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_TIER");
+								static const int EX_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_TIER");
 
-								iVeryCheapUnitsCap = (CM_MED_PLUS * iNumCities) + EX_MED_PLUS;
+								iVeryCheapUnitsCap = (CM_MED * iNumCities) + EX_MED;
+							}
+							// <!-- custom: make extra sure here that it applies only to domain_land units only in case we change logic later to for example include naval units in naval heavy maps or such, as frigates or galleons or such are still useful later in the game even though they are as of now fairly cheap but anyways etc. -->
+							// <!-- custom: see code comment in as of now sas defines at SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD anyways etc -->
+							else if (bTierRendLandPlus)
+							{
+								// <!-- custom: be careful to include only land direct combat units (not spies, scouts, etc.), and to use the variable that had the pointer refreshed if it changed since then but anyways etc -->
+								const bool bDirectCombatLandUnitAI = (
+									(pUnitInfo->getDomainType() == DOMAIN_LAND) &&
+									(
+										(eChangedUnitAI == UNITAI_ATTACK) ||
+										(eChangedUnitAI == UNITAI_ATTACK_CITY) ||
+										// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
+										(eChangedUnitAI == UNITAI_COUNTER) ||
+										(eChangedUnitAI == UNITAI_CITY_COUNTER) ||
+										(eChangedUnitAI == UNITAI_CITY_DEFENSE) ||
+										(eChangedUnitAI == UNITAI_CITY_SPECIAL) ||
+										(eChangedUnitAI == UNITAI_RESERVE)
+									)
+								);
+
+								if (bDirectCombatLandUnitAI)
+								{
+									static const int CM_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_RENAISSANCE_PLUS_LAND_TIER");
+									static const int EX_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_RENAISSANCE_PLUS_LAND_TIER");
+
+									iVeryCheapUnitsCap = (CM_REN_LAND_PLUS * iNumCities) + EX_REN_LAND_PLUS;
+								}
 							}
 
 							// <!-- custom: use a reference only in this scope in case we change the unit again later (reuse reference as needed maybe but anyways etc) if i am not mistaken, check if accurate anyways etc -->
@@ -12087,7 +12124,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							const int iHaveVeryCheapThisUnits = kPlayer.getUnitClassCountPlusMaking(eUnitClassSoFar);
 
 							// if iVeryCheapUnitsCap == 0, then at the very first attempt iHaveThis is 0, so 0 >= 0 is true → you block production immediately. So you’ll produce zero of that unit after the halving—not one.
-							if (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap)
+							if ((iVeryCheapUnitsCap >= 0) && (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap))
 							{
 								return false; // over cap → let chooser try a different unit
 							}

@@ -16336,7 +16336,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 90 -->
-			<iCost>100</iCost>
+			<iCost>95</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -16551,7 +16551,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 90 -->
-			<iCost>110</iCost>
+			<iCost>105</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -16793,7 +16793,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 90 (in the base advciv horse knight anyways etc) -->
-			<iCost>110</iCost>
+			<iCost>105</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -17029,7 +17029,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 90 -->
-			<iCost>100</iCost>
+			<iCost>95</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -17257,7 +17257,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 90 -->
-			<iCost>100</iCost>
+			<iCost>95</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
