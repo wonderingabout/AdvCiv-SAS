@@ -1806,7 +1806,7 @@
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iNonStateReligionHappiness>0</iNonStateReligionHappiness>
 			<!-- custom: (so civic stays relevant longer in the game and thematically relevant (more belligerent to others anyways etc)), was 0 -->
-			<iStateReligionUnitProductionModifier>15</iStateReligionUnitProductionModifier>
+			<iStateReligionUnitProductionModifier>10</iStateReligionUnitProductionModifier>
 			<iStateReligionBuildingProductionModifier>0</iStateReligionBuildingProductionModifier>
 			<!-- custom: was 2 -->
 			<iStateReligionFreeExperience>0</iStateReligionFreeExperience>

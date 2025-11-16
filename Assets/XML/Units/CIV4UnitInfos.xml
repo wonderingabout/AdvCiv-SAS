@@ -13056,12 +13056,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<!-- custom: was UNITCLASS_MACHINE_GUN 50 and UNITCLASS_MODERN_ARTILLERY 50 -->
-			<UnitClassAttackMods>
-				<UnitClassAttackMod>
-					<UnitClassType>UNITCLASS_MODERN_ARTILLERY</UnitClassType>
-					<iUnitClassMod>25</iUnitClassMod>
-				</UnitClassAttackMod>
-			</UnitClassAttackMods>
+			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was empty -->
 			<UnitCombatMods>
@@ -13256,13 +13251,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
-			<!-- custom: was empty -->
-			<UnitClassAttackMods>
-				<UnitClassAttackMod>
-					<UnitClassType>UNITCLASS_MODERN_ARTILLERY</UnitClassType>
-					<iUnitClassMod>25</iUnitClassMod>
-				</UnitClassAttackMod>
-			</UnitClassAttackMods>
+			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
@@ -18849,7 +18838,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
+			<!-- custom: was empty -->
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -19042,7 +19037,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
+			<!-- custom: was empty -->
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -19231,7 +19232,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
+			<!-- custom: was empty -->
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -20742,12 +20749,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-					<iUnitCombatMod>50</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<!-- custom: was UNITCOMBAT_SIEGE 50 -->
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes>
 				<UnitCombatCollateralImmune>
 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
@@ -20939,12 +20942,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-					<iUnitCombatMod>50</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<!-- custom: was UNITCOMBAT_SIEGE 50 -->
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes>
 				<UnitCombatCollateralImmune>
 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
@@ -21139,12 +21138,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-					<iUnitCombatMod>50</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<!-- custom: was UNITCOMBAT_SIEGE 50 in other artillery units as well i mean but anyways etc -->
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes>
 				<UnitCombatCollateralImmune>
 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
