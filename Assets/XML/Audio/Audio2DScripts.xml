@@ -16555,8 +16555,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_UNIT_BUILD_CHINESE_CHOKONU</ScriptID>
-		<SoundID>SND_BUILD_CHINESE_CHOKONU</SoundID>
+		<ScriptID>AS2D_UNIT_BUILD_CHINESE_ZHUGE_NU</ScriptID>
+		<SoundID>SND_BUILD_CHINESE_ZHUGE_NU</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

@@ -163,9 +163,9 @@
 	</TEXT>
 
 
-	<!-- custom: based on the disciplined crossbow (kingdom of benin)'s entry (to match the format of this other civ unit (than the chinese civ unit)) and adjusted from there to fit the Chinese civ unit. -->
+	<!-- custom: rename "_CHOKONU" and "Cho-Ko-Nu" (was non-standard/incorrect Wade–Giles romanization based on quick search results i found and on chatgpt 5.1's info anyways etc) to "_ZHUGE_NU" and "Zhuge Nu" (modern pinyin as confirmed by chatgpt 5.1 thanks but anyways etc); as for pedia entry, it is based on the disciplined crossbow (kingdom of benin)'s entry (to match the format of this other civ unit (than the chinese civ unit)) and adjusted from there to fit the Chinese civ unit. -->
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_CHINA_CHOKONU_PEDIA</Tag>
+		<Tag>TXT_KEY_UNIT_CHINA_ZHUGE_NU_PEDIA</Tag>
 		<English>[TAB]The repeating crossbow, also known as the repeater crossbow, and the Zhuge crossbow, also romanized Chu-ko-nu, due to its association with the Three Kingdoms-era strategist Zhuge Liang (181-234 AD), is a crossbow invented during the Warring States period in China that combined the bow spanning, bolt placing, and shooting actions into one motion.[PARAGRAPH:1]The earliest archaeological evidence of the repeating crossbow is found in the state of Chu, but it uses a pistol grip that is different from the later and more commonly known Ming dynasty (1368-1644) design.[PARAGRAPH:1]Although the repeating crossbow was in use throughout most of Chinese history until the late Qing dynasty (1644-1911), it was generally regarded as a non-military weapon suited for women, defending households against robbers.</English>
 	</TEXT>
 

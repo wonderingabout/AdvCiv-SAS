@@ -4609,7 +4609,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_CHINESE_CHOKONU</SoundID>
+			<SoundID>SND_BUILD_CHINESE_ZHUGE_NU</SoundID>
 			<Filename>Sounds/Units/BuildChineseChoKoNu</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

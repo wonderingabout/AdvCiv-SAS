@@ -850,7 +850,7 @@
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
-					<UnitType>UNIT_CHINA_CHOKONU</UnitType>
+					<UnitType>UNIT_CHINA_ZHUGE_NU</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>

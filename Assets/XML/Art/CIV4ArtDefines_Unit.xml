@@ -1053,7 +1053,7 @@
 			</AudioRunSounds>
 		</UnitArtInfo>
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_CHINA_CHOKONU</Type>
+			<Type>ART_DEF_UNIT_CHINA_ZHUGE_NU</Type>
 			<Button>,Art/Interface/Buttons/Units/ChoKoNu.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,6</Button>
 			<fScale>0.44</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>

@@ -10665,9 +10665,9 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_CHINA_CHOKONU (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_CHINA_ZHUGE_NU (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Class>UNITCLASS_CROSSBOWMAN</Class>
-			<Type>UNIT_CHINA_CHOKONU</Type>
+			<Type>UNIT_CHINA_ZHUGE_NU</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
@@ -10676,8 +10676,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_CHINA_CHOKONU</Description>
-			<Civilopedia>TXT_KEY_UNIT_CHINA_CHOKONU_PEDIA</Civilopedia>
+			<Description>TXT_KEY_UNIT_CHINA_ZHUGE_NU</Description>
+			<Civilopedia>TXT_KEY_UNIT_CHINA_ZHUGE_NU_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
@@ -10880,7 +10880,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 				<iRangedWaveSize>3</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>3</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_CHINA_CHOKONU</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_CHINA_ZHUGE_NU</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_RANGED</FormationType>

@@ -573,6 +573,10 @@ I must say i am impressed, it is extremely good, it analyzed a gigantic rewrite 
 
 It also helped me beyond tremendously solve beyond tremendously and enhance AI worker mobility, flexibility, and reliability issue, which improved (no pun but anyways etc) AI strength a lot, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details.
 
+#### 5.1
+
+Helped me nicely fix or enhance things, although i didn't test it too much yet but seems very helpful and reliable thanks a lot but check to be sure anyways etc.
+
 ### Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
 
 note: text below is before the renaming of becomingthrough to chatgpt, did not reread much or at all nor re edit ekpt as is at least for always if not only now or other or not anyways etc
@@ -622,3 +626,7 @@ Helped me among the various AIs i tried get a better idea of how to solve [56 - 
 In the end i solved it myself by emprirically disabling code until i found the culprit (see link of the known issue for details anyways etc), but its analysis was very sharp among the other AIs i asked (not counting chatgpt 5 which helped me through the whole thing but anyways etc).
 
 I added some of its thoughts as of now after the issue was solved hehe to summarize it in the .cpp code but anyways etc.
+
+#### Kimi K2
+
+I tested Kimi K2 and it looks very fun! Although i barely tested it yet to have an extensive opinion or experience or such i mean if i may say but anyways etc.

@@ -339,6 +339,11 @@
 		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Tag>
 		<English>Impluvium</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CHINA_ZHUGE_NU</Tag>
+		<English>Zhuge Nu</English>
+	</TEXT>
+
 	<!-- custom: very disciplined nation, and using crossbowmen, see:
 	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military -->
 	<TEXT>
