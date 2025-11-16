@@ -13055,7 +13055,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
-			<!-- custom: was UNITCLASS_MACHINE_GUN 50 and UNITCLASS_MODERN_ARTILLERY 50 -->
+			<!-- custom: was UNITCLASS_MACHINE_GUN 50 and UNITCLASS_FIELD_GUN 50 -->
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was empty -->
@@ -19340,7 +19340,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 					<iFlankingStrength>100</iFlankingStrength>
 				</FlankingStrike>
 				<FlankingStrike>
-					<FlankingStrikeUnitClass>UNITCLASS_MODERN_ARTILLERY</FlankingStrikeUnitClass>
+					<FlankingStrikeUnitClass>UNITCLASS_FIELD_GUN</FlankingStrikeUnitClass>
 					<iFlankingStrength>100</iFlankingStrength>
 				</FlankingStrike>
 				<FlankingStrike>
@@ -20002,7 +20002,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MODERN_ARTILLERY</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_FIELD_GUN</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -20195,7 +20195,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MODERN_ARTILLERY</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_FIELD_GUN</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -20418,7 +20418,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MODERN_ARTILLERY</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_FIELD_GUN</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -20604,9 +20604,9 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_ARTILLERY, type: UNIT_MODERN_ARTILLERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Class>UNITCLASS_MODERN_ARTILLERY</Class>
-			<Type>UNIT_MODERN_ARTILLERY</Type>
+		<UnitInfo> <!-- custom: class: UNITCLASS_FIELD_GUN, type: UNIT_FIELD_GUN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Class>UNITCLASS_FIELD_GUN</Class>
+			<Type>UNIT_FIELD_GUN</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
@@ -20615,8 +20615,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_MODERN_ARTILLERY</Description>
-			<Civilopedia>TXT_KEY_UNIT_MODERN_ARTILLERY_PEDIA</Civilopedia>
+			<Description>TXT_KEY_UNIT_FIELD_GUN</Description>
+			<Civilopedia>TXT_KEY_UNIT_FIELD_GUN_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
@@ -20779,7 +20779,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 				<iRangedWaveSize>2</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>2</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_MODERN_ARTILLERY</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_FIELD_GUN</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
@@ -21024,7 +21024,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<!-- custom: same as the scout and as a continuation of modern artillery -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same if i am not mistaken anyways etc...), this is also convenient as it walking on water tiles may confuse the AI possibly or/and be tedious or super hassle to maintian if i may say too in this case but anyways etc or simply implement with all the unitAIs or/and such, warfare should be more efficient as such, it behaves like as of now scouts and such but hopefully helpful or/and informative or/and is also how i want to do it in advciv-sas but or not but or yes but anyways etc -->
+			<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same if i am not mistaken anyways etc...), this is also convenient as it walking on water tiles may confuse the AI possibly or/and be tedious or super hassle to maintian if i may say too in this case but anyways etc or simply implement with all the unitAIs or/and such, warfare should be more efficient as such, it behaves like as of now scouts and such but hopefully helpful or/and informative or/and is also how i want to do it in advciv-sas but or not but or yes but anyways etc -->
 			<bCanMoveImpassable>1</bCanMoveImpassable>
 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
 			<bFlatMovementCost>0</bFlatMovementCost>

@@ -491,8 +491,8 @@
 		<English>Modern Tank</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_MODERN_ARTILLERY</Tag>
-		<English>Modern Artillery</English>
+		<Tag>TXT_KEY_UNIT_FIELD_GUN</Tag>
+		<English>Field Gun</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY</Tag>

@@ -569,13 +569,13 @@
 			<DefaultUnit>UNIT_CANNON</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
-			<Type>UNITCLASS_MODERN_ARTILLERY</Type>
-			<Description>TXT_KEY_UNIT_MODERN_ARTILLERY</Description>
+			<Type>UNITCLASS_FIELD_GUN</Type>
+			<Description>TXT_KEY_UNIT_FIELD_GUN</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iInstanceCostModifier>0</iInstanceCostModifier>
-			<DefaultUnit>UNIT_MODERN_ARTILLERY</DefaultUnit>
+			<DefaultUnit>UNIT_FIELD_GUN</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
 			<Type>UNITCLASS_LEVITATION_ARTILLERY</Type>
