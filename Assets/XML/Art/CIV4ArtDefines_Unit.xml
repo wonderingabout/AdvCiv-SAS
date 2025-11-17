@@ -1942,32 +1942,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc, art based originally on base advciv's +/- civ4 art def of the cuirassier as the old panzer one seems to have many at least some extra fields we may not need for the hussar so basing on the base cuirassier instead even for art def, then importing/basing the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) as well on top of it if i may say anyways etc, some assets like kfm or such being base civ4 ones if i am not mistaken anyways etc -->
-		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_GERMAN_HUSSAR</Type>
-			<Button>Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds</Button>
-			<fScale>0.42</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<bActAsLand>0</bActAsLand>
-			<bActAsAir>0</bActAsAir>
-			<NIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</NIF>
-			<KFM>Art/Units/Unique/Russia/Cossack/RussianCossack.kfm</KFM>
-			<SHADERNIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</SHADERNIF>
-			<ShadowDef>
-				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
-				<fShadowScale>1.0</fShadowScale>
-			</ShadowDef>
-			<fBattleDistance>0.35</fBattleDistance>
-			<fRangedDeathTime>0.31</fRangedDeathTime>
-			<bActAsRanged>0</bActAsRanged>
-			<!-- BBAI: was ..._UNIQUE_UNIT -->
-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
-			<AudioRunSounds>
-				<AudioRunTypeLoop/>
-				<AudioRunTypeEnd/>
-			</AudioRunSounds>
-		</UnitArtInfo>
 		<!-- custom: new unit CAMEL_CUIRASSIER based on the cuirassier camel version of it anyways etc, art import similarly from the very nice FPK "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" of RFC DOC 's mod, of/from the art asset ART_DEF_UNIT_CAMEL_GUNNER too anyways etc and adjusted or not or yes or other or and other or etc or and etc anyways etc for advciv-sas anyways etc -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_CUIRASSIER</Type>
@@ -2038,6 +2012,32 @@
 			<fRangedDeathTime>0.31</fRangedDeathTime>
 			<bActAsRanged>1</bActAsRanged>
 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
+		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc; import / based on the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) and adjusted or not for advciv-sas anyways etc; some assets like kfm or such being base civ4 ones if i am not mistaken anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_GERMAN_HUSSAR</Type>
+			<Button>Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds</Button>
+			<fScale>0.42</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</NIF>
+			<KFM>Art/Units/Unique/Russia/Cossack/RussianCossack.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<!-- BBAI: was ..._UNIQUE_UNIT -->
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
 			<AudioRunSounds>
 				<AudioRunTypeLoop/>
 				<AudioRunTypeEnd/>

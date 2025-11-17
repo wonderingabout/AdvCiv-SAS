@@ -1554,7 +1554,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_HORSE_CUIRASSIER</UnitClassType>
+					<UnitClassType>UNITCLASS_DRAGOON</UnitClassType>
 					<UnitType>UNIT_GERMAN_HUSSAR</UnitType>
 				</Unit>
 			</Units>
