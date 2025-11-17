@@ -239,8 +239,8 @@
 			</DiploVotes>
 		</VoteInfo>
 		<VoteInfo>
-			<Type>VOTE_ENVIRONMENTALISM</Type>
-			<Description>TXT_KEY_VOTE_ENVIRONMENTALISM</Description>
+			<Type>VOTE_TRADE_BLOC</Type>
+			<Description>TXT_KEY_VOTE_TRADE_BLOC</Description>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -259,7 +259,7 @@
 			<bAssignCity>0</bAssignCity>
 			<ForceCivics>
 				<ForceCivic>
-					<CivicType>CIVIC_ENVIRONMENTALISM</CivicType>
+					<CivicType>CIVIC_TRADE_BLOC</CivicType>
 					<bForce>1</bForce>
 				</ForceCivic>
 			</ForceCivics>

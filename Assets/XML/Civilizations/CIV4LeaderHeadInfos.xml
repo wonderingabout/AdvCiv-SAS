@@ -9715,7 +9715,7 @@
 			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DefensivePactRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_MERCANTILISM</FavoriteCivic>
+			<FavoriteCivic>CIVIC_PROTECTIONISM</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
 			<!-- Franklin D. Roosevelt — was TRAIT_INDUSTRIOUS and TRAIT_ORGANIZED -->
 			<Traits>
@@ -10368,7 +10368,7 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>50</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_ENVIRONMENTALISM</FavoriteCivic>
+			<FavoriteCivic>CIVIC_TRADE_BLOC</FavoriteCivic>
 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -11264,7 +11264,7 @@
 			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DefensivePactRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_MERCANTILISM</FavoriteCivic>
+			<FavoriteCivic>CIVIC_PROTECTIONISM</FavoriteCivic>
 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
 			<!-- Tokugawa — was TRAIT_PROTECTIVE and TRAIT_AGGRESSIVE -->
 			<Traits>

@@ -218,6 +218,14 @@
 		<Tag>TXT_KEY_CIVIC_WAGE_LABOR</Tag>
 		<English>Wage Labor</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_PROTECTIONISM</Tag>
+		<English>Protectionism</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_TRADE_BLOC</Tag>
+		<English>Trade Bloc</English>
+	</TEXT>
 
 
 

@@ -399,8 +399,6 @@ Result is output in a logfile in the Logs\XML_Duplication_Scans folder, for exam
 
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Logs\XML_Duplication_Scans
 
-Here is an [example of output file](/scan_xml_duplicates-log_example_of_output.txt).
-
 (Note: files are in .gitignore if you use git, else dont mind this specific remark, anyways)
 
 Line numbers don't print perfectly ("duplicated" you could say hehe.. (but) anyways), but info should be otherwise helpful hopefully ; also some duplicates are intended and expected if i am not mistaken and part of the game architecture, such as the iCommerce ones if i understood ChatGPT's explanation correctly and based on my own memories's understanding anyways, and TXT_KEY_HINT_`*` where `*` is anything for example, maybe for publicity and purposely repeated, according to ChatGPT anyways too and seems to make sense, if i am not msitaken and understand it and it's explanation correctly too
