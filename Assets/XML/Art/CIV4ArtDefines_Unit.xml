@@ -1994,16 +1994,17 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: art import from RFC DOC mod's ART_DEF_UNIT_DRAGOON thanks anyways etc. Note: .kfm is base advciv +/- civ4's one if i'm not mistaken as per rfc doc mod's unitartinfo in xml if i'm not mistaken anyways etc -->
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_CAVALRY</Type>
-			<Button>,Art/Interface/Buttons/Units/Cavalry.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,2</Button>
+			<Type>ART_DEF_UNIT_DRAGOON</Type>
+			<Button>Art/AdvCiv_SAS/Units/Dragoon/Dragoon.dds</Button>
 			<fScale>0.42</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>
 			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Cavalry/Cavalry.nif</NIF>
-			<KFM>Art/Units/Cavalry/Cavalry.kfm</KFM>
-			<SHADERNIF>Art/Units/Cavalry/Cavalry_FX.nif</SHADERNIF>
+			<NIF>Art/AdvCiv_SAS/Units/Dragoon/nif/RussianCossack.nif</NIF>
+			<KFM>Art/Units/Unique/Russia/Cossack/RussianCossack.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Dragoon/nif/RussianCossack_FX.nif</SHADERNIF>
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
 				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>

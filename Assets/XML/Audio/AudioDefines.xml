@@ -4595,7 +4595,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_CAVALRY</SoundID>
+			<SoundID>SND_BUILD_DRAGOON</SoundID>
 			<Filename>Sounds/Units/BuildCavalry</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

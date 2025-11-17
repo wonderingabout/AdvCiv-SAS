@@ -16509,8 +16509,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_UNIT_BUILD_CAVALRY</ScriptID>
-		<SoundID>SND_BUILD_CAVALRY</SoundID>
+		<ScriptID>AS2D_UNIT_BUILD_DRAGOON</ScriptID>
+		<SoundID>SND_BUILD_DRAGOON</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

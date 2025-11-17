@@ -17411,7 +17411,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_CAVALRY</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_DRAGOON</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -17618,7 +17618,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_CAVALRY</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_DRAGOON</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -17854,7 +17854,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_CAVALRY</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_DRAGOON</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -18080,7 +18080,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_CAVALRY</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_DRAGOON</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -18247,9 +18247,9 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CAVALRY, type: UNIT_CAVALRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Class>UNITCLASS_CAVALRY</Class>
-			<Type>UNIT_CAVALRY</Type>
+		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_DRAGOON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Class>UNITCLASS_DRAGOON</Class>
+			<Type>UNIT_DRAGOON</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
@@ -18258,8 +18258,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_CAVALRY</Description>
-			<Civilopedia>TXT_KEY_UNIT_CAVALRY_PEDIA</Civilopedia>
+			<Description>TXT_KEY_UNIT_DRAGOON</Description>
+			<Civilopedia>TXT_KEY_UNIT_DRAGOON_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
@@ -18440,7 +18440,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 				<iRangedWaveSize>3</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>3</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_CAVALRY</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_DRAGOON</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -18453,8 +18453,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CAVALRY, type: UNIT_RUSSIA_COSSACK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Class>UNITCLASS_CAVALRY</Class>
+		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_RUSSIA_COSSACK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Class>UNITCLASS_DRAGOON</Class>
 			<Type>UNIT_RUSSIA_COSSACK</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>

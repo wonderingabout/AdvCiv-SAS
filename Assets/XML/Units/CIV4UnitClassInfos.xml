@@ -380,13 +380,13 @@
 			<DefaultUnit>UNIT_CAMEL_CUIRASSIER</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
-			<Type>UNITCLASS_CAVALRY</Type>
-			<Description>TXT_KEY_UNIT_CAVALRY</Description>
+			<Type>UNITCLASS_DRAGOON</Type>
+			<Description>TXT_KEY_UNIT_DRAGOON</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iInstanceCostModifier>0</iInstanceCostModifier>
-			<DefaultUnit>UNIT_CAVALRY</DefaultUnit>
+			<DefaultUnit>UNIT_DRAGOON</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
 			<Type>UNITCLASS_WAR_ELEPHANT</Type>

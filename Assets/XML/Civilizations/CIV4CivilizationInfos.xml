@@ -3477,7 +3477,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CAVALRY</UnitClassType>
+					<UnitClassType>UNITCLASS_DRAGOON</UnitClassType>
 					<UnitType>UNIT_RUSSIA_COSSACK</UnitType>
 				</Unit>
 			</Units>

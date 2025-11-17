@@ -235,6 +235,14 @@
 
 
 
+	<!-- custom: replace "_CAVALRY" (unit after as of now cuirassier units anyways etc) with "_DRAGOON" (was way too generic, era aspecific, and old unit's art was inaccurate for target advciv-sas early-industrial tech tree time anyways etc), as nicely recommended to me by chatgpt 5.1 thanks anyways etc; entry based on https://en.wikipedia.org/wiki/Dragoon anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_DRAGOON_PEDIA</Tag>
+		<English>[TAB]Dragoons were originally a class of mounted infantry, who used horses for mobility, but dismounted to fight on foot. From the early 17th century onward, dragoons were increasingly also employed as conventional cavalry and trained for combat with swords and firearms from horseback. While their use goes back to the late 16th century, dragoon regiments were established in most European armies during the 17th and early 18th centuries; they provided greater mobility than regular infantry but were far less expensive than cavalry.[PARAGRAPH:1]The name reputedly derives from a type of firearm, called a dragon, which was a handgun version of a blunderbuss, carried by dragoons of the French Army. The title has been retained in modern times by a number of armoured or ceremonial mounted regiments.</English>
+	</TEXT>
+
+
+
 	<!-- custom: based on https://en.wikipedia.org/wiki/Hussar anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GERMAN_HUSSAR_PEDIA</Tag>
