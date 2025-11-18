@@ -205,7 +205,7 @@ This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/C
 | Qin Shi Huang | Industrious, Protective |
 | Ragnar | Financial, Aggressive |
 | Ramesses | Spiritual, Industrious |
-| Franklin Roosevelt | Industrious, Organized |
+| Roosevelt | Industrious, Organized |
 | Saladin | Protective, Spiritual |
 | Shaka | Aggressive, Expansive |
 | Sitting Bull | Philosophical, Protective |
@@ -337,7 +337,7 @@ This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/C
 | Qin Shi Huang | Industrious, Protective | **Keep** | Great Wall/standardization + legalist control. |
 | Ragnar | Financial, Aggressive | **Keep** | Raiding/commerce + martial ferocity. |
 | Ramesses | Spiritual, Industrious | **Keep** | Temple/monument builder with priestly legitimation. |
-| Franklin Roosevelt | Industrious, Organized | **Industrious, Charismatic** | New Deal public works -> keep Industrious. His defining edge was coalition-building and morale (Fireside Chats, wartime leadership) more than bureaucratic cost efficiency. |
+| Roosevelt | Industrious, Organized | **Industrious, Charismatic** | New Deal public works -> keep Industrious. His defining edge was coalition-building and morale (Fireside Chats, wartime leadership) more than bureaucratic cost efficiency. |
 | Saladin | Protective, Spiritual | **Spiritual, Charismatic** | Admired by both sides; unifying religious leadership — not just a “defender.” He led major offensive campaigns (Hattin, Jerusalem) and had broad admiration. Your switch to Spiritual, Charismatic is very defensible; I wouldn’t go back to Protective unless you want to emphasize “shield of Islam” over his rallying aura. |
 | Shaka | Aggressive, Expansive | **Aggressive, Organized** | Fits Ikhanda-style admin — “charismatic” in Civ terms can imply inspirational popularity; historically he ruled more by fear/discipline. Your pick Aggressive, Organized is perfect (impi/regimental system + logistics). I wouldn’t use Charismatic here. |
 | Sitting Bull | Philosophical, Protective | **Keep** | Visionary/teacher + defensive resistance. |
@@ -419,3 +419,149 @@ Sanity: 53 leaders × 2 = 106 total assignments.
 | Philosophical + Protective | 1 |
 | Philosophical + Spiritual | 1 |
 | Protective + Spiritual | 1 |
+
+## Favourite civics rebalancing
+
+Based on the old base advciv 1.12 data (or current advciv-sas if missing such as for new leaders we added like as of now Ewuare or/and such if any anyways etc), check if accurate anyways etc.
+
+Goal is to make it more historically accurate, balanced in gameplay, and more or less evenly spread (although less of a focus but an additional ideal extra) anyways etc. Also to to account for our reworked/replaced civics such as of now civic_wage_labor, civic_trade_bloc, civic_protectionism, etc.
+
+### before changes favourite civics per leader anyways etc
+
+(see below at the after changes since it lists them as well anyways etc)
+
+### before changes favourite civics count per civic anyways etc
+
+| Civic              | Count as favourite |
+|--------------------|--------------------|
+| Hereditary Rule    | 9                  |
+| Representation     | 5                  |
+| Bureaucracy        | 4                  |
+| Free Religion      | 4                  |
+| Theocracy          | 4                  |
+| Vassalage          | 4                  |
+| Nationhood         | 3                  |
+| Organized Religion | 3                  |
+| Police State       | 3                  |
+| Universal Suffrage | 3                  |
+| Caste System       | 2                  |
+| Free Market        | 2                  |
+| Mercantilism       | 2                  |
+| State Property     | 2                  |
+| Emancipation       | 1                  |
+| Environmentalism   | 1                  |
+| Free Speech        | 1                  |
+| Pacifism           | 0                  |
+| Serfdom            | 0                  |
+| Slavery            | 0                  |
+
+| Civic            | Count as favourite |
+|------------------|--------------------|
+| Barbarism        | 0                  |
+| Decentralization | 0                  |
+| Despotism        | 0                  |
+| Paganism         | 0                  |
+| Tribalism        | 0                  |
+
+- sanity: total favourites across all civics = **53** (should match number of leaders)
+
+### after changes favourite civics per leader anyways etc
+
+Done with the help of chatgpt 5.1, and other ais for check-up such as claude sonnet 4.5 and grok 4.1 and others anyways etc, and my reviewing or/and such as well i mean if i may say but anyways etc. Check if accurate anyways etc.
+
+note: as of now advciv-sas civics are (check if updated in sevopedia/xml but anyways etc) wage labor is medieval new, protecitonism is late classical new (replaces mercantilism), environmentalism is removed in favour of trade_bloc (medieval (1300s) at printing press in our mod), and civic_paganism has been renamed to civic_prehistoric_religion (although it's as of now the same civic, just to distinguish/differentiate it from the religion_paganism we as of now added in advciv-sas but anyways etc.).
+
+Also i added this info from chatgpt 5.1's thoughts as i found it very accurate and nicely phrased thanks anyways etc: "I think favorite civics should relate to the core of a leader's regime—such as government, legal, or religious systems—not just practices like slavery, which were widespread. For example, Caesar, Hannibal, and Pericles all had slavery—so choosing "Slavery" for one wouldn't add accuracy. Similarly, serfdom or trade bloc membership should be linked more to their regime and identity, not the specific labor practices of their time.".
+
+| Leader            | Current Favourite Civic | Recommendation         | Rationale                                                                                                                                                                                                                                                                                                 |
+| ----------------- | ----------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alexander         | Vassalage               | **Keep**               | Alexander’s distinct pattern is: aristocratic companions who owe service for status/land, overlordship of allied Greek poleis and subject kings, use of a Persian-style layered hierarchy (satraps, sub-kings). In other words: a very militarised overlord + vassal network structure. Given that, I think Claude is right that our previous change doesn’t really add clarity; it just makes him “generic monarch” instead of “overlord of vassals”. I’d now revert Alexander back to Vassalage as favourite civic. That gives us one very clear “Vassalage leader” in the classical era (plus Ragnar etc.), and still leaves Hereditary Rule plenty represented elsewhere. `<!-- custom: note: based on claude sonnet 4.5's feedback anyways etc -->` |
+| Asoka             | Free Religion           | **Pacifism**           | Post-Kalinga, Asoka is defined by renouncing conquest, promoting dhamma, and issuing moral edicts; a peace-focused religious civic captures his historical identity much better than a modern pluralist Free Religion.                                                                                    |
+| Augustus          | Representation          | **Bureaucracy**        | Augustus builds a durable imperial administration (provinces, census, tax, standing army) centered on Rome; Civ-style Bureaucracy is exactly “imperial capital + strong apparatus,” which fits him far better than Representation.                                                                        |
+| Bismarck          | Nationhood              | **Keep**               | His short, limited wars (1864, 1866, 1870–71) are national unification wars built on conscription and mass mobilization; “Nation in arms” plus post-1871 nation-state management fits Nationhood very well.                                                                                               |
+| Boudica           | Universal Suffrage      | **Nationhood**         | Historically she leads a revolt framed as defending “the people” and their land against Rome, rallying tribes into a war coalition; at Civ scale that is closer to a draft/war-mobilization civic than to late-game elections. We avoid Tribalism as a favourite because it’s an empty civic in your mod. |
+| Brennus           | Organized Religion      | **Vassalage**          | I’d lean to changing Brennus to Vassalage – that gives him something more personal, and different from Boudica, without stretching what we actually know. For this Brennus (279 BCE, Thermopylae/Delphi one), the only clear thing in the sources is that he’s a fearsome coalition war-leader. He commands a big multi-tribal force with subordinate chiefs and warbands – lots of personal loyalty and “follow this chieftain into Greece for plunder.” We know far more about him as an overlord of warriors than as a religious organiser or nation-builder. So: Boudica = Nationhood → “people’s war / uprising of the Britons”. Brennus = Vassalage → “overlord with allied chiefs and retinues on campaign.” That keeps them both Celtic and warlike, but with distinctly different regime “shapes”. `<!-- custom: based on my past research, Brennus was fairly areligious, so after pointing/suggesting/asking chatgpt 5.1 this question/point, it told me organized religion works as a celtic society broad abstraction but not so typical of brennus himself who was not known for his piety or such if i understood it correctly. Since i want something more personalized to leaders ideally, changed it from the old organized religion then instead of keeping same trait anyways etc. It then rereviewed the table again with this perspective/idea in mind and no other change needed for accuracy or such according to it, except for Cyrus (see his line for details anyways etc) check if accurate anyways etc thanks for help lot still chatgpt 5.1 anyways etc: -->` "Short answer: with the Brennus change, I don’t see any other leader where the current favourite civic clearly misses their personal/regime identity in the way “Organized Religion → Brennus” did." anyways etc. |
+| Catherine         | Hereditary Rule         | **Keep**               | Whatever her Enlightenment correspondence, she is an autocratic empress whose legitimacy rests on dynastic monarchy and palace coups; Hereditary Rule is exactly that.                                                                                                                                    |
+| Charlemagne       | Vassalage               | **Keep**               | Carolingian rule is the textbook example of counts, marcher lords, and benefices granted for service; Vassalage is one of the most accurate favourite civic matches in the entire roster.                                                                                                                 |
+| Churchill         | Nationhood              | **Keep**               | Churchill’s moment is wartime Britain: mass conscription, propaganda, and appeals to “the nation” rather than technocratic administration or economics. Nationhood fits that role.                                                                                                                        |
+| Cyrus             | Vassalage               | **Hereditary Rule**    | Cyrus is a dynastic “King of Kings” ruling through satraps but anchored in royal lineage; in your civic set, simple Hereditary Rule is a closer abstraction than medieval-style Vassalage. `<!-- custom: following note at brennus: -->` "Right, so the “conflicted” feeling with Cyrus is basically: he looks like a Vassalage guy (King of Kings + satraps), but he is first and foremost a dynastic monarch. What Cyrus actually did (very condensed)" + "He overthrew the Median king, then conquered Lydia and Babylon, creating the Achaemenid Empire in the mid-6th c. BCE. To hold all that together, he used satraps – regional governors – to rule provinces on his behalf. The Achaemenid kings used the title “King of Kings” (shahanshah / basileus tōn basileōn), signalling that there were other kings beneath them – local dynasts and city-kings who stayed in place as subordinates. He’s also famous (maybe a bit romantically) for relatively lenient policies toward conquered peoples – e.g. letting exiles return and respecting local cults (Cyrus Cylinder, Jewish return from Babylon, etc.). So structurally, that does smell a lot like Civ’s Vassalage: a top ruler with subordinate rulers owing service." + "So the conflict is: Vassalage captures the shape of his empire. Hereditary Rule captures the core of his kingship and keeps Darius as the administrative/system guy. On balance, for your goals (personalised, regime-identity-focused, and avoiding too much overlap with Darius), Hereditary Rule wins by a nose. If someday you introduce a second Persian leader focused on the “network of subject kings” angle, that one would be a great place to use Vassalage as their favourite." |
+| Darius            | Free Religion           | **Bureaucracy**        | Darius is the system-builder: satrapies, royal roads, inspectors, standardized tribute. His key trait is administrative statecraft, not modern religious liberty; Bureaucracy fits that centralizing impulse.                                                                                             |
+| De Gaulle         | Nationhood              | **Keep**               | From the Free French to the Fifth Republic, his whole persona is “voice of the nation” and institutional refounder; a national-mobilization civic suits him well.                                                                                                                                         |
+| Elizabeth         | Free Religion           | **Free Market**        | Her reign is the birth of English global commerce: chartered companies, privateering, Atlantic ventures. A trade-centric economic civic (Free Market) better captures the “Elizabethan sea-trade” identity than a modern secular religion policy.                                                         |
+| Ewuare            | Hereditary Rule         | **Keep**               | The Oba of Benin is a sacral, hereditary monarch whose power rests on lineage, court ritual, and palace institutions; that is straight Hereditary Rule in Civ terms.                                                                                                                                      |
+| Frederick         | Universal Suffrage      | **Bureaucracy**        | Frederick the Great is the archetypal “enlightened despot” running a drill-state and efficient civil service; he is much more a bureaucratic monarch than any kind of democrat.                                                                                                                           |
+| Gandhi            | Universal Suffrage      | **Pacifism**           | Gandhi’s historical persona centers on non-violent resistance, fasting, and moral pressure, not on holding office inside a voting system; a peace-oriented religious civic is a cleaner expression of his role.                                                                                           |
+| Genghis Khan      | Police State            | **Keep**               | Mongol rule under Genghis is total war, harsh law, and near-total social mobilization; Police State is a very accurate Civ-level abstraction.                                                                                                                                                             |
+| Gilgamesh         | Hereditary Rule         | **Keep**               | Bronze Age Uruk is a city-state under a semi-divine king; a basic hereditary monarchy fits that legendary setting well enough.                                                                                                                                                                            |
+| Hammurabi         | Bureaucracy             | **Keep**               | He is literally the go-to example for codified law and early centralized administration; Bureaucracy is exactly what his Civ design is already gesturing at.                                                                                                                                              |
+| Hannibal          | Free Market             | **Trade Bloc**         | If you keep the current meaning of “Trade Bloc” (intergovernmental economic union), I still think Hannibal → Free Market is more accurate than Hannibal → Trade Bloc. Why I’d still lean Hannibal = Free Market" + "Given your own rule: favourite civic = the thing that best captures the leader’s regime identity or vibe, not “we need to showcase this civic” then for Hannibal: Core Hannibal / Carthage vibe: Maritime merchant city-empire" + "Money + ports + trade routes fund mercenary armies" + "Carthage as a rich commercial power clashing with a land empire (Rome)" + "Conceptually that is much closer to: Free Market → “commerce-driven society where markets and trade dominate the economy” than to: Trade Bloc → “formal intergovernmental agreement / customs union between multiple states”" + "Your Trade Bloc pedia text (screenshot) is very explicitly about: USMCA, EU-style blocs, 19–20th century economic integration, regional organisations, etc. Carthage’s system is an imperial maritime network, not an institutional trade bloc among equal partners. So if we stay literal about the concept as written, Hannibal’s “dream civic” is still Free Market." + "Given everything you’ve told me about accuracy > symmetry, my honest recommendation is still: Hannibal → Free Market, zero Trade Bloc favourites is OK." |
+| Hatshepsut        | Organized Religion      | **Keep**               | Her major beats are Punt expeditions, temple building, and religious legitimation of her rule; a “temples help build things” civic matches that temple-economy flavor well.                                                                                                                               |
+| Huayna Capac      | Hereditary Rule         | **State Property**     | The Inca economy is state-planned: no private land, labor tax (mit’a), state storehouses and roads. A command-economy civic like State Property maps far better to that than a generic monarchy favourite.                                                                                                |
+| Isabella          | Theocracy               | **Keep**               | Reconquista, Inquisition, and militant Catholic policy: she is almost the archetype for a Theocracy in Civ terms.                                                                                                                                                                                         |
+| Joao              | Hereditary Rule         | **Free Market**        | Portuguese expansion under Joao leans into Atlantic trade, colonies, and commercial charters; a pro-commerce economic civic is a better summary than another monarchy tag.                                                                                                                                |
+| Julius Caesar     | Representation          | **Police State**       | In practice Caesar’s regime is a personal dictatorship backed by loyal legions and proscriptions; a hardline Police State matches that concentration of power better than a representative-government civic.                                                                                              |
+| Justinian         | Theocracy               | **Keep**               | He rules an explicitly Christian empire, sponsors councils, enforces orthodoxy, and fuses imperial and religious authority; Theocracy is on-point here.                                                                                                                                                   |
+| Kublai Khan       | Bureaucracy             | **Keep**               | As Yuan emperor he leans heavily on Chinese imperial bureaucracy and civil officials; Bureaucracy is exactly the flavor you want to highlight for him.                                                                                                                                                    |
+| Lincoln           | Emancipation            | **Nationhood**         | Lincoln’s presidency is the archetype of “save the Union” via mass mobilization: conscription, war bonds, and appeals to the nation; a draft/propaganda civic expresses that better than a labor-law civic.                                                                                               |
+| Louis XIV         | Hereditary Rule         | **Keep**               | “L’etat, c’est moi” is pure absolutist monarchy; Hereditary Rule is the clean and accurate match.                                                                                                                                                                                                         |
+| Mansa Musa        | Free Market             | **Keep**               | His fame comes from gold, caravans, and trade routes linking West Africa to the wider Islamic world; a trade-oriented economic civic suits him perfectly. Mansa Musa – Free Market vs Trade Bloc: I agree with your current choice: Free Market. His story is gold + caravans + pilgrimage and wealth, not designing a customs union. |
+| Mao Zedong        | State Property          | **Keep**               | Mao leads a communist revolution and then rules a centrally planned economy with collectivization and five-year plans; State Property is exactly the canonical choice.                                                                                                                                    |
+| Mehmed            | Vassalage               | **Hereditary Rule**    | Mehmed II is a dynastic Ottoman sultan; while he does rely on timar grants and provincial notables, the core structure is an hereditary sultanate, which fits Hereditary Rule better than medieval Vassalage.                                                                                             |
+| Moctezuma         | Police State            | **Theocracy**          | The Aztec state fuses ruler and priesthood, with ritual war and sacrifice as religious duty; a state-religion fusion civic better captures that sacral militarism than a generic police regime.                                                                                                           |
+| Napoleon          | Representation          | **Nationhood**         | Napoleon is the poster child for levée en masse and national armies fighting for “la nation”; Nationhood captures the mass-mobilization aspect of Napoleonic France more clearly than any formal representative system.                                                                                   |
+| Pacal             | Hereditary Rule         | **Caste System**       | Classic Maya society is strongly stratified with nobles, priests, and commoners in fixed roles; a labor/social-stratification civic like Caste System is a closer abstraction than a generic monarchy favourite.                                                                                          |
+| Pericles          | Representation          | **Keep**               | Periclean Athens stands in for democracy in Civ: assembly, juries, pay for civic service; using Representation for that is standard and thematically right.                                                                                                                                               |
+| Peter             | Bureaucracy             | **Keep**               | Peter the Great is all about building a Western-style, centrally administered state (Table of Ranks, new capital, modernized army); Bureaucracy is a perfect description.                                                                                                                                 |
+| Qin Shi Huang     | Bureaucracy             | **Police State**       | Qin unification is remembered for harsh Legalist law, forced labor, book burnings, and secret police; in your civic set that’s closer to a hard Police State than to neutral “capital gets extra commerce.”                                                                                               |
+| Ragnar            | Hereditary Rule         | **Vassalage**          | Viking warbands and jarls revolve around personal loyalty and service to a war-leader; Civ’s Vassalage (lords owing military service) is a good abstraction for that retinue-based society.                                                                                                               |
+| Ramesses          | Organized Religion      | **Keep**               | Ramesses II is temple and monument king, backed by priestly legitimation; staying with Organized Religion keeps the “temple economy builds big things” vibe intact.                                                                                                                                       |
+| Roosevelt         | Mercantilism            | **Universal Suffrage** | FDR governs within a mature electoral democracy, re-elected multiple times and using the state to intervene in the economy; a modern democratic government civic fits his role better than a narrow trade-policy one.                                                                                     |
+| Saladin           | Theocracy               | **Keep**               | He’s remembered as the pious unifier leading jihad and defending Jerusalem; a tight fusion of state and religion is exactly what Theocracy represents.                                                                                                                                                    |
+| Shaka             | Police State            | **Keep**               | Shaka’s Zulu state is a hyper-militarized regimental society with intense discipline and coercion; Police State is a very accurate Civ-scale summary.                                                                                                                                                     |
+| Sitting Bull      | Environmentalism        | **Nationhood**         | In Civ terms he stands for defending his people’s land and sovereignty against an expanding state; a “defend the nation/people” civic matches that resistance role better than a late-game environmental/trade-bloc civic.                                                                                |
+| Stalin            | State Property          | **Keep**               | Stalin’s USSR is the classic example of full state ownership and command planning; State Property is the obvious and accurate favourite.                                                                                                                                                                  |
+| Suleiman          | Hereditary Rule         | **Bureaucracy**        | Suleiman “the Lawgiver” is as much about kanun (imperial law) and administrative order as conquest; highlighting a capital-centered admin civic better reflects that than another generic monarchy favourite.                                                                                             |
+| Suryavarman       | Caste System            | **Keep**               | Angkor-era Khmer society is highly hierarchical with temple elites and organized labor; Caste System is a good abstraction for that social order.                                                                                                                                                         |
+| Tokugawa          | Mercantilism            | **Protectionism**      | The Tokugawa shogunate’s sakoku policy (closed borders, tightly controlled trade) is basically a protectionist, restricted-trade order; your Protectionism civic maps to that very cleanly and replaces Mercantilism in the mod.                                                                          |
+| Victoria          | Representation          | **Free Market**        | Victorian Britain is the textbook 19th-century industrial capitalist and free-trade power (post-Corn Laws etc.); a pro-market economic civic captures that better than tweaking the government form.                                                                                                      |
+| Wang Kon          | Caste System            | **Organized Religion** | As founder of Goryeo he strongly supports Buddhism and religious institutions as pillars of the state; a temple-driven Organized Religion civic fits his Spiritual/Organized flavor better than labor structure alone.                                                                                    |
+| Washington        | Free Speech             | **Representation**     | Washington presides over the founding of a representative republic and then voluntarily steps down; a government civic representing representative institutions is the cleanest expression of his role.                                                                                                   |
+| Willem van Oranje | Free Religion           | **Keep**               | He’s famous for religious tolerance and coalition politics in the Dutch Revolt; a pluralist Free Religion civic is exactly his slot.                                                                                                                                                                      |
+| Zara Yaqob        | Theocracy               | **Keep**               | Zara Yaqob is known for enforcing strict Christian orthodoxy and writing doctrinal works; a strong state-church fusion civic is the right summary.                                                                                                                                                        |
+
+- sanity: leaders listed in this table = **53** (one favourite civic per leader)
+
+### after changes favourite civics count per civic anyways etc
+
+| Civic              | Count as favourite |
+|--------------------|--------------------|
+| Bureaucracy        | 7                  |
+| Nationhood         | 7                  |
+| Hereditary Rule    | 6                  |
+| Free Market        | 5                  |
+| Theocracy          | 5                  |
+| Police State       | 4                  |
+| Vassalage          | 4                  |
+| Organized Religion | 3                  |
+| State Property     | 3                  |
+| Caste System       | 2                  |
+| Pacifism           | 2                  |
+| Representation     | 2                  |
+| Free Religion      | 1                  |
+| Protectionism      | 1                  |
+| Universal Suffrage | 1                  |
+| Free Speech        | 0                  |
+| Serfdom            | 0                  |
+| Slavery            | 0                  |
+| Trade Bloc         | 0                  |
+| Wage Labor         | 0                  |
+
+| Civic                | Count as favourite |
+|----------------------|--------------------|
+| Barbarism            | 0                  |
+| Decentralization     | 0                  |
+| Despotism            | 0                  |
+| Prehistoric Religion | 0                  |
+| Tribalism            | 0                  |
+
+Sanity: total favourites across all civics = 53 (one per leader, matches leader count).

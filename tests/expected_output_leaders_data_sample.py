@@ -1516,7 +1516,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getOpenBordersRefuseAttitudeThreshold": -1,
 			"getVassalRefuseAttitudeThreshold": 1,
 			"getVassalPowerModifier": "-20",
-			"FavoriteCivic": "CIVIC_UNIVERSAL_SUFFRAGE",
+			"FavoriteCivic": "CIVIC_PACIFISM",
 			"FavoriteReligion": "RELIGION_HINDUISM",
 			"Traits": [
 				{
@@ -1866,7 +1866,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getDefensivePactRefuseAttitudeThreshold": 2,
 			"getVassalRefuseAttitudeThreshold": 2,
 			"getVassalPowerModifier": "0",
-			"FavoriteCivic": "CIVIC_MERCANTILISM",
+			"FavoriteCivic": "CIVIC_PROTECTIONISM",
 			"FavoriteReligion": "RELIGION_BUDDHISM",
 			"Traits": [
 				{
