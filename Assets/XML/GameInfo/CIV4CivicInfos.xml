@@ -1088,7 +1088,18 @@
 			<!-- Short version: yes, if what you want is the rise of monetized, contract-based work rather than “the modern proletariat.”
 				- Wage labor existed well before the Industrial Revolution (soldiers, artisans, day/harvest laborers, urban craftsmen, ship crews). It accelerates from the 13th–15th c. with coin monetization, towns, and guild production, then expands massively later.
 				- Tying it to Banking (Italian city-states, credit networks, bills of exchange) is thematically solid. -->
-			<TechPrereq>TECH_BANKING</TechPrereq>
+			<!-- custom: update: slot now used by another civic, thematically fine to move this civic sooner as replied to when asking chatgpt 5.1 thanks i mean but anyways etc, check if accurate anyways etc -->
+			<!-- Why I’d move Wage Labor to Broader Education
+			Conceptually:
+				- Wage labor = monetized, contract-based work, especially in towns, workshops, and proto-industry.
+				- That really takes off with:
+					- growing urban craft sectors and guild training
+					- more widespread literacy / numeracy / bookkeeping
+					- a thicker layer of “skilled workers for hire” rather than purely bonded peasants.
+			In your tree, that “wider literacy / trained specialists / guild knowledge” moment is exactly what Broader Education is standing in for, while:
+				- Banking = financial institutions, credit, capital flows (which you now use for Protectionism – tariff policy, external trade design).
+				- Printing Press = information / communication, which already has Trade Bloc and feels like “shared treaties, leagues, common rules”. -->
+			<TechPrereq>TECH_BROADER_EDUCATION</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- custom: was UPKEEP_LOW -->
 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
@@ -1232,8 +1243,8 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<!-- custom: button from c2c mod as nicely recommended by chatgpt 5.1 among my candidates thanks i mean but anyways etc -->
 			<Button>Art/AdvCiv_SAS/Civics/Protectionism/charters.dds</Button>
-			<!-- custom: want an early competitor economy civic and as confirmed by chatgpt 5.1 i mean thanks but anyways etc, was TECH_BANKING -->
-			<TechPrereq>TECH_PHILOSOPHY</TechPrereq>
+			<!-- custom: note: with the old strict no foreign trade version of this civic, tech prereq could't be too early else AI players would pick it too often which slowed tech pace in autoplay as it was an isolationism civic if i'm not mistaken unlike our reworked one but anyways etc, also it's fine to have it later now that it has competitors civics i mean if i may say but anyways etc; plus also this way the as of now free specialist effect is more balanced and not as op so maybe fine as such and better in this way as well i mean if i may say but anyways etc. -->
+			<TechPrereq>TECH_BANKING</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- K-Mod: was MEDIUM -->
 			<Upkeep>UPKEEP_LOW</Upkeep>
@@ -1267,8 +1278,11 @@
 			<iLargestCityHappiness>0</iLargestCityHappiness>
 			<iWarWearinessModifier>0</iWarWearinessModifier>
 			<iFreeSpecialist>1</iFreeSpecialist>
-			<iTradeRoutes>0</iTradeRoutes>
-			<bNoForeignTrade>1</bNoForeignTrade>
+			<!-- custom: less trade, not none, this is not isolationism anyways etc, was 0 -->
+			<iTradeRoutes>-1</iTradeRoutes>
+			<!-- custom: less trade, not none, this is not isolationism anyways etc,as chatgpt 5.1 confirms thanks anyways etc, was 1 -->
+			<!-- Yeah, I agree with your instinct here: if you don’t want a full-on “autarky / isolationism” civic, then “less trade, not none” fits Protectionism better, and avoids the huge tech-pace hit from bNoForeignTrade. -->
+			<bNoForeignTrade>0</bNoForeignTrade>
 			<bNoCorporations>0</bNoCorporations>
 			<bNoForeignCorporations>1</bNoForeignCorporations>
 			<iCivicPercentAnger>0</iCivicPercentAnger>
@@ -1281,12 +1295,7 @@
 			<iStateReligionFreeExperience>0</iStateReligionFreeExperience>
 			<YieldModifiers/>
 			<CapitalYieldModifiers/>
-			<!-- custom: added as recommended by chatgpt 5.1 and then which i tweaked but anyways etc, i think this may simulate economical independence (we don't trade away or need to import food or such), was empty, -->
-			<TradeYieldModifiers>
-				<iYield>10</iYield>
-				<iYield>10</iYield>
-				<iYield>10</iYield>
-			</TradeYieldModifiers>
+			<TradeYieldModifiers/>
 			<CommerceModifiers/>
 			<CapitalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -1515,7 +1524,18 @@
 				<iYield>10</iYield>
 				<iYield>0</iYield>
 			</YieldModifiers>
-			<CapitalYieldModifiers/>
+			<!-- custom: rework state property so it redistributes wealth i.e. hammer here anyways etc, as chatgpt 5.1 confirms after i asked it (but check if accurate i mean if i may say but anyways etc) anyways etc, was empty anyways etc -->
+			<!-- Mechanically, yes:
+				YieldModifiers (all cities): +10% hammers
+				CapitalYieldModifiers (capital only): -20% hammers
+			In the capital, both apply, so the net modifier is:
+				+10 - 20 = -10 ⇒ -10% hammers in the capital, +10% everywhere else.
+			That will work as you expect. -->
+			<CapitalYieldModifiers>
+				<iYield>0</iYield>
+				<iYield>-20</iYield>
+				<iYield>0</iYield>
+			</CapitalYieldModifiers>
 			<TradeYieldModifiers/>
 			<CommerceModifiers/>
 			<CapitalCommerceModifiers/>

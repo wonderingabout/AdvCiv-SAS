@@ -8,6 +8,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 
 [Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#starting-techs-rework)  
 [Leaders' traits rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-traits-rework)  
+[Leaders' favourite civics rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-favourite-civics-rework)  
 
 ## Starting techs rework
 
@@ -420,7 +421,7 @@ Sanity: 53 leaders × 2 = 106 total assignments.
 | Philosophical + Spiritual | 1 |
 | Protective + Spiritual | 1 |
 
-## Favourite civics rebalancing
+## Leaders' favourite civics rework
 
 Based on the old base advciv 1.12 data (or current advciv-sas if missing such as for new leaders we added like as of now Ewuare or/and such if any anyways etc), check if accurate anyways etc.
 
