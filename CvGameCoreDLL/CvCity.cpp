@@ -1268,7 +1268,10 @@ void CvCity::doTurn()
 	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
 	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
 	static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
-	if (!bHuman && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
+	// <!-- custom: also give the option for human players to have it for their convenience anyways etc. -->
+	static const bool bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
+	const bool bConvenienceHumanForceArtist = (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
+	if ((!bHuman || bConvenienceHumanForceArtist) && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
 	{
 		static const int iLowCpt = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD");
 

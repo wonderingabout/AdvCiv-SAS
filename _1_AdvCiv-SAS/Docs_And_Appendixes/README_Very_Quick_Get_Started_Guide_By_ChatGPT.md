@@ -259,6 +259,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 - **Citizen**: now adds **+1 commerce** (total **+1 hammer, +1 commerce**). See Sevopedia/XML.
 - **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
 - **Engineer**: now adds **+1 hammer** (total **+3 hammers**).
+- (Requires AdvCiv-SAS 5124+) Extend the “force one Artist until BFC” helper to **human** players for convenience; toggle via `SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (default/recommended: enabled).
 
 ### Terrains / Features (non-exhaustive)
 

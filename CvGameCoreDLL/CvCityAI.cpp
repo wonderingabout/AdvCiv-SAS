@@ -204,10 +204,15 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 			int iForcedSpecialistCount = getForceSpecialistCount(e);
 
 			// <!-- custom: since it is always the artist that is being forced early when invalid, adding this fix thanks to chatgpt 5, check if accurate anyways etc -->
-			// simple rule: never force an invalid specialist
-			if (!isSpecialistValid(e)) continue;
-			// don't exceed available slots
-			iForcedSpecialistCount = std::min(iForcedSpecialistCount, getMaxSpecialistCount(e));
+			// <!-- custom: update: it seems that in some cases we lose the artist bfc ability we had, gating it with an xml define/toggle to see if it selectively loses/restores the bfc ability anyways etc, recommended to disable it until/unless it is determined safe if at all to enable anyways etc; update 2: tested in autoplay and we indeed selectively lose the ability to force an artist for bfc after enabling this, so disabling this entirely, kept a toggle if want to experiement or test it i mean but anyways etc. Recommended to keep this disabled anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not but anyways etc. -->
+			static const bool bSAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST = GC.getDefineBOOL("SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST");
+			if (bSAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST)
+			{
+				// simple rule: never force an invalid specialist
+				if (!isSpecialistValid(e)) continue;
+				// don't exceed available slots
+				iForcedSpecialistCount = std::min(iForcedSpecialistCount, getMaxSpecialistCount(e));
+			}
 
 			if (getSpecialistCount(e) < iForcedSpecialistCount)
 			{
