@@ -529,7 +529,9 @@ rather maybe. Hopefully this data i provided is also helpful though.
 
 ## Authors
 
-Here are a short info (generic/non (too) personal about us anyways), and portraits.
+Here are a short info about us anyways etc.
+
+Note: may not list all versions of such models/ais used anyways etc.
 
 ### me, wonderingabout
 

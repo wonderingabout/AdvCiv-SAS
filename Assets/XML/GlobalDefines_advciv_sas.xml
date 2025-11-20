@@ -4,7 +4,8 @@
 <!-- custom: note: using the prefix is a bit cringe xd if i may say but anyways etc but at same time cool and does some publicity if i may say but anyways etc, but most importantly it gives us freedom while being compact but anyways etc to name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd if i may say but anyways etc but now think it makes sense in this case i mean but anyways etc), check if accurate, anyways etc -->
 <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
 <!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure anyways etc -->
-<!-- custom: note 4: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while anyways etc -->
+<!-- custom: note 4: almost all these knobs apply only to AI players (some apply to human players), so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate anyways etc). -->
+<!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while anyways etc -->
 
 
 
@@ -489,6 +490,33 @@
 
 
 
+	<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_BuildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too but anyways etc. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well if i may say i mean but anyways etc), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not but anyways etc) -->
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean if i may say but anyways etc -->
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: if somehow a building is a wonder but not a world wonder nor a national wonder, enable/disable this to specifically enable advciv-sas optimizations for this type of building if it ever exists (i don't think it does, but i don't know too much to tell, so added the knob to be safe and for exhaustiveness i mean if i may say but anyways etc) -->
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we would favour building maintenance per turn reducer building(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the courthouse class building (or civ-specific variants) in this city -->
 	<!-- // < 6 gpt => not worth it yet -->
 	<Define>
@@ -509,6 +537,12 @@
 	<Define>
 		<DefineName>SAS_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_PALACE</DefineTextVal>
+	</Define>
+	<!-- custom: max number of turns (at normal, auto adjusted to other game speeds) we tolerate to not reject building a wonder. This is adjusted by various things (handicap, etc), but it grossly means that for example if value is 20 (which is computed as 20 * 150 / 100 = 30 turns in gamespeed_epic for example anyways etc), if a wonder takes 21 or more turns at normal (or 31 at gamespeed_epic for example anyways etc) to build, we will reject it and not build it anyways etc, as it is too unlikely we'd finish it in time or fast enough or would gain enough from building it. -->
+	<!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it anyways etc -->
+	<Define>
+		<DefineName>SAS_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
 
