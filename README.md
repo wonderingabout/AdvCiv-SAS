@@ -23,7 +23,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [How to play?](/README.md#how-to-play)  
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
 [Main Changes Guide](/README.md#main-changes-guide)  
-[Quick Start Guide](/README.md#quick-start-guide)  
+[Custom Main Changes Guide](/README.md#custom-main-changes-guide)  
 [Important Sevopedia reworks (click on the images below to view them full size)](/README.md#important-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)  
 &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
 &emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
@@ -118,13 +118,9 @@ Caveat though but anyways etc, make sure info is accurate, there could be mistak
 
 You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md).
 
-## Quick Start Guide
+## Custom Main Changes Guide
 
-If you just want to play and do not need all the project bigger details, i added a quick guide of the main changes from Civ4 and base AdvCiv for players: [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
-
-note: it is recommended to read this (quick get started guide) part even if you want to know the deeper changes. There are stuff and things/information i added only recently in it, which may not be available in the longer docs.
-
-I may also update it after releasing the AdvCiv-SAS mod (and its new or/and future version(s) if there are after initial release ideally but if not and in all cases anyways etc), maybe, but not guaranteed, if there are significant changes i would like to add or mention/talk about there.
+This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) anyways etc.
 
 ## Important Sevopedia reworks (click on the images below to view them full size)
 
@@ -169,7 +165,7 @@ For example we added the new this technology "Cannot be traded" and "Can be rese
 
 See also for details:
 
-- [README_Quick_Get_Started_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
+- [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
 - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
 - [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
 
@@ -312,9 +308,9 @@ See also: [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-
 
 ## Project Goals and global view on gameplay changes
 
-For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) or the [Main Changes Guide](/README.md#main-changes-guide) version of it if you prefer anyways etc.
+For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [Main Changes Guide](/README.md#main-changes-guide) anyways etc.
 
-Note: what is written is a general draft and to gather ideas, that may not be updated (missing or not anymore considered ideas maybe anyways etc) anymore with current advciv-sas development state, see rather the quick get started guide for details.
+Note: what is written is a general draft and to gather ideas, that may not be updated (missing or not anymore considered ideas maybe anyways etc) anymore with current advciv-sas development state, see rather the Main Changes Guide for details.
 
 The more general gameplay type of changes consist of:
 
@@ -354,7 +350,7 @@ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_App
 
 Note: this also includes fixes/fixed issues as well for those of these we solved anyways etc
 
-Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) for details or/and additional info. If not there, there may be some extra info in [Modding_Ressources/README.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md) as well although it should be more technical and with some caveats there but anyways etc.
+Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) for details or/and additional info. If not there, there may be some extra info in [Modding_Ressources/README.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md) as well although it should be more technical and with some caveats there but anyways etc.
 
 Note 3: about the missing fields in sevopedia that are technically also fixes if i'm not mistaken but anyways etc, please see in particular if i may say but anyways the doc at [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md) anyways etc or modding ressources there as well for fields such as the missing this technology "Cannot be traded" now also in tech advisor, or these other related docs for fields we added in the DLL such as the missing BBAI getters (victory weights) in the DLL (to access them in sevopedia leader py file anyways etc), if i am not mistaken but anyways etc, or of fields such as getCityRefuseAttitudeThreshold newly added in advciv if i am not mistaken but not exposed in python if i am not mistaken in my understanding or/and knowledge too but anyways etc
 
@@ -561,7 +557,7 @@ For more details about the discussions i had with chatgpt, why and how it change
 
 I used it much much later, and it doesn't have any memory of me, but gave me nice suggestions, and although i may be mistaken, it seems to be able to view images better, as well as having a bit sharper reasoning too maybe, but check to be sure. So far it suggested to me thanks to my prompts and ideas hehe too to tell it or discuss with it but anyways etc in this case i mean but anyways etc, to rework the japan_doujou (as of now with less gpp i concluded unlike what it advised but anyways etc) and a free specialist spy for flavor thematically hehe (ninjas). Also allows spy economy especially for higher level play, which i find much more intersting than shale plants eheh (i has already reworked the japan civ-specific building to the doujou with chagpt 4o if i may say but anyways etc, however this is an extra rework or rebalancing with o3 now too if i may say but anyways etc).
 
-I may also go with its suggestion (if we implement it) or idea to remove tech_archery that i got i mean from talking to it but anyways etc, or create a new melee_lancer combat type or something similar for a true rock paper scissor combat early and mid game combat (as of now my idea is archers > lancers > melee brawl, but is just a draft but anyways etc), and add a new tech instead, also having faster early game as a side effect, all which seem very nice and interesting but anyways etc. See [README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details) and related page for details about this or/and other changes if we ultimately don't implement this may or may not is uncertain and not guaranteed in this case i mean but anyways etc, thanks a lot chagpt o3 for feedback and such too in all cases if i may say and thanks to me too if i may say but anyways etc. Also used it subsequently if i may say but anyways etc for other changes or not or yes or etc but anyways etc.
+I may also go with its suggestion (if we implement it) or idea to remove tech_archery that i got i mean from talking to it but anyways etc, or create a new melee_lancer combat type or something similar for a true rock paper scissor combat early and mid game combat (as of now my idea is archers > lancers > melee brawl, but is just a draft but anyways etc), and add a new tech instead, also having faster early game as a side effect, all which seem very nice and interesting but anyways etc. See [README_Custom_Main_Changes_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details) and related page for details about this or/and other changes if we ultimately don't implement this may or may not is uncertain and not guaranteed in this case i mean but anyways etc, thanks a lot chagpt o3 for feedback and such too in all cases if i may say and thanks to me too if i may say but anyways etc. Also used it subsequently if i may say but anyways etc for other changes or not or yes or etc but anyways etc.
 
 #### 5
 
@@ -587,7 +583,7 @@ In all cases not writing a specific doc for Claude AI as i hadn't/i haven't used
 
 #### 2.5 Flash
 
-More recently i also tried gemini AI as it was / i found to be but anyways etc mentionned in a reddit post but anyways etc while i was looking at perhaps new chatgpt models or general info about AI in wiki or not but anyways etc, and i used gemini AI to successfully add the list of units / buttons that require a building in sevopedia building's placeRequiredFor, for example the pagan/buddhist missionary require the pagan/buddhist monastery, or less ambiguously if i may say as organized religion civic may override this if i am not mistaken but anyways etc, in advciv-sas as of now workboats require a harbor in order to be built, see quick start guide for details about this change anyways etc, but now we show it as well in sevopedia building's harbor(s) page(s) i mean (including civ-specific versions like as of now the barbarian harbor but anyways etc), see also this [google drive folder link](https://drive.google.com/drive/folders/1DZwcPeeodfXNs1OmTe94daVQcnxbU0ov?usp=sharing) for example/screenshots of how i implemented it if interested if i may say but anyways etc
+More recently i also tried gemini AI as it was / i found to be but anyways etc mentionned in a reddit post but anyways etc while i was looking at perhaps new chatgpt models or general info about AI in wiki or not but anyways etc, and i used gemini AI to successfully add the list of units / buttons that require a building in sevopedia building's placeRequiredFor, for example the pagan/buddhist missionary require the pagan/buddhist monastery, or less ambiguously if i may say as organized religion civic may override this if i am not mistaken but anyways etc, in advciv-sas as of now workboats require a harbor in order to be built, see Custom Main Changes Guide for details about this change anyways etc, but now we show it as well in sevopedia building's harbor(s) page(s) i mean (including civ-specific versions like as of now the barbarian harbor but anyways etc), see also this [google drive folder link](https://drive.google.com/drive/folders/1DZwcPeeodfXNs1OmTe94daVQcnxbU0ov?usp=sharing) for example/screenshots of how i implemented it if interested if i may say but anyways etc
 
 Note: while gemini ai performs quite well and could do it successfully at first try at least for this task/case but anyways etc, it also created helpers with a different function name which was also uneeded, so i didn't need the numTxt display part of the code so there was no issue, else may have not worked/functionned at first try without a tweak, but functions-works fine so maybe fine in this case but is for exhaustiveness if i may say but anyways etc.
 

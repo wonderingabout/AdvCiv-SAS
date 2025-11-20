@@ -12,7 +12,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 
 ## Starting techs rework
 
-As it is too lengthy to put in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md), here are how we changed the starting civ techs in our mod
+As it is too lengthy to put in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md), here are how we changed the starting civ techs in our mod
 
 ### before most recent as of now rework anyways etc
 

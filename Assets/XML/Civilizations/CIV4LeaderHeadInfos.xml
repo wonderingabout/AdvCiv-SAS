@@ -1142,7 +1142,7 @@
 			<!-- Asoka: was CIVIC_FREE_RELIGION (BtS / AdvCiv 1.12) -->
 			<FavoriteCivic>CIVIC_PACIFISM</FavoriteCivic>
 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
-			<!-- custom: traits reworked with the very nice help of chatgpt 5 and my prompts and ideas and/or such, see docs (in particular as of now README_Assets_Rebalancing.md (or the quick guide if filename changed since then or/and git commit or/and such but anyways etc) but anyways etc) for details anyways etc -->
+			<!-- custom: traits reworked with the very nice help of chatgpt 5 and my prompts and ideas and/or such, see docs (in particular as of now README_Assets_Rebalancing.md (or the custom main changes guide if filename changed since then or/and git commit or/and such but anyways etc) but anyways etc) for details anyways etc -->
 			<!-- Asoka — was TRAIT_SPIRITUAL and TRAIT_ORGANIZED -->
 			<Traits>
 				<Trait>
