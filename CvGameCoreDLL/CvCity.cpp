@@ -1268,30 +1268,87 @@ void CvCity::doTurn()
 	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
 	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
 	static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
-	// <!-- custom: also give the option for human players to have it for their convenience anyways etc. -->
-	static const bool bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
-	const bool bConvenienceHumanForceArtist = (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
-	if ((!bHuman || bConvenienceHumanForceArtist) && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
+	if (bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
 	{
-		static const int iLowCpt = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD");
-
-		// "No BFC yet" = still at the initial culture level (pre-10 culture)
-		static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
-		const bool bNoCultureLevelReqYet = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
-
 		static const SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
 
-		// <!-- custom: save some computation, only run this if we are in no BFC anyways etc -->
-		if (bNoCultureLevelReqYet && eArtist != NO_SPECIALIST)
+		if (eArtist != NO_SPECIALIST)
 		{
-			const int iCpt = getCommerceRate(COMMERCE_CULTURE);
+			static const int iLowCpt = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD");
+			// "No BFC yet" = still at the initial culture level (pre-10 culture)
+			static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
+			const bool bNoCultureLevelReqYet = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
+			// <!-- custom: also give the option for human players to have it for their convenience anyways etc. -->
+			static const bool bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
 
-			// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases if i'm not mistaken but anyways etc -->
-			if (iCpt <= iLowCpt)
+			if (!bHuman)
 			{
-				if (getForceSpecialistCount(eArtist) < 1)
+				// <!-- custom: save some computation, only run this if we are in no BFC anyways etc -->
+				if (bNoCultureLevelReqYet)
 				{
-					changeForceSpecialistCount(eArtist, 1);			
+					const int iCpt = getCommerceRate(COMMERCE_CULTURE);
+					// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases if i'm not mistaken but anyways etc -->
+					if (iCpt <= iLowCpt)
+					{
+						const int iForcedArtists = getForceSpecialistCount(eArtist);
+						if (iForcedArtists < 1)
+						{
+							changeForceSpecialistCount(eArtist, 1);			
+						}
+					}
+				}
+				// <!-- custom: else let CvCityAI::AI_JobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these but anyways etc) easier as such anyways etc. -->
+			}
+			else if (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
+			{
+				// <!-- custom: simplify and strengthen formula for the human player, as we don't want this to fire mid game needlessly after we have our BFC if i'm not mistaken in my thinking of how to do this but anyways etc. -->
+				const int iForcedArtists = getForceSpecialistCount(eArtist);
+
+				// <!-- custom: save some computation, only run this if we are in no BFC anyways etc -->
+				if (bNoCultureLevelReqYet)
+				{
+					const int iCpt = getCommerceRate(COMMERCE_CULTURE);
+					// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases if i'm not mistaken but anyways etc -->
+					if (iCpt <= iLowCpt)
+					{
+						if (iForcedArtists < 1)
+						{
+							changeForceSpecialistCount(eArtist, 1);			
+						}
+					}
+				}
+				// <!-- custom: remove the artist specialist after we have our BFC, in a way that does not conflict with the human player's choices anyways etc. We can't rely on CvCityAI::AI_JobChangeValue to do that for us as this is an AI function and we don't want to use it for the human player's settings (if it is ever possible or/and easily) if i'm not mistaken. Check if accurate as i don't know too much about these, done with the help of chatgpt 5.1 anyways etc. -->
+				else
+				{
+					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure anyways etc.) so do not prevent that here anyways etc), i.e. very early for BFC and if artist was forced anyways etc. -->
+					const int iCityCulture = getCulture(getOwner());
+					// Culture needed to *reach* that level
+					// <!-- custom: this way we're adjusted to game speed such as BFC being as of now at 10 in normal, 20 in marathon, 6 in quick, if i'm not mistaken in my thinking/understanding. Check if accurate anyways etc. -->
+					// That automatically incorporates:
+					// 	- Game speed,
+					// 	- Start era,
+					// 	- Handicap modifiers,
+					// via your existing getCultureThreshold logic.
+					// No “10 / 6 / 20” sprinkled in C++.
+					const int iBFCThreshold = GC.getGame().getCultureThreshold((CultureLevelTypes)iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
+					static const int iEnoughSanity = GC.getDefineINT("SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY");
+
+					// <!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually anyways etc. The human player can reassign a non-forced artist if they want then. -->
+					// Sanity rule (human only):
+					//   - If we are clearly past BFC (culture > BFC + margin)
+					//   - but not *too* far (culture <= 2*BFC + margin)
+					// then assume that forced Artist is our auto-BFC helper and unforce it once.
+					// After that window, we never touch forced Artists in this city again. <!-- custom: for this part of the code (else we don't handle it anyways etc) anyways etc. -->
+					const bool bFarEnoughFromBFC = (iCityCulture > iBFCThreshold + iEnoughSanity);
+					const bool bTooFarFromBFC = (iCityCulture > (2 * iBFCThreshold) + iEnoughSanity);
+					if (bFarEnoughFromBFC && !bTooFarFromBFC)
+					{
+						if (iForcedArtists > 0)
+						{
+							changeForceSpecialistCount(eArtist, -1);
+						}
+					}
+					// else: do nothing, we’re far past BFC; don’t fight human choices.
 				}
 			}
 		}
