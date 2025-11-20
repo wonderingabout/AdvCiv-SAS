@@ -1103,7 +1103,7 @@
 		<DefineName>SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: also give the option for human players to have it for their convenience anyways etc (1 to enable, 0 to disable anyways etc). -->
+	<!-- custom: also give the option for human players to auto force an artist until we have our BFC for their convenience anyways etc (1 to enable (recommended), 0 to disable anyways etc). -->
 	<Define>
 		<DefineName>SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

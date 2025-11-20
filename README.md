@@ -22,7 +22,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [Docs](/README.md#docs)  
 [How to play?](/README.md#how-to-play)  
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
-[Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)](/README.md#very-quick-get-started-guide-written-carefully-with-the-help-and-by-chatgpt-5-xd-but-check-if-accurate-info-there-still-anyways-etc)  
+[Main Changes Guide](/README.md#main-changes-guide)  
 [Quick Start Guide](/README.md#quick-start-guide)  
 [Important Sevopedia reworks (click on the images below to view them full size)](/README.md#important-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)  
 &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
@@ -110,15 +110,13 @@ Be warned though it can be very lengthy, so read below if you want (some of the)
 
 As for the changelog between releases of AdvCiv-SAS, see the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) that for each release show the list of changes in git history format since the previous release.
 
-## Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)
+## Main Changes Guide
 
-If the below quick get started guide is too lengthy or hard to read or as alternative perhaps, please also consider viewing the very quick version of it written by chatgpt 5.
+I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS latest) with the help of chatgpt; sometimes edited it. It should ideally contain exact same entries (if not would be a mistaken of mine but anyways etc) than the "custom" version of the main changes guide that i wrote myself as base for this main changes guide. Hopefully fast enough to read and as of now much clearer than my longer one that was used as a base for it.
 
-Most if not all info should hopefully be there as well, and i reviewed it as well, sometimes edited it. This version is more concise, although it is not "very quick" per se i mean if i may say but anyways etc. It should otherwise (ideally) contain exact same entries (if not would be a mistaken of mine but anyways etc). Hopefully fast enough to read and as of now much clearer than my longer one that was used as a base for it.
+Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the custom guide (that could have mistakes as well but not due to summarizing) so check if accurate if in doubt i mean but anyways etc.
 
-Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing) so check if accurate if in doubt i mean but anyways etc.
-
-You can view it here anyways etc [README_Very_Quick_Get_Started_Guide_By_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md).
+You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md).
 
 ## Quick Start Guide
 
@@ -314,7 +312,7 @@ See also: [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-
 
 ## Project Goals and global view on gameplay changes
 
-For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) or the [Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)](/README.md#very-quick-get-started-guide-written-carefully-with-the-help-and-by-chatgpt-5-xd-but-check-if-accurate-info-there-still-anyways-etc) version of it if you prefer anyways etc.
+For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) or the [Main Changes Guide](/README.md#main-changes-guide) version of it if you prefer anyways etc.
 
 Note: what is written is a general draft and to gather ideas, that may not be updated (missing or not anymore considered ideas maybe anyways etc) anymore with current advciv-sas development state, see rather the quick get started guide for details.
 
@@ -469,8 +467,6 @@ too too, thanks,
 - Doto mod (same name i think is short enough and cool as in abbreviated in a way i like enough or and other or and not anyways etc anyways etc anyways etc), which we took one or a few things from, for example the C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml infos which should or may help us that i added in our [CIV4BuildingInfos.xml](Assets/XML/Buildings/CIV4BuildingInfos.xml) with some additional code comments or not or and other or and not anyways etc, thanks too, anyways etc(,) anyways etc(...)(,) anyways etc.. anyways etc, thanks
 - Chronicles of Mankind (which i may call COM anyways etc) from which i took for example the air_bombers of advciv-sas button, from their rom_promotion_atlas2.dds atlas that i found in their UNITCOMBAT_BOMBERS, thanks
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML, which surprised me a lot in a way that pleased me. So far i have not touched the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
-
-todo add quote
 
 ## Some Useful tools while doing this
 
