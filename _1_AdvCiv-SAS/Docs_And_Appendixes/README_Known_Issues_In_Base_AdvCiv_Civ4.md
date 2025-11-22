@@ -63,6 +63,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc)  
 [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)  
 [44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc)  
+[44.5 - Disallow citizen specialist as it is a really bad choice (unless absolutely necessary)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary)  
 [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc)  
 [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result)  
 [47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc)  
@@ -1437,11 +1438,39 @@ Note: thanks to our/these changes but anyways etc, the game turned much better f
 
 Note: these are done at emperor difficulty, before changing all tech prereqs, so tech tree is still mostly base advciv one minus many changes we made but no deep reordering yet, so hopefully quite representative of how strong or how AI behaves now vs base advciv, which i'd like to think is stronger now even though base advciv was not too bad and i have other ideas to improve ours further while fixing issues i added or remaining from base advciv +/- civ, not guaranteed i would though, i deally i would want ot, may or may not, in this case i mean but anyways etc.
 
+## 44.5 - Disallow citizen specialist as it is a really bad choice (unless absolutely necessary)
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/13QF4EHJMAg8Eur-H6N0qYVd_nvWXgupS?usp=sharing).
+
+Disallow the citizen specialist as it is really a bad choice that AIs would often go for, in `CvCityAI::AI_jobChangeValue`, also added a few extra sanity rules in this function for specialist allocation, which attempt to patch the logic rather than globally or tediously enhance it in an uncertain to be or/and easily reliable and better.
+
+Hopefully this also and most importantly helps increase AI efficiency and strength/competitiveness in the game i mean anyways etc.
+
+Update: seems mostly effective, but sometimes the AI still assigns a citizen even though it seems like it is not the best choice (other plots can be allocated or/and other possibilities if any, etc.)
+
+Example:
+
+```txt
+Assert Failed
+
+File:  ..\.\CvCity.cpp
+Line:  9504
+Func:  CvCity::changeSpecialistCount
+Expression:  false
+Message:  SAS citizen debug: T51 city=Mecca (44,25) owner=Saladin adding +1 default specialist (citizen).
+```
+
+Added this assert to help track these (with a debug or such if any such DLL anyways etc).
+
+However, most of these seem to be either false positives or never effectively added, as when i stop autoplay i almost never find a citizen specialist in said cities the next turn. Although sometimes they are still assigned as citizen specialists the next turn which helps show it anyways etc.
+
+Ideally, would also implement something like this for auto assigned human citizen specialists, as it is an annoying issue for human players as well and having to auto check it every while, as of now not done anyways etc.
+
 ## 45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1f58Su5b-Y3Vgu1th8K3EYWZvuYC47u_t?usp=sharing). Note: these are not exhaustive, i noticed the issue happen in many cities as well at least quite a few, prompting me to do this/these changes which hopefully help the AI be stronger and more reliable in its specialist choices (or non-choices if i may say in this case but anyways etc), see as of now if i may say but anyways etc below for details anyways etc.
 
-In continuation with the changes to disallow the citizen specialist as it is really a bad choice (see [README_Custom_Main_Changes_Guide.md#specialists-ai](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#specialists-ai) for details anyways etc) that AIs would often go for, in `CvCityAI::AI_jobChangeValue`, also added a few extra sanity rules in this function for specialist allocation, which attempt to patch the logic rather than globally or tediously enhance it in an uncertain to be or/and easily reliable and better.
+In continuation with the changes to disallow the citizen specialist as it is really a bad choice (see [KI#44.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary) for details anyways etc.) that AIs would often go for, in `CvCityAI::AI_jobChangeValue`, also added a few extra sanity rules in this function for specialist allocation, which attempt to patch the logic rather than globally or tediously enhance it in an uncertain to be or/and easily reliable and better.
 
 So adding, rather and instead some sanity checks that hopefully help the AI be more efficient with its choice, making saner ones if i may say or statistically going to be most often helpful, while not killing versatility hopefully but anyways etc, which as of now are (see `CvCityAI::AI_jobChangeValue` or/and related functions if any for updates on these (as of now only in this function if i am not mistaken but anyways etc), hopefully helpful as in clearer if i may say or not or yes but anyways etc) (and also added thanks to / with the help of chatgpt 5 too thanks as well if i may say but anyways etc):
 
@@ -2753,6 +2782,30 @@ See code comments i.e. in `CvCityAI::AI_assignWorkingPlots` there for details, s
 Update/note: most likely was caused by the forced artist code we added (see [Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-ai) for details anyways etc), although i am not totally sure, as it fires only for artists, and in the early game only in first turns, which aligns with it stopping to fire after we have our BFC, which is when we stop forcing an artist in our code and so it seems likely our code caused it and not base advciv itself, although this is just a guess of mine so check to be sure if want i mean but anyways etc. Still, this is a nice fix and guard to have regardless as sanity i'd say maybe if i may say and guess i mean, but i don't know too much about these, also the extra assert info in the message detailed i mean is nice too i mean but anyways etc.
 
 Update 2: this causes issues sometimes or always so we can't anymore force an artist so reverted and now disabled it, gated via a define if want to experiment with it i mean but anyways etc (see as of now `SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST` for details) i mean if i may say but anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not but anyways etc.
+
+Update 3: significantly reduced the invalid artist being forced issue by obviously adding an invalid specialist check.. (`isSpecialistValid`) before forcing an artist or unforcing one. Obvious but which i had no idea of xd if i may say but anyways etc. For some reason did not entirely disappear but fires much less now with these added anyways etc.
+
+Sometimes with a debug DLL it still fires as such though as of now but anyways etc:
+
+```txt
+Assert Failed
+
+File: ..\.\CvCityAI.cpp
+Line: 230
+Func: CvCityAI::AI_assignWorkingPlots
+Expression: isSpecialistValid(e)
+Message: T100 Rheims SPECIALIST_ARTIST e=2 value=1
+```
+
+But should be better than what it was and should have been added as a pre-check as chatgpt 5.1 recommends as well (and which was my mistake) thanks but anyways etc.
+
+Also, according to chatgpt 5.1, these asserts firing are no longer the result of issues with our code and may be fine (check if accurate as i don't know too much about these anyways etc), so treated as not a bug for advciv-sas (ideally would find how to silence the message if it is really safe but not a priority i mean if i may say but anyways etc):
+
+>So, short version: that Rheims T100 assert just means:
+>“Rheims still had a forced artist recorded at a moment when no artist was legally allowed there anymore.”
+>It’s not your original BFC-artist bug coming back; it’s a side-effect of the general forced specialist mechanism being a bit looser than the invariant your assert is trying to enforce.
+
+It thought for almost 13 minutes with the relevant .cpp files so i'd tend to think it is accurate, check to be sure anyways etc.
 
 ## 71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert
 

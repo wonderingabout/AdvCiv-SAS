@@ -1293,11 +1293,14 @@ void CvCity::doTurn()
 						const int iForcedArtists = getForceSpecialistCount(eArtist);
 						if (iForcedArtists < 1)
 						{
-							changeForceSpecialistCount(eArtist, 1);			
+							if (isSpecialistValid(eArtist, 1))
+							{
+								changeForceSpecialistCount(eArtist, 1);
+							}
 						}
 					}
 				}
-				// <!-- custom: else let CvCityAI::AI_JobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these but anyways etc) easier as such anyways etc. -->
+				// <!-- custom: else let CvCityAI::AI_jobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these but anyways etc) easier as such anyways etc. -->
 			}
 			else if (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
 			{
@@ -1313,11 +1316,14 @@ void CvCity::doTurn()
 					{
 						if (iForcedArtists < 1)
 						{
-							changeForceSpecialistCount(eArtist, 1);			
+							if (isSpecialistValid(eArtist, 1))
+							{
+								changeForceSpecialistCount(eArtist, 1);
+							}
 						}
 					}
 				}
-				// <!-- custom: remove the artist specialist after we have our BFC, in a way that does not conflict with the human player's choices anyways etc. We can't rely on CvCityAI::AI_JobChangeValue to do that for us as this is an AI function and we don't want to use it for the human player's settings (if it is ever possible or/and easily) if i'm not mistaken. Check if accurate as i don't know too much about these, done with the help of chatgpt 5.1 anyways etc. -->
+				// <!-- custom: remove the artist specialist after we have our BFC, in a way that does not conflict with the human player's choices anyways etc. We can't rely on CvCityAI::AI_jobChangeValue to do that for us as this is an AI function and we don't want to use it for the human player's settings (if it is ever possible or/and easily) if i'm not mistaken. Check if accurate as i don't know too much about these, done with the help of chatgpt 5.1 anyways etc. -->
 				else
 				{
 					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure anyways etc.) so do not prevent that here anyways etc), i.e. very early for BFC and if artist was forced anyways etc. -->
@@ -1345,7 +1351,10 @@ void CvCity::doTurn()
 					{
 						if (iForcedArtists > 0)
 						{
-							changeForceSpecialistCount(eArtist, -1);
+							if (isSpecialistValid(eArtist, -1))
+							{
+								changeForceSpecialistCount(eArtist, -1);
+							}
 						}
 					}
 					// else: do nothing, we’re far past BFC; don’t fight human choices.
@@ -9475,6 +9484,28 @@ void CvCity::setSpecialistCount(SpecialistTypes eSpecialist, int iNewValue)
 
 void CvCity::changeSpecialistCount(SpecialistTypes eSpecialist, int iChange)
 {
+	#ifdef _DEBUG
+	// <!-- custom: add debug info here to be sure or sure enough we do it correctly anyways etc. -->
+	// SAS debug: catch any unexpected citizen assignment
+	if (iChange > 0)
+	{
+		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+		CvPlayer& kOwner = GET_PLAYER(getOwner());
+
+		if (eSpecialist == eDefaultSpecialist)
+		{
+			FAssertMsg(false, CvString::format(
+				"SAS citizen debug: T%d city=%S (%d,%d) owner=%S adding %+d default specialist (citizen).",
+				GC.getGame().getGameTurn(),
+				getName().GetCString(),
+				getX(), getY(),
+				kOwner.getName(),
+				iChange
+			).c_str());
+		}
+	}
+	#endif
+
 	setSpecialistCount(eSpecialist, getSpecialistCount(eSpecialist) + iChange);
 }
 

@@ -140,9 +140,10 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 			// <!-- custom: adding a more detailed assert here just in case if it helps or if it fires too but anyways etc -->
 			// FAssert(isSpecialistValid(e));
 			FAssertMsg(isSpecialistValid(e),
-				CvString::format("T%03d %S %s e=%d value=%d",
+				CvString::format("T%d city=%S owner=%S type=%s e=%d value=%d",
 					GC.getGame().getGameTurn(),
 					getName().GetCString(),
+					GET_PLAYER(getOwner()).getName(),
 					GC.getInfo(e).getType(), // gives e.g. SPECIALIST_CITIZEN
 					(int)e,
 					getSpecialistCount(e)   // <- 'value'. swap to isSpecialistValid(e) or getMaxSpecialistCount(e) if you prefer
@@ -221,9 +222,10 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 				// <!-- custom: this very often fires with a debug dll at turn 0 and turn 1, detailing the assert to investigate, added with the help of chatgpt 5, check if accurate anyways etc -->
 				// FAssert(isSpecialistValid(e));
 				FAssertMsg(isSpecialistValid(e),
-					CvString::format("T%03d %S %s e=%d value=%d",
+					CvString::format("T%d city=%S owner=%S type=%s e=%d value=%d",
 						GC.getGame().getGameTurn(),
 						getName().GetCString(),
+						GET_PLAYER(getOwner()).getName(),
 						GC.getInfo(e).getType(), // gives e.g. SPECIALIST_CITIZEN
 						(int)e,
 						getSpecialistCount(e)   // <- 'value'. swap to isSpecialistValid(e) or getMaxSpecialistCount(e) if you prefer
@@ -14344,7 +14346,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
 
 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
-		static const int AI_JOB_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
+		static const int iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN = GC.getDefineINT("SAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN");
 
 		if (!bWantBFCArtist && (eSpecialistArtist != NO_SPECIALIST))
 		{
@@ -14355,7 +14357,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 			{
 				if (new_job.first /* hiring any specialist */)
 				{
-					return AI_JOB_FORBIDDEN;
+					return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 				}
 			}
 			// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
@@ -14376,7 +14378,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 					if (iFoodSurplus >= 2 && new_job.first)
 					{
-						return AI_JOB_FORBIDDEN;
+						return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 					}
 				}
 			}
@@ -14394,7 +14396,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 			if ((eSpecialistScientist != NO_SPECIALIST) && new_job.first && (new_job.second != eSpecialistScientist))
 			{
-				return AI_JOB_FORBIDDEN;
+				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 			}
 		} 
 	}

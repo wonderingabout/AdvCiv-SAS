@@ -490,7 +490,7 @@
 
 
 
-	<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_BuildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too but anyways etc. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well if i may say i mean but anyways etc), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not but anyways etc) -->
+	<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_buildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too but anyways etc. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well if i may say i mean but anyways etc), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not but anyways etc) -->
 	<Define>
 		<DefineName>SAS_BUILDING_VALUE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1112,6 +1112,12 @@
 	<Define>
 		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: low enough value so that the citizen specialist is ideally never chosen in this function anyways etc. -->
+	<!-- decisively low, far from overflow/underflow -->
+	<Define>
+		<DefineName>SAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN</DefineName>
+		<iDefineIntVal>-100000</iDefineIntVal>
 	</Define>
 
 
