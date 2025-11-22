@@ -1464,7 +1464,39 @@ Added this assert to help track these (with a debug or such if any such DLL anyw
 
 However, most of these seem to be either false positives or never effectively added, as when i stop autoplay i almost never find a citizen specialist in said cities the next turn. Although sometimes they are still assigned as citizen specialists the next turn which helps show it anyways etc.
 
-Ideally, would also implement something like this for auto assigned human citizen specialists, as it is an annoying issue for human players as well and having to auto check it every while, as of now not done anyways etc.
+Update 2: seemingly now fixed by reapplying the patch in `CvCityAI::AI_jobChangeValue` that was somehow removed at some point of the advciv-sas changes i added but anyways etc. Now no assert firing at t100 with a debug dll anymore vs a few to quite a few if not more xd i mean if i may say but anyways etc. Also none even at t170+ from quick autoplay testing, so it seems fixed or issue is greatly reduced, thanks to chatgpt 5.1's help. I adjusted its code a bit anyways etc.
+
+However, we have and also had before but anyways etc this cascade of asserts firing:
+
+```txt
+Assert Failed
+
+File:  ..\.\CvCityAI.cpp
+Line:  263
+Func:  CvCityAI::AI_assignWorkingPlots
+Expression:  false
+Message:  failed to assign extra population
+
+Assert Failed
+
+File:  ..\.\CvCityAI.cpp
+Line:  273
+Func:  CvCityAI::AI_assignWorkingPlots
+Expression:  false
+Message:  failed to assign extra specialist
+
+Assert Failed
+
+File:  ..\.\CvCityAI.cpp
+Line:  286
+Func:  CvCityAI::AI_assignWorkingPlots
+Expression:  extraPopulation() == 0
+Message:  
+```
+
+I don't know if it is related to citizens not being usable as a fallback, or if it's an unrelated issue, but added for exhaustiveness or/and reference anyways etc.
+
+Next step would be to ideally also implement something like this for auto assigned human citizen specialists, as it is an annoying issue for human players as well and having to auto check it every while, as of now not done anyways etc.
 
 ## 45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc
 

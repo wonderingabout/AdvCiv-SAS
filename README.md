@@ -599,6 +599,10 @@ Also, gemini ai is very helpful, and seemingly the free version especially :) If
 
 I used it to help refine and co-think with chatgpt 5 on how to solve an issue, and it seems to have helped find a minimal and effective test, at least according to chatgpt 5 as i didn't test it to know, but thanks too i mean gemini 2.5 pro hehe thanks.
 
+#### 3 Pro
+
+Its context is incredibly generous in free mode, and its visual understanding is amazing vs previous AIs it seems based on quick testing thanks a lot!! Anyways etc.
+
 ### DeepSeek AI
 
 #### V3 if i'm not mistaken anyways etc
