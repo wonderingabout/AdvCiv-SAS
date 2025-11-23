@@ -1127,6 +1127,37 @@
 		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- convenience: block auto-assigning specific specialists for human players only.
+		Manual assignment still allowed. Off by default. -->
+	<!-- // Key points:
+		// 	- It only runs when bHuman and new_job.first (i.e. we’re hiring or switching to a specialist).
+		// 	- It uses the same iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become “last resort” for the governor, same as Citizen.
+		// 	- It doesn’t touch AI behavior at all (all your AI growth rules further down are still under !bHuman).
+		// Manual specialist assignment via the UI is still outside this path (that goes through changeSpecialistCount directly), so players can always override the governor. -->		
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SCIENTIST_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_ENGINEER_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_MERCHANT_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_PRIEST_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SPY_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_ARTIST_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 
 
 
@@ -1159,7 +1190,7 @@
 	<!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually anyways etc. The human player can reassign a non-forced artist if they want then. E.g. if BFC is 10 city culture at gamespeed_normal and 20 at marathon and 6 at quick, and if our value of sanity is 4, then it means if we have 10 + 4 = 14 so 15+ culture in city at game speed normal (or 20 + 4 = 24 so 25+ at marathon, or 6 + 4 = 10 so 11+ at quick anyways etc) and we still didn't unassign the artist, then do it for the human player ourselves anyways etc. -->
 	<Define>
 		<DefineName>SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 

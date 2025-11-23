@@ -5129,14 +5129,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			const int iFlatBeakersPerTurnFromBuilding = (kBuilding.getCommerceChange(COMMERCE_RESEARCH) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_RESEARCH));
 
-			static const SpecialistTypes eSpecialistScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST", true);
+			static const SpecialistTypes eScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST", true);
 
 			// --- Science-like (research %) ------------------------------------------------
 			const bool bScienceBuilding = (
 				(kBuilding.getCommerceModifier(COMMERCE_RESEARCH) >= 20) ||
 				(iFlatBeakersPerTurnFromBuilding > 0) ||
-				(kBuilding.getSpecialistCount(eSpecialistScientist) > 0) ||
-				(kBuilding.getFreeSpecialistCount(eSpecialistScientist) > 0)
+				(kBuilding.getSpecialistCount(eScientist) > 0) ||
+				(kBuilding.getFreeSpecialistCount(eScientist) > 0)
 			);
 
 			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or/and help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders but anyways etc. Do not limit this too hard, as it is unclear if opening with a granary is always better than say a library, let the function or whichever code(s? But anyways etc) is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct but anyways etc...) or about to be or something similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush but anyways etc
@@ -14348,21 +14348,22 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 			{
 				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 			}
-			// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate anyways etc. -->
-			// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden” using the same strong negative value that worked so well for AI cities.
-			// Manual specialist changes are untouched (still allowed to create Citizens).
 			else
 			{
-				static const bool bSAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST");
+				static const bool bNoAutoHumanCitizen = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST");
 
-				if (bSAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST)
+				if (bNoAutoHumanCitizen)
 				{
+					// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate anyways etc. -->
+					// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden” using the same strong negative value that worked so well for AI cities.
+					// Manual specialist changes are untouched (still allowed to create Citizens).
 					// <!-- custom: fires often (very often actually xd but anyways etc) so is noisy but at least works fine it seems. From t300 to t301 it fires like 10+ times just this turn more or less (didn't count exactly but seems as such anyways etc). But it is useful, to make sure we effectively block citizen specialists as intended, even though most of it is just the AI considering it and not actually going for it or choosing it. Would need more testing to be sure though, but considering it worked fine for AI players, it might also work as well for human players, but check to be sure and see known issue as of now 44.6 for details anyways etc. -->
 					// 2. Why does it fire “a big lot”?
 					// That’s expected with where you put it.
 					// 	- AI_jobChangeValue is called a lot from AI_juggleCitizens and AI_addBestCitizen, for every candidate job (plot or specialist) during each juggling cycle.
 					// 	- Every time the governor considers “what about a citizen?” for a human city while your define is on, it hits your guard, returns the huge negative value, and (in debug) triggers the FAssertMsg(false, ...).
 					// So at T300, with multiple cities, each time the city grows or auto-assignment is reconsidered, you can easily see dozens or hundreds of those asserts in a single turn. That doesn’t mean the logic is broken; it just means your debug hook is very low-level.
+					#ifdef _DEBUG
 					FAssertMsg(false, CvString::format(
 						"SAS citizen debug: T%d city=%S (%d,%d) owner=%S: no type=%s auto specialists for human players.",
 						GC.getGame().getGameTurn(),
@@ -14371,9 +14372,72 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 						kOwner.getName(),
 						GC.getInfo((SpecialistTypes)new_job.second).getType() // gives e.g. SPECIALIST_CITIZEN
 					).c_str());
+					#endif
 
 					return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 				}
+			}
+		}
+
+		static const bool bNoAutoHumanScientist = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_SCIENTIST_SPECIALIST");
+		static const bool bNoAutoHumanEngineer  = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_ENGINEER_SPECIALIST");
+		static const bool bNoAutoHumanMerchant  = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_MERCHANT_SPECIALIST");
+		static const bool bNoAutoHumanPriest    = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_PRIEST_SPECIALIST");
+		static const bool bNoAutoHumanSpy       = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_SPY_SPECIALIST");
+		static const bool bNoAutoHumanArtist    = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_ARTIST_SPECIALIST");
+
+		static const SpecialistTypes eScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
+		static const SpecialistTypes eArtist    = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+		static const SpecialistTypes eEngineer  = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
+		static const SpecialistTypes eMerchant  = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT");
+		static const SpecialistTypes ePriest    = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_PRIEST");
+		static const SpecialistTypes eSpy       = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SPY");
+
+		// 0b) Human-only: block specific auto specialists based on convenience defines
+		if (bHuman && new_job.first && new_job.second >= 0)
+		{
+			const SpecialistTypes eSpec = (SpecialistTypes)new_job.second;
+			bool bForbidden = false;
+
+			if (bNoAutoHumanScientist && eSpec == eScientist)
+			{
+				bForbidden = true;
+			}
+			else if (bNoAutoHumanEngineer && eSpec == eEngineer)
+			{
+				bForbidden = true;
+			}
+			else if (bNoAutoHumanMerchant && eSpec == eMerchant)
+			{
+				bForbidden = true;
+			}
+			else if (bNoAutoHumanPriest && eSpec == ePriest)
+			{
+				bForbidden = true;
+			}
+			else if (bNoAutoHumanSpy && eSpec == eSpy)
+			{
+				bForbidden = true;
+			}
+			else if (bNoAutoHumanArtist && eSpec == eArtist)
+			{
+				bForbidden = true;
+			}
+
+			if (bForbidden)
+			{
+				#ifdef _DEBUG
+				FAssertMsg(false, CvString::format(
+					"SAS specialist debug: T%d city=%S (%d,%d) owner=%S: no type=%s auto specialists for human players.",
+					GC.getGame().getGameTurn(),
+					getName().GetCString(),
+					getX(), getY(),
+					kOwner.getName(),
+					GC.getInfo((SpecialistTypes)new_job.second).getType() // gives e.g. SPECIALIST_SPY
+				).c_str());
+				#endif
+
+				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 			}
 		}
 
@@ -14386,11 +14450,9 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
 		const bool bBelowCultureLevel = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
 
-		static const SpecialistTypes eSpecialistArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
-
 		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
 
-		if (!bHuman && !bWantBFCArtist && (eSpecialistArtist != NO_SPECIALIST))
+		if (!bHuman && !bWantBFCArtist && (eArtist != NO_SPECIALIST))
 		{
 			const int iCityPopulation = getPopulation();
 
@@ -14434,9 +14496,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
         // ---------------------------------------------------------------------
 		if (!bHuman && isBarbarian())
 		{
-			static const SpecialistTypes eSpecialistScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
-
-			if ((eSpecialistScientist != NO_SPECIALIST) && new_job.first && (new_job.second != eSpecialistScientist))
+			if ((eScientist != NO_SPECIALIST) && new_job.first && (new_job.second != eScientist))
 			{
 				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 			}
