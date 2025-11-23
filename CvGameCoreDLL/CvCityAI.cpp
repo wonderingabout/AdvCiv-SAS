@@ -14433,7 +14433,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 					getName().GetCString(),
 					getX(), getY(),
 					kOwner.getName(),
-					GC.getInfo((SpecialistTypes)new_job.second).getType() // gives e.g. SPECIALIST_SPY
+					GC.getInfo(eSpec).getType() // gives e.g. SPECIALIST_SPY
 				).c_str());
 				#endif
 
