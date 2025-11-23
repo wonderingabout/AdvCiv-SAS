@@ -1323,7 +1323,7 @@ void CvCity::doTurn()
 						}
 					}
 				}
-				// <!-- custom: remove the artist specialist after we have our BFC, in a way that does not conflict with the human player's choices anyways etc. We can't rely on CvCityAI::AI_jobChangeValue to do that for us as this is an AI function and we don't want to use it for the human player's settings (if it is ever possible or/and easily) if i'm not mistaken. Check if accurate as i don't know too much about these, done with the help of chatgpt 5.1 anyways etc. -->
+				// <!-- custom: remove the artist specialist after we have our BFC, in a way that does not conflict with the human player's choices anyways etc. It seems based on autoplay results that AI CvCityAI::AI_jobChangeValue is ineffective in doing that. Check if accurate as i don't know too much about these, done with the help of chatgpt 5.1 anyways etc. -->
 				else
 				{
 					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure anyways etc.) so do not prevent that here anyways etc), i.e. very early for BFC and if artist was forced anyways etc. -->

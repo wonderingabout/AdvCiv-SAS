@@ -1122,6 +1122,14 @@
 
 
 
+	<!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate anyways etc. -->
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: set to 1 to enable the advciv-sas optimization of forcing an artist if no bfc and city's culture per turn is low (0 to disable it) -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>

@@ -14328,19 +14328,53 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 	static const bool bSAS_JOB_CHANGE_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_JOB_CHANGE_VALUE_OPTIMIZE");
 
 	// <!-- custom: note: it seems based on autoplay results i mean if i may say but anyways etc that this block and function only apply to non-human players when trying to relax this and play manually the behaviour seemingly does not happen as implemented here vs if i autoplay with my player ai player in autoplay, but added the human check just to eb safe and in case. Check if accurate as i don't know too much about these anyways etc. -->
-	if (bSAS_JOB_CHANGE_VALUE_OPTIMIZE && !kOwner.isHuman())
+	if (bSAS_JOB_CHANGE_VALUE_OPTIMIZE)
 	{
 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
 		static const int iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN = GC.getDefineINT("SAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN");
 
+		const bool bHuman = kOwner.isHuman();
+
 		// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue if i'm not mistaken but anyways etc, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case, hopefully helpful or not or yes or etc, anyways etc -->
 		// <!-- custom: it seems we deleted the no citizen logic or it is missing here for some reason, adding it again anyways etc as recommended by chatgpt 5.1; i adjusted its code by removing some extra other stuff, anyways etc -->
-		// -----------------------------------------------------------------
-		// 0) Citizen guard – never *hire* a citizen
-		// -----------------------------------------------------------------
+        // -----------------------------------------------------------------
+        // 0) Citizen guard – only as LAST RESORT
+        //     - AI: always active
+        //     - Humans: active when SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST is 1
+        // -----------------------------------------------------------------
 		if (eDefaultSpecialist != NO_SPECIALIST && new_job.first && new_job.second == eDefaultSpecialist)
 		{
-			return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+			if (!bHuman)
+			{
+				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+			}
+			// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate anyways etc. -->
+			// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden” using the same strong negative value that worked so well for AI cities.
+			// Manual specialist changes are untouched (still allowed to create Citizens).
+			else
+			{
+				static const bool bSAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST");
+
+				if (bSAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST)
+				{
+					// <!-- custom: fires often (very often actually xd but anyways etc) so is noisy but at least works fine it seems. From t300 to t301 it fires like 10+ times just this turn more or less (didn't count exactly but seems as such anyways etc). But it is useful, to make sure we effectively block citizen specialists as intended, even though most of it is just the AI considering it and not actually going for it or choosing it. Would need more testing to be sure though, but considering it worked fine for AI players, it might also work as well for human players, but check to be sure and see known issue as of now 44.6 for details anyways etc. -->
+					// 2. Why does it fire “a big lot”?
+					// That’s expected with where you put it.
+					// 	- AI_jobChangeValue is called a lot from AI_juggleCitizens and AI_addBestCitizen, for every candidate job (plot or specialist) during each juggling cycle.
+					// 	- Every time the governor considers “what about a citizen?” for a human city while your define is on, it hits your guard, returns the huge negative value, and (in debug) triggers the FAssertMsg(false, ...).
+					// So at T300, with multiple cities, each time the city grows or auto-assignment is reconsidered, you can easily see dozens or hundreds of those asserts in a single turn. That doesn’t mean the logic is broken; it just means your debug hook is very low-level.
+					FAssertMsg(false, CvString::format(
+						"SAS citizen debug: T%d city=%S (%d,%d) owner=%S: no type=%s auto specialists for human players.",
+						GC.getGame().getGameTurn(),
+						getName().GetCString(),
+						getX(), getY(),
+						kOwner.getName(),
+						GC.getInfo((SpecialistTypes)new_job.second).getType() // gives e.g. SPECIALIST_CITIZEN
+					).c_str());
+
+					return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+				}
+			}
 		}
 
 		// <!-- custom: before the no specialist at low pop rule, and regardless of city population, handle the exception where we absolutely need an artist to get our BFC, if city has low or no culture. Code provided by chatgpt 5 and thanks to my prompts and/or such and that i adjusted and/or such, check if accurate anyways etc -->
@@ -14356,7 +14390,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
 
-		if (!bWantBFCArtist && (eSpecialistArtist != NO_SPECIALIST))
+		if (!bHuman && !bWantBFCArtist && (eSpecialistArtist != NO_SPECIALIST))
 		{
 			const int iCityPopulation = getPopulation();
 
@@ -14398,7 +14432,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
         // ---------------------------------------------------------------------
         // 3) Barbarian rule – AI only: only Scientists allowed as specialists
         // ---------------------------------------------------------------------
-		if (isBarbarian())
+		if (!bHuman && isBarbarian())
 		{
 			static const SpecialistTypes eSpecialistScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
 

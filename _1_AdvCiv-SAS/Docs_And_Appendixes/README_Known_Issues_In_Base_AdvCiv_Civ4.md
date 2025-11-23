@@ -64,6 +64,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)  
 [44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc)  
 [44.5 - Disallow citizen specialist as it is a really bad choice (unless absolutely necessary)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary)  
+[44.6 - Disable auto citizen specialists for the human player as well anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc)  
 [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc)  
 [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result)  
 [47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc)  
@@ -1464,7 +1465,7 @@ Added this assert to help track these (with a debug or such if any such DLL anyw
 
 However, most of these seem to be either false positives or never effectively added, as when i stop autoplay i almost never find a citizen specialist in said cities the next turn. Although sometimes they are still assigned as citizen specialists the next turn which helps show it anyways etc.
 
-Update 2: seemingly now fixed by reapplying the patch in `CvCityAI::AI_jobChangeValue` that was somehow removed at some point of the advciv-sas changes i added but anyways etc. Now no assert firing at t100 with a debug dll anymore vs a few to quite a few if not more xd i mean if i may say but anyways etc. Also none even at t170+ from quick autoplay testing, so it seems fixed or issue is greatly reduced, thanks to chatgpt 5.1's help. I adjusted its code a bit anyways etc.
+Update 2: seemingly now fixed by reapplying the patch in `CvCityAI::AI_jobChangeValue` that was somehow removed at some point in one of the advciv-sas changes i added i guess i mean but anyways etc. Now no assert firing at t100 with a debug dll anymore vs a few to quite a few if not more xd i mean if i may say but anyways etc. Also none even at t170+ from quick autoplay testing, so it seems fixed or issue is greatly reduced, thanks to chatgpt 5.1's help. I adjusted its code a bit anyways etc.
 
 However, we have and also had before but anyways etc this cascade of asserts firing:
 
@@ -1494,9 +1495,29 @@ Expression:  extraPopulation() == 0
 Message:  
 ```
 
-I don't know if it is related to citizens not being usable as a fallback, or if it's an unrelated issue, but added for exhaustiveness or/and reference anyways etc.
+I don't know if it is related to citizen specialists not being usable as a fallback, or if it's an unrelated issue, but added for exhaustiveness or/and reference anyways etc.
 
-Next step would be to ideally also implement something like this for auto assigned human citizen specialists, as it is an annoying issue for human players as well and having to auto check it every while, as of now not done anyways etc.
+## 44.6 - Disable auto citizen specialists for the human player as well anyways etc
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1ZfWnBLpsklVE7qhgSf_wyxVpVPMLOzsK?usp=sharing).
+
+Following [KI#44.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary), also applying this no auto citizen specialists setting as an option for human players as it can be very annoying to have to auto check it every while, as of now not done anyways etc.
+
+Tested after having added the code in `CvCityAI::AI_jobChangeValue` with the help of chatgpt 5.1 thanks anyways etc, it fires like +/- 10 times per turn at turn 300 in our human player's cities at turn 300, yet no city of this player has any citizen specialist the next turn (at turn 301 anyways etc) so it looks very effective.
+
+Example:
+
+```txt
+Assert Failed
+
+File:  ..\.\CvCityAI.cpp
+Line:  14367
+Func:  CvCityAI::AI_jobChangeValue
+Expression:  false
+Message:  SAS citizen debug: T300 city=Cumae (21,17) owner=PC: no type=SPECIALIST_CITIZEN auto specialists for human players.
+```
+
+We seem to have the same assert cascade issue though as in [KI#44.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary), but as long as it works maybe this is not urgent, although ideally would investigate it, but not urgent if i ever do it i mean if i may say but anyways etc.
 
 ## 45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc
 
