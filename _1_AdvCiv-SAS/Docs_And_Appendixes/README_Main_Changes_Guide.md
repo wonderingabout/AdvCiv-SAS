@@ -20,8 +20,10 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s
 &emsp;&emsp;[Units in general (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#units-in-general-ai)  
 &emsp;&emsp;[Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai)  
 &emsp;&emsp;[Workers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#workers-ai)  
+&emsp;&emsp;[City Plots (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#city-plots-ai)  
 &emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-ai)  
 &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#city-production-ai)  
+&emsp;&emsp;[Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)  
 &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#leaders-ai)  
 &emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-ai)  
 &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#buildings-ai)  
@@ -29,10 +31,10 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s
 &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#military-ai)  
 &emsp;[General changes (non-exhaustive; see GlobalDefines/XML)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#general-changes-non-exhaustive-see-globaldefinesxml)  
 &emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#handicap-ie-difficulty-settings-non-exhaustive)  
-&emsp;[Specialists (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-non-exhaustive)  
 &emsp;[Terrains / Features (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#terrains--features-non-exhaustive)  
 &emsp;[Bonuses (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#bonuses-non-exhaustive)  
 &emsp;[Improvements & worker builds (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#improvements--worker-builds-non-exhaustive)  
+&emsp;[Specialists (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-non-exhaustive)  
 &emsp;[Technologies (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)  
 &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#eras)  
 &emsp;[Civilizations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civilizations-non-exhaustive)  
@@ -80,6 +82,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 ### Renaming (non-exhaustive)
 
 - “WFYABTA” → “We fear you are trading more than us.” Same mechanic; the new text reflects that it’s about trading volume, not tech pace.
+- Fixed misleading event text such as “The forge has been destroyed” used even when building actually survives (e.g. “The forge has caught fire” instead).
 - Nuclear interception text clarifies that displayed chance is **adjusted** by nuke evasion; see the forum thread for context ([civfanatics](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/)).
 - “Civilopedia” → “Sevopedia.”
 - “Ressource(s)” → “Bonus(es).”
@@ -173,6 +176,10 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 
 - **“No production” stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. Added in `CvCity::AI_doTurn`. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to “any suitable land unit” if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
+#### Technologies (AI)
+
+- (Requires AdvCiv-SAS 5134+) **Master–vassal tech overlap penalty:** In `CvPlayerAI::AI_techValue`, reduce the value of researching techs already known by our vassal(s) or master to discourage redundant research and encourage complementary paths/trades instead. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc).
+
 #### Leaders (AI)
 
 - **Leaders — targeted `iBuildUnitProb` edits:** Julius Caesar 30→40; Augustus Caesar 25→30; Qin Shi Huang 20→30; Genghis Khan 35→40; Alexander 35→40; Tokugawa 30→35; Stalin 30→35; Brennus 30→35; Boudica 30→35; Catherine 25→30; Mao Zedong 25→35; Isabella 25→30; Kublai Khan 25→30; Ramesses II 20→25. Reductions: Willem van Oranje 25→20; Justinian I 35→30; Sitting Bull 35→30; Zara Yaqob 30→25; Mansa Musa 25→20.
@@ -254,15 +261,6 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 - **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables (AdvCiv-SAS, github viewer)](/handicap_info_to_csv_advciv-sas.csv) and [Handicap tables (base AdvCiv 1.12 for comparison, github viewer)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv).
 - **Difficulty scaling — `iAIHandicapIncrementTurns`**: **disabled (set to 0 on all difficulties)**. This removes the **per-turn** AI discount that made games progressively harder; with AdvCiv-SAS’s improved hammer efficiency, that scaling led to runaway AIs at high levels. Now AI cost/research **modifiers** come **only** from the static **difficulty (handicap) XML fields** (e.g., `iAITrainPercent`, `iAIBuildingCostPercent`, `iAIResearchPercent`, …), which have been **retuned to be linear by difficulty (not per-turn)**—hard but fair. Practical effects: fewer excess units and lower bankruptcy risk, healthier mid→late-game economies, and challenge that relies on AI competency gains rather than exponential scaling.
 
-### Specialists (non-exhaustive)
-
-- **Citizen**: now adds **+1 commerce** (total **+1 hammer, +1 commerce**). See Sevopedia/XML.
-- (Requires AdvCiv-SAS 5131+) Add an option (default/recommended: **enabled**) to disable **auto-Citizen specialist** assignments for the human player for convenience, since they’re annoying to check in every city every turn and are almost always an inefficient choice unless absolutely no workable tiles or decent specialists are available. Implemented in `CvCityAI::AI_jobChangeValue`; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc).
-- (Requires AdvCiv-SAS 5132+) Add a similar option (default **disabled**) to restrict other **auto-specialist** assignments for the human player (e.g. allow auto-Scientists/Engineers/Merchants/Priests, but block auto-Spies and auto-Artists), for players who prefer tighter manual control. Does not override explicit helper logic such as the “force one Artist until BFC” rule. Implemented in `CvCityAI::AI_jobChangeValue`. Tunable via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
-- **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
-- **Engineer**: now adds **+1 hammer** (total **+3 hammers**).
-- (Requires AdvCiv-SAS 5124+) Extend the “force one Artist until BFC” helper to **human** players for convenience; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (default/recommended: enabled).
-
 ### Terrains / Features (non-exhaustive)
 
 - Overall: **snow**, **desert**, and **water** tiles strengthened via bonus/building changes (see Bonus/Buildings sections).
@@ -300,6 +298,15 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 - **Worker cost reduced** (see Sevopedia/XML for exact value).
 - **Workshops** can be built on **tundra** (`<TerrainMakesValids>`).
 - **Railroads** placed earlier in the tree (**Steam Power**). See Techs.
+
+### Specialists (non-exhaustive)
+
+- **Citizen**: now adds **+1 commerce** (total **+1 hammer, +1 commerce**). See Sevopedia/XML.
+- **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
+- **Engineer**: now adds **+1 hammer** (total **+3 hammers**).
+- (Requires AdvCiv-SAS 5124+) Extend the “force one **Artist until BFC**” helper to **human** players for convenience; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (default/recommended: enabled).
+- (Requires AdvCiv-SAS 5131+) Add an option (default/recommended: **enabled**) to disable **auto-Citizen specialist** assignments for the **human** player for convenience, since they’re annoying to check in every city every turn and are almost always an inefficient choice unless absolutely no workable tiles or decent specialists are available. Implemented in `CvCityAI::AI_jobChangeValue`; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc).
+- (Requires AdvCiv-SAS 5132+) Add a similar option (default **disabled**) to restrict **other auto-specialist** assignments for the **human** player (e.g. allow auto-Scientists/Engineers/Merchants/Priests, but block auto-Spies and auto-Artists), for players who prefer tighter manual control. Does not override explicit helper logic such as the “force one Artist until BFC” rule. Implemented in `CvCityAI::AI_jobChangeValue`. Tunable via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
 ### Technologies (non-exhaustive)
 

@@ -6062,6 +6062,52 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	// advc (note): Not a safe was to do this - and no longer needed.
 	//iValue = range(iValue, 0, MAX_INT);
 	// K-Mod end
+
+	// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns (and also so that the vassal trades techs it doesn't know preferably from its master as well). Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issue as of now 77 for details anyways etc. -->
+	// SAS vassalMasterTechResearch
+	// With:
+	// 	- Master-from-vassal penalty,
+	// 	- Vassal-from-master penalty, and
+	// 	- <!-- custom: not directly here anyways etc. --> Tech trade contact boost between vassal ↔ master,
+	// you get:
+	// 	- Less “master re-researches everything the vassal has”.
+	// 	- Less “vassal re-researches everything the master has”.
+	// 	- <!-- custom: not directly here anyways etc. --> More tech swapping along the master–vassal axis, especially when each has something the other doesn’t.
+	// A. Devalue researching techs that our vassals already know and vice versa.
+	static const bool bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE");
+	if (bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER)
+	{
+		// (1) Master: devalue techs that our vassals already know
+		if (kTeam.getVassalCount(NO_TEAM) > 0)
+		{
+			for (TeamIter<ALIVE, VASSAL_OF> itVassal(getTeam()); itVassal.hasNext(); ++itVassal)
+			{
+				CvTeam const& kVassal = *itVassal;
+				if (!kVassal.isHasTech(eTech))
+					continue;
+
+				static const int iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT");
+
+				iValue = iValue * iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT / 100;
+
+				// One vassal is enough – don't stack penalties.
+				break;
+			}
+		}
+		// (2) Vassal: devalue techs that our master already knows
+		if (kTeam.isAVassal())
+		{
+			TeamTypes const eMasterTeam = kTeam.getMasterTeam();
+			if (eMasterTeam != NO_TEAM && GET_TEAM(eMasterTeam).isHasTech(eTech))
+			{
+				static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT");
+
+				iValue = iValue * iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT / 100;
+			}
+		}
+	}
+	// End - SAS vassalMasterTechResearch
+
 	return iValue;
 }
 

@@ -110,6 +110,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#74---seemingly-fixedaddressed-base-advciv-bug-of-ai_bestspreadunit-returning-true-even-if-ebestspreadunit-is-no_unit-then-firing-a-failed-assert)  
 [75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue)  
 [76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue)  
+[77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2917,3 +2918,17 @@ Added logic to tone it down a bit as we were switching a bit too much, now based
 Results in autoplay are very very good i mean if i may say but anyways etc. Now even in the early game we go back and forth between caste system and slavery, and later on serfdom and in particular finally our civic_wage_labor is now quite popular among ais, and the distribution is quite even.
 
 Ideally i'd find ways to prevent oscillation or excessive oscillation at least maybe but anyways etc, but hopefully AI should be much stronger and responsive to change (no point to run scientists if we are about to be steamrolled, value engineers or serfdom or such more i mean maybe but anyways etc).
+
+## 77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1oy_TaNgXpqxxCU5rYUxbqRCL6V_4VkNa?usp=sharing) anyways etc.
+
+We have an issue of AI researching techs its vassal already knows which is very inefficient. In this save file Hammurabi (vassal of Ewuare) is way ahead in tech; it seems at a quick glance Ewuare re-researches many techs Hammurabi already owns, which is very inefficient and suboptimal.
+
+Added code with the help of chatgpt 5.1 in `CvPlayerAI::AI_techValue` to devalue these techs since we can get them from our vassal, and vice versa for the vassal since they can get said techs from the master as well, tunable in sas defines as well anyways etc.
+
+Ideally, would also implement preferential trading with our vassal/master as is more competitive to win, but not done in this known issue.
+
+Results in autoplay are hard to evaluate as history changed after applying this change, and Ewuare and Hammurabi took a different path, and Ewuare snowballed and won sooner as well.
+
+Would need to implement preferential master<->vassal tech trading of techs they can get from each other to see if it helps further.
