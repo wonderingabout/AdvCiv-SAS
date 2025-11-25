@@ -998,7 +998,7 @@
 
 
 
-	<!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns (and also so that the vassal trades techs it doesn't know preferably from its master as well). Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issue as of now 77 for details anyways etc. -->
+	<!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issue as of now 77 for details anyways etc. -->
 	<!-- Yeah, that’s a really sensible enhancement for that situation – you basically want:
 			- Masters to value “vassal-known” techs less for self-research, and
 			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
@@ -1008,6 +1008,7 @@
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- (1) Master: devalue techs that our vassals already know -->
+	<!-- custom: e.g. if value is 25 then this means that if one of our vassals has the tech, we only value the tech iValue * 25 / 100 = 25% of its value (meaning we value it a lot less as it lost 75% of its value (since we can get it from our vassal if needed. I assume this means we'd be much less inclined to research it or to buy it at a high price at trading with rivals but i don't know exactly how this value is used and i didn't check too much so check to be sure and for exhaustiveness but anyways etc.) -->
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
@@ -1016,6 +1017,34 @@
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech anyways etc.), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issues as of now 77 and 78 for details anyways etc. -->
+	<!-- // Prefer tech trades with master/vassal partners.
+	// This boosts the chance that we initiate CONTACT_TRADE_TECH
+	// when ePlayer is either our master or our vassal. -->
+	<!-- // Putting it all together:
+	// So in the scenario you described (vassal ahead, master rerunning the tree), after these changes you should see:
+	// 	- The master picking techs the vassal doesn’t have, or at least heavily downweighting ones the vassal already holds.
+	// 	- The vassal not wasting time duplicating the master’s techs either.
+	// 	- More tech trades along that axis whenever there’s a reasonable deal. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc.  -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal. -->
+	<!-- 100 = no change, 150 = +50% chance, 200 = x2, etc. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<!-- When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 
 

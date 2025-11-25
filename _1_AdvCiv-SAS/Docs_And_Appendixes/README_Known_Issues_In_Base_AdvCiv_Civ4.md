@@ -111,6 +111,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue)  
 [76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue)  
 [77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
+[78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2932,3 +2933,52 @@ Ideally, would also implement preferential trading with our vassal/master as is 
 Results in autoplay are hard to evaluate as history changed after applying this change, and Ewuare and Hammurabi took a different path, and Ewuare snowballed and won sooner as well.
 
 Would need to implement preferential master<->vassal tech trading of techs they can get from each other to see if it helps further.
+
+## 78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1a1eEd0iAaTXNsBSrz_NF6NRFZOgP12kP?usp=sharing) anyways etc.
+
+Following [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc), also added logic so that master<->vassals are much more inclined to trade with each other, not just for techs they don't have, but for any tech. This synergises and expands on this previous change, in `CvPlayerAI::AI_doDiplo`.
+
+Also added a bugfix (according to chatgpt 5.1) to `AI_contactRoll(CONTACT_TRADE_TECH`, with the following rationale anyways etc.:
+
+```cpp
+					// <!-- custom: according to chatgpt 5.1, the missing 2nd parameter is a bug specifically here for this contact roll so adding it, check if accurate anyways etc. -->
+					// So:
+					// 	- Calls with 1 argument → use the base personality contact frequency only (no extra multiplier).
+					// 	- Calls with 2 arguments → same base, scaled by rMult.
+					// That’s by design. You only use rMult where you want to condition the probability (e.g. on tech rank, UWAI, diplo stage).
+					// What about CONTACT_TRADE_TECH in particular?
+					// The key point:
+					// 	- AI_contactRoll(CONTACT_TRADE_TECH) is still being called without rContactProbMult.
+					// So:
+					// 	- All the logic that computes rContactProbMult (tech rank, space stage, and your vassal/master defines) is currently ignored.
+					// 	- This was already true before your changes (the K-Mod / AdvCiv code built rContactProbMult here but never passed it in), so yes, this looks very much like an old oversight.
+					// 	- Other contacts like CONTACT_ASK_FOR_HELP do pass it:
+					// So for your specific feature (making master/vassal talk more about tech), you do want to change this one line.
+					// That’s enough to:
+					// 	- Activate the old BBAI/K-Mod “we’re behind in tech → roll more often” logic.
+					// 	- Make your MASTER_TO_VASSAL / VASSAL_TO_MASTER defines actually matter.
+					// No.
+					// 	- Calls that don’t have a local rContactProbMult (PEACE_TREATY, RELIGION_PRESSURE, TRADE_BONUS, etc.) are not bugs; they just use the plain personality ContactRand, which is perfectly fine.
+					// 	- Some places (e.g. JOIN_WAR, ASK_FOR_HELP, DEFENSIVE_PACT) purposely compute an extra multiplier and pass it in.
+					// 	- UWAIAgent uses AI_contactRoll only for certain demands/pressures with its own multipliers; it’s separate and already consistent.
+					// So the only “suspicious” one from your grep is CONTACT_TRADE_TECH, because:
+					// 	- there is a rContactProbMult built right above, and
+					// 	- it’s never used in the call.
+					// That’s why I’d treat that one as an old omission and wire it up, and leave all the other 1-arg calls as they are.
+					// Short answer
+					// 	- The previous logic was already “faulty” / incomplete before we added any master–vassal stuff.
+					// 	- Our new master–vassal tech-trade boost just depends on the same multiplier, so fixing it became important for our feature to actually work.
+					// 	- But the “bug” (building rContactProbMult and then not using it) was already there in the inherited code.
+					// Before
+					// if (AI_contactRoll(CONTACT_TRADE_TECH))
+					// After
+					if (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult))
+```
+
+In autoplay, from turns 250 to 300, the master (Ewuare) has 4 more techs and only 1 less tech than before this change, which is a massively faster tech pace!!
+
+As for hammurabi (vassal of Ewuare), he has 2 more techs and no tech less, so this is also significantly faster tech pace.
+
+All in all, it looks like they mutually benefited from this change, be from the preferential trading change, or the contact_tech_trade bugfix (i don't know which, the results are very good!), which is a massive improvement!

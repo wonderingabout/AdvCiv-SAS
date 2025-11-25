@@ -6063,7 +6063,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	//iValue = range(iValue, 0, MAX_INT);
 	// K-Mod end
 
-	// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns (and also so that the vassal trades techs it doesn't know preferably from its master as well). Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issue as of now 77 for details anyways etc. -->
+	// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issue as of now 77 for details anyways etc. -->
 	// SAS vassalMasterTechResearch
 	// With:
 	// 	- Master-from-vassal penalty,
@@ -22136,7 +22136,78 @@ void CvPlayerAI::AI_doDiplo()
 							unfair advantage for civs pursuing a Space victory. */
 						rContactProbMult.mulDiv(4, 3);
 					}
-					if (AI_contactRoll(CONTACT_TRADE_TECH))
+
+					// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other, and vice versa for its vassal. -->
+					// <!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech anyways etc.), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issues as of now 77 and 78 for details anyways etc. -->
+					// SAS vassalMasterTechTrade
+					static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE");
+					if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE)
+					{
+						// Prefer tech trades with master/vassal partners.
+						// This boosts the chance that we initiate CONTACT_TRADE_TECH
+						// when ePlayer is either our master or our vassal.
+						// isVassal is checked both ways so it works when we’re the master or when we’re the vassal.
+						// Putting it all together:
+						// 	- Master/Vassal tech-value penalties:
+						//		- Master avoids self-researching techs vassals already know.
+						//		- Vassal avoids self-researching techs master already knows.
+						//	- Tech-trade contact boost:
+						//		- They talk to each other more often about tech trades (both directions).
+						// So in the scenario you described (vassal ahead, master rerunning the tree), after these changes you should see:
+						// 	- The master picking techs the vassal doesn’t have, or at least heavily downweighting ones the vassal already holds.
+						// 	- The vassal not wasting time duplicating the master’s techs either.
+						// 	- More tech trades along that axis whenever there’s a reasonable deal.
+						const TeamTypes eOurTeam = getTeam();
+						const TeamTypes eTheirTeam = kPlayer.getTeam();
+						// When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal.
+						if (GET_TEAM(eTheirTeam).isVassal(eOurTeam))
+						{
+							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT");
+
+							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT, 100);
+						}
+						// When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal.
+						else if (kOurTeam.isVassal(eTheirTeam))
+						{
+							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT");
+
+							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT, 100);
+						}
+					}
+					// End - SAS vassalMasterTechTrade
+
+					// <!-- custom: according to chatgpt 5.1, the missing 2nd parameter is a bug specifically here for this contact roll so adding it, check if accurate anyways etc. -->
+					// So:
+					// 	- Calls with 1 argument → use the base personality contact frequency only (no extra multiplier).
+					// 	- Calls with 2 arguments → same base, scaled by rMult.
+					// That’s by design. You only use rMult where you want to condition the probability (e.g. on tech rank, UWAI, diplo stage).
+					// What about CONTACT_TRADE_TECH in particular?
+					// The key point:
+					// 	- AI_contactRoll(CONTACT_TRADE_TECH) is still being called without rContactProbMult.
+					// So:
+					// 	- All the logic that computes rContactProbMult (tech rank, space stage, and your vassal/master defines) is currently ignored.
+					// 	- This was already true before your changes (the K-Mod / AdvCiv code built rContactProbMult here but never passed it in), so yes, this looks very much like an old oversight.
+					// 	- Other contacts like CONTACT_ASK_FOR_HELP do pass it:
+					// So for your specific feature (making master/vassal talk more about tech), you do want to change this one line.
+					// That’s enough to:
+					// 	- Activate the old BBAI/K-Mod “we’re behind in tech → roll more often” logic.
+					// 	- Make your MASTER_TO_VASSAL / VASSAL_TO_MASTER defines actually matter.
+					// No.
+					// 	- Calls that don’t have a local rContactProbMult (PEACE_TREATY, RELIGION_PRESSURE, TRADE_BONUS, etc.) are not bugs; they just use the plain personality ContactRand, which is perfectly fine.
+					// 	- Some places (e.g. JOIN_WAR, ASK_FOR_HELP, DEFENSIVE_PACT) purposely compute an extra multiplier and pass it in.
+					// 	- UWAIAgent uses AI_contactRoll only for certain demands/pressures with its own multipliers; it’s separate and already consistent.
+					// So the only “suspicious” one from your grep is CONTACT_TRADE_TECH, because:
+					// 	- there is a rContactProbMult built right above, and
+					// 	- it’s never used in the call.
+					// That’s why I’d treat that one as an old omission and wire it up, and leave all the other 1-arg calls as they are.
+					// Short answer
+					// 	- The previous logic was already “faulty” / incomplete before we added any master–vassal stuff.
+					// 	- Our new master–vassal tech-trade boost just depends on the same multiplier, so fixing it became important for our feature to actually work.
+					// 	- But the “bug” (building rContactProbMult and then not using it) was already there in the inherited code.
+					// Before
+					// if (AI_contactRoll(CONTACT_TRADE_TECH))
+					// After
+					if (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult))
 					{	// BETTER_BTS_AI_MOD: END
 						TechTypes eBestReceiveTech = NO_TECH;
 						/*  advc.550f: This is normally going to be
