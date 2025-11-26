@@ -112,6 +112,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue)  
 [77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
 [78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)  
+[79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2281,7 +2282,7 @@ Although in some other cases it doesn't seem applied, like khmer ai still going 
 
 While making this new code, i also tried to enforce picking (extra valuing) civ-specific units on the assumptions they are nice (war chariots very cheap and effective for example rather than a horse archer), and avoid otherwise weak units to avoid high unit costs and low effectiveness of the military anyways etc.
 
-I then tried another autoplay run and it was very very brutal, with ewuare ai having 150+ cavalry at turn 260 (in a standard monarch pangea normal game speed map if i am not mistaken but anyways etc) more or less and other units in lower number but anyways etc where he won! Despite not having train percent discounts per era anymore in advciv-sas as of now! I think the good offensive start helped convert it easier to a middle game offensive stack although i didn't check in detail but anyways etc. If you're curious about this run, i shared some / a few of the screenshots [there in this CFC advciv-sas post anyways etc](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16866658).
+I then tried another autoplay run and it was very very brutal, with ewuare ai having 150+ cavalry (update note: since then reframed as dragoon units anyways etc.) at turn 260 (in a standard monarch pangea normal game speed map if i am not mistaken but anyways etc) more or less and other units in lower number but anyways etc where he won! Despite not having train percent discounts per era anymore in advciv-sas as of now! I think the good offensive start helped convert it easier to a middle game offensive stack although i didn't check in detail but anyways etc. If you're curious about this run, i shared some / a few of the screenshots [there in this CFC advciv-sas post anyways etc](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16866658).
 
 So overall very good results it seems!
 
@@ -2986,3 +2987,37 @@ As for hammurabi (vassal of Ewuare), he has 2 more techs and no tech less, so th
 All in all, it looks like they mutually benefited from this change, be from the preferential trading change, or the contact_tech_trade bugfix (i don't know which, the results are very good!), which is a massive improvement!
 
 Update: after [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)'s update change (vassal<->vassal change/addition anyways etc.), also added vassal<->vassal(s) siblings extra tech trading chance similarly, since Ewuare has 2 vassals at t250. Results in Ewuare having 1 more tech and 1 less tech at t300, Hammurabi having 0 more techs and 0.5 less techs, and Rameses 2 (the other vassal at Ewuare) having 0 more tech and 0.5 less techs at t300. So seems more or less identical in this run/map possibly due to noise/variation. As long as not clearly detrimental, may be fine to add since this only boosts contact and does not reduce it which might have then led to possibly less predictable results i would guess (like it being detrimental or possibly beneficial more situationally or such) but not the case here so adding this i think i mean but anyways etc.
+
+## 79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1mv377xdPwZFVtOqVZdMAzEqIBdFCktHC?usp=sharing) anyways etc.
+
+After [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)'s update change, it still seems we are slow to trade military science (for dragoons) to our master, even though rameses vassal has it long ago.
+
+Added with the help of chatgpt 5.1 logic in `CvPlayerAI::AI_doDiplo` so that before contacting a player for any tech trade, we first consider if the tech does not already exist in our master-vasssal(s) locus, and if so do not contact players that are not part of it. Hopefully this indirectly helps contact players of our locus first for a tech we don't have.
+
+In autoplay, the results seem very good, we win sooner seemingly due to our master Ewuare upgrading much sooner to dragoons (which he has 150 of (+ 103 cannons as well but anyways etc.) at turn 300! But anyways etc) (win at turn 294 vs turn 305-335 in various previous changes). As for techs Ewuare has 2.5 more techs and 3 less techs, Hammurabi has 0.5 more techs and 0 less techs, and Rameses has 1 more tech and 2 less techs. All in all, this seems to greatly benefit our locus.
+
+Note: it is tricky to determine if this change is in the interest of the vassal or not. Because it might be in the interest of the vassal that its master grows weaker, perhaps to free itself from its master (if not voluntary vassal as as of now in advciv-sas these are permanent if i'm not mistaken but anyways etc). But at the same time, vassal would be force involved in any war the master wages or is victim of, be it a winning or a losing one. And reliably gaining things from a close-knit partner involvment i mean if i may say but anyways etc doesn't seem too bad but anyways etc. All in all or/and overall, it may possibly, generally be in the best interest of the vassal to help boost its master in hopes of indirectly benefitting from it, rather that hoping for its demise in a way that would not affect the vassal as well, which seems quite unlikely.
+
+I asked chatgpt 5.1 about this which said:
+
+>In pure theory, yes, a vassal might sometimes benefit from a weaker master to break free.
+>
+>In Civ4 as it’s actually structured, and especially for AI:
+>
+>	- The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
+>	 	- Protects it,
+>	 	- Wins wars,
+>	 	- And makes the cluster hard to exploit.
+>
+>So your current master–vassal cluster-first tech logic is fully consistent with a sane vassal “interest model” in this engine.
+
+Similarly, a stronger vassal is also more likely to be more useful to its master, as gemini 3 pro highlighted when i asked it about it:
+
+> The Master's Calculation: "The Force Multiplier"
+>The note states the goal is to "strengthen overall AI play". In a strategy game like Civ4, a weak vassal is a liability—they get invaded easily, dragging the Master into wars, and they contribute nothing to the war effort.
+>
+>	- Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
+
+So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.

@@ -1002,7 +1002,7 @@
 	<!-- Yeah, that’s a really sensible enhancement for that situation – you basically want:
 			- Masters to value “vassal-known” techs less for self-research, and
 			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc.  -->
+	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1038,7 +1038,7 @@
 	// 	- The master picking techs the vassal doesn’t have, or at least heavily downweighting ones the vassal already holds.
 	// 	- The vassal not wasting time duplicating the master’s techs either.
 	// 	- More tech trades along that axis whenever there’s a reasonable deal. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc.  -->
+	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
 	<Define>
 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1058,6 +1058,16 @@
 	<Define>
 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- SAS vassalMasterTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
+	<!-- This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
 
@@ -1230,7 +1240,7 @@
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored anyways etc). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC.  -->
+	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored anyways etc). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC. -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
