@@ -2934,6 +2934,8 @@ Results in autoplay are hard to evaluate as history changed after applying this 
 
 Would need to implement preferential master<->vassal tech trading of techs they can get from each other to see if it helps further.
 
+Update: after [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)'s change, also added vassal<->vassal(s) siblings devaluation to self research logic, since Ewuare has 2 vassals at t250. Results in Ewuare having 2 more techs and 1 less tech at t300, and Hammurabi having 0 more techs and 1 less tech. Would need to implement this idea on the tech trading side as well to measure the full impact on this save i mean even though some random fluctuation might happen more or less unpredictably or unreliably or such but anyways etc.
+
 ## 78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1
 
 See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1a1eEd0iAaTXNsBSrz_NF6NRFZOgP12kP?usp=sharing) anyways etc.

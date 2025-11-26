@@ -1013,11 +1013,20 @@
 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
-	<!-- (2) Vassal: devalue techs that our master already knows -->
+	<!-- (2) Vassal: devalue techs that our "cluster" already knows -->
+	<!-- custom: if our master knows the tech, devalue researching it, we can get it from them rather. -->
+	<!-- // Master -->  
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
+	<!-- custom: if any of our sibling vassals know the tech, devalue researching it, we can get it from them rather. -->
+	<!-- // Sibling vassals of the same master -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	
 
 
 

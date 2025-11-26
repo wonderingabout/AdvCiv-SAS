@@ -6094,15 +6094,33 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 				break;
 			}
 		}
-		// (2) Vassal: devalue techs that our master already knows
+		// (2) Vassal: devalue techs that our "cluster" already knows
 		if (kTeam.isAVassal())
 		{
 			TeamTypes const eMasterTeam = kTeam.getMasterTeam();
+			// Master
 			if (eMasterTeam != NO_TEAM && GET_TEAM(eMasterTeam).isHasTech(eTech))
 			{
 				static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT");
 
 				iValue = iValue * iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT / 100;
+			}
+			else
+			{
+				// Sibling vassals of the same master
+				for (TeamIter<ALIVE, VASSAL_OF> itSibling(eMasterTeam); itSibling.hasNext(); ++itSibling)
+				{
+					CvTeam const& kSibling = *itSibling;
+					if (kSibling.getID() == kTeam.getID())
+						continue; // skip ourselves
+					if (!kSibling.isHasTech(eTech))
+						continue;
+
+					static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT");
+
+					iValue = iValue * iSAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT / 100;
+					break; // one sibling hit is enough
+				}
 			}
 		}
 	}
