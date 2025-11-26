@@ -1026,7 +1026,6 @@
 		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
-	
 
 
 
@@ -1053,6 +1052,11 @@
 	<!-- When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal. -->
 	<Define>
 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<!-- When we are a vassal and ePlayer is another vassal of the same master, this multiplies our CONTACT_TRADE_TECH contact chance with them. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 

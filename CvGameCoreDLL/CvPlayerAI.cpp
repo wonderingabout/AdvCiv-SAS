@@ -22177,19 +22177,34 @@ void CvPlayerAI::AI_doDiplo()
 						// 	- More tech trades along that axis whenever there’s a reasonable deal.
 						const TeamTypes eOurTeam = getTeam();
 						const TeamTypes eTheirTeam = kPlayer.getTeam();
-						// When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal.
+						// (1) When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal.
 						if (GET_TEAM(eTheirTeam).isVassal(eOurTeam))
 						{
 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT");
 
 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT, 100);
 						}
-						// When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal.
+						// (2) When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal.
 						else if (kOurTeam.isVassal(eTheirTeam))
 						{
 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT");
 
 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT, 100);
+						}
+						// (3) Sibling vassals of the same master: vassal ↔ vassal
+						// Notes:
+						// 	- This only triggers when both teams are vassals of the same master and the “optimize” bool is on.
+						// 	- It also works for human–AI sibling vassals, since this is just a contact multiplier; the outer (!kPlayer.isHuman() || kOurTeam.getLeaderID() == getID()) gate is unchanged, so humans only get approached by the AI team leader as before.
+						// 	- No stacking: each pair hits at most one of (master→vassal, vassal→master, vassal↔vassal).
+						else if (kOurTeam.isAVassal())
+						{
+							TeamTypes const eMasterTeam = kOurTeam.getMasterTeam();
+							if (eMasterTeam != NO_TEAM && GET_TEAM(eTheirTeam).isVassal(eMasterTeam) && eTheirTeam != eOurTeam) // safety; shouldn't ever be equal here
+							{
+								static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT");
+
+								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT, 100);
+							}
 						}
 					}
 					// End - SAS vassalMasterTechTrade
