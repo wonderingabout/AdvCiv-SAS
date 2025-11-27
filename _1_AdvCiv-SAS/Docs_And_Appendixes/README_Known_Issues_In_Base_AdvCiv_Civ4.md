@@ -3007,19 +3007,19 @@ I asked chatgpt 5.1 about this which said:
 >
 >In Civ4 as it’s actually structured, and especially for AI:
 >
->	- The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
->	 	- Protects it,
->	 	- Wins wars,
->	 	- And makes the cluster hard to exploit.
+>- The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
+>	  - Protects it,
+>	  - Wins wars,
+>	  - And makes the cluster hard to exploit.
 >
 >So your current master–vassal cluster-first tech logic is fully consistent with a sane vassal “interest model” in this engine.
 
 Similarly, a stronger vassal is also more likely to be more useful to its master, as gemini 3 pro highlighted when i asked it about it:
 
-> The Master's Calculation: "The Force Multiplier"
+>The Master's Calculation: "The Force Multiplier"
 >The note states the goal is to "strengthen overall AI play". In a strategy game like Civ4, a weak vassal is a liability—they get invaded easily, dragging the Master into wars, and they contribute nothing to the war effort.
 >
->	- Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
+> - Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
 
 So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.
 

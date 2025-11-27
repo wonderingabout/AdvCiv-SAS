@@ -181,6 +181,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 #### Technologies (AI)
 
 - (Requires AdvCiv-SAS 5134+) **Master–vassal tech overlap penalty:** In `CvPlayerAI::AI_techValue`, reduce the value of researching techs already known by our vassal(s) or master to discourage redundant research and encourage complementary paths/trades instead. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai). **Update:** also apply the same devaluation between **sibling vassals** in the self-research logic (if any of our fellow vassal(s) already has the tech, we value researching it less ourselves).
+- (Requires AdvCiv-SAS 5141+) **Tech military flavor overhaul:** Retuned `FLAVOR_MILITARY` on many techs so the AI better recognizes their true military importance (e.g. `TECH_CORPORATION` **3 → 0** — no longer treated as a military tech; `TECH_CIVIL_SERVICE` **3 → 8** — now strongly flagged as military to better match its role in the reworked tree and its general impact).
 
 #### Leaders (AI)
 
