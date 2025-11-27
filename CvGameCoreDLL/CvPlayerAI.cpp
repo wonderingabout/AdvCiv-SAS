@@ -5821,7 +5821,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 			{
 				// K-Mod
 				int iRoll = 2 * (100 + AI_getGreatPersonWeight((UnitClassTypes)
-						GC.getInfo(eTech).getFirstFreeUnitClass()));
+						//<!-- custom: seems like this is safe to rename as the existing kTech if i'm not mistaken but anyways etc. -->
+						// GC.getInfo(eTech).getFirstFreeUnitClass()));
+						kTech.getFirstFreeUnitClass()));
 				/*	I've diluted the weight because free great people doesn't have
 					the negative effect of making it harder to get more great people */
 				iRoll *= 200 + iRaceModifier;
@@ -6075,6 +6077,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	// 	- <!-- custom: not directly here anyways etc. --> More tech swapping along the master–vassal axis, especially when each has something the other doesn’t.
 	// A. Devalue researching techs that our vassals already know and vice versa.
 	static const bool bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE");
+	int iSASPercentModifier = 100;
+
 	if (bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER)
 	{
 		// (1) Master: devalue techs that our vassals already know
@@ -6088,14 +6092,14 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 
 				static const int iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT");
 
-				iValue = iValue * iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT / 100;
+				iSASPercentModifier += (iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT - 100);
 
 				// One vassal is enough – don't stack penalties.
 				break;
 			}
 		}
 		// (2) Vassal: devalue techs that our "cluster" already knows
-		if (kTeam.isAVassal())
+		else if (kTeam.isAVassal())
 		{
 			TeamTypes const eMasterTeam = kTeam.getMasterTeam();
 			// Master
@@ -6103,7 +6107,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 			{
 				static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT");
 
-				iValue = iValue * iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT / 100;
+				iSASPercentModifier += (iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT - 100);
 			}
 			else
 			{
@@ -6118,13 +6122,36 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 
 					static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT");
 
-					iValue = iValue * iSAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT / 100;
+					iSASPercentModifier += (iSAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT - 100);
 					break; // one sibling hit is enough
 				}
 			}
 		}
 	}
 	// End - SAS vassalMasterTechResearch
+
+	// SAS techValuePowerDanger: if we're clearly outgunned, bump key military techs
+	static const bool bSAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE");
+	if (bSAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
+	{
+		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+		const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+
+		if (bEnemyStrong)
+		{
+			static const int iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN");
+
+			if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN)
+			{
+				static const int iSAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT");
+				iSASPercentModifier += (iSAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT - 100);
+			}
+		}
+	}
+
+	// <!-- custom: final compute of our sas modifiers once so it is not exponential anyways etc. -->
+	iValue = iValue * iSASPercentModifier / 100;
 
 	return iValue;
 }

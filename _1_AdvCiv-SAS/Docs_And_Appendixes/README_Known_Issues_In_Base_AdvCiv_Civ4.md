@@ -113,7 +113,8 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
 [78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)  
 [79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players)  
-[80 - (Tremendously Improve) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improve-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
+[80 - (Tremendously Improved) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
+[81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3023,7 +3024,7 @@ Similarly, a stronger vassal is also more likely to be more useful to its master
 
 So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.
 
-## 80 - (Tremendously Improve) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental
+## 80 - (Tremendously Improved) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental
 
 See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1XY87DcUJtJJIHqit_6qwNl09eWnqosso?usp=sharing) anyways etc.
 
@@ -3036,3 +3037,13 @@ Note: does not apply if between members of a master-vassal(s) locus.
 The effect seems extremely positive and helpful to AI strength, although this is just one autoplay before/after sample and there could be noise, but what seemed to happen is that unlike before the change where Ewuare quickly took a lead and became unstoppable and snowballed to win easily at turn 288, after this change it seems now that anytime a player would take a military or score lead, somehow this score started to shrink and others caught up. It also seemed that weaker rivals were closer at a glance, at least early on but anyways etc. Ewuare eventually won but only at turn 419, and even at turn 300s the game was more or less even between a few rivals/blocs and very close.
 
 So this seems to help a lot, although it could just be noise, but it is not a harmless change so implementing it as such anyways etc.
+
+## 81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1d_UFDfZ76O1nY8FEZFa-Yh1NCBMN3dfa?usp=sharing) anyways etc.
+
+AI seemingly was often too slow or straight up not valuing for research key military techs (with a high enough FLAVOR_MILITARY, see sas defines for details anyways etc.) at all, even when it was weaker and at risk of dying (economy or such techs would be useless to it at best, and at worst they would be researching them for their ennemies when they conquer them (kind of like how AI used to do/be for wonders before our changes i mean if i may say but anyways etc.)).
+
+After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead, and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemignly stronger eventually even though this was shortly game would have otherwise ended on time not long later but anyways etc.)
+
+This seems like a good AI improvement at least based on this autoplay comparison sample, and at least a nice sanity to have for AIs if i'm not mistaken but anyways etc.

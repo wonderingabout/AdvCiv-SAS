@@ -1028,6 +1028,30 @@
 
 
 
+	<!-- SAS techValuePowerDanger: bias research toward key military techs when we're clearly -->
+	<!-- custom: weaker anyways etc. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+	<!-- Consider tech "key military" if its FLAVOR_MILITARY is at least this. -->
+	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes anyways etc -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+
+	<!-- When in danger, scale the total value of such techs by this percentage. -->
+	<!-- custom: e.g. 130 means tech value is increased by 30% anyways etc. -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech anyways etc.), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issues as of now 77 and 78 for details anyways etc. -->
 	<!-- // Prefer tech trades with master/vassal partners.
 	// This boosts the chance that we initiate CONTACT_TRADE_TECH
