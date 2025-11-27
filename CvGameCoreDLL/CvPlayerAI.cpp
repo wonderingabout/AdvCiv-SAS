@@ -22157,11 +22157,12 @@ void CvPlayerAI::AI_doDiplo()
 
 					// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other, and vice versa for its vassal. -->
 					// <!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech anyways etc.), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issues as of now 77 and 78 for details anyways etc. -->
-					// SAS vassalMasterTechTrade
+					// SAS vassalMasterMoreTechTrade
 					static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE");
 					const TeamTypes eOurTeam = getTeam();
 					const TeamTypes eTheirTeam = kPlayer.getTeam();
 					const TeamTypes eMasterTeam = kOurTeam.getMasterTeam();
+					bool bVassalsOrMaster = false;
 
 					if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE)
 					{
@@ -22182,12 +22183,14 @@ void CvPlayerAI::AI_doDiplo()
 						// (1) When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal.
 						if (GET_TEAM(eTheirTeam).isVassal(eOurTeam))
 						{
+							bVassalsOrMaster = true;
 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT");
 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT, 100);
 						}
 						// (2) When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal.
 						else if (kOurTeam.isVassal(eTheirTeam))
 						{
+							bVassalsOrMaster = true;
 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT");
 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT, 100);
 						}
@@ -22200,12 +22203,46 @@ void CvPlayerAI::AI_doDiplo()
 						{
 							if (eMasterTeam != NO_TEAM && GET_TEAM(eTheirTeam).isVassal(eMasterTeam) && eTheirTeam != eOurTeam) // safety; shouldn't ever be equal here
 							{
+								bVassalsOrMaster = true;
 								static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT");
 								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT, 100);
 							}
 						}
 					}
-					// End - SAS vassalMasterTechTrade
+					// End - SAS vassalMasterMoreTechTrade
+
+					// SAS techTradePowerBias: be more cautious about feeding much stronger civs
+					static const bool bSAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE");
+					// <!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them anyways etc. -->
+					if (!bVassalsOrMaster && bSAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE)
+					{
+						const int iOurPower   = kOurTeam.getPower(true);
+						const int iTheirPower = GET_TEAM(eTheirTeam).getPower(true);
+
+						// If either side has 0 power (just founded / crippled), skip the bias
+						if (iOurPower > 0 && iTheirPower > 0)
+						{
+							static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+							const bool bTheyAreStronger = (100 * iTheirPower > iSAS_ENEMY_STRONG_POWER_THRESHOLD * iOurPower);
+
+							static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+							const bool bTheyAreWeaker = (100 * iTheirPower < iSAS_ENEMY_WEAK_POWER_THRESHOLD * iOurPower);
+
+							if (bTheyAreStronger)
+							{
+								// They are stronger -> reduce contact a bit (don't be too eager to send them more tech)
+								static const int iSAS_AI_DO_DIPLO_POWER_STRONGER_TECH_TRADE_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_POWER_STRONGER_TECH_TRADE_PERCENT");
+								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_POWER_STRONGER_TECH_TRADE_PERCENT, 100);
+							}
+							else if (bTheyAreWeaker)
+							{
+								// <!-- custom: they are weaker than us, safer to profit from/with them anyways etc. -->
+								static const int iSAS_AI_DO_DIPLO_POWER_WEAKER_TECH_TRADE_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_POWER_WEAKER_TECH_TRADE_PERCENT");
+								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_POWER_WEAKER_TECH_TRADE_PERCENT, 100);
+							}
+						}
+					}
+					// End - SAS techTradePowerBias
 
 					// <!-- custom: according to chatgpt 5.1, the missing 2nd parameter is a bug specifically here for this contact roll so adding it, check if accurate anyways etc. -->
 					// So:
@@ -22277,7 +22314,8 @@ void CvPlayerAI::AI_doDiplo()
 							}
 						}
 
-						// <!-- SAS vassalMasterTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
+						// <!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
+						// <!-- SAS vassalMasterFirstTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
 						// Conceptually:
 						// 	- For each potential trade partner ePlayer, the AI already:
 						// 	- Rolls for contact (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult)),
@@ -22288,8 +22326,8 @@ void CvPlayerAI::AI_doDiplo()
 						// 	- And if any of our locus partners (master or vassals / sibling vassals) has that same eBestReceiveTech and is willing to trade it,
 						// 	- Then we drop eBestReceiveTech for this outsider and let the normal logic later pick up a trade with the locus partner instead (helped by the contact multipliers we already added).
 						// This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones.
-						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE");
-						if (bSAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE && eBestReceiveTech != NO_TECH)
+						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE");
+						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE && eBestReceiveTech != NO_TECH)
 						{
 							// Only re-route when ePlayer is truly "outside" our locus:
 							//  - not our team,
@@ -22375,7 +22413,7 @@ void CvPlayerAI::AI_doDiplo()
 								}
 							}
 						}
-						// End - SAS vassalMasterTechTrade: prefer locus over outsiders
+						// End - SAS vassalMasterFirstTechTrade: prefer locus over outsiders
 
 						if (eBestReceiveTech != NO_TECH)
 						{

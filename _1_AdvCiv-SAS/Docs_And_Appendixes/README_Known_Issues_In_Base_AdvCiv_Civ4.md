@@ -113,6 +113,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
 [78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)  
 [79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players)  
+[80 - (Tremendously Improve) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improve-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3021,3 +3022,17 @@ Similarly, a stronger vassal is also more likely to be more useful to its master
 >	- Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
 
 So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.
+
+## 80 - (Tremendously Improve) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1XY87DcUJtJJIHqit_6qwNl09eWnqosso?usp=sharing) anyways etc.
+
+AI seemingly had no restriction on who it preferentially initiated contact with. However a stronger rival is more likely to be an enemy later, while a weaker one is more likely to be harmless and someone we can (more safely at least but anyways etc.) rely on or/and use for our advantage but anyways etc.
+
+Added military power stronger/weaker to us modifiers to tech trade contact chance in `CvPlayerAI::AI_doDiplo`.
+
+Note: does not apply if between members of a master-vassal(s) locus.
+
+The effect seems extremely positive and helpful to AI strength, although this is just one autoplay before/after sample and there could be noise, but what seemed to happen is that unlike before the change where Ewuare quickly took a lead and became unstoppable and snowballed to win easily at turn 288, after this change it seems now that anytime a player would take a military or score lead, somehow this score started to shrink and others caught up. It also seemed that weaker rivals were closer at a glance, at least early on but anyways etc. Ewuare eventually won but only at turn 419, and even at turn 300s the game was more or less even between a few rivals/blocs and very close.
+
+So this seems to help a lot, although it could just be noise, but it is not a harmless change so implementing it as such anyways etc.
