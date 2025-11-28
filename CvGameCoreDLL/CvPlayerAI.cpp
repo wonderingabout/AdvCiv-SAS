@@ -9796,7 +9796,8 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 {
 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // K-Mod
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-	bool bHuman = kPlayer.isHuman();
+	// <!-- custom: make a const and rename for clarity and consistency but anyways etc. -->
+	const bool bPlayerHuman = kPlayer.isHuman();
 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
 
 	bool const bOurGoldDeal = goldDeal(kWeGive);
@@ -9811,7 +9812,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 				return false;
 		} /* <advc.036> Denial from the human pov should prevent resource trades.
 			 This matters for "Care to negotiate". */
-		if(bHuman)
+		if(bPlayerHuman)
 		{
 			FOR_EACH_TRADE_ITEM(kTheyGive)
 			{
@@ -9905,7 +9906,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 	// <advc.705>
 	CvGame& kGame = GC.getGame();
 	bool bPossibleCollusion = kGame.isOption(GAMEOPTION_RISE_FALL) &&
-			bHuman && kGame.getRiseFall().
+			bPlayerHuman && kGame.getRiseFall().
 			isCooperationRestricted(getID()); // </advc.705>
 	if (!bVassalTrade)
 	{
@@ -10018,7 +10019,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 			bDemand = (AI_getAttitude(ePlayer) <= eNoHelpThresh);
 			if (bDemand) // </advc.130o>
 			{
-				FAssert(bHuman); // advc (note): This has reportedly failed recently (Feb 2020)
+				FAssert(bPlayerHuman); // advc (note): This has reportedly failed recently (Feb 2020)
 				if (kOurTeam.getPower(false) > (GET_TEAM(ePlayer).getPower(false) * 4) / 3)
 				{
 					// advc.130o: Don't return just yet
@@ -10098,7 +10099,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 	if (!AI_checkResourceLimits(kWeGive, kTheyGive, ePlayer, iChange))
 		return false; // </advc.036>
 	// <advc.705>
-	if (kGame.isOption(GAMEOPTION_RISE_FALL) && bHuman)
+	if (kGame.isOption(GAMEOPTION_RISE_FALL) && bPlayerHuman)
 	{
 		if (bPossibleCollusion)
 		{
@@ -10133,7 +10134,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 		if(iTolerance * iWeReceive >= iTheyReceive * 100)
 			return true;
 		// Additional conditions; to avoid bothering human players.
-		if(!bHuman)
+		if(!bPlayerHuman)
 			return false;
 		scaled rUnfairness(iTolerance * iTheyReceive, 100 * std::max(1, iWeReceive));
 		scaled rLoss = (iTheyReceive - iWeReceive) /
@@ -10172,7 +10173,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 		return true;
 
 	// <advc.036>
-	if (bHuman && iWeReceive + iSINGLE_BONUS_TRADE_TOLERANCE >= iTheyReceive &&
+	if (bPlayerHuman && iWeReceive + iSINGLE_BONUS_TRADE_TOLERANCE >= iTheyReceive &&
 		kWeGive.getLength() == 1 && kTheyGive.getLength() == 1 &&
 		kWeGive.head()->m_data.m_eItemType == TRADE_RESOURCES &&
 		kTheyGive.head()->m_data.m_eItemType == TRADE_RESOURCES)
@@ -10574,6 +10575,10 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 			}
 		}
 	}
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	const bool bPlayerHuman = kPlayer.isHuman();
+
 	if (bMayAddGold)
 	{
 		int iGoldData = (iTheyReceive - iWeReceive) * 100;
@@ -10585,7 +10590,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 		int iMaxGold = ((isHuman() && bTheyGenerous) ?
 				kPlayer.AI_maxGoldTradeGenerous(getID()) :
 				kPlayer.AI_maxGoldTrade(getID()));
-		if (isHuman() || kPlayer.isHuman())
+		if (isHuman() || bPlayerHuman)
 		{
 			if (bTheyGenerous)
 				AI_roundTradeValBounds(iGoldData, true, iGoldData, iMaxGold);
@@ -10618,7 +10623,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 	} // </advc.036>
 	std::pair<TradeData,int> final_item; // Item we may or may not use to finalise the deal
 	// <advc.036>
-	bool bSingleResource = (iOtherListLength <= 1 && (isHuman() || kPlayer.isHuman()) &&
+	bool bSingleResource = (iOtherListLength <= 1 && (isHuman() || bPlayerHuman) &&
 			kWeGive.getLength() == 1 &&
 			kWeGive.head()->m_data.m_eItemType == TRADE_RESOURCES);
 	std::vector<std::pair<TradeData,int> > aNonSurplusItems; // </advc.036>
@@ -10664,7 +10669,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 				iItemValue = GET_TEAM(getTeam()).AI_mapTradeVal(kPlayer.getTeam());
 				// <advc.136b> Avoid low-impact AI-AI map trades for performance reasons
 				if (iItemValue < GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER) &&
-					!isHuman() && !kPlayer.isHuman())
+					!isHuman() && !bPlayerHuman)
 				{
 					iItemValue = 0;
 				} // </advc.136b>
@@ -10688,7 +10693,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 				/*  Bias AI-AI trades against resources that are of low value
 					to the recipient; should rather try to trade these to
 					someone else. */
-				if (!isHuman() && !kPlayer.isHuman() &&
+				if (!isHuman() && !bPlayerHuman &&
 					// Don't skip items that fill the gap very well
 					iTheyReceive - iWeReceive - iItemValue > 10)
 				{
@@ -10705,7 +10710,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 					(i.e. no special treatment of nonsurplus resources needed).
 					If a human is involved, gpt needs to be preferred b/c we
 					don't want humans to minmax the gpt through trial and error. */
-				if ((!isHuman() && !kPlayer.isHuman()) ||
+				if ((!isHuman() && !bPlayerHuman) ||
 					(kPlayer.getNumTradeableBonuses(eBonus) > 1 &&
 					kPlayer.AI_corporationBonusVal(eBonus, true) == 0))
 				{
@@ -10718,7 +10723,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 					/*  Would be better to decrement the -left counters only
 						once eBonus is added to pCounter, but that's complicated
 						to implement. The important thing is to enforce the limits. */
-					if (!kPlayer.isHuman())
+					if (!bPlayerHuman)
 					{
 						/*  AI mustn't give too many non-surplus resources
 							of a kind (happy, health) at once */
@@ -10843,7 +10848,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 						iFillGapVal *= 1000; // </advc.001>
 					/*	<advc.ctr> Prefer not to ask for human city because
 						city trade value doesn't always count the human keep-city value. */
-					if (kPlayer.isHuman() && it->first.m_eItemType == TRADE_CITIES)
+					if (bPlayerHuman && it->first.m_eItemType == TRADE_CITIES)
 						iFillGapVal *= 2; // </advc.ctr>
 					if (iFillGapVal < iBestFillGapVal)
 					{
@@ -10917,7 +10922,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 			ultimately accepting, lets see if the AI would allow the deal
 			without any added gold. If the AI will accept, then we won't add the gold.
 			And this will be a rare example of the AI favouring the human. */
-		!kPlayer.isHuman() || 100 * iWeReceive >=
+		!bPlayerHuman || 100 * iWeReceive >=
 		AI_tradeAcceptabilityThreshold(ePlayer) * iTheyReceive))
 	{
 		if (bMayAddGold)
@@ -10931,13 +10936,13 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 			int iMaxGold = ((bTheyGenerous && isHuman()) ?
 					kPlayer.AI_maxGoldTradeGenerous(getID()) :
 					kPlayer.AI_maxGoldTrade(getID()));
-			if (isHuman() || kPlayer.isHuman())
+			if (isHuman() || bPlayerHuman)
 			{
 				if (bTheyGenerous)
 					AI_roundTradeValBounds(iGoldData, true, iGoldData, iMaxGold);
 				else AI_roundTradeValBounds(iGoldData, false, MIN_INT, iMaxGold);
 			} // </advc.026>
-			if (bTheyGenerous && kPlayer.isHuman() && iGoldData > iMaxGold)
+			if (bTheyGenerous && bPlayerHuman && iGoldData > iMaxGold)
 				bAddFinalItem = true;
 			else
 			{
@@ -10953,7 +10958,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 		}
 		/*  <advc.001> If human asks for gold, then pGoldNode is NULL here,
 			and the AI won't ask e.g. for a tech in exchange */
-		else if (bTheyGenerous && kPlayer.isHuman() && iTheyReceive > iWeReceive &&
+		else if (bTheyGenerous && bPlayerHuman && iTheyReceive > iWeReceive &&
 			(kWeGive.getLength() <= 0 ||
 			!CvDeal::isAnnual(kWeGive.head()->m_data.m_eItemType)))
 		{
@@ -10974,7 +10979,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 			bool bEnoughGold = false;
 			int iGoldData = AI_tradeValToGold(iTheyReceive - iWeReceive, bTheyGenerous,
 					iGoldAvailable, &bEnoughGold);
-			if (!bEnoughGold && bTheyGenerous && kPlayer.isHuman())
+			if (!bEnoughGold && bTheyGenerous && bPlayerHuman)
 				bAddFinalItem = true;
 			else if (iGoldData > 0) // </advc>
 			{
@@ -10985,7 +10990,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 			}
 		}
 		// <advc.001> See above at if(pGoldNode)...else
-		else if (bTheyGenerous && kPlayer.isHuman() && iTheyReceive > iWeReceive &&
+		else if (bTheyGenerous && bPlayerHuman && iTheyReceive > iWeReceive &&
 			(kWeGive.getLength() <= 0 ||
 			CvDeal::isAnnual(kWeGive.head()->m_data.m_eItemType)))
 		{
@@ -11029,7 +11034,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 		So we can be sure will favour us. */
 	if (bAddFinalItem && final_item.first.m_eItemType != NO_TRADE_ITEM)
 	{
-		FAssert(iTheyReceive > iWeReceive && kPlayer.isHuman());
+		FAssert(iTheyReceive > iWeReceive && bPlayerHuman);
 		kWeWant.insertAtEnd(final_item.first);
 		iWeReceive += final_item.second;
 		FAssert(iWeReceive >= iTheyReceive);
@@ -12729,7 +12734,10 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
 	CvPlayerAI const& kPlayer = GET_PLAYER(eToPlayer); // advc
 	FAssertMsg(eToPlayer != getID(), "shouldn't call this function on ourselves");
 
-	if (isHuman() && kPlayer.isHuman())
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	const bool bPlayerHuman = kPlayer.isHuman();
+
+	if (isHuman() && bPlayerHuman)
 		return NO_DENIAL;
 
 	/*  <advc.036> No wheeling and dealing, not even when it involves
@@ -12758,7 +12766,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
 	}
 	//if (GET_PLAYER(ePlayer).getTeam() == getTeam())
 	// advc.155: Commented out
-	/*if (TEAMID(ePlayer) == getTeam() && kPlayer.isHuman()) // K-Mod
+	/*if (TEAMID(ePlayer) == getTeam() && bPlayerHuman) // K-Mod
 		return NO_DENIAL;*/
 	/*	K-Mod (The above case should be tested for humans trying to give stuff
 		to AI teammates - otherwise the human won't know if the AI
@@ -12885,7 +12893,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
 	if (iChange < 0)
 		return NO_DENIAL; // </advc.133>
 	// <advc.036>
-	if(!kPlayer.isHuman())
+	if(!bPlayerHuman)
 	{
 		/*  Allow human to import resources that they probably don't need,
 			but make sure that the AI doesn't. */
@@ -12907,12 +12915,12 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
 	// <advc.037>
 	if(bVassal)
 	{
-		if(iValueForUs >= 2 * (kPlayer.isHuman() ? iTradeValThresh : iValueForThem))
+		if(iValueForUs >= 2 * (bPlayerHuman ? iTradeValThresh : iValueForThem))
 			return DENIAL_NO_GAIN;
 		return NO_DENIAL;
 	} // </advc.037>
 	// Replacing the if-0'd clause further up
-	if (kPlayer.isHuman())
+	if (bPlayerHuman)
 	{
 		if (iAvailThem + iChange <= 1 ? /*  Don't presume value
 			for human unless human only needs the resource for a corp */
@@ -21661,7 +21669,11 @@ void CvPlayerAI::AI_doDiplo()
 			// advc: Some refactoring in the long body of this loop.
 			PlayerTypes ePlayer = (PlayerTypes)aiContacts[iContact]; // advc.024
 			CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-			if (!kPlayer.isAlive() || kPlayer.isHuman() != (iPass == 1) ||
+
+			// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+			const bool bPlayerHuman = kPlayer.isHuman();
+
+			if (!kPlayer.isAlive() || bPlayerHuman != (iPass == 1) ||
 				ePlayer == getID() ||
 				kPlayer.getNumCities() <= 0) // advc.701
 			{
@@ -21669,7 +21681,7 @@ void CvPlayerAI::AI_doDiplo()
 			}
 			/*  <advc.706> Don't want player to receive diplo msgs on the
 				first turn of a chapter. */
-			if (kPlayer.isHuman() && kGame.isOption(GAMEOPTION_RISE_FALL) &&
+			if (bPlayerHuman && kGame.isOption(GAMEOPTION_RISE_FALL) &&
 				kGame.getRiseFall().isBlockPopups())
 			{
 				continue;
@@ -21681,16 +21693,16 @@ void CvPlayerAI::AI_doDiplo()
 
 			/*	advc.ctr: Moved up and abContacted check restored
 				(had been commented out since Vanilla Civ 4) */
-			if ((!kPlayer.isHuman() || !abContacted[kPlayer.getTeam()]) &&
+			if ((!bPlayerHuman || !abContacted[kPlayer.getTeam()]) &&
 				// <advc.ctr> Had to copy some checks. Teammates no longer excluded.
 				!kOurTeam.isHuman() &&
-				(kPlayer.isHuman() || !GET_TEAM(kPlayer.getTeam()).isHuman()) &&
+				(bPlayerHuman || !GET_TEAM(kPlayer.getTeam()).isHuman()) &&
 				!kOurTeam.isAtWar(kPlayer.getTeam()) &&
 				(!kOurTeam.isAVassal() || getMasterTeam() == kPlayer.getMasterTeam()) &&
 				// </advc.ctr>
 				canPossiblyTradeItem(ePlayer, TRADE_CITIES)) // advc.opt
 			{	// <advc> Moved into new function
-				if (AI_proposeCityTrade(ePlayer) && kPlayer.isHuman())
+				if (AI_proposeCityTrade(ePlayer) && bPlayerHuman)
 					abContacted[kPlayer.getTeam()] = true; // </advc>
 			}
 
@@ -21730,7 +21742,7 @@ void CvPlayerAI::AI_doDiplo()
 					weGive.clear();
 					theyGive.clear();
 					weGive.insertAtEnd(TradeData(TRADE_RESOURCES, eBestGiveBonus));
-					if (kPlayer.isHuman())
+					if (bPlayerHuman)
 					{
 						if (!abContacted[kPlayer.getTeam()])
 						{
@@ -21760,7 +21772,7 @@ void CvPlayerAI::AI_doDiplo()
 					peace vassals. The longer they stay with us, the more we trust them. */
 				int iTheirTechScore = 10 * kPlayer.getTechScore();
 				int iOurTechScore = getTechScore() *
-						(kPlayer.isHuman() ? 7 : 9); // K-Mod
+						(bPlayerHuman ? 7 : 9); // K-Mod
 				scaled rTechScoreRatio(iTheirTechScore, std::max(iOurTechScore, 1));
 				scaled rGiftProb = 1 - rTechScoreRatio;
 				if (GET_TEAM(ePlayer).isCapitulated())
@@ -21801,7 +21813,7 @@ void CvPlayerAI::AI_doDiplo()
 					theyGive.clear();
 					weGive.insertAtEnd(TradeData(TRADE_TECHNOLOGIES, eBestGiveTech));
 
-					if (kPlayer.isHuman())
+					if (bPlayerHuman)
 					{
 						if (!abContacted[kPlayer.getTeam()])
 						{
@@ -21818,7 +21830,7 @@ void CvPlayerAI::AI_doDiplo()
 			}
 
 			if (kPlayer.getTeam() == getTeam() || kOurTeam.isHuman() ||
-				(!kPlayer.isHuman() && GET_TEAM(ePlayer).isHuman()) ||
+				(!bPlayerHuman && GET_TEAM(ePlayer).isHuman()) ||
 				kOurTeam.isAtWar(kPlayer.getTeam()))
 			{
 				continue;
@@ -21850,7 +21862,7 @@ void CvPlayerAI::AI_doDiplo()
 					theyGive.clear();
 					weGive.clear();
 					theyGive.insertAtEnd(TradeData(TRADE_RESOURCES, eBestGiveBonus));
-					if (kPlayer.isHuman())
+					if (bPlayerHuman)
 					{
 						if (!abContacted[kPlayer.getTeam()])
 						{
@@ -21884,7 +21896,7 @@ void CvPlayerAI::AI_doDiplo()
 						weGive.insertAtEnd(item);
 						theyGive.insertAtEnd(item);
 						bOffered = true;
-						if (kPlayer.isHuman())
+						if (bPlayerHuman)
 						{
 							if (!abContacted[kPlayer.getTeam()])
 							{
@@ -21922,7 +21934,7 @@ void CvPlayerAI::AI_doDiplo()
 						weGive.clear();
 						theyGive.clear();
 						weGive.insertAtEnd(item);
-						if (kPlayer.isHuman())
+						if (bPlayerHuman)
 						{
 							if (!abContacted[kPlayer.getTeam()])
 							{
@@ -21945,7 +21957,7 @@ void CvPlayerAI::AI_doDiplo()
 				}
 			}
 
-			if (kPlayer.isHuman() && kOurTeam.getLeaderID() == getID() &&
+			if (bPlayerHuman && kOurTeam.getLeaderID() == getID() &&
 				!kOurTeam.isVassal(kPlayer.getTeam()))
 			{
 				if (!abContacted[kPlayer.getTeam()] &&
@@ -21960,7 +21972,7 @@ void CvPlayerAI::AI_doDiplo()
 				}
 			}
 
-			if (kPlayer.isHuman() && (kOurTeam.getLeaderID() == getID()))
+			if (bPlayerHuman && (kOurTeam.getLeaderID() == getID()))
 			{
 				if(!abContacted[kPlayer.getTeam()])
 				{	/*  advc.130m: ContactRand check moved into proposeJointWar;
@@ -21969,7 +21981,7 @@ void CvPlayerAI::AI_doDiplo()
 				}
 			}
 
-			if (kPlayer.isHuman() && kOurTeam.getLeaderID() == getID() &&
+			if (bPlayerHuman && kOurTeam.getLeaderID() == getID() &&
 				!kOurTeam.isVassal(kPlayer.getTeam()))
 			{
 				if (AI_contactRoll(CONTACT_STOP_TRADING))
@@ -21980,7 +21992,7 @@ void CvPlayerAI::AI_doDiplo()
 				}
 			}
 			// <advc.130z> Do this for non-humans too
-			if (/*kPlayer.isHuman() &&*/ kOurTeam.getLeaderID() == getID() &&
+			if (/*bPlayerHuman &&*/ kOurTeam.getLeaderID() == getID() &&
 				// Vassal-master handled above
 				!GET_TEAM(ePlayer).isAVassal() && !isAVassal() &&
 				kOurTeam.getID() != kPlayer.getTeam() &&
@@ -22046,7 +22058,7 @@ void CvPlayerAI::AI_doDiplo()
 								{
 									weGive.clear();
 									weGive.insertAtEnd(TradeData(TRADE_TECHNOLOGIES, eBestGiveTech));
-									if (kPlayer.isHuman()) // advc.130z
+									if (bPlayerHuman) // advc.130z
 									{
 										if (!abContacted[kPlayer.getTeam()])
 										{
@@ -22070,7 +22082,7 @@ void CvPlayerAI::AI_doDiplo()
 			}
 			/*	advc.130z: Same condition as in BtS, but no longer applied to
 				to the part above. */
-			if (kPlayer.isHuman() && kOurTeam.getLeaderID() == getID())
+			if (bPlayerHuman && kOurTeam.getLeaderID() == getID())
 			{
 				if (!abContacted[kPlayer.getTeam()] &&
 					// advc.130v:
@@ -22138,7 +22150,7 @@ void CvPlayerAI::AI_doDiplo()
 						theyGive.clear();
 						weGive.insertAtEnd(item);
 						theyGive.insertAtEnd(item);
-						if (kPlayer.isHuman() && !abContacted[kPlayer.getTeam()])
+						if (bPlayerHuman && !abContacted[kPlayer.getTeam()])
 						{
 							AI_changeContactTimer(ePlayer, CONTACT_OPEN_BORDERS,
 									AI_getContactDelay(CONTACT_OPEN_BORDERS));
@@ -22163,7 +22175,7 @@ void CvPlayerAI::AI_doDiplo()
 					{
 						int const iDPs = kOurTeam.getDefensivePactCount();
 						if (AI_isDoStrategy(AI_STRATEGY_ALERT2) &&
-							!kPlayer.isHuman()) // advc
+							!bPlayerHuman) // advc
 						{
 							rContactProbMult = std::max(2, 10 - 2 * iDPs);
 						}  // <advc> Small adjustment even for Alert1 and human
@@ -22180,7 +22192,7 @@ void CvPlayerAI::AI_doDiplo()
 							theyGive.clear();
 							weGive.insertAtEnd(item);
 							theyGive.insertAtEnd(item);
-							if (kPlayer.isHuman())
+							if (bPlayerHuman)
 							{
 								if (!abContacted[kPlayer.getTeam()])
 								{
@@ -22201,7 +22213,7 @@ void CvPlayerAI::AI_doDiplo()
 				}
 			}
 
-			if (!kPlayer.isHuman() || kOurTeam.getLeaderID() == getID())
+			if (!bPlayerHuman || kOurTeam.getLeaderID() == getID())
 			{
 				if (AI_getContactTimer(ePlayer, CONTACT_TRADE_TECH) == 0)
 				{
@@ -22263,7 +22275,7 @@ void CvPlayerAI::AI_doDiplo()
 						// (3) Sibling vassals of the same master: vassal ↔ vassal
 						// Notes:
 						// 	- This only triggers when both teams are vassals of the same master and the “optimize” bool is on.
-						// 	- It also works for human–AI sibling vassals, since this is just a contact multiplier; the outer (!kPlayer.isHuman() || kOurTeam.getLeaderID() == getID()) gate is unchanged, so humans only get approached by the AI team leader as before.
+						// 	- It also works for human–AI sibling vassals, since this is just a contact multiplier; the outer (!bPlayerHuman || kOurTeam.getLeaderID() == getID()) gate is unchanged, so humans only get approached by the AI team leader as before.
 						// 	- No stacking: each pair hits at most one of (master→vassal, vassal→master, vassal↔vassal).
 						else if (kOurTeam.isAVassal())
 						{
@@ -22366,7 +22378,7 @@ void CvPlayerAI::AI_doDiplo()
 									// <advc.550f>
 									int iProgress = kOurTeam.getResearchProgress(eLoopTech);
 									if (iProgress > iBestProgress &&
-										!kPlayer.isHuman()) // This is only for inter-AI deals
+										!bPlayerHuman) // This is only for inter-AI deals
 									{
 										iBestProgress = iProgress;
 										eBestProgressTech = eLoopTech;
@@ -22539,7 +22551,7 @@ void CvPlayerAI::AI_doDiplo()
 									kPlayer.AI_tradeAcceptabilityThreshold(getID()) * iWeReceive);
 							if (!bDeal &&
 								// <advc.550b>
-								(!kPlayer.isHuman() ||
+								(!bPlayerHuman ||
 								2 * iTheyReceive > iWeReceive || // else not likely to lead to an attractive offer
 								SyncRandSuccess100(36))) // </advc.550b>
 							{	// advc.opt: Pushed this down into CvPlayer::buildTradeTable and CvPlayerAI::AI_counterPropose
@@ -22564,7 +22576,7 @@ void CvPlayerAI::AI_doDiplo()
 							if (bDeal)
 							{
 							// K-Mod end
-								if (kPlayer.isHuman())
+								if (bPlayerHuman)
 								{
 									if (!abContacted[kPlayer.getTeam()])
 									{
@@ -22612,7 +22624,7 @@ void CvPlayerAI::AI_doDiplo()
 			}
 			/*  <advc.133> Moved the cheap abContacted check up, and the rest
 				of the resource trade code into a new function. */
-			if ((!abContacted[kPlayer.getTeam()] || !kPlayer.isHuman()) &&
+			if ((!abContacted[kPlayer.getTeam()] || !bPlayerHuman) &&
 				AI_contactRoll(CONTACT_TRADE_BONUS))
 			{
 				abContacted[kPlayer.getTeam()] = AI_proposeResourceTrade(ePlayer);
@@ -22627,7 +22639,7 @@ void CvPlayerAI::AI_doDiplo()
 					{	// <advc.136b>
 						int const iTheyReceive = GET_TEAM(ePlayer).AI_mapTradeVal(getTeam());
 						// Apply threshold also to AI b/c map trades slow down AI turns
-						if (//!kPlayer.isHuman() ||
+						if (//!bPlayerHuman ||
 							(kOurTeam.AI_mapTradeVal(kPlayer.getTeam()) >= iTheyReceive &&
 							iTheyReceive > GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER)))
 							// <advc.136b>
@@ -22639,7 +22651,7 @@ void CvPlayerAI::AI_doDiplo()
 							setTradeItem(&item, TRADE_MAPS);
 							theyGive.insertAtEnd(item);
 
-							if (kPlayer.isHuman())
+							if (bPlayerHuman)
 							{
 								if (!abContacted[kPlayer.getTeam()])
 								{
@@ -22663,7 +22675,7 @@ void CvPlayerAI::AI_doDiplo()
 			/*  advc.001: The only trade left is WarTrade. The AI doesn't offer
 				war trades to humans. The BtS code kills such trades through
 				canTradeItem, so it's not a real issue; just pointless. */
-			if (!kPlayer.isHuman()/* && !abContacted[kPlayer.getTeam()]*/ &&
+			if (!bPlayerHuman/* && !abContacted[kPlayer.getTeam()]*/ &&
 				/*  advc.130v: Capitulated vassals certainly shouldn't hire
 					war allies. Peace vassals would be OK if it weren't for
 					advc.146 which implements a peace treaty between the war allies;
