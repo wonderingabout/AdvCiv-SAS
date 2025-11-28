@@ -1032,23 +1032,43 @@
 	<!-- custom: weaker anyways etc. -->
 	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-
 	<!-- Consider tech "key military" if its FLAVOR_MILITARY is at least this. -->
 	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes anyways etc -->
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
-
 	<!-- When in danger, scale the total value of such techs by this percentage. -->
 	<!-- custom: e.g. 130 means tech value is increased by 30% anyways etc. -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT</DefineName>
+		<DefineName>SAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
+
+
+
+	<!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal anyways etc. -->
+	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
+	<!-- Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
+		- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay” more total value on our side.
+		- When someone else is getting such a tech from us, they’ll see it as more precious as well (since their AI_techTradeVal gets the same logic when they are in danger).
+	This is symmetric and “honest”: no hidden cheat, just a consistent “this is life or death, this tech is worth a lot to us” multiplier. -->
+    <!-- SAS techTradePowerDanger: bias AI tech trade valuation toward key military techs when clearly weaker. -->
+    <!-- Enable/disable the trade-stage danger bias. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+    <Define>
+        <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
+        <iDefineIntVal>1</iDefineIntVal>
+    </Define>
+    <!-- When in danger, scale the trade value of such techs by this percentage. -->
+    <!-- e.g. 130 = +30%, 150 = +50%. -->
+    <Define>
+        <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
+        <iDefineIntVal>150</iDefineIntVal>
+    </Define>
 
 
 

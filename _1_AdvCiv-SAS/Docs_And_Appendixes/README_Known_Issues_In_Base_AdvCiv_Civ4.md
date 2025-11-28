@@ -3036,7 +3036,7 @@ Note: does not apply if between members of a master-vassal(s) locus.
 
 The effect seems extremely positive and helpful to AI strength, although this is just one autoplay before/after sample and there could be noise, but what seemed to happen is that unlike before the change where Ewuare quickly took a lead and became unstoppable and snowballed to win easily at turn 288, after this change it seems now that anytime a player would take a military or score lead, somehow this score started to shrink and others caught up. It also seemed that weaker rivals were closer at a glance, at least early on but anyways etc. Ewuare eventually won but only at turn 419, and even at turn 300s the game was more or less even between a few rivals/blocs and very close.
 
-So this seems to help a lot, although it could just be noise, but it is not a harmless change so implementing it as such anyways etc.
+So this seems to help a lot, although it could just be noise, but it does not seem to be a clearly harmful change so implementing it as such anyways etc.
 
 ## 81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker
 
@@ -3044,6 +3044,6 @@ See some screenshots and files about/related(ing? Anyways etc) to this issue in 
 
 AI seemingly was often too slow or straight up not valuing for research key military techs (with a high enough FLAVOR_MILITARY, see sas defines for details anyways etc.) at all, even when it was weaker and at risk of dying (economy or such techs would be useless to it at best, and at worst they would be researching them for their ennemies when they conquer them (kind of like how AI used to do/be for wonders before our changes i mean if i may say but anyways etc.)).
 
-After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead, and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemignly stronger eventually even though this was shortly game would have otherwise ended on time not long later but anyways etc.)
+After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead (but that he could not sustain after our changes it seems but anyways etc.), and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemignly stronger eventually even though this was shortly game would have otherwise ended on time not long later but anyways etc.).
 
 This seems like a good AI improvement at least based on this autoplay comparison sample, and at least a nice sanity to have for AIs if i'm not mistaken but anyways etc.

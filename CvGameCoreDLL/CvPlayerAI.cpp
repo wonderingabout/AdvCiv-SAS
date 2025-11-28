@@ -6131,8 +6131,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	// End - SAS vassalMasterTechResearch
 
 	// SAS techValuePowerDanger: if we're clearly outgunned, bump key military techs
-	static const bool bSAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE");
-	if (bSAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
+	static const bool bSAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE");
+	if (bSAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
 	{
 		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
 		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
@@ -6144,11 +6144,12 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 
 			if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN)
 			{
-				static const int iSAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT");
-				iSASPercentModifier += (iSAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT - 100);
+				static const int iSAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT");
+				iSASPercentModifier += (iSAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT - 100);
 			}
 		}
 	}
+	// End - SAS techValuePowerDanger
 
 	// <!-- custom: final compute of our sas modifiers once so it is not exponential anyways etc. -->
 	iValue = iValue * iSASPercentModifier / 100;

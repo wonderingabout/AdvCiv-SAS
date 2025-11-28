@@ -2024,6 +2024,50 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
 			too much I think. */
 		if(rDiscountModifier < 1)
 			rValue *= rDiscountModifier;
+
+		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal anyways etc. -->
+		// SAS techTradePowerDanger: bias trade valuation toward key military techs when we're clearly outgunned
+		// Yeah, this is exactly the place I meant: CvTeamAI::AI_techTradeVal is the right hook for “how much do we think this tech is worth in trades”, so it’s the natural spot to add a danger-biased military weighting.
+		// Given what you’ve already done in AI_techValue and how well #81 behaved, I’d mirror that idea here, but in a single, clean block inside AI_techTradeVal, with a separate toggle/knobs for trades.
+		// Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
+		// 	- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay” more total value on our side.
+		// 	- When someone else is getting such a tech from us, they’ll see it as more precious as well (since their AI_techTradeVal gets the same logic when they are in danger).
+		// This is symmetric and “honest”: no hidden cheat, just a consistent “this is life or death, this tech is worth a lot to us” multiplier.
+		//
+		// This has a specific behavioral consequence:
+		// Your danger-based military weighting only applies when:
+		// 	- bIgnoreDiscount == false, and
+		// 	- neither side is the other’s vassal.
+		// That means:
+		// 	- It will not run for vassal <-> master trades.
+		// 	- It will not run in contexts where the caller sets bIgnoreDiscount = true
+		// 	(e.g. special cases that ignore the power/tech discount logic).
+		// If that’s what you want (keep master–vassal trade more “neutral” and only bias valuations in “normal” rival trades), then the placement is fine.
+		// If you want “when I’m in real danger, military tech is worth more no matter who offers it”, including:
+		// 	- from your vassal,
+		// 	- to your master,
+		// 	- in peace deals that might call with bIgnoreDiscount = true,
+		// then I’d move your block outside the if (!bIgnoreDiscount && !isVassal…) guard
+		static const bool bSAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE");
+		if (bSAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE)
+		{
+			const int iEnemyPowerPercent = AI_getEnemyPowerPercent(true);
+			static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
+			const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+
+			if (bEnemyStrong)
+			{
+				static const int iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN");
+
+				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN)
+				{
+					static const int iSAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT");
+					// e.g. 130 => +30% trade value, 150 => +50%, etc.
+					rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT);
+				}
+			}
+		}
+		// End - SAS techTradePowerDanger
 	} // </advc.550a>
 	// <advc.550g>
 	if (!isHuman()) // Don't let the AI gauge the human tech value
