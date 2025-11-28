@@ -386,8 +386,7 @@
 			<iAsset>8</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -543,7 +542,8 @@
 			<iAsset>16</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -702,8 +702,7 @@
 			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1016,7 +1015,8 @@
 			<iAsset>24</iAsset>
 			<iPower>8</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1047,10 +1047,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_DRAMA</PrereqTech>
+				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CHIVALRY_QUOTE</Quote>
 			<Sound>AS2D_TECH_CHIVALRY</Sound>
@@ -1082,8 +1083,7 @@
 			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1613,7 +1613,8 @@
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1774,8 +1775,7 @@
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1992,7 +1992,8 @@
 			<iAsset>8</iAsset>
 			<iPower>4</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -2462,8 +2463,7 @@
 			<iAsset>16</iAsset>
 			<iPower>6</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -2989,8 +2989,7 @@
 			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -5406,7 +5405,8 @@
 			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -5718,8 +5718,7 @@
 			<iAsset>40</iAsset>
 			<iPower>12</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -6014,8 +6013,7 @@
 			<!-- custom: was 8 -->
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
