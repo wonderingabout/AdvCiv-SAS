@@ -12303,7 +12303,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	// It’s simple, robust, and it lines resource prices up with actual empire impact without micromanaging current builds.
 	//
 	// --- Tech-gated building synergy for this bonus (simple & fast) ---
-	static const bool bValueMoreMultiEffectBonuses = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES");
+	static const bool bValueMoreMultiEffectBonuses = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES");
 
 	// <!-- custom: cache once for reuse as i got the idea based on claude sonnet 4.5's review of a related part of this function but anyways etc. -->
     TeamTypes const eOurTeam = getTeam();
@@ -12415,7 +12415,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 
 	// <!-- custom: also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc. anways etc), AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided by chatgpt 5 thanks to my prompts and/or such, check if accurate anyways etc -->
 	// --- 1) Generic AIObjective bump (broad rule) ---
-	static const bool bValueMoreAIObjectiveBonuses = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES");
+	static const bool bValueMoreAIObjectiveBonuses = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES");
 
 	if (bValueMoreAIObjectiveBonuses)
 	{
@@ -12468,7 +12468,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
     }
 
 	// --- 2) Simple substitute multipliers for key strategics (edge rules) ---
-	static const bool bValueMoreIronCopperHorseCamelRelatively = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY");
+	static const bool bValueMoreIronCopperHorseCamelRelatively = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY");
 
 	// GATE THE ENTIRE BLOCK with your cluster check:
 	if (!bBonusTradeInMasterVassalCluster && bValueMoreIronCopperHorseCamelRelatively)
@@ -12516,15 +12516,15 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 
 		int pct = 100;
 
-		static const int MED_ELEPHANT_ANY_PCT                   = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT");
-		static const int MED_COPPER_ANY_PCT                     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT");
+		static const int MED_ELEPHANT_ANY_PCT                   = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT");
+		static const int MED_COPPER_ANY_PCT                     = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT");
 
 		// ===== PRE-MEDIEVAL =====
 		if (bPreMedieval)
 		{
 			// Tunables (percents)
-			static const int PREMED_NO_MOUNT_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT");
-			static const int PREMED_NO_METAL_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT");
+			static const int PREMED_NO_MOUNT_PCT                    = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT");
+			static const int PREMED_NO_METAL_PCT                    = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT");
 
 			if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) &&
 				!bHaveHorse && !bHaveCamel && !bHaveElephants)
@@ -12540,12 +12540,12 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		// ===== MEDIEVAL =====
 		else if (bMedieval)
 		{
-			static const int MED_NO_MOUNT_WITH_METAL_PCT            = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT");
-			static const int MED_NO_MOUNT_NO_METAL_PCT              = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT");
-			static const int MED_NO_METAL_WITH_MOUNT_IRON_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT");
-			static const int MED_NO_METAL_WITH_MOUNT_COPPER_PCT     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT");
-			static const int MED_NO_METAL_NO_MOUNT_IRON_PCT         = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT");
-			static const int MED_NO_METAL_NO_MOUNT_COPPER_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT");
+			static const int MED_NO_MOUNT_WITH_METAL_PCT            = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT");
+			static const int MED_NO_MOUNT_NO_METAL_PCT              = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT");
+			static const int MED_NO_METAL_WITH_MOUNT_IRON_PCT       = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT");
+			static const int MED_NO_METAL_WITH_MOUNT_COPPER_PCT     = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT");
+			static const int MED_NO_METAL_NO_MOUNT_IRON_PCT         = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT");
+			static const int MED_NO_METAL_NO_MOUNT_COPPER_PCT       = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT");
 
 			// If we lack mounts
 			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !bHaveHorse && !bHaveCamel)
@@ -12588,10 +12588,10 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			// - “Lack mounts” bumps only when you already have Iron (since Copper doesn’t unlock your mounted line).
 			// - “Lack Iron” bumps Iron regardless of mounts (so Cannons matter even with zero Horse/Camel).
 			// - Copper remains clamped from Medieval+, as before.
-			static const int REN_NO_MOUNT_WITH_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT");
-			static const int REN_NO_MOUNT_NO_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT");
-			static const int REN_NO_IRON_WITH_MOUNT_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_WITH_MOUNT_IRON_PCT");
-			static const int REN_NO_IRON_NO_MOUNT_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT");
+			static const int REN_NO_MOUNT_WITH_IRON_PCT = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT");
+			static const int REN_NO_MOUNT_NO_IRON_PCT = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT");
+			static const int REN_NO_IRON_WITH_MOUNT_IRON_PCT = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_WITH_MOUNT_IRON_PCT");
+			static const int REN_NO_IRON_NO_MOUNT_IRON_PCT = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT");
 
 			// If we lack mounts, modest push only when IRON present
 			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !bHaveHorse && !bHaveCamel)
@@ -12620,9 +12620,9 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		// ===== INDUSTRIAL+ / MODERN+ =====
 		else if (bIndustrialPlus)
 		{
-			static const int IND_PLUS_CAMEL_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT");
-			static const int IND_HORSE_BASE_PCT                     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT");
-			static const int MOD_PLUS_HORSE_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT");
+			static const int IND_PLUS_CAMEL_ANY_PCT                 = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT");
+			static const int IND_HORSE_BASE_PCT                     = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT");
+			static const int MOD_PLUS_HORSE_ANY_PCT                 = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT");
 
 			// Camel fades after Industrial
 			if (eBonus == B_CAMEL && !bHaveCamel)
@@ -17413,12 +17413,12 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 	// Read once per process (static init); assumes defines exist (non-zero).
 	// If you want defensive fallbacks, replace each with a small getter that
 	// returns a default when GC.getDefineINT(...) == 0.
-	static const int iFOOD   = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE");    // e.g. 300
-	static const int iHAMMER = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE");  // e.g. 200
-	static const int iGOLDY  = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE");    // used for YIELD_COMMERCE baseline (e.g. 100)
+	static const int iFOOD   = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE");    // e.g. 300
+	static const int iHAMMER = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE");  // e.g. 200
+	static const int iGOLDY  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE");    // used for YIELD_COMMERCE baseline (e.g. 100)
 
 	// Culture push multiplier (applied only when we “need culture”)
-	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER");               // e.g. 2
+	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER");               // e.g. 2
 
 	int w = 100;
 	switch (eY)
@@ -17442,13 +17442,13 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 static inline int SAS_SpecCommerceBaseWeight(const CvPlayerAI& kPlayer, CommerceTypes eC, const bool bAnyCityNeedsBFC)
 {
 	// Base per-commerce weights from knobs
-	static const int iSCI   = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE");   // e.g. 300
-	static const int iGOLD  = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE");      // e.g. 300
-	static const int iCULT  = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE");   // e.g. 100
-	static const int iESP   = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE"); // e.g. 200
+	static const int iSCI   = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE");   // e.g. 300
+	static const int iGOLD  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE");      // e.g. 300
+	static const int iCULT  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE");   // e.g. 100
+	static const int iESP   = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE"); // e.g. 200
 
 	// Culture push multiplier (applied only when we “need culture”)
-	static const int iCULT_NEED_MULT = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER");               // e.g. 3
+	static const int iCULT_NEED_MULT = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER");               // e.g. 3
 
 	int w = 100;
 	switch (eC)
@@ -18243,8 +18243,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 			int iTotal = 0;
 			const int D = GC.getPERCENT_ANGER_DIVISOR();
 
-			static const int iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY = GC.getDefineINT("SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY");
-			static const int iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY = GC.getDefineINT("SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY");
+			static const int iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY = GC.getDefineINT("SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY");
+			static const int iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY = GC.getDefineINT("SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY");
 			
 			FOR_EACH_CITYAI(pCity, *this)
 			{
@@ -18262,7 +18262,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 					continue;
 
 				// Weight edge / unhappy cities a bit more
-				const int iPressureScale = (!bCityHappy ? iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY); // tune if desired
+				const int iPressureScale = (!bCityHappy ? iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY); // tune if desired
 
 				// Turn “less unhappy” into a positive score for the AI
 				const int iCityVal = (12 * AI_getHappinessWeight(-iDeltaUnhappy, 1, true)) / 100;
@@ -18583,7 +18583,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	}
 
 	// <!-- custom: following our rework to give commerce yields to specialists as of now in(/to?) civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks i mean but anyways etc to see if it helps, check if accurate anyways etc. -->
-	static const int iSASCommerceToningDownPercent = GC.getDefineINT("SAS_CIVIC_SPECIALIST_COMMERCE_WEIGHT_TO_MULTIPLIER_TONING_DOWN_PERCENT");
+	static const int iSASCommerceToningDownPercent = GC.getDefineINT("SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT");
 	FOR_EACH_ENUM2(Commerce, eCommerce)
 	{
 		int iTempValue = 0;
@@ -18865,7 +18865,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 		if (iAnTurns > 0)
 		{
-			static const int iStep = GC.getDefineINT("SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN"); // e.g. 10
+			static const int iStep = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN"); // e.g. 10
 			// Scale: 100% -> (100 - step*turns)%, clamped to [0..100]
 			int iFactor = std::max(0, 100 - iStep * iAnTurns);
 			iTotal = (iTotal * iFactor) / 100;
@@ -21196,8 +21196,8 @@ void CvPlayerAI::AI_doCivics()
 	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
 	// --- Hysteresis knobs (tunable in XML if you like) ---
-	static const int iSlackMin   = GC.getDefineINT("SAS_DO_CIVICS_SWITCH_MIN_SLACK");        // e.g. 5
-	static const int iSlackPct   = GC.getDefineINT("SAS_DO_CIVICS_SWITCH_SLACK_PERCENT");    // e.g. 10
+	static const int iSlackMin   = GC.getDefineINT("SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK");        // e.g. 5
+	static const int iSlackPct   = GC.getDefineINT("SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT");    // e.g. 10
 
 	int iAnarchyLength = 0;
 	bool bWillSwitch;

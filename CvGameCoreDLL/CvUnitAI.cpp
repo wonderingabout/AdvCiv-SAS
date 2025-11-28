@@ -10545,17 +10545,17 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	// <!-- custom: cache once since we reuse it as is done in other parts of this as of now .cpp file if i'm not mistaken but anyways etc -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	static const bool bSAS_PROMOTION_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_PROMOTION_VALUE_OPTIMIZE");
+	static const bool bSAS_AI_PROMOTION_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_PROMOTION_VALUE_OPTIMIZE");
 
-	if (bSAS_PROMOTION_VALUE_OPTIMIZE && (ePromotion != NO_PROMOTION))
+	if (bSAS_AI_PROMOTION_VALUE_OPTIMIZE && (ePromotion != NO_PROMOTION))
 	{
 		// <!-- custom: similarly to what we did for AI specialists in CvCityAI::AI_jobChangeValue, also do not allow some promotions for AI players, as these promotions are either too weak most times (e.g. woodsman promotions ineffective in cities etc, even with the buff in our mod anyways etc) or/and too situational to be reliably good for AI players, hopefully helps AI better pick promotions without killing versatility. Better promotion choice is especially important in the early game where any small advantage may give an edge for successfuly invasion or defense, but nice if kept during the whole game as well to do good promotion choices that are in most cases effective for AI players but anyways etc. Done with the help of chatgpt 5 and that i adjusted too and such if i may say but anyways etc, check if accurate, anyways etc -->
 		// <!-- custom: note: as of now this mostly, except for some strict unitais where it seems beneficial to do so, doesn't incentivize anything, only forbids some promotions, otherwise mostly (minus these exceptions) keeping AI choices the same ; hopefully this leads to saner and more effective AI promotion choices, while patching the core issues of flawed to sometimes very flawed AI promotion choices while keeping at least as of now otherwise most of the base advciv behaviour that we attempt to enhance with these rules but anyways etc -->
 		// === HARD BLOCK: promos that can’t possibly help this unit right now ===
 		// decisively low, far from overflow/underflow
-		static const int AI_PROMOTION_FORBIDDEN = GC.getDefineINT("SAS_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN");
+		static const int AI_PROMOTION_FORBIDDEN = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN");
 		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
-		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = GC.getDefineINT("SAS_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST");
+		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST");
 
 		static const PromotionTypes ePromotionAmphibious = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_AMPHIBIOUS", true);
 
@@ -17260,15 +17260,15 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 	// Only require safety after the first city
 	bool const bSafe = (getGroup()->canDefend() ||
 	 		getInvisibleType() != NO_INVISIBLE); // advc.057b
-	static const bool bSAS_FOUND_OPTIMIZE = GC.getDefineBOOL("SAS_FOUND_OPTIMIZE");
-	static const int iSAS_FOUND_BSAFE_IGNORE_TURN_NORMAL = GC.getDefineINT("SAS_FOUND_BSAFE_IGNORE_TURN_NORMAL");
+	static const bool bSAS_AI_FOUND_OPTIMIZE = GC.getDefineBOOL("SAS_AI_FOUND_OPTIMIZE");
+	static const int iSAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL = GC.getDefineINT("SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL");
 	const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
-	const int iEarlyCutoff = (iSAS_FOUND_BSAFE_IGNORE_TURN_NORMAL * iTrainPct) / 100; // e.g. ~T80 @ Normal
+	const int iEarlyCutoff = (iSAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL * iTrainPct) / 100; // e.g. ~T80 @ Normal
 	const int iCurrentTurn = kGame.getGameTurn();
 	const bool bEarly = (iCurrentTurn <= iEarlyCutoff); // Allow risky settling early
-	static const int iSAS_FOUND_BSAFE_IGNORE_NUM_CITIES = GC.getDefineINT("SAS_FOUND_BSAFE_IGNORE_NUM_CITIES");
-	const bool bNotEnoughCities = kOwner.getNumCities() <= iSAS_FOUND_BSAFE_IGNORE_NUM_CITIES; // Always allow 2nd city
-	const bool bSafeOverride = (bSAS_FOUND_OPTIMIZE && (bEarly || bNotEnoughCities));
+	static const int iSAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES = GC.getDefineINT("SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES");
+	const bool bNotEnoughCities = kOwner.getNumCities() <= iSAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES; // Always allow 2nd city
+	const bool bSafeOverride = (bSAS_AI_FOUND_OPTIMIZE && (bEarly || bNotEnoughCities));
 	const bool bGoSettleAnyway = (bSafe || bSafeOverride);
 	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
 	{

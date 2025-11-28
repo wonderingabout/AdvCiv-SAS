@@ -3,7 +3,7 @@
 <!-- custom: note: using the prefix is a bit cringe xd if i may say but anyways etc but at same time cool and does some publicity if i may say but anyways etc, but most importantly it gives us freedom while being compact but anyways etc to name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd if i may say but anyways etc but now think it makes sense in this case i mean but anyways etc), check if accurate, anyways etc -->
 <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
 <!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure anyways etc -->
-<!-- custom: note 4: almost all these knobs apply only to AI players (some apply to human players), so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate anyways etc). -->
+<!-- custom: note 4: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate anyways etc). -->
 <!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while anyways etc -->
 
 
@@ -442,17 +442,17 @@
 	<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate anyways etc; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details anyways etc -->
 	<!-- custom: 1 to enable (recommended), 0 to disable -->
 	<Define>
-		<DefineName>SAS_FOUND_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_FOUND_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: e.g. turn 80 at normal game speed is turn 80 * 1.5 = 120 at gamespeed epic, etc. -->
 	<Define>
-		<DefineName>SAS_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
+		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
 	<!-- custom: e.g. ignore safety restrictions if we have this number of cities (idea is to settle them fast when it is early and safe enough to do so to not fall behind as we overly do anyways etc) -->
 	<Define>
-		<DefineName>SAS_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
+		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -491,56 +491,56 @@
 
 	<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_buildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too but anyways etc. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well if i may say i mean but anyways etc), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not but anyways etc) -->
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean if i may say but anyways etc -->
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: if somehow a building is a wonder but not a world wonder nor a national wonder, enable/disable this to specifically enable advciv-sas optimizations for this type of building if it ever exists (i don't think it does, but i don't know too much to tell, so added the knob to be safe and for exhaustiveness i mean if i may say but anyways etc) -->
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we would favour building maintenance per turn reducer building(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the courthouse class building (or civ-specific variants) in this city -->
 	<!-- // < 6 gpt => not worth it yet -->
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS</DefineName>
 		<iDefineIntVal>600</iDefineIntVal>
 	</Define>
 	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we may favour building maintenance per turn reducer wonder(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the forbidden palace class building (or civ-specific variants) in this city -->
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_GATE_M100_WONDERS</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS</DefineName>
 		<iDefineIntVal>600</iDefineIntVal>
 	</Define>
 	<!-- custom: e.g. as of now in advciv-sas, "stable" class buildings (including civ-specific variants) to give exp to mounted untis such as horse knights, chariots, camel cuirassiers, war elephants, etc.). Adjust as per your xml. -->
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_STABLE</DefineTextVal>
 	</Define>
 	<!-- custom: e.g. as of now in advciv-sas is as such; adjust as per your xml. -->
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_PALACE</DefineTextVal>
 	</Define>
 	<!-- custom: max number of turns (at normal, auto adjusted to other game speeds) we tolerate to not reject building a wonder. This is adjusted by various things (handicap, etc), but it grossly means that for example if value is 20 (which is computed as 20 * 150 / 100 = 30 turns in gamespeed_epic for example anyways etc), if a wonder takes 21 or more turns at normal (or 31 at gamespeed_epic for example anyways etc) to build, we will reject it and not build it anyways etc, as it is too unlikely we'd finish it in time or fast enough or would gain enough from building it. -->
 	<!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it anyways etc -->
 	<Define>
-		<DefineName>SAS_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
@@ -557,12 +557,12 @@
 
 	<!-- custom: note: the can_scrap logic has been written with the choose_unit logic in mind (don't over or under produce this or that unit, don't scrap needlessly this or that unit in more or less same ratios or conditions minus some adjustments if any), so it is strongly recommended to have the same value for the as of now can_scrap_optimize and choose_unit (and do_turn fallback unit code logic as well since it changes production of units as well): i.e. enable all or disable, but weird results may happen such as infinite loop or such if one is enabled and not the other or vice versa, check if accurate as well if needed as this is just a guess of mine but if i remember it correctly it is indeed as such, but check to be sure if needed, anyways etc -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions anyways etc). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead anyways etc). Note: if i'm not mistaken the code we added in this function takes into account units in queue, not just existing ones, anyways etc. Note: contrary to what the name indicates, excess is not just about quantity, but also war circumstances, for example if we are at war and enemy is strong, it is very tight if not rejecting all new sieges, or if in danger or such other conditions (not added all here as bit tedious but hopefully the below help enough control siege production for this function, with the hope that other functions don't interfere too much with our logic here (it is quite centralized so effective, but sometimes maybe it would not although it seemed very effective ingame anyways etc)). -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: we need more siege units early if we don't have key strategic bonuses (as of now defined as no iron nor copper nor horse nor camel nor horse nor elephants anyways etc), so relax threshold in these cases but anyways etc. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather but anyways etc -->
@@ -580,17 +580,17 @@
 	</Define>
 	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units. For example if we have computed that max allowed for our empire without excess is 1 trbuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example anyways etc. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough tresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense if i'm not mistaken especially for AI but anyways etc)) -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaisance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds anyways etc), etc.) -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: always useful to have some minimal extra threshold, just don't overdo it anyways etc -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 
@@ -610,23 +610,23 @@
 	</Define>
 	<!-- custom: this is the general toggle, for specific ones, look below anyways etc. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit anyways etc. -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases anyways etc) -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: if we reject unit the other flags of attempt are useless i.e. unused if i may say but anyways etc: we only attempt them if this excess defender unit order (to produce this unit anyways etc) is not rejected by the above reject flag. -->
 	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit anyways etc etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure anyways etc) -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: if no good candidate, attempt to hijack the unitai rather, so for example instead of having a longbowman with unitai_city_defense, we'd have a longbowman with unitai_counter or whatever else it supports that is less defensive, in the hope these roaming units would help attack someone especially if we have many of them, and hopefulyl capture a city, lose some units so our economy improves, rather than waiting to die with too many longbows (or if not too many buildings or whatever else AI would otherwise do anyways etc), used to help a lot tested ingame, but it seems not effective as of now (not sure if i refactored it wrong or something else might(?) have changed or not), or maybe it's an edge case i saw, i recommend keeping it enabled -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -842,7 +842,7 @@
 
 	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health, moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values anyways etc), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such but anyways etc). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled anyways etc. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable. See custom main changes guide for more details or code anyways etc. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -856,7 +856,7 @@
 	-->
 	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example if i'm not mistaken anyways etc). -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
@@ -871,7 +871,7 @@
 	// - 2) Simple substitute multipliers for key strategics (edge rules) -
 	-->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: here is the logic i drafted (updated bit but refer to below code comments per define rather for clarity with updated values there as well but anyways etc) to chatgpt 5 after some back and forth and consideration in this case i mean but anyways etc:
@@ -897,12 +897,12 @@
 	-->
 	<!-- Pre-Medieval: boost mounts if you have NO Horse/Camel/Elephants. 100=off, 150=+50%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<!-- Pre-Medieval: boost metals if you have NO Iron/Copper. 100=off, 150=+50%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 
@@ -910,42 +910,42 @@
 
 	<!-- Medieval: if you LACK mounts but HAVE metals, how much to boost mounts (Knights). 200=+100%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- Medieval: if you LACK mounts and LACK metals, mounts are weaker (Knights blocked). 75=−25%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
 	<!-- Medieval: if you LACK metals but HAVE mounts, how much to boost IRON. 200=+100%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- Medieval: if you LACK metals but HAVE mounts, how much to value COPPER. 75=−25%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
 	<!-- Medieval: if you LACK metals AND LACK mounts, IRON baseline. 100=no change. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- Medieval: if you LACK metals AND LACK mounts, COPPER is low. 50=−50%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- Medieval+: Elephants are basically for buildings only. 50=−50% from Medieval onward. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- Medieval+: Copper loses military relevance. 50=−50% from Medieval onward. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
@@ -954,23 +954,23 @@
 	<!-- custom: note: as of now copper exception (alternative bonus to iron anyways etc) for Holy Roman Empire's new HOLY_ROMAN_HOUFNICE is not handled to simplify and as is bit tedious, may or not do so in the future (ideally would but not guaranteed, i may or i may not but anyways etc) but anyways etc -->
 	<!-- Renaissance: LACK mounts + HAVE IRON → modest mount boost (Cuirassiers path) -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<!-- Renaissance: LACK mounts + LACK IRON → small mount discount -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
 	<!-- Renaissance: LACK IRON + HAVE mounts → push IRON (Cannons + Cuirassiers path) -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_WITH_MOUNT_IRON_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_WITH_MOUNT_IRON_PCT</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- custom: cannons could use iron, if we don't have mounts and not yet muskets, this is a great option, even if we can, not too bad to have as well for our attacks -->
 	<!-- Renaissance: LACK IRON + LACK mounts → still push IRON (Cannons path) -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 
@@ -978,12 +978,12 @@
 
 	<!-- Industrial+: Camel fades (no relevant units). 50=−50%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- Industrial: Horse still matters (Cavalry). 100=no change. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 
@@ -991,7 +991,7 @@
 
 	<!-- Modern+: Horse fades (no relevant units). 50=−50%. -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT</DefineName>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
@@ -1160,12 +1160,12 @@
 	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate anyways etc). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really if i may say i mean but anyways etc; also i mean check if accurate and thanks for help i mean too but anyways etc. -->
 	<!-- custom: as for these new knobs, for this one the higher the value, the more we want to switch to this civic for each of our cities that are unhappy (it may be worth to change to such a civic if city is unhappy and we have some unhappiness in this city that is due to this civic not being adopted). -->
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<!-- custom: The higher the value, the more we want to switch to this civic for each of our cities that are happy (no need to change to such a civic if city is happy). -->
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 
@@ -1173,48 +1173,48 @@
 
 	<!-- custom: how much we value each civic's unlimited specialist based on their yield(s) -->
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- custom: if we need hammers urgently, increase hammer value, e.g. with a multiplier of 2 and hammer value of 200, then hammer value would be 2 * 200 = 400. And since and engineer specialist gives as of now 3 hammers, its total yield value would be 3 * 400 = 1200, which is higher than a scientist that would give 300 beakers * 3 science commerce yield = 900 value. Note: only applies if we need it urgently (enemy strong, etc if any more edge cases added but anyways etc.) -->
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s) -->
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: by how much we multiply culture valuing if we urgently need culture (going for a culture need, bfc, etc.) (the old code had a similar idea it seems although as per its own admittance it was a really bad code to fix i mean which hopefully i mean that we maybe did better now hopefully i mean in a way that is maybe helpful but anyways etc). -->
 	<!-- custom: e.g. if value is 3 and commerce culture value is 100, then when culutre rushing, commerce value would instead be 3 * 100 = 300, which is much higher than base, and since an artist may give for example 4 culture, it would then be valued by 4 * 300 = 1200 which means it would be more valued than other specialists such as an engineer of for example 3 hammer * 200 hammer value which is only 600 or a scientist of for example 3 science * 300 beakers value = 3 * 300 = 900, but which would only apply when culture in culture need though. -->
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- custom: for our new unlimited specialists valuation code, it is great at spreading more evenly civics at various stages of the game vs only civic_caste_system before, but we switch a bit too ofte. Yet, it is not as attractive to change civics if we'd have anarchy, so add some devaluation depending on anarchy length. E.g. if civic value is 1000 (random number as an example anyways etc) and this knob's value is 10(%), and we have 2 anarchy turns to change civic, then the new civic value would be ((100 - (2 * 10)) * 1000) / 100 = (80 * 1000) / 100 = 800. But if anarchy length is 0 turns, then value remains 1000 and as attractive, as ((100 - (0 * 10)) * 1000) / 100 = 100 * 1000 / 100 = 1000 (100% value is same). In short, for example -10% civic value loss per turn of anarchy. -->
 	<Define>
-		<DefineName>SAS_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 
@@ -1224,7 +1224,7 @@
 	<!-- custom: use a toned down version for the multiplier, as advised and explained to em thanks by chatgpt 5 but anyways etc. In autoplay, the above as of now iSASCommerceWeight fixes to overpick of civic_heridetary_rule in favour of civic_representation, but representation is now overpicked. So toning down the weight with a percentage of this value customizable in defines as well anyways etc -->
 	<!-- custom: e.g. if value is 50 and weight of commerce beakers is 300, then the beakers commerce multiplier will be (300 * 50) / 100 = 150 (i.e. 50% of the weight), which is a toned down version of directly using the 300 weight as a multiplier (rather than dividing it by 100 since a weight is a percentage), so aim to fix as we did the issue of civic_representation being undervalued, while also not falling on the opposite issue of civic_representation now being overpicked even late into the game, by using these toned down multipliers derived from the sas commerce weights. Adjust as you see fit anyways etc -->
 	<Define>
-		<DefineName>SAS_CIVIC_SPECIALIST_COMMERCE_WEIGHT_TO_MULTIPLIER_TONING_DOWN_PERCENT</DefineName>
+		<DefineName>SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT</DefineName>
 		<iDefineIntVal>45</iDefineIntVal>
 	</Define>
 
@@ -1239,8 +1239,8 @@
 	new civic is clearly better than the current one by a small "extra lead" called slack.
 
 	How slack is calculated:
-	- slack = max( SAS_DO_CIVICS_SWITCH_MIN_SLACK ,
-				round( abs(current_value) * SAS_DO_CIVICS_SWITCH_SLACK_PERCENT / 100 ) )
+	- slack = max( SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK ,
+				round( abs(current_value) * SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT / 100 ) )
 
 	Examples:
 	- Small numbers (early game): current_value=30, MIN=5, PCT=5%
@@ -1255,13 +1255,13 @@
 	-->
 	<!-- Absolute floor in value-points; prevents tiny swings from causing a switch when current_value is small. Raise to reduce early-game oscillation; lower to make AI more eager. -->
 	<Define>
-		<DefineName>SAS_DO_CIVICS_SWITCH_MIN_SLACK</DefineName>
+		<DefineName>SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- Percent of abs(current_value) added as extra lead required. Keeps late-game switches meaningful when values are large. Raise to add stickiness; lower for responsiveness. -->
 	<!-- custom: note: for some reason as of now sometimes bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such anyways etc. -->
 	<Define>
-		<DefineName>SAS_DO_CIVICS_SWITCH_SLACK_PERCENT</DefineName>
+		<DefineName>SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
@@ -1269,13 +1269,13 @@
 
 	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) anyways etc -->
 	<Define>
-		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: low enough value so that the citizen specialist is ideally never chosen in this function anyways etc. -->
 	<!-- decisively low, far from overflow/underflow -->
 	<Define>
-		<DefineName>SAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN</DefineName>
+		<DefineName>SAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN</DefineName>
 		<iDefineIntVal>-100000</iDefineIntVal>
 	</Define>
 
@@ -1290,7 +1290,7 @@
 		Manual assignment still allowed. Off by default. -->
 	<!-- // Key points:
 		// 	- It only runs when bHuman and new_job.first (i.e. we’re hiring or switching to a specialist).
-		// 	- It uses the same iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become “last resort” for the governor, same as Citizen.
+		// 	- It uses the same iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become “last resort” for the governor, same as Citizen.
 		// 	- It doesn’t touch AI behavior at all (all your AI growth rules further down are still under !bHuman).
 		// Manual specialist assignment via the UI is still outside this path (that goes through changeSpecialistCount directly), so players can always override the governor. -->		
 	<Define>
@@ -1419,17 +1419,17 @@
 
 	<!-- custom: enable (1, recommended) / disable (0) to toggle advciv-sas smart unit promotions optimization (e.g. as of now pick city raider for UNITAI_ATTACK_CITY units first if not in danger or enemy is strong, or don't pick medic or woodsman promotions (inefficient), etc.)-->
 	<Define>
-		<DefineName>SAS_PROMOTION_VALUE_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_PROMOTION_VALUE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generalyl our code seems as of now quite/very effective but check to be sure anyways etc) -->
 	<Define>
-		<DefineName>SAS_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN</DefineName>
+		<DefineName>SAS_AI_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN</DefineName>
 		<iDefineIntVal>-100000</iDefineIntVal>
 	</Define>
 	<!-- custom: high value so a promotion is ideally always picked first (same anyways etc) -->
 	<Define>
-		<DefineName>SAS_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST</DefineName>
+		<DefineName>SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST</DefineName>
 		<iDefineIntVal>100000</iDefineIntVal>
 	</Define>
 

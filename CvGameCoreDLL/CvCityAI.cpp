@@ -4693,9 +4693,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	const bool bMinor = kOwner.isMinorCiv();
 	const bool bBarbarian = kOwner.isBarbarian();
 
-	static const bool bSAS_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_BUILDING_VALUE_OPTIMIZE");
+	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
 
-	if (!bBarbarian && !bMinor && bSAS_BUILDING_VALUE_OPTIMIZE)
+	if (!bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
 	{
 		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
@@ -4765,16 +4765,16 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		// <!-- custom: also account for the base production modifiers (e.g. that the forge or factory has if i'm not mistaken but anyways etc) to asses the building's worth/value as a production modifier building (here national wonder) type but anyways etc -->
 		const int iTotalHammersModifier = iHammersModifier + iTotalBonusHammersModifier;
 
-		static const bool bSAS_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE = GC.getDefineBOOL("SAS_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE");
-		static const bool bSAS_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_BUILDING_VALUE_WONDERS_OPTIMIZE");
-		static const bool bSAS_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
-		static const bool bSAS_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
-		static const bool bSAS_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE");
+		static const bool bSAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE");
+		static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
+		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
+		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
+		static const bool bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE");
 
-		static const int iSAS_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS = GC.getDefineINT("SAS_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS");
-		static const int iSAS_BUILDING_VALUE_GATE_M100_WONDERS = GC.getDefineINT("SAS_BUILDING_VALUE_GATE_M100_WONDERS");
+		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS");
+		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS");
 
-		if (!bWonder && bSAS_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE)
+		if (!bWonder && bSAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE)
 		{
 			const bool bCoastalBuilding = isCoastal();
 			// <!-- custom: 0) but anyways etc; always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly but anyways etc, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now if i'm not mistaken but anyways etc) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case but anyways etc. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go bankrupt too soon with unit excess but anyways etc -->
@@ -4860,7 +4860,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 
 			// --- Hard rule: don't build Stables without horses/camels <!-- custom: or elephants as it noticed and suggested itself while i had forgotten as in overlooked it rather as i didn't think of it at all xd in this case if i may say but anyways etc -->--------------------
-			static const BuildingClassTypes eBuildingClassStable = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME"));
+			static const BuildingClassTypes eBuildingClassStable = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_AI_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME"));
 
 			const bool bBuildingClassStable = (eBuildingClassStable != NO_BUILDINGCLASS && eBuildingClass == eBuildingClassStable);
 
@@ -4951,7 +4951,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			if (bCityMaintenanceBuilding)
 			{
-				if (iMaintenanceTimes100 < iSAS_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS) // < 6 gpt => not worth it yet
+				if (iMaintenanceTimes100 < iSAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS) // < 6 gpt => not worth it yet
 				{
 					return 0;
 				}
@@ -5477,11 +5477,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 		}
 		// <!-- custom: wonders (i.e. world + national) if i'm not mistaken anyways etc -->
-		else if (bSAS_BUILDING_VALUE_WONDERS_OPTIMIZE)
+		else if (bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
 			// <!-- custom: save some computation by processing this early-on anyways etc -->
 			// too weak to justify any wonder now
-			if (bWorldWonder && bSAS_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
+			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
 				const int iMinHammersBase = 8;
 				const int iMinExtraHammersPerEra = 3;
@@ -5490,7 +5490,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					return 0;
 				}
 			}
-			else if (bNationalWonder && bSAS_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
+			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
 				const int iMinHammersBase = 8;
 				const int iMinExtraHammersPerEra = 2;
@@ -5499,7 +5499,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					return 0;
 				}
 			}
-			else if (!bWorldWonder && !bNationalWonder && bSAS_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
+			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
 			{
 				const int iMinHammersBase = 8;
 				const int iMinExtraHammersPerEra = 2;
@@ -5534,8 +5534,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			int const iTurnsWW = (iCost * 100 + iBaseHammersPerTurn * iWWMul100 - 1) / (std::max(1, iBaseHammersPerTurn) * iWWMul100);
 			// Window scales by speed a bit
 			// <!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it anyways etc -->
-			static const int iSAS_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD = GC.getDefineINT("SAS_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD");  // @Normal
-			int iSoftTurnCapNormal = iSAS_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD; // @Normal
+			static const int iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD");  // @Normal
+			int iSoftTurnCapNormal = iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD; // @Normal
 			// <!-- custom: adjust based on game difficulty: on lower difficulties, we have penalties, so unlikely we compete with the human player(s?), so use our hammers conservatively and more towards self-preservation anyways etc, so do not increase turn time allowed to complete this, but at higher difficulties, we have more leeway and enough discounts, unlikely the human can compete with us, however it would be strange that we would spend too much time on wonders despite our discounts, which would mean most likely we are doing something inefficient or wrong, so don't build the wonder with a tighter window if is beyond this window if i may say in this case but anyways etc -->
 			// AdvCiv: no human WCP <!-- custom: at least i didn't find it easily with a global search vs code so hopefully accurate enough as such as provided by chatgpt 5 but check if accurate and if my guess of doing as such as well is fine as i didn't check further but anyways etc -->; treat as 100%
 			const int iHumanWCPDefine = 100;
@@ -5564,7 +5564,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			// <!-- custom: more early checks to save computation before the loop computation anyways etc -->
 			// <!-- custom: especially if losing, don't build wonder for our ennemies, do something else instead useful to help us survive. Note: there is a code somewhere that i saw that tells the AI to not ditch a wonder being built if >= a certain percentage of completion, which i think is 50%, if i find it heavily tighten it as well anyways etc, even at 50% completion, we can still produce several longbowmen or such instead that may increase our odds a lot, ideally don't start the wonder at all, but if didn't see it (surprise war, etc), then don't continue building it somewhere as well if i find where again in this case i mean but anyways etc, as for this code only handles new buildings to start if i'm not mistaken but anyways etc, and tightening it heavily here in war or war-related context but anyways etc ; update: i found it and tweaked it there as well, it's as of now in CvCityAI::AI_chooseProduction (ctrl+f "completion" to find it xd luckily found it again thankfully maybe rather i should say to myself xd or chatgpt 5 i'm tlaking to in this case if i may say but anyways etc) -->
 			// hard skips: don’t throw the game to build a shiny thing
-			if (bWorldWonder && bSAS_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
+			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
 				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
 				if (!bLandUnitsBuilding)
@@ -5630,7 +5630,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					}
 				}
 			}
-			else if (bNationalWonder && bSAS_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
+			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
 				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
 				// <!-- custom: as a side effect i mean but anyways etc, may indirectly reduce early spam in favour of betting on a higher unit production late game, where multipliers help more, economy is stronger to sustain it, tech lead higher to not fall behind if we produce a bit more units maybe, and scaling is important to face rivals but anyways etc. It may also indirectly slightly improve early economy and reduce bankruptcy risk / imrpvoe economical performance but anyways etc. If one AI is running away, it may give it an extra lead while rivals build heroic epics, possibly (i guess and happened in autoplay map i tried it on it seems), however if the game is closer, this should improve mid and late game performance and competitiveness of the AI (i think/guess). And if an AI is running away, not sure avoiding the heroic epic would ultimately help prevent that, although a short term patch-up strategy may help salvage things sometimes possibly, but generally i think encouraging AIs to build more often and earlier heroic epics (or whichever wonder in your xml) should generally, in theory help, but i didn't test it too much to be sure, check if accurate anyways etc. -->
@@ -5659,7 +5659,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					}
 				}
 			}
-			else if (!bWorldWonder && !bNationalWonder && bSAS_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
+			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
 			{
 				if (!bLandUnitsBuilding)
 				{
@@ -5774,7 +5774,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			// <!-- custom: note: cultural wonders (world and national) not handled, let AI decide if it wants them or not; may skew too much the balance or gameplay otherwise, and is less code to code (repetition but anyways etc) too if i may say but anyways etc (not that i would mind too much had purpose in this case i mean if i may say but anyways etc) -->
 
-			if (bWorldWonder && bSAS_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
+			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
 				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base anyways etc -->
 				if (!bTop2HammerLeeway)
@@ -5807,7 +5807,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					}
 				}
 			}
-			else if (bNationalWonder && bSAS_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
+			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
 				// <!-- custom: for national wonders, no risk to lose the race, use top 2 or top 3 as base or such depending on if the national wonder is a scaling one or not anyways etc -->
 				if (!bTop3HammerLeeway)
@@ -5842,7 +5842,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				{
 					const bool bGovCenter = kBuilding.isGovernmentCenter();
 					// <!-- custom: note: this is not the barbarian block so fine if i am not mistaken but check to be sure anyways etc -->
-					static const BuildingClassTypes eBuildingClassPalace = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME"));
+					static const BuildingClassTypes eBuildingClassPalace = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME"));
 					const bool bPalaceBuildingClass = (eBuildingClass == eBuildingClassPalace);
 
 					if (!bPalaceBuildingClass)
@@ -5887,7 +5887,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 								{
 									iSecondBestM100 = m100;
 								}
-								if (m100 >= iSAS_BUILDING_VALUE_GATE_M100_WONDERS)
+								if (m100 >= iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS)
 								{
 									++iNumCitiesHighM100;
 								}
@@ -5955,7 +5955,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// <!-- custom: note 2 anyways etc: same for national park anyways etc so not handled here see before/above anyways etc -->
 			}
 			// <!-- custom: if we somehow still don't know what this unidentified building is, not a normal building that is not a world wonder nor a national wonder, nor a world wonder, nor a national wonder, and somehow still have to decide about this unidentified building in this case i mean but anyways etc, then proceed with base war heuristics just in case i.e. to not build it if in danger or and such anyways etc, i don't think we should ever land here or extremely rarely if at all, but just in case and in case i am mistaken as well if i may say, hopefully helpful to the AI or code maintainers or players or etc but anyways etc -->
-			else if (!bWorldWonder && !bNationalWonder && bSAS_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
+			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
 			{
 				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
 				if (!bLandUnitsBuilding)
@@ -11607,9 +11607,9 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		UnitTypes   eChangedUnit   = eUnit;
 		UnitAITypes eChangedUnitAI = eUnitAI;
 
-		static const bool bSAS_CHOOSE_UNIT_OPTIMIZE = GC.getDefineBOOL("SAS_CHOOSE_UNIT_OPTIMIZE");
+		static const bool bSAS_AI_CHOOSE_UNIT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_OPTIMIZE");
 
-		if (bSAS_CHOOSE_UNIT_OPTIMIZE)
+		if (bSAS_AI_CHOOSE_UNIT_OPTIMIZE)
 		{
 			// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anyways etc), check if accurate anyways etc -->
 			// CvUnitInfo& kUnitInfo = GC.getInfo(eChangedUnit);
@@ -11700,7 +11700,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				const int iMainDefenders = kPlayer.AI_mainDefensiveLandTotalUnitAIs();
 				const int iMainAttackers = kPlayer.AI_mainOffensiveLandTotalUnitAIs();
 
-				static const bool bNoExcessSieges = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES");
+				static const bool bNoExcessSieges = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES");
 
 				if (bUnitCombatSiege && bNoExcessSieges)
 				{
@@ -11713,7 +11713,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 					static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
 
-					static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
+					static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
 
 					// Trebuchet-like stricter rule
 					if (bTrebuchetLike && bNoExcessTrebuchetsLike)
@@ -11752,7 +11752,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						}
 
 						// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
-						static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP");
+						static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP");
 
 
 						int const iTrebsShareOff = (100 * iTrebsLike) / std::max(1, iMainAttackers);
@@ -11807,7 +11807,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iTotalMainUnits);
 
-						static const int iSiegesAllMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP");
+						static const int iSiegesAllMinExtraCap = GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP");
 
 						if ((iSiegesShareOff) >= (iCapSiegesAll + iSiegesAllMinExtraCap))
 						{
@@ -11843,7 +11843,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						(eChangedUnitAI == UNITAI_RESERVE)
 					);
 
-					static const bool bNoExcessStrictDefendersUnitAIs = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS");
+					static const bool bNoExcessStrictDefendersUnitAIs = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS");
 
 					if (bStrictLandDefenderUnitAI && bNoExcessStrictDefendersUnitAIs)
 					{
@@ -11894,9 +11894,9 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 							if (bEnoughEarlyDefendersPerCityGuessedly || bDefenseOverweight)
 							{
-								static const bool bNoExcessStrictDefendersUnitAIsRejectUnit = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT");
-								static const bool bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT");
-								static const bool bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI");
+								static const bool bNoExcessStrictDefendersUnitAIsRejectUnit = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT");
+								static const bool bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT");
+								static const bool bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI");
 
 								if (bNoExcessStrictDefendersUnitAIsRejectUnit)
 								{
@@ -14325,13 +14325,13 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
-	static const bool bSAS_JOB_CHANGE_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_JOB_CHANGE_VALUE_OPTIMIZE");
+	static const bool bSAS_AI_JOB_CHANGE_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_JOB_CHANGE_VALUE_OPTIMIZE");
 
 	// <!-- custom: note: it seems based on autoplay results i mean if i may say but anyways etc that this block and function only apply to non-human players when trying to relax this and play manually the behaviour seemingly does not happen as implemented here vs if i autoplay with my player ai player in autoplay, but added the human check just to eb safe and in case. Check if accurate as i don't know too much about these anyways etc. -->
-	if (bSAS_JOB_CHANGE_VALUE_OPTIMIZE)
+	if (bSAS_AI_JOB_CHANGE_VALUE_OPTIMIZE)
 	{
 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
-		static const int iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN = GC.getDefineINT("SAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN");
+		static const int iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN = GC.getDefineINT("SAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN");
 
 		const bool bHuman = kOwner.isHuman();
 
@@ -14346,7 +14346,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		{
 			if (!bHuman)
 			{
-				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+				return iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 			}
 			else
 			{
@@ -14374,7 +14374,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 					).c_str());
 					#endif
 
-					return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+					return iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 				}
 			}
 		}
@@ -14437,7 +14437,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 				).c_str());
 				#endif
 
-				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+				return iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 			}
 		}
 
@@ -14461,7 +14461,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 			{
 				if (new_job.first /* hiring any specialist */)
 				{
-					return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+					return iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 				}
 			}
 			// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
@@ -14482,7 +14482,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 					if (iFoodSurplus >= 2 && new_job.first)
 					{
-						return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+						return iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 					}
 				}
 			}
@@ -14498,7 +14498,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		{
 			if ((eScientist != NO_SPECIALIST) && new_job.first && (new_job.second != eScientist))
 			{
-				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+				return iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 			}
 		} 
 	}
