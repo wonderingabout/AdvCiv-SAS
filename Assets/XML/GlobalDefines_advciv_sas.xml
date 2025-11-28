@@ -1067,7 +1067,28 @@
     <!-- e.g. 130 = +30%, 150 = +50%. -->
     <Define>
         <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
-        <iDefineIntVal>150</iDefineIntVal>
+        <iDefineIntVal>130</iDefineIntVal>
+    </Define>
+
+
+
+	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate anyways etc. -->
+    <!-- SAS techTradeClusterKnown:
+	Devalue techs that are already available inside our master–vassal locus when an *outsider* offers them. This pushes the AI toward getting those techs from its own master/vassals instead, reinforcing cluster synergy. -->
+    <!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+    <Define>
+        <DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE</DefineName>
+        <iDefineIntVal>1</iDefineIntVal>
+    </Define>
+    <!-- If any team in our master–vassal locus already knows the tech and the offering team is outside that locus, multiply tech trade value by this.
+	You can then experiment:
+		70% → gentle push toward locus, but still takes outsider deals
+		60% → noticeably prefers internal source
+		50% → fairly strong bias -->
+	<!-- custom: note: a too sharp reduction may be detrimental as we might lose more deals than we gain from protecting our techs (or profitting from them being in our monopoly network xd if i may say but anyways etc.), as it seemed to do in quick testing but i changed code since then so it might not be the same and lazy to retest, this value i tested provided good results in this autoplay sample vs before, test and adjust as you see fit but anyways etc. -->
+    <Define>
+        <DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT</DefineName>
+        <iDefineIntVal>70</iDefineIntVal>
     </Define>
 
 

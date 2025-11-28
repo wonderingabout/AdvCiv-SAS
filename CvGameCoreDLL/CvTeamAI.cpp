@@ -2032,17 +2032,6 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
 		// Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
 		// 	- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay” more total value on our side.
 		// 	- When someone else is getting such a tech from us, they’ll see it as more precious as well (since their AI_techTradeVal gets the same logic when they are in danger).
-		// This is symmetric and “honest”: no hidden cheat, just a consistent “this is life or death, this tech is worth a lot to us” multiplier.
-		//
-		// This has a specific behavioral consequence:
-		// Your danger-based military weighting only applies when:
-		// 	- bIgnoreDiscount == false, and
-		// 	- neither side is the other’s vassal.
-		// That means:
-		// 	- It will not run for vassal <-> master trades.
-		// 	- It will not run in contexts where the caller sets bIgnoreDiscount = true
-		// 	(e.g. special cases that ignore the power/tech discount logic).
-		// If that’s what you want (keep master–vassal trade more “neutral” and only bias valuations in “normal” rival trades), then the placement is fine.
 		// If you want “when I’m in real danger, military tech is worth more no matter who offers it”, including:
 		// 	- from your vassal,
 		// 	- to your master,
@@ -2069,6 +2058,65 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
 		}
 		// End - SAS techTradePowerDanger
 	} // </advc.550a>
+
+	// <!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate anyways etc. -->
+	// Right, nice next step – this is basically the “backup sanity check” in case an outsider does get to the trade table with a tech your locus already has.
+	// Conceptually:
+	// If any team in our master–vassal cluster already knows eTech, and the offering team is not part of that cluster, then we value the tech less from them, because we have (or could have) an internal source.
+	// Notes:
+	// 	- We reuse the same master/vassal cluster logic style you already used in the research code.
+	// 	- We explicitly do not penalize when eFromTeam is a member of our cluster: master, vassal, or sibling vassal of the same master.
+	// 	- This block is independent of bIgnoreDiscount and the power/tech discount logic: it represents a different idea (“local alternative source”), so it’s cleaner to keep separate.
+	static const bool bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE");
+	if (bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE && !isHasTech(eTech)) // we wouldn't normally trade for tech we already own
+	{
+		// Define the "anchor" for our locus: master if we're a vassal, otherwise ourselves.
+		TeamTypes eAnchor = getID();
+		if (isAVassal())
+		{
+			const TeamTypes eMasterTeam = getMasterTeam();
+			if (eMasterTeam != NO_TEAM)
+				eAnchor = eMasterTeam;
+		}
+
+		bool bClusterHasTech = false;
+		bool bFromInCluster = false;
+
+		// Anchor itself
+		if (GET_TEAM(eAnchor).isHasTech(eTech))
+			bClusterHasTech = true;
+		if (eFromTeam == eAnchor)
+			bFromInCluster = true;
+
+		// All vassals of the anchor (includes us if we're a vassal of the anchor)
+		for (TeamAIIter<ALIVE, VASSAL_OF> it(eAnchor); it.hasNext(); ++it)
+		{
+			const TeamTypes eVassal = it->getID();
+
+			if (eVassal == getID())
+				continue; // We already know !isHasTech(eTech), so skip ourselves.
+
+			if (eVassal == eFromTeam)
+				bFromInCluster = true;
+
+			if (it->isHasTech(eTech))
+				bClusterHasTech = true;
+
+			if (bClusterHasTech && bFromInCluster)
+				break; // Nothing more to learn; early exit.
+		}
+
+		// If someone in our locus has the tech and eFromTeam is *not* in that locus,
+		// then this is a "redundant" external source → devalue it.
+		if (bClusterHasTech && !bFromInCluster)
+		{
+			static const int iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT");
+			// e.g. 70 => pay only 70% as much to outsiders,
+			// since we "should" try to get it from our locus instead.
+			rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT);
+		}
+	}
+
 	// <advc.550g>
 	if (!isHuman()) // Don't let the AI gauge the human tech value
 	{
