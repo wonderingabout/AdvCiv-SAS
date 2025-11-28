@@ -7500,9 +7500,13 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
 	DiploCommentTypes eDefaultGreeting = GC.getAIDiploCommentType("GREETINGS");
 	if (TEAMID(ePlayer) == getTeam())
 		return eDefaultGreeting; // advc
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	// <advc.079>
 	// Checks moved up
-	bool bBrag = (GET_PLAYER(ePlayer).getPower() < getPower() &&
+	bool bBrag = (kPlayer.getPower() < getPower() &&
 			AI_getAttitude(ePlayer) < ATTITUDE_PLEASED);
 	if (bBrag)
 	{
@@ -7511,8 +7515,8 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
 		if (iDemandRand < 400 &&
 			iDemandRand > 0) // advc.130r: 0 means infinity now
 		{
-			if (!GET_PLAYER(ePlayer).canSeeTech(getID()) ||
-				!GET_PLAYER(ePlayer).canTradeNetworkWith(getID()))
+			if (!kPlayer.canSeeTech(getID()) ||
+				!kPlayer.canTradeNetworkWith(getID()))
 			{
 				UnitTypes eBragUnit = AI_getBestAttackUnit();
 				if (eBragUnit != NO_UNIT)
@@ -7547,7 +7551,7 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
 	{
 		m_aeLastWarn[ePlayer] = eWorstEnemy;
 		// </advc.079>
-		if (GET_PLAYER(ePlayer).AI_hasTradedWithTeam(eWorstEnemy) &&
+		if (kPlayer.AI_hasTradedWithTeam(eWorstEnemy) &&
 			!atWar(TEAMID(ePlayer), eWorstEnemy))
 		{
 			return GC.getAIDiploCommentType("WORST_ENEMY_TRADING");
@@ -7566,8 +7570,12 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer, /* advc.104l: */ bool b
 {
 	FAssert(getPersonalityType() != NO_LEADER);
 	FAssert(ePlayer != getID());
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc, and apply it here as well. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	// <advc.104i>
-	if (GET_PLAYER(ePlayer).isActive())
+	if (kPlayer.isActive())
 	{
 		/*  The EXE keeps calling this function when the diplo screen is already up,
 			and some of the new code (isPeaceDealPossible) is expensive. */
@@ -7578,7 +7586,7 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer, /* advc.104l: */ bool b
 	} // </advc.104i>
 
 	// <advc.003n> In particular, don't call AI_surrenderTrade on non-major civs.
-	if (!GET_PLAYER(ePlayer).isMajorCiv())
+	if (!kPlayer.isMajorCiv())
 		return false; // </advc.003n>
 
 	// K-Mod
@@ -7624,7 +7632,7 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer, /* advc.104l: */ bool b
 		// K-Mod
 		if (kOurTeam.AI_refusePeace(kTheirTeam.getID()))
 		{
-			if (!GET_PLAYER(ePlayer).canTradeItem(getID(), TradeData(TRADE_SURRENDER, true)))
+			if (!kPlayer.canTradeItem(getID(), TradeData(TRADE_SURRENDER, true)))
 				return false; // if they can't (or won't) capitulate, don't talk to them.
 		} // K-Mod end
 	}
@@ -7663,6 +7671,9 @@ bool CvPlayerAI::AI_demandRebukedSneak(PlayerTypes ePlayer) const
 	FAssertMsg(!isHuman(), "isHuman did not return false as expected");
 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
 
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	FAssert(!isAVassal());
 	FAssert(!(GET_TEAM(getTeam()).isHuman()));
 
@@ -7673,17 +7684,17 @@ bool CvPlayerAI::AI_demandRebukedSneak(PlayerTypes ePlayer) const
 			GET_TEAM(getTeam()).uwai().respondToRebuke(TEAMID(ePlayer), true);
 			return false; // respondToRebuke handles any changes to war plans
 		} // </advc.104m>
-		//if (GET_TEAM(getTeam()).getPower(true) > GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getDefensivePower(getTeam()))
+		//if (GET_TEAM(getTeam()).getPower(true) > GET_TEAM(kPlayer.getTeam()).getDefensivePower(getTeam()))
 		/*	K-Mod. Don't start a war if we're already busy;
 			and use AI_startWarVal to evaluate, rather than just power.
 			The 50 start-war value is arbitrary. zero would probably be fine.
 			50 war rating is also arbitrary, but, here, zero would be too low! */
 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
-		if (kTeam.AI_getWarPlan(GET_PLAYER(ePlayer).getTeam()) == NO_WARPLAN  &&
+		if (kTeam.AI_getWarPlan(kPlayer.getTeam()) == NO_WARPLAN  &&
 			(!kTeam.AI_isAnyWarPlan() || kTeam.AI_getWarSuccessRating() > 50) &&
 			/*	advc.001n (comment): This should be synchronized code,
 				so no need to set bConstCache. */
-			kTeam.AI_startWarVal(GET_PLAYER(ePlayer).getTeam(), WARPLAN_LIMITED) > 50)
+			kTeam.AI_startWarVal(kPlayer.getTeam(), WARPLAN_LIMITED) > 50)
 		// K-Mod end
 		{
 			return true;
@@ -7860,12 +7871,16 @@ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced) const
 		true attitudes within a team */
 	if (getTeam() == TEAMID(ePlayer))
 		return 100;
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	if (isHuman())
 	{
-		if (GET_TEAM(ePlayer).isHuman() || GET_PLAYER(ePlayer).isHuman())
+		if (GET_TEAM(ePlayer).isHuman() || kPlayer.isHuman())
 			return GC.getDefineINT(CvGlobals::RELATIONS_THRESH_ANNOYED) - 1;
 		// Cautious or Annoyed depending on ePlayer's attitude
-		return ::range(GET_PLAYER(ePlayer).AI_getAttitudeVal(getID()),
+		return ::range(kPlayer.AI_getAttitudeVal(getID()),
 				GC.getDefineINT(CvGlobals::RELATIONS_THRESH_ANNOYED) - 1, 0);
 	} // </advc.130u>
 	// <advc.003n> Moved out of the bForced branch and assert added
@@ -7892,7 +7907,7 @@ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced) const
 		{
 			if (GET_TEAM(ePlayer).getMasterTeam() == getMasterTeam())
 				return GC.getDefineINT(CvGlobals::RELATIONS_THRESH_PLEASED) + 1;
-			return GET_TEAM(getTeam()).AI_getAttitudeVal(GET_PLAYER(ePlayer).getMasterTeam(),
+			return GET_TEAM(getTeam()).AI_getAttitudeVal(kPlayer.getMasterTeam(),
 					true, false); // advc: bAssert=false
 		} // </advc.130v>
 	}
@@ -8750,9 +8765,13 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
 			rMultiplier.decreaseTo(2 * (1 - rTheirScoreToOurs));
 		}
 	}
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	int iResult = (iBase * rMultiplier).round();
 	// Don't hate them if they're still in the first era ...
-	if (iResult < 0 && (GET_PLAYER(ePlayer).getCurrentEra() <= kGame.getStartEra() ||
+	if (iResult < 0 && (kPlayer.getCurrentEra() <= kGame.getStartEra() ||
 		/*	... nor if the score difference is small (otherwise attitude
 			changes too frequently in the early game) */
 		iOurScore + 25 >= iTheirScore))
@@ -8761,11 +8780,11 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
 	}
 	// Don't like them if we're still in the first era
 	if (iResult > 0 && (getCurrentEra() <= kGame.getStartEra() ||
-		GET_PLAYER(ePlayer).AI_atVictoryStage3()))
+		kPlayer.AI_atVictoryStage3()))
 	{
 		return 0;
 	}
-	if (iResult < 0 && AI_atVictoryStage3() && !GET_PLAYER(ePlayer).AI_atVictoryStage4())
+	if (iResult < 0 && AI_atVictoryStage3() && !kPlayer.AI_atVictoryStage4())
 		return 0;
 	return iResult;
 }
@@ -9795,7 +9814,10 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 	bool bHypothetical) // advc.130o
 {
 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // K-Mod
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc, and apply it here as well. -->
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	// <!-- custom: make a const and rename for clarity and consistency but anyways etc. -->
 	const bool bPlayerHuman = kPlayer.isHuman();
 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
@@ -10078,13 +10100,13 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 						tribute from a civ and later takes control of that civ.
 						Would also affect AI_paranoiaRating (advc.022).
 						So don't do this after all: */
-					  //GET_PLAYER(ePlayer).AI_rememberEvent(getID(), MEMORY_ACCEPT_DEMAND);
+					  //kPlayer.AI_rememberEvent(getID(), MEMORY_ACCEPT_DEMAND);
 					AI_rememberEvent(ePlayer, MEMORY_MADE_DEMAND);
 				}
 				else
 				{
 					// See above
-					  //GET_PLAYER(ePlayer).AI_rememberEvent(getID(), MEMORY_REJECTED_DEMAND);
+					  //kPlayer.AI_rememberEvent(getID(), MEMORY_REJECTED_DEMAND);
 					/*  Here's where we don't increase MEMORY_MADE_DEMAND b/c the
 						demand isn't accepted. CvPlayer::handleDiploEvent deals
 						with the MADE_DEMAND_RECENT memory. */
@@ -10214,9 +10236,14 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 	bool bWeGiveGold = goldDeal(kWeGive);
 	if (bWeGiveGold && bTheyGiveGold)
 		return false;
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	const bool bPlayerHuman = kPlayer.isHuman();
+
 	/*  <advc.036> Check trade denial. Should only be needed when renegotiating
 		a canceled deal with a human. */
-	if (GET_PLAYER(ePlayer).isHuman())
+	if (bPlayerHuman)
 	{
 		FOR_EACH_TRADE_ITEM(kWeGive)
 		{
@@ -10229,7 +10256,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 		FOR_EACH_TRADE_ITEM(kTheyGive)
 		{
 			if (CvDeal::isAnnual(pItem->m_eItemType) &&
-				GET_PLAYER(ePlayer).getTradeDenial(getID(), *pItem) != NO_DENIAL)
+				kPlayer.getTradeDenial(getID(), *pItem) != NO_DENIAL)
 			{
 				return false;
 			}
@@ -10240,14 +10267,14 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 	// advc.ctr:
 	bool bCountLiberation = isLiberationTrade(getID(), ePlayer, kWeGive, kTheyGive);
 	/*iHumanDealWeight = AI_dealVal(ePlayer, theyGive);
-	iAIDealWeight = GET_PLAYER(ePlayer).AI_dealVal(getID(), weGive);*/ // BtS
+	iAIDealWeight = kPlayer.AI_dealVal(getID(), weGive);*/ // BtS
 	/*	K-Mod: Under normal usage of this fuction, the AI player counters the human proposal -
 		so "they" are human, not us. */
 	// advc: Further changed from "iValueForUs", "iValueForThem". And renamed the lists too.
 	int iWeReceive = AI_dealVal(ePlayer, kTheyGive,
 			false, 1, false, false, bCountLiberation);
 	int iTheyReceive = /* advc.705: */ (rLeniency *
-			GET_PLAYER(ePlayer).AI_dealVal(getID(), kWeGive,
+			kPlayer.AI_dealVal(getID(), kWeGive,
 			false, 1, false, false, bCountLiberation)).round();
 	//kTheyAlsoGive.clear(); kWeAlsoGive.clear(); // advc: Moved into CvPlayer::AI_counterProposeExternal
 	/*  advc.001: Moved into balanceDeal; should be called on whichever side
@@ -10268,7 +10295,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 				kWeAlsoGive.insertAtEnd(item);
 				bEndWar = true;
 			}
-			else if (GET_PLAYER(ePlayer).canTradeItem(getID(), item, true))
+			else if (kPlayer.canTradeItem(getID(), item, true))
 			{
 				kTheyAlsoGive.insertAtEnd(item);
 				bEndWar = true;
@@ -10279,7 +10306,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 		{
 			TradeData item(TRADE_PEACE_TREATY);
 			if (canTradeItem(ePlayer, item, true) &&
-				GET_PLAYER(ePlayer).canTradeItem(getID(), item, true))
+				kPlayer.canTradeItem(getID(), item, true))
 			{
 				//kWeAlsoGive.insertAtEnd(item);
 				//kTheyAlsoGive.insertAtEnd(item);
@@ -10308,8 +10335,8 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 		the list that needs further items. */
 	CLinkList<TradeData> const& kGiverList = (iTheyReceive < iWeReceive ?
 			kWeGive : kTheyGive);
-	CvPlayer const& kGiver = (iTheyReceive < iWeReceive ? *this : GET_PLAYER(ePlayer));
-	CvPlayer const& kRecipient = (kGiver.getID() == ePlayer ? *this : GET_PLAYER(ePlayer));
+	CvPlayer const& kGiver = (iTheyReceive < iWeReceive ? *this : kPlayer);
+	CvPlayer const& kRecipient = (kGiver.getID() == ePlayer ? *this : kPlayer);
 	// Count how many more can be traded
 	int iHappyLeft, iHealthLeft;
 	iHappyLeft = iHealthLeft = 2;
@@ -10371,7 +10398,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 	}
 	else if (iWeReceive > iTheyReceive)
 	{	// advc: Moved into new function
-		bDeal = GET_PLAYER(ePlayer).AI_balanceDeal(bTheyGiveGold, kOurInventory,
+		bDeal = kPlayer.AI_balanceDeal(bTheyGiveGold, kOurInventory,
 				getID(), iWeReceive, iTheyReceive, kWeAlsoGive, kTheyGive,
 				rLeniency, false,
 				iHappyLeft, iHealthLeft, kWeGive.getLength()); // advc.036
@@ -10385,7 +10412,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 	// <advc.036> Don't double-check when balanceDeal says we should accept
 	if (bDeal)
 		return true; // </advc.036>
-	if (GET_PLAYER(ePlayer).isHuman())
+	if (bPlayerHuman)
 	{
 		/*	AI counting a human proposal:
 			do not compromise the AI's value, and don't even consider the human's value. */
@@ -10405,7 +10432,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 				don't bother putting it to the player if it is really bad value^*/
 			bDeal = //4*iWeReceive >= iTheyReceive && // advc.550b
 					(100 * iTheyReceive >=
-					GET_PLAYER(ePlayer).AI_tradeAcceptabilityThreshold(getID()) * iWeReceive);
+					kPlayer.AI_tradeAcceptabilityThreshold(getID()) * iWeReceive);
 			/*  <advc.550b> About the really bad deals: 4 to 1 is OK
 				when the human doesn't give away tech. */
 			bool bTech = false;
@@ -10429,13 +10456,13 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 			bDeal = (100 * iWeReceive >=
 					AI_tradeAcceptabilityThreshold(ePlayer) * iTheyReceive &&
 					100 * iTheyReceive >=
-					GET_PLAYER(ePlayer).AI_tradeAcceptabilityThreshold(getID()) * iWeReceive);
+					kPlayer.AI_tradeAcceptabilityThreshold(getID()) * iWeReceive);
 		}
 	}
 	// K-Mod end
 	// <advc.705>
 	CvGame const& kGame = GC.getGame();
-	if (kGame.isOption(GAMEOPTION_RISE_FALL) && GET_PLAYER(ePlayer).isHuman())
+	if (kGame.isOption(GAMEOPTION_RISE_FALL) && bPlayerHuman)
 	{
 		if (kGame.getRiseFall().isCooperationRestricted(getID()))
 		{
@@ -10468,7 +10495,6 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 	#ifdef _DEBUG // Just an assert build wouldn't be much help
 	else if (!bDeal)
 	{
-		CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
 		if (iWeReceive < iTheyReceive)
 		{
 			bool bGenerous = (kTheyAlsoGive.getLength() > 0);
@@ -10483,7 +10509,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 			}
 			if (iTheyGiveGold > 0)
 			{
-				int iTheyHaveGold = ((kPlayer.isHuman() && bGenerous) ?
+				int iTheyHaveGold = ((bPlayerHuman && bGenerous) ?
 						kPlayer.AI_maxGoldTradeGenerous(getID()) :
 						kPlayer.AI_maxGoldTrade(getID()));
 				int iStash = iTheyHaveGold - iTheyGiveGold;
@@ -10578,6 +10604,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 
 	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
 	const bool bPlayerHuman = kPlayer.isHuman();
+	const bool bHuman = isHuman();
 
 	if (bMayAddGold)
 	{
@@ -10587,10 +10614,10 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 		else iGoldData /= iGoldValuePercent;
 		// if(kPlayer.AI_maxGoldTrade(getID()) >= iGoldData)
 		// <advc.026>
-		int iMaxGold = ((isHuman() && bTheyGenerous) ?
+		int iMaxGold = ((bHuman && bTheyGenerous) ?
 				kPlayer.AI_maxGoldTradeGenerous(getID()) :
 				kPlayer.AI_maxGoldTrade(getID()));
-		if (isHuman() || bPlayerHuman)
+		if (bHuman || bPlayerHuman)
 		{
 			if (bTheyGenerous)
 				AI_roundTradeValBounds(iGoldData, true, iGoldData, iMaxGold);
@@ -10605,7 +10632,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 	}
 	/*  <advc.036> Try gpt before resources when trading with a human with
 		negative income. Based on the "try one more time" code chunk below. */
-	if (isHuman() && bMayAddGoldPerTurn && iTheyReceive > iWeReceive &&
+	if (bHuman && bMayAddGoldPerTurn && iTheyReceive > iWeReceive &&
 		calculateGoldRate() < 0)
 	{
 		int iGoldAvailable = kPlayer.AI_maxGoldPerTurnTrade(getID());
@@ -10623,7 +10650,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 	} // </advc.036>
 	std::pair<TradeData,int> final_item; // Item we may or may not use to finalise the deal
 	// <advc.036>
-	bool bSingleResource = (iOtherListLength <= 1 && (isHuman() || bPlayerHuman) &&
+	bool bSingleResource = (iOtherListLength <= 1 && (bHuman || bPlayerHuman) &&
 			kWeGive.getLength() == 1 &&
 			kWeGive.head()->m_data.m_eItemType == TRADE_RESOURCES);
 	std::vector<std::pair<TradeData,int> > aNonSurplusItems; // </advc.036>
@@ -10669,7 +10696,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 				iItemValue = GET_TEAM(getTeam()).AI_mapTradeVal(kPlayer.getTeam());
 				// <advc.136b> Avoid low-impact AI-AI map trades for performance reasons
 				if (iItemValue < GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER) &&
-					!isHuman() && !bPlayerHuman)
+					!bHuman && !bPlayerHuman)
 				{
 					iItemValue = 0;
 				} // </advc.136b>
@@ -10693,7 +10720,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 				/*  Bias AI-AI trades against resources that are of low value
 					to the recipient; should rather try to trade these to
 					someone else. */
-				if (!isHuman() && !bPlayerHuman &&
+				if (!bHuman && !bPlayerHuman &&
 					// Don't skip items that fill the gap very well
 					iTheyReceive - iWeReceive - iItemValue > 10)
 				{
@@ -10710,7 +10737,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 					(i.e. no special treatment of nonsurplus resources needed).
 					If a human is involved, gpt needs to be preferred b/c we
 					don't want humans to minmax the gpt through trial and error. */
-				if ((!isHuman() && !bPlayerHuman) ||
+				if ((!bHuman && !bPlayerHuman) ||
 					(kPlayer.getNumTradeableBonuses(eBonus) > 1 &&
 					kPlayer.AI_corporationBonusVal(eBonus, true) == 0))
 				{
@@ -10789,7 +10816,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 				if (iWeight > iBestCityWeight &&
 					/*	Avoid trading cities between AI civs that are more valuable
 						to the current owner */
-					(iWeight > 0 || isHuman() || pCity->isHuman() ||
+					(iWeight > 0 || bHuman || pCity->isHuman() ||
 					GET_TEAM(getTeam()).isAtWar(kPlayer.getTeam())))
 				{	// Leave it up to AI_cityTradeVal whether liberation should count
 					int iValue = AI_cityTradeVal(*pCity);
@@ -10933,10 +10960,10 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 			else iGoldData /= iGoldValuePercent;
 			//int iMaxGold = kPlayer.AI_maxGoldTrade(getID());
 			// <advc.026> (same procedure as in the initial gold check)
-			int iMaxGold = ((bTheyGenerous && isHuman()) ?
+			int iMaxGold = ((bTheyGenerous && bHuman) ?
 					kPlayer.AI_maxGoldTradeGenerous(getID()) :
 					kPlayer.AI_maxGoldTrade(getID()));
-			if (isHuman() || bPlayerHuman)
+			if (bHuman || bPlayerHuman)
 			{
 				if (bTheyGenerous)
 					AI_roundTradeValBounds(iGoldData, true, iGoldData, iMaxGold);
@@ -10971,7 +10998,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 		{
 			//int iGoldAvailable = kPlayer.AI_maxGoldPerTurnTrade(getID());
 			// <advc.026> Replacing the above (and moved up)
-			int iMaxGPT = ((isHuman() && bTheyGenerous) ?
+			int iMaxGPT = ((bHuman && bTheyGenerous) ?
 					kPlayer.AI_maxGoldPerTurnTradeGenerous(getID()) :
 					kPlayer.AI_maxGoldPerTurnTrade(getID()));
 			int iGoldAvailable = iMaxGPT; // </advc.026>
@@ -11242,8 +11269,12 @@ int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer,
 {
 	PROFILE_FUNC();
 	FAssert(ePlayer != getID());
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	int iTreasury = getGold(); // advc
-	if(bTeamTrade && !isHuman() && GET_PLAYER(ePlayer).isHuman())
+	if(bTeamTrade && !isHuman() && kPlayer.isHuman())
 	{
 		/*  <advc.134a> AI peace offers to humans (and any other trades offered
 			to humans during a team turn) need to anticipate the gold spent during
@@ -11261,7 +11292,7 @@ int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer,
 		// Don't tell them exactly how much we can afford
 		return r - (r % (2 * GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER)));
 	} // </advc.104w>
-	if (isHuman() || (GET_PLAYER(ePlayer).getTeam() == getTeam()))
+	if (isHuman() || (kPlayer.getTeam() == getTeam()))
 	{
 		// <advc>
 		return std::max(0, iTreasury);
@@ -11269,7 +11300,7 @@ int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer,
 	/*else
 	{*/ // </advc>
 	/*iMaxGold = getTotalPopulation();
-	iMaxGold *= (GET_TEAM(getTeam()).AI_getHasMetCounter(GET_PLAYER(ePlayer).getTeam()) + 10);
+	iMaxGold *= (GET_TEAM(getTeam()).AI_getHasMetCounter(kPlayer.getTeam()) + 10);
 	iMaxGold *= GC.getInfo(getPersonalityType()).getMaxGoldTradePercent();
 	iMaxGold /= 100;
 	iMaxGold -= AI_getGoldTradedTo(ePlayer);
@@ -11319,8 +11350,8 @@ int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer,
 	// Moved from above the gold rate adjustment
 	iMaxGold -= AI_getGoldTradedTo(ePlayer); // </advc.036>
 	// <advc.550f>
-	if(iMaxGold > 0 && GET_PLAYER(ePlayer).isHuman() &&
-		GET_PLAYER(ePlayer).canPossiblyTradeItem(getID(), TRADE_TECHNOLOGIES))
+	if(iMaxGold > 0 && kPlayer.isHuman() &&
+		kPlayer.canPossiblyTradeItem(getID(), TRADE_TECHNOLOGIES))
 	{
 		TechTypes eCurrentResearch = getCurrentResearch();
 		scaled rTechProgress = (eCurrentResearch == NO_TECH ? 0 : scaled(
@@ -13615,14 +13646,18 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
 		FAssert(false);
 		break;
 	} // <advc.130f>
+
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	// When threshold relaxed as a special favor
-	if(eTowardTarget > GC.getInfo(GET_PLAYER(ePlayer).getPersonalityType()).
+	if(eTowardTarget > GC.getInfo(kPlayer.getPersonalityType()).
 		getStopTradingThemRefuseAttitudeThreshold())
 	{
 		iModifier *= 2;
 	}
 	// eTowardUs - i.e. toward the civ who pays for the embargo
-	AttitudeTypes eTowardUs = GET_PLAYER(ePlayer).AI_getAttitude(getID());
+	AttitudeTypes eTowardUs = kPlayer.AI_getAttitude(getID());
 	if(eTowardUs >= ATTITUDE_PLEASED)
 		iModifier -= 25;
 	if(eTowardUs >= ATTITUDE_FRIENDLY)
@@ -13631,7 +13666,7 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
 	if(kTeam.isOpenBorders(eTradeTeam))
 	{
 		iModifier += 50;
-		if(kTeam.getNumWars() > 0 && GET_PLAYER(ePlayer).AI_isFocusWar() &&
+		if(kTeam.getNumWars() > 0 && kPlayer.AI_isFocusWar() &&
 				!kTeam.allWarsShared(getTeam(), false))
 		{
 			/*  <advc.104o> Will probably want to focus on the new war then.
@@ -13645,7 +13680,7 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
 	iValue *= std::max(50, iModifier + 100); // </advc.130f>
 	iValue /= 100;
 	// advc.130f: Factored into iModifier now
-	/*if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isOpenBorders(eTradeTeam))
+	/*if (GET_TEAM(kPlayer.getTeam()).isOpenBorders(eTradeTeam))
 		iValue *= 2;*/
 
 	if (GET_TEAM(ePlayer).isDefensivePact(eTradeTeam))
@@ -13670,7 +13705,7 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
 		// advc: Rewrote this block to get rid of duplicate code
 		if (pLoopDeal->getReceivesList(TEAMID(ePlayer)).getLength() > 0)
 		{
-			iValue += (GET_PLAYER(ePlayer).AI_dealVal(
+			iValue += (kPlayer.AI_dealVal(
 					pLoopDeal->getOtherPlayer(ePlayer),
 					pLoopDeal->getReceivesList(TEAMID(ePlayer))) *
 					/*  advc.130f: Was ... 2 : 1.
@@ -13785,9 +13820,11 @@ DenialTypes CvPlayerAI::AI_stopTradingTrade(TeamTypes eTradeTeam,
 	What price should this CvPlayer be willing to pay for that? */
 int CvPlayerAI::AI_civicTradeVal(CivicTypes eCivic, PlayerTypes ePlayer) const
 {
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc, and apply it here as well. -->
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	int iValue = 0;
-	//iValue = (2 * (getTotalPopulation() + GET_PLAYER(ePlayer).getTotalPopulation())); // XXX
+	//iValue = (2 * (getTotalPopulation() + kPlayer.getTotalPopulation())); // XXX
 	// advc.132: Replacing the above
 	int iAnarchyCost = kPlayer.AI_anarchyTradeVal(eCivic);
 
@@ -13815,11 +13852,14 @@ int CvPlayerAI::AI_civicTradeVal(CivicTypes eCivic, PlayerTypes ePlayer) const
 // advc (comment): This CvPlayer is supposed to adopt eCivic at the request of ePlayer
 DenialTypes CvPlayerAI::AI_civicTrade(CivicTypes eCivic, PlayerTypes ePlayer) const
 {
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	if (isHuman())
 		return NO_DENIAL;
-	if (GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()))
+	if (GET_TEAM(getTeam()).isVassal(kPlayer.getTeam()))
 		return NO_DENIAL;
-	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+	if (atWar(getTeam(), kPlayer.getTeam()))
 		return NO_DENIAL;
 	if (TEAMID(ePlayer) == getTeam())
 		return NO_DENIAL;
@@ -13855,29 +13895,31 @@ DenialTypes CvPlayerAI::AI_civicTrade(CivicTypes eCivic, PlayerTypes ePlayer) co
 
 int CvPlayerAI::AI_religionTradeVal(ReligionTypes eReligion, PlayerTypes ePlayer) const
 {
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc, and apply it here as well. -->
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-	//int iValue = (3 * (getTotalPopulation() + GET_PLAYER(ePlayer).getTotalPopulation())); // XXX
+
+	//int iValue = (3 * (getTotalPopulation() + kPlayer.getTotalPopulation())); // XXX
 	// advc.132: Replacing the above
 	int iValue = kPlayer.AI_anarchyTradeVal();
 
-	ReligionTypes eBestReligion = GET_PLAYER(ePlayer).AI_bestReligion();
+	ReligionTypes eBestReligion = kPlayer.AI_bestReligion();
 	if (eBestReligion != NO_RELIGION)
 	{
 		if (eBestReligion != eReligion)
 		{
-			//iValue += std::max(0, (GET_PLAYER(ePlayer).AI_religionValue(eBestReligion) - GET_PLAYER(ePlayer).AI_religionValue(eReligion)));
+			//iValue += std::max(0, (kPlayer.AI_religionValue(eBestReligion) - kPlayer.AI_religionValue(eReligion)));
 			// K-Mod. AI_religionValue has arbitrary units.
 			/*	We need to give it some kind of scale for it
 				to be meaningful in this function. */
 			iValue *= 100 + std::min(100,
-					100 * GET_PLAYER(ePlayer).AI_religionValue(eBestReligion) /
-					std::max(1, GET_PLAYER(ePlayer).AI_religionValue(eReligion)));
+					100 * kPlayer.AI_religionValue(eBestReligion) /
+					std::max(1, kPlayer.AI_religionValue(eReligion)));
 			iValue /= 100;
 			// K-Mod end
 		}
 	}
 
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(getTeam()))
+	if (GET_TEAM(kPlayer.getTeam()).isVassal(getTeam()))
 		iValue /= 2;
 	// <advc.132>
 	if (getStateReligion() != eReligion)
@@ -13893,19 +13935,22 @@ DenialTypes CvPlayerAI::AI_religionTrade(ReligionTypes eReligion,
 	if (isHuman())
 		return NO_DENIAL;
 
+	// <!-- custom: cache one for reuse rather than refetch if i'm not mistaken anyways etc. -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+
 	// <advc.132>
-	if(GET_PLAYER(ePlayer).isStateReligion() &&
-		eReligion != GET_PLAYER(ePlayer).getStateReligion())
+	if(kPlayer.isStateReligion() &&
+		eReligion != kPlayer.getStateReligion())
 	{
 		return DENIAL_JOKING;
 	} // </advc.132>
-	if (GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()))
+	if (GET_TEAM(getTeam()).isVassal(kPlayer.getTeam()))
 		return NO_DENIAL;
 
-	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+	if (atWar(getTeam(), kPlayer.getTeam()))
 		return NO_DENIAL;
 
-	if (GET_PLAYER(ePlayer).getTeam() == getTeam())
+	if (kPlayer.getTeam() == getTeam())
 		return NO_DENIAL;
 
 	if (getStateReligion() != NO_RELIGION &&
