@@ -12269,6 +12269,10 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	// --- Tech-gated building synergy for this bonus (simple & fast) ---
 	static const bool bValueMoreMultiEffectBonuses = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES");
 
+	// <!-- custom: cache once for reuse as i got the idea based on claude sonnet 4.5's review of a related part of this function but anyways etc. -->
+    TeamTypes const eOurTeam = getTeam();
+	CvTeamAI const& kOurTeam = GET_TEAM(eOurTeam);
+
 	if (bValueMoreMultiEffectBonuses && rOurVal.isPositive())
 	{
 		scaled rBoost = 1; // multiply our per-city value by this at the end
@@ -12319,12 +12323,12 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 
 			// Must have the building's enabling tech (if any)
 			TechTypes const eReq = (TechTypes)kB.getPrereqAndTech();
-			if (eReq != NO_TECH && !GET_TEAM(getTeam()).isHasTech(eReq))
+			if (eReq != NO_TECH && !kOurTeam.isHasTech(eReq))
 				continue;
 
 			// If the building is obsolete for us, ignore its extra effects
 			TechTypes const eObs = (TechTypes)kB.getObsoleteTech();
-			if (eObs != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObs))
+			if (eObs != NO_TECH && kOurTeam.isHasTech(eObs))
 				continue;
 
 			// How much extra this building adds for THIS bonus (health + happy)
@@ -12394,10 +12398,44 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		}
 	}
 
+	// <!-- custom: update: don't apply iAIObjective relative extra valuation between master and their vassals, as it's in their interest that each other is stronger and to trade these to each other preferentially if needed anyways etc, code added with the help of chatgpt 5.1 and then claude sonnet's 4.5 review thanks; check if accurate anyways etc. -->
+	// With the current AI_bonusTradeVal logic:
+	// 	- Key strategics (iron/copper/horse/camel) get an extra relative markup vs outsiders.
+	// 	- Inside the master–vassal cluster, that extra markup is suppressed:
+	// 		- So master ↔ vassal and sibling vassals can still trade those resources at the “normal” AI value.
+	// 		- Outsiders have to “pay properly” for them (or, at least, we’re less eager to sell).
+	// Net effect in theory:
+	// 	- You’re less likely to feed key resources to future enemies.
+	// 	- You don’t punish your own master/vassals with the same markup.
+	// 	- So clusters should be slightly more self-reinforcing, and outsiders get fewer free ponies / iron / copper.
+	// That’s all very sane.
+	// Step 1: cluster detection inside AI_bonusTradeVal
+    const TeamTypes eTheirTeam = kFromPlayer.getTeam();
+    const TeamTypes eAnchor = kOurTeam.isAVassal() ? kOurTeam.getMasterTeam() : eOurTeam;
+
+    bool bBonusTradeInMasterVassalCluster = false;
+
+    if (eTheirTeam == eAnchor)
+    {
+        bBonusTradeInMasterVassalCluster = true;
+    }
+    else
+    {
+        for (TeamAIIter<ALIVE, VASSAL_OF> it(eAnchor); it.hasNext(); ++it)
+        {
+            if (it->getID() == eTheirTeam)
+            {
+                bBonusTradeInMasterVassalCluster = true;
+                break;
+            }
+        }
+    }
+
 	// --- 2) Simple substitute multipliers for key strategics (edge rules) ---
 	static const bool bValueMoreIronCopperHorseCamelRelatively = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY");
 
-	if (bValueMoreIronCopperHorseCamelRelatively)
+	// GATE THE ENTIRE BLOCK with your cluster check:
+	if (!bBonusTradeInMasterVassalCluster && bValueMoreIronCopperHorseCamelRelatively)
 	{
 		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"));
 		static const BonusTypes B_IRON   = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2"));
@@ -12593,7 +12631,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		as a compromise. */
 	int iRefuseThresh = std::max(0, GC.getInfo(kFromPlayer.getPersonalityType()).
 			getStrategicBonusRefuseAttitudeThreshold() - 1);
-	for (PlayerAIIter<MAJOR_CIV,KNOWN_TO> itThird(getTeam());
+	for (PlayerAIIter<MAJOR_CIV,KNOWN_TO> itThird(eOurTeam);
 		itThird.hasNext(); ++itThird)
 	{
 		CvPlayerAI const& kThird = *itThird;
@@ -12663,7 +12701,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	if(!isHuman()) // Never pay more than it's worth to us
 		r.decreaseTo(rOurVal);
 	r *= per100(std::max(0, GC.getInfo(eBonus).getAITradeModifier() + 100));
-	if(GET_TEAM(eFromPlayer).isVassal(getTeam()) &&
+	if(GET_TEAM(eFromPlayer).isVassal(eOurTeam) &&
 		!GET_TEAM(eFromPlayer).isCapitulated())
 	{
 		r *= fixp(0.67); // advc.037: 0.5 in BtS
@@ -12673,7 +12711,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		would lead to a rounding error when gold is paid for a resource b/c
 		2 gpt correspond to 1 tradeVal. */
 	// Let's actually apply this even once gold trading is available
-	if (r >= 3 /*&& !GET_TEAM(getTeam()).isGoldTrading() &&
+	if (r >= 3 /*&& !kOurTeam.isGoldTrading() &&
 		!GET_TEAM(eFromPlayer).isGoldTrading()*/)
 	{
 		iR = r.roundToMultiple(4);
