@@ -93,9 +93,9 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 - “Great wonders” → “World wonders” (functionally the same).
 - Leader names corrected where needed (e.g., Montezuma → Moctezuma II).
 - Taoism → Daoism (with matching building/unit names and encyclopedia text).
-- Cho-Ko-Nu → Zhuge Nu (non-standard/incorrect Wade–Giles romanization; now using modern pinyin).
+- (Requires AdvCiv-SAS 5118+) Cho-Ko-Nu → Zhuge Nu (non-standard/incorrect Wade–Giles romanization; now using modern pinyin).
 - “Unique units” → “Civilization units” (they aren’t singletons; they’re civ-specific).
-- Cavalry → Dragoon (too generic/era-agnostic; new name and unit better matches early-industrial role).
+- (Requires AdvCiv-SAS 5119+) Cavalry → Dragoon (too generic/era-agnostic; new name and unit better matches early-industrial role).
 - Promotion names made more explicit (e.g., Counter-Archer, Counter-Siege, City Bombard Damage). Roman numerals → Arabic (“Combat 3”).
 
 ### Sevopedia reworks & related UI
