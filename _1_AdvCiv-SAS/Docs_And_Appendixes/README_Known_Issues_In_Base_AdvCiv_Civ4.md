@@ -111,7 +111,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue)  
 [76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue)  
 [77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
-[78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)  
+[78 - (Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + add a second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) to have a more dynamic tech trading not only based on personality according to chatgpt 5.1 and then corrected by claude sonnet 4.5's review (check if accurate) anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate-anyways-etc)  
 [79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players)  
 [80 - (Tremendously Improved) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
 [81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker)  
@@ -2937,15 +2937,17 @@ Results in autoplay are hard to evaluate as history changed after applying this 
 
 Would need to implement preferential master<->vassal tech trading of techs they can get from each other to see if it helps further.
 
-Update: after [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)'s change, also added vassal<->vassal(s) siblings devaluation to self research logic, since Ewuare has 2 vassals at t250. Results in Ewuare having 2 more techs and 1 less tech at t300, and Hammurabi having 0 more techs and 1 less tech. Would need to implement this idea on the tech trading side as well to measure the full impact on this save i mean even though some random fluctuation might happen more or less unpredictably or unreliably or such but anyways etc.
+Update: after [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate-anyways-etc)'s change, also added vassal<->vassal(s) siblings devaluation to self research logic, since Ewuare has 2 vassals at t250. Results in Ewuare having 2 more techs and 1 less tech at t300, and Hammurabi having 0 more techs and 1 less tech. Would need to implement this idea on the tech trading side as well to measure the full impact on this save i mean even though some random fluctuation might happen more or less unpredictably or unreliably or such but anyways etc.
 
-## 78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1
+## 78 - (Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + add a second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) to have a more dynamic tech trading not only based on personality according to chatgpt 5.1 and then corrected by claude sonnet 4.5's review (check if accurate) anyways etc
 
 See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1a1eEd0iAaTXNsBSrz_NF6NRFZOgP12kP?usp=sharing) anyways etc.
 
 Following [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc), also added logic so that master<->vassals are much more inclined to trade with each other, not just for techs they don't have, but for any tech. This synergises and expands on this previous change, in `CvPlayerAI::AI_doDiplo`.
 
-Also added a bugfix (according to chatgpt 5.1) to `AI_contactRoll(CONTACT_TRADE_TECH`, with the following rationale anyways etc.:
+Also changed the `AI_contactRoll(CONTACT_TRADE_TECH` to now include a second already computed `rContactProbMult` parameter (instead of the default of 1 in the header file but anyways etc.) so tech trading is more dynamic and not only based on personality.
+
+Rationale for the change below anyways etc:
 
 ```cpp
 					// <!-- custom: according to chatgpt 5.1, the missing 2nd parameter is a bug specifically here for this contact roll so adding it, check if accurate anyways etc. -->
@@ -2979,7 +2981,33 @@ Also added a bugfix (according to chatgpt 5.1) to `AI_contactRoll(CONTACT_TRADE_
 					// Before
 					// if (AI_contactRoll(CONTACT_TRADE_TECH))
 					// After
-					if (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult))
+					// <!-- custom: update: not a bug according to claude sonnet 4.5 and purposeful design, still seems to suit us better as such for our needs so kept as such to have dynamic tech trading, and in autoplay tech pace is not drastically different; check if accurate anyways etc. -->
+					// Since there's a check if (rMult == 1), and calls without the 2nd parameter work, the default must be rMult = 1 (defined in the header file, likely as scaled rMult = 1).
+					// So when you call AI_contactRoll(CONTACT_TRADE_TECH) without the 2nd parameter, it uses rMult = 1.0 (no modification).
+					// Can your rContactProbMult be LOWER than 1?
+					// Yes, absolutely! Let's trace through the values:
+					// Starting value:
+					// scaled rContactProbMult = 1;
+					// Tech percentage adjustment (BBAI/K-Mod):
+					// If iTechPerc = 80:
+					// rContactProbMult = 100 / (10 + 80) = 100/90 ≈ 1.11 ✓ (higher)
+					// Space victory:
+					// This increases it further. ✓
+					// Your master/vassal multipliers:
+					// These increase it. ✓
+					// BUT - Your power bias can REDUCE it:
+					// This is LOWER than the default 1.0!
+					// Impact on tech pace:
+					// Your changes create a more nuanced system:
+					//
+					// ✅ Faster within master/vassal clusters (3x contact rate)
+					// ✅ Faster when behind in tech (up to ~1.67x)
+					// ✅ Faster when pursuing space victory (1.33x)
+					// ❌ Slower against stronger rivals (0.8x)
+					// ❌ Faster against weaker rivals (1.2x)
+					//
+					// Net effect: Probably still faster overall, but with strategic differentiation (avoid empowering strong rivals, exploit weaker ones). This is actually quite intelligent AI behavior!
+					// The original AdvCiv design avoided this complexity by keeping tech trade frequency constant. Your design adds strategic depth.
 ```
 
 In autoplay, from turns 250 to 300, the master (Ewuare) has 4 more techs and only 1 less tech than before this change, which is a massively faster tech pace!!
@@ -2990,11 +3018,13 @@ All in all, it looks like they mutually benefited from this change, be from the 
 
 Update: after [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)'s update change (vassal<->vassal change/addition anyways etc.), also added vassal<->vassal(s) siblings extra tech trading chance similarly, since Ewuare has 2 vassals at t250. Results in Ewuare having 1 more tech and 1 less tech at t300, Hammurabi having 0 more techs and 0.5 less techs, and Rameses 2 (the other vassal at Ewuare) having 0 more tech and 0.5 less techs at t300. So seems more or less identical in this run/map possibly due to noise/variation. As long as not clearly detrimental, may be fine to add since this only boosts contact and does not reduce it which might have then led to possibly less predictable results i would guess (like it being detrimental or possibly beneficial more situationally or such) but not the case here so adding this i think i mean but anyways etc.
 
+Update 2: with more autoplay testing, tech pace seems mostly overall same (not much faster nor slower, but now takes into account our dynamic conditions (master-vassal(s), military power, etc.)), see code for details anyways etc.
+
 ## 79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players
 
 See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1mv377xdPwZFVtOqVZdMAzEqIBdFCktHC?usp=sharing) anyways etc.
 
-After [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)'s update change, it still seems we are slow to trade military science (for dragoons) to our master, even though rameses vassal has it long ago.
+After [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate-anyways-etc)'s update change, it still seems we are slow to trade military science (for dragoons) to our master, even though rameses vassal has it long ago.
 
 Added with the help of chatgpt 5.1 logic in `CvPlayerAI::AI_doDiplo` so that before contacting a player for any tech trade, we first consider if the tech does not already exist in our master-vasssal(s) locus, and if so do not contact players that are not part of it. Hopefully this indirectly helps contact players of our locus first for a tech we don't have.
 

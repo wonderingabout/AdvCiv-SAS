@@ -22367,34 +22367,12 @@ void CvPlayerAI::AI_doDiplo()
 					}
 					// End - SAS techTradePowerBias
 
-					// <!-- custom: according to chatgpt 5.1, the missing 2nd parameter is a bug specifically here for this contact roll so adding it, check if accurate anyways etc. -->
-					// So:
-					// 	- Calls with 1 argument → use the base personality contact frequency only (no extra multiplier).
-					// 	- Calls with 2 arguments → same base, scaled by rMult.
-					// That’s by design. You only use rMult where you want to condition the probability (e.g. on tech rank, UWAI, diplo stage).
-					// What about CONTACT_TRADE_TECH in particular?
-					// The key point:
-					// 	- AI_contactRoll(CONTACT_TRADE_TECH) is still being called without rContactProbMult.
-					// So:
-					// 	- All the logic that computes rContactProbMult (tech rank, space stage, and your vassal/master defines) is currently ignored.
-					// 	- This was already true before your changes (the K-Mod / AdvCiv code built rContactProbMult here but never passed it in), so yes, this looks very much like an old oversight.
-					// 	- Other contacts like CONTACT_ASK_FOR_HELP do pass it:
-					// So for your specific feature (making master/vassal talk more about tech), you do want to change this one line.
-					// That’s enough to:
-					// 	- Activate the old BBAI/K-Mod “we’re behind in tech → roll more often” logic.
-					// 	- Make your MASTER_TO_VASSAL / VASSAL_TO_MASTER defines actually matter.
-					// No.
-					// 	- Calls that don’t have a local rContactProbMult (PEACE_TREATY, RELIGION_PRESSURE, TRADE_BONUS, etc.) are not bugs; they just use the plain personality ContactRand, which is perfectly fine.
-					// 	- Some places (e.g. JOIN_WAR, ASK_FOR_HELP, DEFENSIVE_PACT) purposely compute an extra multiplier and pass it in.
-					// 	- UWAIAgent uses AI_contactRoll only for certain demands/pressures with its own multipliers; it’s separate and already consistent.
-					// So the only “suspicious” one from your grep is CONTACT_TRADE_TECH, because:
-					// 	- there is a rContactProbMult built right above, and
-					// 	- it’s never used in the call.
-					// That’s why I’d treat that one as an old omission and wire it up, and leave all the other 1-arg calls as they are.
-					// Short answer
-					// 	- The previous logic was already “faulty” / incomplete before we added any master–vassal stuff.
-					// 	- Our new master–vassal tech-trade boost just depends on the same multiplier, so fixing it became important for our feature to actually work.
-					// 	- But the “bug” (building rContactProbMult and then not using it) was already there in the inherited code.
+					// <!-- custom: update: add missing parameter so that tech trading is more dynamic and not solely/passively based on personality, if i understood correctly chatgpt 5.1 and then claude sonnet 4.5 who reviewed and corrected it a bit if i understood both of their explanations and the code correctly, see known issue as of now 78 for details anyways etc. -->
+					// Since there's a check if (rMult == 1), and calls without the 2nd parameter work, the default must be rMult = 1 (defined in the header file, likely as scaled rMult = 1).
+					// So when you call AI_contactRoll(CONTACT_TRADE_TECH) without the 2nd parameter, it uses rMult = 1.0 (no modification).
+					// Your changes create a more nuanced system:
+					// Net effect: Probably still faster overall, but with strategic differentiation (avoid empowering strong rivals, exploit weaker ones). This is actually quite intelligent AI behavior!
+					// The original AdvCiv design avoided this complexity by keeping tech trade frequency constant. Your design adds strategic depth.
 					// Before
 					// if (AI_contactRoll(CONTACT_TRADE_TECH))
 					// After
