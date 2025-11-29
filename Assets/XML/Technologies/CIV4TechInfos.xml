@@ -733,6 +733,10 @@
 					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
 					<iFlavor>6</iFlavor>
 				</Flavor>
@@ -773,8 +777,7 @@
 			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -5905,7 +5908,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_PHYSICS</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_STEAM_POWER_QUOTE</Quote>
 			<Sound>AS2D_TECH_STEAMPOWER</Sound>
 			<SoundMP>AS2D_TECH_MP_STEAMPOWER</SoundMP>
@@ -6423,9 +6428,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_REFRIGERATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_REFRIGERATION</Sound>
 			<SoundMP>AS2D_TECH_MP_REFRIGERATION</SoundMP>

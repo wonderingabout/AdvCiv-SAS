@@ -413,7 +413,8 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 ### Civilian Units
 
 - `DOW_UNIT_CAPTURE_CHANCE` **0 → 50**: workers can be captured **on the turn war is declared**, same as other turns. Aligns with the base capture chance and rewards opportunistic warfare.
-- **Settler** is a **national unit (1 max)** per empire. This prevents AI from building two at once or building a new one while an existing settler is travelling, improves hammer/food efficiency, and raises the stakes on timing/escorts. See [KI#37](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player).
+- **Settler** is now a **national unit** (**max 1 per player**). This prevents AI from building two at once or building a new one while an existing settler is travelling, improves hammer/food efficiency, and raises the stakes on timing/escorts. See [KI#37](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player).
+- (Requires AdvCiv-SAS 5150+) **Scouts**, **Explorers**, **Airships**, and **Robotic Recon Drones** are now **national units** (**max 2 each per player**): reduces AI scout overproduction, keeps unit maintenance more efficient, and makes early scouting choices a bit more strategic.
 
 ### Military & related units (non-exhaustive)
 
