@@ -3438,7 +3438,7 @@ bool CvUnit::canScrap() const
 				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 				static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 
-				// <!-- custom: added as recommended by chatgpt 5; as of now untested since i don't use asserts at least barely did so yet, check if accurate anyways etc -->
+				// <!-- custom: added as recommended by chatgpt 5; as of now untested assert anyways etc. -->
 				FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
 
 				const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
