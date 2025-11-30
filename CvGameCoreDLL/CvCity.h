@@ -22,6 +22,11 @@ public:
 	void setupGraphical();
 	void reloadEntity(); // advc.095
 	void kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits = true);									// Exposed to Python
+	
+	// Helper: attempts to force-construct a single building
+	// Returns true if we set an emergency building order (or one was already queued)
+	bool SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass);
+
 	void doTurn();
 	void doRevolt(); // advc: previously in CvPlot::doCulture
 	/*	K-Mod. public for the "insert culture" espionage mission.

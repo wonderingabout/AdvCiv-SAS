@@ -529,6 +529,48 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 }
 
 
+// Helper: attempts to force-construct a single building
+// Returns true if we set an emergency building order (or one was already queued)
+// <!-- custom: note: code comments use the Harbor building since it was the building of which i used the code of if i may say but anyways etc, added with the help of claude sonnet 4.5 based on seemingly previously working fine code that was directly in CvCity::doTurn, check if accurate but anyways etc. -->
+bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass)
+{
+	if (eBuildingClass == NO_BUILDINGCLASS)
+		return false;
+
+	const CvCivilizationInfo& kCivInfo = GC.getCivilizationInfo(getCivilizationType());
+	const BuildingTypes eBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings(eBuildingClass);
+
+	if (eBuilding == NO_BUILDING)
+		return false;
+
+	// When to use each
+	// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?” regardless of techs.
+	// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?”
+	// For your emergencies:
+	// - Harbor: use getNumBuilding(...) (harbors don’t obsolete anyway; this avoids any edge weirdness).
+	// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?” guard; canConstruct(...) will block obsolete castle builds.
+	if (getNumBuilding(eBuilding) != 0)
+		return false;
+
+	if (!canConstruct(eBuilding, false, false, true))
+		return false;
+
+	// already doing it
+	if (getProductionBuilding() == eBuilding)
+	{
+		return true;
+	}
+	else
+	{
+		// Otherwise: force it to the front of the queue
+		clearOrderQueue();                     // hard override
+		pushOrder(ORDER_CONSTRUCT, eBuilding); // put Harbor at head
+		setChooseProductionDirty(false);       // don't clear it next turn
+		// <!-- custom: don't overwrite urgent building anyways etc -->
+		return true;                           // done
+	}
+}
+
 void CvCity::doTurn()
 {
 	PROFILE_FUNC();
@@ -594,13 +636,6 @@ void CvCity::doTurn()
 	// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
 	const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
 
-	// <!-- custom: note to chatgpt 5 and other AIs and/or such: it looks like `GC.getCivilizationInfo` does not exist at all in our entire .cpp and .h codebase (but there are many in .py files though although not relevant here for our need if i'm not mistaken but anyways etc), but there are many .cpp and .h pieces of code in our mod (including which i didn't write myself at all) like `GC.getInfo(getCivilizationType())` so it may be the more correct one in our mod, although after looking at CvGlobals.h and chatgpt 5's analysis of it it seems fine to use any, sticking with the only used one in this case i mean but anyways etc, check if accurate anyways etc -->
-	// Yep—that header explains it perfectly.
-	// GC.getCivilizationInfo(eCiv) is just a tiny wrapper that returns getInfo(eCiv). In AdvCiv/K-Mod it’s defined inline in CvGlobals.h:
-	// DllExport CvCivilizationInfo& getCivilizationInfo(CivilizationTypes eCivilization) { return getInfo(eCivilization); }
-	// So either call (getCivilizationInfo(...) or getInfo(...)) yields the same CvCivilizationInfo&. Your earlier grep just showed project usage prefers getInfo(...), but both compile to the same thing.
-	const CvCivilizationInfo& kCivInfo = GC.getInfo(getCivilizationType());
-
 	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic if i'm not mistaken but anyways etc -->
 	bool bEmergencyBuilding = false;
 
@@ -629,34 +664,11 @@ void CvCity::doTurn()
 			{
 				// <!-- custom: performance optimization: compute this only once if i'm not mistaken anyways etc; e.g. "BUILDINGCLASS_HARBOR", check defines for string value anyways etc. -->
 				static const BuildingClassTypes eWaterFoodBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME"));
-				BuildingTypes eWaterFoodBuilding = NO_BUILDING;
-				if (eWaterFoodBuildingClass != NO_BUILDINGCLASS)
-				{
-					eWaterFoodBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings(eWaterFoodBuildingClass);
-				}
 
-				// When to use each
-				// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?” regardless of techs.
-				// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?”
-				// For your emergencies:
-				// - Harbor: use getNumBuilding(...) (harbors don’t obsolete anyway; this avoids any edge weirdness).
-				// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?” guard; canConstruct(...) will block obsolete castle builds.
-				if ((eWaterFoodBuilding != NO_BUILDING) &&
-					(getNumBuilding(eWaterFoodBuilding) == 0) &&
-					canConstruct(eWaterFoodBuilding, false, false, true))
+				// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+				if (SASTryEmergencyBuilding(eWaterFoodBuildingClass))
 				{
-					// if already building Harbor, let it finish
-					if (getProductionBuilding() == eWaterFoodBuilding)
-					{
-						bEmergencyBuilding = true;	// <!-- custom: don't overwrite urgent building anyways etc -->
-					}
-					else
-					{
-						clearOrderQueue();                       		// hard override
-						pushOrder(ORDER_CONSTRUCT, eWaterFoodBuilding);	// put Harbor at head
-						setChooseProductionDirty(false);         		// don't clear it next turn
-						bEmergencyBuilding = true;						// done
-					}
+					bEmergencyBuilding = true;
 				}
 			}
 		}
@@ -724,70 +736,41 @@ void CvCity::doTurn()
 			// Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger
 			if (bShouldBuildEmergencyDefenseBuildings)
 			{
-				// Resolve civ-specific building from BuildingClass
-				static const BuildingClassTypes eWallsClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME"));
-				static const BuildingClassTypes eCastleClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME"));
-
-				// 
-				static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL");
-				static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL");
-
-				const int iEarlyCutoff1 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL * iTrainPct) / 100;
-				const int iEarlyCutoff2 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL * iTrainPct) / 100;
-
-				const bool bEarlyBuildingClassName1 = (iCurrentTurn <= iEarlyCutoff1);
-				const bool bEarlyBuildingClassName2 = (iCurrentTurn <= iEarlyCutoff2);
-
 				// First: Walls
-				if (!bEarlyBuildingClassName1)
+				if (!bEmergencyBuilding)
 				{
-					BuildingTypes eWalls = NO_BUILDING;
-					if (eWallsClass != NO_BUILDINGCLASS)
-					{
-						eWalls = (BuildingTypes)kCivInfo.getCivilizationBuildings(eWallsClass);
-					}
+					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL");
+					const int iEarlyCutoff1 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL * iTrainPct) / 100;
+					// The cutoff is meant to prevent building too early.
+					const bool bEarlyBuildingClassName1 = (iCurrentTurn <= iEarlyCutoff1);
 
-					if ((eWalls != NO_BUILDING) &&
-						(getNumBuilding(eWalls) == 0) &&
-						canConstruct(eWalls, false, false, true))
+					if (!bEarlyBuildingClassName1)
 					{
-						if (getProductionBuilding() == eWalls)
+						static const BuildingClassTypes eWallsClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME"));
+
+						// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+						if (SASTryEmergencyBuilding(eWallsClass))
 						{
-							bEmergencyBuilding = true; // already doing it
-						}
-						else
-						{
-							clearOrderQueue();                         // hard override
-							pushOrder(ORDER_CONSTRUCT, eWalls);        // head of queue
-							setChooseProductionDirty(false);           // keep it next turn
 							bEmergencyBuilding = true;
 						}
 					}
 				}
-				// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
-				// <!-- custom: note: this should be an if not an else if else we'd have a bug: "bugfix emergency castle gate being unreachable after we are past the emergency walls turn gate as nicely found by chatgpt 5.1 (i think chatgpt 5 had found it too but i disregarded/skipped it i mean my bad i mean but anyways etc thanks anyways etc) thanks but anyways etc". I added a !bEmergencyBuilding to avoid double orders in same turn which was my intention and which matches the water food and later unit code check but anyways etc. -->
-				// As soon as !bEarlyBuildingClassName1 is true (i.e. iCurrentTurn > cutoff1), you always go into the Walls branch, and the else if Castle branch never runs on that turn.
-				if (!bEmergencyBuilding && !bEarlyBuildingClassName2)
-				{
-					BuildingTypes eCastle = NO_BUILDING;
-					if (eCastleClass != NO_BUILDINGCLASS)
-					{
-						eCastle = (BuildingTypes)kCivInfo.getCivilizationBuildings(eCastleClass);
-					}
 
-					if ((eCastle != NO_BUILDING) &&
-						(getNumBuilding(eCastle) == 0) &&
-						canConstruct(eCastle, false, false, true))
+				// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
+				if (!bEmergencyBuilding)
+				{
+					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL");
+					const int iEarlyCutoff2 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL * iTrainPct) / 100;
+					// The cutoff is meant to prevent building too early.
+					const bool bEarlyBuildingClassName2 = (iCurrentTurn <= iEarlyCutoff2);
+
+					if (!bEarlyBuildingClassName2)
 					{
-						if (getProductionBuilding() == eCastle)
+						static const BuildingClassTypes eCastleClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME"));
+
+						// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+						if (SASTryEmergencyBuilding(eCastleClass))
 						{
-							bEmergencyBuilding = true;
-						}
-						else
-						{
-							clearOrderQueue();
-							pushOrder(ORDER_CONSTRUCT, eCastle);
-							setChooseProductionDirty(false);
 							bEmergencyBuilding = true;
 						}
 					}
@@ -954,6 +937,13 @@ void CvCity::doTurn()
 				static const int TH_CLA = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
 				static const int TH_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_TIER_THRESHOLD");
 				static const int TH_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD");
+
+				// <!-- custom: note to chatgpt 5 and other AIs and/or such: it looks like `GC.getCivilizationInfo` does not exist at all in our entire .cpp and .h codebase (but there are many in .py files though although not relevant here for our need if i'm not mistaken but anyways etc), but there are many .cpp and .h pieces of code in our mod (including which i didn't write myself at all) like `GC.getInfo(getCivilizationType())` so it may be the more correct one in our mod, although after looking at CvGlobals.h and chatgpt 5's analysis of it it seems fine to use any, sticking with the only used one in this case i mean but anyways etc, check if accurate anyways etc -->
+				// Yep—that header explains it perfectly.
+				// GC.getCivilizationInfo(eCiv) is just a tiny wrapper that returns getInfo(eCiv). In AdvCiv/K-Mod it’s defined inline in CvGlobals.h:
+				// DllExport CvCivilizationInfo& getCivilizationInfo(CivilizationTypes eCivilization) { return getInfo(eCivilization); }
+				// So either call (getCivilizationInfo(...) or getInfo(...)) yields the same CvCivilizationInfo&. Your earlier grep just showed project usage prefers getInfo(...), but both compile to the same thing.
+				const CvCivilizationInfo& kCivInfo = GC.getInfo(getCivilizationType());
 
 				FOR_EACH_ENUM(Unit)
 				{
