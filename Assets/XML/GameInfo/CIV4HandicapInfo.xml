@@ -191,7 +191,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>118</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>115</iAIInflationPercent>
@@ -318,7 +319,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>112</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>110</iAIInflationPercent>
@@ -443,7 +445,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>106</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>105</iAIInflationPercent>
@@ -573,7 +576,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>100</iAIInflationPercent>
@@ -706,7 +710,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>94</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>95</iAIInflationPercent>
@@ -849,7 +854,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>88</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>90</iAIInflationPercent>
@@ -986,7 +992,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>82</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>85</iAIInflationPercent>
@@ -1131,7 +1138,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>76</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
@@ -1285,7 +1293,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- was 60 -->
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<!-- advc.251 (end) -->
-			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+			<!-- custom: was 50 -->
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
 			<!-- custom: was 50 -->
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>75</iAIInflationPercent>

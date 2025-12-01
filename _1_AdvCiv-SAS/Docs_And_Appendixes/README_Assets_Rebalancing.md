@@ -555,7 +555,7 @@ if i am not mistaken, he promoted buddhism as the state religion; i don't know w
 
 ### Other leaders
 
-Not documented in my old notes, but many leaders have also been changed, mostly if not only to paganism.
+Not documented in my old notes (sometimes as of now directly in XML code comments near `<FavoriteReligion>` it seems (but check to be sure anyways etc.)), but many leaders have also been changed, mostly if not only to paganism.
 
 ### Summary of the favourite religion leaders' changes in advciv-sas anyways etc
 
@@ -579,7 +579,7 @@ A summary of my previous notes with the help of chatgpt 5.1 (check if accurate a
 | Ewuare             |              | **Paganism**     | New leader in AdvCiv-SAS; for the Kingdom of Benin, Christianity appears late and local religion (including human sacrifice and royal ritual) is central, so Ewuare uses Paganism as favourite religion. |
 | Frederick          | Christianity | **None**         | French and other sources often describe Frederick II as deist/agnostic; his favourite religion is changed from Christianity to None to reflect that more sceptical stance. |
 | Gandhi             | Hinduism     | Keep             |           |
-| Genghis Khan       | None         | **Daoism**       | Historically tengrist but showed particular respect for the Quanzhen Taoist master Qiu Chuji; among your available religions, Daoism is the closest fit, and it usefully fills what was previously an empty favourite-religion slot for him. |
+| Genghis Khan       | None         | **Daoism**       | Historically tengrist but showed particular respect for the Quanzhen Daoist master Qiu Chuji; among your available religions, Daoism is the closest fit, and it usefully fills what was previously an empty favourite-religion slot for him. |
 | Gilgamesh          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
 | Hammurabi          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
 | Hannibal           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
@@ -600,7 +600,7 @@ A summary of my previous notes with the help of chatgpt 5.1 (check if accurate a
 | Pacal              | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
 | Pericles           | None         | **Paganism**     | Pericles leans heavily on civic religion, festivals and public cult; giving him Paganism as a favourite ties him to the generic “classical city cults” bucket instead of leaving him without any religious preference. |
 | Peter              | None         | **Christianity** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Qin Shi Huang      | Taoism       | **Daoism**       | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Qin Shi Huang      | Daoism       | Keep             |           |
 | Ragnar             | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
 | Ramesses           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
 | Roosevelt          | Christianity | Keep             |           |
