@@ -346,9 +346,9 @@ the finished version.
 
 ## Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc
 
-See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
+See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details.
 
-Note: this also includes fixes/fixed issues as well for those of these we solved anyways etc
+Note: this also includes fixes/fixed issues as well for those of these we solved anyways etc.
 
 Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) for details or/and additional info. If not there, there may be some extra info in [Modding_Ressources/README.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md) as well although it should be more technical and with some caveats there but anyways etc.
 

@@ -6,9 +6,15 @@ Some of the asset rebalancing is shown here (not exhaustive)
 
 Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :), and then i adjusted a bit after but anyways etc. Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
 
+[How to](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#how-to)  
 [Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#starting-techs-rework)  
 [Leaders' traits rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-traits-rework)  
 [Leaders' favourite civics rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-favourite-civics-rework)  
+[Leaders' Favourite religions rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-favourite-religions-rework)  
+
+## How to
+
+A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc) anyways etc.) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table. There may be easier ways to do it, but this one is quite effective and worked for me, hopefully helpful but anyways etc.
 
 ## Starting techs rework
 
@@ -20,45 +26,7 @@ As it is too lengthy to put in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS
 
 Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too if i may say but anyways etc
 
-| Civ                      | Lines       | FreeTechs                               | Allowed-only? |
-|--------------------------|-------------|------------------------------------------|---------------|
-| America                  | 9–142       | 109→Fishing, 113→Agriculture             | ❌            |
-| Arabia                   | 143–244     | 219→The Wheel, 223→Mysticism             | ❌            |
-| Aztec                    | 245–346     | 321→Mysticism, 325→Hunting               | ✅            |
-| Babylon                  | 347–452     | 427→Agriculture, 431→The Wheel           | ❌            |
-| Byzantium                | 453–562     | 537→The Wheel, 541→Mysticism             | ❌            |
-| Carthage                 | 563–669     | 644→Fishing, 648→Mining                  | ✅            |
-| Celt                     | 670–784     | 755→Hunting, 759→Mysticism               | ✅            |
-| China                    | 785–898     | 869→Agriculture, 873→Mining              | ❌            |
-| Egypt                    | 899–1024    | 995→The Wheel, 999→Agriculture           | ❌            |
-| England                  | 1025–1136   | 1103→Fishing, 1107→Mining                | ✅            |
-| Ethiopia                 | 1137–1256   | 1215→Hunting, 1219→Mining                | ✅            |
-| Kingdom of Benin         | 1257–1366   | 1341→Mysticism, 1345→Fishing             | ✅            |
-| France                   | 1367–1480   | 1447→The Wheel, 1451→Agriculture         | ❌            |
-| Germany                  | 1481–1603   | 1574→Pottery, 1578→Mining                | ✅            |
-| Greece                   | 1604–1718   | 1689→Fishing, 1693→Hunting               | ✅            |
-| Holy Roman               | 1719–1830   | 1805→Mysticism, 1809→Hunting             | ✅            |
-| Inca                     | 1831–1931   | 1906→Agriculture, 1910→Mysticism         | ❌            |
-| India                    | 1932–2098   | 2069→Mysticism, 2073→Mining              | ✅            |
-| Japan                    | 2099–2199   | 2174→Fishing, 2178→The Wheel             | ❌            |
-| Khmer                    | 2200–2307   | 2282→Hunting, 2286→Mining                | ✅            |
-| Korea                    | 2308–2404   | 2379→Mining, 2383→Mysticism              | ✅            |
-| Mali                     | 2405–2500   | 2475→The Wheel, 2479→Mining              | ❌            |
-| Maya                     | 2501–2610   | 2585→Mining, 2589→Mysticism              | ✅            |
-| Mongol                   | 2611–2713   | 2684→The Wheel, 2688→Hunting             | ❌            |
-| Native America           | 2714–2829   | 2804→Agriculture, 2808→Fishing           | ❌            |
-| Netherlands              | 2830–2942   | 2917→Agriculture, 2921→Fishing           | ❌            |
-| Ottoman                  | 2943–3048   | 3019→The Wheel, 3023→Agriculture         | ❌            |
-| Persia                   | 3049–3183   | 3154→Agriculture, 3158→Hunting           | ❌            |
-| Portugal                 | 3184–3294   | 3269→Fishing, 3273→Mining                | ✅            |
-| Rome                     | 3295–3419   | 3390→Fishing, 3394→Mining                | ✅            |
-| Russia                   | 3420–3531   | 3498→Hunting, 3502→Mining                | ✅            |
-| Spain                    | 3532–3638   | 3613→Fishing, 3617→Mysticism             | ✅            |
-| Sumeria                  | 3639–3742   | 3716→Mysticism, 3720→Pottery             | ✅            |
-| Scandinavia              | 3743–3847   | 3822→Fishing, 3826→Hunting               | ✅            |
-| Zulu                     | 3848–3949   | 3924→Agriculture, 3928→Hunting           | ❌            |
-| Minor                    | 3950–4087   | 4046→Mining, 4050→Mysticism, 4054→Fishing, 4058→The Wheel, 4062→Agriculture, 4066→Hunting | ❌ |
-| Barbarian                | 4088–EOF    | 4487→Pottery, 4491→Fishing, 4495→Seafaring, 4500→Masonry | ❌ |
+See below in the main table after changes as it includes the before values as well but anyways etc.
 
 #### Global tech totals (should sum to 70 = 35 civs × 2) - before change anyways etc
 
@@ -164,61 +132,7 @@ This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/C
 
 #### main table before changes to traits anyways etc
 
-| Leader | Traits |
-|---|---|
-| Alexander | Philosophical, Aggressive |
-| Asoka | Spiritual, Organized |
-| Augustus | Imperialist, Industrious |
-| Bismarck | Expansive, Industrious |
-| Boudica | Charismatic, Aggressive |
-| Brennus | Spiritual, Charismatic |
-| Catherine | Creative, Imperialist |
-| Charlemagne | Imperialist, Protective |
-| Churchill | Charismatic, Protective |
-| Cyrus | Charismatic, Imperialist |
-| Darius | Organized, Financial |
-| De Gaulle | Industrious, Charismatic |
-| Elizabeth | Philosophical, Financial |
-| Ewuare | Imperialist, Spiritual |
-| Frederick | Philosophical, Organized |
-| Gandhi | Spiritual, Philosophical |
-| Genghis Khan | Aggressive, Imperialist |
-| Gilgamesh | Protective, Creative |
-| Hammurabi | Organized, Aggressive |
-| Hannibal | Financial, Charismatic |
-| Hatshepsut | Spiritual, Creative |
-| Huayna Capac | Industrious, Financial |
-| Isabella | Spiritual, Expansive |
-| Joao | Imperialist, Expansive |
-| Julius Caesar | Organized, Imperialist |
-| Justinian | Spiritual, Imperialist |
-| Kublai Khan | Aggressive, Creative |
-| Lincoln | Philosophical, Charismatic |
-| Louis XIV | Industrious, Creative |
-| Mansa Musa | Spiritual, Financial |
-| Mao Zedong | Expansive, Protective |
-| Mehmed | Expansive, Organized |
-| Moctezuma | Aggressive, Spiritual |
-| Napoleon | Organized, Charismatic |
-| Pacal | Financial, Expansive |
-| Pericles | Philosophical, Creative |
-| Peter | Philosophical, Expansive |
-| Qin Shi Huang | Industrious, Protective |
-| Ragnar | Financial, Aggressive |
-| Ramesses | Spiritual, Industrious |
-| Roosevelt | Industrious, Organized |
-| Saladin | Protective, Spiritual |
-| Shaka | Aggressive, Expansive |
-| Sitting Bull | Philosophical, Protective |
-| Stalin | Industrious, Aggressive |
-| Suleiman | Imperialist, Philosophical |
-| Suryavarman | Expansive, Creative |
-| Tokugawa | Protective, Aggressive |
-| Victoria | Imperialist, Financial |
-| Wang Kon | Financial, Protective |
-| Washington | Expansive, Charismatic |
-| Willem van Oranje | Creative, Financial |
-| Zara Yaqob | Creative, Organized |
+See below in the main table after changes as it includes the before values as well but anyways etc.
 
 #### raw traits assignment count
 
@@ -429,7 +343,7 @@ Goal is to make it more historically accurate, balanced in gameplay, and more or
 
 ### before changes favourite civics per leader anyways etc
 
-(see below at the after changes since it lists them as well anyways etc)
+See below in the main table after changes as it includes the before values as well but anyways etc.
 
 ### before changes favourite civics count per civic anyways etc
 
@@ -566,3 +480,139 @@ Also i added this info from chatgpt 5.1's thoughts as i found it very accurate a
 | Tribalism            | 0                  |
 
 Sanity: total favourites across all civics = 53 (one per leader, matches leader count).
+
+## Leaders' Favourite religions rework
+
+This is the oldest rework i made and which i had made without AI if i remember it correctly at least at that time, unlike how i did it later as of now for the other reworks in this doc.
+
+Since its structure and way of doing it was quite differently done (not using chatgpt or such to web search info but digging myself if i remember it correctly but anyways etc.) (note: chatgpt 5.1 helped me a bit to find some typoes or such here and then as of now to format and summarize the already existing data into a table and/or such but anyways etc.), adding them here in the doc after these other reworks but anyways etc.
+
+### notes_about_religious_design
+
+#### Brennus
+
+According to this document [https://boutique.tropismes.com/bonus/extrait/9782812148347](https://boutique.tropismes.com/bonus/extrait/9782812148347), page 29, Gaul leaders/chiefs (maybe that includes brennus of the Gaul too?) did not exert a strong religious pressure on their people as they were driven by freedom if i understand it correctly.
+
+If this accurate and reliable, i may want/have/need to change brennus's xml to focus less on religion and more on civis, perhaps even boudica's but there may be more data on her since she is more recent, and i didn't look yet anyways etc (at least not in detail, only that she was seemingly more religious at least than what i know now of brenus if this doc is accurate, but it was quick glance too on boudica anyways so may look later or maybe not though, anyways etc.), so may apply this to brennus only or/and other similar leaders or not anyways etc.
+
+Note: in advciv-sas as of now confucianism has been removed and replaced with paganism religion anyways etc.
+
+#### Churchill
+
+From a quick search not detailed but anyways etc., churchill didn't seem to have a strong preference for it or any religion, so is none now, allows also to declutter christianity that was bloated.
+
+#### Cyrus
+
+cyrus seems to not be strongly religious and quite open too in/from [https://en.wikipedia.org/wiki/Cyrus_the_Great#Religion_and_philosophy](https://en.wikipedia.org/wiki/Cyrus_the_Great#Religion_and_philosophy) if i am not mistaken anyways etc.
+
+#### Darius
+
+it seems darius is a bit more religious though (at least than cyrus), in these sources:
+
+- [http://www.teheran.ir/spip.php?article2533#gsc.tab=0](http://www.teheran.ir/spip.php?article2533#gsc.tab=0)
+- [https://en.wikipedia.org/wiki/Religion_in_the_Achaemenid_Empire](https://en.wikipedia.org/wiki/Religion_in_the_Achaemenid_Empire)
+
+#### Ewuare
+
+as for Ewuare (kingdom of benin), christianity seems to be an important part of the kingdom, but the beninese also have their own kind of or own religion with human sacrifices ([https://en.wikipedia.org/wiki/Kingdom_of_Benin#Human_sacrifice](https://en.wikipedia.org/wiki/Kingdom_of_Benin#Human_sacrifice)) and/or such but anyways etc., plus their benin bronzes and such; makes me more lean (if i am not mistaken) towards the fact that (THEY) they were more pagans, so going with that instead but anyways etc.
+
+#### Frederick
+
+frederick seems to be agnostic (quite strongly xd from the very little read i had here (in french) which is quite funny, the ironic pleasantry/plaisanterie in his letter anyways etc.): [https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)](https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)); but i read little about it and this page seems enough to say he is agnostic indeed maybe anyways etc, but seems a bit enough.
+
+update: since i can't find what this refers to at a quick glance, i now asked chatgpt 5.1 about it still no luck xd i mean but anyways etc. My best guess is in one of his correspondances with someone else he noted how something is ironic or/and paradoxical, this is how i remember it but nothing specific, maybe i should have written it or maybe not since i didn't, but anyways etc. At least i tried xd maybe i mean if i may say but anyways etc.
+
+#### Genghis Khan
+
+genghis khan seems to have been tengrist something i mean anyways, but according to a quick search, it seems he had great respect for daoism: [https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme](https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme)
+
+>Bien que Gengis Khan ait été avant tout tengriste, il manifesta un grand respect à l'égard du dirigeant de la secte taoïste Quanzhen, Qiu Chuji, lorsque celui-ci lui rendit visite dans l'Hindou Kouch, à Kaboul, en 1222, à son invitation, et prédit la conquête de la Chine par les Mongols. En retour, Gengis Khan lui donna d'importants pouvoirs politiques et religieux. Il fut exempté de taxes, et depuis Pékin, sa secte fut la plus favorisée de l'Empire Mongol. Il défendit la liberté d'autogestion des autres sectes, auprès du khagan, qu'il s'agisse des taoïstes, des bouddhistes, des chrétiens nestoriens ou des musulmans[18].
+
+therefore, it is not incorrect to say, among civ4 advciv-sas's religions in particular, hat his favourite religion, if he had to choose one, is not none but maybe rather indeed daoism, is also quie convenient even though was not main goal that this is not filled, anyways etc., one leader can have a favourite religion even though not having said religion themselves; this is perhaps an important distinction i should add in changelogs and added now anyways etc.
+
+#### Lincoln
+
+as for lincoln, according to sources i read, lincoln was not christian, not strongly enough at all at least, here are a few sources i read:
+
+- [https://en.wikipedia.org/wiki/Religious_views_of_Abraham_Lincoln#:~:text=Although%20Lincoln%20never%20made%20an,Christ%20in%20the%20religious%20sense](https://en.wikipedia.org/wiki/Religious_views_of_Abraham_Lincoln#:~:text=Although%20Lincoln%20never%20made%20an,Christ%20in%20the%20religious%20sense)
+- [https://apps.legislature.ky.gov/LegislativeMoments/moments09RS/web/Lincoln%20moments%206.pdf](https://apps.legislature.ky.gov/LegislativeMoments/moments09RS/web/Lincoln%20moments%206.pdf)
+- [https://www.thegospelcoalition.org/blogs/justin-taylor/was-abraham-lincoln-a-christian/](https://www.thegospelcoalition.org/blogs/justin-taylor/was-abraham-lincoln-a-christian/)
+- [https://www.reddit.com/r/todayilearned/comments/llardq/til_that_abraham_lincolns_religious_views_are/](https://www.reddit.com/r/todayilearned/comments/llardq/til_that_abraham_lincolns_religious_views_are/)
+
+i did not look at them in (long) detail, but i think in detail enough hopefully but anyways etc. that i can assert quite faithfully/strongly but anways maybe that he was definitely leaning more agnostic than christian, reddit comments also lean in that direction, was not christian even though had a strong christian education. Lincoln seems more agnostic or not strongly favouring a religion, so for civ4 i changed it to none rather than christianity, he seems to be a free person rather which i like i mean if i may say but anyways etc. (But also even if he were not such free man and really christian, he is free to do so to (else it would defeat the purpose xd i mean if i may say but anyways etc.)).
+
+#### Pericles
+
+pericles prefers religion according to [https://ehne.fr/fr/eduscol/pericles-est-il-vraiment-le-grand-homme-de-la-democratie-athenienne#:~:text=Enfin%2C%20P%C3%A9ricl%C3%A8s%20s'est%20appuy%C3%A9,ont%20beaucoup%20fait%20pour%20la](https://ehne.fr/fr/eduscol/pericles-est-il-vraiment-le-grand-homme-de-la-democratie-athenienne#:~:text=Enfin%2C%20P%C3%A9ricl%C3%A8s%20s'est%20appuy%C3%A9,ont%20beaucoup%20fait%20pour%20la) so going with religion paganism hopefully accurate enough anyways etc.
+
+#### Wang Kon
+
+for wang kon, according to civ4 wiki (in [https://civilization.fandom.com/wiki/Wang_Kon_(Civ4)](https://civilization.fandom.com/wiki/Wang_Kon_(Civ4))):
+
+>During his reign Wang Kon promoted Buddhism as the state religion, and oversaw the conquest of northern Korea and parts of Manchuria. When dealing with local clans,
+
+if i am not mistaken, he promoted buddhism as the state religion; i don't know why his preferred religion was confucianism, but since there is no confucianism anymore now in advciv-sas, he leans closer (i think) to buddhism based on this maybe anyways etc. than say paganism or none religion (favourite), is convenient to increase buddhism leader count that is really low and not increase paganism leader count that is high enough (a bit too high but historically fine and matching christinaity so maybe fine too anyways etc); Hopefully fine enough and accurate enough even though not exhaustive but anyways etc.
+
+### Other leaders
+
+Not documented in my old notes, but many leaders have also been changed, mostly if not only to paganism.
+
+### Summary of the favourite religion leaders' changes in advciv-sas anyways etc
+
+A summary of my previous notes with the help of chatgpt 5.1 (check if accurate anyways etc.) anyways etc, showing base advciv's (except for some leader(s) like Ewuare since they didn't exist in base advciv but anyways etc.) favourite religion vs advciv-sas.
+
+| Leader             | Base         | New              | Rationale |
+| ------------------ | ------------ | ---------------- | --------- |
+| Alexander          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Asoka              | Buddhism     | Keep             |           |
+| Augustus           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Bismarck           | Christianity | Keep             |           |
+| Boudica            | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Brennus            | None         | Keep             | Already had no favourite religion; the Brennus note mainly informed other XML tweaks (less religious emphasis, more civics focus), not a favourite religion change. |
+| Catherine          | Christianity | Keep             |           |
+| Charlemagne        | Christianity | Keep             |           |
+| Churchill          | Christianity | **None**         | Biographical sketches don’t show a strong personal attachment to any one faith; dropping his Christian favourite both matches that and helps reduce Christianity’s over-representation in the roster. |
+| Cyrus              | None         | Keep             | After a quick read of his religious views, Cyrus looks relatively open and not strongly attached to a single faith, so leaving his favourite religion as None still fits. |
+| Darius             | None         | **Paganism**     | Darius appears more overtly religious than Cyrus in the sources; giving him a specific favourite religion in-game (Paganism as generic Achaemenid state cult) reflects that. |
+| De Gaulle          | Christianity | Keep             |           |
+| Elizabeth          | Christianity | Keep             |           |
+| Ewuare             |              | **Paganism**     | New leader in AdvCiv-SAS; for the Kingdom of Benin, Christianity appears late and local religion (including human sacrifice and royal ritual) is central, so Ewuare uses Paganism as favourite religion. |
+| Frederick          | Christianity | **None**         | French and other sources often describe Frederick II as deist/agnostic; his favourite religion is changed from Christianity to None to reflect that more sceptical stance. |
+| Gandhi             | Hinduism     | Keep             |           |
+| Genghis Khan       | None         | **Daoism**       | Historically tengrist but showed particular respect for the Quanzhen Taoist master Qiu Chuji; among your available religions, Daoism is the closest fit, and it usefully fills what was previously an empty favourite-religion slot for him. |
+| Gilgamesh          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Hammurabi          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Hannibal           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Hatshepsut         | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Huayna Capac       | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Isabella           | Christianity | Keep             |           |
+| Joao               | Christianity | Keep             |           |
+| Julius Caesar      | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Justinian          | Christianity | Keep             |           |
+| Kublai Khan        | Buddhism     | Keep             |           |
+| Lincoln            | Christianity | **None**         | Sources generally paint Lincoln as religiously complex / sceptical rather than a clear Christian partisan; treating him as effectively agnostic and removing his Christian favourite keeps him more neutral. |
+| Louis XIV          | Christianity | Keep             |           |
+| Mansa Musa         | Christianity | **Islam**        | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Mao Zedong         | Hinduism     | **None**         | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Mehmed             | Islam        | Keep             |           |
+| Moctezuma          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Napoleon           | Christianity | Keep             |           |
+| Pacal              | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Pericles           | None         | **Paganism**     | Pericles leans heavily on civic religion, festivals and public cult; giving him Paganism as a favourite ties him to the generic “classical city cults” bucket instead of leaving him without any religious preference. |
+| Peter              | None         | **Christianity** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Qin Shi Huang      | Taoism       | **Daoism**       | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Ragnar             | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Ramesses           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Roosevelt          | Christianity | Keep             |           |
+| Saladin            | Islam        | Keep             |           |
+| Shaka              | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Sitting Bull       | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Stalin             | None         | Keep             |           |
+| Suleiman           | Islam        | Keep             |           |
+| Suryavarman        | Hinduism     | Keep             |           |
+| Tokugawa           | Buddhism     | Keep             |           |
+| Victoria           | Christianity | Keep             |           |
+| Wang Kon           | Confucianism | **Buddhism**     | As founder of Goryeo he promoted Buddhism as state religion; with Confucianism removed from AdvCiv-SAS, switching his favourite to Buddhism keeps him anchored to an organised religion that matches the history better than Paganism or None. |
+| Washington         | Christianity | Keep             |           |
+| Willem van Oranje  | Christianity | Keep             |           |
+| Zara Yaqob         | Christianity | Keep             |           |
