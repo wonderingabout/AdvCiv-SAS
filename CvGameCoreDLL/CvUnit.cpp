@@ -7045,6 +7045,11 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		/*iPrice *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * GET_PLAYER(getOwner()).getCurrentEra()) + 100));
 		iPrice /= 100;*/
 	}
+
+	// <!-- custom: tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
+	static const int iSAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT = std::max(0, GC.getDefineINT("SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT"));
+	iPrice = (iPrice * iSAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT) / 100;
+
 	iPrice -= (iPrice * getUpgradeDiscount()) / 100;
 
 	return std::max(0, iPrice); // advc.mnai: max (future-proofing)

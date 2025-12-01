@@ -418,6 +418,14 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 - **Reassignments:** e.g., **Mechanized Infantry** counts as **Armored** (not “Gun”) for counter logic.
 - **City defenses** affect all units, including gunpowder and later. See `bIgnoreBuildingDefense` in `CIV4UnitInfos.xml`.
 - **Collateral** values normalized (fixed cases like **Stealth Bomber** having higher base collateral than its limit). Most units now show a **collateral damage limit** (starting at 0 for many). **Collateral promotions 1/2** are broadly available where eligible. Info shown in Sevopedia (Unit chart/Special Abilities) and unit hover panels.
+- (Requires AdvCiv-SAS 5157+) **Unit upgrade costs — aligned and reduced.** Increased `iAIUnitUpgradePercent` from **50 → 100**, so AIs now use the **same handicap upgrade multiplier** as humans (no more half-cost AI upgrades). In parallel, `CvUnit::upgradePrice` applies a global **modifier** (current value: **75%**, tunable), because the old human rate felt too expensive in play. Net effect: in base AdvCiv the AI paid **50%** and the human **100%** of the base upgrade cost; in AdvCiv-SAS, **both now pay 75%** of that cost.
+- **Upgrade paths** simplified and made more sensible:
+  - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
+  - Cross-mount upgrades allowed (**Horse ↔ Camel** where logical).
+  - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
+  - **Dragoons → Tanks** now.
+- **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
+- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery). The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
 - **Build timing** tweaks for some units for historical pacing; see Tech Tree.
 - **Warrior / “Ancient Maceman”** rebalanced: higher base strength, lower city-combat, gains **vs Animals** bonus; cost slightly up.
 - **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow** (earlier availability).
@@ -436,20 +444,13 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
   - Weak/late civ-specific units replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses; Holy Roman **Landsknecht** → **Houfnice** — cannon-based aligns with HRE’s aggressive profile, hits the tight medieval window, and avoids Landsknecht’s obsolescence/balance issues (anti-melee niche fades; weak vs. Cuirassiers)).
   - **Broad unit reworks/rebalances:** e.g., French **Musketeer** — Move 2 → 1; gains anti-mounted and small collateral kit for a stronger Renaissance+ role (especially vs Cuirassier units and their upgrades).
   - **Air** unit costs generally increased.
-- **Upgrade paths** simplified and made more sensible:
-  - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
-  - Cross-mount upgrades allowed (**Horse ↔ Camel** where logical).
-  - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
-  - **Dragoons → Tanks** now.
-- **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
-- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery). The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
-- `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
-- **Voluntary vassals** are **permanent** (culture absorption/merger flavor).
-- **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
-- **Costs:** some late/mechanical/robotic units have **no support cost**; **Privateer** now **has support** (was free).
 - **Stealth** removed where it didn’t make sense (kept for subs, spies, stealth bombers).
 - **Caravel** removed (privileged border passing felt wrong); shift that niche to **Privateer** (buffed) and streamline the era’s naval roster.
 - **Nuclear Submarine** removed (under-impactful relative to complexity).
+- `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
+- **Support costs:** some late/mechanical/robotic units have **no support cost**; **Privateer** now **has support** (was free).
+- **Voluntary vassals** are **permanent** (culture absorption/merger flavor).
+- **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
 
 ## Fixes
 

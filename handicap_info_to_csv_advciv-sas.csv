@@ -19,7 +19,7 @@ iAIStartingWorkerUnits,0,0,0,0,0,0,0,0,0
 iAITrainPercent,115,110,105,100,95,90,85,80,75
 iAIUnitCostPercent,100,100,100,100,100,100,100,100,100
 iAIUnitSupplyPercent,50,50,50,50,50,50,50,50,50
-iAIUnitUpgradePercent,50,50,50,50,50,50,50,50,50
+iAIUnitUpgradePercent,100,100,100,100,100,100,100,100,100
 iAIWarWearinessPercent,118,112,106,100,94,88,82,76,70
 iAIWorkRateModifier,0,0,0,0,0,0,0,0,0
 iAIWorldConstructPercent,100,100,100,100,100,100,100,100,100

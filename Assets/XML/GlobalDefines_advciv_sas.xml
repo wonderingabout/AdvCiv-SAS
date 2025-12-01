@@ -39,6 +39,17 @@
 
 
 
+	<!-- custom: use this to tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
+	<!-- custom: e.g. with a value of 75, if the upgrade cost was 120 gold, now it would be 120 * 75 / 100 = 90 gold -->
+	<!-- custom: note 2: set to 100 to disable (since 100 percent = 1 = same value but anyways etc.) -->
+	<!-- 75% of current cost for both human & AI -->
+	<Define>
+		<DefineName>SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
 
 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
