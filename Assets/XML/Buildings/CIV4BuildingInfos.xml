@@ -2,7 +2,7 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- custom: see in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or/and helpful if needed anyways etc xml fields and their meaning, took it from the Doto mod, see there for details anyways etc -->
+<!-- custom: see in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or/and helpful if needed anyways etc xml fields and their meaning, took it from the Doto mod, see there for details anyways etc -->
 <!-- custom: adjust the iPower (as in unit info) of some buildings to better reflect their strength equivalent:
 - increase iPower of/for anyways etc buildings that are underestimated as well, such as the castle if i am not mistaken anyways etc
 - reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shouldn't be too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info anyways etc 

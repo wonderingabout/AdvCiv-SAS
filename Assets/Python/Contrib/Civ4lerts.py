@@ -17,6 +17,7 @@
 ## Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 ## 02110-1301 USA
 ## advc (note): The license is in the BUG Doc folder.
+## <!-- custom: not sure this refers to same folder where i moved the info to, but renamed BUG Doc to BUG_Doc for easy linking as nicely recommended by chatgpt 5.1 thanks and also for consistency anyways etc. -->
 
 __version__ = "$Revision: 1.2 $"
 

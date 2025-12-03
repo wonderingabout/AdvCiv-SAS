@@ -14,7 +14,11 @@ It should work fine with the Steam one too, but given the choice again i may hav
 
 ### Stable Version
 
-You can download the latest stable version from the [CFC Modpacks downloads page](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) of this AdvCiv-SAS mod.
+You can download the latest stable version from:
+
+- the [CFC Modpacks downloads page](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/)
+- the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy)
+- or alternatively from GitHub (download zip or clone from github if you know how as you prefer) of this AdvCiv-SAS mod.
 
 Alternatively, or if the former fails, you can also view and download AdvCiv-SAS stable versions (also with links there to changes since last version in git history format for each version) at the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page.
 
@@ -27,6 +31,10 @@ To download the development version, go to the [mod's github main page](https://
 (example of how to do it in the screenshot below, click to view it full screen anyways etc)
 
 <img src="../Images_In_General/misc_0.x/0.950_download-zip-github-example.png" alt="0.950_download-zip-github-example.png" width="250"></img>
+
+Note: the 48 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the default 18 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure anyways etc.
+
+Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Full Development version (to modify it yourself)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#full-development-version-to-modify-it-yourself) for details.
 
 ### Any version
 
@@ -64,12 +72,18 @@ If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer ver
 
 Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd but anyways etc, although it is a non-financial profit mod if i may say too but anyways etc...) and reply in case they encounter same issue or/and such, but do as you prefer and hopefully i or/and others can provide some help if i may say i mean but anyways etc).
 
+### Full Development version (to modify it yourself)
+
+If you want to modify AdvCiv-SAS, the player "download ZIP" options do not include all files (images, some texts, etc.) as they are not needed just to play yet take significant size needlessly.
+
+You'd need to git clone this repo or some similar method so that the exclusion list at [`.gitattributes`](../../.gitattributes) is not applied.
+
 ## Where to download more/other mods
 
 If you want to try/play other mods than AdvCiv-SAS or browse them (but you may already know if you downloaded this, still, or if not, maybe this can help you too), consider visiting, among other possible sources/websites:
 
 - CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website's civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/) or the [civfanatics website's civ4 modpacks downloads section](https://forums.civfanatics.com/resources/categories/civ4-modpacks.2/)
-- ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd but anyways etc) mod maybe as interesting maybe as AdvCiv, (our mod is [now also there as of now btw](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy) but anyways etc): [ModDB website](https://www.moddb.com/games/civilization-iv/mods)
+- ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd but anyways etc) mod maybe as interesting maybe as AdvCiv)): [ModDB website (Civilization 4 Mods)](https://www.moddb.com/games/civilization-iv/mods) anyways etc.
 
 But i say it just for exhaustiveness, even though i am (quite) friendly i think, i prefer to stay alone and relax and do my own things, so i might get stressed if you contact me.. Still, if this project would help you reader or even those who don't read, i may be quite happy of it, especially as i contribute(d) to it
 

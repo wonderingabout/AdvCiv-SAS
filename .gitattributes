@@ -1,0 +1,40 @@
+# <!-- custom: unclutter the player zip; keep only for cloning or/and such thanks to chatgpt 5.1's help but anyways etc. -->
+# Example: keep in repo, exclude from Download ZIP / archives
+
+# Common image formats (global archive exclude)
+*.png   export-ignore
+*.PNG   export-ignore
+*.jpg   export-ignore
+*.JPG   export-ignore
+*.jpeg  export-ignore
+*.JPEG  export-ignore
+*.gif   export-ignore
+*.GIF   export-ignore
+*.bmp   export-ignore
+*.BMP   export-ignore
+*.webp  export-ignore
+*.WEBP  export-ignore
+*.tif   export-ignore
+*.TIF   export-ignore
+*.tiff  export-ignore
+*.TIFF  export-ignore
+*.svg   export-ignore
+*.SVG   export-ignore
+*.avif  export-ignore
+*.AVIF  export-ignore
+*.heic  export-ignore
+*.HEIC  export-ignore
+# <!-- custom: Paint.NET files in capitalization as well if i'm not mistaken and as chatgpt 5.1 confirms and corrected me too thanks anyways etc. -->
+# Paint.NET files in any casing
+*.pdn  export-ignore
+*.PDN  export-ignore
+
+/scan_xml_duplicates-3.3.py                                     export-ignore
+/_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                      export-ignore
+/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                      export-ignore
+/_0_Common_Docs/AdvCiv_Base_Doc/CIV4BuildingInf_os_Doto_mod.txt export-ignore
+/_0_Common_Docs/git_log_anonymized_email.txt                    export-ignore
+/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/        export-ignore
+/Assets/XML/BasicInfos/CIV4BasicInf_os.txt                      export-ignore
+/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt     export-ignore
+/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt           export-ignore

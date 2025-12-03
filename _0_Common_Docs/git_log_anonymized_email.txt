@@ -1,3 +1,693 @@
+commit 4d69e22e4f76bc6b5993882691262f31de356fd7
+Author: wonderingabout <hidden>
+Date:   2025-12-01 20:23:26 +0100
+
+increased iAIUnitSupplyPercent from 50 to 100 + update docs anyways etc.
+- iAIUnitSupplyPercent increased from 50 to 100 so human and AI players' unit supply outside of borders costs are no longer different (was half-cost for AI players in base advciv)
+
+commit ae78db3d20579b2247734b723f2326c76fada6f4
+Author: wonderingabout <hidden>
+Date:   2025-12-01 13:17:50 +0100
+
+Even AI and human upgrade costs (iAIUnitUpgradePercent:50->100); reduce both human and AI upgrade costs to 75% of old human cost (tunable)
+- Upgrade costs rework: AIs no longer have cheaper upgrade costs than human players (increased `iAIUnitUpgradePercent` from 50 to 100 (see xml for updated values anyways etc.)). Additionally, reduced upgrade costs for both human and AI players, in `CvUnit::upgradePrice`, to as of now 75% (tunable). So unlike in base advciv where AI paid half cost (too easily upgrade / too cheap but anyways etc.) and humans payed full cost (which btw felt too expensive ingame to me at least but anyways etc.), now both human and AI players pay the same upgrade cost, which is as of now 75% of what humans used to pay for unit upgrades.
+
+commit 993b57644ebe456bf17c02f8baeb61373bf51980
+Author: wonderingabout <hidden>
+Date:   2025-12-01 08:02:18 +0100
+
+add favourite religions notes and table in assets rebalancing + update docs anyways etc.
+with the help of chatgpt 5.1 thanks but anyways etc.
+
+commit 684dcd64d6294c68052fb73be9ea87850ded1fe9
+Author: wonderingabout <hidden>
+Date:   2025-11-30 14:35:22 +0100
+
+(Improved) for watery cities, attempt to build key water buildings instead of the no production unit fallback and of the emergency defense buildings patch
+- "Update 2: Instead, for watery cities, try to build fallback some of the key water buildings (for food, hammer, gold) rather than unit fallback, as this should/may be economically and also for food/growth more efficient cities than fallback units, plus generally the risk of them being land attacked is not as high but anyways etc. See also [Buildings (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#buildings-non-exhaustive-see-sevopedia-orand-xml-for-details) for related buildings info or/and Sevopedia/XML anyways etc."
+- "Update 2: this emergency-defense path is disabled for water-heavy cities (see related update 2 below) anyways etc."
+- update docs anyways etc.
+
+commit 48b58caf1869e86a852f9e04bfb7af9a5a6c7fa2
+Author: wonderingabout <hidden>
+Date:   2025-11-30 12:00:58 +0100
+
+refactor: add CvCity::SASTryEmergencyBuilding helper anyways etc.
+with claude sonnet 4.5's and chatgpt 5.1's help thanks but anyways etc.
+
+commit 9b72b7966090716814a9ac0266646cdfc0f421a8
+Author: wonderingabout <hidden>
+Date:   2025-11-30 10:24:42 +0100
+
+(Significantly Enhanced) fallback unit if no production and emergency defense buildings no longer apply if city is very low hammer or has mostly water tiles in its inner BFC (focus on economy rather) + emergency harbor before emergency walls/castle (focus on economy rather as well but anyways etc.)
+- "Update: now no longer applies if city is very low hammer (scales per era) or has mostly water tiles in its inner BFC, as this type of cities would be more efficiently used as economy cities rather (can't produce units fast enough or/and low likeliness to be attacked). This also helps not fire the no production unit fallback or emergency defense too soon where city could build other things rather than spend too much time on one of these things to build which are not key early and detrimental to city growth, and so which is a nice sanity if i'm not mistaken but anyways etc."
+- "update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather but anyways etc. -->"
+
+commit 509800830011523aa2a2f9af5b2cfcbedebcff88
+Author: wonderingabout <hidden>
+Date:   2025-11-29 13:16:01 +0100
+
+slightly reduce costs in the early-mid game, and significantly more in the middle part of the game + fix a beeline at TECH_MACHINERY anyways etc.
+325->300
+450->425
+600->575
+800->750
+1100->900
+1400->1200
+1800->1500
+1900->1800
+2000->1950
+
+as recommended by gemini pro 3 and with my own ideas i mean if i may say but anyways etc.
+
+Previous settings were a bit too slow, especially the transition from mid classical to renaissance.
+
+But overdoing it makes ancient era too fast which is not pleasant either. So after some testing i have targeted most cost "curve" correction towards the middle game, while slightly increasing costs before that in some parts of the early game. Hopefully preserves a long enough early, but bit faster at the key mid classical parts but anyways etc, while still preserving a long enough ancient else it's just too fast; and then targetting more heavily the middle ages and slightly before which was slowest and which is where we changed the tech tree the most since AdvCiv-5082 if i'm not mistaken but anyways etc. (in advciv-sas 5082 we had 2 less columns (in medieval and the other one in renaissance if i'm not mistaken anyways etc.) so tech costs were cheaper than in the current development version anyway, this makes it closer to AdvCiv-SAS 5082 with this change while also making the early slightly faster as well as it was a bit too slow if i'm not mistaken i mean but anyways etc).
+
+- TECH_MACHINERY: add TECH_IRON_WORKING as a prereq to prevent a beeline, plus also makes sense thematically to use iron for machines if i'm not mistaken but anyways etc.
+
+commit c4e736db8a77f66bf6e883e68b2581c4aebc321e
+Author: wonderingabout <hidden>
+Date:   2025-11-29 11:56:50 +0100
+
+Fix incorrect claim that `AI_contactRoll(CONTACT_TRADE_TECH)`'s missing second parameter was bug when it was not and was actually using a default of 1, thanks to claude sonnet 4.5's review anyways etc.
+see main changes guide for updated entry anyways etc and docs for details anyways etc.
+
+commit 01ad9451d2eb3b3767f36f18ffde21045d8f768a
+Author: wonderingabout <hidden>
+Date:   2025-11-29 10:04:30 +0100
+
+recon units are now national units (2 max), tech tree changes, adjust anti cheap classical and medieval gates for more aggression anyways etc
+- lean more towards early aggression and more efficient/versatile military: reduce anti cheap unit gates in classical and medieval tiers
+- TECH_REFRIGERATION: remove TECH_DEMOCRACY prereq
+- TECH_STEAM_POWER: add TECH_CHEMISTRY prereq to prevent a beeline and to have more even pre-industrial progress before this tech and also for balance as well but anyways etc.
+- TECH_POSTAXIAL_RELIGION is no longer untradeable
+- scouts, explorers, airships, and robotic drones are now a national unit (max 2 per player) so that AIs don't overproduce them, have a more efficient economy, and also to add a bit more strategy to when to build scouts anyways etc.
+
+commit 9281726c41a85c5ae08b4cc68c4a9d0497ebf3e3
+Author: wonderingabout <hidden>
+Date:   2025-11-28 15:55:47 +0100
+
+rework the list of untradeable techs: 8 less, 5 more; + tech tree rework anyways etc.
+
+remove untradeable (bTrade 0->1):
+- TECH_MONARCHY
+- TECH_MATHEMATICS
+- TECH_FEUDALISM
+- TECH_LATER_ABRAHAMISM
+- TECH_BROADER_EDUCATION
+- TECH_MILITARY_SCIENCE
+- TECH_ASSEMBLY_LINE
+- TECH_MASS_MEDIA
+
+add untradeable (bTrade 1->0):
+- TECH_THE_WHEEL
+- TECH_CODE_OF_LAWS
+- TECH_ENGINEERING
+- TECH_CHIVALRY
+- TECH_FASCISM
+
+Goal is to not make techs untradeable unless they are key gameplay knots, or have a big snowball potential. In particular for many science-leaning ones, if they are not key or decisive or/and at risk of causing obvious or intense snowballing but anyways etc., allow them rather than not, for versatility and to make gameplay less predictable or tedious/repetitive between games, as well as to have a slightly faster tech pace.
+
+This further nerfs the military path, that by itself should yield enough, while still gating some science techs (else whould be op xd and too one-sided towards nerfing military only and not science but anyways etc.)
+
+Also, it does not make much sense thematically that techs like broader education, mathematics, mass media, etc., that are about spreading knowledge are not tradeable (unless op or similar then gate it but anyways etc.).
+
+Hopefully all in all better as such but anyways etc.
+
+Other changes in this commit:
+- change TECH_CHIVALRY's prereqs from TECH_CIVIL_SERVICE AND TECH_DRAMA to TECH_CIVIL_SERVICE AND (TECH_LATER_ABRAHAMISM OR TECH_FEUDALISM) (so that it is available later and for versatility or/and such but anyways etc.)
+
+commit 93acedd84ab150e56028a5953c91a34940578be1
+Author: wonderingabout <hidden>
+Date:   2025-11-28 15:09:09 +0100
+
+rename sas defines anyways etc.
+
+commit 07c971a50a442687bee3119c54827a29056368a7
+Author: wonderingabout <hidden>
+Date:   2025-11-28 14:30:18 +0100
+
+more code refactor or/and performance optimizations anyways etc
+
+commit c9cd39fa006ab25ad81598567b3483a9183cdff3
+Author: wonderingabout <hidden>
+Date:   2025-11-28 14:04:04 +0100
+
+refactor / performance optimizations
+
+commit 2d05e69b06a05027d19e8a3ebc294d0681a9ac70
+Author: wonderingabout <hidden>
+Date:   2025-11-28 12:17:38 +0100
+
+(Possibly Enhanced) No longer apply era-based key strategic bonus trade extra valuation between members of the same master-vassal(s) locus (as it is in their interest to be mutually stronger anyways etc.).
+
+commit 7364d7bbf0377c1c549ac094619ab3c6fbae0c8c
+Author: wonderingabout <hidden>
+Date:   2025-11-28 09:55:39 +0100
+
+(Improved) devalue techs in trades from outsiders when we can aquire them from members of our master-vassal(s) locus
+- When we are evaluating the value of a tech in tech trades with players outside of our master-vassal(s) locus, moderately devalue techs that outsiders want to sell us, if any member of our locus already knows this tech; change in `CvTeamAI::AI_techTradeVal`. In autoplay, this seems to lead to AI winning more decisively as they acquire more vassals.
+
+commit 42a2184744723c979afa021edd0fbe6c2bbb26a1
+Author: wonderingabout <hidden>
+Date:   2025-11-28 08:27:51 +0100
+
+(Improved) Value key military techs more in tech trades if we are weaker
+- When we are evaluating the value of techs in tech trades, with players outside of our master-vassal(s) locus, extra value key military techs (high `FLAVOR_MILITARY`) if we are weaker than our ennemies/rivals, as this is what we need most to survive, not extra economy techs or such; change in `CvTeamAI::AI_techTradeVal`. As of now, most key military techs are untradeable though, which is consistent with autoplay impact being currently small, but this could help or affect gameplay more if untradeable techs is removed for some or all of the key military techs but anyways etc.
+
+commit 96934bd1bda2d55ccefc34c6e7654bd5096e7c54
+Author: wonderingabout <hidden>
+Date:   2025-11-27 14:13:39 +0100
+
+(Tremendously Improved) value researching key military techs much more when we are weaker
+- value researching key military techs much more when we are weaker, as economy or such techs are useless at best, or at worst we'd just be researching them for our ennemies after they conquer us. Change in `CvPlayerAI::AI_techValue`. In autoplay, this seemingly results in Ewuare not winning anymore as he usually did even if it was quite hardly so at turn 386, to now getting caught up and defeated by Saladin and Rameses (even though Ewuare has an earlier lead), and the game being a stalemate between these 2 until late into the game where Saladin eventually wins at turn 469. See [KI#81](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#diplomacy-ai) anyways etc.
+
+commit f43ea2be6f15404a50b1ebd1257989931aa19490
+Author: wonderingabout <hidden>
+Date:   2025-11-27 09:31:52 +0100
+
+overhaul `FLAVOR_MILTIARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0 , TECH_CIVIL_SERVICE 3->8)
+
+commit 829c236b48b5afc5bc7f3735f88c9c98f48324ee
+Author: wonderingabout <hidden>
+Date:   2025-11-27 08:07:04 +0100
+
+(Tremendously Improved) If not between members of the same master-vassal(s) locus, added an alternative military power based tech trade contact chance modifier
+- If not between members of the same master-vassal(s) locus, added an alternative military power based tech trade contact chance modifier in `CvPlayerAI::AI_doDiplo`, so that we have a higher chance to trade with militarily weaker players to us (safer, less likely to backstab us) and a lower chance for stronger players to us (more likely to become our ennemies or to bite us back in some way). In autoplay, seemingly results in much closer game, where the runaway Ewuare is now regularly and repeatedly caught up by other rivals and vice versa when these take the lead as well, until late in the game where game ends at turn 419 vs 288 before and was close until the last few or such dozen turns. See for details [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improve-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+
+commit df56f22fc5dbe5a50fc2c5a7eb41976adb3ce7f2
+Author: wonderingabout <hidden>
+Date:   2025-11-26 11:55:22 +0100
+
+(Improved) Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the tech, and if so do not contact outsiders
+- Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the tech, and if so do not contact outsiders (in the hope we indirectly trade more with players within our locus rather). In autoplay, this helps Ewuare win sooner seemingly due to unlocking the military tech for dragoons one of his vassal had long ago but that he didn't have in other runs at turn 300; tech pace is otherwise more or less mostly the same. Change in `CvPlayerAI::AI_doDiplo`. See for details [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+
+commit 88657f2f724cec543df53774fec3ba2491347c21
+Author: wonderingabout <hidden>
+Date:   2025-11-26 08:32:11 +0100
+
+(Seemingly Improved) also added vassal<->vassal siblings extra tech trading chance similarly
+leads in autoplay (since Ewuare has 2 vassals at t250) to seemingly more or less identical results, which is fine as long as not clearly harmful, and this only boosts chance, not reduces trade which may be less predictable in terms of is this beneficial or harmful.
+
+commit f983e6f98251da67a2168c148a5f9280b62dc080
+Author: wonderingabout <hidden>
+Date:   2025-11-26 07:26:34 +0100
+
+(Possibly Improved as well) also added vassal<->vassal(s) siblings devaluation to self research logic (if any of our sibling vassal(s) has the tech, devalue researching it ourselves)
+
+commit a622a6152201b0115b92790739b698981e656ddb
+Author: wonderingabout <hidden>
+Date:   2025-11-25 11:35:26 +0100
+
+update docs
+
+commit 137bb408c9e56e3432ff3d2a3f807cb0ec75eb77
+Author: wonderingabout <hidden>
+Date:   2025-11-25 09:17:01 +0100
+
+(Tremendously Improved) Implemented preferrential master<->vassal(s) tech trading (heavily more and for all techs, not just the ones that overlap with what our master/vassal(s) already knows)
+- Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just ones we would devalue researching if our master/vassal(s) already knows them. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51).
+
+commit 673bfc82b6d10408e28aa7b8b709b0261740ada1
+Author: wonderingabout <hidden>
+Date:   2025-11-24 07:57:20 +0100
+
+(Improved) devalue researching techs our vassal(s) or master already knows as this is inefficient, in `CvPlayerAI::AI_techValue`
+- update docs for missing entries from the custom main changes guide thanks to chatgpt 5.1's help which doubled checked it thanks a lot anyways etc.
+
+commit f5d96ce5c18b1a02b8250dd295e0b42075a2d047
+Author: wonderingabout <hidden>
+Date:   2025-11-23 11:54:51 +0100
+
+speed up early part of the tech tree that was asymmetrically slower and too slow in comparison but anyways etc
+350->325
+475->450
+650->600
+900->800
+1200->1100
+1500->1400
+
+commit 92b7a7299a8c7599adc1577949a6825c5184081e
+Author: wonderingabout <hidden>
+Date:   2025-11-23 08:50:06 +0100
+
+similarly add an option (default disabled) to disable any other type of specialist auto assignments (e.g. allow auto scientists, auto engineers, auto merchants, auto priests, but not auto spies nor auto artists (as long as this is not overriden by external logic))
+- similarly add an option (default disabled) to disable any other type of specialist auto assignments (e.g. allow auto scientists, auto engineers, auto merchants, auto priests, but not auto spies nor auto artists (as long as this is not overriden by external pieces of logic such as the forced artist until we have BFC or/and such)) for the human player as well for convenience. Code added in `CvCityAI::AI_jobChangeValue`. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable them anyways etc.).
+
+commit 7e5e439e96671b6feaaf3f3c7df546f662a28239
+Author: wonderingabout <hidden>
+Date:   2025-11-23 07:19:31 +0100
+
+add an option to disable auto-citizen specialist assignments for the human player as well for convenience (default enabled)
+- add an option (default enabled) to disable auto-citizen specialist assignments for the human player as well for convenience, as they are annoying to check in every city every turn, and this is still often a very inefficient specialist to choose unless absolutely necessary (no other plot nor good enough specialist but anyways etc, etc.). Code added in `CvCityAI::AI_jobChangeValue`. See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc). Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it (default and recommended: enabled)).
+
+commit 710c78523c3b37660b6b1f648250404f2b0131d1
+Author: wonderingabout <hidden>
+Date:   2025-11-22 09:23:33 +0100
+
+bugfix regression of having removed the no citizen specialist gate in CvCityAI::AI_jobChangeValue
+i don't know when exactly it was removed but now added back anyways etc. It seems in autoplay we now have no citizen specialist assigned to AI cities vs some or many before so hopefully fixes the issue. The added assert helps detect if it fires now more reliably i mean if i may say as well but anyways etc. Hopefully code is stronger and more reliable as such. Check if accurate i mean if i may say but anyways etc.
+
+commit 380d155ab048a2439b1b18ca8a84a70af586bb7a
+Author: wonderingabout <hidden>
+Date:   2025-11-22 07:21:30 +0100
+
+significantly reduced and possibly now fixed/addressed the instances of the bug of forcing an artist even when it is invalid
+- also add more asserts for debug
+- and move some knob(s) to sas defines
+- update docs anyways etc.
+partial import from https://github.com/wonderingabout/AdvCiv-SAS/commit/38f72452e3faadc010ae5b46cf11ca3fc9fcf9f0
+
+commit 9d5a1a113d22683ac03a34654a30262c6876b094
+Author: wonderingabout <hidden>
+Date:   2025-11-20 12:23:11 +0100
+
+auto unassign the forced artist after we have BFC for the convenience human player part of the code
+
+commit 790ae906b41a20f122a0aebd669f3a3e92883374
+Author: wonderingabout <hidden>
+Date:   2025-11-20 10:24:27 +0100
+
+add/move more CvCityAI::AI_BuildingValue knobs to GlobalDefines_advciv_sas defines anways etc
+partial import from https://github.com/wonderingabout/AdvCiv-SAS/commit/7e6fce3777cdf6811ec3a5cf957f49927a906215 anyways etc.
+
+commit d56716574e98e20f1f3afffb1897a3ef6b82a62a
+Author: wonderingabout <hidden>
+Date:   2025-11-20 08:31:48 +0100
+
+rename "Quick Start Guide" to "Custom Main Changes Guide" or "Main Changes Guide"
+- rename "quick-start-guide" to "custom-main-changes-guide"
+- rename " Quick Get Started Guide" to "Custom Main Changes Guide" or "Main Changes Guide"
+- rename "_Quick_Get_Started_Guide" to "_Custom_Main_Changes_Guide" or "_Main_Changes_Guide"
+- rename "quick guide" to "main changes guide" or "custom main changes guide"
+- and other or not related or not changes anyways etc
+
+commit 8d5621c320718a9a91a60367ad2e76e39854a47f
+Author: wonderingabout <hidden>
+Date:   2025-11-20 07:27:17 +0100
+
+rename README_Very_Quick_Get_Started_Guide_By_ChatGPT.md -> README_Main_Changes_Guide.md
+- rename "Very_Quick_Get_Started_Guide_By_ChatGPT" to "Main_Changes_Guide"
+- rename "Very Quick Get Started" to "Main Changes"
+- rename "very-quick-get-started-" to "main-changes-"
+- and other related or not changes anyways etc
+
+commit e7fa40612fbca182e8afd2eb2ddf1e80106d9ef8
+Author: wonderingabout <hidden>
+Date:   2025-11-19 12:06:12 +0100
+
+Convenience for human player(s?): add the force artist until BFC effect (tunable) + bugfix force artist not working (sometimes or always?) (revert KI#70) anyways etc
+- extend the force an artist if we can until we have our BFC to human players as well for convenience. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). (see as of now `SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE` option to enable/disable it (default and recommended: enabled))
+- "<!-- custom: update: it seems that in some cases we lose the artist bfc ability we had, gating it with an xml define/toggle to see if it selectively loses/restores the bfc ability anyways etc, recommended to disable it until/unless it is determined safe if at all to enable anyways etc; update 2: tested in autoplay and we indeed selectively lose the ability to force an artist for bfc after enabling this, so disabling this entirely, kept a toggle if want to experiement or test it i mean but anyways etc. Recommended to keep this disabled anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not but anyways etc. -->" + commit revert (now gated with a define anyways etc): https://github.com/wonderingabout/AdvCiv-SAS/commit/2d3c2dd4a5fb57cbac25111ab0b6c54e765dea83 anyways etc.
+
+commit 51eea11e7c3fe8d1d4d1b2bcdb05a271246d98d9
+Author: wonderingabout <hidden>
+Date:   2025-11-19 07:01:12 +0100
+
+rebalance/rework CIVIC_PROTECTIONISM, CIVIC_STATE_PROPERTY, and CIVIC_WAGE_LABOR
+- buff and rework CIVIC_PROTECTIONISM: change tech prereq from TECH_PHILOSOPHY to TECH_BANKING: "<!-- custom: note: with the old strict no foreign trade version of this civic, tech prereq could't be too early else AI players would pick it too often which slowed tech pace in autoplay as it was an isolationism civic if i'm not mistaken unlike our reworked one but anyways etc, also it's fine to have it later now that it has competitors civics i mean if i may say but anyways etc; plus also this way the as of now free specialist effect is more balanced and not as op so maybe fine as such and better in this way as well i mean if i may say but anyways etc. -->", remove TradeYieldModifiers effect (too much noise + not effective enough ingame i mean if i may say but anyways etc), remove bNoForeignTrade effect ("<!-- custom: less trade, not none, this is not isolationism anyways etc,as chatgpt 5.1 confirms thanks anyways etc" + "<!-- Yeah, I agree with your instinct here: if you don’t want a full-on “autarky / isolationism” civic, then “less trade, not none” fits Protectionism better, and avoids the huge tech-pace hit from bNoForeignTrade. -->"), change iTradeRoutes from 0 to -1 (same reasoning anyways etc)
+- change CIVIC_WAGE_LABOR from TECH_BANKING to TECH_BROADER_EDUCATION (now sooner anyways etc): "<!-- custom: update: slot now used by another civic, thematically fine to move this civic sooner as replied to when asking chatgpt 5.1 thanks i mean but anyways etc, check if accurate anyways etc -->" + formatting its reply thanks anyways etc "Conceptually: Wage labor = monetized, contract-based work, especially in towns, workshops, and proto-industry. That really takes off with: growing urban craft sectors and guild training, more widespread literacy / numeracy / bookkeeping, a thicker layer of “skilled workers for hire” rather than purely bonded peasants."
+- rework/nerf CIVIC_STATE_PROPERTY: add 0/-20/0 CapitalYieldModifiers: "<!-- custom: rework state property so it distributes wealth i.e. hammer here anyways etc, as chatgpt 5.1 confirms after i asked it (but check if accurate i mean if i may say but anyways etc) anyways etc, was empty anyways etc -->" + "<!-- Mechanically, yes: YieldModifiers (all cities): +10% hammers	CapitalYieldModifiers (capital only): -20% hammers" + "In the capital, both apply, so the net modifier is: +10 - 20 = -10 ⇒ -10% hammers in the capital, +10% everywhere else. That will work as you expect. -->"
+
+commit 7cade60a7984e89fbb9f49117a43f021f80e84e7
+Author: wonderingabout <hidden>
+Date:   2025-11-18 13:13:51 +0100
+
+overhauled leaders' favourite civics for historical or thematical accuracy with the very nice help of chatgpt 5.1, claude sonnet 4.1, grok 4.1, and other ais thanks a lot anyways etc
+- Overhauled favourite civics for each leader as they were sometimes to quite often historically or/and thematically very inaccurate but anyways etc, or/and to match our civic changes in advciv-sas anyways etc. Done with the help of chatgpt 5.1 and other ais for review or/and such (check if accurate anyways etc). For example, changed julius caesar's favourite civic from representation to police state (he wasn't exactly the democratic guy xd although i don't know too much about him to tell (check if accurate anyways etc)), gandhi from universal suffrage to pacifism, boudica from universal suffrage to nationhood ("Historically she leads a revolt framed as defending “the people” and their land against Rome"), darius from free religion to bureaucracy (Darius is the system-builder), elizabeth from free religion to free market (more commerce leaning than secular religion leaning), huayna capac from hereditary rule to state property (incan economy was state controlled, no generic hereditary rule), napoleon from representation to nationhood ("Napoleon is the poster child for levée en masse and national armies fighting for “la nation”"), or pacal 2 from hereditary rule to caste system ("Classic Maya society is strongly stratified with nobles, priests, and commoners in fixed roles" + "closer abstraction than a generic monarchy favourite"). Some civics remain at 0 leader favouring it as not thematical nor historical. See for the list of all changes with a before vs after comparison as well as rationales the table at [README_Assets_Rebalancing.md#after-changes-favourite-civics-per-leader-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-changes-favourite-civics-per-leader-anyways-etc) but anyways etc.
+
+commit 5f27d95b1d503adc3514e128b0ea0676ce261ee9
+Author: wonderingabout <hidden>
+Date:   2025-11-17 18:56:13 +0100
+
+replace old very bad "economy" environmentalism civic with CIVIC_TRADE_BLOC, rework the old mercantilism civic as CIVIC_PROTECTIONISM, rebalance economy civics and other changes anyways etc.
+- CIVIC_PROTECTIONISM: "<!-- custom: replace the old CIVIC_MERCANTILISM with CIVIC_PROTECTIONISM anyways etc -->" + "<!-- custom: based on https://en.wikipedia.org/wiki/Protectionism and adjusted or not for AdvCiv-SAS anyways etc -->" + add new effect TradeYieldModifiers +10% for food, hammer, gold: "<!-- custom: added as recommended by chatgpt 5.1 and then which i tweaked but anyways etc, i think this may simulate economical independence (we don't trade away or need to import food or such), was empty, -->" + increase iCorporationMaintenanceModifier from 0 to 25 ("<!-- custom: quality has a cost anyways etc").
+- CIVIC_TRADE_BLOC: "<!-- custom: based on https://en.wikipedia.org/wiki/Trade_bloc and adjusted or not for AdvCiv-SAS anyways etc; see also code comment at as of now CIVIC_TRADE_BLOC's civicinfo xml anyways etc. -->" + add BuildingHappinessChanges +1 from BUILDINGCLASS_CUSTOM_HOUSE; UPKEEP_MEDIUM; add unlimited specialist merchant effect (SpecialistValids) anyways etc.
+- rework CIVIC_FREE_MARKET: add BuildingHappinessChanges +1 from BUILDINGCLASS_SUPERMARKET and BUILDINGCLASS_BANK; remove iTradeRoutes (changed from 1 to 0), add SpecialistExtraCommerces +1 commerce gold per specialist ("<!-- custom: market globally improves not just one specialist liek as of now in trade_bloc anyways etc, was empty anyways etc -->"); change upkeep from UPKEEP_MEDIUM to UPKEEP_HIGH
+- change CIVIC_DECENTRALIZATION's button: "<!-- custom: button from m-e mod thanks anyways etc -->"
+- nerf CIVIC_REPRESENTATION's upkeep from UPKEEP_MEDIUM to UPKEEP_HIGH: "<!-- custom: (to match specialist scaling that may possibly include great people and military instructors or such as i discussed with chatgpt 5.1 thanks i mean really thanks but anyways etc; may thematically represent the complicated apparatus to put this system into place maybe but anyways etc)"
+
+commit ebbcd73e739d29079e48923a4e24b48d18e7f475
+Author: wonderingabout <hidden>
+Date:   2025-11-17 11:02:09 +0100
+
+german_hussar is now dragoon based; rebalance the russian_cossack
+- move the german_hussar from being horse cuirassier based to being dragoon based
+- rebalance the russian_cossack: increase strength from 15 to 16 and cost from 140 to 150 (same as base dragoon anyways etc); reduce combat modifier against UNITCOMBAT_MOUNTED_RANGED from 50 to 25
+
+commit 47c291335055e154dac7f7338281566098f81c90
+Author: wonderingabout <hidden>
+Date:   2025-11-17 09:26:25 +0100
+
+replace "_CAVALRY" (early-industrial unit) with "_DRAGOON"; rename CIVIC_REGIONAL_TRADE to CIVIC_TRADE_LEAGUE which is unfinished in this commit anyways etc
+- "<!-- custom: replace "_CAVALRY" (unit after as of now cuirassier units anyways etc) with "_DRAGOON" (was way too generic, era aspecific, and old unit's art was inaccurate for target advciv-sas early-industrial tech tree time anyways etc), as nicely recommended to me by chatgpt 5.1 thanks anyways etc; entry based on https://en.wikipedia.org/wiki/Hussar anyways etc -->" + "<!-- custom: art import from RFC DOC mod's ART_DEF_UNIT_DRAGOON thanks anyways etc. Note: .kfm is base advciv +/- civ4's one if i'm not mistaken as per rfc doc mod's unitartinfo in xml if i'm not mistaken anyways etc -->"
+
+unfinished in this commit anyways etc:
+- rename CIVIC_REGIONAL_TRADE to CIVIC_TRADE_LEAGUE and tech prereq to TECH_PRINTING_PRESS, as recommended by or/and reviewed after asking chatgpt 5.1 thanks anyways etc + "<!-- custom: button from m-e mod's TECH_DIPLOMACY thanks anyways etc -->"
+
+commit c4d71d146c01f923574793366288da0a212843a6
+Author: wonderingabout <hidden>
+Date:   2025-11-16 09:05:40 +0100
+
+rename "_CHOKONU" and "Cho-Ko-Nu" (non-standard/incorrect Wade–Giles romanization) to "_ZHUGE_NU" and "Zhuge Nu" (modern pinyin)
+- rename "_CHOKONU" and "Cho-Ko-Nu" (was non-standard/incorrect Wade–Giles romanization based on quick search results i found and on chatgpt 5.1's info anyways etc) to "_ZHUGE_NU" and "Zhuge Nu" (modern pinyin as confirmed by chatgpt 5.1 thanks but anyways etc)
+
+commit 44aca208a680d2ec7b8f2c8dfb6365b5d1ba11aa
+Author: wonderingabout <hidden>
+Date:   2025-11-16 07:42:25 +0100
+
+rename UNIT_MODERN_ARTILLERY to UNIT_FIELD_GUN
+- "modern" in name was not fit as other modern units link to ww2 timing vs this one being ww1 and slightly pre (1880s) or such, name nicely recommended by chatgpt 5.1 thanks a lot but anyways etc + "pedia entry based on https://en.wikipedia.org/wiki/Field_gun and adjusted or not for advciv-sas anyways etc"
+
+commit 860577150e3d3d9342f4a7020fb18fa377e82a8d
+Author: wonderingabout <hidden>
+Date:   2025-11-16 07:22:29 +0100
+
+some balance changes anyways etc
+- reduce CIVIC_THEOCRACY's iStateReligionUnitProductionModifier from 15 to 10
+- remove anti modern artillery UnitClassAttackMod (was 25) from gun units (the modern_infantry and paratrooper had it)
+- add UnitCombatMod UNITCOMBAT_SIEGE 25 to tank kind of units: UNIT_TANK + UNIT_MODERN_TANK + UNIT_ROBOTIC_TANK
+- remove UnitCombatMod UNITCOMBAT_SIEGE (was 50) to tank kind of units: UNIT_MODERN_ARTILLERY + UNIT_SELF_PROPELLED_ARTILLERY + UNIT_LEVITATION_ARTILLERY
+
+commit 8d6fb60205d48a6f4813b12e09483e0cbcc93b51
+Author: wonderingabout <hidden>
+Date:   2025-11-15 17:35:33 +0100
+
+(Tremendously Improved) Fix AI spam of pikemen or other land direct combat units at renaissance+ (was very inefficient and ineffective militarily and economically but anyways etc) + bugfixes etc
+- added renaissance plus (anti pikemen or such, but only for land AND direct combat units (no scouts, spies, etc.)) logic as well as these units are ineffective against gun and higher units, and economically very inefficient (high spam and unit cost, low combat potential vs lower unit costs for stronger units or/and possibly more buildings as well i mean but anyways etc).
+- bugfix emergency castle gate being unreachable in CvCity::doTurn after we are past the emergency walls turn gate as nicely found by chatgpt 5.1 (i think chatgpt 5 had found it too but i disregarded/skipped it i mean my bad i mean but anyways etc thanks anyways etc) thanks but anyways etc
+- bugfix in CvCityAI::AI_chooseUnit (the one with the changedunit code but anyways etc) of the turn to add another min defender computation being faulty at other game speeds than gamespeed_normal as nicely found by chatgpt 5.1 i mean thanks but anyways etc
+- reduce the cost of knight units from 100 and 110 to 95 and 105.
+
+commit 07ed4d273d111a403eba0554bce7074ae55c004e
+Author: wonderingabout <hidden>
+Date:   2025-11-15 08:02:02 +0100
+
+add iCivicPercentAnger info to sevopedia/civics advisor anyways etc
+- "<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot but anyways etc, check if accurate anyways etc -->"
+
+commit ec12352bea05204f3120faba8aeeeaf2c5f89ce4
+Author: wonderingabout <hidden>
+Date:   2025-11-15 07:15:26 +0100
+
+more versatility/balance enhancements
+- reduce UNIT_AZTEC_JAGUAR's UnitCombatMod UNITCOMBAT_MELEE_SHOCK from 50 to 25
+- change CIVIC_MERCANTILISM's button (c2c mod import anyways etc as nicely recommended by chatgpt 5.1 among my candidates thanks i mean but anyways etc)
+- change tech_feudalism's prereqs from TECH_CIVIL_SERVICE AND TECH_DRAMA to TECH_CONSTITUTION AND (TECH_CIVIL_SERVICE OR TECH_POSTAXIAL_RELIGION)
+- change one of tech_democracy's preqs from TECH_CONSTITUTION to TECH_FEUDALISM
+- change tech_chivalry's prereqs from TECH_FEUDALISM to TECH_CIVIL_SERVICE AND TECH_DRAMA. Keep it in the as of now 1200 iCost column anyways etc.
+- change one of UNITCLASS_PIKEMAN's tech prereqs from TECH_CHIVALRY to TECH_FEUDALISM: "<!-- custom: changed and separated from as of noww medieval mounted units as nicely recommended by chatgpt 5.1 thanks anyways etc" + "<!-- Optional clean-up (if you want even sharper flavor):" + "Move Pikeman here instead of on Chivalry. Pikes historically are mass infantry / town militias / Swiss etc., raised under feudal lords but not part of the knightly code. Mechanically it also says: “Feudal order gives you both noble courts and organized infantry.” -->"
+- change BUILDING_TAJ_MAHAL's tech prereq from TECH_FEUDALISM to TECH_LATER_ABRAHAMISM
+- remove TECH_MACHINERY's additional TECH_CIVIL_SERVICE tech prereq: the beeline is fine, it leads to nothing after it anyway, and the tech could be used for tech trading or its effects or such anyways etc
+
+commit edd3543c30bb2e344edc3a99d70a48d5e5457951
+Author: wonderingabout <hidden>
+Date:   2025-11-14 12:17:25 +0100
+
+early/mid game tech reworks; initial economy civics reworks which is unfinished in this commit
+- buff tech_bronze_working's AND tech prereq from TECH_MONARCHY to TECH_AGRICULTURE (more variety and strategical possibilties as such, no longer focused on strict historical accuracy but defensible as an alternate timeline anyways etc), also buffs the tech tht would otherwise be a bit too weak vs the builder tech path anyways etc.
+- change CIVIC_PACIFISM's tech prereq from TECH_PHILOSOPHY to TECH_MEDITATION: "<!-- custom: frees a slot to put another civic there, plus is thematically more relevant i think and as chatgpt 5.1 confirms i mean thanks if i may say i mean but anyways etc" + "Pacifist currents (Buddhism, Jainism, some early Christian strands) are much more about religious discipline than abstract Greek metaphysics anyway."
+- move "Can adjust culture rate" (CommerceFlexible) from TECH_DRAMA to TECH_AESTHETICS: "<!-- custom: more focused culture line, plus this tech has too little effects i mean, as nicely suggested as a general suggestion by chatgpt 5.1 which i then noticed specifically for this tech and commerceflexible effect we could put it here i mean but thanks a lot for help really i mean if i may say thanks but anyways etc, was empty anyways etc -->"
+- move vassal states and CIVIC_VASSALAGE from TECH_FEUDALISM to TECH_DRAMA: "<!-- custom: as chatgpt 5.1 confirms thanks but anyways etc; also as a side effect closer to bts early vassalage availability anyways etc" + "<!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (Egypt–Canaan, Hittites, Zhou “fengjian”, Assyria, early China, etc.). These are formal overlord–subject treaties with tribute, hostages, mutual defense, and legal obligations. -->" + "<!-- Mechanically, you do not want capitulation and permanent sub-states to exist while players are still fighting over their first 3–5 cities. In SAS your wars are deadly and the AI is opportunistic; early vassalizing would produce some nasty snowballs. -->" + "<!-- So I would: Put Vassal States in the late Classical band, not earlier than that." + "Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->"
+- BUILDING_TAJ_MAHAL: change tech prereq from TECH_CONSTITUTION to TECH_FEUDALISM, adjust cost to match this change too anyways etc
+- change tech_feudalism prereqs from tech_constitution AND (tech_civil_service OR tech_postaxial_religion) to tech_civil_service AND tech_drama (faster medieval line, less convoluted/circular in dependencies, so that we now have more strategic diversity/options/versatility i mean if i may say but anyways etc).
+- change of tech_democracy's prereqs from tech_feudalism AND tech_printing_press to tech_constitution and tech_printing_press anyways etc
+- add tech_civil_service prereq to tech_machinery to prevent a beeline but anyways etc
+
+unfinished economy civics rework in this commit:
+- replace CIVIC_ENVIRONMENTALISM with CIVIC_REGIONAL_TRADE: tech prereq at TECH_THE_WHEEL + "button from m-e mod's CIVIC_PROVINCIAL thanks anyways etc" + "also their entry was incredibly ideologically stupid, partisan/subjective, and bigoted, just like how the old pedia entry at TECH_ECOLOGY was (now fixed/enhanced i mean if i may say but anyways etc) (and ignorant too i mean, not that i know all but it was incredibly stupid, the old entry i mean but anyways etc) (if i may say hum hum xd i mean really if i may say but anyways etc) but anyways etc"
+- rework CIVIC_MERCANTILISM: change tech prereq from TECH_PRINTING_PRESS to TECH_PHILOSOPHY ("<!-- custom: want an early competitor to as of now CIVIC_REGIONAL_TRADE and as confirmed by chatgpt 5.1 i mean thanks but anyways etc") + "<!-- custom: button from m-e mod's CIVIC_DELEGATION thanks anyways etc -->"
+
+commit 983cc7f252b0d7aa5f958a1e9b18c0944f044442
+Author: wonderingabout <hidden>
+Date:   2025-11-13 12:29:09 +0100
+
+rebalance/rework legal civics (also this is the first commit where chatgpt 5.1 helps me and i tested it as well i mean if i may say but anyways etc)
+- buff CIVIC_VASSALAGE: change upkeep from UPKEEP_HIGH to UPKEEP_MEDIUM
+- buff CIVIC_FREE_SPEECH: add a new +1 happiness from BUILDINGCLASS_UNIVERSITY effect anyways etc
+- rework CIVIC_NATIONHOOD: remove happiness effect from barracks, remove espionage in all cities effect, add a new +1 happiness effect from BUILDINGCLASS_COLOSSEUM + from BUILDINGCLASS_COURTHOUSE + from BUILDINGCLASS_CASTLE: "<!-- custom: more iconic, possibly more balanced, less generic, and in some cases stronger, as chatgpt 5.1 confirms i mean but anyways etc" + "Together they read as “proud, mobilised nation-state”, not just “we built some barracks”. -->". Also change iExpInBorderModifier from 0 to 100 "<!-- custom: idea by chatgpt 5 as i asked it a new iconic/specific effect for civic_nationhood thanks a lot i mean but anyways etc" + "<!-- You’re right: +25% espionage is both strong and kind of boring -->" + "<!-- Give Nationhood home-territory combat bonuses & war endurance instead of big global espionage. -->"
+
+commit 59d8c92c41f71d9698bfd1cf8b909eb1706f203b
+Author: wonderingabout <hidden>
+Date:   2025-11-13 11:09:18 +0100
+
+(Tremendously Improved) Fix the issue of civics that give specialist extra commerce being almost never picked during the entire game (vs for example civic_heridetary_rule) by valuing commerce per specialist more anyways etc
+- Fix the issue of civics that give specialist extra commerce (as of now civic_representation giving beakers, gold, culture) being almost never picked during the entire game (vs for example civic_heridetary_rule), even though the extra commerce per specialist should be quite attractive and strong especially if it applies to many specialists. Tweaked the commerce calculation formula in `CvPlayerAI::AI_civicValue` so it uses stronger advciv-sas's custom commerce weights, and stronger commerce multipliers derived from the SAS weights (both being tunable). Results in autoplay in much more prevalent as of now civic_representation picks especially in the mid/late game, with still some civic_heridetary_rule and civic_universal_suffrage picks and back and forth as well so hopefully balanced and should lead to stronger AI as the yields are overall stronger and economically more efficient generally but anyways etc. Adjust as you see fit anyways etc.
+
+commit 4f730807f90aa652cf2ee5a9d52e5771a9d9fb89
+Author: wonderingabout <hidden>
+Date:   2025-11-13 07:52:32 +0100
+
+rebalance/rework government civics
+- nerf CIVIC_REPRESENTATION: remove the commerce espionage per specialist gain effect, remove the happiness in largest cities (iLargestCityHappiness) effect
+- rework CIVIC_UNIVERSAL_SUFFRAGE: change iWarWearinessModifier from 0 to 25, change upkeep from UPKEEP_MEDIUM to UPKEEP_HIGH, remove the CapitalCommerceModifiers effects, change iLargestCityHappiness from 0 to 3, add new effect of +1 hammer on IMPROVEMENT_VILLAGE ("<!-- custom: also add smaller cities hammer boost as nicely recommended by chatgpt 5 thanks, fit the theme of all cities/people contributing nicely as well if i may say i mean but anyways etc -->" + "<!-- NEW: help midgame—Villages contribute to projects too -->")
+- rework CIVIC_POLICE_STATE: change iMilitaryProductionModifier from 25 to 20, add new effect of unlimited spy specialists
+
+commit 221d218f2d062ba70454d0c75efe18da84eecaeb
+Author: wonderingabout <hidden>
+Date:   2025-11-12 15:46:04 +0100
+
+(Improved) reduce excessive civic oscillation by adding a min slack percent requirement before civic switch (tunable)
+- Reduce excessive civics change oscillation (was partially masked by civic_caste_system being almost always picked it seems based on autoplay testing, now more prevalent after our civic valuation changes that also value other civics depending on the player's strategic needs but anyways) by adding an additional percent slack new logic (and rewriting the old logic as well) in `CvPlayerAI::AI_doCivics` so that for example a new civic needs to be at least 10% higher valuated to be chosen/switched to (tunable). Note: If percent slack is set too high, it may cause AIs to switch too rarely and react more slowly, but if too low it may be inefficient especially for players that have anarchy turns on civic change—adjust to taste. Note 2: for some reason as of now sometimes bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such anyways etc.
+
+commit f3c7a9bac5c1660c9741eb4d1643726aa8332e20
+Author: wonderingabout <hidden>
+Date:   2025-11-12 14:18:23 +0100
+
+buff and rework CIVIC_ORGANIZED_RELIGION and CIVIC_THEOCRACY so that they are more about religion, nerf CIVIC_FREE_RELIGION
+- buff and rework CIVIC_ORGANIZED_RELIGION: change iStateReligionUnitProductionModifier from 25 to 0 (breaks balance and not necessarily relevant to build any building faster just because we have a religion), add unlimited priests (so civic stays relevant longer in the game), and change iExtraHealth from 0 to 1 ("<!-- custom: promoting meditation or zen or such; add this as a way to buff this civic so it is relevant longer in the middle/late game + idea i got from glancing at chatgpt 5's thoughts plus it confirms it as well after asking it but anyways etc; plus also cleansing one's sould/body may fit this well after considering it in this case i mean but anyways etc" + "<!-- Pros: zero micro, AI values it automatically, useful all game. Cons: generic (but still thematically fine: charitable hospitals, sanitation norms). -->")
+- buff and rework CIVIC_THEOCRACY: change iStateReligionFreeExperience from 2 to 0, change iStateReligionUnitProductionModifier from 0 to 15 (so civic stays relevant longer in the game and thematically relevant (more belligerent to others anyways etc)), change iCivicPercentAnger from 0 to 200 (if you are not a religious state we hate you (note: lower than the old civic_emancipation's value of 400)), change iWarWearinessModifier from 0 to -25 ("<!-- custom: very nice idea by chatgpt 5 thanks" + "<!-- Optional, thematic: a touch less war weariness due to zeal -->")
+- nerf and rework CIVIC_FREE_RELIGION: change iWarWearinessModifier from 0 to 25 ("<!-- custom: no longer an autopick late game, weight it vs other options + also thematical (less inclined to go to war without values promoting or encouraging it but anyways etc)")
+
+Also leads i mean but anyways etc to more even late game picks and not just auto free religion in auto play, but this could be due to the current excessive civic oscillation: tbd i mean but anyways etc.
+
+commit 2d718e9858c588758c81e6bed847ca58a83bdf39
+Author: wonderingabout <hidden>
+Date:   2025-11-12 12:25:30 +0100
+
+(Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization (now uses per yield and per commerce hierarchised valuation)), in CvPlayerAI::AI_civicValue
+- Fix the issue of AIs almost always picking civic_caste_system and then sticking to it no matter what: rewrote the unlimited specialist old logic in `CvPlayerAI::AI_civicValue` that would only value culture specialists, which seemingly led to civic_wage_labour (as of now unlimited engineers, see latest sevopedia/xml for updated values and details anyways etc) never being picked, even when AIs would much benefit from it, including when our ennemies are stronger than us (no point to run a scientist and then die, better capitalize on engineers or serfdom or such but anyways etc). Now we value unlimited specialists' yields (food, hammer, gold) and commerce (beakers, gold, culture, espionage) hierarchically (e.g. higher value per yield for food vs hammer, higher value per yield for beakers vs culture, etc.), so that we value unlimited specialists strategically on a per yield base. Also added high need logic (higher culture value per yield if culture win rush or BFC need quite similarly to old code, and now also higher hammer value per yield for engineers if our ennemies are strong (see code for latest settings anyways etc)). Results in autoplay are very good, we now switch back and forth between civic_slavery and civic_caste_system early (no longer perma caste system), and then later civic_wage_labor is much more popular among AIs. Civic_serfdom is also sometimes switched to late in the game. Added anarchy counting logic to devalue civics (less attractive if costly in turns, but still as attractive if no anarchy cost (traits, golden age, wonders, etc. (at least in theory i mean but check to be sure but anyways etc))), but it looks we still switch a bit too much still so may need some tweaking, but even as is should lead to much stronger and responsive AI hopefully, especially following future civic reworks. Partially tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See for details with screenshots and such [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue).
+
+commit dda0329d0898a44e02df05c5f7caa10222c80962
+Author: wonderingabout <hidden>
+Date:   2025-11-11 13:47:35 +0100
+
+Adjust the civics' order in xml so that their display order ingame in the civics advisor matches tech tree pace
+- Adjust the civics' order in xml so that their display order ingame in the civics advisor (F3 key anyways etc) matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Vassalage is after Caste System not before, Pacifism is before Organized Religion not after, Environmentalism is before State Property not after) but anyways etc.
+
+commit a85a49b1afd3301bfcfc450cbe5bbe06805ab5f3
+Author: wonderingabout <hidden>
+Date:   2025-11-11 13:28:39 +0100
+
+rename CIVIC_EMANCIPATION to CIVIC_WAGE_LABOR and rework, rework and buff CIVIC_SERFDOM to be agrarian-based, and other changes
+- CIVIC_EMANCIPATION: rename to CIVIC_WAGE_LABOR
+- CIVIC_WAGE_LABOR: rework: tech prereq changed from TECH_DEMOCRACY to TECH_BANKING (sooner anyways etc), changed iCivicPercentAnger from 400 to 0, added a new hurry with gold effect, unlimited engineer effect, and added a new art button (from c2c mod) and a new pedia entry (rephrased from https://fiveable.me/key-terms/europe-1000-1500/wage-labor due to (stupid but anyways etc) copyright reasons (it seems i mean according to chatgpt 5 there is a copyright issue but anyways etc) but anyways etc that matches these changes anyways etc + "<!-- custom: hopefully having it sooner also increases strategic options as well anyways etc"
+"<!-- Short version: yes, if what you want is the rise of monetized, contract-based work rather than “the modern proletariat.”
+	- Wage labor existed well before the Industrial Revolution (soldiers, artisans, day/harvest laborers, urban craftsmen, ship crews). It accelerates from the 13th–15th c. with coin monetization, towns, and guild production, then expands massively later.
+	- Tying it to Banking (Italian city-states, credit networks, bills of exchange) is thematically solid. -->"
+- CIVIC_SERFDOM: rework: and YieldModifiers increased from 0 for all to +10% food in all cities, iWorkerSpeedModifier reduced from 50 to 25
+- CIVIC_UNIVERSAL_SUFFRAGE: remove the hurry with gold effect
+- CIVIC_MERCANTILISM: change tech prereq: from TECH_BANKING to TECH_PRINTING_PRESS: "<!-- custom: change as recommended by chatgpt 5 and to avoid redundancy with our other civic change as of now at this tech but anyways etc, was TECH_BANKING -->"
+
+commit e3d2a79855f68e5e8a04379adf2c3fbb1cf8b76b
+Author: wonderingabout <hidden>
+Date:   2025-11-11 07:39:26 +0100
+
+(Tremendously Improved) Fix the issue of AIs autopicking/overvaluing the former civic_emancipation (or any civic with `iCivicPercentAnger`) just because other rivals have it regardless of how good the civic itself is (the former civic_emancipation was really weak yet still picked by AIs) + rebalance labor civics
+- Fix the issue of AIs autopicking/overvaluing the former civic_emancipation (or any civic with `iCivicPercentAnger`) just because other rivals have it regardless of how good the civic itself is (the former civic_emancipation was really weak yet still picked by AIs). Now replaced with opportunistic current unhappiness per city-based logic if it benefits us (only pick such a civic if enough of our cities that are unhappy because of the anger civic effect would gain happiness from it). Change in `CvPlayerAI::AI_civicValue` with some tunables in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). Hopefully makes stronger civic choices thanks to this changes as appears to be so in autoplay before vs after change. See for details [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
+- buff civic_serfdom: as of now remove the IMPROVEMENT_TOWN penalty (civic was too weak, plus city indirectly benefits from harvests i think in an alternate late game serf-based potential economy/civ anyways etc), and added an extra gold yield on water food improvements to keep agrarian theme as chatgpt 5 approved i mean with the suggestion i mean but anyways etc
+- buff civic_slavery: as of now improve/reduce upkeep from UPKEEP_MEDIUM to UPKEEP_LOW (try to make it relevant longer into the middle game without being op, also it is thematically more accurate to consider slavery cheaper to enact i mean if i may say but anyways etc (buffs its early game performance vs other civics as well which may help if economy is bad or such possibly maybe but anyways etc)
+- nerf civic_caste_system: as of now nerf/increase upkeep from UPKEEP_MEDIUM to UPKEEP_HIGH (was too op and ubiquitous anyways etc, now it is still strong but has a significant early cost to sustain it, and scaling improves later in the game instead)
+- nerf CIVIC_EMANCIPATION from UPKEEP_LOW to UPKEEP_MEDIUM
+
+commit 35b7c0107eea860578467e5a8e4f7a11f4ce5fcc
+Author: wonderingabout <hidden>
+Date:   2025-11-10 12:48:58 +0100
+
+add bonus_copper as an alternative prereq for remaining civ-specific crossbowman-class units
+- "<!-- custom: add bonus_copper to as of now civ-specific crossbowman units for which it is relevant (i.e. as of now excluding the yeoman_archer as it does not use any metal), as confirmed to be accurate / relevant enough by chatgpt 5 after asking it i mean but anyways etc, was BONUS_IRON. -->"
+- "<!-- yes—adding Copper as an OR-resource (Copper OR Iron) for your UU crossbows makes both historical and gameplay sense. Crossbows (Benin, China): the bow arms are wood/laminate; the metal is mainly in the prod/trigger, stirrup, bolts, armor bits. Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel). Iron isn’t strictly required. -->"
+
+commit b61ee3f03fc0c2b96b9fb20e7722b18265fe2796
+Author: wonderingabout <hidden>
+Date:   2025-11-10 11:54:37 +0100
+
+patch/fix tech beelines at tech_physics (to tech_steam_power), and tech_theory_of_evolution (to tech_genetics and tech_game_theory) and tweak tech tree as well while doing so i mean but anyways etc
+- add tech_naturalism as a prereq to tech_physics: "<!-- custom: nicely fits copernic theme and fighting previous religious or such preconceptions with the power of reality i mean if i may say for better or worse xd i mean but anyways etc -->"
+- add tech_electricity as a prereq to tech_genetics: "<!-- custom: added this extra as of now tech_electricity prereq nicely i mean if i may say but anyways etc recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking it and it was replying i mean if i may say but anyways etc, thanks for help and confirming lot! I mean if i may say but anyways etc. Also, as i explained to chatgpt 5 as it asked me i mean if i may say but anyways etc, it (i.e. tech_nationalism i mean but anyways etc) also seems to be a great fit i mean but anyways etc as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time) i mean as well but anyways etc) though i mean if i may say but anyways etc), and tech_liberalism is a bit too soon for that (tech chatgpt 5 sugegsted as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time i mean if i may say but anyways etc. -->"
+- add tech_nationalism as a prereq to tech_game_theory: "<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe i mean but anyways etc, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well but anyways etc)  too much here for variety or such i mean as well but anyways etc -->"
+
+all in all i mean if i may say but anyways etc, this nicely fixes the beelines while keeping strategical versatility hopefully i mean too but anyways etc. I tried more aggressive changes but it seems the tech tree is worse with them, so i hope the tech tree is balanced as such before a new release, maybe perfect even, although could always be improved maybe but the "when there is nothing left to take away" seemed to make sense here i guess i mean and felt.
+
+Hopefully i can (not promised nor guaranteed, i may or i may not but anyways etc) ship a few fixes to AI or gameplay or such and make a new release after i have tested this enough (or at least a bit) (again not guaranteed nor promised, i may or may not do so and it may be long or short until then in this case i mean and if i ever do i mean but anyways etc).
+
+commit e00669db510e8baa9c26d9a466b22f3da0e6c9dd
+Author: wonderingabout <hidden>
+Date:   2025-11-07 21:52:05 +0100
+
+bugfix tech_astronomy requiring itself so can never complete + minor balance fix/tweak tech_banking anyways etc
+- also move tech_banking one column later as it is historically on the later part of medieval era; adjust iCost as such anyways etc.
+
+commit c54bce20216cae4dce88d25f3f2b54467949bcd3
+Author: wonderingabout <hidden>
+Date:   2025-11-07 07:46:14 +0100
+
+significantly adjust the medieval era and mid game tech tree
+- split the late medieval era column into 2 columns as was too crowded and not as easy to manage i mean but anyways etc. Change tech cost of late medieval techs from 1400 to 1500.
+- change tech_democracy's prereqs from tech_astronomy AND (tech_constitution OR tech_banking) to tech_feudalism AND tech_banking: closer in tech tree, historically more accurate (democracy was mostly an opposition to local kingship or such from quick research i did on it very briefly i mean but anyways etc). Also, printing press and banking originated from western cities. Liberalism can be tied to democracy, which historically happened before the USA's independence war from a quick wiki glance i mean in this case i mean but anyways etc. Removes redundancy as many techs has similar requirements like tech_liberalism also requiring printing press and banking, might as well also simplify it there. This change gives more importance to this tech in our tech tree i mean but anyways etc, and allows to switch to democracy sooner which may be interesting for gameplay variety anyways etc. Adjust tech_democracy's related buildings (building_statue_of_liberty) and tech cost to match this change anyways etc. Also restores the civ3 association of tech_printing_press and democracy which is nice btw i mean if i may say but anyways etc (move it up in tech tree though to better connect with tech_machinery i mean so not direct connection but connected through prereqs i mean but anyways etc).
+- change tech_liberalism's prereqs from tech_printing_press AND tech_banking AND tech_naturalism to tech_democracy AND tech_banking AND tech_naturalism (as per and following previous change i mean but anyways etc).
+- change tech_physics's prereqs from tech_chemistry AND tech_machinery to tech_astronomy AND tech_printing_press: thematically more relevant, removes intertwined nodes, and tech_astronomy had no tech to lead to anymore anyways etc. Also indirectly makes grenadiers harder to have now as they also require tech_astronomy indirectly, which would reduce the mismatch with riflemen being available significantly after them following our recent tech tree changes i mean but anyways etc. As for tech_printing_press, matches its tech tree position change and is quite relevant thematically (research papers spread through printing or such maybe (but just a guess of mine, check to be sure but anyways etc)).
+- change one of tech_biology's prereqs from tech_physics to tech_chemistry: thematically and most likely historically (what is exactly the difference maybe or something btw although i think i more or less got it maybe i guess maybe i mean maybe but anyways etc) accurate/relevant but anyways etc.
+- remove tech_machinery's prereq of tech_later_abrahamism i mean as was least relevant among tech_later_abrahamism's leads to techs and removes intertwined nodes i mean or/and such but anyways etc.
+- replace one of tech_chemistry's prereq: changed from tech_machinery to tech_broader_education. Removes excessive tech_machinery, slows military tech rush/beeline and delays cannons' apparition in the game to give medieval era more breathing but anyways etc. Also matches chatgpt 5's sugegstion thanks i mean really if i may say but anyways etc. May be thematically or/and historically quite relevant as well maybe (although i didn't check i mean but anyways etc)
+- replace one of tech_astronomy's prereqs from tech_water_wheel to tech_machinery (so that we discover it later in the game i mean but anyways etc, and it is now affordable after we have added an extra colmumn to connect them in this case i mean but anyways etc)
+- reduce early medieval tech costs from 1400 to 1200 (since we have a new column, and to make tech_chivalry (see below) more affordable but anyways etc), and the new medieval column from 1400 to 1500. (so gating is now 900 - 1200 - 1500 - 1800 very cleanly anyways etc. Allows to make early medieval techs more reachable while later ones still remain gated which i think is very nice but anyways etc.
+- change tech_chivalry's position so it is no longer tied to tech_civil_service but to tech_feudalism (after it now instead). Thematically very relevant (knights obey/serve a feudal lord which i like very much i mean but anyways etc), matches civ3 theme or tech tree more closely as a side effect nicely i mean that i like i mean but anyways etc. Tech_feudalism no longer leads to tech_gunpowder, so the asian cannon line is independent now, which seemingly makes more sense as well i mean i think but anyways etc. We overuse tech_feudalism but probably fine; also allows to have a different tech route than cannons (tech_chemistry's prereqs use a different path anyways etc) for gameplay variety or/and such. Matches one of chatgpt 5's suggestions thanks as well. But anyways etc. Also, it fixes AIs skipping feudalism to beeline firearms or such later techs in autoplay after our recent/latest tech tree changes i mean but anyways etc. Also allows macemen to shine a bit longer as i wanted too as knight units are quite op if too soon available but anyways etc. Remove tech_water_wheel gating from tech_chivalry's prereqs as we no longer need to do so since it is available later than feudalism, not as an alternative, plus it is more costly. Hopefully bit clearer tech_tree as such and immersive or such as well maybe but anyways etc.
+- move tech_gunpowder one row higher so it is now no longer tied to tech_chivalry, but instead to tech_later_abrahamism as an alternative tech path for cannons (arabs helped propagate gunpowder too i mean but anyways etc), and add tech_chivalry for balance and to represent asian influence (so we don't get cannons too soon as well i mean but anyways etc). Also add tech_chivalry as a prereq to tech_firearms so now the split is after tech_gunpowder to either tech_chemistry (tech_broader_education required anyways etc) or to to tech_firearms (tech_chivalry required) which is thematical and adds variety, as chatgpt 5 advised to (add variety i mean) thanks and i mean etc but anyways etc.
+- move frigate units to tech_gunpowder as seems more relevant there and now that we've split them (plus allows to counter privateers sooner but anyways etc). This is better aligned with ship of the line being available later at tech_physics which now also requires astronomy (and added the tech_gunpowder prereq anyways etc) but anyways etc.
+- add tech_machinery as an additional prereq to cannon units as recommended by chatgpt 5 (rather than adding it to tech_chemistry that would not be as clean or readable or according to chatgpt 5 balanced i mean if i understood it correctly but anyways etc).
+
+all in all i like this new tech tree very much i mean but anyways etc. Now knight units are available later, macemen shine longer, gun units a bit later too, there is much more variety in tech paths, and the medieval and around it tech tree itself is much more detailed even though it uses same techs, but with much more variety, less intertwined nodes and bloat. I believe this adds much strategical possibilities as well as immersion hoepfulyl as well, at least i like it very much if i may say but anyways etc. Hopefully much more balanced as such and replayable in this case i mean but anyways etc.
+
+commit f53e5cd9a7fdb824ad766e12594d783698cdf8ac
+Author: wonderingabout <hidden>
+Date:   2025-11-06 13:53:56 +0100
+
+more tech adjustments to the early to mid game + cannon units minor reworks anyways etc
+- replace one of tech_gunpowder's prereqs: from tech_broader_education to tech_medicine: "<!-- custom: as nicely recommended by chatgpt 5 thanks (more balanced as more easily reachable, and also i mean but anyways etc it mentionned very relevantly if i may say thanks but anyways etc alchemy being related to it which historically i guess is more or less the case thanks really i mean i added it as of now as such i mean but anyways etc), instead of my original TECH_BROADER_EDUCATION idea that was too strict/stiff i mean in this case but anyways etc -->"
+- move the UNIT_KOREAN_HWACHA to tech_chemistry like the other cannons as gunpowder is otherwise too accessible and the unit would be op. Buff it a bit by giving it a free promotion_collateral_damage1 instead of promotion_retreat1 which should make it a bit stronger. Note: this as of now new free PROMOTION_COLLATERAL_DAMAGE1 is also thematically more relevant according to chatgpt 5 as the unit fires many rockets if i understood it correctly but check if accurate anyways etc.
+- minor rework UNIT_HOLY_ROMAN_HOUFNICE: replace PROMOTION_COLLATERAL_DAMAGE1 with PROMOTION_CITY_BOMBARD_DAMAGE as it is less redundant as such to match previous change to the hwacha but anyways etc.
+- remove the tech_firearms prereq from tech_liberalism as it is too bloated and not so relevant historically or/and such in gameplay as well i mean but anyways etc
+- tech_drama is now one column sooner (and so cost is reduced anyways etc) and its prereqs have been changed from tech_engineering + tech_meditation to tech_music + tech_mounted_combat anyways etc
+- removed the tech_mounted_combat requirement for tech_meditation (hopefully helps spread buddhism sooner as well and that not all games are paganism or hinduism or such in the early to mid game if not most of the game as well i mean but anyways etc)
+- replaced one of the tech_civil_service's prereqs: from tech_philosophy to tech_iron_working
+- replaced one of the tech_chivalry's prereqs: from tech_drama to tech_water_wheel (removes redundance, slows tech_chivalry a bit so that macemen and crossbows have some time to shine whiel still being slightly thematically relevant i mean but anyways etc)
+- remove tech_postaxial_religion from tech_later_abrahamism: tech path was too rigid and the tech itself was too bloated. Plus, from what i understand of it i mean, islam was not so much related to christianity, but much more so a local reply to polytheism that emphasized submission to an absolute authority by serving it willingly, so i hope/think/find but anyways etc that this suits it better. Tech_monotheism represents the early abrahamic inspiration of this religion/movement but anyways etc.
+- changed tech_feudalism prereqs from tech tech_postaxial_religion AND tech_civil_service AND tech_constitution to tech_constitution AND (tech_civil_service OR tech_postaxial_religion): less bloated this way and less rigid, plus better represents the asian side of history that was not reliant on postaxial religion to build feudal empires (mostly a guess from mine but i guess it worked at such more or less, check to be sure and if accurate anyways etc). As for gameplay, maybe this also buffs i mean but anyways etc the war path by making it more affordable in this medieval spaghetti that it was xd (hopefully bit better now although spaghetti are cool by themselves i mean but anyways etc)
+- changed one of tech_medicine's prereq from tech_constitution to tech_philosophy: thematically relevant / historically accurate (what is the difference between these even i wonder? But anyways etc) and less monotonous in tech tree.
+
+commit 5aa30753cf862fe421da589c2457f436052d5cea
+Author: wonderingabout <hidden>
+Date:   2025-11-06 07:25:15 +0100
+
+tech tree early game adjustments
+- hunting is no longer an AND but is now an OR requirement for agriculture (replaced by pottery now): the hunting line was too op to allows everything, now it will be instead the early committal edge for animal husbandry and chariots. Pottery is indirectly stronger as it plays a more central role now in the early game, but the tech itself is not op so maybe fine as such anyways etc. Indirectly gives builder and religious civs more momentum for bronze working as well that is a bit more accessible now (since it requires masonry which is available via pottery anyway), so i hope it is both more flexible and balanced as such, and allows some more variety without being too carefree if such a thing exists at least in civ4 i mean if i may say but anyways etc.
+- reworked the naval line so that sailing is available sooner and is now also an alternative tech for construction (if you can curve wood for ships, you can probably curve bows (construction) and roofs with wood or something without needing the wheel itself). More sensical and should most importantly hopefulyl i mean but anyways etc make the naval line with fishing much more viable.
+- also made navigation be later in tech tree (it was a bit too soon to get world maps or ports i think) as AIs (and i assume players would or may too but anyways etc) would too easily beeline engineering with the now much more accessible navigation, skipping iron working altogether. While the diversity of early catapults and castle is interesting, it turns out the high tech cost was not a deterrent enough to prevent that, so made navigation a bit later to connet better with water wheel tech as well but anyways etc
+- also unrelated but updated DLL with latest fix in previous commit anyways etc.
+Hopefully much saner (was not too bad before but even better or fine as such if i may say maybe but anyways etc) and balanced with clear strategical lines remaining but with more flexibility now (whatever that means but anyways etc) especially for the naval line anyways etc.
+
+commit 07180b5b113a686b4f66f8c5b4da84a981f4703c
+Author: wonderingabout <hidden>
+Date:   2025-11-06 00:17:54 +0100
+
+bugfix incorrect define name after our advciv-sas performance optimization + also strengthen and make define functions more detailed anyways etc
+
+commit 4500c8c3274ee41a71dd791e963bf566409e16f4
+Author: wonderingabout <hidden>
+Date:   2025-11-05 18:38:36 +0100
+
+Update DLL, and a few minor other tweaks or fixes or performance optimizations or doc changes anyways etc
+Latest commits were with a debug DLL, i only just now updated the release DLL to have these changes. Debug DLL was uncommitted.
+
+It is not necessarily a good idea to just blindly patch as a way to fix/silence the issue(s) in assert fail, as some appear to be here to make issues louder in the hope to fix them in this case i mean but anyways etc.
+For example, ScaledNum.h 's uround function seems to be especially used to flag issues (m_i being negative), as per this comment in the below code sample and as noted by chatgpt 5 as well thanks i maan really i mean but anyways etc.
+
+	int round() const; // Expect this to get inlined for unsigned IntType
+	/*	Only for signed IntType. Non-branching, expect this to get inlined always,
+		but only works on non-negative numbers. Asserts non-negativity, so using
+		this over round may also help uncover bugs. */
+	int uround() const;
+
+so removing the assert by clamping out of bounds values would defeat the purpose xd. I don't know too much about these, but i think i understood it quite correctly, check if accurate anyways etc.
+
+As for other patches we added, i hope they make the game more reliable, something was related to our artist being forced early i guess, and another thing related to us forbidding the citizen specialist so when city is full and cant assign any other specialist this new issue would happen due to no citizen being available i guess. Still, i hope these help, but check if accurate, they seem to run fine at least, but not necessarily fixing all asserts as per previous explanaiton that some are here to help uncover issues, not hide them, if i understood it correctly i mean but anyways etc.
+
+commit 7f434b7fe0ae56f1e35f522a1d6f5107a9be8710
+Author: wonderingabout <hidden>
+Date:   2025-11-05 17:36:12 +0100
+
+Seemingly fixed/addressed base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert
+
+commit 1798ac76f438e0c42602efb5e09819192efc06b2
+Author: wonderingabout <hidden>
+Date:   2025-11-05 10:25:06 +0100
+
+Seemingly fixed/addressed base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert
+
+commit 453353c3f859bfc017258ce50f5c4a8e177850ac
+Author: wonderingabout <hidden>
+Date:   2025-11-05 09:23:15 +0100
+
+Seemingly fixed/addressed base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert
+
+commit f0b9e8757b536faa2e1c1f0775e96a13a8a067c8
+Author: wonderingabout <hidden>
+Date:   2025-11-05 07:51:45 +0100
+
+Seemingly fixed base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert, by adding a global and muinimal NO_FEATURE guard (i.e. for this function) anyways etc
+
+commit 2d3c2dd4a5fb57cbac25111ab0b6c54e765dea83
+Author: wonderingabout <hidden>
+Date:   2025-11-05 07:01:57 +0100
+
+Seemingly fixed base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots
+
+commit 6adb8d40d5636dad7a6c9ea2ef7a53367ba951f7
+Author: wonderingabout <hidden>
+Date:   2025-11-03 17:57:01 +0100
+
+increase willingness to build heroic epic like effect even if danger is moderate + performance optimizations (lazy front load the early rejects but anyways etc) + other tweaks and/or fixes or such or not such but anyways etc
+- in autoplay it seems that being more lenient of(/at? But anyways etc) no heroic epic conditions, we build them more often among AI players, which may make the early game slightly slower and riskier, but we seem to have a better/stronger mid and late game but anyways etc, seemingly due to having a stronger economy and less unit spam. In one autoplay run, we could comeback despite being way weaker than other rivals, and survived until end game (even if we didn't win). I am not sure it always helps, but i hope/suspect it generally does, or in most cases i mean but anyways etc. Chatgpt 5 also generally agrees with me on this i mean if i may say but anyways etc.
+- as for the performance optimizations, dropped the cache optimization code (latest version as of now in https://github.com/wonderingabout/AdvCiv-SAS/commit/9d1d1ffad06a65d408a498f51108d745b0e97bed), due to added complexity if i may say but anyways etc, and non-reliability (even though it was almost the same or close to it at t200,a nd the same at t100). However i explored lazier and more reliable optimizations in CvCityAI::AI_BuildingValue function instead which preserved t200 outcome on top of also allowing us to escape the loop many times which should save plenty computation. Done with the help and ideas of chatgpt 5 too thanks i mean but anyways etc although i had the main idea and review at first, it also helped a lot wit its ideas and fixes too thanks i mean if i may say but anyways etc. Then deviated a bit by finding a few fixes or tweaks such as the relaxing of the heroic epic effect like building no building it gates: it's generally better to risk a bit weaker/slower early game in favour of a potnetially betetr mid/late game. May not always work out as such, but i hope it helps AIs in most cases and seems to do so, although it is not guaranteed but seems to be as such in autoplay as such. AI should be generally a bit to quite a bit qtronger thanks to this change, although sometimes possibly weake,r but i suspect and think i mean but anyways etc that it would help more than not help and cause harm i mean if i may say but check to be sure but anyways etc.
+
+commit 8d1073b371ab0f7d1776ad4e7dc587d1a6768bc3
+Author: wonderingabout <hidden>
+Date:   2025-11-03 11:20:32 +0100
+
+crash fix from too high sentinel value 999999 + minimally apply fixes and tweaks from the unapplied caching owner cities info code
+even dropping the nice code i had added with chatgpt 5 at https://github.com/wonderingabout/AdvCiv-SAS/commit/8738f0055fec4319762790ee8f43277f201a23c9, as it was causing crashes despite being so nice i mean but anyways etc, i tried to minimally apply the fixes from this branch instead, and could reproduce the exact same crash at turn 163, which confirms said crash was not caused by caching code (which btw but anyways etc could conserve the t100 outcome exactly, and so that may have been working fine all along but would need to test to be sure but anyways etc) but instead by remvoing the extra boolean check in the maintenance 100 (m100) code it seems.
+
+pushing these as a fix/tweak for now with more sas defines added or such, and may give trying the caching code another try again to see if it reproduces the issue/crash again (in this case i mean but anyways etc)
+i am still not sure it is worth the computation gains, as out of autoplay it should be fairly cheap even with all these loops, and i didn't measure it in time in seconds in autoplay to tell if difference is significant or not, also i don't know too much about these to tell, but i may try it and see, in this case i mean but anyways etc.
+
+commit 7da5726acf6416475b22223a0b9809ea32d4ed7d
+Author: wonderingabout <hidden>
+Date:   2025-11-02 17:44:25 +0100
+
+performance optimizations and refactor, move some variables to sas defines
+
+commit 594f132e6d45ecf68059a2347532d36541b05592
+Author: wonderingabout <hidden>
+Date:   2025-11-02 07:00:13 +0100
+
+more more more performance optimizations
+
+commit 511f2f8f7315d522819a3d8652f95bce129cac0d
+Author: wonderingabout <hidden>
+Date:   2025-11-01 21:34:29 +0100
+
+more more performance optimizations
+
+commit c5e91acf2aa11db87a17b2c1cf5c2a8c997bf335
+Author: wonderingabout <hidden>
+Date:   2025-11-01 14:27:41 +0100
+
+more performance optimizations
+
+commit 118d145c3019c7ece81a6476ed866de9316dfc9e
+Author: wonderingabout <hidden>
+Date:   2025-11-01 07:17:04 +0100
+
+performance optimizations
+
+commit 37615028018c14723ab4598cf095c39604f2a002
+Author: wonderingabout <hidden>
+Date:   2025-10-31 09:49:48 +0100
+
+update 48 civs DLL, update docs
+
 commit d975fc2a129a8b6fbea03665d939910e90c04922
 Author: wonderingabout <hidden>
 Date:   2025-10-31 09:02:16 +0100
