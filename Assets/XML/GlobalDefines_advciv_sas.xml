@@ -1380,6 +1380,22 @@
 
 
 
+	<!-- custom: tribute shouldn't be just for show, actively and deterministically declare war if you don't want to pay us (if you don't agree just pay us xd. No matter how expensive, just don't be weak; pay or fight us or don't complain anyways etc.). AI demands can be unreasonable, but still in the end it all comes down to whoever is stronger to enforce their rule (pay or fight or shut up if you don't agree basically) but anyways etc. Code added with the help of chatgpt 5.1 thanks, check if accurate anyways etc. -->
+	<!-- When an AI that is clearly stronger demands tribute from a human and gets refused, it will always treat that as a real casus belli and move into a war plan, instead of sometimes just shrugging and walking away. -->
+	<!-- If you really want the “you said no → boom, war” horror moment, this is the cleanest way. -->
+	<!-- custom: enable (1) / disable (0) -->
+	<Define>
+		<DefineName>SAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: if our power (including vassals and such if i'm not mistaken anyways etc.) is this much stronger than this rival's power then deterministically declare war if they refuse to pay us (else the tribute is just for show and useless). Note: value is a bit higher than as of now the usual enemy strong percent, as this is deterministic and we want to be quite sure to win and grind away their walls or castle or such and not pointlessly declare war as this has a cost too but anyways etc. -->
+	<Define>
+		<DefineName>SAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR_MIN_POWER_PERCENT</DefineName>
+		<iDefineIntVal>130</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: whichever XML name is for the water food building class (in advciv-sas the harbor buildings give +1 food on water tile, adjust based on your building info xml to prioritize building this if low food and coastal if you want to anyways etc) -->
 	<Define>
 		<DefineName>SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>

@@ -7714,19 +7714,75 @@ bool CvPlayerAI::AI_demandRebukedWar(PlayerTypes ePlayer) const
 	FAssert(!isAVassal());
 	FAssert(!(GET_TEAM(getTeam()).isHuman()));
 
+	#ifdef _DEBUG
+	FAssertMsg(false, CvString::format(
+		"SAS TEST Declare war on demand rebuked: kTeam=%S -> kTarget=%S | iOurPower=%d iTheirPower=%d minPct=%d",
+		GET_TEAM(getTeam()).getName(),
+		GET_TEAM(ePlayer).getName(),
+		GET_TEAM(getTeam()).getPower(true),
+		GET_TEAM(ePlayer).getPower(true),
+		GC.getDefineBOOL("SAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR")
+	).c_str());
+	#endif
+
 	// needs to be async because it only happens on the computer of the player who is in diplomacy...
 	if (GC.getASyncRand().get(100, "AI Demand Rebuked ASYNC") <
 		GC.getInfo(getPersonalityType()).getDemandRebukedWarProb())
 	{
+		// <!-- custom: cache for reuse if i'm not mistaken anyways etc. -->
+		CvTeamAI& kTeam = GET_TEAM(getTeam());
+		const int iOurPower = kTeam.getPower(true);
+		CvTeamAI& kTarget = GET_TEAM(ePlayer);
+		TeamTypes const eTheirTeam = TEAMID(ePlayer);
+
 		// <advc.104m>
 		if(getUWAI().isEnabled())
 		{
-			GET_TEAM(getTeam()).uwai().respondToRebuke(TEAMID(ePlayer), false);
+			// <!-- custom: tribute shouldn't be just for show, actively and deterministically declare war if you don't want to pay us (if you don't agree just pay us xd. No matter how expensive, just don't be weak; pay or fight us or don't complain anyways etc.). AI demands can be unreasonable, but still in the end it all comes down to whoever is stronger to enforce their rule (pay or fight or shut up if you don't agree basically) but anyways etc. Code added with the help of chatgpt 5.1 and claude sonnet 4.5's help and review thanks; check if accurate anyways etc. -->
+			// tribute rebuke is not just for show; if we are clearly stronger, then always move toward war (deterministic, no RNG).
+			// When an AI that is clearly stronger demands tribute from a human and gets refused, it will always treat that as a real casus belli and move into a war plan, instead of sometimes just shrugging and walking away.
+			// If you really want the “you said no → boom, war” horror moment, this is the cleanest way.
+			static const bool bSAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR = GC.getDefineBOOL("SAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR");
+			if (bSAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR)
+			{
+				const int iTheirPower = kTarget.getPower(true);
+
+				if (iOurPower > 0 && iTheirPower > 0)
+				{
+					static int const iSAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR_MIN_POWER_PERCENT = std::max(0, GC.getDefineINT("SAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR_MIN_POWER_PERCENT"));
+
+					// <!-- custom: avoid overflow as recommended by claude sonnet 4.5; check if accurate anyways etc. -->
+					// You're right! Looking at your codebase, __int64 is barely used and mostly for specialized cases. For Civ4 modding, there's a simpler approach that avoids introducing int64:
+					// Option 2: Cross-Multiply (Best for Your Case)
+					// Instead of: 100 * iOurPower >= iSAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR_MIN_POWER_PERCENT * iTheirPower
+					// Rearrange to: iOurPower >= (iSAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR_MIN_POWER_PERCENT * iTheirPower) / 100
+					const bool bTargetWeakerThanRatio = (iOurPower >= (iSAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR_MIN_POWER_PERCENT * iTheirPower) / 100);
+
+					if (bTargetWeakerThanRatio && kTeam.canDeclareWar(eTheirTeam))
+					{
+						#ifdef _DEBUG
+						FAssertMsg(false, CvString::format(
+							"SAS Declare war on demand rebuked: kTeam=%S -> kTarget=%S | iOurPower=%d iTheirPower=%d minPct=%d",
+							kTeam.getName(),
+							kTarget.getName(),
+							iOurPower,
+							iTheirPower,
+							iSAS_AI_DEMAND_REBUKED_WAR_FORCE_WAR_MIN_POWER_PERCENT
+						).c_str());
+						#endif
+
+						// Tell the caller: "declare immediately"
+						return true;
+					}
+				}
+			}
+
+			kTeam.uwai().respondToRebuke(eTheirTeam, false);
 			return false; // respondToRebuke handles any changes to war plans
 		} // </advc.104m>
-		if (GET_TEAM(getTeam()).getPower(true) > GET_TEAM(ePlayer).getDefensivePower(getTeam()))
+		if (iOurPower > kTarget.getDefensivePower(getTeam()))
 		{
-			if (GET_TEAM(getTeam()).AI_isLandTarget(TEAMID(ePlayer), true))
+			if (kTeam.AI_isLandTarget(eTheirTeam, true))
 				return true;
 		}
 	}
