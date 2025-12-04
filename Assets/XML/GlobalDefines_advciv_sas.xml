@@ -1278,6 +1278,42 @@
 
 
 
+	<!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well anyways etc.), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks; check if accurate anyways etc. -->
+	<!-- The Solution
+	We need to change the Diplomatic Modifier section in AI_religionValue.
+	1) Remove the Attitude Gate: The AI should recognize that sharing a religion is a tool to make people like them, not just a reward for people who already do.
+	2) Add Power Weighting: Instead of counting every Civ as 2 points, we will weigh them by their Military Power. If a Civ is scary (Top Dog or Strong Guy), their religion matters much more. -->
+	<!-- custom: here are tunables to change the computation of the overall diplomacy modifier (that includes power weighting) of a religion's value. -->
+	<!-- AI Religion Value Diplomacy Formula -->
+	<!-- Formula: Modifier = [(MULT * Base * PowerBlocPercent) + MULT_ADD] / [(DIVIDER_MULT * ReligionFlavor) + DIVIDER_ADD] -->
+	<!-- Base = Personality-based value (50-95), PowerBlocPercent = 0-100 based on power of civs sharing religion -->
+	<!-- Example: 70% power bloc, Base=75, Flavor=5: [(10*75*70)+0] / [(1*5)+0] = 52500/5 = 10500% -->
+	<!-- custom: note: as noted by chatgpt 5.1 in a similar example thanks anyways etc., in this example this would result in multiplying base value by 105 (10500 percent = 105) which is a "huge" "boost" as per its words but may be fine i think (check if accurate though as this is just a guess of mine) to account for military power more in religion value. Adjust as you see fit or/and based on autoplay or whatever, anyways etc. -->
+	<!-- Increasing MULT amplifies diplomatic weight. Increasing DIVIDER_ADD reduces flavor penalty for low-religion leaders. -->
+	<!-- Multiplier for diplomatic modifier. Higher = stronger diplomatic influence. Min: 0 -->
+	<Define>
+		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- Flat bonus added to numerator. Adds baseline diplomatic value regardless of power bloc strength. -->
+	<Define>
+		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- Multiplier for religion flavor in denominator. Higher = flavor reduces diplomatic weight more. Min: 0 (enforced in code) -->
+	<Define>
+		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- Flat value added to denominator. Higher = reduces overall diplomatic modifier strength. Min: 1 (enforced in code) -->
+	<!-- Example: Setting to 10 mimics old K-Mod behavior of dividing by (10 + flavor) -->
+	<Define>
+		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) anyways etc -->
 	<Define>
 		<DefineName>SAS_AI_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>

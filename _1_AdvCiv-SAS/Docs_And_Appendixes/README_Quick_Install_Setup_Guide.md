@@ -10,7 +10,7 @@ If you don't have the game, i recommend buying it from GOG rather than Steam (i 
 
 It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide in this case i mean but anyways etc, check if i am not mistaken i mean too or for extra or updated info if any change has been made since maybe.
 
-## Download (or clone / download zip from github if you prefer) this mod AdvCiv-SAS
+## Download this mod AdvCiv-SAS
 
 ### Stable Version
 
@@ -18,9 +18,7 @@ You can download the latest stable version from:
 
 - the [CFC Modpacks downloads page](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/)
 - the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy)
-- or alternatively from GitHub (download zip or clone from github if you know how as you prefer) of this AdvCiv-SAS mod.
-
-Alternatively, or if the former fails, you can also view and download AdvCiv-SAS stable versions (also with links there to changes since last version in git history format for each version) at the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page.
+- or alternatively from GitHub (you can get it from the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page (that also has links to cumulative changes since last version in git history format for each version), or clone from github if you know how as you prefer).
 
 ### Development version
 

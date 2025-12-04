@@ -19012,6 +19012,19 @@ ReligionTypes CvPlayerAI::AI_bestReligion() const
 	return eBestReligion;
 }
 
+// <!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well anyways etc.), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks; check if accurate anyways etc. -->
+// The Problem
+// In the code you provided, the AI falls into a trap because of how it calculates iLikedReligionCivs.
+// The AI only cares about sharing a religion with people it already likes.
+// 	- Scenario: The Top Dog AI neighbors a Superpower. They are currently "Cautious" towards each other.
+// 	- Result: The AI ignores the Superpower's religion because they aren't "Pleased" yet. The AI founds its own religion (e.g., Islam) and converts.
+// 	- Consequence: The Superpower hates the AI for being a heathen. War is declared. The AI plays suboptimally.
+// The Solution
+// We need to change the Diplomatic Modifier section in AI_religionValue.
+// We will make two major changes:
+// 	1) Remove the Attitude Gate: The AI should recognize that sharing a religion is a tool to make people like them, not just a reward for people who already do.
+// 	2) Add Power Weighting: Instead of counting every Civ as 2 points, we will weigh them by their Military Power. If a Civ is scary (Top Dog or Strong Guy), their religion matters much more.
+//
 // This function has been completely rewritten for K-Mod
 int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
 {
@@ -19043,23 +19056,71 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
 	}
 
 	// diplomatic modifier
-	int iTotalCivs = 0; // x2
-	int iLikedReligionCivs = 0; // x2 for friendly
-	for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> itOther(getTeam());
-		itOther.hasNext(); ++itOther)
+	// <!-- custom: account for power between rivals rather, see above for details anyways etc. -->
+	// 	1) Remove the Attitude Gate: The AI should recognize that sharing a religion is a tool to make people like them, not just a reward for people who already do.
+	//
+	// int iTotalCivs = 0; // x2
+	// int iLikedReligionCivs = 0; // x2 for friendly
+	// for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> itOther(getTeam());
+	// 	itOther.hasNext(); ++itOther)
+	// {
+	// 	iTotalCivs += 2;
+	// 	if (itOther->getStateReligion() == eReligion)
+	// 	{
+	// 		AttitudeTypes eAttitude = AI_getAttitude(itOther->getID(), false);
+	// 		if (eAttitude >= ATTITUDE_PLEASED)
+	// 		{
+	// 			iLikedReligionCivs++;
+	// 			if (eAttitude >= ATTITUDE_FRIENDLY)
+	// 				iLikedReligionCivs++;
+	// 		}
+	// 	}
+	// }
+	//
+	// Weight diplomacy by Power Block (Master + Vassals)
+	int iTotalPower = 0;
+	int iLikedReligionPower = 0;
+
+	for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> itOther(getTeam()); itOther.hasNext(); ++itOther)
 	{
-		iTotalCivs += 2;
+		// 1. AVOID DOUBLE COUNTING
+		// If this player is a Vassal, their power is already included 
+		// in their Master's getPower(true). So we skip them here.
+		if (GET_TEAM(itOther->getTeam()).isAVassal())
+		{
+			continue; 
+		}
+
+		// 2. Get the Power of the whole "Bloc" (Master + all Vassals)
+		// We use the Team function getPower(true)
+		int iBlocPower = 100 + GET_TEAM(itOther->getTeam()).getPower(true);
+
+		iTotalPower += iBlocPower;
+
+		// 3. Check the MASTER'S Religion (itOther is the Master/Independent)
 		if (itOther->getStateReligion() == eReligion)
 		{
+			int iAddedWeight = iBlocPower;
+
+			// Optional: Bonus if we are Friendly with the Master
 			AttitudeTypes eAttitude = AI_getAttitude(itOther->getID(), false);
-			if (eAttitude >= ATTITUDE_PLEASED)
+			if (eAttitude >= ATTITUDE_FRIENDLY)
 			{
-				iLikedReligionCivs++;
-				if (eAttitude >= ATTITUDE_FRIENDLY)
-					iLikedReligionCivs++;
+				iAddedWeight = (iAddedWeight * 4) / 3;
 			}
+
+			iLikedReligionPower += iAddedWeight;
 		}
 	}
+
+	// 4. THE FORMULA
+	int iLikedReligionCivs = 0;
+
+	if (iTotalPower > 0)
+	{
+		iLikedReligionCivs = ((iLikedReligionPower * 100) / iTotalPower);
+	}
+	// <!-- custom: End - account for power between rivals rather -->
 
 	/*	up to +100% boost for liked civs having this as their state religion.
 		(depending on personality)
@@ -19072,9 +19133,22 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
 		50 + 5*9 (Zara Yaqob). For most leaders its roughly 50 + 5*5. No one gets 100.
 		also, most civs with a high base modifier also have iReligionFlavor > 0;
 		and so their final modifier will be reduced. */
-	int iDiplomaticModifier = 10 * iDiplomaticBase * iLikedReligionCivs /
-			std::max(1, iTotalCivs);
-	iDiplomaticModifier /= 10 + iReligionFlavor;
+
+	// Adjusting the Final Calculation
+	// int iDiplomaticModifier = 10 * iDiplomaticBase * iLikedReligionCivs / std::max(1, iTotalCivs);
+	// iDiplomaticModifier /= 10 + iReligionFlavor;
+	static const int iSAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT = std::max(0, GC.getDefineINT("SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT"));
+	static const int iSAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT_ADD = GC.getDefineINT("SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT_ADD");
+	static const int iSAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT = std::max(0, GC.getDefineINT("SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT"));
+	static const int iSAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT_ADD = GC.getDefineINT("SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT_ADD");
+
+	const int iDiplomaticModifierUpBase = iDiplomaticBase * iLikedReligionCivs;
+	const int iDiplomaticModifierUp = std::max(0, (iSAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT * iDiplomaticModifierUpBase) + iSAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT_ADD);
+	const int iDiplomaticModifierDividerBase = iReligionFlavor;
+	const int iDiplomaticModifierDivider = std::max(1, (iSAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT * iDiplomaticModifierDividerBase) + iSAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT_ADD);
+
+	int iDiplomaticModifier = iDiplomaticModifierUp / iDiplomaticModifierDivider;
+
 	// advc.131: AP matters even if diplo modifier already high
 	//if (iDiplomaticModifier < iDiplomaticBase/3) {
 	FOR_EACH_ENUM2(VoteSource, eVS)

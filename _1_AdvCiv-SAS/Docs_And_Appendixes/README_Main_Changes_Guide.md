@@ -26,6 +26,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 &emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-ai)  
 &emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-ai)  
 &emsp;&emsp;[Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)  
+&emsp;&emsp;[Religions (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#religions-ai)  
 &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#buildings-ai)  
 &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#leaders-ai)  
 &emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai)  
@@ -189,6 +190,10 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 - (Requires AdvCiv-SAS 5141+) **Tech military flavor overhaul:** Retuned `FLAVOR_MILITARY` on many techs so the AI better recognizes their true military importance (e.g. `TECH_CORPORATION` **3 → 0** — no longer treated as a military tech; `TECH_CIVIL_SERVICE` **3 → 8** — now strongly flagged as military to better match its role in the reworked tree and its general impact).
 - (Requires AdvCiv-SAS 5134+) **Master–vassal tech overlap penalty:** In `CvPlayerAI::AI_techValue`, reduce the value of researching techs already known by our vassal(s) or master to discourage redundant research and encourage complementary paths/trades instead. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai). **Update:** also apply the same devaluation between **sibling vassals** in the self-research logic (if any of our fellow vassal(s) already has the tech, we value researching it less ourselves).
 - (Requires AdvCiv-SAS 5142+) **Military tech priority when weaker:** In `CvPlayerAI::AI_techValue`, give much more weight to key **military techs** when we’re weaker in power; economic or “peaceful” techs are of limited use if we’re likely to be conquered (and can end up effectively researched *for* our future conqueror). In one autoplay sample this seemingly in Ewuare not being able to sustain his early lead anymore. See [KI#81](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai).
+
+#### Religions (AI)
+
+- (Requires AdvCiv-SAS 5160+) **Religion valuation power-weighted:** Reworked `CvPlayerAI::AI_religionValue` so religions are mostly valued by how popular they are among militarily powerful civs, and no longer mostly based on the religion of civs the AI already likes. This makes it much less likely to switch into a fringe religion and end up hated by the *strong* civs, meaning fewer “random” self-sabotaging switches and better diplomacy with them (more trade, fewer wars, more stable blocs). The same power-weighted value is also used wherever religion is evaluated (state-religion civics, espionage “change religion” mission, and trade/demand “adopt religion X”). See [KI#82](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#82---tremendously-improved-ai-not-adopting-the-popular-religion-among-strong-rivals-thus-being-hated-and-more-likely-to-lose).
 
 #### Buildings (AI)
 

@@ -115,6 +115,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players)  
 [80 - (Tremendously Improved) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
 [81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker)  
+[82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#82---tremendously-improved-ai-not-adopting-the-popular-religion-among-strong-rivals-thus-being-hated-and-more-likely-to-lose)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3032,10 +3033,11 @@ I asked chatgpt 5.1 about this which said:
 >
 >In Civ4 as it’s actually structured, and especially for AI:
 >
->- The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
->	  - Protects it,
->	  - Wins wars,
->	  - And makes the cluster hard to exploit.
+>The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
+>
+>- Protects it,
+>- Wins wars,
+>- And makes the cluster hard to exploit.
 >
 >So your current master–vassal cluster-first tech logic is fully consistent with a sane vassal “interest model” in this engine.
 
@@ -3044,7 +3046,7 @@ Similarly, a stronger vassal is also more likely to be more useful to its master
 >The Master's Calculation: "The Force Multiplier"
 >The note states the goal is to "strengthen overall AI play". In a strategy game like Civ4, a weak vassal is a liability—they get invaded easily, dragging the Master into wars, and they contribute nothing to the war effort.
 >
-> - Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
+>Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
 
 So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.
 
@@ -3071,3 +3073,37 @@ AI seemingly was often too slow or straight up not valuing for research key mili
 After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead (but that he could not sustain after our changes it seems but anyways etc.), and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemignly stronger eventually even though this was shortly game would have otherwise ended on time not long later but anyways etc.).
 
 This seems like a good AI improvement at least based on this autoplay comparison sample, and at least a nice sanity to have for AIs if i'm not mistaken but anyways etc.
+
+## 82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1nqXsaX5ZFq550fHe7r6NwPfY2ZhQpIHE?usp=sharing) anyways etc.
+
+This is a long standing issue i had noticed in base advciv when i was still playing it if i may say but anyways etc. (that i had named example example 110), see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made but anyways etc.
+
+Now this seems properly fixed, at the cost of less roleplay, but much saner behaviour (partially tunable).
+
+Previous logic was seemingly very suboptimal, as per claude sonnet 4.5's below explanation below (check if accurate anyways etc.) as i asked it aobut it about whether i understood its explanation correctly it nicely confirmed and enhanced/detailed it as such thanks:
+
+>The Fatal Flaw:
+>Attitude gate: Only civs you already like (PLEASED+) contribute to diplomatic value. This created:
+>
+>- Circular reasoning: "I only value religions of civs I like" → "But I can't become friends because we have different religions" → Deadlock
+>- Power-blind: A friendly weakling counted the same as a friendly superpower (both +2)
+>- Randomness from attitude: Early-game random attitude modifiers (different religions, border tensions) could cause the AI to ignore the "correct" diplomatic religion, then get locked into the wrong choice
+
+The difference is very stark, with now AIs dynamically and reliably (at least much more so than before but anyways etc.), gradually aligning with whatever religion is popular among top dogs (which varies a bit during the game but seemingly often gradually converges), which is stronger as we won't be hated on diplomacy (so more trade opportunities, less wars as well if i'm not mistaken, etc.) but with less roleplay though, so hopefully AI is stronger as such anyways etc.
+
+Change with the help of gemini 3 pro and claude sonnet 4.5 in `CvPlayerAI::AI_religionValue`, and to a lesser extent of chatgpt 5.1 thanks to all i guess i mean maybe hehe but in all cases anyways etc.
+
+Note added by chatgpt 5.1 about the scope of this change as i asked it about it thanks, check if accurate anyways etc:
+
+>So for the doc later you can roughly say:
+>
+>AI_religionValue: central heuristic for how valuable each religion is as a state religion (internal happiness/culture + holy city + diplomatic blocs). It drives:
+>
+>- AI choice of state religion and conversion timing.
+>- Trade / demand value of “adopt religion X”.
+>- Espionage value of “change target’s religion”.
+>- Indirectly, the evaluation of state-religion-dependent civics via AI_bestReligion.
+>
+>Which means your power-weighted change is now shaping both their self-religion choice and how they respond to external pressure.
