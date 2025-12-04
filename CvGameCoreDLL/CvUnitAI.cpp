@@ -911,13 +911,15 @@ ImprovementTypes CvUnitAI::getBonusSpecificLandImprovement(BonusTypes eBonus)
 // Define the Candidate<!-- custom: Plot but anyways etc --> struct outside the function so it can be used as a template argument.
 // A list of potential build candidate <!-- custom: plots -->.
 // A struct to store a candidate <!-- custom: plot --> with its value and the chosen BuildType.
-struct CandidatePlot {
+struct CandidatePlot
+{
 	int iValue;
 	CvPlot* pPlot;
 	CityPlotTypes ePlot;
 	BuildTypes eBuild;
 
-	bool operator>(const CandidatePlot& other) const {
+	bool operator>(const CandidatePlot& other) const
+	{
 		return iValue > other.iValue;
 	}
 };
@@ -3164,21 +3166,21 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 
 	CvCityAI const* pCity = AI_getCityToImprove(); // advc.113b: Moved into auxiliary function
 
-	/*if (pCity != NULL) {
-		bool bMoreBuilds = false;
-		for (WorkingPlotIter it(getPlot(), false); it.hasNext(); ++it) {
-			if (it->getImprovementType() == NO_IMPROVEMENT &&
-					pCity->AI_getBestBuildValue(it.currID()) > 0) {
-				ImprovementTypes eImprovement = (ImprovementTypes)GC.getInfo((BuildTypes)
-						pCity->AI_getBestBuild(iI)).getImprovement();
-				if (eImprovement != NO_IMPROVEMENT) {
-					bMoreBuilds = true;
-					break;
-		} } }
-		if (bMoreBuilds) {
-			if (AI_improveCity(*pCity))
-				return;
-	} }*/
+	// if (pCity != NULL) {
+	// 	bool bMoreBuilds = false;
+	// 	for (WorkingPlotIter it(getPlot(), false); it.hasNext(); ++it) {
+	// 		if (it->getImprovementType() == NO_IMPROVEMENT &&
+	// 				pCity->AI_getBestBuildValue(it.currID()) > 0) {
+	// 			ImprovementTypes eImprovement = (ImprovementTypes)GC.getInfo((BuildTypes)
+	// 					pCity->AI_getBestBuild(iI)).getImprovement();
+	// 			if (eImprovement != NO_IMPROVEMENT) {
+	// 				bMoreBuilds = true;
+	// 				break;
+	// 	} } }
+	// 	if (bMoreBuilds) {
+	// 		if (AI_improveCity(*pCity))
+	// 			return;
+	// } }
 	// <!-- custom: exclude barbarians as their cities can be very far apart and no point connecting them for barbarian player i mean anyways etc -->
 	if (pCity != NULL && !isBarbarian())
 	{
@@ -10527,7 +10529,7 @@ void CvUnitAI::AI_cityAutomated()
 // XXX make sure we include any new UnitAITypes...
 int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 {
-	// <!-- custom: very nice optimization by chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it (variable naming but anyways etc) bit or not, based on an existing name to make sure pattern indeed exists but anways etc but anyways etc -->
+	// <!-- custom: very nice optimization by chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it (variable naming but anyways etc) bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
 	// Promotion scoring: hoist GC.getInfo(ePromotion) once per loop
 	// In AI_promotionValue you read from GC.getInfo(ePromotion) many times (amphib, river, enemyRoute, blitz, etc.). Grab a single const CvPromotionInfo& kProm = GC.getInfo(ePromotion); and reuse it. This loop runs a lot (every promotion decision), so it’s a free speedup.
 	const CvPromotionInfo& kPromo = GC.getInfo(ePromotion);

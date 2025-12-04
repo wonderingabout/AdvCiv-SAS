@@ -2,7 +2,7 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- -->
 <!-- Bonus/Resource art path information -->
-<!--  custom: the file imported cleanly from: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art\CIV4ArtDefines_Bonus.xml"
+<!-- custom: the file imported cleanly from: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art\CIV4ArtDefines_Bonus.xml"
 and then modified or not for AdvCiv-SAS anyways etc
 -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">

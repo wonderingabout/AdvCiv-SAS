@@ -864,7 +864,7 @@ void CvCityAI::AI_chooseProduction()
 	}
 	// K-Mod end
 
-	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anways etc but anyways etc -->
+	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
 	// AI_chooseProduction: keep the early locals; you can hoist one or two more
 	// You already hoist kPlayer, kTeam, kGame, kArea, pCapital—perfect. When you compute repeated odds driven by getPopulation() or “danger” branches, keep those in locals if used multiple times in the same block (very small win). The hot work in this function is in the called evaluators, not the GC lookups.
 	int const iCityPopulation = getPopulation();
@@ -9440,7 +9440,7 @@ int CvCityAI::AI_culturePressureFactor() const
 	int iAnswer = 0;
 	const int iDivisor = 60;
 
-	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anways etc but anyways etc -->
+	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
 	// Inside the nested player/plot loop, pull PlayerTypes eOwner = getOwner(); TeamTypes eTeam = getTeam(); once outside the loops, and reuse int ourPlotCulture = kPlot.getCulture(eOwner); inside—then you do one getCulture per rival instead of two per rival. It’s minor, but this is an O(numTiles × numPlayers) routine.
 	const PlayerTypes eOwner = getOwner();
 	const TeamTypes eTeam = getTeam();
@@ -9451,7 +9451,7 @@ int CvCityAI::AI_culturePressureFactor() const
 		if (!kPlot.isWithinCultureRange(eOwner))
 			continue;
 
-		// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anways etc but anyways etc -->
+		// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
 		const int ourPlotCulture = kPlot.getCulture(eOwner);
 
 		for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eTeam); it.hasNext(); ++it)
@@ -16567,7 +16567,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
 	FAssert(bLand || bWater); // advc
 	int iCount = 0;
 
-	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anways etc but anyways etc -->
+	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
 	// Inside the nested player/plot loop, pull PlayerTypes eOwner = getOwner(); TeamTypes eTeam = getTeam(); once outside the loops, and reuse int ourPlotCulture = kPlot.getCulture(eOwner); inside—then you do one getCulture per rival instead of two per rival. It’s minor, but this is an O(numTiles × numPlayers) routine.
 	const PlayerTypes eOwner = getOwner();
 	const TeamTypes eTeam = getTeam();
@@ -16620,7 +16620,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
 int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtraTech, bool bLand,
 	bool bWater) /* advc: */ const
 {
-	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anways etc but anyways etc -->
+	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
 	// Inside the nested player/plot loop, pull PlayerTypes eOwner = getOwner(); TeamTypes eTeam = getTeam(); once outside the loops, and reuse int ourPlotCulture = kPlot.getCulture(eOwner); inside—then you do one getCulture per rival instead of two per rival. It’s minor, but this is an O(numTiles × numPlayers) routine.
 	const PlayerTypes eOwner = getOwner();
 	const TeamTypes eTeam = getTeam();

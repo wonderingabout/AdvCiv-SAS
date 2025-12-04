@@ -415,7 +415,7 @@
 			</CommerceFlexible>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!--custom: was FLAVOR_MILITARY 3 -->
+			<!-- custom: was FLAVOR_MILITARY 3 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -954,7 +954,7 @@
 			<!-- custom: was FLAVOR_MILITARY 3 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -1045,7 +1045,7 @@
 			<!-- custom: was flavors military 2 production 5 gold 2 culture 1 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
@@ -1278,7 +1278,7 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -1644,7 +1644,7 @@
 			<!-- custom: was FLAVOR_MILITARY 4 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -4001,7 +4001,7 @@
 			<!-- custom: was FLAVOR_MILITARY 5 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -4138,7 +4138,7 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -4439,7 +4439,7 @@
 					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
@@ -4502,7 +4502,7 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -4878,7 +4878,7 @@
 			<!-- custom: was FLAVOR_MILITARY 6 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -4958,7 +4958,7 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -5042,7 +5042,7 @@
 			<!-- custom: was FLAVOR_MILITARY 7 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -5635,7 +5635,7 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
-			<!-- custom: _COMMUNISM effect seems more relevant here anways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from tech_communism anyways etc -->
+			<!-- custom: _COMMUNISM effect seems more relevant here anyways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from tech_communism anyways etc -->
 			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -5817,7 +5817,7 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -6200,7 +6200,7 @@
 			<!-- custom: was FLAVOR_MILITARY 10 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -6268,7 +6268,7 @@
 			<!-- custom: was FLAVOR_MILITARY 2 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -6696,7 +6696,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!--custom: was FLAVOR_MILITARY 8 -->
+			<!-- custom: was FLAVOR_MILITARY 8 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -6765,7 +6765,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!--custom: was FLAVOR_MILITARY 3 -->
+			<!-- custom: was FLAVOR_MILITARY 3 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -6921,7 +6921,7 @@
 					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
 					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>

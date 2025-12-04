@@ -55,7 +55,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	print("iMaxGoldTradePercent: %d" % info.getMaxGoldTradePercent())
 	print("iMaxGoldPerTurnTradePercent: %d" % info.getMaxGoldPerTurnTradePercent())
 
-	# <!-- custom: also add BBAI Victory weights now that we have exposed them / expose them to python as well, see todo docs for details and todo add .cpp code comment fielname anways etc -->
+	# <!-- custom: also add BBAI Victory weights now that we have exposed them / expose them to python as well, see todo docs for details and todo add .cpp code comment filename anyways etc -->
 	print("\n\n==== BBAI VICTORY WEIGHTS ====")
 	print("Culture Victory Weight: %d" % info.getCultureVictoryWeight())
 	print("Space Victory Weight: %d" % info.getSpaceVictoryWeight())

@@ -3735,7 +3735,7 @@
 			<iDogpileWarRand>125</iDogpileWarRand>
 			<iMakePeaceRand>20</iMakePeaceRand>
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
-			<!-- custom: seems especially vengeful, (which i like but anyways etc...), especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) from quite little in this case i know about him but anways etc, was 0 in cyrus among other uncommented changes in ewuare's xml i mean too but anyways etc anyways etc anyways etc -->
+			<!-- custom: seems especially vengeful, (which i like but anyways etc...), especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) from quite little in this case i know about him but anyways etc, was 0 in cyrus among other uncommented changes in ewuare's xml i mean too but anyways etc anyways etc anyways etc -->
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->

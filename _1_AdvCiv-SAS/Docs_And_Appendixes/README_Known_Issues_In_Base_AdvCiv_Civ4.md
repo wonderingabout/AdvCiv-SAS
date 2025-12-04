@@ -2,7 +2,9 @@
 
 Some known issues (non-exhaustive ideally yes but maybe not anyways etc) about AdvCiv code or earlier or/and AdvCiv-SAS specific code that may be fixed someday or not (ideally yes too same but maybe not especially if deemed not so bad or even part of the necessary mechanic but then would not be an issue but if known maybe or not or yes but anyways etc anyways etc anyways etc).
 
-Note: if a google drive link is missing or redundantly copy pasted from one known issue to another, you might be able to find it in their parent folder if i may say in this case but anyways etc here in this [Base AdvCiv issues examples](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8?usp=sharing). Not all issues have a drive folder, but as of now most do.
+Note: if a google drive link is missing or redundantly copy pasted from one known issue to another, you might be able to find it in their parent folder if i may say in this case but anyways etc here in this [Base AdvCiv Known Issues examples](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8?usp=sharing). Not all issues have a drive folder, but as of now most do.
+
+Note 2: this doc may be outdated or not updated for some parts, but it is still useful for documentation, google drive links with screenshots of before/after, documentation, context for the changes, observed results, etc. For the updated changes, see rather the main change guides, for example the [Main Changes Guide](/README.md#main-changes-guide) anyways etc.
 
 hopefully helpful, thanks, anyways, thanks,
 
@@ -79,7 +81,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [53.2.2 (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory anyways etc) in CvCityAI::AI_chooseUnit anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-anyways-etc-in-cvcityaiai_chooseunit-anyways-etc)  
 [53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc)  
 [53.4 (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc)  
-[54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-bug-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)  
+[54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anyways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-bug-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anyways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)  
 [55 to 60 -](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#55-to-60--)  
 
 <details>
@@ -115,6 +117,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players)  
 [80 - (Tremendously Improved) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
 [81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker)  
+[82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#82---tremendously-improved-ai-not-adopting-the-popular-religion-among-strong-rivals-thus-being-hated-and-more-likely-to-lose)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -757,7 +760,7 @@ See screenshots linked in this drive for details as well, thanks anyways etc tha
 
 See also some information in this [google drive folder link](https://drive.google.com/drive/folders/1oOiKggm9nHVyp07QF8HM_WgXY5Gtcg44?usp=sharing) with screenshots (non-exhaustive) or such anyways etc, including some benchmarks chatgpt ran in its interface as in my prompt i mean and its suggestions perhaps indeed too but anyways etc thanks to it and perhaps me too indeed and all or not or yes or etc but anyways etc hopefully data is helpful in all cases if i may say or not or yes or other or etc anyways etc. (note: also i have done this to most docstrings in the code and there were many xd like 1500 approximately hehe but was quite fun but also tedious but anyways etc... thankfully now done i mean anyways etc)
 
-Commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt](/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt).
+Commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/_0_Common_Docs/BUG_Doc/configobj_changelog_py_notes.txt](/_0_Common_Docs/BUG_Doc/configobj_changelog_py_notes.txt).
 
 Exceptions are for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if we/i anyways etc or you or all or not or both or etc anyways etc comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example if there are other or not but anyways etc), and maybe some ambiguous other cases if i have forgotten them or maybe not, but in all cases hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt's explanation, and as according to/advised by chatgpt, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it in this case i mean anyways etc. Added info if helps here anyways etc.
 
@@ -2332,7 +2335,7 @@ I don't know if it's for sure a result of these, but we seem to have really good
 
 Update 2: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc.
 
-## 54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
+## 54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anyways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1gYU7NrXpJNc5p6hbqOsCxnOmCy_7VTDf?usp=sharing)
 
@@ -3032,10 +3035,11 @@ I asked chatgpt 5.1 about this which said:
 >
 >In Civ4 as it’s actually structured, and especially for AI:
 >
->- The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
->	  - Protects it,
->	  - Wins wars,
->	  - And makes the cluster hard to exploit.
+>The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
+>
+>- Protects it,
+>- Wins wars,
+>- And makes the cluster hard to exploit.
 >
 >So your current master–vassal cluster-first tech logic is fully consistent with a sane vassal “interest model” in this engine.
 
@@ -3044,7 +3048,7 @@ Similarly, a stronger vassal is also more likely to be more useful to its master
 >The Master's Calculation: "The Force Multiplier"
 >The note states the goal is to "strengthen overall AI play". In a strategy game like Civ4, a weak vassal is a liability—they get invaded easily, dragging the Master into wars, and they contribute nothing to the war effort.
 >
-> - Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
+>Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
 
 So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.
 
@@ -3071,3 +3075,37 @@ AI seemingly was often too slow or straight up not valuing for research key mili
 After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead (but that he could not sustain after our changes it seems but anyways etc.), and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemignly stronger eventually even though this was shortly game would have otherwise ended on time not long later but anyways etc.).
 
 This seems like a good AI improvement at least based on this autoplay comparison sample, and at least a nice sanity to have for AIs if i'm not mistaken but anyways etc.
+
+## 82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1nqXsaX5ZFq550fHe7r6NwPfY2ZhQpIHE?usp=sharing) anyways etc.
+
+This is a long standing issue i had noticed in base advciv when i was still playing it if i may say but anyways etc. (that i had named example example 110), see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made but anyways etc.
+
+Now this seems properly fixed, at the cost of less roleplay, but much saner behaviour (partially tunable).
+
+Previous logic was seemingly very suboptimal, as per claude sonnet 4.5's below explanation below (check if accurate anyways etc.) as i asked it aobut it about whether i understood its explanation correctly it nicely confirmed and enhanced/detailed it as such thanks:
+
+>The Fatal Flaw:
+>Attitude gate: Only civs you already like (PLEASED+) contribute to diplomatic value. This created:
+>
+>- Circular reasoning: "I only value religions of civs I like" → "But I can't become friends because we have different religions" → Deadlock
+>- Power-blind: A friendly weakling counted the same as a friendly superpower (both +2)
+>- Randomness from attitude: Early-game random attitude modifiers (different religions, border tensions) could cause the AI to ignore the "correct" diplomatic religion, then get locked into the wrong choice
+
+The difference is very stark, with now AIs dynamically and reliably (at least much more so than before but anyways etc.), gradually aligning with whatever religion is popular among top dogs (which varies a bit during the game but seemingly often gradually converges), which is stronger as we won't be hated on diplomacy (so more trade opportunities, less wars as well if i'm not mistaken, etc.) but with less roleplay though, so hopefully AI is stronger as such anyways etc.
+
+Change with the help of gemini 3 pro and claude sonnet 4.5 in `CvPlayerAI::AI_religionValue`, and to a lesser extent of chatgpt 5.1 thanks to all i guess i mean maybe hehe but in all cases anyways etc.
+
+Note added by chatgpt 5.1 about the scope of this change as i asked it about it thanks, check if accurate anyways etc:
+
+>So for the doc later you can roughly say:
+>
+>AI_religionValue: central heuristic for how valuable each religion is as a state religion (internal happiness/culture + holy city + diplomatic blocs). It drives:
+>
+>- AI choice of state religion and conversion timing.
+>- Trade / demand value of “adopt religion X”.
+>- Espionage value of “change target’s religion”.
+>- Indirectly, the evaluation of state-religion-dependent civics via AI_bestReligion.
+>
+>Which means your power-weighted change is now shaping both their self-religion choice and how they respond to external pressure.

@@ -965,7 +965,7 @@ void CvCity::doTurn()
 						{
 							continue; // ignore noncombat here
 						}
-						// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy, no scout or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
+						// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy, no scout or anything else, etc), while we do a fallback, let it be a good one! Xd anyways etc -->
 						const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
 
 						const bool bOffenseDefaultUnitAI = (

@@ -241,7 +241,7 @@ def get_extra_correction_x(numTxt):
 
 
 def get_extra_correction_x_inbetween_buttons(button_size):
-	# <!-- custom: adjustment to the extraCorrectionX so that the numTxt is inbetween buttons if i may say anways etc, useful for handling the "or" numTxt for example anyways etc -->
+	# <!-- custom: adjustment to the extraCorrectionX so that the numTxt is inbetween buttons if i may say anyways etc, useful for handling the "or" numTxt for example anyways etc -->
 
 	# <!-- custom: also add a small extra correction because we are slightly off from the center point of between the panels if i may say anyways etc -->
 	extraCorrectionOffFromTheCenter = -3

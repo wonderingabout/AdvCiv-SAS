@@ -125,7 +125,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 Output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
 
-- [(base advciv) (click to view the table .csv on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
+- [(base advciv) (click to view the table .csv on github (recommended))](/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
 - legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
 - note: table .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there if i may say but anyways etc anyways etc anyways etc...
 
@@ -376,8 +376,8 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 Output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
 
-- [.csv table (base advciv) (click to view on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/leaders_data_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
-- [.md legend (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/leaders_data_to_csv_legend_base_advciv.md) (note: you'd need to uncomment the .md generating part of the script if you want to use/have the .md version of the handicap data, see above for a bit or lot or other or etc or anyways etc details as well anyways etc)
+- [.csv table (base advciv) (click to view on github (recommended))](/_0_Common_Docs/AdvCiv_Base_Doc/leaders_data_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
+- [.md legend (base advciv)](/_0_Common_Docs/AdvCiv_Base_Doc/leaders_data_to_csv_legend_base_advciv.md) (note: you'd need to uncomment the .md generating part of the script if you want to use/have the .md version of the handicap data, see above for a bit or lot or other or etc or anyways etc details as well anyways etc)
 
 ## scan_xml_duplicates py script and Logs_XML_Scans
 
