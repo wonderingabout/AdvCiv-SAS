@@ -753,7 +753,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, gc.getReligionInfo)
 	
 	def getReligionList(self):
-		return self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+		# <!-- custom: add a fake "no favourite religion" entry to show which leaders have no favourite religion anyways etc. Code added with the help of chatgpt 5.1; check if accurate anyways etc. -->
+		# Normal religions
+		religionList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+
+		# Add a fake "No Favorite Religion" entry
+		iNoFavoriteReligionID = gc.getNumReligionInfos()
+		#szNoneFav = localText.getText("TXT_KEY_PEDIA_RELIGION_NO_FAVORITE", ())
+		religionList.append(("No Favorite Religion", iNoFavoriteReligionID))
+
+		return religionList
 
 
 	def placeCorporations(self):
@@ -828,6 +837,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.setStyle(self.ITEM_LIST_ID, "Table_StandardCiv_Style")
 		screen.setTableColumnHeader(self.ITEM_LIST_ID, 0, "", self.W_ITEMS)
 
+		iNoFavoriteReligionID = gc.getNumReligionInfos()
+
 		i = 0
 		for item in self.list:
 			data1 = item[1] # advc.001: Moved up
@@ -844,8 +855,22 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				# advc (note): 0 tends to mean no tooltip (or an empty one?).
 				#    -1 should also work as the default; BULL likes to use 1.
 				data2 = 1
+
+			# <!-- custom: add a fake "no favourite religion" entry to show which leaders have no favourite religion anyways etc. Code added with the help of chatgpt 5.1; check if accurate anyways etc. -->
+			# Defaults for normal items
+			# --- simple special case: fake religion entry ---
+			# We never call info(item[1]) in the fake-row branch.
+			# We still use widget unchanged, so for religions it’s still WIDGET_PEDIA_JUMP_TO_RELIGION.
+			if info == gc.getReligionInfo and item[1] == iNoFavoriteReligionID:
+				# Hardcoded placeholder DDS – replace with whatever you like
+				szButton = "Art/Interface/Buttons/Religions/FakeNoFavorite.dds"
+			else:
+				# Normal case
+				szButton = info(item[1]).getButton()
+			# --- end special case ---
+
 			screen.appendTableRow(self.ITEM_LIST_ID)
-			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + item[0] + u"</font>", info(item[1]).getButton(), widget, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + item[0] + u"</font>", szButton, widget, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
 			i += 1
 		#screen.updateListBox(self.ITEM_LIST_ID)
 

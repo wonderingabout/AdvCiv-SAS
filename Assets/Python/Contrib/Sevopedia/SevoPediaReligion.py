@@ -102,6 +102,12 @@ class SevoPediaReligion:
 	def interfaceScreen(self, iReligion):
 		self.iReligion = iReligion
 
+		# <!-- custom: add a fake "no favourite religion" entry to show which leaders have no favourite religion anyways etc. Code added with the help of chatgpt 5.1; check if accurate anyways etc. -->
+		if self.iReligion == ReligionTypes.NO_RELIGION:
+			self.placeLeaders()
+			#self.placeHistoryNoFavorite()
+			return
+
 		self.placeLeaders()
 		self.placeReligionPane()
 		self.placeBuilding()
