@@ -1168,6 +1168,42 @@
 
 
 
+	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro, check if accurate anyways etc. -->
+	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- 1. Apply Aggressive Discount
+	Reduces value to a percentage defined in XML (e.g., 25% of original).
+	This encourages the AI to sell "common knowledge" rather than hoarding it. -->
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- 2. Calculate Minimum Gold Floor
+	Formula: (GameTurn * MULT + ADD) / DIV
+	Example (Mult=10, Add=0, Div=20): (GameTurn * 10) / 20  -> GameTurn / 2.
+	This ensures late-game techs aren't sold for 1 gold; the price floor scales with the era. -->
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- 3. Enforce the Floor
+	We take the HIGHER of the discounted value and the minimum floor.
+	Explanation: If the 25% discount drops the price to 10 gold, but the floor is 50 gold, we must charge at least 50 gold. We don't want to sell for practically nothing. -->
+
+
+
 	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate anyways etc). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really if i may say i mean but anyways etc; also i mean check if accurate and thanks for help i mean too but anyways etc. -->
 	<!-- custom: as for these new knobs, for this one the higher the value, the more we want to switch to this civic for each of our cities that are unhappy (it may be worth to change to such a civic if city is unhappy and we have some unhappiness in this city that is due to this civic not being adopted). -->
 	<Define>

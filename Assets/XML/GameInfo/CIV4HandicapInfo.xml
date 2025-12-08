@@ -180,7 +180,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt) anyways etc -->
 			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
-			<iAIResearchPercent>124</iAIResearchPercent>
+			<iAIResearchPercent>118</iAIResearchPercent>
 			<!-- was 6x 160 -->
 			<iAITrainPercent>115</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
@@ -308,7 +308,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- was 130 -->
 			<iAIGrowthPercent>110</iAIGrowthPercent>
 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
-			<iAIResearchPercent>116</iAIResearchPercent>
+			<iAIResearchPercent>112</iAIResearchPercent>
 			<!-- was 6x 130 -->
 			<iAITrainPercent>110</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
@@ -436,7 +436,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>108</iAIResearchPercent>
+			<iAIResearchPercent>106</iAIResearchPercent>
 			<iAITrainPercent>105</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>105</iAIConstructPercent>
@@ -701,7 +701,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>92</iAIResearchPercent>
+			<iAIResearchPercent>94</iAIResearchPercent>
 			<iAITrainPercent>95</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>95</iAIConstructPercent>
@@ -839,7 +839,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iAIGrowthPercent>90</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
-			<iAIResearchPercent>84</iAIResearchPercent>
+			<iAIResearchPercent>88</iAIResearchPercent>
 			<!-- was 90 -->
 			<iAITrainPercent>90</iAITrainPercent>
 			<!-- was 100 -->
@@ -977,7 +977,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>76</iAIResearchPercent>
+			<iAIResearchPercent>82</iAIResearchPercent>
 			<!-- was 85 -->
 			<iAITrainPercent>85</iAITrainPercent>
 			<!-- was 100 -->
@@ -1124,7 +1124,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>68</iAIResearchPercent>
+			<iAIResearchPercent>76</iAIResearchPercent>
 			<!-- was 80 -->
 			<iAITrainPercent>80</iAITrainPercent>
 			<!-- was 100 -->
@@ -1274,7 +1274,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>60</iAIResearchPercent>
+			<iAIResearchPercent>70</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>75</iAITrainPercent>
 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->

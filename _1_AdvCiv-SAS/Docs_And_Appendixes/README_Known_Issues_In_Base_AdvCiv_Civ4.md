@@ -118,6 +118,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [80 - (Tremendously Improved) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
 [81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker)  
 [82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#82---tremendously-improved-ai-not-adopting-the-popular-religion-among-strong-rivals-thus-being-hated-and-more-likely-to-lose)  
+[83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3109,3 +3110,20 @@ Note added by chatgpt 5.1 about the scope of this change as i asked it about it 
 >- Indirectly, the evaluation of state-religion-dependent civics via AI_bestReligion.
 >
 >Which means your power-weighted change is now shaping both their self-religion choice and how they respond to external pressure.
+
+## 83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1h3puw0vWwDHkhgydMGN6PXcl3BXkFeoH?usp=sharing) anyways etc.
+
+This is one of the key issues the AI had in base advciv as well, of not trading oppornutistically way more cheaply when other rivals also discover the tech and could beat us to the sale. Even if the tech was worth say 200 gold, it's better to have 20-30 gold off (or of? Or something else? Anyways etc.) it rather than 0 (no advantage in keeping the tech since other rivals can profit, better sell it then).
+
+Added such a change with the help of gemini 3 pro, in `CvPlayerAI::AI_dealVal`.
+
+Results ingame are very good, with all players having a significantly higher score at turn 100 and 200 vs before, and most players having a faster to more or less much faster tech pace.
+
+It seems that untradeable techs help pacing not go too crazy, and maybe in later game (untested) the no AI gradual multipliers per turn or/and era or such not being in our mod helps control AI pace better so no need to overcorrect it just quite a bit it seems, and as gemini 3 pro suggested as well thanks but anyways etc.
+
+I adjusted `iAIResearchPercent` to match these changes:
+iAIResearchPercent,124,116,108,100 (noble),92,84,76,68,60
+->
+iAIResearchPercent,118,112,106,100 (noble),94,88,82,76,70

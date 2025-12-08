@@ -9644,93 +9644,144 @@ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const& 
 		}
 		switch(eItemType) // </advc.130p>
 		{
-		case TRADE_TECHNOLOGIES:
-			iValue += kOurTeam.AI_techTradeVal((TechTypes)pItem->m_iData, eFromTeam,
-					bIgnoreDiscount); // advc.550a
-			break;
-		case TRADE_RESOURCES:
-		{	// <advc.036>
-			BonusTypes eBonus = (BonusTypes)pItem->m_iData;
-			CvBonusInfo const& kBonus = GC.getInfo(eBonus);
-			if(kBonus.getHappiness() > 0)
-				iHappyBonuses += iChange;
-			if(kBonus.getHealth() > 0)
-				iHealthBonuses += iChange; // </advc.036>
-			iValue += AI_bonusTradeVal(eBonus, eFromPlayer, iChange,
-					// <advc.036>
-					(std::abs(iHappyBonuses) > 1 && kBonus.getHappiness() > 0) ||
-					(std::abs(iHealthBonuses) > 1 && kBonus.getHealth() > 0));
-					// </advc.036>
-			break;
-		}
-		case TRADE_CITIES:
-		{
-			CvCityAI const* pCity = kFromPlayer.AI_getCity(pItem->m_iData);
-			if (pCity != NULL)
+			// <!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro, check if accurate anyways etc. -->
+			// Explanation of the Logic
+			// 	- kGame.countKnownTechNumTeams(eTech) > 2: This checks if the tech is known by the owner plus at least two other teams. This satisfies your condition "as long as more than one rival has it". If you strictly meant "at least one rival" (so 2 teams total including us), change > 2 to > 1 (or >= 2).
+			// 	- iTechVal * 25 / 100: This acts as the "aggressive" modifier, reducing the tech's perceived value by 75%, making the AI willing to trade it for much less gold.
+			// 	- iMinGold: Implements your specific formula (10 gold per 20 game turns). This ensures the AI doesn't give away late-game techs for literally 1 gold just because they are widely known; it maintains a sensible economic floor.
+			case TRADE_TECHNOLOGIES:
+				// iValue += kOurTeam.AI_techTradeVal((TechTypes)pItem->m_iData, eFromTeam,
+				// 		bIgnoreDiscount); // advc.550a
+				// break;
 			{
-				iValue += AI_cityTradeVal(*pCity,
-						// <advc.ctr>
-						NO_PLAYER, bCountLiberation ?
-						(bDiploVal ? LIBERATION_WEIGHT_FULL : LIBERATION_WEIGHT_REDUCED) :
-						LIBERATION_WEIGHT_ZERO,
-						false, bAIRequest, bDiploVal); // </advc.ctr>
+				CvGame const& kGame = GC.getGame();
+				const TechTypes eTech = (TechTypes)pItem->m_iData;
+
+				// Capture the original value calculated by the AI
+				int iTechVal = kOurTeam.AI_techTradeVal(eTech, eFromTeam, bIgnoreDiscount);
+
+				// Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap.
+				// We check if the tech is widely known. 'countKnownTechNumTeams' includes the owner.
+				// If we are selling it, we know it. If 1 rival knows it, count is 2, so we check for count >= 2.
+				static const bool bSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE");
+				if (bSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE && kGame.countKnownTechNumTeams(eTech) >= 2) 
+				{
+					// 1. Apply Aggressive Discount
+                    // Reduces value to a percentage defined in XML (e.g., 25% of original).
+                    // This encourages the AI to sell "common knowledge" rather than hoarding it.
+					static const int iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT = GC.getDefineINT("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT");
+					int iDiscountedVal = iTechVal * iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT / 100; 
+
+					// 2. Calculate Minimum Gold Floor
+                    // Formula: (GameTurn * MULT + ADD) / DIV
+                    // Example (Mult=10, Add=0, Div=20): (GameTurn * 10) / 20  -> GameTurn / 2.
+                    // This ensures late-game techs aren't sold for 1 gold; the price floor scales with the era.
+					static const int iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT = GC.getDefineINT("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT");
+					static const int iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD = GC.getDefineINT("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD");
+					static const int iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV = std::max(1, GC.getDefineINT("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV"));
+					const int iMinGold = ((kGame.getGameTurn() * iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT) + iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD) / iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV;
+
+					// 3. Enforce the Floor
+                    // We take the HIGHER of the discounted value and the minimum floor.
+                    // Explanation: If the 25% discount drops the price to 10 gold, but the floor is 50 gold, we must charge at least 50 gold. We don't want to sell for practically nothing.
+					if (iDiscountedVal < iMinGold)
+					{
+						iDiscountedVal = iMinGold;
+					}
+
+					// 4. Apply the new value (only if it is actually cheaper than the standard AI valuation)
+					if (iDiscountedVal < iTechVal)
+					{
+						iTechVal = iDiscountedVal;
+					}
+				}
+
+				iValue += iTechVal;
+				break;
+			}	
+			case TRADE_RESOURCES:
+			{	// <advc.036>
+				BonusTypes eBonus = (BonusTypes)pItem->m_iData;
+				CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+				if(kBonus.getHappiness() > 0)
+					iHappyBonuses += iChange;
+				if(kBonus.getHealth() > 0)
+					iHealthBonuses += iChange; // </advc.036>
+				iValue += AI_bonusTradeVal(eBonus, eFromPlayer, iChange,
+						// <advc.036>
+						(std::abs(iHappyBonuses) > 1 && kBonus.getHappiness() > 0) ||
+						(std::abs(iHealthBonuses) > 1 && kBonus.getHealth() > 0));
+						// </advc.036>
+				break;
 			}
-			break;
-		}
-		case TRADE_GOLD:
-		{
-			/*	<advc.026> Treat human gold as a multiple of 5 in order to
-				make AI trade acceptance (AI_considerOffer) consistent with
-				AI trade proposals (AI_balanceDeal). */
-			int iGold = pItem->m_iData;
-			if (iGold >= CvGlobals::DIPLOMACY_VALUE_REMAINDER && kFromPlayer.isHuman())
+			case TRADE_CITIES:
 			{
-				if (iGold % GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER) != 0)
-					AI_roundTradeVal(iGold);
-			} // </advc.026>
-			iValue += (iGold * AI_goldTradeValuePercent()) / 100;
-			break;
-		}
-		case TRADE_GOLD_PER_TURN:
-			iValue += AI_goldPerTurnTradeVal(pItem->m_iData);
-			break;
-		case TRADE_MAPS:
-			iValue += kOurTeam.AI_mapTradeVal(eFromTeam);
-			break;
-		case TRADE_SURRENDER:
-			iValue += kOurTeam.AI_surrenderTradeVal(eFromTeam);
-			break;
-		case TRADE_VASSAL:
-			iValue += kOurTeam.AI_vassalTradeVal(eFromTeam);
-			break;
-		case TRADE_OPEN_BORDERS:
-			iValue += kOurTeam.AI_openBordersTradeVal(eFromTeam);
-			break;
-		case TRADE_DEFENSIVE_PACT:
-			iValue += kOurTeam.AI_defensivePactTradeVal(eFromTeam);
-			break;
-		case TRADE_PEACE:
-			iValue += kOurTeam.AI_makePeaceTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
-			break;
-		case TRADE_WAR:
-			// <advc.104o>
-			if(getUWAI().isEnabled())
+				CvCityAI const* pCity = kFromPlayer.AI_getCity(pItem->m_iData);
+				if (pCity != NULL)
+				{
+					iValue += AI_cityTradeVal(*pCity,
+							// <advc.ctr>
+							NO_PLAYER, bCountLiberation ?
+							(bDiploVal ? LIBERATION_WEIGHT_FULL : LIBERATION_WEIGHT_REDUCED) :
+							LIBERATION_WEIGHT_ZERO,
+							false, bAIRequest, bDiploVal); // </advc.ctr>
+				}
+				break;
+			}
+			case TRADE_GOLD:
 			{
-				iWars++;
-				if(iWars > 1)
-					iValue += 1000000; // More than they can pay
-			} // </advc.104o>
-			iValue += kOurTeam.AI_declareWarTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
-			break;
-		case TRADE_EMBARGO:
-			iValue += AI_stopTradingTradeVal((TeamTypes)pItem->m_iData, eFromPlayer);
-			break;
-		case TRADE_CIVIC:
-			iValue += AI_civicTradeVal((CivicTypes)pItem->m_iData, eFromPlayer);
-			break;
-		case TRADE_RELIGION:
-			iValue += AI_religionTradeVal((ReligionTypes)pItem->m_iData, eFromPlayer);
-			break;
+				/*	<advc.026> Treat human gold as a multiple of 5 in order to
+					make AI trade acceptance (AI_considerOffer) consistent with
+					AI trade proposals (AI_balanceDeal). */
+				int iGold = pItem->m_iData;
+				if (iGold >= CvGlobals::DIPLOMACY_VALUE_REMAINDER && kFromPlayer.isHuman())
+				{
+					if (iGold % GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER) != 0)
+						AI_roundTradeVal(iGold);
+				} // </advc.026>
+				iValue += (iGold * AI_goldTradeValuePercent()) / 100;
+				break;
+			}
+			case TRADE_GOLD_PER_TURN:
+				iValue += AI_goldPerTurnTradeVal(pItem->m_iData);
+				break;
+			case TRADE_MAPS:
+				iValue += kOurTeam.AI_mapTradeVal(eFromTeam);
+				break;
+			case TRADE_SURRENDER:
+				iValue += kOurTeam.AI_surrenderTradeVal(eFromTeam);
+				break;
+			case TRADE_VASSAL:
+				iValue += kOurTeam.AI_vassalTradeVal(eFromTeam);
+				break;
+			case TRADE_OPEN_BORDERS:
+				iValue += kOurTeam.AI_openBordersTradeVal(eFromTeam);
+				break;
+			case TRADE_DEFENSIVE_PACT:
+				iValue += kOurTeam.AI_defensivePactTradeVal(eFromTeam);
+				break;
+			case TRADE_PEACE:
+				iValue += kOurTeam.AI_makePeaceTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
+				break;
+			case TRADE_WAR:
+				// <advc.104o>
+				if(getUWAI().isEnabled())
+				{
+					iWars++;
+					if(iWars > 1)
+						iValue += 1000000; // More than they can pay
+				} // </advc.104o>
+				iValue += kOurTeam.AI_declareWarTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
+				break;
+			case TRADE_EMBARGO:
+				iValue += AI_stopTradingTradeVal((TeamTypes)pItem->m_iData, eFromPlayer);
+				break;
+			case TRADE_CIVIC:
+				iValue += AI_civicTradeVal((CivicTypes)pItem->m_iData, eFromPlayer);
+				break;
+			case TRADE_RELIGION:
+				iValue += AI_religionTradeVal((ReligionTypes)pItem->m_iData, eFromPlayer);
+				break;
 		}
 	}
 

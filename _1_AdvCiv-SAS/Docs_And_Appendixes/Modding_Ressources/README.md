@@ -245,7 +245,7 @@ git fetch origin
 # choose names
 # new tag
 TAG=5160
-SHA=e9026bd93bc511ecd1f81b45f586712bb24a0116  # <- the TAG commit
+SHA=2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c  # <- the TAG commit
 OLDNAME="AdvCiv-SAS 5082"                     # quote because of spaces
 BASE=37615028018c14723ab4598cf095c39604f2a002 # <- the OLDNAME commit
 WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
