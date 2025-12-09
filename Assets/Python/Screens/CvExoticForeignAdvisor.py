@@ -1383,8 +1383,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# 1. Define the full screen size (This is perfect, keep it)
 		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
 		gridY = self.MIN_TOP_BOTTOM_SPACE + 10
-		gridWidth = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE * 2 - 20
-		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - 20
+		# <!-- custom: no need for the right side edge/margin in the blue panel, use this space or shrink the screen by this size if we don't need it in any other foreign advisor screen anyways etc. -->
+		# gridWidth = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE * 2 - 20
+		# gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - 20
+		# <!-- custom: for some reason the panel is asymetrically more left-leaning than right leaning; add some width so that this shifts panel more to the right instead of having dead space / margin in the blue panel, not perfect but a workaround against whatever is causing it i guess but anyways etc. -->
+		gridWidthRightExtraCorrection = 7
+		gridWidth = self.W_SCREEN - (self.MIN_LEFT_RIGHT_SPACE * 2) + gridWidthRightExtraCorrection
+		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2
 
 		# 2. Setup the columns
 		willTradeColumnType = IconGrid_BUG.GRID_MULTI_LIST_COLUMN

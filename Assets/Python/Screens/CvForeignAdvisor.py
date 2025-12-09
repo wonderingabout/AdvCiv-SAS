@@ -38,7 +38,7 @@ class CvForeignAdvisor:
 		# self.W_SCREEN = 1024
 		# self.H_SCREEN = 768
 		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.), assuming a 1920 x 1080 display -->
-		self.W_SCREEN = 1132
+		self.W_SCREEN = 1570
 		self.X_SCREEN = (1920 - self.W_SCREEN) / 2
 		self.Y_SCREEN = 28
 		# <!-- custom: assuming 1920 x 1080 display, if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. 1080 - 100 = 980). -->
