@@ -27,7 +27,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [Important Sevopedia reworks (click on the images below to view them full size)](/README.md#important-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)  
 &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
 &emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
-&emsp;[Other advciv-sas changes example(s)](/README.md#other-advciv-sas-changes-examples)  
+&emsp;[Advisors and other reworks examples](/README.md#advisors-and-other-reworks-examples)  
 &emsp;[Concepts (as of now in the "Outdated" sevopedia category)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category)  
 &emsp;[Mods Info](/README.md#mods-info)  
 &emsp;[Python Scripts](/README.md#python-scripts)  
@@ -156,11 +156,13 @@ note 1: its performance should be very very efficient and optimized, see for det
 
 note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc).
 
-### Other advciv-sas changes example(s)
+### Advisors and other reworks examples
 
-For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in AdvCiv-SAS as show below:
+#### Untradeable techs (bTrade) display information
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.500_bTrade_bRepeat_example.JPG" alt="0.500_bTrade_bRepeat_example.JPG" width="250"></img>
+For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG" alt="0.500_bTrade_bRepeat_example.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
 
 See also for details:
@@ -168,6 +170,16 @@ See also for details:
 - [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
 - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
 - [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+
+#### Other advisors' rework
+
+Also reworked and beautified the other Advisors' UI, as it was annoying to always scroll to see more players (e.g. 12+), or some techs or bonuses if they fill more of the box todo. Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed.
+
+Some examples below:
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_foreign_advisor_info.JPG" alt="0.520_foreign_advisor_info.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_foreign_advisor_techs.JPG" alt="0.530_foreign_advisor_techs.JPG" width="250"></img>
 
 ### Concepts (as of now in the "Outdated" sevopedia category)
 

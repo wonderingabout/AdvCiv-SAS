@@ -12,8 +12,8 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 [Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#main-changes--quick-starter-guide)  
 &emsp;[Translations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#translations)  
 &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#renaming-non-exhaustive)  
-&emsp;[Sevopedia reworks & related UI](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#sevopedia-reworks--related-ui)  
 &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game)  
+&emsp;[UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related)  
 &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#codeperformance-optimizations)  
 &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#48-civs-dll)  
 &emsp;[AI — General behaviour (non-exhaustive; see XML/Defines for full detail)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ai--general-behaviour-non-exhaustive-see-xmldefines-for-full-detail)  
@@ -99,18 +99,21 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 - Cavalry → Dragoon (too generic/era-agnostic; new name and unit better matches early-industrial role).
 - Promotion names made more explicit (e.g., Counter-Archer, Counter-Siege, City Bombard Damage). Roman numerals → Arabic (“Combat 3”).
 
-### Sevopedia reworks & related UI
+### UI (Sevopedia reworks & related)
 
 - Wider content area, narrower main category column; fills available screen space.
 - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
 - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
 - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
 - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+- Sevopedia — Techs: added a "Cannot be traded" tooltip to relevant entries and added the list of all untradeable techs in any such entry. Also added a "Can be researched multiple times" tooltip. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
 
 ### UI / In-game
 
 - **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
 - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+- Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+- (Requires AdvCiv-SAS 5162+) Enlarged the Foreign Advisor screen and refined the panels to display up to 12 players without scrolling. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py) (see [Other advisors' rework](/README.md#other-advisors-rework)).
 
 ### Code/Performance optimizations
 
@@ -344,7 +347,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 
 - **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base. **Quotes** reordered to match the new tree (including the new Future era) and for accuracy.
 - Gameplay timings shift: **culture**, **slavery**, **plantations**, etc., often **earlier**.
-- **Selective tech-trade bans for snowball techs:** Some high-impact techs are now flagged **“Cannot be traded”** (`bTrade = 0`) to curb extreme tech-brokering/“tech whoreism” chains (e.g. turning one breakthrough into a long series of trades), which AIs are especially vulnerable to and for balance. The goal is to tone down decisive, snowbally trades while still allowing normal tech trading (unless you enable the **No Tech Trading** game option, which disables it entirely). The new flag is shown both in the **Sevopedia Tech** page (Special Abilities section) and in the **Tech Advisor**; you can see the full list of untradeable techs by opening any such tech in Sevopedia. Implementation details (DLL / UI wiring) in [Modding_Ressources/README](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc).
+- **Selective tech-trade bans for snowball techs:** Some high-impact techs are now flagged **“Cannot be traded”** (`bTrade = 0`) to curb extreme tech-brokering/“tech whoreism” chains (e.g. turning one breakthrough into a long series of trades), which AIs are especially vulnerable to and for balance. The goal is to tone down decisive, snowbally trades while still allowing normal tech trading (unless you enable the **No Tech Trading** game option, which disables it entirely). Info added in UI: see [UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game) and [UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related) sections.
 - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
 - **Exponential pacing**: fewer late‑era techs and unit types to avoid a tedious endgame; the **Future** era is the exception and is expanded.
 - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier). *Exception:* the Future era has its own GP assignments.

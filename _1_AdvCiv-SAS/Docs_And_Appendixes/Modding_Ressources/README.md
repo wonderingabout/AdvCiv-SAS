@@ -1124,7 +1124,7 @@ See screenshots of how this was implemented (not fully exhaustive but hopefully 
 
 Small sample below /example too but anyways etc:
 
-![0.500_bTrade_bRepeat_example.JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.500_bTrade_bRepeat_example.JPG)
+![0.500_bTrade_bRepeat_example.JPG](/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG)
 ![0.710_sevopedia_techs_sample (1).JPG](/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample%20(1).JPG)
 
 This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too anyways etc anyways etc anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h

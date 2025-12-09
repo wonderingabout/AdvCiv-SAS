@@ -1,6 +1,6 @@
 # README_Sevopedia_Reworks.md
 
-Below/here is a/the more detailed examples(/sample(s?)?) of the sevopedia reworks than in/as a prolongement (prolongation? Or extension maybe rather as deepl or similar quick translation suggests but anyways etc) [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
+Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
 
 Note: as of now the following link is outdated, but for more sevopedia sample examples than shown in this readme, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing), although again as of now they are outdated i mean but anyways etc
 

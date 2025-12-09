@@ -31,10 +31,19 @@ class CvForeignAdvisor:
 		self.DEBUG_DROPDOWN_ID =  "ForeignAdvisorDropdownWidget"
 		self.EXIT_ID = "ForeignAdvisorExitWidget"
 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
-		self.X_SCREEN = 500
-		self.Y_SCREEN = 396
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
+
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# self.X_SCREEN = 500
+		# self.Y_SCREEN = 396
+		# self.W_SCREEN = 1024
+		# self.H_SCREEN = 768
+		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.), assuming a 1920 x 1080 display -->
+		self.W_SCREEN = 1208
+		self.X_SCREEN = (1920 - self.W_SCREEN) / 2
+		self.Y_SCREEN = 28
+		# <!-- custom: assuming 1920 x 1080 display, if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. 1080 - 100 = 980). -->
+		self.H_SCREEN = 1080 - self.Y_SCREEN
+
 		self.Y_TITLE = 8
 		self.X_EXIT = 994
 		self.Y_EXIT = 726
@@ -46,11 +55,16 @@ class CvForeignAdvisor:
 		self.DX_LINK = 220
 		self.Y_LINK = 726
 		
-		self.X_LEGEND = 20
-		self.Y_LEGEND = 530
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# <!-- custom: make it more dynamic depending on panel size, as as of now its position is fixed and around the center-left side of the panel, even though it should be at the bottom of it, as gemini 3 pro showed where to thanks anyways etc. -->
 		self.H_LEGEND = 180
 		self.W_LEGEND = 160
 		self.MARGIN_LEGEND = 10
+		self.X_LEGEND = 20
+		# H_SCREEN is your total height. 
+		# We subtract the Legend Height (180) and a small buffer (e.g. 75) to lift it off the bottom bar.
+		# self.Y_LEGEND = 530
+		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
 		
 		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
 		self.Y_LEADER_CIRCLE_TOP = 87
@@ -78,7 +92,6 @@ class CvForeignAdvisor:
 		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_ADVISOR)
 
 	def interfaceScreen (self, iScreen):
-	
 		if (iScreen < 0):
 			if (self.iScreen < 0):
 				iScreen = self.iDefaultScreen
@@ -104,10 +117,21 @@ class CvForeignAdvisor:
 		#self.listSelectedLeaders.append(self.iSelectedLeader)
 
 		# Set the background and exit button, and show the screen
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# <!-- custom: see also related change that was needed it seems as well in CvExoticForeignAdvisor.py anyways etc. -->
+		# <!-- custom: update: reverting this change we added, as it doesn't seem necessary for our change to still be effective anyways etc. -->
+		#screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
 		screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+
 		screen.addDrawControl(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# Top panels cutting off content: The TopPanel and BottomPanel (around lines 96-97) are positioned at y=0 and y=713 respectively. These need updating:
+		# screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+		# screen.addPanel( "BottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, self.H_SCREEN - 55, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+
 		screen.showWindowBackground(False)
 		screen.setText(self.EXIT_ID, "", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
 
