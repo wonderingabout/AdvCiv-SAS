@@ -107,13 +107,14 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# Minimum space at the top and bottom of the screen.
 		# <!-- custom: after our changes, blue panel is overfilling on top and bottom, adjusted with the help of gemini 3 pro thanks anyways etc. -->
 		# The blue panel is overflowing because MIN_TOP_BOTTOM_SPACE is set to 30, but the Civ4 top/bottom UI bars are 55 pixels tall. We need to increase the margin so the panel clears those bars.
+		# <!-- custom: update: with 55 we have some yellow uneeded margins a slightly lower value seems to work much better at removing these, but a too low one creates an unwanted display somehow, adjusted as such based on a similar suggestion of gemini 3 pro thanks but anyways etc. -->
 		# self.MIN_TOP_BOTTOM_SPACE = 30 # advc.073: was 60
-		self.MIN_TOP_BOTTOM_SPACE = 55
+		self.MIN_TOP_BOTTOM_SPACE = 45
 		
 		# Minimum space at the left and right end of the screen.
 		# <!-- custom: reduce this as we don't need so much space on the sides, and we need the space to show more info anyways etc as per gemini 3 pro's solution thanks but anyways etc. -->
 		# self.MIN_LEFT_RIGHT_SPACE = 25
-		self.MIN_LEFT_RIGHT_SPACE = 10
+		self.MIN_LEFT_RIGHT_SPACE = 0
 		
 		# Extra border at the left and right ends of the column groups (import/export)
 		self.GROUP_BORDER = 8
@@ -1380,15 +1381,19 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 	def initTechTable(self):
 		screen = self.getScreen()
 		
-		# 1. Define the full screen size (This is perfect, keep it)
+		# 1. Define the full screen
+		# <!-- custom: note: this is the starting position of the grid/table, not of the blue panel anyways etc. -->
+		# <!-- custom: note: for example gridX moves the grid's starting position more to the left or right (for example so we use what used to be the yellow empty space on the left (and also on the right) if needed anyways etc.) -->
 		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
 		gridY = self.MIN_TOP_BOTTOM_SPACE + 10
+
 		# <!-- custom: no need for the right side edge/margin in the blue panel, use this space or shrink the screen by this size if we don't need it in any other foreign advisor screen anyways etc. -->
 		# gridWidth = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE * 2 - 20
+		# <!-- custom: we don't need margins in these areas, maximize space anyways etc. -->
+		# <!-- custom: also widen X since we removed the yellow edges that were uneeded, fill this space with our grid as we want to use it not leave it blue with our grid ending before it, anyways etc. -->
+		gridWidth = self.W_SCREEN + 10
+		# <!-- custom: trim bottom part of the grid else it overfills below the bottom end of the blue panel, which is not what we need nor want but anyways etc. -->
 		# gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - 20
-		# <!-- custom: for some reason the panel is asymetrically more left-leaning than right leaning; add some width so that this shifts panel more to the right instead of having dead space / margin in the blue panel, not perfect but a workaround against whatever is causing it i guess but anyways etc. -->
-		gridWidthRightExtraCorrection = 7
-		gridWidth = self.W_SCREEN - (self.MIN_LEFT_RIGHT_SPACE * 2) + gridWidthRightExtraCorrection
 		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2
 
 		# 2. Setup the columns

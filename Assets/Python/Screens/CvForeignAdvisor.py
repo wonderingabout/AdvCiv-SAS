@@ -38,8 +38,11 @@ class CvForeignAdvisor:
 		# self.W_SCREEN = 1024
 		# self.H_SCREEN = 768
 		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.), assuming a 1920 x 1080 display -->
-		self.W_SCREEN = 1570
-		self.X_SCREEN = (1920 - self.W_SCREEN) / 2
+		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such but anyways etc. -->
+		# self.X_SCREEN = (1920 - self.W_SCREEN) / 2
+		self.X_SCREEN = 172
+		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
+		self.W_SCREEN = 1530 - self.X_SCREEN
 		self.Y_SCREEN = 28
 		# <!-- custom: assuming 1920 x 1080 display, if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. 1080 - 100 = 980). -->
 		self.H_SCREEN = 1080 - self.Y_SCREEN
