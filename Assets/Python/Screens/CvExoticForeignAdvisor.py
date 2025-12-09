@@ -75,8 +75,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 	def __init__(self):
 		CvForeignAdvisor.CvForeignAdvisor.__init__ (self)
 
-#		help (CyPlayer)
-#		help (CyGInterfaceScreen)
+		# help (CyPlayer)
+		# help (CyGInterfaceScreen)
 		self.GLANCE_HEADER = "ForeignAdvisorGlanceHeader"
 		self.GLANCE_BUTTON = "ForeignAdvisorPlusMinus"
 		self.X_LINK = 0
@@ -90,9 +90,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		self.INFO_BORDER = 10
 
-############################################
-### BEGIN CHANGES ENHANCED INTERFACE MOD ###
-############################################
+		############################################
+		### BEGIN CHANGES ENHANCED INTERFACE MOD ###
+		############################################
 
 		###################
 		# General options #
@@ -105,10 +105,15 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.SHOW_ROW_BORDERS = True
 		
 		# Minimum space at the top and bottom of the screen.
-		self.MIN_TOP_BOTTOM_SPACE = 30 # advc.073: was 60
+		# <!-- custom: after our changes, blue panel is overfilling on top and bottom, adjusted with the help of gemini 3 pro thanks anyways etc. -->
+		# The blue panel is overflowing because MIN_TOP_BOTTOM_SPACE is set to 30, but the Civ4 top/bottom UI bars are 55 pixels tall. We need to increase the margin so the panel clears those bars.
+		# self.MIN_TOP_BOTTOM_SPACE = 30 # advc.073: was 60
+		self.MIN_TOP_BOTTOM_SPACE = 55
 		
 		# Minimum space at the left and right end of the screen.
-		self.MIN_LEFT_RIGHT_SPACE = 25
+		# <!-- custom: reduce this as we don't need so much space on the sides, and we need the space to show more info anyways etc as per gemini 3 pro's solution thanks but anyways etc. -->
+		# self.MIN_LEFT_RIGHT_SPACE = 25
+		self.MIN_LEFT_RIGHT_SPACE = 10
 		
 		# Extra border at the left and right ends of the column groups (import/export)
 		self.GROUP_BORDER = 8
@@ -173,9 +178,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.SCROLL_TABLE_UP = 1
 		self.SCROLL_TABLE_DOWN = 2
 
-##########################################
-### END CHANGES ENHANCED INTERFACE MOD ###
-##########################################
+		##########################################
+		### END CHANGES ENHANCED INTERFACE MOD ###
+		##########################################
 
 		self.SCREEN_DICT = {
 			"BONUS": 0,
@@ -223,12 +228,12 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 						
 	def interfaceScreen (self, iScreen):
 
-#		self.ATTITUDE_DICT = {
-#			"COLOR_YELLOW": re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_FRIENDLY", ())),
-#			"COLOR_GREEN" : re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_PLEASED", ())),
-#			"COLOR_CYAN" : re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_ANNOYED", ())),
-#			"COLOR_RED" : re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_FURIOUS", ())),
-#			}
+		# self.ATTITUDE_DICT = {
+		# 	"COLOR_YELLOW": re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_FRIENDLY", ())),
+		# 	"COLOR_GREEN" : re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_PLEASED", ())),
+		# 	"COLOR_CYAN" : re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_ANNOYED", ())),
+		# 	"COLOR_RED" : re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_FURIOUS", ())),
+		# }
 
 		self.WAR_ICON = smallSymbol(FontSymbols.WAR_CHAR)
 		self.PEACE_ICON = smallSymbol(FontSymbols.PEACE_CHAR)
@@ -259,9 +264,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.listSelectedLeaders = []
 		#self.listSelectedLeaders.append(self.iSelectedLeader)
 
-############################################
-### BEGIN CHANGES ENHANCED INTERFACE MOD ###
-############################################
+		############################################
+		### BEGIN CHANGES ENHANCED INTERFACE MOD ###
+		############################################
 		#self.W_SCREEN = screen.getXResolution()
 		#self.H_SCREEN = screen.getYResolution()
 
@@ -297,9 +302,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		screen.addDrawControl(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
 		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
-##########################################
-### END CHANGES ENHANCED INTERFACE MOD ###
-##########################################
+		##########################################
+		### END CHANGES ENHANCED INTERFACE MOD ###
+		##########################################
 
 		# Set the background and exit button, and show the screen
 		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
@@ -371,10 +376,10 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		for i in range (len (self.ORDER_LIST)):
 			szScreen = self.ORDER_LIST[i]
-# BUG - Glance Tab - start
+			# BUG - Glance Tab - start
 			if szScreen == "GLANCE" and not AdvisorOpt.isShowGlance():
 				continue # skip the GLANCE label
-# BUG - Glance Tab - end
+			# BUG - Glance Tab - end
 			# <advc.ctr>
 			if szScreen == "CITIES" and not AdvisorOpt.isCityTradesTab():
 				continue #</advc.ctr>
@@ -472,7 +477,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					screen.appendListBoxString(dealPanelName, szDealText, WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
 					iRow += 1
 
-#	RJG Start
+	#	RJG Start
 	def drawRelations (self, bInitial):
 		screen = self.getScreen()
 		#self.W_SCREEN = screen.getXResolution() - 40
@@ -485,7 +490,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.X_LEADER_CIRCLE_TOP = self.W_SCREEN // 2
 
 		CvForeignAdvisor.CvForeignAdvisor.drawRelations (self, bInitial)
-#	RJG End
+	#	RJG End
 
 	def drawInfo (self, bInitial):
 		if AdvisorOpt.isUseImprovedEFAInfo():
@@ -494,7 +499,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			self.drawInfoOriginal(bInitial)
 
 	def drawInfoOriginal (self, bInitial):
-#		ExoticForPrint ("Entered drawInfo")
+		# ExoticForPrint ("Entered drawInfo")
 
 		screen = self.getScreen()
 
@@ -801,7 +806,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		return iDomesticYield + iForeignYield, iDomesticCount + iForeignCount
 
 	def drawGlance (self, bInitial):
-#		ExoticForPrint ("Entered drawGlance")
+		# ExoticForPrint ("Entered drawGlance")
 
 		screen = self.getScreen()
 		
@@ -842,7 +847,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			and (not gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isCapitulated()
 			or gc.getPlayer(iLoopPlayer).isHuman() or iLoopPlayer == self.iActiveLeader)):
 			# </advc.130v>
-#				ExoticForPrint ("Player = %d" % iLoopPlayer)
+				# ExoticForPrint ("Player = %d" % iLoopPlayer)
 				self.ltPlayerMet [iLoopPlayer] = True
 
 				for nHost in range(gc.getMAX_PLAYERS()):
@@ -881,7 +886,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					nCount += 1
 		
 	def drawGlanceRows (self, screen, mainPanelName, bSorted = False, nPlayer = 1):
-#		ExoticForPrint ("MAX Players = %d" % gc.getMAX_PLAYERS())
+		# ExoticForPrint ("MAX Players = %d" % gc.getMAX_PLAYERS())
 		ltSortedRelations = [(None,-1)] * gc.getMAX_PLAYERS()
 		self.loadColIntoList (self.ltPlayerRelations, ltSortedRelations, nPlayer)
 		if bSorted:
@@ -903,7 +908,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		for i in range (self.nCount):
 			iLoopPlayer = ltSortedRelations[nOffset + i][1]
-#			ExoticForPrint ("iLoopPlayer = %d" % iLoopPlayer)
+			# ExoticForPrint ("iLoopPlayer = %d" % iLoopPlayer)
 
 			playerPanelName = self.getNextWidgetName()
 			if iLoopPlayer == self.iActiveLeader:
@@ -938,19 +943,19 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		nCount = 0
 		for i in range (len (ltTarget)):
 			if (self.ltPlayerMet[i]):
-#				ExoticForPrint ("player met = %d; nCount = %d" % (i, nCount))
+				# ExoticForPrint ("player met = %d; nCount = %d" % (i, nCount))
 				ltTarget[nCount] = (ltPlayers[i][nCol], i)
 				nCount += 1
 
 	def handlePlusMinusToggle (self):
-#		ExoticForPrint ("Entered handlePlusMinusToggle")
+		# ExoticForPrint ("Entered handlePlusMinusToggle")
 
 		self.bGlancePlus = not self.bGlancePlus
 		self.drawContents (False)
 
-############################################
-### BEGIN CHANGES ENHANCED INTERFACE MOD ###
-############################################
+	############################################
+	### BEGIN CHANGES ENHANCED INTERFACE MOD ###
+	############################################
 
 	def initTradeTable(self):
 		screen = self.getScreen()
@@ -1040,8 +1045,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		self.resIconGrid.setPosition(gridX, gridY)
 		self.resIconGrid.setSize(gridWidth, gridHeight)
-# 		self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE
-# 		self.RES_TOP_BOTTOM_SPACE = self.MIN_TOP_BOTTOM_SPACE
+	# self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE
+	# self.RES_TOP_BOTTOM_SPACE = self.MIN_TOP_BOTTOM_SPACE
 
 	
 		
@@ -1123,7 +1128,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		# Add the bonuses to the surplus panel with their amount
 		for iIndex in range(len(listSurplus)):
-#			screen.addCheckBoxGFCAt (self.mainAvailablePanel, "Foo" + str(iIndex), gc.getBonusInfo (listSurplus[iIndex]).getButton(), ArtFileMgr.getInterfaceArtInfo ("BUTTON_HILITE_SQUARE").getPath(), self.X_GLANCE_OFFSET + (self.RESOURCE_ICON_SIZE * iIndex), 10, 32, 32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, listSurplus[iIndex], -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+			# screen.addCheckBoxGFCAt (self.mainAvailablePanel, "Foo" + str(iIndex), gc.getBonusInfo (listSurplus[iIndex]).getButton(), ArtFileMgr.getInterfaceArtInfo ("BUTTON_HILITE_SQUARE").getPath(), self.X_GLANCE_OFFSET + (self.RESOURCE_ICON_SIZE * iIndex), 10, 32, 32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, listSurplus[iIndex], -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
 			# advc.073: Pass the active player to the BULL widget in order to signal that all takers are supposed to be listed
 			screen.appendMultiListButton( self.availableMultiList, gc.getBonusInfo(listSurplus[iIndex]).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, listSurplus[iIndex], self.iActiveLeader, False )
 			screen.setTableColumnHeader( self.availableTable, iIndex, u"", self.RESOURCE_ICON_SIZE )
@@ -1143,7 +1148,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			screen.setTableColumnHeader(self.availableTable, iIndex, u"", self.RESOURCE_ICON_SIZE)
 		# </advc.073>
 		
-# 		# Assemble the panel that shows the trade table
+		# # Assemble the panel that shows the trade table
 		self.TABLE_PANEL_X = self.RES_LEFT_RIGHT_SPACE
 		self.TABLE_PANEL_Y = self.SURPLUS_Y + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE
 		self.TABLE_PANEL_WIDTH = self.W_SCREEN - 2 * self.RES_LEFT_RIGHT_SPACE
@@ -1228,7 +1233,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					amount = 0
 					for iLoopDeal in range(gc.getGame().getIndexAfterLastDeal()):
 						deal = gc.getGame().getDeal(iLoopDeal)
-# BUG - Kill Deal - start
+						# BUG - Kill Deal - start
 						if not deal.isNone():
 							if ( deal.getFirstPlayer() == iLoopPlayer and deal.getSecondPlayer() == self.iActiveLeader):
 								for iLoopTradeItem in range(deal.getLengthFirstTrades()):
@@ -1261,7 +1266,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 									if (tradeData2.ItemType == TradeableItems.TRADE_RESOURCES):
 										# advc.073: DEAL_KILL widget enabled; advc.085: iData2 set to -1
 										self.resIconGrid.addIcon( currentRow, self.activeImportCol, gc.getBonusInfo(tradeData2.iData).getButton(), 64, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, -1)
-# BUG - Kill Deal - end
+						# BUG - Kill Deal - end
 					if (amount != 0):
 						self.resIconGrid.setText(currentRow, self.payingCol, str(amount))
 				currentRow += 1
@@ -1326,7 +1331,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				self.techIconGrid.appendRow(currentPlayer.getName(), message)
 				self.techIconGrid.addIcon( currentRow, iTechColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
 
-# BUG - AI status - start
+				# BUG - AI status - start
 				zsStatus = ""
 				if not DiplomacyUtil.isWillingToTalk(currentPlayer, activePlayer):
 					zsStatus += u"!"
@@ -1337,7 +1342,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					zsStatus += self.PEACE_ICON
 
 				self.techIconGrid.setText(currentRow, iTechColStatus, zsStatus)
-# BUG - AI status - end
+				# BUG - AI status - end
 				# advc.036:
 				bWillTalk = currentPlayer.AI_isWillingToTalk(self.iActiveLeader)
 				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
@@ -1375,15 +1380,19 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 	def initTechTable(self):
 		screen = self.getScreen()
 		
+		# 1. Define the full screen size (This is perfect, keep it)
 		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
 		gridY = self.MIN_TOP_BOTTOM_SPACE + 10
 		gridWidth = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE * 2 - 20
 		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - 20
+
+		# 2. Setup the columns
 		willTradeColumnType = IconGrid_BUG.GRID_MULTI_LIST_COLUMN
 		# <advc.550i> Make the will-trade column a text column so that the no-tech-trading hint can be placed there
 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
 			willTradeColumnType = IconGrid_BUG.GRID_TEXT_COLUMN
 		# </advc.550i>
+
 		columns = ( IconGrid_BUG.GRID_ICON_COLUMN,
 					IconGrid_BUG.GRID_TEXT_COLUMN,
 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
@@ -1393,6 +1402,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					willTradeColumnType,
 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
+
 		self.techIconGridName = self.getNextWidgetName()
 		self.techIconGrid = IconGrid_BUG.IconGrid_BUG( self.techIconGridName, screen, gridX, gridY, gridWidth, gridHeight, columns, self.TECH_USE_SMALL_ICONS, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
 
@@ -1401,8 +1411,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.techIconGrid.setMinColumnSpace(self.MIN_COLUMN_SPACE)
 		self.techIconGrid.setMinRowSpace(self.MIN_ROW_SPACE)
 
-#		self.techIconGrid.setHeader( iTechColLeader, localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ()) )
-#		self.techIconGrid.setHeader( iTechColStatus, "" )
+		# 3. Set widths for the specific text columns (Status, Gold)
+		# Note: IconGrid_BUG does NOT allow setting widths for Icon columns (Wants, Can Research, etc). 
+		# It calculates them automatically by dividing the remaining space evenly.
+		# self.techIconGrid.setHeader( iTechColLeader, localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ()) )
+		# self.techIconGrid.setHeader( iTechColStatus, "" )
 		self.techIconGrid.setTextColWidth( iTechColStatus, self.TECH_STATUS_COL_WIDTH )
 		self.techIconGrid.setHeader( iTechColWants, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WANTS", ()) )
 		# advc.004g: was TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE
@@ -1410,22 +1423,36 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.techIconGrid.setHeader( iTechColResearch, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CAN_RESEARCH", ()) )
 		self.techIconGrid.setHeader( iTechColGold, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
 		self.techIconGrid.setTextColWidth( iTechColGold, self.TECH_GOLD_COL_WIDTH )
+
 		self.techIconGrid.setHeader( iTechColWill, localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2", ()) )
 		# <advc.550i>
 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
 			self.techIconGrid.setTextColWidth(iTechColWill, 2 * self.TECH_GOLD_COL_WIDTH) # </advc.550i>
+
 		self.techIconGrid.setHeader( iTechColWont, localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2", ()) )
 		self.techIconGrid.setHeader( iTechColCantThem, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ()) )
-		
-		gridWidth = self.techIconGrid.getPrefferedWidth()
-		gridHeight = self.techIconGrid.getPrefferedHeight()
-		self.TECH_LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
-		self.TECH_TOP_BOTTOM_SPACE = (self.H_SCREEN - gridHeight - 20) / 2
-		gridX = self.TECH_LEFT_RIGHT_SPACE + 10
-		gridY = self.TECH_TOP_BOTTOM_SPACE + 10
-		
-		self.techIconGrid.setPosition(gridX, gridY)
-		self.techIconGrid.setSize(gridWidth, gridHeight)
+
+		# <!-- custom: fit more information in each row so we don't have to scroll to see extra techs. Change with the help of gemini 3 pro anyways etc. -->
+		# Based on your screenshots (specifically Civ4ScreenShot0084.jpg) and the code provided, the issue is not the column width variables (TECH_STATUS_COL_WIDTH).
+		# The problem is at the very end of the initTechTable function. The code calculates the "Preferred Width" (the minimum width required to hold the icons) and then shrinks the table to fit that minimum size, centering it in your large window. This ignores the full screen width you successfully set up earlier.
+		# You need to replace the end of that function to stop it from shrinking and to manually force the columns to share the available space.
+		# We removed the lines that called getPrefferedWidth() and resized the grid variables.
+		# This ensures the grid stays at the full size we calculated at the top.
+		# IconGrid_BUG will automatically spread the columns to fill this space.
+		# gridWidth = self.techIconGrid.getPrefferedWidth()
+		# gridHeight = self.techIconGrid.getPrefferedHeight()
+		# self.TECH_LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
+		# self.TECH_TOP_BOTTOM_SPACE = (self.H_SCREEN - gridHeight - 20) / 2
+		# gridX = self.TECH_LEFT_RIGHT_SPACE + 10
+		# gridY = self.TECH_TOP_BOTTOM_SPACE + 10
+		#
+		# self.techIconGrid.setPosition(gridX, gridY)
+		# self.techIconGrid.setSize(gridWidth, gridHeight)
+
+		# --- FIX: Define these variables so drawTechDeals doesn't crash ---
+		# We set them to the minimum margins so the panel uses the full available space
+		self.TECH_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE
+		self.TECH_TOP_BOTTOM_SPACE = self.MIN_TOP_BOTTOM_SPACE
 
 	# <advc.ctr>
 	def initCityTable(self): # Based on initTechTable
@@ -1586,9 +1613,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		return r
 	# </advc.ctr>
 		
-##########################################
-### END CHANGES ENHANCED INTERFACE MOD ###
-##########################################
+	##########################################
+	### END CHANGES ENHANCED INTERFACE MOD ###
+	##########################################
 					
 	# Handles the input for this screen...
 	def handleInput (self, inputClass):
@@ -1606,15 +1633,15 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			elif (inputClass.getFunctionName() == self.GLANCE_BUTTON):
 				self.handlePlusMinusToggle()
 				return 1
-############################################
-### BEGIN CHANGES ENHANCED INTERFACE MOD ###
-############################################
+	############################################
+	### BEGIN CHANGES ENHANCED INTERFACE MOD ###
+	############################################
 			elif (inputClass.getButtonType() == WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS):
 #				ExoticForPrint ("FOOOOOO!!!!")
 				pass
-##########################################
-### END CHANGES ENHANCED INTERFACE MOD ###
-##########################################
+	##########################################
+	### END CHANGES ENHANCED INTERFACE MOD ###
+	##########################################
 		
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
 			if (inputClass.getFunctionName() + str(inputClass.getID()) == self.getWidgetName(self.DEBUG_DROPDOWN_ID)):
