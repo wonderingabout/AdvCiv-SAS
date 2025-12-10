@@ -404,8 +404,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
 		# <advc.066> Replacing the above (same as in drawInfoOriginal)
-		leftRightMargin = 25
-		topBottomMargin = 50
+		# <!-- custom: remove the margins same as in the other foreign advisor sub-screens after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
+		# leftRightMargin = 25
+		# topBottomMargin = 50
+		leftRightMargin = 0
+		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now but anyways etc. -->
+		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure anyways etc.) rows can be higher if they have more lines as of now in the foreign advisor's active sub-screen but doing as such for consistency as well as in base advciv code as well coincidentally i mean if i may say but anyways etc. -->
+		topBottomMargin = 42
 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
 		if not gc.getGame().isDebugMode():
@@ -513,11 +518,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		screen = self.getScreen()
 
-		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
-		objActivePlayer = gc.getPlayer(self.iActiveLeader)
-
 		# Get the Players
-		playerActive = objActivePlayer
+		playerActive = gc.getPlayer(self.iActiveLeader)
 					
 		# Put everything inside a main panel, so we get vertical scrolling
 		mainPanelName = self.getNextWidgetName()
@@ -535,9 +537,10 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
 		bDebugMode = gc.getGame().isDebugMode()
+		playerActiveTeam = playerActive.getTeam()
 
 		if not bDebugMode:
-			hasMetCount = gc.getTeam(playerActive.getTeam()).getHasMetCivCount(True)
+			hasMetCount = gc.getTeam(playerActiveTeam).getHasMetCivCount(True)
 			if hasMetCount > 0: # 100 was just a guess, but it seems like this is the exact height of a row.
 				mainPanelHeight = min(mainPanelHeight, 100 * hasMetCount)
 		screen.addPanel(mainPanelName, "", "", True, True, leftRightMargin, topBottomMargin, mainPanelWidth, mainPanelHeight, PanelStyles.PANEL_STYLE_EMPTY)
@@ -557,16 +560,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# szFavoritesPreText = localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
 		szFavoritesPreText = szSeparator + localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
 
-		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
-		objActiveTeam = objActivePlayer.getTeam()
-
 		# loop through all players and display leaderheads
 		# Their leaderheads		
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 			# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
 			objLoopPlayer = gc.getPlayer(iLoopPlayer)
 
-			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(objActiveTeam) or bDebugMode) and not objLoopPlayer.isBarbarian() and not objLoopPlayer.isMinorCiv()):
+			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(playerActiveTeam) or bDebugMode) and not objLoopPlayer.isBarbarian() and not objLoopPlayer.isMinorCiv()):
 
 				nPlayerReligion = objLoopPlayer.getStateReligion()
 				objReligion = gc.getReligionInfo (nPlayerReligion)
