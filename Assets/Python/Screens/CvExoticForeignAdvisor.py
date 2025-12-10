@@ -567,15 +567,27 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					nCivic = gc.getPlayer(iLoopPlayer).getCivics (nCivicOption)
 					screen.attachImageButton (infoPanelName, "", gc.getCivicInfo (nCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nCivic, 1, False)
 
+				# <!-- custom: also show favorite religions in the foreign advisor's info sub-screen anyways etc. Code added with the help of gemini 3 pro thanks anyways etc, also refactor this part of the code as well for clarity anyways etc. -->
 				nFavoriteCivic = objLeaderHead.getFavoriteCivic()
-				# Don't show favorite civic if playing with Random Personalities.
-				#if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RANDOM_PERSONALITIES):
-				if (gc.getPlayer(iLoopPlayer).isFavoriteCivicKnown() and # advc.130n
-						nFavoriteCivic != -1):
-					screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_PEDIA_FAV_CIVIC", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-					objCivicInfo = gc.getCivicInfo (nFavoriteCivic)
-					screen.attachImageButton (infoPanelName, "", objCivicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nFavoriteCivic, 1, False)
-					screen.attachTextGFC(infoPanelName, "", "(" + gc.getCivicOptionInfo (objCivicInfo.getCivicOptionType()).getDescription() + ")", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				hasFavoriteCivic = (gc.getPlayer(iLoopPlayer).isFavoriteCivicKnown() and nFavoriteCivic != -1) # advc.130n
+
+				nFavoriteReligion = objLeaderHead.getFavoriteReligion()
+				hasFavoriteReligion = (nFavoriteReligion != -1)
+
+				if (hasFavoriteCivic or hasFavoriteReligion):
+					screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+					if hasFavoriteCivic:
+						objCivicInfo = gc.getCivicInfo(nFavoriteCivic)
+						screen.attachImageButton (infoPanelName, "", objCivicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nFavoriteCivic, 1, False)
+						# <!-- custom: remove the "(Government)" or "(Economy)" or such types of text as they are distracting and no longer relevant since we have favorite religions as well anyways etc. -->
+						#screen.attachTextGFC(infoPanelName, "", "(" + gc.getCivicOptionInfo (objCivicInfo.getCivicOptionType()).getDescription() + ")", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+					if hasFavoriteReligion:
+						objReligionInfo = gc.getReligionInfo(nFavoriteReligion)
+						if objReligionInfo:
+							screen.attachImageButton(infoPanelName, "", objReligionInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, nFavoriteReligion, 1, False)
+
 
 
 	def drawInfoImproved (self, bInitial):
@@ -604,10 +616,12 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		iOffset = 0
 
-		if FavoriteCivicDetector.isDetectionNecessary():
-			fcHeaderText = BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_POSSIBLE_FAV_CIVICS")
-		else:
-			fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAV_CIVIC")
+		# <!-- custom: i don't know what this is for, but since we renamed it to as of now just "Favorites:" to include favorite religions as well, may as well remove this alternative one anyways etc. -->
+		# if FavoriteCivicDetector.isDetectionNecessary():
+		# 	fcHeaderText = BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_POSSIBLE_FAV_CIVICS")
+		# else:
+		# 	fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAV_CIVIC")
+		fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
 		
 		for headerText in (
 			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"),

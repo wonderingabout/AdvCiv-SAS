@@ -1198,17 +1198,6 @@
 		<Spanish>.</Spanish>
 	</TEXT>
 
-	<!-- advc.002b: FromCIV4GameTextInfos.xml. German was "Bevorzugte
-		 Staatsformen", Italian "Forme di governo preferite". -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_PEDIA_FAV_CIVIC</Tag>
-		<English>Favorite Civics</English>
-		<French>Doctrines pr&#233;f&#233;r&#233;es</French>
-		<German>Lieblingsstaatsform</German>
-		<Italian>Governo preferito</Italian>
-		<Spanish>Principios favoritos</Spanish>
-	</TEXT>
-
 	<!-- advc.002b: Based on TXT_KEY_CURRENT (CIV4GameText_Misc1.xml);
 		 translations unchanged. -->
 	<TEXT>
