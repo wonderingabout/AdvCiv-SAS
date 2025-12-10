@@ -514,8 +514,12 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
 		# <advc.066> Replacing the above (same as in drawActive)
-		leftRightMargin = 25
-		topBottomMargin = 50
+		# <!-- custom: remove the margins same as in the other foreign advisor sub-screens after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
+		# leftRightMargin = 25
+		# topBottomMargin = 50
+		leftRightMargin = 0
+		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now but anyways etc. -->
+		topBottomMargin = 42
 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
 		if not gc.getGame().isDebugMode():
@@ -561,7 +565,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				# advc.004: BULL widget help enabled
 				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], )), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
 
-				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				# <!-- custom: add spacing so the parts of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
+				# This adds spaces to separate 'Current Civics' from 'Favorites'
+				# szSeparator = ""
+				szSeparator = "                                                                         "
+				# <!-- custom: remove unneeded civics text as it's distracting and the civics listing is already self-explanatory or fairly easily guessable or searchable but anyways etc. -->
+				# screen.attachTextGFC(infoPanelName, "", szSeparator + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.attachTextGFC(infoPanelName, "", szSeparator, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 				for nCivicOption in ltCivicOptions:
 					nCivic = gc.getPlayer(iLoopPlayer).getCivics (nCivicOption)
@@ -575,7 +585,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				hasFavoriteReligion = (nFavoriteReligion != -1)
 
 				if (hasFavoriteCivic or hasFavoriteReligion):
-					screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					# <!-- custom: add spacing so the Favorites part of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
+					screen.attachTextGFC(infoPanelName, "", szSeparator + localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 					if hasFavoriteCivic:
 						objCivicInfo = gc.getCivicInfo(nFavoriteCivic)
