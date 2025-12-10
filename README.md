@@ -24,15 +24,15 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
 [Main Changes Guide](/README.md#main-changes-guide)  
 [Custom Main Changes Guide](/README.md#custom-main-changes-guide)  
+[Advisors and other reworks examples](/README.md#advisors-and-other-reworks-examples)  
 [Important Sevopedia reworks (click on the images below to view them full size)](/README.md#important-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)  
 &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
 &emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
-&emsp;[Advisors and other reworks examples](/README.md#advisors-and-other-reworks-examples)  
 &emsp;[Concepts (as of now in the "Outdated" sevopedia category)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category)  
 &emsp;[Mods Info](/README.md#mods-info)  
-&emsp;[Python Scripts](/README.md#python-scripts)  
-&emsp;&emsp;[csv and md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
-&emsp;&emsp;[csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
+[Python Scripts](/README.md#python-scripts)  
+&emsp;[csv and md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
+&emsp;[csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
 [Less Generic-neutral unit names or/and combat types and note about woman units](/README.md#less-generic-neutral-unit-names-orand-combat-types-and-note-about-woman-units)  
 [AI-generated images](/README.md#ai-generated-images)  
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
@@ -122,6 +122,35 @@ You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/D
 
 This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) anyways etc.
 
+## Advisors and other reworks examples
+
+### Other advisors' rework
+
+Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed.
+
+Some examples below:
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+
+See for related and similar changes [UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game).
+
+### Untradeable techs (bTrade) display information
+
+For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG" alt="0.500_bTrade_bRepeat_example.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+
+See also for details:
+
+- [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
+- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
+- [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+
 ## Important Sevopedia reworks (click on the images below to view them full size)
 
 ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
@@ -156,32 +185,6 @@ note 1: its performance should be very very efficient and optimized, see for det
 
 note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc).
 
-### Advisors and other reworks examples
-
-#### Untradeable techs (bTrade) display information
-
-For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG" alt="0.500_bTrade_bRepeat_example.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
-
-See also for details:
-
-- [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
-- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
-- [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
-
-#### Other advisors' rework
-
-Also reworked, expanded and beautified some of the other Advisors' UI, as it was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed.
-
-Some examples below:
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
-
 ### Concepts (as of now in the "Outdated" sevopedia category)
 
 These are not supported in advciv-sas, hence the "outdated" name (i.e. i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images (see [README_Sevopedia_Reworks.md#example-35-improvements-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-35-improvements-category) for a few examples detailed there anyways etc), or that i found informative or/and wanted to add anyways etc. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
@@ -210,7 +213,7 @@ As of now this mostly contain other mod than advciv-sas changes (non-exhaustive 
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
-### Python Scripts
+## Python Scripts
 
 Mostly for modders, and not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
 
@@ -223,7 +226,7 @@ So far there is:
 - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
 - [global XML duplication scanner](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
 
-#### csv and md view of the handicap (difficulties info in a table for all difficulties) info
+### csv and md view of the handicap (difficulties info in a table for all difficulties) info
 
 Generated with the flatten_handicap_info_to_csv_and_md.py script, you can regenerate it if you mod/change the handicap info, else just view it here:
 
@@ -238,7 +241,7 @@ Also code is provided thanks to chatgpt and my prompts or/and adjustments or not
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
 
-#### csv github view for the flatten_leaders_data_to_csv conversion script
+### csv github view for the flatten_leaders_data_to_csv conversion script
 
 About the flatten_leaders_data_to_csv script anyways output:
 

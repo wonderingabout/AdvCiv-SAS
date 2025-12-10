@@ -318,7 +318,38 @@ class CvDomesticAdvisor:
 		iProductionTurns = pLoopCity.getGeneralProductionTurnsLeft()
 		if iProductionTurns > 0: # advc.004x
 			szProducing += " (" + str(iProductionTurns) + ")"
-		screen.setTableText( "CityListBackground", 15, i, szFontTagOpen + szProducing + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+		# <!-- custom: also show the button of the current thing we are building. Done with the help of gemini 3 pro thanks anyways etc. -->
+		# add the button (icon) to the "Producing" column.
+		# Get the button art for the current item
+		szButton = ""
+		iWidget = WidgetTypes.WIDGET_GENERAL
+		iData1 = -1
+		iData2 = -1
+
+		if pLoopCity.isProductionUnit():
+			iUnit = pLoopCity.getProductionUnit()
+			szButton = gc.getUnitInfo(iUnit).getButton()
+			iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT
+			iData1 = iUnit
+		elif pLoopCity.isProductionBuilding():
+			iBuilding = pLoopCity.getProductionBuilding()
+			szButton = gc.getBuildingInfo(iBuilding).getButton()
+			iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING
+			iData1 = iBuilding
+		elif pLoopCity.isProductionProject():
+			iProject = pLoopCity.getProductionProject()
+			szButton = gc.getProjectInfo(iProject).getButton()
+			iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT
+			iData1 = iProject
+		elif pLoopCity.isProductionProcess():
+			iProcess = pLoopCity.getProductionProcess()
+			szButton = gc.getProcessInfo(iProcess).getButton()
+
+		# Pass szButton as the 5th argument to display the icon next to the text
+		#screen.setTableText( "CityListBackground", 15, i, szFontTagOpen + szProducing + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableText( "CityListBackground", 15, i, szFontTagOpen + szProducing + szFontTagClose, szButton, iWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY )
+		# End - add the button (icon) to the "Producing" column.
 
 		# Liberation
 		# advc.004: Mark potential independent colonies too (bCanSplit check added to the two conditions below)
