@@ -419,8 +419,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		listPlayers = [(0,0)] * gc.getMAX_PLAYERS()
 		nNumPLayers = 0
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
-			if (gc.getPlayer(iLoopPlayer).isAlive() and iLoopPlayer != self.iActiveLeader and not gc.getPlayer(iLoopPlayer).isBarbarian() and  not gc.getPlayer(iLoopPlayer).isMinorCiv()):
-				if (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()):
+			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
+			objLoopPlayer = gc.getPlayer(iLoopPlayer)
+
+			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and not objLoopPlayer.isBarbarian() and  not objLoopPlayer.isMinorCiv()):
+				if (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()):
 					nDeals = 0				
 					for i in range(gc.getGame().getIndexAfterLastDeal()):
 						deal = gc.getGame().getDeal(i)
@@ -435,14 +438,18 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		for j in range (nNumPLayers):
 			iLoopPlayer = listPlayers[j][1]
 
+			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
+			# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called anyways etc. -->
+			objLoopPlayer2 = gc.getPlayer(iLoopPlayer)
+
 			# Player panel
 			playerPanelName = self.getNextWidgetName()
-			# advc.066: Third argument was gc.getPlayer(iLoopPlayer).getName()
+			# advc.066: Third argument was objLoopPlayer2.getName()
 			screen.attachPanel(mainPanelName, playerPanelName, "", "", False, True, PanelStyles.PANEL_STYLE_MAIN)
 
 			screen.attachLabel(playerPanelName, "", "   ")
 
-			screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, -1, False)
+			screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(objLoopPlayer2.getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, -1, False)
 						
 			innerPanelName = self.getNextWidgetName()
 			screen.attachPanel(playerPanelName, innerPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
@@ -884,14 +891,17 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.ltPlayerRelations = [[0] * gc.getMAX_PLAYERS() for i in range (gc.getMAX_PLAYERS())]
 		self.ltPlayerMet = [False] * gc.getMAX_PLAYERS()
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
-			if (gc.getPlayer(iLoopPlayer).isAlive()
-			and (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam())
+			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
+			objLoopPlayer = gc.getPlayer(iLoopPlayer)
+
+			if (objLoopPlayer.isAlive()
+			and (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam())
 			or gc.getGame().isDebugMode())
-			and not gc.getPlayer(iLoopPlayer).isBarbarian()
-			and not gc.getPlayer(iLoopPlayer).isMinorCiv()
+			and not objLoopPlayer.isBarbarian()
+			and not objLoopPlayer.isMinorCiv()
 			# <advc.130v> Exclude capitulated vassals. The last check is for AI Auto Play.
-			and (not gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isCapitulated()
-			or gc.getPlayer(iLoopPlayer).isHuman() or iLoopPlayer == self.iActiveLeader)):
+			and (not gc.getTeam(objLoopPlayer.getTeam()).isCapitulated()
+			or objLoopPlayer.isHuman() or iLoopPlayer == self.iActiveLeader)):
 			# </advc.130v>
 				# ExoticForPrint ("Player = %d" % iLoopPlayer)
 				self.ltPlayerMet [iLoopPlayer] = True
@@ -1242,7 +1252,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				# advc.036:
 				bWillTalk = currentPlayer.AI_isWillingToTalk(self.iActiveLeader)
 				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
-					sAmount = str(gc.getPlayer(iLoopPlayer).AI_maxGoldPerTurnTrade(self.iActiveLeader))
+					# <!-- custom: looks like gc.getPlayer(iLoopPlayer) could be optimized with the cached currentPlayer variable so did as such anyways etc. -->
+					sAmount = str(currentPlayer.AI_maxGoldPerTurnTrade(self.iActiveLeader))
 					self.resIconGrid.setText(currentRow, self.canPayCol, sAmount)
 				
 				# bonuses
@@ -1407,7 +1418,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				# advc.036:
 				bWillTalk = currentPlayer.AI_isWillingToTalk(self.iActiveLeader)
 				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
-					sAmount = str(gc.getPlayer(iLoopPlayer).AI_maxGoldTrade(self.iActiveLeader))
+					# <!-- custom: looks like gc.getPlayer(iLoopPlayer) could be optimized with the cached currentPlayer variable so did as such anyways etc. -->
+					sAmount = str(currentPlayer.AI_maxGoldTrade(self.iActiveLeader))
 					self.techIconGrid.setText(currentRow, iTechColGold, sAmount)
 
 				#if (gc.getTeam(activePlayer.getTeam()).isTechTrading() or gc.getTeam(currentPlayer.getTeam()).isTechTrading() ):
