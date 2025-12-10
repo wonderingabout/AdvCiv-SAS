@@ -1046,11 +1046,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		self.resIconGrid.setPosition(gridX, gridY)
 		self.resIconGrid.setSize(gridWidth, gridHeight)
-	# self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE
-	# self.RES_TOP_BOTTOM_SPACE = self.MIN_TOP_BOTTOM_SPACE
+		# self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE
+		# self.RES_TOP_BOTTOM_SPACE = self.MIN_TOP_BOTTOM_SPACE
 
 	
-		
+
 	def calculateSurplusPanelLayout(self):
 		self.SURPLUS_X = self.RES_LEFT_RIGHT_SPACE
 		self.SURPLUS_Y = self.RES_TOP_BOTTOM_SPACE

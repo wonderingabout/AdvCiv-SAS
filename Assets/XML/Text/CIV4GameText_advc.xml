@@ -4841,17 +4841,6 @@
 		<Italian>Importer&#224;</Italian>
 		<Spanish>Importar&#225;</Spanish>
 	</TEXT>
-	<!-- From CIV4GameText_BTS.xml -->
-	<!-- Was "Foreign Trade" and "Außenhandel" in German; that sounds too much
-		 like trade route profits. -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE</Tag>
-		<English>Resource Trades</English>
-		<French>Commerce ext&#233;rieur</French>
-		<German>Ressourcenhandel</German>
-		<Italian>Commercio estero</Italian>
-		<Spanish>Intercambio extranjero</Spanish>
-	</TEXT>
 	<!-- Based on TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2 and _NOT_FOR_TRADE_2
 		 (and replacing those keys on the Resources tab) -->
 	<!-- Translations not the same as TXT_KEY_MISC_WILL_IMPORT above (which has
@@ -4924,15 +4913,6 @@
 		<German>Anbieter</German>
 		<Italian>Importazione</Italian>
 		<Spanish>Importar</Spanish>
-	</TEXT>
-	<!-- New label for the surplus box -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES</Tag>
-		<English>Domestic Resources</English>
-		<French>Ressources domestiques</French>
-		<German>Verfügbare Ressourcen</German>
-		<Italian>Risorse disponibile</Italian>
-		<Spanish>Recursos disponibles</Spanish>
 	</TEXT>
 	<!-- New heading for a new column -->
 	<TEXT>

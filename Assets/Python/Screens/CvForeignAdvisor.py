@@ -76,7 +76,6 @@ class CvForeignAdvisor:
 		self.LINE_WIDTH = 6
 		self.BUTTON_SIZE = 64
 		
-		
 		self.iSelectedLeader = -1
 		self.iActiveLeader = -1
 		self.listSelectedLeaders = []

@@ -44,22 +44,37 @@ class CvMilitaryAdvisor:
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
 		self.DZ = -0.2
 
-		self.X_SCREEN = 500
-		self.Y_SCREEN = 396
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# self.X_SCREEN = 500
+		# self.Y_SCREEN = 396
+		# self.W_SCREEN = 1024
+		# self.H_SCREEN = 768
+		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.), assuming a 1920 x 1080 display -->
+		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such but anyways etc. -->
+		# self.X_SCREEN = (1920 - self.W_SCREEN) / 2
+		self.X_SCREEN = 172
+		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
+		self.W_SCREEN = 1530 - self.X_SCREEN
+		self.Y_SCREEN = 28
+		# <!-- custom: assuming 1920 x 1080 display, if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. 1080 - 100 = 980). -->
+		self.H_SCREEN = 1080 - self.Y_SCREEN
+
+		# <!-- custom: add new self.X_TITLE so we can properly center it or put it where we want in the X axis, after our changes the title is too much on the left side and not centered -->
+		# screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: add new self.X_TITLE so we can properly center it or put it where we want in the X axis, after our changes the title is too much on the left side and not centered. Note: this is starting from the screen's X edge, not from the window's edge anyways etc. -->
+		self.X_TITLE = self.W_SCREEN / 2
 		self.Y_TITLE = 8
+
 		self.BORDER_WIDTH = 4
 		self.W_HELP_AREA = 200
-		
-		self.X_EXIT = 994
-		self.Y_EXIT = 726
-		
-		self.X_GREAT_GENERAL_BAR = 20
-		self.Y_GREAT_GENERAL_BAR = 730
-		self.W_GREAT_GENERAL_BAR = 300
-		self.H_GREAT_GENERAL_BAR = 30
-								
+
+		# <!-- custom: now that we expanded the screen, move this to the bottom and make it dynamically follow / depend on the screen's size, as we did similarly for the legend in the foreign advisor's web's below corresponding legend but anyways etc; code added with the help of gemini 3 pro thanks anyways etc. -->
+		# self.X_EXIT = 994
+		# self.Y_EXIT = 726
+		# Exit Button (Bottom Right)
+		self.X_EXIT = self.W_SCREEN - 30
+		self.Y_EXIT = self.H_SCREEN - 42
+						
 		self.nWidgetCount = 0
 		self.nRefreshWidgetCount = 0
 		self.nAttachedWidgetCount = 0
@@ -67,21 +82,15 @@ class CvMilitaryAdvisor:
 		self.selectedPlayerList = []
 		self.selectedGroupList = []
 		self.selectedUnitList = []
-		
-		self.X_MAP = 20
-		self.Y_MAP = 190
-		self.W_MAP = 580
-		self.H_MAP_MAX = 500
-		self.MAP_MARGIN = 20
-		
-		self.X_TEXT = 625
-		self.Y_TEXT = 190
-		self.W_TEXT = 380
-		self.H_TEXT = 500
-						
+
+		# <!-- custom: now that we expanded the screen, move or/and adjust the size of the great general bar or other similar elements of the military advisor so they use more of the expanded space available, and so they dynamically follow / depend on the screen's size, as we did similarly for the legend in the foreign advisor's web's below corresponding legend but anyways etc; code added with the help of gemini 3 pro thanks anyways etc. -->
+		self.SIDE_MARGIN = 40
+
+		# --- A. Leaders Panel (Top - Full Width) ---
 		self.X_LEADERS = 20
 		self.Y_LEADERS = 80
-		self.W_LEADERS = 985
+		# self.W_LEADERS = 985
+		self.W_LEADERS = self.W_SCREEN - self.SIDE_MARGIN
 		self.H_LEADERS = 90
 		self.LEADER_BUTTON_SIZE = 64
 		self.LEADER_MARGIN = 12
@@ -89,8 +98,42 @@ class CvMilitaryAdvisor:
 		self.LEADER_COLUMNS = int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN))
 		self.bUnitDetails = False
 		self.iShiftKeyDown = 0
-		
-						
+
+		# --- B. Unit List (Right Side - Fixed Width) ---
+		# self.X_TEXT = 625
+		# self.Y_TEXT = 190
+		# self.W_TEXT = 380
+		# self.H_TEXT = 500
+		self.W_TEXT = 430  
+		self.X_TEXT = self.W_SCREEN - 20 - self.W_TEXT
+		self.Y_TEXT = self.Y_LEADERS + self.H_LEADERS + 15
+		# Height = Screen Height - Start Y - Bottom Panel (55) - Margin (15)
+		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - 15
+
+		# --- C. Map Panel (Left Side - Fills Remaining Space) ---
+		self.X_MAP = 20
+		# self.Y_MAP = 190
+		# self.W_MAP = 580
+		# self.H_MAP_MAX = 500
+		self.Y_MAP = self.Y_LEADERS + self.H_LEADERS + 15
+		# Map takes available width minus the text panel and a gap
+		self.W_MAP = self.X_TEXT - self.X_MAP - 14
+		self.H_MAP_MAX = self.H_TEXT
+		# <!-- custom: renamed self.MAP_MARGIN to self.MAP_MARGIN_WRAP for clarity about the fact that this is the blue outside cover of the panel all around it, not an empty margin or something else anyways etc. -->
+		self.MAP_MARGIN = 20
+
+		# --- D. Great General Bar (Moved to Bottom Left)
+		# self.X_GREAT_GENERAL_BAR = 20
+		# self.Y_GREAT_GENERAL_BAR = 730
+		# self.W_GREAT_GENERAL_BAR = 300
+		# self.H_GREAT_GENERAL_BAR = 30
+		self.W_GREAT_GENERAL_BAR = self.W_MAP
+		self.H_GREAT_GENERAL_BAR = 30
+		self.X_GREAT_GENERAL_BAR = 20
+		# Position: Screen Height - Bottom Panel - Bar Height - Padding
+		self.Y_GREAT_GENERAL_BAR = self.H_SCREEN - 55 - self.H_GREAT_GENERAL_BAR - 15
+
+
 	def getScreen(self):
 		return CyGInterfaceScreen(self.MILITARY_SCREEN_NAME, self.screenId)
 
@@ -114,16 +157,28 @@ class CvMilitaryAdvisor:
 		self.nWidgetCount = 0
 	
 		# Set the background and exit button, and show the screen
-		screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# <!-- custom: see also related change that was needed it seems as well in CvExoticForeignAdvisor.py anyways etc. -->
+		# <!-- custom: update: reverting this change we added, as it doesn't seem necessary for our change to still be effective anyways etc. -->
+		#screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+		# <!-- custom: here, in this code that reuses the foreign advisor changes, there is a difference, here it seems that we need to actually change the center settings else the screen stays at the center, and now changing it as as of now below we can freely move the military advisor screen around the window as we want anyways etc, as per a similar suggestion of gemini 3 pro thanks but anyways etc. -->
+		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+
 		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# Top panels cutting off content: The TopPanel and BottomPanel (around lines 96-97) are positioned at y=0 and y=713 respectively. These need updating:
+		# screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+		# screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, self.H_SCREEN - 55, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+
 		screen.showWindowBackground(False)
 		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
 												
 		# Header...
 		self.szHeader = self.getNextWidgetName()
-		screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
 		# Minimap initialization
 		self.H_MAP = (self.W_MAP * CyMap().getGridHeight()) / CyMap().getGridWidth()

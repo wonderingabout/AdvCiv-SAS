@@ -2,6 +2,20 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
 <Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- custom rename "Resource" to "Bonus" anyways etc. -->
+	<!-- New label for the surplus box -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES</Tag>
+		<English>Domestic Bonuses</English>
+	</TEXT>
+	<!-- From CIV4GameText_BTS.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE</Tag>
+		<English>Bonus Trades</English>
+	</TEXT>
+
+
+
 	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you('d) need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
 	<TEXT>
 		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
