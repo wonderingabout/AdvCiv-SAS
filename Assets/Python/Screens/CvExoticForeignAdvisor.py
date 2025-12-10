@@ -151,7 +151,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		# Height of the panel showing the surplus resources. If self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP is 'False'
 		# you'll need to set a higher value for this variable (110 is recommended).
-		self.RES_SURPLUS_HEIGHT = 110 # advc.073: was 80
+		# <!-- custom: it seems to me just one row of bonuses is enough, to begin with we don't have that much in our mod and not so much are tradeable at the same time anyway (plus we removed the header as well so we don't need as much space anyways etc.), so reduce this anyways etc. -->
+		# self.RES_SURPLUS_HEIGHT = 110 # advc.073: was 80
+		self.RES_SURPLUS_HEIGHT = 60
 		
 		self.RES_GOLD_COL_WIDTH = 25
 		
@@ -966,14 +968,23 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		else:
 			columns = ( IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN )
 		self.NUM_RESOURCE_COLUMNS = len(columns) - 1
+
 		# <advc> Intermediate values leftSpace and topSpace added
-		leftSpace = self.MIN_LEFT_RIGHT_SPACE + 10
-		topSpace = self.MIN_TOP_BOTTOM_SPACE + 10
+		# <!-- custom: we don't need all this yellow empty space, better use it for our blue panel and grids or/and such to show more information anyways etc. -->
+		# leftSpace = self.MIN_LEFT_RIGHT_SPACE + 10
+		# topSpace = self.MIN_TOP_BOTTOM_SPACE + 10
+		leftSpace = 0
+		topSpace = self.MIN_TOP_BOTTOM_SPACE
+
 		gridX = leftSpace
-		gridY = topSpace + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT
-		gridWidth = self.W_SCREEN - gridX - leftSpace 
+		# <!-- custom: not sure how this all works, some changes don't seem effective at all, manually adjusting as such empirically if i may say but anyways etc. and randomly as such somehow seemed to land it right but anyways etc. -->
+		# gridY = topSpace + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT
+		gridY = topSpace + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT - 60
+		gridWidth = self.W_SCREEN - gridX - leftSpace
+		# <!-- custom: adjust empirically height as it now overfills on bottom but anyways etc. -->
 		gridHeight = self.H_SCREEN - gridY - topSpace
 		# </advc>
+
 		self.resIconGridName = self.getNextWidgetName()
 		self.resIconGrid = IconGrid_BUG.IconGrid_BUG( self.resIconGridName, screen, gridX, gridY, gridWidth, gridHeight, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
 
@@ -1024,6 +1035,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			self.resIconGrid.setHeader( self.activeImportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORTING", ()) )
 			self.resIconGrid.setHeader( self.payingCol, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
 			self.resIconGrid.setTextColWidth(self.payingCol, self.RES_GOLD_COL_WIDTH)
+
 		if (self.RES_SHOW_IMPORT_EXPORT_HEADER):
 			self.resIconGrid.createColumnGroup(" ", 1)
 			#self.resIconGrid.createColumnGroup(localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORT", ()), 2)
@@ -1049,13 +1061,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE
 		# self.RES_TOP_BOTTOM_SPACE = self.MIN_TOP_BOTTOM_SPACE
 
-	
+
 
 	def calculateSurplusPanelLayout(self):
 		self.SURPLUS_X = self.RES_LEFT_RIGHT_SPACE
 		self.SURPLUS_Y = self.RES_TOP_BOTTOM_SPACE
 		self.SURPLUS_WIDTH = self.W_SCREEN - 2 * self.RES_LEFT_RIGHT_SPACE
-		
+
 		self.SURPLUS_ICONS_X = self.SURPLUS_X + 10
 		if (self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP):
 			self.SURPLUS_TABLE_X = self.SURPLUS_ICONS_X + 15
@@ -1068,15 +1080,16 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			SURPLUS_VERTICAL_SPACING = ( self.RES_SURPLUS_HEIGHT - self.RESOURCE_ICON_SIZE - self.TABLE_CONTROL_HEIGHT - self.TITLE_HEIGHT ) / 2 + 3
 			self.SURPLUS_ICONS_Y = self.SURPLUS_Y + SURPLUS_VERTICAL_SPACING + self.TITLE_HEIGHT
 			self.SURPLUS_TABLE_Y = self.SURPLUS_ICONS_Y + self.RESOURCE_ICON_SIZE
-		
+
 		self.SURPLUS_CIRCLE_X_START = self.SURPLUS_TABLE_X + 4
 		# advc.073: Renamed from SURPLUS_CIRCLE_Y
 		self.SURPLUS_CIRCLE_Y_START = self.SURPLUS_TABLE_Y + 5
-		
 
-		
+
+
 	def drawResourceDeals(self, bInitial):
 		screen = self.getScreen()
+
 		activePlayer = gc.getPlayer(self.iActiveLeader)
 		self.initTradeTable()
 		
@@ -1105,7 +1118,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		# Assemble the surplus panel
 		self.mainAvailablePanel = self.getNextWidgetName()
-		screen.addPanel( self.mainAvailablePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES", ()), "", False, False, self.SURPLUS_X, self.SURPLUS_Y, self.SURPLUS_WIDTH, self.RES_SURPLUS_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+		# <!-- custom: save some space, don't use a header, anyways etc. -->
+		# screen.addPanel( self.mainAvailablePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES", ()), "", False, False, self.SURPLUS_X, self.SURPLUS_Y, self.SURPLUS_WIDTH, self.RES_SURPLUS_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( self.mainAvailablePanel, "", "", False, False, self.SURPLUS_X, self.SURPLUS_Y, self.SURPLUS_WIDTH, self.RES_SURPLUS_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
 		
 		self.availableMultiList = self.getNextWidgetName()
 		# advc.073: I don't know how to make the surplus amounts wrap into another row, so the surplus resources will all have to be placed in the top row, even if there isn't enough space.
@@ -1156,8 +1171,10 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.TABLE_PANEL_HEIGHT = self.H_SCREEN - self.TABLE_PANEL_Y - self.RES_TOP_BOTTOM_SPACE
 		
 		self.tradePanel = self.getNextWidgetName()
-		screen.addPanel( self.tradePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE", ()), "", True, True, self.TABLE_PANEL_X, self.TABLE_PANEL_Y, self.TABLE_PANEL_WIDTH, self.TABLE_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
-		
+		# <!-- custom: save some space, don't use a header, anyways etc. -->
+		# screen.addPanel( self.tradePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE", ()), "", True, True, self.TABLE_PANEL_X, self.TABLE_PANEL_Y, self.TABLE_PANEL_WIDTH, self.TABLE_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( self.tradePanel, "", "", True, True, self.TABLE_PANEL_X, self.TABLE_PANEL_Y, self.TABLE_PANEL_WIDTH, self.TABLE_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+
 		self.resIconGrid.createGrid()
 		
 		# find all players that need to be listed 
