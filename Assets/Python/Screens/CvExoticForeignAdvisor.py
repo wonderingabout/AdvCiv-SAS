@@ -506,8 +506,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		screen = self.getScreen()
 
+		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
+		objActivePlayer = gc.getPlayer(self.iActiveLeader)
+
 		# Get the Players
-		playerActive = gc.getPlayer(self.iActiveLeader)
+		playerActive = objActivePlayer
 					
 		# Put everything inside a main panel, so we get vertical scrolling
 		mainPanelName = self.getNextWidgetName()
@@ -522,7 +525,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		topBottomMargin = 42
 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
-		if not gc.getGame().isDebugMode():
+
+		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
+		bDebugMode = gc.getGame().isDebugMode()
+
+		if not bDebugMode:
 			hasMetCount = gc.getTeam(playerActive.getTeam()).getHasMetCivCount(True)
 			if hasMetCount > 0: # 100 was just a guess, but it seems like this is the exact height of a row.
 				mainPanelHeight = min(mainPanelHeight, 100 * hasMetCount)
@@ -531,19 +538,37 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		ltCivicOptions = range (gc.getNumCivicOptionInfos())
 
+		# <!-- custom: add spacing so the parts of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
+		# This adds spaces to separate 'Current Civics' from 'Favorites'
+		# szSeparator = ""
+		szSeparator = "                                                                         "
+		# <!-- custom: hoist and compute once the strings is computationally more efficient anyways etc -->
+		# <!-- custom: remove unneeded civics text as it's distracting and the civics listing is already self-explanatory or fairly easily guessable or searchable but anyways etc. -->
+		# szCivicsPreText = szSeparator + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()) + ":"
+		szCivicsPreText = szSeparator
+		# <!-- custom: add spacing so the Favorites part of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
+		# szFavoritesPreText = localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
+		szFavoritesPreText = szSeparator + localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
+
+		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
+		objActiveTeam = objActivePlayer.getTeam()
+
 		# loop through all players and display leaderheads
 		# Their leaderheads		
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
-			if (gc.getPlayer(iLoopPlayer).isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()) and not gc.getPlayer(iLoopPlayer).isBarbarian() and not gc.getPlayer(iLoopPlayer).isMinorCiv()):
+			# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
+			objLoopPlayer = gc.getPlayer(iLoopPlayer)
 
-				nPlayerReligion = gc.getPlayer(iLoopPlayer).getStateReligion()
+			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(objActiveTeam) or bDebugMode) and not objLoopPlayer.isBarbarian() and not objLoopPlayer.isMinorCiv()):
+
+				nPlayerReligion = objLoopPlayer.getStateReligion()
 				objReligion = gc.getReligionInfo (nPlayerReligion)
 
-				objLeaderHead = gc.getLeaderHeadInfo (gc.getPlayer(iLoopPlayer).getLeaderType())
+				objLeaderHead = gc.getLeaderHeadInfo (objLoopPlayer.getLeaderType())
 
 				# Player panel
 				playerPanelName = self.getNextWidgetName()
-				# advc.066: Third argument was gc.getPlayer(iLoopPlayer).getName()
+				# advc.066: Third argument was objLoopPlayer.getName()
 				screen.attachPanel(mainPanelName, playerPanelName, "", "", False, True, PanelStyles.PANEL_STYLE_MAIN)
 
 				screen.attachImageButton(playerPanelName, "", objLeaderHead.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, False)
@@ -556,7 +581,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 				if (nPlayerReligion != -1):
 
-					if (gc.getPlayer(iLoopPlayer).hasHolyCity (nPlayerReligion)):
+					if (objLoopPlayer.hasHolyCity (nPlayerReligion)):
 						szPlayerReligion = u"%c" %(objReligion.getHolyCityChar())
 					elif objReligion:
 						szPlayerReligion = u"%c" %(objReligion.getChar())
@@ -565,28 +590,21 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				# advc.004: BULL widget help enabled
 				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], )), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
 
-				# <!-- custom: add spacing so the parts of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
-				# This adds spaces to separate 'Current Civics' from 'Favorites'
-				# szSeparator = ""
-				szSeparator = "                                                                         "
-				# <!-- custom: remove unneeded civics text as it's distracting and the civics listing is already self-explanatory or fairly easily guessable or searchable but anyways etc. -->
-				# screen.attachTextGFC(infoPanelName, "", szSeparator + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				screen.attachTextGFC(infoPanelName, "", szSeparator, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.attachTextGFC(infoPanelName, "", szCivicsPreText, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 				for nCivicOption in ltCivicOptions:
-					nCivic = gc.getPlayer(iLoopPlayer).getCivics (nCivicOption)
+					nCivic = objLoopPlayer.getCivics (nCivicOption)
 					screen.attachImageButton (infoPanelName, "", gc.getCivicInfo (nCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nCivic, 1, False)
 
 				# <!-- custom: also show favorite religions in the foreign advisor's info sub-screen anyways etc. Code added with the help of gemini 3 pro thanks anyways etc, also refactor this part of the code as well for clarity anyways etc. -->
 				nFavoriteCivic = objLeaderHead.getFavoriteCivic()
-				hasFavoriteCivic = (gc.getPlayer(iLoopPlayer).isFavoriteCivicKnown() and nFavoriteCivic != -1) # advc.130n
+				hasFavoriteCivic = (objLoopPlayer.isFavoriteCivicKnown() and nFavoriteCivic != -1) # advc.130n
 
 				nFavoriteReligion = objLeaderHead.getFavoriteReligion()
 				hasFavoriteReligion = (nFavoriteReligion != -1)
 
 				if (hasFavoriteCivic or hasFavoriteReligion):
-					# <!-- custom: add spacing so the Favorites part of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
-					screen.attachTextGFC(infoPanelName, "", szSeparator + localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.attachTextGFC(infoPanelName, "", szFavoritesPreText, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 					if hasFavoriteCivic:
 						objCivicInfo = gc.getCivicInfo(nFavoriteCivic)
@@ -679,7 +697,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 			if (iLoopPlayer != self.iActiveLeader):
 				objLoopPlayer = gc.getPlayer(iLoopPlayer)
-				if (self.objActiveTeam.isHasMet(objLoopPlayer.getTeam()) or gc.getGame().isDebugMode()):
+				if (self.objActiveTeam.isHasMet(objLoopPlayer.getTeam()) or bDebugMode):
 					lKnownPlayers.append(iLoopPlayer)
 				else:
 					lUnknownPlayers.append(iLoopPlayer)
