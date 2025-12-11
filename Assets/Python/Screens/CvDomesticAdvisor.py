@@ -35,9 +35,14 @@ class CvDomesticAdvisor:
 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 
-		self.nScreenWidth = screen.getXResolution() - 30
+		# <!-- custom: further beautify: expand to all width (remove the - 30) with the help of gemini 3 pro thanks anyways etc. -->
+		# <!-- custom: update: for some reason there are still empty edges even at full resolution, on the left and right sides, which is distracting, so expand it a bit beyond that anyways etc. -->
+		# self.iExtraWidth = 0
+		self.iExtraWidth = 4
+		self.nScreenWidth = screen.getXResolution() + (2 * self.iExtraWidth)
 		# advc.120c: Was -250. Need a little more space for the HUD.
-		self.nScreenHeight = screen.getYResolution() - 255
+		# <!-- custom: further beautify: after our changes, reduce height a bit so we can see more of the selected unit row(s) and of the HUD (should be fine i think but anyways etc. as we don't have that many cities that it would critically change things if i'm not mistaken in my thinking but anyways etc.) (was - 255) with the help of gemini 3 pro thanks anyways etc. -->
+		self.nScreenHeight = screen.getYResolution() - 305
 		self.nTableWidth = self.nScreenWidth - 35
 		self.nTableHeight = self.nScreenHeight - 85
 		self.nNormalizedTableWidth = 970
@@ -60,7 +65,10 @@ class CvDomesticAdvisor:
 
 		screen.setRenderInterfaceOnly(True)
 		# advc.120c: y position changed from 100 to 85 so that the unit icons aren't obscured. The espionage slider isn't normally visible anyway.
-		screen.setDimensions(15, 85, self.nScreenWidth, self.nScreenHeight)
+		# <!-- custom: further beautify: expand to all width (and so remove the extra X starting position anyways etc.), and also move the screen lower so we can see the espionage slider as well (before that change only the first 2 sliders were visible) with the help of gemini 3 pro thanks anyways etc. -->
+		# screen.setDimensions(15, 85, self.nScreenWidth, self.nScreenHeight)
+		# <!-- custom: update: for some reason there are still empty edges even at full resolution, on the left and right sides, which is distracting, so expand it a bit beyond that anyways etc. -->
+		screen.setDimensions(-self.iExtraWidth, 105, self.nScreenWidth, self.nScreenHeight)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 	
 		# Here we set the background widget and exit button, and we show the screen
