@@ -3144,3 +3144,5 @@ Update: now also added a tooltip (on hover), in [CvDLLWidgetData.cpp](/CvGameCor
 And now also using our own advciv-sas save file (see drive link for details anyways etc.)
 
 Trick: autoplay on settler we are more likely to be stronger and thus to have rivals, helped quickly get a save file sample for screenshots and testing i mean but anyways etc.
+
+Update 2: now added to a helper (`CvDLLWidgetData::parseVassalWillingnessHelp`) to avoid reuse and as is cleaner as such i mean if i may say, with gemini 3 pro's help as well thanks but anyways etc.
