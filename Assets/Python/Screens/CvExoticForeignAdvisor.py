@@ -243,6 +243,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		self.WAR_ICON = smallSymbol(FontSymbols.WAR_CHAR)
 		self.PEACE_ICON = smallSymbol(FontSymbols.PEACE_CHAR)
+		# <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. Added with the help of claude sonnet 4.5 and gemini 3 pro thanks; check if accurate anyways etc. -->
+		self.WILLING_VASSAL_ICON = smallSymbol(FontSymbols.SILVER_STAR_CHAR) # using a crown/strength symbol for vassalization
+		self.VASSAL_ICON = smallSymbol(FontSymbols.STRENGTH_CHAR)  # or use a different symbol
 
 		self.objTechTree = TechTree.TechTree()
 
@@ -942,10 +945,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 	def drawGlanceHeader (self, screen, panelName):
 		nCount = 1
 		for iLoopPlayer in range (gc.getMAX_PLAYERS()):
+			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
+			currentPlayer = gc.getPlayer(iLoopPlayer)
+
 			if self.ltPlayerMet[iLoopPlayer]:
 				if (iLoopPlayer != self.iActiveLeader):
 					szName = self.getNextWidgetName()
-					screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
+					screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
 					if (self.iSelectedLeader == iLoopPlayer):
 						screen.setState(szName, True)
 					else:
@@ -977,6 +983,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			iLoopPlayer = ltSortedRelations[nOffset + i][1]
 			# ExoticForPrint ("iLoopPlayer = %d" % iLoopPlayer)
 
+			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
+			currentPlayer = gc.getPlayer(iLoopPlayer)
+
 			playerPanelName = self.getNextWidgetName()
 			if iLoopPlayer == self.iActiveLeader:
 				screen.attachPanel(mainPanelName, playerPanelName, "", "", False, True, PanelStyles.PANEL_STYLE_MAIN_BLACK50)
@@ -984,15 +993,61 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				screen.attachPanel(mainPanelName, playerPanelName, "", "", False, True, PanelStyles.PANEL_STYLE_MAIN_BLACK25)
 
 			nCount = 1
+
+			# <!-- custom: This is extra info by gemini 3 pro; check if accurate anyways etc. -->
+			# Inner Loop: Draw the columns
+			# iLoopPlayer = The Row Leader (You, or an AI)
+			# j           = The Column Leader (The Rival)
+
 			for j in range (gc.getMAX_PLAYERS()):
 				if self.ltPlayerMet[j]:
+					# <!-- custom: This is extra info by gemini 3 pro; check if accurate anyways etc. -->
+					# This line HIDES the column for the Human Player (You), which matches your screenshot.
 					if j != self.iActiveLeader:
 						szName = self.getNextWidgetName()
 						nAttitude = self.ltPlayerRelations[iLoopPlayer][j]
+
+						# <!-- custom: This is extra info by gemini 3 pro; check if accurate anyways etc. -->
+						# 1. Base Attitude Text (Smilies/Numbers)
 						if nAttitude != None:
 							szText = AttitudeUtil.getAttitudeText(j, iLoopPlayer, AdvisorOpt.isShowGlanceNumbers(), AdvisorOpt.isShowGlanceSmilies(), True, True, AdvisorOpt.isShowGlanceWarTrades()) # advc.152: WarTrades added
 						else:
 							szText = ""
+
+						# <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. Also for information or exhaustiveness the human player occupies the first row and has no column in the glances tab it seems if i'm not mistaken anyways etc. Added with the combined help of claude sonnet 4.5 and gemini pro 3, since neither could get it right on their own or fast enough; claude helped most but gemini too and me too i mean thanks to me too but anyways etc. I fed claude the C++ code of int CvTeamAI::AI_vassalTradeVal, DenialTypes CvTeamAI::AI_vassalTrade, int CvTeamAI::AI_surrenderTradeVal, and DenialTypes CvTeamAI::AI_surrenderTrade, since its previous python implementation didn't work. Check if accurate anyways etc. -->
+						# Goal: If this is MY Row (iLoopPlayer is me), check if the RIVAL (j) wants to be my vassal.
+						# Vassal Check (Human Row Edition)
+						if iLoopPlayer == self.iActiveLeader:
+							# Define roles for this specific check
+							pPotentialVassal = gc.getPlayer(j)           # The Rival (Column)
+							# pPotentialMaster = currentPlayer           # Me (Row)
+
+							# A. Are they ALREADY our vassal?
+							if gc.getTeam(pPotentialVassal.getTeam()).isVassal(currentPlayer.getTeam()):
+								szText += self.VASSAL_ICON
+
+							# B. Are they WILLING to become our vassal?
+							else:
+								tradeData = TradeData()
+
+								# Check 1: Peaceful Vassal
+								tradeData.ItemType = TradeableItems.TRADE_VASSAL
+
+								# Can we trade it? AND Is there NO denial?
+								# Note: We ask if *pPotentialVassal* can trade *Vassal State* to *Us*
+								if pPotentialVassal.canTradeItem(iLoopPlayer, tradeData, False):
+									if pPotentialVassal.getTradeDenial(iLoopPlayer, tradeData) == DenialTypes.NO_DENIAL:
+										szText += self.WILLING_VASSAL_ICON
+
+								# Check 2: Capitulation (Surrender during war)
+								# Only check if they are at war with us
+								elif gc.getTeam(pPotentialVassal.getTeam()).isAtWar(currentPlayer.getTeam()):
+									tradeData.ItemType = TradeableItems.TRADE_SURRENDER
+									if pPotentialVassal.canTradeItem(iLoopPlayer, tradeData, False):
+										if pPotentialVassal.getTradeDenial(iLoopPlayer, tradeData) == DenialTypes.NO_DENIAL:
+											szText += self.WILLING_VASSAL_ICON
+						# End - Vassal Check (Human Row Edition)
+
 						# <advc.152>
 						widgType = WidgetTypes.WIDGET_LEADERHEAD_RELATIONS
 						if AdvisorOpt.isShowGlanceWarTrades():
@@ -1002,9 +1057,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 						nCount += 1
 
 			if nCount > 8:
-				screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_32, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, False)
+				screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_32, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, False)
 			else:
-				screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, False)
+				screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, False)
 
 	def loadColIntoList (self, ltPlayers, ltTarget, nCol):
 		nCount = 0

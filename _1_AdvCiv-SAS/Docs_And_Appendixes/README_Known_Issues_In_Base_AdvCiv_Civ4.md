@@ -119,6 +119,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker)  
 [82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#82---tremendously-improved-ai-not-adopting-the-popular-religion-among-strong-rivals-thus-being-hated-and-more-likely-to-lose)  
 [83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better)  
+[84 - (Added missing feature) Rivals of the active/human player that are willing to become the active/human player's vassal not showing an icon to quickly indicate that at a glance, in the Foreign advisor's glance tab (no pun but anyways etc.)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3127,3 +3128,13 @@ I adjusted `iAIResearchPercent` to match these changes:
 iAIResearchPercent,124,116,108,100 (noble),92,84,76,68,60
 ->
 iAIResearchPercent,118,112,106,100 (noble),94,88,82,76,70
+
+## 84 - (Added missing feature) Rivals of the active/human player that are willing to become the active/human player's vassal not showing an icon to quickly indicate that at a glance, in the Foreign advisor's glance tab (no pun but anyways etc.)
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1Oy-oD3VUPzOXwFCGXL_EqZlPF3D8m5Q5?usp=sharing) anyways etc.
+
+This is another very nice feature that was missing in base advciv 1.12 and very tedious to check or making sure to not having missed it but anyways etc., which is if rivals are willing to become rival to us, the human player.
+
+I had noted the issue as example 145 in base advciv 1.12 issues i had listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814).
+
+Now added with the very nice help of gemini 3 pro and claude sonnet 4.5 and my own help too i mean if i may say as well but anyways etc., in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), with as of now a star icon for players who want to become vassal to us, and as of now a strength icon if they are our vassal.
