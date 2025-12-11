@@ -14,9 +14,9 @@ Update: very unlikely to be implemented, since i don't think i will change units
 
 You can find below an example of preview for the lancer medium 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
 
-<img src="https://drive.google.com/thumbnail?id=1_CcxxS36yJmp779-oxuQD3QSWI0eBubC&sz=w1024" alt="lance_medium_2.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1xnoVb0f_rTnCr1uMXTrcf7qgKg3MAQ1J&sz=w1024" alt="longbow_3.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1zXIdyZx_yjZ-c3PUFusxYbGpquFccQoU&sz=w1024" alt="sword_light_4.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1_CcxxS36yJmp779-oxuQD3QSWI0eBubC&sz=w1024" width="150" alt="lance_medium_2.png"></img>
+<img src="https://drive.google.com/thumbnail?id=1xnoVb0f_rTnCr1uMXTrcf7qgKg3MAQ1J&sz=w1024" width="150" alt="longbow_3.png"></img>
+<img src="https://drive.google.com/thumbnail?id=1zXIdyZx_yjZ-c3PUFusxYbGpquFccQoU&sz=w1024" width="150" alt="sword_light_4.png"></img>
 
 See also: [README_Less_Generic_Neutral_Unit_Names.md#note-about-women-units-anyways-etc-as-of-now-stale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md#note-about-women-units-anyways-etc-as-of-now-stale)
 
@@ -24,16 +24,26 @@ See also: [README_Less_Generic_Neutral_Unit_Names.md#note-about-women-units-anyw
 
 Example with some buildings (the Gord (new Russian building based on the castle, see the [google drive folder of how i implemented the gord](https://drive.google.com/drive/folders/1UhABiU4hylKHGV1JK0kXEZwzkFRmF3Px?usp=sharing) anyways etc) for example, and the Impluvium as well (Kingdom of Benin's building))
 
-<img src="https://drive.google.com/thumbnail?id=1ORGSZmBXkpK9Gyw_I7T3xJU8wTR6feGv&sz=w1024" alt="impluvium_west_african.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1ORGSZmBXkpK9Gyw_I7T3xJU8wTR6feGv&sz=w1024" width="150" alt="impluvium_west_african.png"></img>
+<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" width="150" alt="gord.png"></img>
 
 ### Tech buttons
 
 Example with some techs (for example the theory of evolution new tech if we add it todo, mounted combat/riding/warfare (edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefully good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it if i may say, but anyways etc anyways etc anyways etc... this image i mean anyways etc...)))
 
-<img src="https://drive.google.com/thumbnail?id=1by2tQKbfjkQUAP-kh2Tuh1oKq6t4uYnJ&sz=w1024" alt="theory_of_evolution.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1nHZBm85mTTs_i_o84pWlNArtkfTwTz_S&sz=w1024" alt="mounted_tech.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
+Update: now used/added anyways etc. Nano banana pro (see [/README.md#nano-banana-pro](/README.md#nano-banana-pro)) to do it which it did amazingly and very easily which fixes the a tech's image and recolored the border as blue with just this simple prompt:
+
+> "please remove the extra part of a camel in this civ4 button image and make the outside "cadre" color dark blue not white"
+
+Then i could convert it to .dds with Paint.NET (as of now and for this one for example by doing magic wand to remove white background then crop to closest edges then resize to 64px then convert to dds anyways etc.)!!
+
+It also helped me generate a very nice building_russian_gord corresponding button and possibly other images as well if any thanks a lot!!! thanks a lot!!!
+
+<img src="https://drive.google.com/thumbnail?id=1by2tQKbfjkQUAP-kh2Tuh1oKq6t4uYnJ&sz=w1024" width="150" alt="theory_of_evolution.png"></img>
+<img src="https://drive.google.com/thumbnail?id=1nHZBm85mTTs_i_o84pWlNArtkfTwTz_S&sz=w1024" width="150" alt="mounted_tech.png"></img>
+<img src="https://drive.google.com/thumbnail?id=15rhihjY5wM0ABKwpBn_BqqRh_EU_6vLg&sz=w1024" width="150" alt="mounted_tech_edited.png"></img>
+<img src="https://drive.google.com/thumbnail?id=1IrxlGcTWPkZ0Y2VLfRVdg7h9A_uvBXKI&sz=w1024" width="150" alt="gord.png"></img>
+<img src="https://drive.google.com/thumbnail?id=1dA0zEE0MqlPUZ8LTmZKBsBhwxLrN-Z9g&sz=w1024" width="150" alt="impluvium.png"></img>
 
 People or/and modders are free to reuse them as long as you mention me and chatgpt (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
@@ -45,7 +55,7 @@ First to generate our main menu image/theme, i used as advised by chatgpt Creato
 
 "Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or/and camel, in a calm setting, and in line with civ4 artstyle"
 
-<img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" width="150" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp"></img>
 
 Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or/and prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc anyways etc...), else would have lost the image :/ Phew if i may say but i thankfully escaped this if i may say but anyways etc...
 
@@ -53,13 +63,13 @@ Tip: make sure you download your ai-generated images at each step in case the to
 
 Then the problem was that it was 1024 x 1024 though, although otherwise amazing, so since i didn't want any other image but anyways etc, and trying a few just weren't as good nor near nowhere as good, i wanted to enhance and expand this image to 1920 x 1080 with new details (not stretched), so i found this feature in Creator Nightcafe Studio too i mean if i may say but anyways etc, but the result was not as satisfying although not too bad, it was overall much worse quality.
 
-<img src="https://drive.google.com/thumbnail?id=1PMaPYxcX7ai6xCc8e-hG-sydadjHpjvS" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1PMaPYxcX7ai6xCc8e-hG-sydadjHpjvS" width="150" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp"></img>
 
 I had resigned myself to maybe using it as again it was really not too bad, but i still asked chatgpt xd if i may say if there are tools to expand our images, and to do a web search on it too if i may say but anyways etc, and among the results, it advised me the very nice tool Pixelcut AI, as again if i may say but anyways etc i really wanted to use our if i may say/this image as i like/love it even maybe a loooooot, but i needed it at 16:9 so 1920 x 1080, and not stretched, and i found this one to be incredibly niiiiice!!! And it succeeded at first try as well!!!! (At least in a way i can be and am (very!!!) satified of if i may say but anyways etc...)
 
 The output is amazing and it is now our main menu image :)
 
-<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV" width="150" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp"></img>
 
 Then i converted it to .dds with Paint.NET similarly than for other image files in our mod anyways etc.
 

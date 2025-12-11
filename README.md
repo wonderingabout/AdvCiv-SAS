@@ -265,9 +265,15 @@ I edited some of these with Paint.NET to add in some of them the blue "ribbon" (
 
 Note: these are low size images, see link mentionned above for the google drive link to view them in high quality (full/original resolution) anyways etc
 
-<img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV&sz=w2048" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="267"></img>
+Also Nano banana pro (see [/README.md#nano-banana-pro](/README.md#nano-banana-pro)) helped me amazingly and very easily fix the a tech's image and recolor the border as blue with just this simple prompt:
+
+> "please remove the extra part of a camel in this civ4 button image and make the outside "cadre" color dark blue not white"
+
+It also helped me generate a very nice building_russian_gord corresponding button and other images as well if any. The images are so good i'm losing my mind (in a good way i mean if i may say but anyways etc.) thanks a lot!!!
+
+<img src="https://drive.google.com/thumbnail?id=15rhihjY5wM0ABKwpBn_BqqRh_EU_6vLg&sz=w1024" width="150" alt="mounted_tech_edited.png"></img>
+<img src="https://drive.google.com/thumbnail?id=1IrxlGcTWPkZ0Y2VLfRVdg7h9A_uvBXKI&sz=w1024" width="150" alt="gord.png"></img>
+<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV&sz=w2048" width="267" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp"></img>
 
 ## Less Generic-neutral unit names or/and combat types and note about woman units
 
@@ -622,6 +628,12 @@ I used it to help refine and co-think with chatgpt 5 on how to solve an issue, a
 #### 3 Pro
 
 Its context is incredibly generous in free mode, and its visual understanding is amazing vs previous AIs it seems based on quick testing thanks a lot!! Anyways etc.
+
+#### Nano Banana Pro
+
+Helped me amazingly fix the a tech's image and recolor the border as blue thanks a lot!!!
+
+The images are so good i'm losing my mind (in a good way i mean if i may say but anyways etc.) thanks a lot!!!
 
 ### DeepSeek AI
 
