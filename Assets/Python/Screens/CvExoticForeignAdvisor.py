@@ -82,8 +82,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.X_LINK = 0
 		self.Y_LINK = 726
 		
-		self.X_GLANCE_OFFSET = 6 # advc.004: was 10
-		self.Y_GLANCE_OFFSET = 3
+		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks anyways etc.  -->
+		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10
+		# self.Y_GLANCE_OFFSET = 3
+		self.X_GLANCE_OFFSET = 0
+		self.Y_GLANCE_OFFSET = 0
 		self.GLANCE_BUTTON_SIZE = 46
 		self.PLUS_MINUS_SIZE = 25
 		self.bGlancePlus = True
@@ -404,12 +407,12 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
 		# <advc.066> Replacing the above (same as in drawInfoOriginal)
-		# <!-- custom: remove the margins same as in the other foreign advisor sections after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
+		# <!-- custom: remove the margins same as in the other foreign advisor tabs after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
 		# leftRightMargin = 25
 		# topBottomMargin = 50
 		leftRightMargin = 0
 		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now but anyways etc. -->
-		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure anyways etc.) rows can be higher if they have more lines as of now in the foreign advisor's active section but doing as such for consistency as well as in base advciv code as well coincidentally i mean if i may say but anyways etc. -->
+		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure anyways etc.) rows can be higher if they have more lines as of now in the foreign advisor's active tab but doing as such for consistency as well as in base advciv code as well coincidentally i mean if i may say but anyways etc. -->
 		topBottomMargin = 42
 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
@@ -526,7 +529,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
 		# <advc.066> Replacing the above (same as in drawActive)
-		# <!-- custom: remove the margins same as in the other foreign advisor sections after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
+		# <!-- custom: remove the margins same as in the other foreign advisor tabs after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
 		# leftRightMargin = 25
 		# topBottomMargin = 50
 		leftRightMargin = 0
@@ -603,7 +606,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					nCivic = objLoopPlayer.getCivics (nCivicOption)
 					screen.attachImageButton (infoPanelName, "", gc.getCivicInfo (nCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nCivic, 1, False)
 
-				# <!-- custom: also show favorite religions in the foreign advisor's info section anyways etc. Code added with the help of gemini 3 pro thanks anyways etc, also refactor this part of the code as well for clarity anyways etc. -->
+				# <!-- custom: also show favorite religions in the foreign advisor's info tab anyways etc. Code added with the help of gemini 3 pro thanks anyways etc, also refactor this part of the code as well for clarity anyways etc. -->
 				nFavoriteCivic = objLeaderHead.getFavoriteCivic()
 				hasFavoriteCivic = (objLoopPlayer.isFavoriteCivicKnown() and nFavoriteCivic != -1) # advc.130n
 
@@ -883,7 +886,15 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		mainPanelName = self.getNextWidgetName()
 		# advc.066: The height was self.H_SCREEN - 155, now computed above.
-		screen.addPanel(mainPanelName, "", "", True, True, 0, 104, self.W_SCREEN, self.mainPanelHeight, PanelStyles.PANEL_STYLE_MAIN)
+
+		# <!-- custom: add extra width tweak to remove the yellow side edges, and extra height tweak to remove distracting top bright band plus have more room on bottom side's row as well, with gemini 3 pro's help thanks anyways etc. -->
+		# iExtraWidth = 0
+		iExtraWidth = 4
+		# iExtraHeight = 0
+		iExtraHeight = 7
+
+		# <!-- custom: adjust base Y (was 104) as it was a bit too low (as in at the bottom anyways etc.) which led to an asymetrical display in bottom being too high as compared to top's edge over limit after our changes, vs now it being much more centered which allows to more cleanly/easily adjust iExtraHeight anyways etc. -->
+		screen.addPanel(mainPanelName, "", "", True, True, 0 - iExtraWidth, 106 - iExtraHeight, self.W_SCREEN + (2 * iExtraWidth), self.mainPanelHeight + (2 * iExtraHeight), PanelStyles.PANEL_STYLE_MAIN)
 		self.drawGlanceRows (screen, mainPanelName, self.iSelectedLeader != self.iActiveLeader, self.iSelectedLeader)
 
 	def initializeGlance (self):

@@ -24,17 +24,17 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
 [Main Changes Guide](/README.md#main-changes-guide)  
 [Custom Main Changes Guide](/README.md#custom-main-changes-guide)  
-[Advisors and other reworks examples](/README.md#advisors-and-other-reworks-examples)  
-[Important Sevopedia reworks (click on the images below to view them full size)](/README.md#important-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)  
+[UI (Advisors and related reworks)](/README.md#ui-advisors-and-related-reworks)  
+[UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
 &emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
 &emsp;[Concepts (as of now in the "Outdated" sevopedia category)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category)  
 &emsp;[Mods Info](/README.md#mods-info)  
-[Python Scripts](/README.md#python-scripts)  
-&emsp;[csv and md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
-&emsp;[csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
-[Less Generic-neutral unit names or/and combat types and note about woman units](/README.md#less-generic-neutral-unit-names-orand-combat-types-and-note-about-woman-units)  
+[Python Scripts and .csv tables](/README.md#python-scripts-and-csv-tables)  
+&emsp;[.csv and .md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
+&emsp;[.csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
 [AI-generated images](/README.md#ai-generated-images)  
+[Less Generic-neutral unit names or/and combat types and note about woman units](/README.md#less-generic-neutral-unit-names-orand-combat-types-and-note-about-woman-units)  
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
 &emsp;[World map with civs](/README.md#world-map-with-civs)  
 &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
@@ -122,7 +122,7 @@ You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/D
 
 This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) anyways etc.
 
-## Advisors and other reworks examples
+## UI (Advisors and related reworks)
 
 ### Other advisors' rework
 
@@ -134,6 +134,7 @@ Some examples below:
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.513_foreign_advisor_glance.JPG" alt="0.513_foreign_advisor_glance.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
 
 See for related and similar changes [UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game).
@@ -151,7 +152,7 @@ See also for details:
 - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
 - [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
 
-## Important Sevopedia reworks (click on the images below to view them full size)
+## UI (Main Sevopedia reworks)
 
 ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
 
@@ -213,7 +214,7 @@ As of now this mostly contain other mod than advciv-sas changes (non-exhaustive 
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
-## Python Scripts
+## Python Scripts and .csv tables
 
 Mostly for modders, and not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
 
@@ -226,7 +227,7 @@ So far there is:
 - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
 - [global XML duplication scanner](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
 
-### csv and md view of the handicap (difficulties info in a table for all difficulties) info
+### .csv and .md view of the handicap (difficulties info in a table for all difficulties) info
 
 Generated with the flatten_handicap_info_to_csv_and_md.py script, you can regenerate it if you mod/change the handicap info, else just view it here:
 
@@ -241,7 +242,7 @@ Also code is provided thanks to chatgpt and my prompts or/and adjustments or not
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
 
-### csv github view for the flatten_leaders_data_to_csv conversion script
+### .csv github view for the flatten_leaders_data_to_csv conversion script
 
 About the flatten_leaders_data_to_csv script anyways output:
 
@@ -256,10 +257,6 @@ About the flatten_leaders_data_to_csv script anyways output:
 
 Note 2: there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_leaders_data_to_csvpy) anyways etc
 
-## Less Generic-neutral unit names or/and combat types and note about woman units
-
-See the [README_Less_Generic_Neutral_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md) for details.
-
 ## AI-generated images
 
 While developping the AdvCiv-SAS mod, i have learned (despite having tried in the past a few times with Midjourney but not related to this anyways etc) to and successfully generated some AI-generated images, first with tools like ChatGPT for buttons or/and such, and then for our main menu background images with other tools, in particular with the help of PixelCut AI that was very nice.
@@ -271,6 +268,10 @@ Note: these are low size images, see link mentionned above for the google drive 
 <img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
 <img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
 <img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV&sz=w2048" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="267"></img>
+
+## Less Generic-neutral unit names or/and combat types and note about woman units
+
+See the [README_Less_Generic_Neutral_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md) for details.
 
 ## Civs you can expect in this mod
 
