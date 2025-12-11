@@ -651,20 +651,163 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		break;
 
 	case WIDGET_LEADERHEAD:
+	{
 		parseLeaderheadHelp(widgetDataStruct, szBuffer);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+		// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+		// Vassal Check for Leaderhead Widget (Column Headers / General)
+		{
+			const PlayerTypes eRival = (PlayerTypes)widgetDataStruct.m_iData1;
+			const PlayerTypes eActivePlayer = getActivePlayer();
+
+			// Ensure valid player, not us, and not a generic index
+			if (eRival != NO_PLAYER && eRival != eActivePlayer && eRival < MAX_CIV_PLAYERS)
+			{
+				CvPlayer& kRival = GET_PLAYER(eRival);
+				
+				// 1. Check Voluntary Vassal (Peace)
+				TradeData itemVassal;
+				itemVassal.m_eItemType = TRADE_VASSAL;
+				
+				// Can they trade it to US?
+				if (kRival.canTradeItem(eActivePlayer, itemVassal, false))
+				{
+					if (kRival.getTradeDenial(eActivePlayer, itemVassal) == NO_DENIAL)
+					{
+						szBuffer.append(NEWLINE);
+						szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
+					}
+				}
+				// 2. Check Capitulation (War)
+				else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(eActivePlayer).getTeam()))
+				{
+					TradeData itemSurrender;
+					itemSurrender.m_eItemType = TRADE_SURRENDER;
+					if (kRival.canTradeItem(eActivePlayer, itemSurrender, false))
+					{
+						if (kRival.getTradeDenial(eActivePlayer, itemSurrender) == NO_DENIAL)
+						{
+							szBuffer.append(NEWLINE);
+							szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
+						}
+					}
+				}
+			}
+		}
+		// End - Vassal Check for Leaderhead Widget (Column Headers / General)
+
 		break;
+	}
+
 	// <advc.152>
 	case WIDGET_LH_GLANCE:
+	{
 		//parseLeaderheadHelp(widgetDataStruct, szBuffer);
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer); // BULL - Leaderhead Relations
+
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		const PlayerTypes eRival = (PlayerTypes)widgetDataStruct.m_iData1;
+		const PlayerTypes ePlayer = (PlayerTypes)widgetDataStruct.m_iData2;
+
 		// Might as well call GAMETEXT right here
-		GAMETEXT.parseWarTradesHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
-				(PlayerTypes)widgetDataStruct.m_iData2);
+		GAMETEXT.parseWarTradesHelp(szBuffer, eRival, ePlayer);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+		// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+		// Vassal Check for Glance Screen
+		// m_iData1 is the Column (The Rival), m_iData2 is the Row (You)
+		if (ePlayer == getActivePlayer() && eRival != getActivePlayer())
+		{
+			CvPlayer& kRival = GET_PLAYER(eRival);
+
+			// 1. Check Voluntary Vassal (Peace)
+			TradeData itemVassal;
+			itemVassal.m_eItemType = TRADE_VASSAL;
+			// Check if they can trade it TO us
+			if (kRival.canTradeItem(ePlayer, itemVassal, false))
+			{
+				if (kRival.getTradeDenial(ePlayer, itemVassal) == NO_DENIAL)
+				{
+					szBuffer.append(NEWLINE);
+					szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
+				}
+			}
+			// 2. Check Capitulation (War)
+			// Only check if they are at war with us
+			else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+			{
+				TradeData itemSurrender;
+				itemSurrender.m_eItemType = TRADE_SURRENDER;
+				if (kRival.canTradeItem(ePlayer, itemSurrender, false))
+				{
+					if (kRival.getTradeDenial(ePlayer, itemSurrender) == NO_DENIAL)
+					{
+						szBuffer.append(NEWLINE);
+						szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
+					}
+				}
+			}
+		}
+		// End - Vassal Check for Glance Screen
+
 		break; // </advc.152>
+	}
 	// BULL - Leaderhead Relations - start
 	case WIDGET_LEADERHEAD_RELATIONS:
+	{
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+		// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+		// The issue is that the Glance screen uses two different widget types depending on your BUG Mod settings ("Show War Trades").
+		// 	1. WIDGET_LH_GLANCE: Used when "Show War Trades" is ON.
+		// 	2. WIDGET_LEADERHEAD_RELATIONS: Used when "Show War Trades" is OFF (or default).
+		// You added the code to the first one, but your game is likely using the second one. You need to add the same logic to case WIDGET_LEADERHEAD_RELATIONS in CvDLLWidgetData.cpp.
+		// Here is the corrected code block for CvDLLWidgetData.cpp
+		// Vassal Check for Glance Screen (Standard Widget)
+		// Define the players from the widget data
+		// Data1 = Column (The Rival), Data2 = Row (You)
+		const PlayerTypes eRival = (PlayerTypes)widgetDataStruct.m_iData1;
+		const PlayerTypes ePlayer = (PlayerTypes)widgetDataStruct.m_iData2;
+
+		// Ensure valid players and that we are looking at OUR row (Active Player)
+		if (ePlayer != NO_PLAYER && eRival != NO_PLAYER && 
+			ePlayer == getActivePlayer() && eRival != getActivePlayer())
+		{
+			CvPlayer& kRival = GET_PLAYER(eRival);
+
+			// 1. Check Voluntary Vassal (Peace)
+			TradeData itemVassal;
+			itemVassal.m_eItemType = TRADE_VASSAL;
+			
+			if (kRival.canTradeItem(ePlayer, itemVassal, false))
+			{
+				if (kRival.getTradeDenial(ePlayer, itemVassal) == NO_DENIAL)
+				{
+					szBuffer.append(NEWLINE);
+					szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
+				}
+			}
+			// 2. Check Capitulation (War)
+			else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+			{
+				TradeData itemSurrender;
+				itemSurrender.m_eItemType = TRADE_SURRENDER;
+				if (kRival.canTradeItem(ePlayer, itemSurrender, false))
+				{
+					if (kRival.getTradeDenial(ePlayer, itemSurrender) == NO_DENIAL)
+					{
+						szBuffer.append(NEWLINE);
+						szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
+					}
+				}
+			}
+		}
+		// End - Vassal Check for Glance Screen
+
 		break; // BULL - Leaderhead Relations - end
+	}
 
 	case WIDGET_LEADER_LINE:
 		parseLeaderLineHelp(widgetDataStruct, szBuffer);

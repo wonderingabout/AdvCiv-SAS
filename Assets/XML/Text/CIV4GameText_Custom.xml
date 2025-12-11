@@ -497,4 +497,17 @@
 		<Tag>TXT_KEY_GAMESPEED_MARATHON_HELP</Tag>
 		<English>Up to 1000 turns (less than in BTS and than in base AdvCiv). Research, growth, building and unit production take 2 times longer than on normal speed. This setting favors warfare and demands much patience. As of now in AdvCiv-SAS it goes from 50 000 BC to 2105 AD.</English>
 	</TEXT>
+
+
+
+	<!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+	<!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro anyways etc. -->
+	<TEXT>
+		<Tag>TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY</Tag>
+		<English>[ICON_SILVER_STAR]Willing to become Vassal</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE</Tag>
+		<English>[ICON_SILVER_STAR]Willing to Capitulate</English>
+	</TEXT>
 </Civ4GameText>

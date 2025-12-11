@@ -157,10 +157,11 @@ See also for details:
 
 ### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
 
-We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. See for details [KI#84](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
+We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. Also added a tooltip (on hover). See for details [KI#84](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show_mini.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show_mini.jpg" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_foreign_advisor_glance_vassal_show_mini.jpg" alt="0.5132_foreign_advisor_glance_vassal_show_mini.jpg" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG" alt="0.5132_willing_vassal_trade.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
 
 ## UI (Main Sevopedia reworks)
 
