@@ -155,10 +155,11 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
 
 Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering. Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either; this allows to now display much more information and reduces the need for scrolling anyways etc. Also beautified several other things, such as enlarging side panels to display more info and be prettier, making bonuses columns even in width, making some hardcoded values now dynamically adjust depending on the side width we set, etc. if any more anyways etc.
 
-Additionally, also added a new specialists breakdown as of now on bottom-right, to avoid tedious hovering and provide useful info at a glance anyways etc.
+Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance anyways etc.
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG" alt="0.401_city_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG" alt="0.402_city_screen.JPG" width="250"></img>
 
 ### Untradeable techs (bTrade) display information
 

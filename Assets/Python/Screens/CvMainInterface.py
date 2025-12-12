@@ -446,6 +446,10 @@ class CvMainInterface:
 		# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks but anyways etc. -->
 		self.SIDE_PANELS_WIDTH = 297
 
+		# <!-- custom: fetch the define once may be computaitonally cheaper (i think but not sure anyways etc.) -->
+		# <!-- custom: initialize cheaply once. -->
+		self.iBarExtraRows = None
+		self.iBarExtraRowsExtraManualAdjust = None
 
 ############## Basic operational functions ###################
 
@@ -2102,6 +2106,19 @@ class CvMainInterface:
 			iTMarginThresh = 3
 		iTMargin = min(VSPACE(iTMarginThresh), iVMargin / 2)
 		iBMargin = iVMargin - iTMargin
+
+		# <!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+		# City screen: show more build rows in production chooser
+		# <!-- custom: initialize cheaply once. -->
+		if self.iBarExtraRows is None:
+			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
+			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
+
+		if self.iBarExtraRows > 0:
+			if CyInterface().isCityScreenUp():
+				iTMargin += - (self.iBarExtraRows * iButtonSize) + self.iBarExtraRowsExtraManualAdjust # extend upward; keep bottom aligned
+		# End - City screen: show more build rows in production chooser
+
 # BUG - Build/Action Icon Size - end
 		lRect = RectLayout(gRect("BottomButtonMaxSpace"),
 				0, iTMargin, RectLayout.MAX, -iBMargin)
