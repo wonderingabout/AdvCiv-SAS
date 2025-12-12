@@ -153,7 +153,7 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
 
 ### City Screen rework
 
-Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering.
+Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering. Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either; this allows to now display much more information and reduces the need for scrolling anyways etc.
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
 

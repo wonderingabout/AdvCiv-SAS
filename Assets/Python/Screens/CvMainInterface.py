@@ -1109,11 +1109,17 @@ class CvMainInterface:
 		# aim at at least 5 rows.
 		iRowH = 24
 		iHeightForRows = VLEN(4 * iRowH, 2)
+
+		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+		# Step 2: Move the Tables Up (Reclaim Space)
+		# 1. Trade Routes List Search for def setTradeRouteRects. Find the line defining TradeRouteTable. We will change .yBottom() to .y() so it starts at the top of the (now hidden) header space.
 		gSetRect("TradeRouteTable", "CityLeftPanelContents",
 				RectLayout.CENTER,
-				1 + gRect("TradeRouteListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
+				# 1 + gRect("TradeRouteListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
+				1 + gRect("TradeRouteListBackground").y() - gRect("CityLeftPanelContents").y(),
 				-1, 2 + iHeightForRows
 				- iHeightForRows % iRowH) # No point in making space for only half a row
+
 # BUG - Raw Yields - start
 		# Can't really scale these up b/c the background doesn't scale
 		iBtnSize = BTNSZ(24, 0.3)
@@ -1151,10 +1157,16 @@ class CvMainInterface:
 				RectLayout.MAX, self.cityScreenHeadingBackgrHeight())
 		gOffSetPoint("BuildingListLabel", "BuildingListBackground",
 				RectLayout.CENTER, self.cityScreenHeadingOffset())
+		
+		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+		# Step 2: Move the Tables Up (Reclaim Space)
+		# 2. Buildings List Search for def setBuildingListRects. We need to change .yBottom() to .y() in two places here (one for position, one for height calculation).
 		gSetRect("BuildingListTable", "CityLeftPanelContents",
 				RectLayout.CENTER,
-				1 + gRect("BuildingListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
-				-1, gRect("CultureBars").y() - gRect("BuildingListBackground").yBottom() - 1 - VSPACE(4))
+				# 1 + gRect("BuildingListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
+				# -1, gRect("CultureBars").y() - gRect("BuildingListBackground").yBottom() - 1 - VSPACE(4))
+				1 + gRect("BuildingListBackground").y() - gRect("CityLeftPanelContents").y(),
+                -1, gRect("CultureBars").y() - gRect("BuildingListBackground").y() - 1 - VSPACE(4))
 
 	def setCityTabRects(self):
 		iButtons = 3
@@ -2393,10 +2405,12 @@ class CvMainInterface:
 				else:
 					self.updateCitizenButtons(pHeadSelectedCity)
 				# <advc.004> Show the SpecialistLabel regardless of BUG options
-				if self.isShowSpecialistLabel():
-					# Cut from updateCitizenButtons_Stacker ...
-					screen.show("SpecialistLabelBackground")
-					screen.show("SpecialistLabel") # </advc.004>
+				# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+				# Step 1: Hide the Header Widgets (Gray Bars)
+				# if self.isShowSpecialistLabel():
+				# 	# Cut from updateCitizenButtons_Stacker ...
+				# 	screen.show("SpecialistLabelBackground")
+				# 	screen.show("SpecialistLabel") # </advc.004>
 # BUG - city specialist - end
 
 			CyInterface().setDirty(InterfaceDirtyBits.CitizenButtons_DIRTY_BIT, False)
@@ -2444,13 +2458,14 @@ class CvMainInterface:
 			# </advc.004z>
 		return 0
 
-	# advc.004:
-	def isShowSpecialistLabel(self):
-		# Not quite enough space on low res. (Fixme: The Stacker layout does leave
-		# enough space, but then we'd need a separate label and background panel
-		# placed by updateCitizenButton_Stacker; currently, the position is set
-		# statically, ignoring options.)
-		return (gRect("Top").height() > 900)
+	# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+	# # advc.004:
+	# def isShowSpecialistLabel(self):
+	# 	# Not quite enough space on low res. (Fixme: The Stacker layout does leave
+	# 	# enough space, but then we'd need a separate label and background panel
+	# 	# placed by updateCitizenButton_Stacker; currently, the position is set
+	# 	# statically, ignoring options.)
+	# 	return (gRect("Top").height() > 900)
 
 	# K-Mod: There are some special rules for which buttons should be shown and when.
 	# I'd rather have all those rules in one place. ie. here.
@@ -5073,9 +5088,11 @@ class CvMainInterface:
 				(iColW2 * iAvailW) / 236)
 		screen.setTableColumnRightJustify("BuildingListTable", 1)
 
-		screen.show("BuildingListBackground")
-		screen.show("TradeRouteListBackground")
-		screen.show("BuildingListLabel")
+		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+		# Step 1: Hide the Header Widgets (Gray Bars)
+		# screen.show("BuildingListBackground")
+		# screen.show("TradeRouteListBackground")
+		# screen.show("BuildingListLabel")
 # BUG - Raw Yields - start
 		if (CityScreenOpt.isShowRawYields()):
 			screen.setState("RawYieldsTrade0", not g_bYieldView)
@@ -5100,8 +5117,10 @@ class CvMainInterface:
 			screen.setState("RawYieldsOwnedTiles6",
 					g_iYieldTiles == RawYields.OWNED_TILES)
 			screen.show("RawYieldsOwnedTiles6")
-		else:
-			screen.show("TradeRouteListLabel")
+		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+		# Step 1: Hide the Header Widgets (Gray Bars)
+		# else:
+		# 	screen.show("TradeRouteListLabel")
 # BUG - Raw Yields - end
 		for i in range(3):
 			szName = "BonusPane" + str(i)
