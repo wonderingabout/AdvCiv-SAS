@@ -5197,6 +5197,20 @@ class CvMainInterface:
 									gc.getYieldInfo(iYield).getChar())
 							szRightBuffer = szRightBuffer + szTempBuffer
 						self.yields.addBuilding(iYield, iChange) # BUG - Raw Yields
+
+					# <!-- custom: add the +1 great person icon in buildings list as it is handy to have and tedious to check everytime, with the help of gemini 3 pro thanks anyways etc. -->
+					# --- Start: Add Great Person Rate to Building List ---
+					iGPRate = gc.getBuildingInfo(iBuilding).getGreatPeopleRateChange()
+					if iGPRate > 0:
+						if not bFirst:
+							szRightBuffer = szRightBuffer + ", "
+						else:
+							bFirst = False
+						
+						# Add "+2 [GP Icon]"
+						szRightBuffer = szRightBuffer + u"+%d%c" % (iGPRate, CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
+					# --- End: Add Great Person Rate to Building List ---
+
 				# <advc.097> Gray out names of obsolete buildings
 				else:
 					szLeftBuffer = u"<color=%d,%d,%d,%d>%s</color>" %(

@@ -24,10 +24,11 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
 [Main Changes Guide](/README.md#main-changes-guide)  
 [Custom Main Changes Guide](/README.md#custom-main-changes-guide)  
-[UI (Advisors and related reworks)](/README.md#ui-advisors-and-related-reworks)  
+[UI (Ingame)](/README.md#ui-ingame)  
 &emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
-&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+&emsp;[City Screen rework](/README.md#city-screen-rework)  
+&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
 &emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
@@ -125,7 +126,7 @@ You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/D
 
 This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) anyways etc.
 
-## UI (Advisors and related reworks)
+## UI (Ingame)
 
 ### Main Advisors reworks
 
@@ -140,7 +141,21 @@ Some examples below:
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
 
-See for related and similar changes [UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game).
+See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game).
+
+### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
+
+We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. Also added a tooltip (on hover). See for details [KI#84](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG" alt="0.5132_willing_vassal_trade.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
+
+### City Screen rework
+
+Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering.
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
 
 ### Untradeable techs (bTrade) display information
 
@@ -151,17 +166,9 @@ For example we added the new this technology "Cannot be traded" and "Can be rese
 
 See also for details:
 
-- [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
+- [README_Main_Changes_Guide.md#technologies-non-exhaustive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)
 - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
-- [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
-
-### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
-
-We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. Also added a tooltip (on hover). See for details [KI#84](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG" alt="0.5132_willing_vassal_trade.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
+- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
 
 ## UI (Main Sevopedia reworks)
 
