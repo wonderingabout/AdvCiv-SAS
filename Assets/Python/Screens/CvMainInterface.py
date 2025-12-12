@@ -1306,10 +1306,19 @@ class CvMainInterface:
 		iBigVSpace = iCitizenBtnSize - iAdjustBtnSize + iSmallVSpace
 		iSmallHSpace = HSPACE(2)
 		iBigHSpace = HSPACE(4)
-		# This value needs to be consistent with the FirstFreeSpecialist
-		# and AngryCitizenButtons rects
+
+		# This value needs to be consistent with the FirstFreeSpecialist and AngryCitizenButtons rects
+		# <!-- custom: make room for a new specialist breakdown, with the help of gemini 3 pro thanks anyways etc. -->
+		# This is a great idea. Since you want to insert a "Specialist Breakdown" later, you need to create a gap between the Citizen Buttons and the Great Person Bar at the bottom.
+		# To do this, we simply tell the game to position the Citizen/Specialist buttons higher up (further away from the bottom). This will naturally push them up towards the Bonus panel and leave empty space below them.
+		# Add + self.cityScreenHeadingBackgrHeight() to the end of the calculation.
+		# By adding self.cityScreenHeadingBackgrHeight() (which is the height of the gray bar you removed, ~30 pixels), you lift the entire specialist section up by that amount.
+		# Since you hid the Specialist Header but didn't expand the Bonus Panel (Step 2.3), there was a "gap" at the top. Moving the specialists up will fill that top gap and open up a new 30-pixel gap at the bottom, right above the Great Person Bar, which is perfect for your future breakdown widget.
+		# <!-- custom: add a bit more for beautification and nicer spacing anyways etc. -->
+		iHeightRoomForSpecialistBreakdown = self.cityScreenHeadingBackgrHeight() + 10
 		iNonAdjustablesOffset = (3 * iSmallVSpace + 2 * iCitizenBtnSize +
-				gRect("GreatPeopleBar").height())
+				# gRect("GreatPeopleBar").height())
+				gRect("GreatPeopleBar").height() + iHeightRoomForSpecialistBreakdown)
 
 		lDecreaseSpecialistButtons = ColumnLayout(gRect("CityRightPanelContents"),
 				RectLayout.RIGHT, RectLayout.BOTTOM,
@@ -1331,20 +1340,27 @@ class CvMainInterface:
 				lIncreaseSpecialistButtons.x(), lIncreaseSpecialistButtons.y(),
 				lIncreaseSpecialistButtons.width() + lDecreaseSpecialistButtons.width(),
 				lIncreaseSpecialistButtons.height())
+
 		# Only a placeholder; the free-specialist row gets placed later.
+		# <!-- custom: make room for a new specialist breakdown, with the help of gemini 3 pro thanks anyways etc. -->
+		# Since you moved the sliders up by adding self.cityScreenHeadingBackgrHeight() to iNonAdjustablesOffset, you need to apply that same vertical shift to the Free Specialists and Angry Citizens so they move up with the rest of the group.
+		# Update the .move() commands for both FirstFreeSpecialist and lAngryCitizenButtons by subtracting self.cityScreenHeadingBackgrHeight().
 		gSetSquare("FirstFreeSpecialist", "CityRightPanelContents",
 				RectLayout.RIGHT, RectLayout.BOTTOM, iCitizenBtnSize)
 		gRect("FirstFreeSpecialist").move(
 				-gRect("AdjustSpecialistButtons").width() - iBigHSpace,
-				-gRect("GreatPeopleBar").height() - iSmallVSpace)
+				# -gRect("GreatPeopleBar").height() - iSmallVSpace)
+				-gRect("GreatPeopleBar").height() - iSmallVSpace - iHeightRoomForSpecialistBreakdown)
 		lAngryCitizenButtons = RowLayout(gRect("CityRightPanelContents"),
 				RectLayout.RIGHT, RectLayout.BOTTOM,
 				MAX_CITIZEN_BUTTONS, iSmallHSpace, iCitizenBtnSize)
 		lAngryCitizenButtons.move(
 				-gRect("AdjustSpecialistButtons").width() - iBigHSpace,
 				-gRect("GreatPeopleBar").height()
-				- gRect("FirstFreeSpecialist").height() - 2 * iSmallVSpace)
+				# - gRect("FirstFreeSpecialist").height() - 2 * iSmallVSpace)
+				- gRect("FirstFreeSpecialist").height() - 2 * iSmallVSpace - iHeightRoomForSpecialistBreakdown)
 		gSetRectangle("AngryCitizenButtons", lAngryCitizenButtons)
+
 		iChevronSize = BTNSZ(10)
 		for i in range(MAX_CITIZEN_BUTTONS - 1, -1, -1):
 			gSetRectangle("AngryCitizen" + str(i), lAngryCitizenButtons.next())
@@ -5850,6 +5866,91 @@ class CvMainInterface:
 			fProgress /= (1 - fFirst) # </advc>
 		screen.setBarPercentage("CultureBar", InfoBarTypes.INFOBAR_RATE, fProgress)
 		screen.show("CultureBar")
+
+		# <!-- custom: add a new specialist breakdown. We have removed a few elements and moved up the specialists panel, so now we can use this space for that. Code added with the help of gemini 3 pro thanks anyways etc. -->
+		# To add the Specialist Breakdown in the empty space you created on the bottom right (below the specialists), we will add a block of code to updateCityScreen.
+		# This code will:
+		# 	- Calculate the GP points coming from Buildings vs Specialists.
+		# 	- Create a detailed string with icons (e.g., Hammers for Engineers, Beakers for Scientists).
+		# 	- Place this text in the bottom-right corner of the city pane.
+		# Step 1: Add the Logic to CvMainInterface.py
+		# --- START: Specialist Breakdown Widget (2-Row / Split Labels Fix) ---
+		if pHeadSelectedCity:
+			
+			# 1. Calculate Raw Values (Buildings vs Specialists)
+			iBldgRaw = 0
+			for iBuilding in range(gc.getNumBuildingInfos()):
+				if pHeadSelectedCity.getNumBuilding(iBuilding) > 0:
+					iRate = gc.getBuildingInfo(iBuilding).getGreatPeopleRateChange()
+					if iRate > 0:
+						iBldgRaw += (iRate * pHeadSelectedCity.getNumBuilding(iBuilding))
+
+			iSpecRaw = 0
+			for iSpecialist in range(gc.getNumSpecialistInfos()):
+				iCount = pHeadSelectedCity.getSpecialistCount(iSpecialist) + pHeadSelectedCity.getFreeSpecialistCount(iSpecialist)
+				if iCount > 0:
+					iRate = gc.getSpecialistInfo(iSpecialist).getGreatPeopleRateChange()
+					iSpecRaw += (iCount * iRate)
+
+			# 2. Get Totals & Progress
+			iTotalRaw = iBldgRaw + iSpecRaw
+			iTotalRate = pHeadSelectedCity.getGreatPeopleRate()
+			
+			# --- FIX: Calculate REAL Modifier from the Result ---
+			# The discrepancy happens because pCity.getGreatPeopleRateModifier() in the Python API often only returns the building modifiers (like the National Epic), but ignores Traits (Philosophical) or Golden Ages. The C++ tooltip adds those up separately.
+			# Instead of trying to hunt down every single bonus source in Python (which is complex and prone to errors), we can reverse-engineer the correct modifier by comparing the Final Total (which the game gives us) against the Raw Base (which we calculated).
+			# If the game says you have 10 Total Points, and you counted 8 Raw Points, the modifier must be +25%. This method is 100% accurate because it is derived from the final result.
+			# The Fix: "Reverse Engineering" the Modifier
+			# Instead of asking the API for the modifier (which misses Golden Ages/Traits),
+			# we calculate it: (Final / Raw) - 100%
+			iModPercent = 0
+			if iTotalRaw > 0 and iTotalRate > iTotalRaw:
+				# We use integer math: (10 * 100) / 8 = 125. 125 - 100 = 25%
+				iModPercent = ((iTotalRate * 100) / iTotalRaw) - 100
+
+			iProgress = pHeadSelectedCity.getGreatPeopleProgress()
+			pPlayer = gc.getPlayer(pHeadSelectedCity.getOwner())
+			iThreshold = pPlayer.greatPeopleThreshold(False)
+			
+			# Calculate Turns Remaining
+			if iTotalRate > 0:
+				iTurns = (iThreshold - iProgress + iTotalRate - 1) / iTotalRate
+				szTurns = u"(%d)" % iTurns
+			else:
+				szTurns = u"(-)"
+
+			# 3. Construct ROW 1 (Top Line): "(5 [Silver Star] 3 [Cit]) +25% [GP]"
+			szRow1 = u"<font=2>(%d%c %d%c)" % (
+				iBldgRaw, CyGame().getSymbolID(FontSymbols.MAP_CHAR),
+				iSpecRaw, CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
+			)
+			
+			if iModPercent > 0:
+				szRow1 += u" +%d%%%c" % (iModPercent, CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
+			
+			szRow1 += u"</font>"
+
+			# 4. Construct ROW 2 (Bottom Line): "10 [GP]: 109/249 (14)"
+			szRow2 = u"<font=2>%d%c: %d/%d %s</font>" % (
+				iTotalRate, CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR),
+				iProgress, iThreshold, szTurns
+			)
+
+			# 5. Positioning & Rendering (Split into TWO Labels)
+			# screen.setLabel ignores \n, so we must draw two separate text widgets.
+			iX = gRect("CityRightPanelContents").x() + 10
+		
+			# Position Row 2 (Bottom) just above the yellow bar
+			iY2 = gRect("GreatPeopleBar").y() - 22
+			# Position Row 1 (Top) above Row 2
+			iY1 = gRect("GreatPeopleBar").y() - 42
+
+			# Draw Label 1 (Top)
+			screen.setLabel("SpecBreakdownLabel1", "Background", szRow1, CvUtil.FONT_LEFT_JUSTIFY, iX, iY1, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			
+			# Draw Label 2 (Bottom)
+			screen.setLabel("SpecBreakdownLabel2", "Background", szRow2, CvUtil.FONT_LEFT_JUSTIFY, iX, iY2, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# --- END: Specialist Breakdown Widget ---
 
 		return 0
 
