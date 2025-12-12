@@ -443,6 +443,9 @@ class CvMainInterface:
 		self.iFoVPos_Prev = -1 # advc.090
 # BUG - field of view slider - end
 
+		# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks but anyways etc. -->
+		self.SIDE_PANELS_WIDTH = 297
+
 
 ############## Basic operational functions ###################
 
@@ -590,7 +593,9 @@ class CvMainInterface:
 
 		gSetRect("CityLeftPanel", "Top",
 				0, 0,
-				HLEN(258), -gRect("LowerLeftCorner").height())
+				# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks but anyways etc. -->
+				# HLEN(258), -gRect("LowerLeftCorner").height())
+				HLEN(self.SIDE_PANELS_WIDTH), -gRect("LowerLeftCorner").height())
 		gSetRect("CityRightPanel", "Top",
 				RectLayout.RIGHT, 0,
 				gRect("CityLeftPanel").width(), -gRect("LowerRightCorner").height())
@@ -1071,9 +1076,16 @@ class CvMainInterface:
 			# for BUG - Min/Max Sliders
 			gSetPoint(szPrefix + "BUG", PointLayout(
 					gRect("CommerceSliderBtns3").xRight() + HSPACE(3), iY))
+
+			# <!-- custom after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui but anyways etc. thanks anyways etc.) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically anyways etc. -->
+			iEstimatedCommerceMargins = 16
+			iEstimatedLeftSideSize = 152
+			# iCommercePanelHorizontalSpacingToTheRight = 70
+			iCommercePanelHorizontalSpacingToTheRight = self.SIDE_PANELS_WIDTH - iEstimatedLeftSideSize - iEstimatedCommerceMargins
 			gSetPoint("CityPercentText" + str(i), PointLayout(
 					# (The horizontal spacing here seems pretty arbitrary)
-					gRect("CommerceSliderBtns3").xRight() + HSPACE(70, 3), iY))
+					gRect("CommerceSliderBtns3").xRight() + HSPACE(iCommercePanelHorizontalSpacingToTheRight, 3), iY))
+
 		# <advc.002b> Placing the buttons at just the same y coord as the labels
 		# doesn't quite work out
 		for i in range(4):
@@ -1405,10 +1417,15 @@ class CvMainInterface:
 		iMaxRMargin = gRect("Top").xRight() - gRect("CityRightPanelContents").x()
 		iBonusBackrOverhang = min(VSPACE(16),
 				gRect("SpecialistLabelBackground").height())
+
+		# <!-- custom: make it even between the 3 bonus columns, since we have more room and cleaner as such and in case the strategy bonuses use some effects or such, they'd need some room to show them anyways etc. Done with the help of gemini 3 pro, check if accurate anyways etc. Also use a variable so it dynamically adjusts to total side width in case we want to change it later anyways etc. Also account for the margins, the total width seems to be effectively quite a bit less than max, empirically reduce it a bit to adjust for that but anyways etc. Note: i tried 15 instead of 2 * 8 but it seems to give same result than 2 * 7 (i.e. 14 and 15 are not different somehow if i'm not mistaken, only 14 or 16 show a difference visually ingame but anyways etc.) so went with 2 * 8 rather than 2 * 7 as it seems prettier to me as such even though a bit too wide but the other is too tight but anyways etc. -->
+		iBonusTableTableWidth = self.SIDE_PANELS_WIDTH - (2 * 8)
+		iBonusTableColumnWidth = iBonusTableTableWidth / 3
 		gSetRect("BonusPane0", "CityRightPanelContents",
 				0, 0,
 				# advc.004: Was 57; don't need quite this much space.
-				HLEN(53),
+				# HLEN(53),
+				HLEN(iBonusTableColumnWidth),
 				-(gRect("CityRightPanelContents").yBottom() -
 				(gRect("SpecialistLabelBackground").yBottom() -
 				iBonusBackrOverhang)))
@@ -1428,18 +1445,23 @@ class CvMainInterface:
 				gRect("BonusPane0").width(), 0,
 				# advc.002b: Was 68 in BtS; need less space in the third col now
 				# b/c the plus signs are gone.
-				HLEN(78), gRect("BonusPane0").height())
+				# HLEN(78),
+				HLEN(iBonusTableColumnWidth),
+				gRect("BonusPane0").height())
 		gSetRect("BonusBack1", "CityRightPanelContents",
 				gRect("BonusPane1").x() - gRect("CityRightPanelContents").x(), 0,
 				# width was 184
 				iMaxRMargin, gRect("BonusBack0").height())
 		gSetRect("BonusPane2", "CityRightPanelContents",
 				gRect("BonusPane0").width() + gRect("BonusPane1").width(), 0,
-				RectLayout.MAX, gRect("BonusPane0").height())
+				# RectLayout.MAX,
+				HLEN(iBonusTableColumnWidth),
+				gRect("BonusPane0").height())
 		gSetRect("BonusBack2", "CityRightPanelContents",
 				gRect("BonusPane2").x() - gRect("CityRightPanelContents").x(), 0,
 				# width was 205
 				iMaxRMargin, gRect("BonusBack0").height())
+
 		self.bCityBonusButtons = True
 		for i in range(3):
 			iBtnSize = iround(32 *
@@ -4532,6 +4554,12 @@ class CvMainInterface:
 		screen.hide("HappinessText")
 		screen.hide("CultureText")
 		screen.hide("GreatPeopleText")
+
+		# <!-- custom: fix the new specialist breakdown not disappear when we exit the city screen, with the help of chatgpt 5.2 thanks anyways etc. -->
+		# Specialist Breakdown widget (city screen only)
+		screen.hide("SpecBreakdownLabel1")
+		screen.hide("SpecBreakdownLabel2")
+
 		for i in range(gc.getNumReligionInfos()):
 			szName = "ReligionHolyCityDDS" + str(i)
 			screen.hide(szName)

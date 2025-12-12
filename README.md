@@ -153,7 +153,7 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
 
 ### City Screen rework
 
-Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering. Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either; this allows to now display much more information and reduces the need for scrolling anyways etc. Added with the very nice help of gemini 3 pro thanks but anyways etc.
+Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering. Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either; this allows to now display much more information and reduces the need for scrolling anyways etc. Also beautified several other things, such as enlarging side panels to display more info and be prettier, making bonuses columns even in width, making some hardcoded values now dynamically adjust depending on the side width we set, etc. if any more anyways etc.
 
 Additionally, also added a new specialists breakdown as of now on bottom-right, to avoid tedious hovering and provide useful info at a glance anyways etc.
 
@@ -619,6 +619,10 @@ It also helped me beyond tremendously solve beyond tremendously and enhance AI w
 #### 5.1
 
 Helped me nicely fix or enhance things, although i didn't test it too much yet but seems very helpful and reliable thanks a lot but check to be sure anyways etc.
+
+#### 5.2
+
+Also helped me nicely fix python issues very effectively thanks, i didn't test it yet as well to have a more elaborate opinion or such but it helped me lot thanks but anyways etc.
 
 ### Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
 
