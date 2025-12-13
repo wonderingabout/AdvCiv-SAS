@@ -1647,8 +1647,17 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		gridHeight = iconGrid.getPrefferedHeight()
 		LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
 		TOP_BOTTOM_SPACE = (self.H_SCREEN - gridHeight - 20) / 2
-		iconGrid.setPosition(LEFT_RIGHT_SPACE + 10, TOP_BOTTOM_SPACE + 10)
-		iconGrid.setSize(gridWidth, gridHeight)
+
+		# <!-- custom: manually adjust the grid's position and size so it better fits the screen anyways etc. -->
+		# iExtraX = 0
+		# iExtraWidth = 0
+		iExtraX = 24
+		# <!-- custom: note: empirically, it seems that reducing width to have symetrical margins than on the left side causes buttons (or is it icons? But anyways etc.) like the war declare or peace one to be too close to the leader's button. On the other hand, the right space is useless in itself, and we have no other column on the right, so it's fine if it overfills beyond the screen on the right side, as long as it helps have enough space from the leader button. Could maybe ideally fix this more properly but may be possibly very tedious and is fine enough as such i mean if i may say so left as such as long as it displays nicely on the left side but anyways etc. (comparing it to the foreign advisor's tech tab and trying to have a more or less identical left side display seems more important but anyways etc.). -->
+		iExtraWidth = 10
+
+		iconGrid.setPosition(LEFT_RIGHT_SPACE + 10 + iExtraX, TOP_BOTTOM_SPACE + 10)
+		iconGrid.setSize(gridWidth + iExtraWidth, gridHeight)
+
 		return iconGrid, LEFT_RIGHT_SPACE, TOP_BOTTOM_SPACE
 
 	def drawCityDeals(self, bInitial): # Based on drawTechDeals
@@ -1658,7 +1667,18 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		iconGrid, PANEL_X, PANEL_Y = self.initCityTable()
 		PANEL_WIDTH = self.W_SCREEN - 2 * PANEL_X
 		PANEL_HEIGHT = self.H_SCREEN - 2 * PANEL_Y
-		screen.addPanel(self.getNextWidgetName(), "", "", True, True, PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+
+		# <!-- custom: manually adjust the blue panel's position and size so it better fits the screen anyways etc. -->
+		# iExtraX = 0
+		# iExtraY = 0
+		# iExtraWidth = 0
+		# iExtraHeight = 0
+		iExtraX = 20
+		iExtraY = -12
+		iExtraWidth = -40
+		iExtraHeight = 24
+
+		screen.addPanel(self.getNextWidgetName(), "", "", True, True, PANEL_X +iExtraX, PANEL_Y +iExtraY, PANEL_WIDTH + iExtraWidth, PANEL_HEIGHT + iExtraHeight, PanelStyles.PANEL_STYLE_MAIN )
 
 		iconGrid.createGrid()
 		iconGrid.clearData()
