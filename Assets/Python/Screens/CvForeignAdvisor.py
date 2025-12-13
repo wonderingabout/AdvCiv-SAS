@@ -482,9 +482,17 @@ class CvForeignAdvisor:
 				leaderMap[iPlayer] = iCount
 				iCount = iCount + 1
 		fLeaderTop = self.Y_LEADER_CIRCLE_TOP
-		fRadius = self.RADIUS_LEADER_ARC - self.H_LEADER
+
+		# <!-- custom: make radius wider so we use more of our expanded screen now to draw the leader relation's web. Now nicely also dynamically adjusts to screen resolution. Added with the help of gemini 3 pro, check if accurate anyways etc. -->
+		# fRadius = self.RADIUS_LEADER_ARC - self.H_LEADER
+		# Dynamic Resolution Scaling
+		# Define Dynamic Radius
+		# We want the web to be as tall as possible without going off the bottom.
+		# This sets radius to roughly 75% of screen height. Adjust 0.75 as needed.
+		# fRadius = (self.H_SCREEN * 0.75) - self.H_LEADER
+		fRadius = (self.H_SCREEN * 54) / 100
+
 		fLeaderArcTop = fLeaderTop + self.H_LEADER + 10
-		
 		if iCount < 8:
 			iLeaderHeight = int((3 * self.H_LEADER) / 2)
 			iLeaderWidth = int((3 * self.W_LEADER) / 2)

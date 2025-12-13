@@ -135,6 +135,7 @@ Also reworked, expanded and beautified some of the other Advisors' UI, as it for
 Some examples below:
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.514_foreign_advisor_relations.JPG" alt="0.514_foreign_advisor_relations.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
