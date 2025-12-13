@@ -1,4 +1,4 @@
-# README_Sevopedia_Reworks.md
+# README_Tech_Tree.md
 
 Below are the details on how the tech tree was made in/for AdvCiv-SAS as well as links to other related docs in AdvCiv-SAS or/and external sources as well if any anyways etc.
 
@@ -6,13 +6,14 @@ If any images below in this readme mention a google drive link, you can access i
 
 ## Menu
 
-[Current Tech Tree ingame](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#current-tech-tree-ingame)  
-[Additional info about the tech tree anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#additional-info-about-the-tech-tree-anyways-etc)  
-[More info on notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#more-info-on-notes)  
-[Abstract timeline tech tree](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#abstract-timeline-tech-tree)  
-[Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#earlier-prototype--alternative-version)  
-[Earlier but much later version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#earlier-but-much-later-version)  
-[Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#starting-techs-rework)  
+[Current Tech Tree ingame](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#current-tech-tree-ingame)  
+[Additional info about the tech tree anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#additional-info-about-the-tech-tree-anyways-etc)  
+[More info on notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#more-info-on-notes)  
+[Abstract timeline tech tree](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#abstract-timeline-tech-tree)  
+[Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#earlier-prototype--alternative-version)  
+[Earlier but much later version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#earlier-but-much-later-version)  
+[Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework)  
+[Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width)  
 
 ## Current Tech Tree ingame
 
@@ -73,3 +74,16 @@ Then if i am not mistaken much later i did this swapping based version but that 
 ## Starting techs rework
 
 After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#starting-techs-rework) for details/results but anyways etc.
+
+## Customizable technology advisor width
+
+Players can tune the tech tree's width as they prefer, as of now to 0, 1, 2, or 3 (4 different options possible in total) in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH` there anyways etc.).
+
+Visual comparison of how each looks below.
+
+<img src="../Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (1).JPG" alt="0.5150_technology_advisor_customizable_width (1).JPG" width="250"></img>
+<img src="../Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (2).JPG" alt="0.5150_technology_advisor_customizable_width (2).JPG" width="250"></img>
+<img src="../Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (3).JPG" alt="0.5150_technology_advisor_customizable_width (3).JPG" width="250"></img>
+<img src="../Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (4).JPG" alt="0.5150_technology_advisor_customizable_width (4).JPG" width="250"></img>
+
+See also [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).

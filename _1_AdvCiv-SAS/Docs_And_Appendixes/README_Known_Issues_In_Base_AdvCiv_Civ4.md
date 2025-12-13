@@ -118,6 +118,7 @@ hopefully helpful, thanks, anyways, thanks,
 [82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#82---tremendously-improved-ai-not-adopting-the-popular-religion-among-strong-rivals-thus-being-hated-and-more-likely-to-lose)  
 [83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better)  
 [84 - (Added missing feature) Rivals of the active/human player that are willing to become the active/human player's vassal not showing an icon to quickly indicate that at a glance, in the Foreign advisor's glance tab (no pun but anyways etc.)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc)  
+[85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3144,3 +3145,53 @@ And now also using our own advciv-sas save file (see drive link for details anyw
 Trick: autoplay on settler we are more likely to be stronger and thus to have rivals, helped quickly get a save file sample for screenshots and testing i mean but anyways etc.
 
 Update 2: now added to a helper (`CvDLLWidgetData::parseVassalWillingnessHelp`) to avoid reuse and as is cleaner as such i mean if i may say, with gemini 3 pro's help as well thanks but anyways etc.
+
+## 85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1cg05BVD4Jrs4hnbaaniNpitdgRIrfSHL?usp=sharing) anyways etc.
+
+In [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py), base advciv disables the BUG's tech bulbing indicators (that come from RFC DOC's mod btw according to base advciv comments as well if i understood it correctly, and if there weren't, i was going to take them from RFC DOC as well as they look nice there as well thanks! I mean if i may say but anyways etc.) at turn 0 with the following rationale:
+
+```py
+		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
+		if CyGame().getElapsedGameTurns() > 0:
+			self.updateTechPrefs()
+```
+
+I tried disabling it to see to players that the feature exists since turn 0 in case they don't see it, and i myself didn't even know about it so i wanted to share it i mean but anyways etc., however eventually got a crash as base advciv's note says, so i disabled it again, now only active from turn 1 or higher.
+
+However, there is a mistake in base advciv's comment if i'm not mistaken which is that it also happens in smaller sized maps, for example i could reproduce this if i remember it correctly but anyways etc. while creating a new game pangea noble standard size map normal game speed.
+
+Based on gemini 3 pro's comment, the error message (see drive link above anyways etc or excerpt below but anyways etc.) was indeed caused by this code i had commented out, and not by another change i made (check if accurate but anyways etc.).
+
+For concision, i put the rationale here since the issue is solved, no need to clutter the code there, and it is also more easily visible for modders or such as well hopefully maybe i mean as well but in all cases anyways etc.
+
+```py
+		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
+		# <!-- custom: note: trying to comment out the above to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
+		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was anyways etc. -->
+		# 
+		# The error AttributeError: TechPrefs instance has no attribute 'lTechsByFlavor' occurs because the game attempts to update the Tech Preferences during the initialization phase (preGameStart), before the necessary data (like the Active Player's tech state) is fully ready.
+		# The code you uncommented to enable "Turn 0" support removes the safety guard if CyGame().getElapsedGameTurns() > 0:. Without this guard, updateTechPrefs runs too early during map generation and crashes because the TechPrefs object is created incomplete (missing lTechsByFlavor).
+		# To fix this while keeping the Turn 0 feature, you should add a safety check inside updateTechPrefs to abort gracefully if TechPrefs is broken, rather than crashing.
+		#
+		if CyGame().getElapsedGameTurns() > 0:
+			self.updateTechPrefs()
+		#
+		# Traceback (most recent call last):
+		# File "BugUtil", line 677, in <lambda>
+		# File "BugEventManager", line 668, in preGameStart
+		# File "CvAppInterface", line 70, in preGameStart
+		# File "CvScreensInterface", line 94, in showTechChooser
+		# File "CvTechChooser", line 354, in interfaceScreen
+		# File "CvTechChooser", line 366, in ConstructTabs
+		# File "CvTechChooser", line 411, in DrawTechChooser
+		# File "CvTechChooser", line 1296, in updateTechPrefs
+		# File "TechPrefs", line 181, in getNextResearchableFlavorTech
+		# AttributeError: TechPrefs instance has no attribute 'lTechsByFlavor'
+		# ERR: Python function preGameStart failed, module CvAppInterface
+```
+
+Hopefully regardless of which, this helps document and confirm the issue, as well as giving players info in other related docs on the existence of the BUG tech bulbing indicators and how to enable them, in case they didn't know about them, but anyways etc.
+
+Update: somehow sometimes they appear at turn 0 and sometimes not, what matters is we reverted to base advciv code as the key information there i mean if i may say but anyways etc. and that code seemingly no longer crashes now. It also did happen on a standard size map if i remember it correctly not just very large ones, and works fine as is now so leaving it as is but anyways etc.

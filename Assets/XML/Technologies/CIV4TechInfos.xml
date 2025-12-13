@@ -49,7 +49,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>1</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -192,7 +192,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>2</iGridX>
-			<iGridY>11</iGridY>
+			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -259,7 +259,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>22</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -332,7 +332,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>6</iGridX>
-			<iGridY>10</iGridY>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -404,7 +404,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>3</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<!-- custom: was empty -->
 			<CommerceFlexible>
@@ -561,7 +561,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>5</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -721,7 +721,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>9</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -795,7 +795,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>8</iGridX>
-			<iGridY>11</iGridY>
+			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1150,7 +1150,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>2100</iCost>
+			<iCost>2050</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1237,7 +1237,7 @@
 			<!-- custom: is a strong military tech or quite strong one at least anyways etc, was 0 -->
 			<!-- advc.552: Was 10; rather give this weight to Nationalism -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>1950</iCost>
+			<iCost>1900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1343,7 +1343,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>8</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1388,7 +1388,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 1400 -->
-			<iCost>1800</iCost>
+			<iCost>1700</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
@@ -1422,7 +1422,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>13</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1494,7 +1494,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>12</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1529,7 +1529,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2100</iCost>
+			<iCost>2050</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1562,7 +1562,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>15</iGridX>
-			<iGridY>14</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1720,7 +1720,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>16</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1838,7 +1838,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2100</iCost>
+			<iCost>2050</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: ERA_MODERN -->
@@ -1871,7 +1871,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>15</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2243,7 +2243,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>7</iGridX>
-			<iGridY>11</iGridY>
+			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
 			<!-- custom: more focused culture line, plus this tech has too little effects i mean, as nicely suggested as a general suggestion by chatgpt 5.1 which i then noticed specifically for this tech and commerceflexible effect we could put it here i mean but thanks a lot for help really i mean if i may say thanks but anyways etc, was empty anyways etc -->
 			<CommerceFlexible>
@@ -2558,7 +2558,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>12</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old TECH_SCIENTIFIC_METHOD (now removed anyways etc) but anyways etc)) -->
 			<SpecialistExtraCommerces>
@@ -2645,7 +2645,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>2</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2727,7 +2727,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>4</iGridX>
-			<iGridY>14</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2799,7 +2799,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>7</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2870,7 +2870,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>16</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2942,7 +2942,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>11</iGridX>
-			<iGridY>14</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3010,7 +3010,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>10</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3125,7 +3125,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1950</iCost>
+			<iCost>1900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3158,7 +3158,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>14</iGridX>
-			<iGridY>14</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3440,7 +3440,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1800</iCost>
+			<iCost>1700</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
@@ -3514,7 +3514,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 3600 -->
-			<iCost>1950</iCost>
+			<iCost>1900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -3547,7 +3547,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>14</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3619,7 +3619,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>9</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4061,7 +4061,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>21</iGridX>
-			<iGridY>8</iGridY>
+			<iGridY>9</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4196,7 +4196,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>24</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4213,9 +4213,9 @@
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
+				<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
 				<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Quote>
@@ -4268,7 +4268,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>19</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4341,7 +4341,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>22</iGridX>
-			<iGridY>10</iGridY>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4570,7 +4570,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>1</iGridX>
-			<iGridY>14</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4870,7 +4870,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>4</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5034,7 +5034,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>6</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5112,7 +5112,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>3</iGridX>
-			<iGridY>14</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5665,7 +5665,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>18</iGridX>
-			<iGridY>14</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5708,7 +5708,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>1950</iCost>
+			<iCost>1900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -5850,7 +5850,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1950</iCost>
+			<iCost>1900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -6005,7 +6005,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>2100</iCost>
+			<iCost>2050</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -6142,7 +6142,7 @@
 				<PrereqTech>TECH_FUSION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
+				<PrereqTech>TECH_AI</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_QUANTUM_MECHANICS</Sound>
@@ -6373,7 +6373,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2100</iCost>
+			<iCost>2050</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MODERN -->
@@ -6543,7 +6543,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>20</iGridX>
-			<iGridY>10</iGridY>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6641,7 +6641,7 @@
 				<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
+				<PrereqTech>TECH_AI</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_TERRAFORMING_QUOTE</Quote>
 			<Sound>AS2D_TECH_TERRAFORMING</Sound>
@@ -6832,7 +6832,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>23</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6906,7 +6906,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>23</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>

@@ -124,7 +124,7 @@ This is the original, extensive and verbose version of the main change from base
 
 ### Main Advisors reworks
 
-Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it but anyways etc.
+Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it but anyways etc.
 
 Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or/and so it is easier to change an advisor's screen dimensions if desired later but anyways etc.
 
@@ -137,7 +137,6 @@ Some examples below:
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG" alt="0.515_technology_advisor.JPG" width="250"></img>
 
 See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game).
 
@@ -153,7 +152,7 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
 
 Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering. Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either; this allows to now display much more information and reduces the need for scrolling anyways etc. Also beautified several other things, such as enlarging side panels to display more info and be prettier, making bonuses columns even in width, making some hardcoded values now dynamically adjust depending on the side width we set, etc. if any more anyways etc.
 
-Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance anyways etc.
+Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance anyways etc.
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG" alt="0.401_city_screen.JPG" width="250"></img>

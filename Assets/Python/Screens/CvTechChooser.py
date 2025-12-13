@@ -36,9 +36,7 @@ PREF_ICON_SIZE = 24
 # <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height as found gemini pro 3 found nicely thanks but anyways etc. -->
 # PREF_ICON_BOTTOM = 738
 PREF_ICON_BOTTOM = 926
-# <!-- custom: move it more to the left anyways etc. -->
-# PREF_ICON_LEFT = 40 # was a bit farther left (10)
-PREF_ICON_LEFT = 10
+PREF_ICON_LEFT = 40 # was a bit farther left (10)
 # </advc.004a>
 FLAVORS = [
 	TechPrefs.FLAVOR_PRODUCTION,
@@ -159,6 +157,16 @@ class CvTechChooser:
 		self.BOX_INCREMENT_Y_SPACING = 6 #Should be a multiple of 3...
 		self.BOX_INCREMENT_X_SPACING = 9 #Should be a multiple of 3...
 
+		self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = None
+		self.W_RIGHT_SPACE_FOR_SCOREBOARD = None
+		# <!-- custom: parametrize properly the X starting position of the first column thanks to gemini 3 pro's help anyways etc (value was hardcoded repeatedly without a variable previously anyways etc.). -->
+		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
+		self.iX_LEFT_START = 30
+		# For OR Prerequisites: Note: This one is currently 24 (30 minus 6). If you increase your main offset by 10, increase this by 10 as well.
+		self.iX_LEFT_START_OR_PREREQS = 24
+		# <!-- custom: adjust tech bulbing left starting position depending on our setting so we align vertically with where first tech button starts anyways etc. -->
+		self.PREF_ICON_LEFT = PREF_ICON_LEFT
+
 	def getScreen(self):
 		return CyGInterfaceScreen( "TechChooser", CvScreenEnums.TECH_CHOOSER )
 
@@ -179,6 +187,30 @@ class CvTechChooser:
 
 		# Create a new screen, called TechChooser, using the file CvTechChooser.py for input
 		screen = self.getScreen()
+
+		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper but anyways etc. -->
+		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH is None:
+			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH")
+		
+		# <!-- custom: since various players may like a different visual design, give several tech tree dimensions -->
+		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH <= 0:
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 206
+			# <!-- custom: move bulbing indicators more to the left anyways etc. -->
+			self.PREF_ICON_LEFT = 10
+			# <!-- custom: unlike bulbing indicators, the main tech grid's X starting position is still a bit too much to the right as compared to the tech bulbing position ingame, if they use the same value; plus, we need the space on the right edge to display last column properly ideally since it is almost so. So reduce this value a bit more to accomodate for that but anyways etc. -->
+			extraXAdjust = -5
+			self.iX_LEFT_START = 10 + extraXAdjust
+			self.iX_LEFT_START_OR_PREREQS = 4 + extraXAdjust
+		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 1:
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
+			# <!-- custom: other variables unchanged anyways etc. -->
+		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 2:
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 1
+			# <!-- custom: other variables unchanged anyways etc. -->
+		else:
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 0
+			# <!-- custom: other variables unchanged anyways etc. -->
+		
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
@@ -243,10 +275,11 @@ class CvTechChooser:
 		wLeftSpace = 0
 		self.X_SCREEN = wLeftSpace
 		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
-		wRightSpaceForTechPartOfTheScoreBoard = 206
-		self.W_SCREEN = screen.getXResolution() - wRightSpaceForTechPartOfTheScoreBoard - wLeftSpace
+		wRightSpaceForScoreBoard = self.W_RIGHT_SPACE_FOR_SCOREBOARD
+		self.W_SCREEN = screen.getXResolution() - wRightSpaceForScoreBoard - wLeftSpace
 
-		hTopSpaceForCommerceSliders = 118
+		# <!--  custom: note: 115 or higher as of now add an annoying and not useful verticall scrolling arrow on right side of this screen, while 114 is low enough to still see our commerce sliders fine, so using this value rather but anyways etc. -->
+		hTopSpaceForCommerceSliders = 114
 		self.Y_SCREEN = hTopSpaceForCommerceSliders
 		hBottomSpace = 0
 		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
@@ -370,11 +403,12 @@ class CvTechChooser:
 
 		# Draw the arrows
 		self.drawArrows(screen, sPanel, bANDPreReq, bORPreReq)
+
 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
-		# <!-- custom: make it available since turn 0 for clarity and as advised by chatgpt 5.2 thanks but anyways etc. -->
-		# if CyGame().getElapsedGameTurns() > 0:
-		# 	self.updateTechPrefs()
-		self.updateTechPrefs()
+		# <!-- custom: note: trying to comment out the above to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
+		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was anyways etc. -->
+		if CyGame().getElapsedGameTurns() > 0:
+			self.updateTechPrefs()
 
 		screen.moveToFront( "CivDropDown" )
 
@@ -401,7 +435,7 @@ class CvTechChooser:
 		for i in range(gc.getNumTechInfos()):
 
 			# Create and place a tech in its proper location
-			iX = 30 + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
+			iX = self.iX_LEFT_START + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
 			iY = ( gc.getTechInfo(i).getGridY() - 1 ) * ( self.BOX_INCREMENT_Y_SPACING * self.PIXEL_INCREMENT ) + 5
 			szTechRecord = sPanelWidget + "TechRecord" + str(i)
 
@@ -1036,7 +1070,7 @@ class CvTechChooser:
 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
 					szTechString = szTechString + unicode(gc.getPlayer(self.iCivSelected).getQueuePosition(i)) + ". "
 
-				iX = 30 + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
+				iX = self.iX_LEFT_START + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
 				iY = ( gc.getTechInfo(i).getGridY() - 1 ) * ( self.BOX_INCREMENT_Y_SPACING * self.PIXEL_INCREMENT ) + 5
 
 				if bTechName:
@@ -1101,7 +1135,7 @@ class CvTechChooser:
 					eTech = gc.getTechInfo(i).getPrereqAndTechs(j)
 					if ( eTech > -1 ):
 						fX = fX - X_INCREMENT
-						iX = 30 + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
+						iX = self.iX_LEFT_START + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
 						iY = ( gc.getTechInfo(i).getGridY() - 1 ) * ( self.BOX_INCREMENT_Y_SPACING * self.PIXEL_INCREMENT ) + 5
 
 						szTechPrereqID = "TechPrereqID" + str((i * 1000) + j)
@@ -1116,7 +1150,7 @@ class CvTechChooser:
 				for j in range( gc.getNUM_OR_TECH_PREREQS() ):
 					eTech = gc.getTechInfo(i).getPrereqOrTechs(j)
 					if ( eTech > -1 ):
-						iX = 24 + ( (gc.getTechInfo(eTech).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
+						iX = self.iX_LEFT_START_OR_PREREQS + ( (gc.getTechInfo(eTech).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
 						iY = ( gc.getTechInfo(eTech).getGridY() - 1 ) * ( self.BOX_INCREMENT_Y_SPACING * self.PIXEL_INCREMENT ) + 5
 
 						# j is the pre-req, i is the tech...
@@ -1208,7 +1242,7 @@ class CvTechChooser:
 				self.bPrefsShowing = False
 			return
 		# <advc.004a>
-		iX = PREF_ICON_LEFT 
+		iX = self.PREF_ICON_LEFT 
 		iY = PREF_ICON_BOTTOM
 		# </advc.004a>
 
@@ -1220,7 +1254,7 @@ class CvTechChooser:
 		if bShowIconHeading: 
 			iIconSize = 36 # was 48 </advc.004a>
 			# advc.004a: Position handled above
-			#iX = PREF_ICON_LEFT + 5 * PREF_ICON_SIZE / 4 - iIconSize / 2
+			#iX = self.PREF_ICON_LEFT + 5 * PREF_ICON_SIZE / 4 - iIconSize / 2
 			#iY = PREF_ICON_TOP - iIconSize - 40
 			# advc.004a: WIDGET added
 			screen.addDDSGFC( "GreatPersonHeading", ArtFileMgr.getInterfaceArtInfo("DISCOVER_TECHNOLOGY_BUTTON").getPath(), iX, iY-iIconSize/5, iIconSize, iIconSize, WidgetTypes.WIDGET_TECH_PREFS_HEADING, -1, -1 )
@@ -1232,7 +1266,7 @@ class CvTechChooser:
 		#	iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[i])
 		#	iUnitType = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
 		#	pUnitInfo = gc.getUnitInfo(iUnitType)
-		#	iX = PREF_ICON_LEFT
+		#	iX = self.PREF_ICON_LEFT
 		#	iY = PREF_ICON_TOP + 4 * i * PREF_ICON_SIZE
 		#	screen.addDDSGFC( "GreatPerson" + str(f), pUnitInfo.getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_ALL, f, -1 )
 		self.bPrefsShowing = True

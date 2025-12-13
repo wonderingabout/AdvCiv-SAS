@@ -39,6 +39,22 @@
 
 
 
+	<!-- custom: choose how wide the tech tree should be horizontally:
+		-> 0 (default): the tech tree goes from leftmost part of the screen (tightly compressed left margin as there is less room), to about halfway in the scoreboard on the right: we see leader name, the tech they are researching (if we know it), their tech %
+
+		-> 1: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about half of the scoreboard on the right: we see about half of the player names on the scoreboard unless theirs is extremely short (e.g. "Joao II" not visible, most are visible partially), plus the tech they are researching (if we know it), their tech %.
+
+		-> 2: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about 2 thirds of the scoreboard on the right: we don't see player names on the scoreboard anymore, but we see the tech players are researching (if we know it) and their tech %.
+
+		-> 3: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to the rightmost part of the screen on the right: it provides maximum immersion visually as potentially distracting info is removed, but we don't know anymore their tech (and the world map is now hidden as well).
+	-->
+	<Define>
+		<DefineName>SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks anyways etc. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
