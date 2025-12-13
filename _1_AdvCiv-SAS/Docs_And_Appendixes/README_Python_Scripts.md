@@ -2,8 +2,6 @@
 
 ## Menu
 
-Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
-
 [Note about log files](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#note-about-log-files)  
 
 [flatten_handicap_info_to_csv_and_md.py](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy)  

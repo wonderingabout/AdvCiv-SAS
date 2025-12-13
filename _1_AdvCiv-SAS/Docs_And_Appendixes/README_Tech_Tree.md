@@ -4,6 +4,16 @@ Below are the details on how the tech tree was made in/for AdvCiv-SAS as well as
 
 If any images below in this readme mention a google drive link, you can access it from main readme's entire google drive folder link, or for convenience access directly closest google drive folder at least as of now here in [Misc 0.x file images google drive folder link](https://drive.google.com/drive/folders/1-s26vjr5m9J9vPTIH-kSwpgkoqjmMjl2?usp=sharing) anyways etc.
 
+## Menu
+
+[Current Tech Tree ingame](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#current-tech-tree-ingame)  
+[Additional info about the tech tree anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#additional-info-about-the-tech-tree-anyways-etc)  
+[More info on notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#more-info-on-notes)  
+[Abstract timeline tech tree](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#abstract-timeline-tech-tree)  
+[Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#earlier-prototype--alternative-version)  
+[Earlier but much later version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#earlier-but-much-later-version)  
+[Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#starting-techs-rework)  
+
 ## Current Tech Tree ingame
 
 <img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img>

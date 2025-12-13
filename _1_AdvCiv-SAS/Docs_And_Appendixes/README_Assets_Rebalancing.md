@@ -4,8 +4,6 @@ Some of the asset rebalancing is shown here (not exhaustive)
 
 ## Menu
 
-Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :), and then i adjusted a bit after but anyways etc. Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
-
 [How to](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#how-to)  
 [Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#starting-techs-rework)  
 [Leaders' traits rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-traits-rework)  

@@ -2,6 +2,13 @@
 
 If any images below in this readme mention a google drive link, you can access it from main readme's entire google drive folder link, or for convenience access directly closest google drive folder at least as of now here in [Misc 0.x file images google drive folder link](https://drive.google.com/drive/folders/1-s26vjr5m9J9vPTIH-kSwpgkoqjmMjl2?usp=sharing) anyways etc.
 
+## Menu
+
+Here you go:
+
+[Military tree as of now](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md#military-tree-as-of-now)  
+[Info about a more advanced prototype military tree](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md#info-about-a-more-advanced-prototype-military-tree)  
+
 ## Military tree as of now
 
 As said in main readme.md in relevant section there as well anyways etc, as of now the military tree is as such in AdvCiv-SAS (please view ingame or/and in XML for updated version if any changes have been made since then anyways etc)

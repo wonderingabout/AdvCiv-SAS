@@ -2,6 +2,15 @@
 
 When i first tried/used making ai-generated images, i started with chatgpt for buttons or/and such, then later used other tools/websites like Creator Nightcafe Studio and Pixelcut AI for example for the main menu background or/and such if any other such but anyways etc.
 
+## Menu
+
+[Using ChatGPT](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#using-chatgpt)  
+&emsp;[Unit buttons (as of now stale)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#unit-buttons-as-of-now-stale)  
+&emsp;[Buildings buttons](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#buildings-buttons)  
+&emsp;[Tech buttons](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#tech-buttons)  
+[Using Creator Nightcafe Studio to generate it (1024x1024)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#using-creator-nightcafe-studio-to-generate-it-1024x1024)  
+[Then using then Pixelcut AI to expand it to 1920 x 1080 with new details very nicely anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#then-using-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details-very-nicely-anyways-etc)  
+
 ## Using ChatGPT
 
 One of the unexpected things that popped up while exploring unit naming in/for anyways etc advciv-sas anyways etc and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.

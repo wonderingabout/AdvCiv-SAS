@@ -6,8 +6,6 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 
 ## Menu
 
-Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
-
 [Full exhaustive very long and exhaustive changes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#full-exhaustive-very-long-and-exhaustive-changes)  
 [Sevopedia AdvCiv-SAS Entries](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#sevopedia-advciv-sas-entries)  
 [Handicap info tables .csv and .md and info about the .py script that can regenerate them if need and how](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#handicap-info-tables-csv-and-md-and-info-about-the-py-script-that-can-regenerate-them-if-need-and-how)  

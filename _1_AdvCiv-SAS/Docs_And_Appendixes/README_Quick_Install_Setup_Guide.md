@@ -2,6 +2,25 @@
 
 To install and play this mod AdvCiv-SAS, you can follow the steps in this document/readme.
 
+## Menu
+
+[Install Civilization 4 Beyond the Sword (skip if already done)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#install-civilization-4-beyond-the-sword-skip-if-already-done)  
+[Download this mod AdvCiv-SAS](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)  
+&emsp;[Stable Version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#stable-version)  
+&emsp;[Development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version)  
+&emsp;[Any version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#any-version)  
+[Extract the mod to your civ4 folder](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#extract-the-mod-to-your-civ4-folder)  
+[Place a shortcut of the mod on your desktop](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop)  
+[Version number](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#version-number)  
+[Upgrading/Downgrading version of the mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#upgradingdowngrading-version-of-the-mod)  
+[If you have trouble downloading/installing/using/upgrading/downgrading the mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#if-you-have-trouble-downloadinginstallingusingupgradingdowngrading-the-mod)  
+&emsp;[Full Development version (to modify it yourself)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#full-development-version-to-modify-it-yourself)  
+[Configure your game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#configure-your-game)  
+&emsp;[General ideas](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#general-ideas)  
+&emsp;[Relevant BUG Menu Options — enable if needed](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed)  
+[Settings if you want to develop/modify the mod or try some autoplay or such anyways etc (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-anyways-etc-skip-this-section-if-only-playing-without-wanting-extra-details)  
+[Where to download more/other mods](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#where-to-download-moreother-mods)  
+
 ## Install Civilization 4 Beyond the Sword (skip if already done)
 
 First you need to install (or have it installed already) Civilization 4 Beyond the Sword. (skip if already done)
@@ -76,15 +95,6 @@ If you want to modify AdvCiv-SAS, the player "download ZIP" options do not inclu
 
 You'd need to git clone this repo or some similar method so that the exclusion list at [`.gitattributes`](../../.gitattributes) is not applied.
 
-## Where to download more/other mods
-
-If you want to try/play other mods than AdvCiv-SAS or browse them (but you may already know if you downloaded this, still, or if not, maybe this can help you too), consider visiting, among other possible sources/websites:
-
-- CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website's civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/) or the [civfanatics website's civ4 modpacks downloads section](https://forums.civfanatics.com/resources/categories/civ4-modpacks.2/)
-- ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd but anyways etc) mod maybe as interesting maybe as AdvCiv)): [ModDB website (Civilization 4 Mods)](https://www.moddb.com/games/civilization-iv/mods) anyways etc.
-
-But i say it just for exhaustiveness, even though i am (quite) friendly i think, i prefer to stay alone and relax and do my own things, so i might get stressed if you contact me.. Still, if this project would help you reader or even those who don't read, i may be quite happy of it, especially as i contribute(d) to it
-
 ## Configure your game
 
 ### General ideas
@@ -119,3 +129,12 @@ For example, to see the tech bulbing indicators, enable "GP Research" in the BUG
 If you're developping a mod, or simply want to run some autoplays or such yourself, you'd most likely want to enable debug mode as well as do autoplay runs yourself. See [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc) for details on how to do it and such anyways etc.
 
 Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in CivilizationIV.ini file (or maybe in ingame settings although i didn't test it but anyways etc)), as this is so much more convenient in order to do screenshots and browse them easily, as well as go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game, etc. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing etc.
+
+## Where to download more/other mods
+
+If you want to try/play other mods than AdvCiv-SAS or browse them (but you may already know if you downloaded this, still, or if not, maybe this can help you too), consider visiting, among other possible sources/websites:
+
+- CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website's civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/) or the [civfanatics website's civ4 modpacks downloads section](https://forums.civfanatics.com/resources/categories/civ4-modpacks.2/)
+- ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd but anyways etc) mod maybe as interesting maybe as AdvCiv)): [ModDB website (Civilization 4 Mods)](https://www.moddb.com/games/civilization-iv/mods) anyways etc.
+
+But i say it just for exhaustiveness, even though i am (quite) friendly i think, i prefer to stay alone and relax and do my own things, so i might get stressed if you contact me.. Still, if this project would help you reader or even those who don't read, i may be quite happy of it, especially as i contribute(d) to it.

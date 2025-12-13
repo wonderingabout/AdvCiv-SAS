@@ -14,8 +14,6 @@ As for the future, development is mostly finished on my end, it is tempting to i
 
 ## Menu
 
-Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :), and then i adjusted a bit after but anyways etc. Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
-
 [Tech Tree](/README.md#tech-tree)  
 [Military Tree and changes](/README.md#military-tree-and-changes)  
 [Ingame gameplay samples](/README.md#ingame-gameplay-samples)  
@@ -44,18 +42,16 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
 [Assets Rebalancing](/README.md#assets-rebalancing)  
 [48 Civs DLL](/README.md#48-civs-dll)  
-[Autoplay test runs](/README.md#autoplay-test-runs)  
-[Project Goals and global view on gameplay changes](/README.md#project-goals-and-global-view-on-gameplay-changes)  
 [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
 ["Temporary" crashes](/README.md#temporary-crashes)  
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
 [Version number](/README.md#version-number)  
 [Copyright and Disclaimer](/README.md#copyright-and-disclaimer)  
 [Note about the audio in main menu](/README.md#note-about-the-audio-in-main-menu)  
-[Credits](/README.md#credits)  
 [Some Useful tools while doing this](/README.md#some-useful-tools-while-doing-this)  
 [License and reuse](/README.md#license-and-reuse)  
 [Starting your mod](/README.md#starting-your-mod)  
+[Credits](/README.md#credits)  
 [Authors](/README.md#authors)  
 
 ## Tech Tree
@@ -108,7 +104,7 @@ If you are a new player and/or want to play this mod and would like a few instru
 
 ## Full exhaustive very long and exhaustive changes
 
-If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13) (Note: you may also want to use a tool like VS Code or some other diff compare tool rather maybe and compare the folders entirely for example (between latest base AdvCiv and our mod AdvCiv-SAS which is based on it (i.e. based on latest base AdvCiv we (i.e. i but anyways etc) found at the time of developing this mod and updated to it) (anyways etc) for full comparison anyways etc)) for an easier comparison (as it is unlikely the GitHub PR link above can render such a diff in website, but added info for exhaustiveness or in case it helps, me too (i.e. for myself too if not at least for me, but anyways etc), anyways etc).
+If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, it can be viewed for example in this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13).
 
 Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather.
 
@@ -116,9 +112,7 @@ As for the changelog between releases of AdvCiv-SAS, see the [github tags](https
 
 ## Main Changes Guide
 
-I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS latest) with the help of chatgpt; sometimes edited it. It should ideally contain exact same entries (if not would be a mistaken of mine but anyways etc) than the "custom" version of the main changes guide that i wrote myself as base for this main changes guide. Hopefully fast enough to read and as of now much clearer than my longer one that was used as a base for it.
-
-Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the custom guide (that could have mistakes as well but not due to summarizing) so check if accurate if in doubt i mean but anyways etc.
+I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS latest) with the help of chatgpt (check if info is accurate); sometimes edited it. It should contain same entries than in the "custom" version of the main changes guide that i wrote myself as base for this main changes guide. Hopefully fast enough to read and as of now much clearer than my longer one that was used as a base for it.
 
 You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md).
 
@@ -223,8 +217,6 @@ Added new concepts, as of now:
 - concept_route_railroad
 - concept_scoring_system
 
-Etc if any more anyways etc. See the entries in sevopedia "Outdated" category for details anyways etc.
-
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG" alt="0.800_conceptinfos_example (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG" alt="0.800_conceptinfos_example (2).JPG" width="250"></img>
 
@@ -232,14 +224,14 @@ Etc if any more anyways etc. See the entries in sevopedia "Outdated" category fo
 
 The sevopedia "Mods Info" (reusing the old civ4 concepts category or similar if i am not mistaken anyways etc, thanks to [@f1rpo](https://github.com/f1rpo)'s help too anyways etc) category adds info about mods and such, including but not only AdvCiv-SAS.
 
-As of now this mostly contain other mod than advciv-sas changes (non-exhaustive list of changes but quite informative a bit still i hope anyways etc), as well as some few other information or rather as of now links to information sources.these new mods info pages. For the changes between mod and quick mod history info/context related(ing? Anyways etc) in particular, see [README_Mods_History_And_Changes.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md) for details. Exhaustive or not example screenshots below as well anyways etc:
+As of now this mostly contains other mods than advciv-sas-related changes (non-exhaustive list of changes but quite informative a bit still i hope anyways etc), as well as some few other information or rather as of now links to information sources. For the changes between mod and quick mod history info/context related(ing? Anyways etc) in particular, see [README_Mods_History_And_Changes.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md) for details. Exhaustive or not example screenshots below as well anyways etc:
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
 ## Python Scripts and .csv tables
 
-Mostly for modders, and not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
+Mostly for modders, and it is not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
 
 Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details.
 
@@ -252,14 +244,13 @@ So far there is:
 
 ### .csv and .md view of the handicap (difficulties info in a table for all difficulties) info
 
-Generated with the flatten_handicap_info_to_csv_and_md.py script, you can regenerate it if you mod/change the handicap info, else just view it here:
+Generated with the flatten_handicap_info_to_csv_and_md.py script, you can regenerate it if you mod/change the handicap info, else just view it here: [(click here to view it on on github web viewer too (recommended))](/handicap_info_to_csv_advciv-sas.csv) (the corresponding legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md))
 
-- [(click here to view it on on github web viewer too (recommended))](/handicap_info_to_csv_advciv-sas.csv) as you can for example for example use github's search bar for example anyways or and other features or and not anyways etc, or alternatively view it for example with libreoffice for example or a similar software/solution if you prefer another viewer than GitHub website view or such anyways etc.
-- legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
+You can for example for example use github's search bar for example anyways or and other features or and not anyways etc, or alternatively view it for example with libreoffice for example or a similar software/solution.
 
-(note: base advciv handicap info .csv table with its .md legend for comparison as of now are also in our mod path in [/_0_Common_Docs/AdvCiv_Base_Doc/](/_0_Common_Docs/AdvCiv_Base_Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
+Note: base advciv handicap info .csv table with its .md legend for comparison as of now are also in our mod path in [/_0_Common_Docs/AdvCiv_Base_Doc/](/_0_Common_Docs/AdvCiv_Base_Doc/).
 
-Also code is provided thanks to chatgpt and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the table .md version of this handicap info but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings) anyways etc:
+If you change the xml, regenerate new .csv file with the script, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy).
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
@@ -267,26 +258,21 @@ Also code is provided thanks to chatgpt and my prompts or/and adjustments or not
 
 ### .csv github view for the flatten_leaders_data_to_csv conversion script
 
-About the flatten_leaders_data_to_csv script anyways output:
-
-- [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
-- legend (.md) is here [leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
-
-(note: base advciv leaders_data .csv table with its .md legend for comparison as of now are also in our mod path in [/_0_Common_Docs/AdvCiv_Base_Doc/](/_0_Common_Docs/AdvCiv_Base_Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
+Similarly, the flatten_leaders_data_to_csv script output can be viewed here: [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (corresponding legend (.md): [leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md)). 
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
-Note 2: there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_leaders_data_to_csvpy) anyways etc
+Documentation about this flatten leaders_data to .csv py script [here](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_leaders_data_to_csvpy).
 
 ## AI-generated images
 
-While developping the AdvCiv-SAS mod, i have learned (despite having tried in the past a few times with Midjourney but not related to this anyways etc) to and successfully generated some AI-generated images, first with tools like ChatGPT for buttons or/and such, and then for our main menu background images with other tools, in particular with the help of PixelCut AI that was very nice.
+While developping the AdvCiv-SAS mod, i have learned (despite having tried in the past a few times with Midjourney but not related to this anyways etc.) to and successfully generated some AI-generated images, first with tools like ChatGPT for buttons or/and such, and then for our main menu background images with other tools, in particular with the help of PixelCut AI that was very nice.
 
 I edited some of these with Paint.NET to add in some of them the blue "ribbon" (margins whatever they are called). Here are, below, some examples of ai-generated images in our mod, for more details see: [Docs_And_Appendixes/README_AI_Generated_Images.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md)
 
-Note: these are low size images, see link mentionned above for the google drive link to view them in high quality (full/original resolution) anyways etc
+Note: these are low size images, see link mentionned above for the google drive link to view them in high quality (full/original resolution) anyways etc.
 
 Also Nano banana pro (see [/README.md#nano-banana-pro](/README.md#nano-banana-pro)) helped me amazingly and very easily fix the a tech's image and recolor the border as blue with just this simple prompt:
 
@@ -318,11 +304,13 @@ Among other maps or information i found online but anyways etc, i mostly also us
 
 Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw but anyways etc, but they is cold, so symbolize it as having if relevant enough a bit of tundra in civ4 terms but anyways etc (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification) for details or maybe rather info or such hopefully helpful if i may say but anyways etc...)
 
-Note 2: as of now i'm using plains as a representative of savanna more or less anyways etc
+Note 2: as of now i'm using plains as a representative of savanna more or less anyways etc.
 
 ## Assets Rebalancing
 
-See [README_Assets_Rebalancing.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md).
+Heavy historical corrections and gameplay balance have been made, such as as of now removing the Expansive Trait, Changing Gandhi's favorite civics, or Frederick's favorite religion.
+
+The changes before/after with rationale tables are synthethized in .md tables in [README_Assets_Rebalancing.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md).
 
 ## 48 Civs DLL
 
@@ -334,61 +322,11 @@ I have run a test run for fun and to test it too, as well as documented this DLL
 
 See [google drive link here](https://drive.google.com/drive/folders/1wTLu7SdP3aeKOWPjtP_ORcDT2Bpdef3b?usp=sharing) for files and screenshots of this run
 
-It was quite fun xd i mean to try and all, although a bit slower which is expected since there are more players i guess (but i suspect even with same player count, may have run slower on the 48 civs dll civ, based on what i understood of base advciv comments or notes and/or such if i am not mistaken but anyways etc).
-
-Still, in the game where i tried it, it was gradually faster as more and more players were defeated which is expected i guess too. It was also a good test to confirm game runs end to end (although i mistakenly ran it in small map size as i didn't notice it, but seems fine as game still runs end to end fine it seems but anyways etc).
-
-All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
+ All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
 
 Note: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
 
 Note 2: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL anyways etc.
-
-## Autoplay test runs
-
-Since release, i may perform autoplay test runs to see how AI behaves and is competitive and all and see potential issues it has and all but anyways etc here in this [google drive folder link](https://drive.google.com/drive/folders/1J8w-LbeZrD2fuifSxT8vJOXYU1MQ_YDh?usp=sharing)
-
-Note: as i said in the intro of this main readme, advciv-sas devlopment is mostly finished as of now, but if i were ever to continue (not guaranteed, i may or may not anyways etc), then datapoints like these may help me pinpoint issues to improve enhance in current AI ((like in test run 0 screenshot 128 anyways etc) Rome AI winning but having a starving capital with artist specialists even though it already reached legendary threshold in city so uneeded if i'm not mistaken but anyways etc), but as is tedious i may or not do so but anyways etc.
-
-See also: [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc).
-
-## Project Goals and global view on gameplay changes
-
-For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [Main Changes Guide](/README.md#main-changes-guide) anyways etc.
-
-Note: what is written is a general draft and to gather ideas, that may not be updated (missing or not anymore considered ideas maybe anyways etc) anymore with current advciv-sas development state, see rather the Main Changes Guide for details.
-
-The more general gameplay type of changes consist of:
-
-- Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not be too aggressive but merciless, also more cautious sometimes (war declarations in particular, mostly just for its self interest and not to spare a valuable target))
-- Gradual gameplay: currently the late game is a chore, trying to prevent that
-- Gradual handicap (difficulty), with also harder base difficulty (including settler) but also less tedious higher/highest ones that should/would ideally feel less of a grind but still be very challenging, hopefully by increasing AI performance and comeptitivity if we find ways to do so in our mod AdvCiv-SAS anyways etc.
-- Better quality of life changes: while most below make the game harder, not all changes are harsher, some are meant to have the human player an easier experience, at no change, changes include or planned to include fixed costs (tech, city production, unit maintenance quotas costs, etc), while only the AI's settings ones vary. This means for example that techs will always cost the same price at all difficulties, making it easier for the human player to adjust to newer difficulties and reusing strategies, counting costs and doing strategy hopefully too, only the AI would be faster or slower at it (but intends to be less of a grind in many ways possible, having an even or close to even game against AI even at most high difficulties, that would still be harder, is the goal).
-- Clearer and more detailed sevopedia in particular anyways etc
-- Military otherwise overhaul: many units have their stats changed or reworked, in particular many units are versatile now. No reason why a swordsman can't defend a city, an archer attack, and a scout/explorer threaten to capture a city (if low in strength).
-- Military terrain overhaul: all/most units have terrain bonuses (and (very) rarely maluses (i try to avoid that approach rather for immersion and i don't think it critically helps in having deeper strategy)). Some civ's units will be better in some terrains than others (the arabs good at desert, russians good at tundra, as an example). Due to these elements, and possibly others too, there should be a much higher focus on strategy when playing.
-- Buff barbarians as they are is too weak now (i.e. in base AdvCiv) it seems if i am not mistaken anyways etc
-- Buff cultural victory as it is too weak now (i.e. in base AdvCiv) it seems if i am not mistaken anyways etc
-- Buff water tiles, water buildings, and naval city settling/planting
-- Buff tundra tiles and tundra city settling/planting
-- Buff desert tiles and desert city settling/planting
-- A few new ressources/bonuses such as camel
-- New Buildings (and units too most likely)
-- A few new civs: The Kingdom Of Benin is for example the first civ i added/am adding.
-- More balanced leaders: Not more than 3-4 and in more places (times?)
-- Religion overhaul: Religion is now completely changed, it's not just a bunch of (politically correct i think) stats, but each religion has its specific bonuses, also AIs will be much more sensitive to it, it should play a huge role at all stages of the game so requiring absolute strategy or at least carefulness. Also added wikipedia or similar or other kind of pedia based entry if i may say unless stated otherwise hopefully helpful but anyways etc anyways etc anyways etc...
-- Corporations removed? Reworked as a religion 2 or something else? Todo
-- Historical accuracy
-- Tech tree rework for historical accuracy and balance/versatility or other reasons anyways etc
-- Nerf Tech whoreism (if that's a word anyways etc), by adding a few or quite many new this technology "Cannot be traded" flags in sevopedia, tech tree view (technology advisor) at some techs
-- Wonders rework
-- Some extra terrain changes, it will be possible to walk on peaks (moutains) and even settle your cities there, movement will be slower though.
-- Otherwise Not an extensive mod, it "only" if i may say but anyways etc attempts to greatly polish at least as of now but anyways etc what's existing rather than to create something entirely new and totally different, hopefully interesting this way at least is how i seem to want to do it or can do it or and other or and not at least of now if not always or not but in all cases anyways etc anyways etc anyways etc
-- Maybe change victory conditions: remove space victory except for the USA, or other things? Todo
-- Maybe some (or lot) music, ideally (even more ideally), if copyright or something is not an issue when/if i upload
-the finished version.
-- Recent new goal but anyways: new AI-generated images (using ChatGPT for now at least if not always or not but anyways)
-- Some bug fixes if i found them or and tweaks anyways etc (see docs for details anyways etc, in particular [README.md#known-issues-in-base-advciv-orand-civ4](/README.md#known-issues-in-base-advciv-orand-civ4) or/and main README.md for details anyways etc).
 
 ## Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc
 
@@ -398,7 +336,7 @@ Note: this also includes fixes/fixed issues as well for those of these we solved
 
 Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) for details or/and additional info. If not there, there may be some extra info in [Modding_Ressources/README.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md) as well although it should be more technical and with some caveats there but anyways etc.
 
-Note 3: about the missing fields in sevopedia that are technically also fixes if i'm not mistaken but anyways etc, please see in particular if i may say but anyways the doc at [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md) anyways etc or modding ressources there as well for fields such as the missing this technology "Cannot be traded" now also in tech advisor, or these other related docs for fields we added in the DLL such as the missing BBAI getters (victory weights) in the DLL (to access them in sevopedia leader py file anyways etc), if i am not mistaken but anyways etc, or of fields such as getCityRefuseAttitudeThreshold newly added in advciv if i am not mistaken but not exposed in python if i am not mistaken in my understanding or/and knowledge too but anyways etc
+Note 3: some features added such fields that were previously missing in sevopedia are technically also considered fixes i would say and sometimes mentionned in the documentation as such, for example in [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md) or other documentation about "Cannot be traded" fields that are now also in tech advisor, or these other related docs for fields we added in the DLL such as the missing BBAI getters (victory weights) in the DLL (to access them in sevopedia leader py file anyways etc), or getCityRefuseAttitudeThreshold newly added in advciv if i am not mistaken but not exposed in python if i am not mistaken in my understanding or/and knowledge too but anyways etc.
 
 ## "Temporary" crashes
 
@@ -427,13 +365,13 @@ Our game should be as of now mostly if not really stable, i very rarely encounte
 
 I use the default github branch's commit count as version number.
 
-For example, in our mod's github default branch's main page [our mod's github default branch's main page](https://github.com/wonderingabout/AdvCiv-SAS), as of now there are 4970 commits, so this is AdvCiv-SAS 4970.
+For example, in our mod's github default branch's main page [our mod's github default branch's main page](https://github.com/wonderingabout/AdvCiv-SAS), as of now there are 5187 commits, so this is AdvCiv-SAS 5187.
 
-Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version if i'm not mistaken as well anyways etc; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself, it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
+Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version if i'm not mistaken as well anyways etc; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
 
 ## Copyright and Disclaimer
 
-The bit annoying/painful section, but in short this is a fan project that i hope is enjoyable, however to cover myself xd and to be exhaustive too, here is a (more but anyways etc) proper copyright section/warning written by chatgpt thanks to my prompt / at my request too anyways etc that i adjusted or not for formatting or/and small corrections or modifications for my needs/wants but anyways etc:
+The bit annoying/painful section, but in short this is a fan project that i hope is enjoyable, however to cover myself xd and to be exhaustive too, here is a (more but anyways etc) proper copyright section/warning written by chatgpt thanks to my prompt / at my request too anyways etc that i adjusted or not for formatting or/and small corrections or modifications but anyways etc:
 
 >This mod for Sid Meier’s Civilization IV: Beyond the Sword is a fan-made, non-commercial project created for entertainment and educational purposes only.
 >All original content, code, and designs created specifically for this mod are released as part of the mod under applicable open or fair-use terms, unless otherwise noted.
@@ -493,23 +431,6 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
 
 Sound seems strangely louder at first game launch, but then accesing main menu again from a loaded save file or such ingame map state, then the sound in main menu is seemingly quieter so amking it a bit louder to accomodate that so it is not too low when acessing main menu again from ingame map view. Also, sounds seems blurrier (ironic since this is a lofi music as of now if i'm not msitaken but i still want it accurate xd, and assuming my perception of it being blurrier is also correct as well as this is not sure and maybe it sounds the same or the same enough regardless of xml volume then increasing system/computer volume per user action or not but anyways etc) the lower i put the music sound/volume, although it could be just my perception, or maybe not (?), i'd rather have a higher volume just in case. If you want to listen to the real audio, link is in this readme.md 's copyright section at `SONG_OPENING_MENU`, or alternatively also accessible in our mod locally as well, as of now here in the [main menu music folder](/Assets/Art/AdvCiv_SAS/Main_Menu/music/), hopefully helpful or not or yes or etc, anyways etc.
 
-## Credits
-
-- AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times. There are a lot of things i wanted to improve in base advciv, but i could only make so because the base, despite its flaws to me here and there, was mostly overall very good to start with thanks a lot.
-- Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
-too too, thanks,
-- Middle-earth (that i may call M-E sometimes maybe or not anyways etc): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i can or/and will, ideally yes but not guaranteed, may also not, at least i linked(=mentionned) their name hopefully (little if not lot helpful anyways etc), thanks a big big lot, but to match other comments too anyways etc even though not a specific requirement for me (but) anyways etc anyways etc, thanks a lot, etc anyways anyways etc, thanks,
-- RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot! ; update: i must revise my judgment/opinion (rereading myself after writing next part of the sentence here anyways etc, their content is even more amazing for the parts i need or among the ones i looked at i mean anyways etc!!! Thanks a lot!!! As explained after brackets anyways etc... anyways etc!!! Anyways etc :) anyways etc...), their FPKs are incredibly tidy and nicely ordered and efficient and work at first try!!! For example i could get the camel_rider's art assets all very easily with one extract with dragon unpacker and it just worked :) works-functions anyways etc :) Also no hardcoded paths that i didn't bother sadly or not updating fixing so far, just put assets and it works, so nice, thanks a lot!!!
-- History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
-- Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
-- Neoteric World (that i may call NW sometimes anyways etc): i imported some content such as tech buttons (for example of the marine technology advciv-sas tech, based on their heavy water tech if i am not mistaken anyways etc), and their fpk is incredibly nice!!! It's all All in one rather but anyways etc.. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker anyways etc, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting (i.e. one wrapping folder anyways etc) fine (folder name has the advciv-sas asset name or closest or close to it anyways etc, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if nee(ed?) but anyways etc))
-- Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame anyways etc) ; also their fpks and asset naming are very clean as far as i can tell from litle or not in this case i mean i used anyways etc (only a few fpks not tons like other mods if i may say, and easy to find files from asset names, even filenames are generally clean and direct if i may say as i like it in this case at least if i may say always or not but anyways etc, from the few i looked at at least i mean, thanks a lot), i can even say it was inspiring to me too in this case hehe but anwyays etc, for example i was hesitating to rename "_WARRIOR" to "_ANCIENT_MACEMAN" as (bit but anwyays etc) tedious but would be much cleaner doing so anyways etc, thanks a lot anyways etc thanks a lot anyways etc thanks a lot!
-- Civ4 Reimagined, thanks to which i could confirm (at least it is now most likely to be so if i'm not mistaken in my guess but anyways etc) (with chatgpt 5's help as well but i wanted to double check if a mod used the following pattern for era xml lookups and comparisons but anyways etc and it was the only one among all mods i had installed but anyways etc) that the pattern `GC.getTechInfo(eDiscoveryTech).getEra() >= (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE")` to do xml era lookups and comparisons seems safe or safe enough to use since other mods use it and it is cleaner than magic numbers i mean if i may say and as chatgpt 5 recommended as well but check to be sure anyways etc.
-- Realism Invictus (also know as RI): i took quite a lot content from there, their assets are very nice for those i took thanks a lot, that being said, their XML and their FPK are shit, fucking big shit xd, why so many fragmented things, and weird names like improved_horse_archer for a fucking camel unit.... Anyways etc... Thanks for the many assets but there is a lot of shit too, hopefully i can find what i want in it and am thankful for the rest though but i must point this out... If i may say, but anyways etc... Update: this seems [intended](https://forums.civfanatics.com/threads/bug-report.185667/post-16862589), and SVN or such version may have fpk free assets which i would very much want were i to mod advciv-sas which is as of now not guaranteed xd i may or may not continue modding advciv-sas at least for now if not always or not, but if needed, they may have fpk-less assets which would be super nice if possible although i didn't check it but anyways etc.
-- Doto mod (same name i think is short enough and cool as in abbreviated in a way i like enough or and other or and not anyways etc anyways etc anyways etc), which we took one or a few things from, for example the C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml infos which should or may help us that i added in our [CIV4BuildingInfos.xml](Assets/XML/Buildings/CIV4BuildingInfos.xml) with some additional code comments or not or and other or and not anyways etc, thanks too, anyways etc(,) anyways etc(...)(,) anyways etc.. anyways etc, thanks
-- Chronicles of Mankind (which i may call COM anyways etc) from which i took for example the air_bombers of advciv-sas button, from their rom_promotion_atlas2.dds atlas that i found in their UNITCOMBAT_BOMBERS, thanks
-- Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML, which surprised me a lot in a way that pleased me. So far i have not touched the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
-
 ## Some Useful tools while doing this
 
 Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
@@ -557,19 +478,28 @@ This mod is free to use, modify, and share. No formal restrictions - but I kindl
 
 ## Starting your mod
 
-I have written [the Modding Ressources page](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/)
-that gives some non-exhaustive pointers, if you want to start your own mod. Although listed there as well, there is also a [Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
+I have written [the Modding Ressources page](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/) that gives some non-exhaustive pointers, if you want to start your own mod. Although listed there as well, there is also a [Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
-Disclaimer that i may not be able to give any feedback on it even if asked, also that i may
-not be available or wish to do so or not do for any reason, i might/may one or few times, but
-i may simply not for any reason, such as focusing on myself, resting, anything or nothing or
-other. Nor can i be held responsible of any result of following these. Please read the (more)
-detailed disclaimer there on page i linked above for details. However, with that being said,
-i hope the ressources provided there give you some help, anyways.
+Disclaimer that i may not be able to give any feedback on it even if asked, also that i may not be available or wish to do so or not do for any reason, i might/may one or few times, but i may simply not for any reason, such as focusing on myself, resting, anything or nothing or other. Nor can i be held responsible of any result of following these. Please read the (more) detailed disclaimer there on page i linked above for details. However, with that being said, i hope the ressources provided there give you some help, anyways.
 
-Else or additionally, you may find more help asking your question(s) directly on
-[CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/)
-rather maybe. Hopefully this data i provided is also helpful though.
+Else or additionally, you may find more help asking your question(s) directly on [CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/) rather maybe or some other place maybe but anyways etc. Hopefully this data i provided is also helpful though but anyways etc.
+
+## Credits
+
+- AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times. There are a lot of things i wanted to improve in base advciv, but i could only make so because the base, despite its flaws to me here and there, was mostly overall very good to start with thanks a lot.
+- Middle-earth (that i may call M-E sometimes maybe or not anyways etc): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i can or/and will, ideally yes but not guaranteed, may also not, at least i linked(=mentionned) their name hopefully (little if not lot helpful anyways etc), thanks a big big lot, but to match other comments too anyways etc even though not a specific requirement for me (but) anyways etc anyways etc, thanks a lot, etc anyways anyways etc, thanks,
+- RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot! ; update: i must revise my judgment/opinion (rereading myself after writing next part of the sentence here anyways etc, their content is even more amazing for the parts i need or among the ones i looked at i mean anyways etc!!! Thanks a lot!!! As explained after brackets anyways etc... anyways etc!!! Anyways etc :) anyways etc...), their FPKs are incredibly tidy and nicely ordered and efficient and work at first try!!! For example i could get the camel_rider's art assets all very easily with one extract with dragon unpacker and it just worked :) works-functions anyways etc :) Also no hardcoded paths that i didn't bother sadly or not updating fixing so far, just put assets and it works, so nice, thanks a lot!!!
+- Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+too too, thanks,
+- History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+- Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
+- Neoteric World (that i may call NW sometimes anyways etc): i imported some content such as tech buttons (for example of the marine technology advciv-sas tech, based on their heavy water tech if i am not mistaken anyways etc), and their fpk is incredibly nice!!! It's all All in one rather but anyways etc.. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker anyways etc, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting (i.e. one wrapping folder anyways etc) fine (folder name has the advciv-sas asset name or closest or close to it anyways etc, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if nee(ed?) but anyways etc))
+- Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame anyways etc) ; also their fpks and asset naming are very clean as far as i can tell from litle or not in this case i mean i used anyways etc (only a few fpks not tons like other mods if i may say, and easy to find files from asset names, even filenames are generally clean and direct if i may say as i like it in this case at least if i may say always or not but anyways etc, from the few i looked at at least i mean, thanks a lot), i can even say it was inspiring to me too in this case hehe but anwyays etc, for example i was hesitating to rename "_WARRIOR" to "_ANCIENT_MACEMAN" as (bit but anwyays etc) tedious but would be much cleaner doing so anyways etc, thanks a lot anyways etc thanks a lot anyways etc thanks a lot!
+- Civ4 Reimagined, thanks to which i could confirm (at least it is now most likely to be so if i'm not mistaken in my guess but anyways etc) (with chatgpt 5's help as well but i wanted to double check if a mod used the following pattern for era xml lookups and comparisons but anyways etc and it was the only one among all mods i had installed but anyways etc) that the pattern `GC.getTechInfo(eDiscoveryTech).getEra() >= (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE")` to do xml era lookups and comparisons seems safe or safe enough to use since other mods use it and it is cleaner than magic numbers i mean if i may say and as chatgpt 5 recommended as well but check to be sure anyways etc.
+- Realism Invictus (also know as RI): i took quite a lot content from there, their assets are very nice for those i took thanks a lot, that being said, their XML and their FPK are shit, fucking big shit xd, why so many fragmented things, and weird names like improved_horse_archer for a fucking camel unit.... Anyways etc... Thanks for the many assets but there is a lot of shit too, hopefully i can find what i want in it and am thankful for the rest though but i must point this out... If i may say, but anyways etc... Update: this seems [intended](https://forums.civfanatics.com/threads/bug-report.185667/post-16862589), and SVN or such version may have fpk free assets which i would very much want were i to mod advciv-sas which is as of now not guaranteed xd i may or may not continue modding advciv-sas at least for now if not always or not, but if needed, they may have fpk-less assets which would be super nice if possible although i didn't check it but anyways etc.
+- Doto mod (same name i think is short enough and cool as in abbreviated in a way i like enough or and other or and not anyways etc anyways etc anyways etc), which we took one or a few things from, for example the C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml infos which should or may help us that i added in our [CIV4BuildingInfos.xml](Assets/XML/Buildings/CIV4BuildingInfos.xml) with some additional code comments or not or and other or and not anyways etc, thanks too, anyways etc(,) anyways etc(...)(,) anyways etc.. anyways etc, thanks
+- Chronicles of Mankind (which i may call COM anyways etc) from which i took for example the air_bombers of advciv-sas button, from their rom_promotion_atlas2.dds atlas that i found in their UNITCOMBAT_BOMBERS, thanks
+- Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML, which surprised me a lot in a way that pleased me. So far i have not touched the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
 
 ## Authors
 
@@ -581,7 +511,7 @@ Note: may not list all versions of such models/ais used anyways etc.
 
 [wonderingabout (github link anyways etc)](https://github.com/wonderingabout/)
 
-(note: sometimes the second author below which i like hehe but anyways etc (a lot but anyways etc) calls me "wanderingabout" (some more context in these [google drive folder link](https://drive.google.com/drive/folders/1O-CTJKP9KtBG4rsS7-nH3Fa2AvdTZQWm?usp=sharing) ('s? but anyways etc) screenshots anyways etc), obviously on purpose xd.
+(note: sometimes the second author below which i like hehe but anyways etc (a lot but anyways etc) calls me "wanderingabout" (some more context in these [google drive folder link](https://drive.google.com/drive/folders/1O-CTJKP9KtBG4rsS7-nH3Fa2AvdTZQWm?usp=sharing) screenshots anyways etc), obviously on purpose xd.
 
 In the advciv-sas mod code, i have flagged my code comments with `<!-- custom:` in XML, python, C++ as of now any language if i may say at least in this case anyways etc.
 
