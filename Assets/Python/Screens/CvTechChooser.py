@@ -33,8 +33,12 @@ import BugUtil  # noqa: E402
 PREF_ICON_SIZE = 24
 #PREF_ICON_TOP = 168
 # <advc.004a>
-PREF_ICON_BOTTOM = 738
-PREF_ICON_LEFT = 40 # was a bit farther left (10)
+# <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height as found gemini pro 3 found nicely thanks but anyways etc. -->
+# PREF_ICON_BOTTOM = 738
+PREF_ICON_BOTTOM = 926
+# <!-- custom: move it more to the left anyways etc. -->
+# PREF_ICON_LEFT = 40 # was a bit farther left (10)
+PREF_ICON_LEFT = 10
 # </advc.004a>
 FLAVORS = [
 	TechPrefs.FLAVOR_PRODUCTION,
@@ -226,14 +230,36 @@ class CvTechChooser:
 
 # BUG - Tech Screen Resolution - start
 		#BugOpt.isWideTechScreen() and # advc.004: No longer optional
-		if screen.getXResolution() > 1024:
-			xPanelWidth = screen.getXResolution() - 60
-		else:
-			xPanelWidth = 1024
-		yPanelHeight = 768
+		# <!-- custom: simplify but also rework this as well anyways etc. -->
+		# if screen.getXResolution() > 1024:
+		# 	xPanelWidth = screen.getXResolution() - 60 - 500
+		# else:
+		# 	xPanelWidth = 1024
+		# yPanelHeight = 768
+		# <!-- custom: preserve key display (commerce sliders, scoreboard if we do as well, or/and other things or not but anyways etc.) and otherwise maximize game window usage anyways etc. -->
+		
+		# <!-- custom: since in this file unlike in the foreign advisor or similar files, the screen x y w and h (i.e. self.X_SCREEN and co anyways etc.) are initialized in interfaceScreen and not in init, we can use the real game windows's resolution so it fully dynamic. I tried making it so in the foreign advisor and such other files but it lead to issues and all, so left as is there with hard coded values of as of now 1920x1080 minutes gaps we want to leave unused by the panel, however in this file as of now CvTechChooser we can use the available screen variable to make it fully dynamic seemingly (check if accurate as i don't know too much about these but it seems ot be as such empirically and it is also as gemini 3 pro advised while debugging the related errors in particular but anyways etc.). -->
+
+		wLeftSpace = 0
+		self.X_SCREEN = wLeftSpace
+		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
+		wRightSpaceForTechPartOfTheScoreBoard = 206
+		self.W_SCREEN = screen.getXResolution() - wRightSpaceForTechPartOfTheScoreBoard - wLeftSpace
+
+		hTopSpaceForCommerceSliders = 118
+		self.Y_SCREEN = hTopSpaceForCommerceSliders
+		hBottomSpace = 0
+		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
+		self.H_SCREEN = screen.getYResolution() - hTopSpaceForCommerceSliders - hBottomSpace
+
+		xPanelWidth = self.W_SCREEN
+		yPanelHeight = self.H_SCREEN
 
 		screen.showWindowBackground( False )
-		screen.setDimensions((screen.getXResolution() - xPanelWidth) / 2, screen.centerY(0), xPanelWidth, yPanelHeight)
+	
+		# <!-- custom: no longer center it and adjust dimensions similarly to how we did for the military advisor and other related reworks anyways etc. -->
+		# screen.setDimensions((screen.getXResolution() - xPanelWidth) / 2, screen.centerY(0), xPanelWidth, yPanelHeight)
+		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, xPanelWidth, yPanelHeight)
 # BUG - Tech Screen Resolution - end
 
 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, xPanelWidth, 55, PanelStyles.PANEL_STYLE_TOPBAR )
@@ -248,14 +274,17 @@ class CvTechChooser:
 		szText = szText + u"</font>"
 		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, 8, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
-		# Make the scrollable area for the city list...
-		# advc.004a: What cities? Anyway, no scrollable area needed.
-		if False and BugOpt.isShowGPTechPrefs():
-			iX = 80
-			iW = xPanelWidth - 80
-		else:
-			iX = 0
-			iW = xPanelWidth
+		# <!-- custom: simplify code since this was disabled anyway anyways etc. -->
+		# # Make the scrollable area for the city list...
+		# # advc.004a: What cities? Anyway, no scrollable area needed.
+		# if False and BugOpt.isShowGPTechPrefs():
+		# 	iX = 80
+		# 	iW = xPanelWidth - 80
+		# else:
+		# 	iX = 0
+		# 	iW = xPanelWidth
+		iX = 0
+		iW = xPanelWidth
 
 		self.TabPanels = ["TechList", "TechTrade"]
 
