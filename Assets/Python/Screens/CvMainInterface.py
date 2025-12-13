@@ -448,6 +448,7 @@ class CvMainInterface:
 
 		# <!-- custom: fetch the define once may be computaitonally cheaper (i think but not sure anyways etc.) -->
 		# <!-- custom: initialize cheaply once. -->
+		# <!-- custom: note: for some reason, unlike what we could do in other files, it seems setting this as a global variable and fetching from gc in the global scope there does not seem to work (regardless of our value in sas defines the extra rows of the city screen's production chooser bar are always disabled ingame), so doing it as such is maybe fine and cheaper than fetching gc at each call maybe (check if accurate as just a guess of mine but i guess so (but i don't know too much about these to tell precisely i mean if i may say but anyways etc.)) -->
 		self.iBarExtraRows = None
 		self.iBarExtraRowsExtraManualAdjust = None
 

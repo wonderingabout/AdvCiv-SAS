@@ -342,8 +342,10 @@ class CvTechChooser:
 		# Draw the arrows
 		self.drawArrows(screen, sPanel, bANDPreReq, bORPreReq)
 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
-		if CyGame().getElapsedGameTurns() > 0:
-			self.updateTechPrefs()
+		# <!-- custom: make it available since turn 0 for clarity and as advised by chatgpt 5.2 thanks but anyways etc. -->
+		# if CyGame().getElapsedGameTurns() > 0:
+		# 	self.updateTechPrefs()
+		self.updateTechPrefs()
 
 		screen.moveToFront( "CivDropDown" )
 

@@ -87,6 +87,8 @@ But i say it just for exhaustiveness, even though i am (quite) friendly i think,
 
 ## Configure your game
 
+### General ideas
+
 Recommended, change your config as you prefer. For example as for me, i play at 1920x1080 (seems to display best ingame, even though i have a larger screen actually (4K but anyways etc) i also optimized sevopedia features like the AI personality panel for 1920x1080 (but may work as well for higher resolutions although i didn't test it but anyways etc)) in full screen, but when i need to debug or test the windowed mode is so much more practical.
 
 There are some options i use personally xd but anyways etc in ingame settings then like if i'm not mistaken (from memory since i can't find the txt files where i stored it if i ever did (which i think i did but anyways etc)), so do as you prefer, but as for me i use these civ4 options for example if not already enabled before anyways etc (non-exhaustive in case i forgot / didn't show some anyways etc):
@@ -101,6 +103,14 @@ There are some options i use personally xd but anyways etc in ingame settings th
 Then in BUG Menu options i also use this for example hehe but do as you prefer as well anyways etc (non-exhaustive in case i forgot / didn't show some anyways etc):
 
 - wide city bars
+
+### Relevant BUG Menu Options — enable if needed
+
+Some of the [UI reworks or changes mentionned in the Main Changes Guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game) require to enable the corresponding **BUG MENU**'s Option to see them.
+
+For example, to see the tech bulbing indicators, enable "GP Research" in the BUG Menu -> Advisors tab.
+
+<img src="../Images_In_General/misc_0.x/0.97_bug_menu_demo_show_recommended_advisors.jpg" alt="0.97_bug_menu_demo_show_recommended_advisors.jpg" width="250"></img>
 
 ## Settings if you want to develop/modify the mod or try some autoplay or such anyways etc (skip this section if only playing without wanting extra details)
 
