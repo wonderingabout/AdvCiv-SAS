@@ -49,15 +49,24 @@ class CvMilitaryAdvisor:
 		# self.Y_SCREEN = 396
 		# self.W_SCREEN = 1024
 		# self.H_SCREEN = 768
-		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.), assuming a 1920 x 1080 display -->
+		# <!-- custom: note: screen is not available at init it seems unlike in the way it is done as of now in CvTechChooser where self.X_SCREEN and such are initialized in interfaceScreen that already has a screen variable. I tried adding screen in init in the foreign advisor but it lead to crashes, so using hardcoded values of 1920 and 1080 to avoid that, and is done as per gemini 3 pro's recommendation as well (check if accurate especially as i don't know too much about these but it seems to be so empircially but check to be sure anyways etc.) -->
+		xHardcodedResolution = 1920
+		yHardcodedResolution = 1080
+
+		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.) -->
 		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such but anyways etc. -->
-		# self.X_SCREEN = (1920 - self.W_SCREEN) / 2
-		self.X_SCREEN = 172
+
+		wLeftSpaceForCommerceSliders = 172
+		self.X_SCREEN = wLeftSpaceForCommerceSliders
 		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
-		self.W_SCREEN = 1530 - self.X_SCREEN
-		self.Y_SCREEN = 28
-		# <!-- custom: assuming 1920 x 1080 display, if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. 1080 - 100 = 980). -->
-		self.H_SCREEN = 1080 - self.Y_SCREEN
+		wRightSpaceForScoreBoard = 390
+		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
+
+		hTopSpaceForTechBar = 28
+		self.Y_SCREEN = hTopSpaceForTechBar
+		hBottomSpace = 0
+		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
+		self.H_SCREEN = yHardcodedResolution - hTopSpaceForTechBar - hBottomSpace
 
 		# <!-- custom: add new self.X_TITLE so we can properly center it or put it where we want in the X axis, after our changes the title is too much on the left side and not centered -->
 		# screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
