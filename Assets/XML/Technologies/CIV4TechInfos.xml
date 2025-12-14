@@ -632,8 +632,7 @@
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
-			<!-- custom: was 0 anyways etc -->
-			<bVassalTrading>1</bVassalTrading>
+			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
@@ -646,12 +645,8 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc, reduce FLAVOR_CULTURE (was 10), remove FLAVOR_RELIGION anyways etc, change FLAVOR_MILITARY (was 3) -->
+			<!-- custom: reduce FLAVOR_CULTURE (was 10), remove FLAVOR_RELIGION anyways etc. -->
 			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
 					<iFlavor>2</iFlavor>
@@ -668,9 +663,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MUSIC_THEORY</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_DRAMA_QUOTE</Quote>
 			<Sound>AS2D_TECH_DRAMA</Sound>
 			<SoundMP>AS2D_TECH_MP_DRAMA</SoundMP>
@@ -1054,7 +1047,7 @@
 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CHIVALRY_QUOTE</Quote>
 			<Sound>AS2D_TECH_CHIVALRY</Sound>
@@ -2046,7 +2039,7 @@
 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MASONRY</PrereqTech>
+				<PrereqTech>TECH_POTTERY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_THE_WHEEL_QUOTE</Quote>
 			<Sound>AS2D_TECH_THE_WHEEL</Sound>
@@ -2793,7 +2786,8 @@
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
-			<bVassalTrading>0</bVassalTrading>
+			<!-- custom: was 0 anyways etc -->
+			<bVassalTrading>1</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
@@ -2804,10 +2798,11 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: was flavor religion 3 culture 6 military 0 (add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc.). -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -2815,7 +2810,11 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -4897,9 +4896,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_BRONZE_WORKING_QUOTE</Quote>
 			<Sound>AS2D_TECH_BRONZEWORK</Sound>
 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
@@ -5378,9 +5375,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_MACHINERY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MACHINERY</Sound>
 			<SoundMP>AS2D_TECH_MP_MACHINERY</SoundMP>
@@ -5457,7 +5452,7 @@
 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ENGINEERING_QUOTE</Quote>
 			<Sound>AS2D_TECH_ENGINEERING</Sound>
