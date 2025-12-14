@@ -971,4 +971,9 @@
 		<Tag>TXT_KEY_TECH_BROADER_EDUCATION</Tag>
 		<English>Broader Education</English>
 	</TEXT>
+	<!-- custom: rename "TECH_MUSIC" to "TECH_MUSIC_THEORY" as recommended by gemini 3 pro thanks but anyways etc; as a side effect, allows to better distinguish it from generic "_MUSIC" not related to the tech asset itself but anyways etc. -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MUSIC_THEORY</Tag>
+		<English>Music Theory</English>
+	</TEXT>
 </Civ4GameText>

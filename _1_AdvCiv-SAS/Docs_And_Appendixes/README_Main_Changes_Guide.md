@@ -91,6 +91,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 - “Ressource(s)” → “Bonus(es).”
 - Bonus names standardized: Ivory → Elephants; Cow → Cattle; Clam → Molluscs; Wine → Grapes, etc.
 - Terrain/Feature: Ice (Terrain) → Ice Sheet; Ice (Feature) → Ice Cap.
+- (Requires AdvCiv-SAS 5192+) “Music” → “Music Theory” (Reflects the ancient development of notation and harmonics rather than the later artistic genre).
 - “Great wonders” → “World wonders” (functionally the same).
 - Leader names corrected where needed (e.g., Montezuma → Moctezuma II).
 - Taoism → Daoism (with matching building/unit names and encyclopedia text).

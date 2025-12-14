@@ -112,7 +112,7 @@ As for the changelog between releases of AdvCiv-SAS, see the [github tags](https
 
 ## Main Changes Guide
 
-I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS latest) with the help of chatgpt (check if info is accurate); sometimes edited it. It should contain same entries than in the "custom" version of the main changes guide that i wrote myself as base for this main changes guide. Hopefully fast enough to read and as of now much clearer than my longer one that was used as a base for it.
+I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS latest) with the help of chatgpt and gemini (check if info is accurate); i sometimes edited it. It should contain same entries than in the "custom" version of the main changes guide that i wrote myself as base for this main changes guide. Hopefully fast enough to read and as of now much clearer than my longer one that was used as a base for it.
 
 You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md).
 
