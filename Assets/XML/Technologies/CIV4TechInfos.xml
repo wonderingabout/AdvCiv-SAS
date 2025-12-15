@@ -1789,7 +1789,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>18</iGridX>
-			<iGridY>3</iGridY>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1813,9 +1813,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_RADIO</PrereqTech>
+				<PrereqTech>TECH_COMMUNISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_RADIO</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MASS_MEDIA_QUOTE</Quote>
 			<Sound>AS2D_TECH_MASS_MEDIA</Sound>
 			<SoundMP>AS2D_TECH_MP_MASS_MEDIA</SoundMP>
@@ -3444,8 +3446,8 @@
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
 			<Era>ERA_RENAISSANCE</Era>
-			<!-- custom: was UNITCLASS_GREAT_SCIENTIST -->
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: this rewards non military paths more relatively anyways etc, and the tech is quite bare otherwise so maybe hopefully fine/balanced and makes quite i mean makes sense in terms of lore or theme so hopefully fine as such at least i want to do so in advciv-sas but anyways etc, as in base civ4 or advciv coincidentally xd but anyways etc.: more balanced as such, boosts weak non-military physics tech anyways etc, and a reference i guess to newton/copernic or such so very relevant thematically i think but anyways etc. -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -3859,7 +3861,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
+				<PrereqTech>TECH_RADIO</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
@@ -5630,7 +5632,7 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
-			<!-- custom: _COMMUNISM effect seems more relevant here anyways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from tech_communism anyways etc -->
+			<!-- custom: _COMMUNISM effect seems more relevant here anyways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from TECH_COMMUNISM anyways etc -->
 			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -5660,7 +5662,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>18</iGridX>
-			<iGridY>19</iGridY>
+			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5685,7 +5687,7 @@
 			<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe i mean but anyways etc, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well but anyways etc)  too much here for variety or such i mean as well but anyways etc -->
 			<AndPreReqs>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
-				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+				<PrereqTech>TECH_COMMUNISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
 			<Sound>AS2D_TECH_GAME_THEORY</Sound>
@@ -6038,7 +6040,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 3 -->
+			<!-- custom: was FLAVOR_MILITARY 3, FLAVOR_CULTURE 0 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
@@ -6046,6 +6048,10 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
 					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
@@ -6373,8 +6379,7 @@
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MODERN -->
 			<Era>ERA_INDUSTRIAL</Era>
-			<!-- custom: this rewards non military paths more relatively anyways etc, and the tech is quite bare otherwise so maybe hopefully fine/balanced and makes quite i mean makes sense in terms of lore or theme so hopefully fine as such at least i want to do so in advciv-sas but anyways etc, was NONE -->
-			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
+			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -6559,11 +6564,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
-			</OrPreReqs>
-			<AndPreReqs>
 				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
 				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
+			</OrPreReqs>
+			<AndPreReqs>
+				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_COMPUTERS_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMPUTERS</Sound>

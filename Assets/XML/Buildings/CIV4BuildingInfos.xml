@@ -26285,9 +26285,9 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy quite well, and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->
+			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy quite well (they used many factories or some related techniques only 250 or such land workers i mean based on a quick search it seems but anyways etc.), and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->
 			<!-- advc.200: -->
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -26327,7 +26327,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: now sooner and reworked so adjust(ing for this building/wonder but anyways etc anyways etc) cost anyways etc, was 1250 -->
-			<iCost>600</iCost>
+			<iCost>625</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -27599,8 +27599,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_MASS_MEDIA -->
-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+			<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -29946,7 +29945,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- K-Mod: was MEDICINE -->
-			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -30480,7 +30479,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: changed to another / to account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc, was the now removed TECH_RAILROAD anyways etc -->
-			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -30834,14 +30833,9 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_CORPORATION only anyways etc -->
 			<!-- K-Mod: was MASS_MEDIA and CORPORATION -->
-			<PrereqTech>TECH_GAME_THEORY</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_CORPORATION</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<PrereqTech>TECH_CORPORATION</PrereqTech>
+			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
