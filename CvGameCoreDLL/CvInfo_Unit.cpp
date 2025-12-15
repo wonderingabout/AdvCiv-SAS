@@ -339,24 +339,56 @@ int CvUnitInfo::getFlavorValue(int i) const
 int CvUnitInfo::getTerrainAttackModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
+
+	// <!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS)
+	{
+		return 0;
+	}
+
 	return m_piTerrainAttackModifier ? m_piTerrainAttackModifier[i] : 0; // advc.003t
 }
 
 int CvUnitInfo::getTerrainDefenseModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
+
+	// <!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS)
+	{
+		return 0;
+	}
+
 	return m_piTerrainDefenseModifier ? m_piTerrainDefenseModifier[i] : 0; // advc.003t
 }
 
 int CvUnitInfo::getFeatureAttackModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumFeatureInfos(), i);
+
+	// <!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS)
+	{
+		return 0;
+	}
+
 	return m_piFeatureAttackModifier ? m_piFeatureAttackModifier[i] : 0; // advc.003t
 }
 
 int CvUnitInfo::getFeatureDefenseModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumFeatureInfos(), i);
+
+	// <!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS)
+	{
+		return 0;
+	}
+
 	return m_piFeatureDefenseModifier ? m_piFeatureDefenseModifier[i] : 0; // advc.003t
 }
 
