@@ -5686,7 +5686,6 @@
 			</OrPreReqs>
 			<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe i mean but anyways etc, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well but anyways etc)  too much here for variety or such i mean as well but anyways etc -->
 			<AndPreReqs>
-				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>TECH_COMMUNISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>

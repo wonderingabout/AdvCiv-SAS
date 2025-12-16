@@ -94,7 +94,6 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 - “Ressource(s)” → “Bonus(es).”
 - Bonus names standardized: Ivory → Elephants; Cow → Cattle; Clam → Molluscs; Wine → Grapes, etc.
 - Terrain/Feature: Ice (Terrain) → Ice Sheet; Ice (Feature) → Ice Cap.
-- (Requires AdvCiv-SAS 5192+) “Music” → “Music Theory” (Reflects the ancient development of notation and harmonics rather than the later artistic genre).
 - “Great wonders” → “World wonders” (functionally the same).
 - Leader names corrected where needed (e.g., Montezuma → Moctezuma II).
 - Taoism → Daoism (with matching building/unit names and encyclopedia text).
@@ -360,18 +359,18 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 
 ### Technologies (non-exhaustive)
 
-- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base. **Quotes** reordered to match the new tree (including the new Future era) and for accuracy.
+- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Overall tech count stays similar to base (some low-value techs removed, with the **Future era expanded**). **Quotes/announcer lines** were reassigned to better fit the new placements (including Future era) and for accuracy..
 - Gameplay timings shift: **culture**, **slavery**, **plantations**, etc., often **earlier**.
 - **Selective tech-trade bans for snowball techs:** Some high-impact techs are now flagged **“Cannot be traded”** (`bTrade = 0`) to curb extreme tech-brokering/“tech whoreism” chains (e.g. turning one breakthrough into a long series of trades), which AIs are especially vulnerable to and for balance. The goal is to tone down decisive, snowbally trades while still allowing normal tech trading (unless you enable the **No Tech Trading** game option, which disables it entirely). Info added in UI: see [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game) and [UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related) sections.
-- **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
-- **Exponential pacing**: fewer late‑era techs and unit types to avoid a tedious endgame; the **Future** era is the exception and is expanded.
+- **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+- **Exponential pacing**: fewer late-era techs/unit types (Future era is the exception and is expanded), partly reflecting that ancient eras cover far more “years” than modern ones.
 - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier). *Exception:* the Future era has its own GP assignments.
 - **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [Assets Rebalancing table (starting-techs (civ list & rationale))](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc).
 
 ### Eras
 
-- **Future era** reworked into a full era with techs/units/buildings and its own music; begins with **tech_depopulation** as a balancing/historical nod. See Sevopedia/XML.
-- **Era info** is shown in Sevopedia Tech entries.
+- **Future era** reworked into a full era with techs/units/buildings and its own music; begins with **tech_depopulation** as a balancing/historical nod. See Sevopedia/XML, and [README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer).
+- **Era info** is shown in Sevopedia Tech entries (see [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)).
 - **Eras — research scaling**: `iResearchPercent = 100` (**was** `100 / 90 / 80 / 70 / 60 / 50 / 40` for all eras); `iTechCostModifier = 0`. Tech costs now come directly from TechInfos (no hidden per-era multipliers). Tech costs have been adjusted to match this change.
 - **Eras — anarchy scaling**: `iAnarchyPercent = 100` for all eras (**was** `50 / 50 / 40 / 40 / 34 / 34 / 34`). In practice this yields about **2 turns** of anarchy when you change civics (or similar). Intent: add strategic weight without tedium; **indirectly buffs** traits with **no anarchy** (e.g., Spiritual).
 - **Eras — growth & production scaling flattened**: set `iGrowthPercent` (food-to-grow), `iTrainPercent` (unit cost), `iConstructPercent` (building cost), and `iCreatePercent` (project cost) to **100 for all eras** (**was** `100 / 100 / 100 / 90 / 80 / 70 / 60`). Removes late-era discounts that sped up mid/late game; pacing is now **predictable and gradual**, with balance handled directly via per-item `iCost` instead.
@@ -380,24 +379,24 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 
 ### Culture
 
-- **Great Artist** rework: instant culture bomb **reduced** (e.g., **700 → 500** per era), culture **per turn increased** (e.g., **12 → 18** culture/turn). This strengthens long-term culture play while toning down early spikes.
+- **Great Artist rebalance:** culture bomb strength reduced (**700 → 500 per era**), but long-term culture output increased (**12 → 18 culture/turn**). This strengthens long-term culture play while toning down early spikes.
 
 ### Religions (non-exhaustive)
 
-- **Religions roster**: added **Paganism**; removed **Confucianism** (chosen partly because it has **fewer adherents** in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
+- **Religions roster:** added **Paganism**; removed **Confucianism** (chosen partly because it has fewer adherents in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
 - **Missionaries:** significantly **cheaper**.
-- **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer).
-- **Shrines** now **require their religion in the city and the religion’s tech** (so they appear in the tech tree and can’t be built just by conquest). See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion) and [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree).
+- **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer)..
+- **Shrines:** now require **(1) the religion present in the city** and **(2) the religion’s tech** (previously shrine TechPrereq was NONE). This makes shrines show up properly in the **Religion** Sevopedia building list and in the **tech tree**, and prevents “conquer holy city ⇒ build shrine immediately” without the religion/tech. See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion), [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree), and [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category).
 
 ### Corporations (non-exhaustive)
 
 - **Executives:** significantly **cheaper**.
-- Each corporation now uses **one distinct Great Person** type (no overlaps).
+- **Great Person variety:** each corporation uses **one distinct Great Person type** (no overlaps).
 
 ### Buildings (non-exhaustive)
 
-- **Granary:** cheaper, slightly weaker food retention. Civ-specific granaries unchanged (so their relative advantage increases).
-- **Water building line reworked/buffed** *(Goal: make water tiles more viable while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*:
+- **Granary:** cheaper, slightly weaker food retention (partly to balance the Slavery/Hurry changes). Civ-specific granaries unchanged (so their relative advantage increases). Note: the Incan granary (Qullqa) was reworked toward a production/growth role rather than a culture role.
+- **Water building line reworked/buffed** *(Goal: make **water tiles more viable** while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*:
   - **Harbor** (first water building): health/food oriented.
   - **Lighthouse:** gold oriented (**+x commerce** from worked tiles where applicable).
   - **Port (new):** production oriented (**+x hammer** from worked tiles where applicable).
@@ -405,10 +404,10 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
   - **Customs House:** buffed.  
 - Fewer **national** wonders and relatively more **world** wonders.
 - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
-- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly **lower**).
-- Most `BonusProductionModifiers` (e.g., +100% with Marble) are **greatly reduced**. Example: **Parthenon** is now **+25% with Marble** (was +100%).
+- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly lower).
+- Most `BonusProductionModifiers` (e.g., +100% with Marble) are greatly reduced. Example: Parthenon is now +25% with Marble (was +100%). Wonder costs were also adjusted to fit this change.
 - Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
-- **Iron Works:** now requires **both Coal and Iron** empire-wide; city requirement count lowered; cost up moderately (e.g., **700 → 800**).
+- **Iron Works:** now requires **both Coal and Iron empire-wide**; city requirement count lowered; cost up moderately (e.g., 700 -> 800).
 - **Heroic Epic** (`iMilitaryProductionModifier`): **100% → 50%**. The always-on military production boost was too strong and could let AIs run away; this tones it down while keeping the building relevant.
 - Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Russian **Research Institute** replaced with **Gord** (castle-based, earlier impact).
 - Added `BuildingClassRequired` chains to curb spam and improve AI focus: e.g., **Drydock** now requires **Port**.
