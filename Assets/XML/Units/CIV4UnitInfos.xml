@@ -6412,12 +6412,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
-			<PrereqBonuses>
-				<BonusType>BONUS_COPPER</BonusType>
-				<BonusType>BONUS_IRON</BonusType>
-				<BonusType>NONE</BonusType>
-				<BonusType>NONE</BonusType>
-			</PrereqBonuses>
+			<PrereqBonuses/>
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
@@ -6460,8 +6455,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<!-- custom: also give it the swordsman's city attack bonus, this goes quite well with their theme of early aggression if i am not mistaken but anyways etc, and they retain most of their previous advantages as swordsmen, but now available sooner and cheaper in cost despite the strength reduction, overall the unit should be much stronger now hopefully balanced and not op ; it was way too weak before, but anyways etc, was 0 -->
-			<iCityAttack>10</iCityAttack>
+			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
@@ -6516,8 +6510,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<!-- custom: was 5 -->
-			<iPower>6</iPower>
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -6535,10 +6528,11 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: if i am not mistaken from my memory i mean, i seem to i mean anyways etc remember that the jaguars are elite forces valued in society, since the unit is so weak, may be fine to buff it as such anyways etc, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean if i am not mistaken anyways etc, overall they should mostly be used for offense but this also allows some room for defense and covers the overall "elite forces" feeling/theme of the unit if i may say but or not but or yes but but anyways etc, was PROMOTION_WOODSMAN1 -->
+			<!-- custom: if i am not mistaken from my memory i mean, the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such anyways etc, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean if i am not mistaken anyways etc, overall they should mostly be used for offense but this also allows some room for defense. However, we don't need to do that here, as after other changes the unit is plenty strong now already; plus with the terrain/feature modifiers civ-specific units have in our mod, we don't need to keep the old woodsman specific identity redundantly here anymore. So, also as per chatgpt 5.2's recommendation (and as i had the idea too it seems but not totally sure but anyways etc.) thanks i mean but anyways etc., adding a non-combat promotion rather that fits here so it is a strong enough as of now axeman variant as as of now the dog soldier is but anyways etc. Was PROMOTION_WOODSMAN1 anyways etc. -->
+			<!-- "UNITCOMBAT_MELEE_SHOCK 50% is too much, because it turns into “I don’t need metal and I still hard-win the metal line” too often (and it keeps scaling into later Shock units)." + It fits “jungle scouting / ambush / raiding.” + "You already said only Yeoman currently uses it, so it won’t feel spammy." -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+					<PromotionType>PROMOTION_SENTRY</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>

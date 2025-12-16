@@ -55,7 +55,7 @@
 		 too similar to "Gunpowder" (unit class). -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_DEFENSE_RAISE</Tag>
-		<English>[ICON_BULLET]Raises [ICON_DEFENSE] to %d1_Mod%% against All Units (using now bIgnoreBuildingDefense 0 ... for all units... right?(?))</English>
+		<English>[ICON_BULLET]Raises [ICON_DEFENSE] to %d1_Mod%% against All Units (using now bIgnoreBuildingDefense 0 (for all units? Not sure.))</English>
 	</TEXT>
 	<!-- custom: about the ones below ("_DEFENSE_MOD", "_BUILDING_BOMBARD_DEFENSE"), i am not sure it is covered by <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> but updating the text as well because it is how i would want it to be ideally, hopefully clearer this way despite my confusion, ideally it works as intended, else the issue is raised at least maybe or not, but anyways etc anyways etc anyways etc... todo investigate this more if need(ed(?)) anyways etc anyways etc anyways etc... -->
 	<!-- DEFENSE_MOD should be supplanted by DEFENSE_RAISE. But perhaps it
@@ -63,13 +63,13 @@
 		 defense icon and state that it increases (only) building defense. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD</Tag>
-		<English>[ICON_BULLET]+%d1_Mod%% Building [ICON_DEFENSE] (against pre-Renaissance Units (only?(?)))</English>
+		<English>[ICON_BULLET]+%d1_Mod%% Building [ICON_DEFENSE] (against pre-Renaissance Units (only? Not sure.))</English>
 	</TEXT>
 	<!-- From CIV4GameText_Warlords_Changed.xml.
 		 To be consistent with the above. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_BUILDING_BOMBARD_DEFENSE_MOD</Tag>
-		<English>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE] Bombardment (by pre-Renaissance Units only?(?))</English>
+		<English>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE] Bombardment (by pre-Renaissance Units (only? Not sure.))</English>
 	</TEXT>
 	<!-- From CIV4GameTextInfos.xml. Also for consistency. Chichen Itza
 		 actually is cumulative with culture defense. -->
