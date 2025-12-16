@@ -930,7 +930,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>8</iGridX>
-			<iGridY>7</iGridY>
+			<iGridY>9</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1115,6 +1115,7 @@
 				<PrereqTech>TECH_DRAMA</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
+				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Quote>
@@ -1203,7 +1204,7 @@
 				<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+				<PrereqTech>TECH_ROMANTICISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_NATIONALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_NATIONALISM</Sound>
@@ -1426,10 +1427,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
+				<PrereqTech>TECH_NATURALISM</PrereqTech>
 				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_NATURALISM</PrereqTech>
 				<PrereqTech>TECH_BANKING</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_LIBERALISM_QUOTE</Quote>
@@ -1494,11 +1495,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+				<PrereqTech>TECH_BANKING</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_DEMOCRACY_QUOTE</Quote>
 			<Sound>AS2D_TECH_DEMOCRACY</Sound>
 			<SoundMP>AS2D_TECH_MP_DEMOCRACY</SoundMP>
@@ -2934,7 +2934,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>11</iGridX>
-			<iGridY>19</iGridY>
+			<iGridY>9</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2950,10 +2950,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CURRENCY</PrereqTech>
+				<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+				<PrereqTech>TECH_CURRENCY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_BANKING_QUOTE</Quote>
 			<Sound>AS2D_TECH_BANKING</Sound>
@@ -3173,10 +3173,9 @@
 					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
-			<OrPreReqs>
-				<PrereqTech>TECH_BANKING</PrereqTech>
-			</OrPreReqs>
+			<OrPreReqs/>
 			<AndPreReqs>
+				<PrereqTech>TECH_BANKING</PrereqTech>
 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ECONOMICS_QUOTE</Quote>
@@ -5433,6 +5432,7 @@
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ENGINEERING_QUOTE</Quote>
 			<Sound>AS2D_TECH_ENGINEERING</Sound>
@@ -5737,6 +5737,7 @@
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_PHYSICS</PrereqTech>
+				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Quote>
 			<Sound>AS2D_TECH_MILITARY_SCIENCE</Sound>

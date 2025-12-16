@@ -23061,11 +23061,11 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- advc.905b: was STEEL -->
-			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<!-- advc.905b: was STEAM_POWER -->
 			<!-- custom: was NONE NONE NONE -->
 			<TechTypes>
-				<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
