@@ -556,7 +556,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC_THEORY</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
@@ -3107,7 +3107,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_MUSIC_THEORY</PrereqTech>
+				<PrereqTech>TECH_ROMANTICISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -7461,7 +7461,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC_THEORY</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
@@ -7974,7 +7974,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC_THEORY</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
@@ -13566,7 +13566,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
-				<PrereqTech>TECH_MUSIC_THEORY</PrereqTech>
+				<PrereqTech>TECH_ROMANTICISM</PrereqTech>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
@@ -14345,7 +14345,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC_THEORY</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
@@ -14435,7 +14435,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC_THEORY</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>

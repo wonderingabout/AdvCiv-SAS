@@ -12254,8 +12254,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MUSIC_THEORY</ScriptID>
-		<SoundID>SND_TECH_MUSIC_THEORY</SoundID>
+		<ScriptID>AS2D_TECH_ROMANTICISM</ScriptID>
+		<SoundID>SND_TECH_ROMANTICISM</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -14370,8 +14370,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_MUSIC</ScriptID>
-		<SoundID>SND_TECH_MP_MUSIC</SoundID>
+		<ScriptID>AS2D_TECH_MP_ROMANTICISM</ScriptID>
+		<SoundID>SND_TECH_MP_ROMANTICISM</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

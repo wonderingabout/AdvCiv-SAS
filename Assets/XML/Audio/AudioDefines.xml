@@ -8466,7 +8466,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MUSIC_THEORY</SoundID>
+			<SoundID>SND_TECH_ROMANTICISM</SoundID>
 			<Filename>Sounds/Tech/Tech_Music</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9110,7 +9110,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_MUSIC</SoundID>
+			<SoundID>SND_TECH_MP_ROMANTICISM</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Music</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

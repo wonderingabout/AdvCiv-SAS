@@ -1339,7 +1339,7 @@ So i tweaked a few things and tried to find where the issue could, be, first of 
 
 It would be too long to detail or/and i would be lazy or it would be tedious for me to do so, so the key changes are mostly if i'm not mistaken if not only in `CvUnitAI::AI_workerMove` and `CvUnitAI::AI_nextCityToImprove` if i'm not mistaken but anyways etc.
 
-In `CvUnitAI::AI_workerMove`, i thought as sugegsted by chatgpt 5 too maybe workers are too scared to go in too far tiles, and chatgpt came up gradually with my tweaks too but anyways etc with a code that greatly enhances AI worker flexibility, and i believe efficiency, in an attempt to make them go to city C sooner, or at least not make them not go to City C if we have assessed they should (city A improved enough, city B too), as of now:
+In `CvUnitAI::AI_workerMove`, i thought as suggested by chatgpt 5 too maybe workers are too scared to go in too far tiles, and chatgpt came up gradually with my tweaks too but anyways etc with a code that greatly enhances AI worker flexibility, and i believe efficiency, in an attempt to make them go to city C sooner, or at least not make them not go to City C if we have assessed they should (city A improved enough, city B too), as of now:
 
 ```cpp
     /* Retreat logic policy change:
@@ -1558,7 +1558,7 @@ My observation and annoyance if i may say but anyways etc, was that AI would oft
 
 I added with chatgpt 5's help and my adjustments and prompts and such (in `CvUnitAI::AI_promotionValue` but anyways etc) but anyways etc some hard rules that in most cases don't change AI selection process, but just make it start from a more restricted pool, and in rare cases forces an always first choice when absolutely best or most efficient in most cases so going for this for AI players to simplify and for effectiveness too i mean but anyways etc. This can be seen in existing screenshots between 2237 and 2403 (which are not the most representative of how bad AI choices were, but they give some context/examples of how it could often be if i may say but anyways etc suboptimal or ineffective promotions as explained before anyways etc).
 
-Below is a summary of these by chatgpt 5 which i adjusted a bit and sugegsted this or that if i may say but anyways etc but that it otherwise very nicely for the most part put apart (no pun but anyways etc...), check if accurate anyways etc, and if it has been updated since then in function mentionned as of now above in this known issue as of 47 but anyways etc.
+Below is a summary of these by chatgpt 5 which i adjusted a bit and suggested this or that if i may say but anyways etc but that it otherwise very nicely for the most part put apart (no pun but anyways etc...), check if accurate anyways etc, and if it has been updated since then in function mentionned as of now above in this known issue as of 47 but anyways etc.
 
 ### 1) Hard Blocks (global)
 

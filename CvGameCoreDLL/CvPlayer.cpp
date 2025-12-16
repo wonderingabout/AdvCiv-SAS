@@ -14542,7 +14542,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	FOR_EACH_ENUM(PlayerHistory)
 	{
 		PlayerHistory& kHist = m_playerHistory[eLoopPlayerHistory];
-		// <!-- custom: note: i just replaced the old uiflag check with false since it was not true (checking for low uiflag number), ideally chatgpt 5 says one can, if want sot optimize or/and clean up further, go in the callee as it calls it (no pun but anyways etc...) and remove old parameter references then remove the parameter entirly if i'm not mistaken in my undrstanding of it, as well as other related things it sugegsted, check if accurate, as for me i am going for the simple(st? But anyways etc) and reliable fix anyways etc -->
+		// <!-- custom: note: i just replaced the old uiflag check with false since it was not true (checking for low uiflag number), ideally chatgpt 5 says one can, if want sot optimize or/and clean up further, go in the callee as it calls it (no pun but anyways etc...) and remove old parameter references then remove the parameter entirly if i'm not mistaken in my undrstanding of it, as well as other related things it suggested, check if accurate, as for me i am going for the simple(st? But anyways etc) and reliable fix anyways etc -->
 		kHist.read(pStream, getID(), false);
 	} // </advc.004s>
 
