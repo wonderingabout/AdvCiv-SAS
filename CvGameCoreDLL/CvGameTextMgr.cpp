@@ -9370,33 +9370,35 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
-	/* <!-- custom: now that we display them as buttons in a specific/dedicated panel anyways etc, with txtNum for each (for example ("+50/-30", "__/-30", "+50/__", etc) rather in sevopedia unit, we don't need the old cumbersome data, so hiding it from sevopedia placeSpecial, while still keeping it in game at least for now if not always or not anyways etc -->
-	if (u.getCityAttackModifier() == u.getCityDefenseModifier())
+	// <!-- custom: in sevopedia, now that we display them as buttons in a specific/dedicated panel anyways etc, with txtNum for each (for example ("+50/-30", "__/-30", "+50/__", etc) rather in sevopedia unit, we don't need the old cumbersome data, so hiding it from sevopedia placeSpecial, while still keeping it in game at least for now if not always or not but anyways etc. -->
+	if (!bCivilopediaText)
 	{
-		if (u.getCityAttackModifier() != 0)
+		if (u.getCityAttackModifier() == u.getCityDefenseModifier())
 		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CITY_STRENGTH_MOD",
-					u.getCityAttackModifier()));
+			if (u.getCityAttackModifier() != 0)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CITY_STRENGTH_MOD",
+						u.getCityAttackModifier()));
+			}
 		}
-	}
-	else
-	{
-		if (u.getCityAttackModifier() != 0)
+		else
 		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CITY_ATTACK_MOD",
-					u.getCityAttackModifier()));
-		}
+			if (u.getCityAttackModifier() != 0)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CITY_ATTACK_MOD",
+						u.getCityAttackModifier()));
+			}
 
-		if (u.getCityDefenseModifier() != 0)
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CITY_DEFENSE_MOD",
-					u.getCityDefenseModifier()));
+			if (u.getCityDefenseModifier() != 0)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CITY_DEFENSE_MOD",
+						u.getCityDefenseModifier()));
+			}
 		}
 	}
-	*/
 
 	if (u.getAnimalCombatModifier() != 0)
 	{
@@ -9419,114 +9421,116 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				u.getDropRange()));
 	}
 
-	/* <!-- custom: similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore anyways etc as we display them as button with a txtNum under the button  in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not or and other or and not or other anyways etc -->
-	if (u.getHillsDefenseModifier() == u.getHillsAttackModifier())
+	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore anyways etc as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not but anyways etc. -->
+	if (!bCivilopediaText)
 	{
-		if (u.getHillsAttackModifier() != 0)
+		if (u.getHillsDefenseModifier() == u.getHillsAttackModifier())
 		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HILLS_STRENGTH",
-					u.getHillsAttackModifier()));
-		}
-	}
-	else
-	{
-		if (u.getHillsAttackModifier() != 0)
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HILLS_ATTACK",
-					u.getHillsAttackModifier()));
-		}
-
-		if (u.getHillsDefenseModifier() != 0)
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HILLS_DEFENSE",
-					u.getHillsDefenseModifier()));
-		}
-	}
-
-	FOR_EACH_ENUM(Terrain)
-	{
-		if (u.getTerrainDefenseModifier(eLoopTerrain) != 0)
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_DEFENSE",
-					u.getTerrainDefenseModifier(eLoopTerrain),
-					GC.getInfo(eLoopTerrain).getTextKeyWide()));
-		}
-		if (u.getTerrainAttackModifier(eLoopTerrain) != 0)
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_ATTACK",
-					u.getTerrainAttackModifier(eLoopTerrain),
-					GC.getInfo(eLoopTerrain).getTextKeyWide()));
-		}
-	}
-
-	FOR_EACH_ENUM(Feature)
-	{
-		if (u.getFeatureDefenseModifier(eLoopFeature) != 0)
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_DEFENSE",
-					u.getFeatureDefenseModifier(eLoopFeature),
-					GC.getInfo(eLoopFeature).getTextKeyWide()));
-		}
-
-		if (u.getFeatureAttackModifier(eLoopFeature) != 0)
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_ATTACK",
-					u.getFeatureAttackModifier(eLoopFeature),
-					GC.getInfo(eLoopFeature).getTextKeyWide()));
-		}
-	}
-
-	FOR_EACH_ENUM(UnitClass)
-	{
-		if (u.getUnitClassAttackModifier(eLoopUnitClass) ==
-			u.getUnitClassDefenseModifier(eLoopUnitClass))
-		{
-			if (u.getUnitClassAttackModifier(eLoopUnitClass) != 0)
+			if (u.getHillsAttackModifier() != 0)
 			{
 				szBuffer.append(NEWLINE);
-				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_MOD_VS_TYPE",
-						u.getUnitClassAttackModifier(eLoopUnitClass),
-						GC.getInfo(eLoopUnitClass).getTextKeyWide()));
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HILLS_STRENGTH",
+						u.getHillsAttackModifier()));
 			}
 		}
 		else
 		{
-			if (u.getUnitClassAttackModifier(eLoopUnitClass) != 0)
+			if (u.getHillsAttackModifier() != 0)
 			{
 				szBuffer.append(NEWLINE);
-				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_ATTACK_MOD_VS_CLASS",
-						u.getUnitClassAttackModifier(eLoopUnitClass),
-						GC.getInfo(eLoopUnitClass).getTextKeyWide()));
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HILLS_ATTACK",
+						u.getHillsAttackModifier()));
 			}
 
-			if (u.getUnitClassDefenseModifier(eLoopUnitClass) != 0)
+			if (u.getHillsDefenseModifier() != 0)
 			{
 				szBuffer.append(NEWLINE);
-				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_DEFENSE_MOD_VS_CLASS",
-						u.getUnitClassDefenseModifier(eLoopUnitClass),
-						GC.getInfo(eLoopUnitClass).getTextKeyWide()));
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HILLS_DEFENSE",
+						u.getHillsDefenseModifier()));
 			}
 		}
-	}
 
-	FOR_EACH_ENUM(UnitCombat)
-	{
-		if (u.getUnitCombatModifier(eLoopUnitCombat) != 0)
+		FOR_EACH_ENUM(Terrain)
 		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_MOD_VS_TYPE",
-					u.getUnitCombatModifier(eLoopUnitCombat),
-					GC.getInfo(eLoopUnitCombat).getTextKeyWide()));
+			if (u.getTerrainDefenseModifier(eLoopTerrain) != 0)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_DEFENSE",
+						u.getTerrainDefenseModifier(eLoopTerrain),
+						GC.getInfo(eLoopTerrain).getTextKeyWide()));
+			}
+			if (u.getTerrainAttackModifier(eLoopTerrain) != 0)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_ATTACK",
+						u.getTerrainAttackModifier(eLoopTerrain),
+						GC.getInfo(eLoopTerrain).getTextKeyWide()));
+			}
+		}
+
+		FOR_EACH_ENUM(Feature)
+		{
+			if (u.getFeatureDefenseModifier(eLoopFeature) != 0)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_DEFENSE",
+						u.getFeatureDefenseModifier(eLoopFeature),
+						GC.getInfo(eLoopFeature).getTextKeyWide()));
+			}
+
+			if (u.getFeatureAttackModifier(eLoopFeature) != 0)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_ATTACK",
+						u.getFeatureAttackModifier(eLoopFeature),
+						GC.getInfo(eLoopFeature).getTextKeyWide()));
+			}
+		}
+
+		FOR_EACH_ENUM(UnitClass)
+		{
+			if (u.getUnitClassAttackModifier(eLoopUnitClass) ==
+				u.getUnitClassDefenseModifier(eLoopUnitClass))
+			{
+				if (u.getUnitClassAttackModifier(eLoopUnitClass) != 0)
+				{
+					szBuffer.append(NEWLINE);
+					szBuffer.append(gDLL->getText("TXT_KEY_UNIT_MOD_VS_TYPE",
+							u.getUnitClassAttackModifier(eLoopUnitClass),
+							GC.getInfo(eLoopUnitClass).getTextKeyWide()));
+				}
+			}
+			else
+			{
+				if (u.getUnitClassAttackModifier(eLoopUnitClass) != 0)
+				{
+					szBuffer.append(NEWLINE);
+					szBuffer.append(gDLL->getText("TXT_KEY_UNIT_ATTACK_MOD_VS_CLASS",
+							u.getUnitClassAttackModifier(eLoopUnitClass),
+							GC.getInfo(eLoopUnitClass).getTextKeyWide()));
+				}
+
+				if (u.getUnitClassDefenseModifier(eLoopUnitClass) != 0)
+				{
+					szBuffer.append(NEWLINE);
+					szBuffer.append(gDLL->getText("TXT_KEY_UNIT_DEFENSE_MOD_VS_CLASS",
+							u.getUnitClassDefenseModifier(eLoopUnitClass),
+							GC.getInfo(eLoopUnitClass).getTextKeyWide()));
+				}
+			}
+		}
+
+		FOR_EACH_ENUM(UnitCombat)
+		{
+			if (u.getUnitCombatModifier(eLoopUnitCombat) != 0)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_MOD_VS_TYPE",
+						u.getUnitCombatModifier(eLoopUnitCombat),
+						GC.getInfo(eLoopUnitCombat).getTextKeyWide()));
+			}
 		}
 	}
-	*/
 
 	FOR_EACH_ENUM(Domain)
 	{
@@ -9677,7 +9681,8 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			szBuffer.append(szTempBuffer);
 		}
 	} // </advc.905b>
-	/* <!-- custom: remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar i mean anyways etc), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken, anyways etc anyways etc anyways etc... -->
+	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar i mean anyways etc), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken, anyways etc anyways etc anyways etc... -->
+	if (!bCivilopediaText)
 	{
 		bool bFirst = true;
 		FOR_EACH_ENUM(Promotion)
@@ -9692,7 +9697,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			}
 		}
 	}
-	*/
+
 	if (u.getExtraCost() != 0)
 	{
 		szBuffer.append(NEWLINE);
@@ -9736,30 +9741,31 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	// test for unique unit
 	UnitClassTypes const eUnitClass = u.getUnitClassType();
 	CvUnitClassInfo const& kUnitClass = GC.getInfo(eUnitClass); // advc
-	/* <!-- custom: similarly to what/how was done for eDefaultBuilding if i am not mistaken anyways etc anyways etc anyways etc where our other(s? anyways etc anyways etc anyways etc) "custom:" code comment(s?) are(/is? anyways etc anyways etc anyways etc), it seems we don't use this eDefaultUnit anywhere else in our/this DLL code anymore, and another eDefaultUnit is redefined where eDefaultUnit is used if i am not mistaken so commenting-out this definition as well anyways etc anyways etc anyways etc -->
 	UnitTypes const eDefaultUnit = kUnitClass.getDefaultUnit();
 
-	<!-- custom: now that we have the new placeCivilizations added by Claude AI and my prompt and adjustments or not or yes of the already working code or and other or and not anyways etc, we (also but anyways etc...) don't the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc) panel -->
-	if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
+	// <!-- custom: in sevopedia, now that we have the new placeCivilizations added by Claude AI and my prompt and adjustments anyways etc., we don't need the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc). -->
+	if (!bCivilopediaText)
 	{
-		
-		FOR_EACH_ENUM(Civilization)
+		if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
 		{
-			UnitTypes eUniqueUnit = GC.getInfo(eLoopCivilization).
-					getCivilizationUnits(eUnitClass);
-			if (eUniqueUnit == eUnit)
+			
+			FOR_EACH_ENUM(Civilization)
 			{
-				szBuffer.append(NEWLINE);
-				szBuffer.append(gDLL->getText("TXT_KEY_UNIQUE_UNIT",
-						GC.getInfo(eLoopCivilization).getTextKeyWide()));
+				UnitTypes eUniqueUnit = GC.getInfo(eLoopCivilization).
+						getCivilizationUnits(eUnitClass);
+				if (eUniqueUnit == eUnit)
+				{
+					szBuffer.append(NEWLINE);
+					szBuffer.append(gDLL->getText("TXT_KEY_UNIQUE_UNIT",
+							GC.getInfo(eLoopCivilization).getTextKeyWide()));
+				}
 			}
+			// <!-- custom: in sevopedia, we now have a placeReplace panel, so we don't need this extra replaces line anyways etc. (see sevopedia unit for details) -->
+			szBuffer.append(NEWLINE);
+			szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
+					GC.getInfo(eDefaultUnit).getTextKeyWide()));
 		}
-		// <!-- custom: we now have a placeReplace panel, so we don't need and don't want anymore this extra replaces field/line anyways etc (see sevopediaunit.py for details) -->
-		//szBuffer.append(NEWLINE);
-		//szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
-		//		GC.getInfo(eDefaultUnit).getTextKeyWide()));
 	}
-	*/
 
 	if (kUnitClass.isWorldUnit())
 	{
@@ -9874,7 +9880,8 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 						GC.getInfo(u.getHolyCity()).getChar()));
 			}
 		}
-		/* <!-- custom: similarly to how was done in sevopedia building, we now also display project requirement(s) of units in sevopediaunit anyways etc with buttons, "or" separated if there are many for a same special unit, see the other(s) "custom:" comment about buildings in this .cpp file for details, or/and sevopedia building or/and unit for details on the(ir) anyways etc differences of implementation and how it overall works/functions anyways etc anyways etc anyways etc or/and other places or info or maybe not anyways etc anyways etc anyways etc -->
+		// <!-- custom: in sevopedia, similarly to how it was done in sevopedia building, we now also display project requirements of units in sevopedia unit with buttons, "or" separated if there are many for a same special unit, see the other "custom:" comments about buildings in this .cpp file for details, or sevopedia building and unit for details on their different implementations and how they overall work/function anyways etc. -->
+		if (!bCivilopediaText)
 		{
 			bool bFirst = true;
 			if (u.getSpecialUnitType() != NO_SPECIALUNIT &&
@@ -9899,26 +9906,29 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			if (!bFirst)
 				szBuffer.append(ENDCOLR);
 		}
-		*/
+
 		{
 			bool bFirst = true;
 			if (u.isNuke() && (pCity == NULL || !GC.getGame().isNukesValid()))
 			{
-				/* <!-- custom: similarly to what was done for the sevopedia building project('s) require(s) that we now display as button(s) in same placeRequires at least as of now if not always or not or and other or and not anyways etc, it seems sevopedia unit has 2 requires texts for projects, one where multiple projects are (one or the other i don't think is (it) (is) (a) cumulative (requirement) anyways etc) required appending them with an "or", and after commenting it out just above if i am not mistaken in this .cpp code, some units that are mono or somehow also multi project requirement(ed?) in some or most or all or not cases still show the project requirement in placeSpecial, so commenting this out also solves this it seems -->
-				FOR_EACH_ENUM(Project)
+				// <!-- custom: in sevopedia, similarly to what was done for the sevopedia building project requires that we now display as buttons in same placeRequires as of now, it seems sevopedia unit has 2 requires texts for projects, one where multiple projects are required appending them with an "or", and after commenting it out just above if i am not mistaken in this .cpp code, some units that are mono or somehow also multi project required in some or most or all or not cases still show the project requirement in placeSpecial, so commenting this out also solves this it seems. -->
+				if (!bCivilopediaText)
 				{
-					if (GC.getInfo(eLoopProject).isAllowsNukes())
+					FOR_EACH_ENUM(Project)
 					{
-						szTempBuffer.Format(L"%s%s", NEWLINE,
-								gDLL->getText("TXT_KEY_REQUIRES").c_str());
-						CvWString szProject;
-						szProject.Format(L"<link=literal>%s</link>",
-								GC.getInfo(eLoopProject).getDescription());
-						setListHelp(szBuffer, szTempBuffer, szProject,
-								gDLL->getText("TXT_KEY_OR").c_str(), bFirst);
+						if (GC.getInfo(eLoopProject).isAllowsNukes())
+						{
+							szTempBuffer.Format(L"%s%s", NEWLINE,
+									gDLL->getText("TXT_KEY_REQUIRES").c_str());
+							CvWString szProject;
+							szProject.Format(L"<link=literal>%s</link>",
+									GC.getInfo(eLoopProject).getDescription());
+							setListHelp(szBuffer, szTempBuffer, szProject,
+									gDLL->getText("TXT_KEY_OR").c_str(), bFirst);
+						}
 					}
 				}
-				*/
+
 				FOR_EACH_ENUM(Building)
 				{
 					if (GC.getInfo(eLoopBuilding).isAllowsNukes())
@@ -10117,24 +10127,23 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
-	/* <!-- custom: we now have a placeReplace method/function in sevopedia unit, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
-	if (bCivilopediaText)
-	{
-		if (eDefaultUnit == eUnit)
-		{
-			FOR_EACH_ENUM(Unit)
-			{
-				if (eLoopUnit != eUnit &&
-					eUnitClass == GC.getInfo(eLoopUnit).getUnitClassType())
-				{
-					szBuffer.append(NEWLINE);
-					szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_UNIT",
-							GC.getInfo(eLoopUnit).getTextKeyWide()));
-				}
-			}
-		}
-	}
-	*/
+	// // <!-- custom: in sevopedia, we now have a placeReplace method/function in sevopedia unit, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
+	// if (bCivilopediaText)
+	// {
+	// 	if (eDefaultUnit == eUnit)
+	// 	{
+	// 		FOR_EACH_ENUM(Unit)
+	// 		{
+	// 			if (eLoopUnit != eUnit &&
+	// 				eUnitClass == GC.getInfo(eLoopUnit).getUnitClassType())
+	// 			{
+	// 				szBuffer.append(NEWLINE);
+	// 				szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_UNIT",
+	// 						GC.getInfo(eLoopUnit).getTextKeyWide()));
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	if (pCity != NULL)
 	{
@@ -10427,33 +10436,34 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		}
 	}
 
-	/* <!-- custom: similarly to how was done in sevopedia unit, now that we have, in sevopedia building anyways etc, the placeCivilizations and placeReplace functions/methods, we don't need want this old logic anymore, displaying it elsewhere in hopefully nicer or/and more helpful or maybe not or yes or etc but anyways etc anyways etc anyways etc... -->
-	// <!-- custom: also it seems all the other place(s) that used this eDefaultBuilding are(/is anyways etc) now all commented-out by (all) (where) our "custom:" code comment('s comment-out block(s) are), and the other eDefaultBuilding still used in the code are redefined if i am not mistaken so we can probably safely comment-out this whole block rather if i am not mistaken anyways etc anyways etc anyways etc -->
+	// <!-- custom: in sevopedia, similarly to how it was done in sevopedia unit, now that we have in sevopedia building the placeCivilizations and placeReplace functions, we don't need this old logic anymore. -->
 	// test for unique building
 	BuildingTypes eDefaultBuilding = GC.getInfo(eBuildingClass).getDefaultBuilding();
 
-	if (eDefaultBuilding != eBuilding && // advc.004w: // !bInBuildingList)
+	if (!bCivilopediaText)
 	{
-		FOR_EACH_ENUM(Civilization)
+		if (eDefaultBuilding != eBuilding && /* advc.004w: */ !bInBuildingList)
 		{
-			BuildingTypes eUniqueBuilding = GC.getInfo(eLoopCivilization).
-					getCivilizationBuildings(eBuildingClass);
-			if (eUniqueBuilding == eBuilding)
+			FOR_EACH_ENUM(Civilization)
+			{
+				BuildingTypes eUniqueBuilding = GC.getInfo(eLoopCivilization).
+						getCivilizationBuildings(eBuildingClass);
+				if (eUniqueBuilding == eBuilding)
+				{
+					szBuffer.append(NEWLINE);
+					szBuffer.append(gDLL->getText("TXT_KEY_UNIQUE_BUILDING",
+							GC.getInfo(eLoopCivilization).getTextKeyWide()));
+				}
+			}
+			// advc.003l: Moved from the enclosing conditional 
+			if (eDefaultBuilding != NO_BUILDING)
 			{
 				szBuffer.append(NEWLINE);
-				szBuffer.append(gDLL->getText("TXT_KEY_UNIQUE_BUILDING",
-						GC.getInfo(eLoopCivilization).getTextKeyWide()));
+				szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
+						GC.getInfo(eDefaultBuilding).getTextKeyWide()));
 			}
 		}
-		// advc.003l: Moved from the enclosing conditional 
-		if (eDefaultBuilding != NO_BUILDING)
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
-					GC.getInfo(eDefaultBuilding).getTextKeyWide()));
-		}
 	}
-	*/
 
 	if (bCivilopediaText ||
 		ePlayer == NO_PLAYER) // advc: Civilopedia from opening menu
@@ -11910,23 +11920,22 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		}
 	}
 
-	/* <!-- custom: we now have a placeReplace method/function in sevopedia unit, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
-	if (bCivilopediaText && eDefaultBuilding == eBuilding)
-	{
-		FOR_EACH_ENUM(Building)
-		{
-			if (eLoopBuilding != eBuilding)
-			{
-				if (eBuildingClass == GC.getInfo(eLoopBuilding).getBuildingClassType())
-				{
-					szBuffer.append(NEWLINE);
-					szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_BUILDING",
-							GC.getInfo(eLoopBuilding).getTextKeyWide()));
-				}
-			}
-		}
-	}
-	*/
+	// <!-- custom: in sevopedia, we now have a placeReplace method/function in sevopedia unit, so we don't need this extra replaced by line anyways etc. (see sevopediaunit.py for details) -->
+	// if (bCivilopediaText && eDefaultBuilding == eBuilding)
+	// {
+	// 	FOR_EACH_ENUM(Building)
+	// 	{
+	// 		if (eLoopBuilding != eBuilding)
+	// 		{
+	// 			if (eBuildingClass == GC.getInfo(eLoopBuilding).getBuildingClassType())
+	// 			{
+	// 				szBuffer.append(NEWLINE);
+	// 				szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_BUILDING",
+	// 						GC.getInfo(eLoopBuilding).getTextKeyWide()));
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 
@@ -11949,7 +11958,8 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer,
 					GC.getInfo((ReligionTypes) kBuilding.getHolyCity()).getChar()));
 		}
 	}
-	/* <!-- custom: now that sevopedia building shows projects in placeRequires as buttons, we can safely remove this from placeSpecial, after having (i did and hopefully did not make a mistake but should be fine or not or yes or and other or and not as we read after brackets anyways etc to know why i think that anyways etc: ) now display multiple projects (all a special unit needs), to all unit types belonging to this special unit, and we separate them with a "or" (see sevopedia building's and sevopediaunit's placeRequires(s) for comparison of their differences or not of/in implementation as well as the rest of their code if needed as well to see the differences as there are (quite) more differences than these but hopefully quite clear or not or yes or and other or and not anyways etc anyways etc anyways etc, or/and other places like docs or such or yes or not or and other or and not anyways etc anyways etc anyways etc -->
+	// <!-- custom: in sevopedia, now that sevopedia building shows projects in placeRequires as buttons, we can safely remove this from placeSpecial, after having now a display of multiple projects (all a special unit needs), to all unit types belonging to this special unit, and we separate them with a "or" (see sevopedia building's and sevopediaunit's placeRequires(s) for comparison of their differences in implementation as well anyways etc. -->
+	if (!bCivilopediaText)
 	{
 		bool bFirst = true;
 		if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
@@ -11977,7 +11987,7 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer,
 		if (!bFirst)
 			szBuffer.append(ENDCOLR);
 	}
-	*/
+
 	if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
 	{
 		if (pCity == NULL ||
