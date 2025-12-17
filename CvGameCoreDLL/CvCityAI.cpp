@@ -4695,7 +4695,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
 
-	if (!bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
+	// <!-- custom: in autoplay i have noticed that we don't build any shrine (Mahabodhi, Pagan Shrine, etc.) but that suddenly we'd build them again later in the game after our build world wonders ASAP change/fix. Shrines and such (corporations etc.) have an iCost value of -1 it seems, so there is no point to try to save hammer building or not building them. Similarly to how we did in CvUnitAI::AI_ChooseUnit or related or similar functions we handled in advciv-sas, do not handle abherrent iCost values based on XML actual value as seemed to work fine as such. Code added with the help of chatgpt 5.2 thanks but anyways etc. In autoplay, adding this iXMLCost check seemingly leads to more wonders by turn 300, although it could just be random variation as history somehow changed, it's not less in this autoplay sample at least i mean it seems i mean but anyways etc. -->
+	// <!-- custom: also cache later calls in this function for performance optimization or/and such if any if i am not mistaken i mean but anyways etc. -->
+	const int iXMLCost = kBuilding.getProductionCost(); // XML base cost (unscaled)
+	// -1 (GP-built) or weird 0-cost
+	// Only apply "hammer/turns/top-hammer-city" viability gates to normal, buildable buildings.
+	if ((iXMLCost > 0) && !bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
 	{
 		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
@@ -4931,11 +4936,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			{
 				// <!-- custom: be careful to not make this static in case reloads would cause us to treat old pangea map of last save to a pangea in new archipelago loaded or started map if i am not mistaken but check to be sure, anyways etc -->
 				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
-				bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
+				bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
 				// bool bNavalHeavyMapname = false;
 				// if (!bLandHeavyMapname)
 				// {
-				// 	bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
+				// 	bNavalHeavyMapname = kGame.isNavalHeavyMapnameCached();
 				// }
 
 				if (bLandHeavyMapname)
@@ -6939,7 +6944,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					/*  It's hard to measure an instant boost with units of
 						commerce per turn... So I'm just going to divide it by
 						(k146) ~12.5, scaled by game speed */
-					iValue += iTechValue * 8 / GC.getInfo(GC.getGame().getGameSpeedType()).
+					// <!-- custom: use cached kGame for performance optimization or/and such if i am not mistaken i mean but anyways etc. -->
+					iValue += iTechValue * 8 / GC.getInfo(kGame.getGameSpeedType()).
 							getResearchPercent();
 				}
 				// else: If there is nothing to research, a free tech is worthless.
@@ -7070,8 +7076,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					if (kLoopBuilding.isBuildingClassNeededInCity(eBuildingClass) &&
 						getNumBuilding(eBuilding) == 0 && iPrereqBuildings <= 0)
 					{
-						if (kBuilding.getProductionCost() > 0 &&
-							kLoopBuilding.getProductionCost() > 0)
+						// <!-- custom: also cache later calls in this function for performance optimization or/and clarity or/and such if i am not mistaken i mean but anyways etc. -->
+						const int iLoopXMLCost = kLoopBuilding.getProductionCost(); // XML base cost (unscaled)
+
+						if (iXMLCost > 0 &&
+							iLoopXMLCost > 0)
 						{
 							int iTempValue = AI_buildingValue(
 									eLoopBuilding, 0, 0, bConstCache, false);
@@ -7081,9 +7090,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 									how likely we are the build the thing (note. the
 									combined production cost is essentially the cost of completing
 									kLoopBuilding given our current position.) */
-								iTempValue *= 2 * kBuilding.getProductionCost();
-								iTempValue /= 2 * kBuilding.getProductionCost() +
-										3 * kLoopBuilding.getProductionCost();
+								iTempValue *= 2 * iXMLCost;
+								iTempValue /= 2 * iXMLCost +
+										3 * iLoopXMLCost;
 								iValue += iTempValue;
 							}
 						}
@@ -7612,7 +7621,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					/*	K-Mod. Build culture buildings quickly to pop our borders
 						(but not wonders / special buildings) */
 					if (iTempValue > 0 && !bLimitedWonder &&
-						kBuilding.getProductionCost() > 0 &&
+						iXMLCost > 0 &&
 						AI_needsCultureToWorkFullRadius())
 					{
 						iPriorityFactor += 25;
@@ -7955,7 +7964,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						if (eLoopCorporation != eCorporation &&
 							kOwner.hasHeadquarters(eLoopCorporation) &&
-							GC.getGame().isCompetingCorporation(eCorporation, eLoopCorporation))
+							kGame.isCompetingCorporation(eCorporation, eLoopCorporation))
 						{
 							/*	This new corp is no good to us if our competing corp
 								is already better. note: evaluation of the competing corp
@@ -8227,7 +8236,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				or on rival's tech, or whatever... */
 			iPriorityFactor += 20;
 		}
-		if (kBuilding.getProductionCost() > 0)
+		if (iXMLCost > 0)
 		{
 			iValue *= iPriorityFactor;
 			iValue /= 100;
@@ -8239,7 +8248,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			iValue += kBuilding.getAIWeight();
 			if (iValue > 0 &&
 				// K-Mod. Only use flavour adjustments for constructing ordinary buildings.
-				kBuilding.getProductionCost() > 0 && !bRemove)
+				iXMLCost > 0 && !bRemove)
 			{
 				int iFlavour = 0;
 				FOR_EACH_NON_DEFAULT_PAIR(kBuilding.
