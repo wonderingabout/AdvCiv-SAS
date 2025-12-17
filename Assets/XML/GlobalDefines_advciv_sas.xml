@@ -559,14 +559,75 @@
 		<DefineName>SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean if i may say but anyways etc -->
+	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean if i may say but anyways etc. -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: knob common to all world wonders, see below for more specific ones alternatively i mean if i may say but anyways etc. -->
+	<!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same). Tune below sub-kobs if you want more precision, or to restore a more base advciv like behaviour of wonder building, disable SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE entirely. I believe building settlers or workers is generally stronger especially early, so i kept the "optimize" flag enabled i mean but anyways etc. But you can disable it if you want a more wonder-building like behaviour, or maybe rather one of the sub-knobs as you prefer (but it can quickly become a rabbit hole xd so beware i mean if i may say but anyways etc.). See below to specifically tune its suboptions rather anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- Min base-hammers gate for wonders (used in CvCityAI::AI_buildingValue)
+	Formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA)
+
+	Important: this gate uses BASE hammers per turn (iBaseHammersPerTurn), i.e. hammers before production multipliers are applied
+	(stone/marble, traits, civics, forge/factory, etc). Production multipliers are handled separately later via getProductionModifier() and iTurnsWW.
+
+	Assume iCurrentEra is 0-based: Era0=0, Era1=1, Era2=2, Era3=3, Era4=4
+
+	Examples (using the values below):
+	World wonders:   MIN_BASE=6,  EXTRA=3  => Era0=6,  Era1=9, Era2=12, Era3=15, Era4=18
+	National wonders:MIN_BASE=6,  EXTRA=2  => Era0=6,  Era1=8, Era2=10, Era3=12, Era4=14
+	Unknown wonders: MIN_BASE=6,  EXTRA=2  => Era0=6,  Era1=8, Era2=10, Era3=12, Era4=14
+
+	City check example (world wonders values):
+	- Era1 threshold is 10: city with 9 BASE hammers is rejected; city with 10 BASE hammers is allowed.
+	-->
+	<!-- custom: setting to -1 effectively disables these as value will be negative, so we'll always have more hammer than say -5 min hammer so it would always be allowed then if i'm not mistaken anyways etc. -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_BASE_HAMMERS</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_BASE_HAMMERS</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_BASE_HAMMERS</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks but anyways etc.). -->
+	<!-- custom: e.g. if this value is 125 (at normal, so 125 * 150 / 100 = turn 187.5 at epic; or 125 * 200 / 100 = turn 250 at as of now marathon, etc. ), then even if our city is not top 2 hammer city with some leeway, we will still not reject building wonder based on this (as top hammers cities are busy expanding so early i guess that would explain autoplay results anyways etc.). But after this turn, it will be a hard reject cause if not met, so for example from turn 126 at normal (or 188.5 at epic, or as of now 251 at marathon in this example anyways etc.) we'll reject building the wonder in this city if this city is not top 2 hammer with some leeway (same behaviour that caused less wonders early, hopefully core cities ar enot busy expanding anymore and can be considered more primarily, plus we don't want to die to rivals so be stricter here at middle game phase onwards as we have less room for mistakes but anyways etc.). -->
+	<!-- custom: note: 0 to disable it would mean expansion phase would be over since the turn game started anyways etc (this allows stricter no wonder policy to hopefully make AI stronger militarily; adjust as you see fit anyways etc.). Otherwise a value like 125 or similar may do fine (test to be sure, adjust as you see fit anyways etc.) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time anyways etc, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code anyways etc -->
+	<!-- custom: update: in autoplay, disabling this increases the number of wonders built from 0 wonders to 2 wonders at turn 100 in an autoplay sample. Implemented as i have noticed that even reducing cost does not increase AI willingness to build more wonders. Upon investigating, disabling SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE in XML fixes the issue and AI suddenly build a lot of wonders, there must be a better way to approach the don't build wonders we risk to waste hammers on logic. But for now making these customizable so players can enable/disble them as they see fit and for testing as well anyways etc. -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: specific the number of rivals we max tolerate before we give up on the idea of building this wonder. Note: if we are already (see below for completion percent to keep building it anyways etc.) building it, then ignore this anyways etc. E.g. if value is 3, it means if 3 or more rivals know (as of now but anyways etc.) TECH_CALENDAR, then we won't build the oracle. -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE</DefineName>
@@ -577,6 +638,9 @@
 		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+
+	
+
 	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we would favour building maintenance per turn reducer building(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the courthouse class building (or civ-specific variants) in this city -->
 	<!-- // < 6 gpt => not worth it yet -->
 	<Define>
