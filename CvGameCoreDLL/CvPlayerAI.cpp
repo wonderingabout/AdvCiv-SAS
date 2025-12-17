@@ -4653,7 +4653,10 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
 	CvTechInfo const& kTech = GC.getInfo(eTech); // K-Mod
 
-	bool const bCapitalAlone = (GC.getGame().getElapsedGameTurns() > 0 ?
+	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	CvGame const& kGame = GC.getGame();
+	
+	bool const bCapitalAlone = (kGame.getElapsedGameTurns() > 0 ?
 			AI_isCapitalAreaAlone() : false);
 	bool const bFinancialTrouble = AI_isFinancialTrouble();
 	bool const bAdvancedStart = (getAdvancedStartPoints() >= 0);
@@ -4754,7 +4757,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 		// K-Mod end
 	}
 
-	if (kTech.isTechTrading() && !GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) &&
+	if (kTech.isTechTrading() && !kGame.isOption(GAMEOPTION_NO_TECH_TRADING) &&
 		!kTeam.isTechTrading()) // K-Mod
 	{
 		/*	K-Mod. increase the bonus for each known civ
@@ -4784,7 +4787,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	{
 		// K-Mod. The key value of gold trading is to facilitate tech trades.
 		int iBaseValue =
-			(!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) && !kTeam.isTechTrading())
+			(!kGame.isOption(GAMEOPTION_NO_TECH_TRADING) && !kTeam.isTechTrading())
 			// <k146>
 			? (getTotalPopulation() + 10)
 			: (getTotalPopulation()/3 + 3); // </k146>
@@ -4860,7 +4863,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	// K-Mod end
 
 	if (kTech.isPermanentAllianceTrading() &&
-		GC.getGame().isOption(GAMEOPTION_PERMANENT_ALLIANCES))
+		kGame.isOption(GAMEOPTION_PERMANENT_ALLIANCES))
 	{
 		//iValue += 56;
 		iValue += 8 * iCityTarget; // k146: Replacing the above
@@ -4868,7 +4871,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	}
 
 	if (kTech.isVassalStateTrading() &&
-		!GC.getGame().isOption(GAMEOPTION_NO_VASSAL_STATES))
+		!kGame.isOption(GAMEOPTION_NO_VASSAL_STATES))
 	{
 		//iValue += 56;
 		iValue += 8 * iCityTarget; // k146: Replacing the above
@@ -5187,7 +5190,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 				iYieldValue += (kFinalImprovement.isActsAsCity() ? 100 : 0);
 				iYieldValue += (kFinalImprovement.isCarriesIrrigation() ? 100 : 0);
 
-				if (getCurrentEra() > GC.getGame().getStartEra())
+				if (getCurrentEra() > kGame.getStartEra())
 					iYieldValue -= 100; // compare to a hypothetical low-value improvement
 				iBuildValue += std::max(0, iYieldValue) * iAccessibility *
 						(kFinalImprovement.isWater() ? iCoastalCities :
@@ -5243,7 +5246,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 					iYieldValue += iTempValue;
 				}
 				// advc.036: Apply this to later-era start too
-				if (getCurrentEra() > 0)//GC.getGame().getStartEra())
+				if (getCurrentEra() > 0)//kGame.getStartEra())
 				{
 					iYieldValue -= 100; // compare to a hypothetical low-value improvement
 					// Bonuses might be outside of our city borders.
@@ -5642,7 +5645,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 
 	if (iPathLength <= 2)
 	{
-		bool bFirst = GC.getGame().countKnownTechNumTeams(eTech) == 0; // K-Mod
+		bool bFirst = kGame.countKnownTechNumTeams(eTech) == 0; // K-Mod
 
 		// K-Mod. Make a list of corporation HQs that this tech enables.
 		// (note: for convenience, I've assumed that each corp has at most one type of HQ building.)
@@ -5665,13 +5668,13 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 		FOR_EACH_ENUM(Corporation)
 		{
 			/*if (GC.getInfo(eLoopCorporation).getTechPrereq() == eTech) {
-				if (!GC.getGame().isCorporationFounded(eLoopCorporation)) {
+				if (!kGame.isCorporationFounded(eLoopCorporation)) {
 					int iBaseRand = 2400;
 					iValue += 100 + (bRandomize ? kRand.get(iBaseRand, "AI Research Corporation") : iBaseRand / 2);
 				}
 			}*/ // BtS
 			// K-Mod
-			if (!GC.getGame().isCorporationFounded(eLoopCorporation))
+			if (!kGame.isCorporationFounded(eLoopCorporation))
 			{
 				int iMissingTechs = 0;
 				bool bCorpTech = false;
@@ -5748,7 +5751,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 			} // K-Mod end
 		}
 
-		//if (GC.getGame().countKnownTechNumTeams(eTech) == 0)
+		//if (kGame.countKnownTechNumTeams(eTech) == 0)
 		// K-Mod
 		if (bFirst)
 		{
@@ -5870,7 +5873,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 					{
 						int iTechValue =  ((iTotalTechCost / iTechCount) + iMaxTechCost) / 2;
 						iBase += (iTechValue * 20) /
-								GC.getInfo(GC.getGame().getGameSpeedType()).
+								GC.getInfo(kGame.getGameSpeedType()).
 								getResearchPercent();
 					}
 				} // I'm expecting iRoll to be ~600.
@@ -5931,13 +5934,13 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 			/*	advc: Eliminated a factor of 10 from this fraction in order to
 				get less close to overflowing */
 			iValue *= 100; // roughly normalise with usual value. (cf. code below)
-			iValue /= GC.getInfo(GC.getGame().getGameSpeedType()).getResearchPercent();
+			iValue /= GC.getInfo(kGame.getGameSpeedType()).getResearchPercent();
 		}
 	} // </k146>
 	else if (iValue > 0)
 	{
 		// this stops quick speed messing up.... might want to adjust by other things too... (Firaxis comment)
-		int iAdjustment = GC.getInfo(GC.getGame().getGameSpeedType()).getResearchPercent();
+		int iAdjustment = GC.getInfo(kGame.getGameSpeedType()).getResearchPercent();
 		int iTurnsLeft = getResearchTurnsLeftTimes100((eTech), false);
 		bool bCheapBooster = (iTurnsLeft >= 0 && // advc.004x
 				iTurnsLeft < (2 * iAdjustment) &&
@@ -5957,7 +5960,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	}
 
 	//Tech Groundbreaker
-	if (!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) &&
+	if (!kGame.isOption(GAMEOPTION_NO_TECH_TRADING) &&
 		!isBarbarian() && // K-Mod
 		iPathLength <= 1 && // k146
 		// advc.144: Ask for a tech that we need, not one we could trade with.
@@ -5981,7 +5984,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 			} // </advc.550h>
 			//iModulus = std::max(1, iModulus);
 			if (iModulus > 0 && // advc.130r: 0 ContactRand means infinity now
-				AI_getStrategyRand(GC.getGame().getGameTurn()) % iModulus == 0)
+				AI_getStrategyRand(kGame.getGameTurn()) % iModulus == 0)
 			{
 				int iAlreadyKnown = 0;
 				scaled rPotentialTrade;
@@ -6015,7 +6018,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 					}
 				}
 				int iTradeModifier = (rPotentialTrade *
-						(GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING) ?
+						(kGame.isOption(GAMEOPTION_NO_TECH_BROKERING) ?
 						// advc.550h: Was 30:15 in K-Mod 1.46 and 20:12 in earlier versions
 						37 : 20)).round();
 				iTradeModifier *= 200 - GC.getInfo(getPersonalityType()).
@@ -6024,7 +6027,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 				iTradeModifier /= 1 +
 						/*	<advc.550h> NO_TECH_BROKERING makes it less likely that
 							the already-knowns will spoil our trades */
-						(GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING) ?
+						(kGame.isOption(GAMEOPTION_NO_TECH_BROKERING) ?
 						scaled(3 * iAlreadyKnown, 2).ceil() : // </advc.550h>
 						2 * iAlreadyKnown);
 				iValue *= 100 + std::min(100, iTradeModifier);
@@ -6378,6 +6381,10 @@ int CvPlayerAI::AI_techBuildingValue(TechTypes eTech, bool bConstCache, bool& bE
 int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnablesUnitWonder) const
 {
 	PROFILE_FUNC();
+
+	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	CvGame const& kGame = GC.getGame();
+
 	bEnablesUnitWonder = false;
 	CvTeamAI const& kTeam = GET_TEAM(getTeam()); // K-Mod
 
@@ -6765,7 +6772,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
 			iTotalUnitValue += iUtilityValue;
 			// <advc.131> Haven't met anyone yet, and not yet sure if alone.
 			if(iHasMetCount <= 0 && !bCapitalAlone &&
-				!GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+				!kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 			{
 				iDefenceValue /= 2;
 				iOffenceValue /= 3;
@@ -6838,7 +6845,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
 				}
 				if (kLoopUnit.getDefaultUnitAIType() == UNITAI_EXPLORE_SEA) {
 					iTotalUnitValue += 400;
-					iTotalUnitValue += ((GC.getGame().countCivTeamsAlive() - iHasMetCount) * 200);
+					iTotalUnitValue += ((kGame.countCivTeamsAlive() - iHasMetCount) * 200);
 				}
 			}*/
 
@@ -6859,7 +6866,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
 								pCapital->area());
 						if (iBestAreaValue == 0 &&
 							// k146: Give us a chance to see our land first.
-							GC.getGame().getElapsedGameTurns() > 20)
+							kGame.getElapsedGameTurns() > 20)
 						{	// advc.131: These seem high
 							iTotalUnitValue += 1500; // was 2000
 						}
@@ -6935,7 +6942,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
 			}
 		}
 		// <k146>
-		if(kLoopUnit.isWorldUnit() && !GC.getGame().isUnitClassMaxedOut(eLoopClass))
+		if(kLoopUnit.isWorldUnit() && !kGame.isUnitClassMaxedOut(eLoopClass))
 			bEnablesUnitWonder = true; // </k146>
 		// K-Mod
 		// Decrease the value if we are missing other prereqs.
@@ -7050,6 +7057,9 @@ int CvPlayerAI::AI_techProjectValue(TechTypes eTech,
 	int iPathLength, // advc (note): currently unused
 	bool& bEnablesProjectWonder) const
 {
+	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	CvGame const& kGame = GC.getGame();
+
 	int iValue = 0;
 	bEnablesProjectWonder = false;
 	FOR_EACH_ENUM2(Project, eProject)
@@ -7059,7 +7069,7 @@ int CvPlayerAI::AI_techProjectValue(TechTypes eTech,
 		if (kProject.getTechPrereq() != eTech)
 			continue;
 		if (getTotalPopulation() > 5 && kProject.isWorldProject() &&
-			!GC.getGame().isProjectMaxedOut(eProject))
+			!kGame.isProjectMaxedOut(eProject))
 		{
 			bEnablesProjectWonder = true;
 		}
@@ -7105,6 +7115,9 @@ int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength,
 	int iRaceModifier, int iCityTarget,
 	CvRandom& kRand, int& iRandomMax, bool bRandomize) const
 {
+	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	CvGame const& kGame = GC.getGame();
+
 	CvTechInfo const& kTech = GC.getInfo(eTech);
 	ReligionTypes const eFavoriteReligion = getFavoriteReligion();
 	// <advc.171>
@@ -7129,7 +7142,7 @@ int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength,
 				bLate = true;
 		}
 		else if (GC.getInfo(eReligionTech).getEra() * 4 >= GC.getNumEraInfos() ||
-			(GC.getInfo(eReligionTech).getEra() != GC.getGame().getStartEra() &&
+			(GC.getInfo(eReligionTech).getEra() != kGame.getStartEra() &&
 			GC.getInfo(eReligionTech).getResearchCost() >= 175))
 		{
 			bLate = true;
@@ -7153,24 +7166,24 @@ int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength,
 	{
 		TechTypes eReligionTech = GC.getInfo(eLoopReligion).getTechPrereq();
 		/*if (kTeam.isHasTech(eReligionTech)) {
-			if (!GC.getGame().isReligionSlotTaken(eLoopReligion))
+			if (!kGame.isReligionSlotTaken(eLoopReligion))
 				iPotentialReligions++;
 		}*/ // BtS
 		/*	K-Mod. iPotentialReligions will only be non-zero during the
 			first few turns of advanced start games. Otherwise it is always zero.
 			Presumably that's what the original developers intended...
 			so I'm going to leave that alone, and create a new value: iAvailableReligions. */
-		if (!GC.getGame().isReligionSlotTaken(eLoopReligion))
+		if (!kGame.isReligionSlotTaken(eLoopReligion))
 		{
 			iAvailableReligions++;
 			if (GET_TEAM(getTeam()).isHasTech(eReligionTech))
 				iPotentialReligions++;
 		} // K-Mod end
 		if (eReligionTech == eTech &&
-			!GC.getGame().isReligionSlotTaken(eLoopReligion))
+			!kGame.isReligionSlotTaken(eLoopReligion))
 		{
 			int iRoll = 200; // advc.171: Was 400 in BtS, 150 in K-Mod 1.46.
-			if (!GC.getGame().isOption(GAMEOPTION_PICK_RELIGION) &&
+			if (!kGame.isOption(GAMEOPTION_PICK_RELIGION) &&
 				eFavoriteReligion != NO_RELIGION)
 			{
 				if (eLoopReligion == eFavoriteReligion)
@@ -7180,7 +7193,7 @@ int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength,
 					FOR_EACH_ENUM2(Religion, ePrereqReligion)
 					{
 						if (ePrereqReligion == eLoopReligion ||
-							GC.getGame().isReligionSlotTaken(ePrereqReligion))
+							kGame.isReligionSlotTaken(ePrereqReligion))
 						{
 							continue;
 						}
@@ -7298,8 +7311,8 @@ int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength,
 			if (AI_atVictoryStage(AI_VICTORY_CULTURE1))
 				iReligionValue += 84;
 		}
-		/*if (100 * GC.getGame().getElapsedGameTurns() <
-			32 * GC.getInfo(GC.getGame().getGameSpeedType()).
+		/*if (100 * kGame.getElapsedGameTurns() <
+			32 * GC.getInfo(kGame.getGameSpeedType()).
 			getResearchPercent())*/
 		// <advc.171> More rational behavior for early religions
 		if (!bLateReligion)
@@ -19097,12 +19110,15 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
 	iValue *= getHasReligionCount(eReligion);
 	iValue /= getNumCities();
 
+	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	CvGame const& kGame = GC.getGame();
+
 	// holy city modifier
-	CvCity* pHolyCity = GC.getGame().getHolyCity(eReligion);
+	CvCity* pHolyCity = kGame.getHolyCity(eReligion);
 	if (pHolyCity != NULL && pHolyCity->getTeam() == getTeam())
 	{
 		iValue *= 110 + 5 * iReligionFlavor + (10 + iReligionFlavor) *
-				GC.getGame().calculateReligionPercent(eReligion) / 10;
+				kGame.calculateReligionPercent(eReligion) / 10;
 		iValue /= 100;
 	}
 
@@ -19206,8 +19222,8 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
 	{	/*  advc.131: Shouldn't check if we're a member now when deciding whether
 			we should be one. */
 		if (/*isLoyalMember(i) &&*/
-			GC.getGame().isDiploVote(eVS) &&
-			GC.getGame().getVoteSourceReligion(eVS) == eReligion)
+			kGame.isDiploVote(eVS) &&
+			kGame.getVoteSourceReligion(eVS) == eReligion)
 		{
 			iDiplomaticModifier += iDiplomaticBase / 3; // advc.131: += instead of =
 		}
@@ -24542,6 +24558,9 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 
 	CvTeamAI const& kTeam = GET_TEAM(getTeam()); // K-Mod
 
+	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	CvGame const& kGame = GC.getGame();
+
 	int iNumCities = getNumCities();
 	CvCityAI* pCity = AI_getCity(kTriggeredData.m_iCityId);
 	CvPlot* pPlot = GC.getMap().plot(kTriggeredData.m_iPlotX, kTriggeredData.m_iPlotY);
@@ -24571,7 +24590,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 
 	//Proportional to #turns in the game...
 	//(AI evaluation will generally assume proper game speed scaling!)
-	int const iGameSpeedPercent = GC.getGame().getSpeedPercent();
+	int const iGameSpeedPercent = kGame.getSpeedPercent();
 
 	int iValue = SyncRandNum(kEvent.getAIValue());
 	iValue += (getEventCost(eEvent, kTriggeredData.m_eOtherPlayer, false) +
@@ -24600,7 +24619,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 				else if (iUnitValue == -1)
 					iUnitValue = 2000; //Great Person?  // (was 200)
 
-				iUnitValue *= GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+				iUnitValue *= GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
 				iUnitValue /= 100; // K-Mod
 				iValue += kEvent.getNumUnits() * iUnitValue;
 			}
@@ -24614,7 +24633,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 		else if (iUnitValue == -1)
 			iUnitValue = 2000; //Great Person?  // (was 200)
 
-		iUnitValue *= GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+		iUnitValue *= GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
 		iUnitValue /= 100; // K-Mod
 		iValue -= iUnitValue;
 	}
@@ -24632,7 +24651,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 				else if (iBuildingValue == -1)
 					iBuildingValue = 300; //Shrine?
 
-				iBuildingValue *= GC.getInfo(GC.getGame().getGameSpeedType()).
+				iBuildingValue *= GC.getInfo(kGame.getGameSpeedType()).
 						getConstructPercent();
 				iValue += kEvent.getBuildingChange() * iBuildingValue;
 			}
@@ -24744,7 +24763,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 		iValue -= kEvent.getRevoltTurns() * (12 + iCityPopulation * 16);
 		iValue -= (kEvent.getHurryAnger() * 6 *
 				GC.getDefineINT(CvGlobals::HURRY_ANGER_DIVISOR) *
-				GC.getInfo(GC.getGame().getGameSpeedType()).
+				GC.getInfo(kGame.getGameSpeedType()).
 				getHurryConscriptAngerPercent()) / 100;
 		iValue += kEvent.getHappyTurns() * 10;
 		iValue += kEvent.getCulture() / 2;
@@ -24762,7 +24781,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 		iValue += (kEvent.getPopulationChange() * iNumCities * 40);
 		iValue -= (iNumCities * kEvent.getHurryAnger() * 6 *
 				GC.getDefineINT(CvGlobals::HURRY_ANGER_DIVISOR) *
-				GC.getInfo(GC.getGame().getGameSpeedType()).
+				GC.getInfo(kGame.getGameSpeedType()).
 				getHurryConscriptAngerPercent()) / 100;
 		iValue += iNumCities * kEvent.getHappyTurns() * 10;
 		iValue += iNumCities * kEvent.getCulture() / 2;
@@ -24834,7 +24853,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 	if (pUnit != NULL)
 	{
 		iValue += (2 * pUnit->baseCombatStr() * kEvent.getUnitExperience() *
-				GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent()) / 100;
+				GC.getInfo(kGame.getGameSpeedType()).getTrainPercent()) / 100;
 		iValue -= 10 * kEvent.getUnitImmobileTurns();
 	}
 
@@ -24979,7 +24998,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent,
 			// K-Mod end
 		}
 
-		if (GC.getGame().isOption(GAMEOPTION_AGGRESSIVE_AI))
+		if (kGame.isOption(GAMEOPTION_AGGRESSIVE_AI))
 		{
 			//What is this "relationships" thing?
 			iDiploValue /= 2;
@@ -29886,13 +29905,17 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	{
 		return MAX_INT;
 	}
+
+	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	CvGame const& kGame = GC.getGame();
+
 	// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
 	// <!-- custom: update issue is now solved by patching globally the canScrap, and below approach didn't solve anything, so i'll comment it out, enable it if need or want and see for related info known issue as of now 52 anyways etc -->
 	// // B) Patch AI_disbandValue to strongly de-prefer scrapping new combat units & live garrisons
 	// // (You already boost value for MISSIONAI_GUARD_CITY; the check above covers plain defenders without that mission tag.)
 	// // Don’t scrap fresh combat units (prevents “we built one, ended with fewer”).
 	// if (kUnit.canFight() &&
-	// 	GC.getGame().getGameTurn() - kUnit.getGameTurnCreated() < 5)
+	// 	kGame.getGameTurn() - kUnit.getGameTurnCreated() < 5)
 	// 	return MAX_INT;
 
 	// // Don’t scrap a unit actively defending one of our city tiles.
@@ -29988,7 +30011,7 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 		break;
 
 	case UNITAI_WORKER:
-		if (GC.getGame().getGameTurn() - kUnit.getGameTurnCreated() <= 10 ||
+		if (kGame.getGameTurn() - kUnit.getGameTurnCreated() <= 10 ||
 			!kUnit.getPlot().isCity() ||
 			kUnit.getPlot().AI_getPlotCity()->AI_getWorkersNeeded() > 0)
 		{
@@ -30016,14 +30039,14 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 		break;
 
 	case UNITAI_EXPLORE:
-		if (GC.getGame().getGameTurn() - kUnit.getGameTurnCreated() < 20)
+		if (kGame.getGameTurn() - kUnit.getGameTurnCreated() < 20)
 			iValue *= 2;
 		if (kUnit.getPlot().getTeam() != getTeam())
 			iValue *= 2;
 		break;
 
 	case UNITAI_MISSIONARY:
-		if (GC.getGame().getGameTurn() - kUnit.getGameTurnCreated() < 10 ||
+		if (kGame.getGameTurn() - kUnit.getGameTurnCreated() < 10 ||
 			kUnit.getPlot().getTeam() != getTeam())
 		{
 			iValue *= 8;
@@ -30059,7 +30082,7 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 		break;
 
 	case UNITAI_EXPLORE_SEA:
-		if (GC.getGame().getGameTurn() - kUnit.getGameTurnCreated() < 20)
+		if (kGame.getGameTurn() - kUnit.getGameTurnCreated() < 20)
 			iValue *= 3;
 		if (kUnit.getPlot().getTeam() != getTeam())
 			iValue *= 3;
