@@ -5480,11 +5480,69 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		// <!-- custom: wonders (i.e. world + national) if i'm not mistaken anyways etc -->
 		else if (bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
+			// <!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then anyways etc. -->
+			// Barbarian-barrier WW special-case (Great Wall: bBorderObstacle=1)
+			static const bool bSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE");
+			if (!kGame.isOption(GAMEOPTION_NO_BARBARIANS) && !bSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE)
+			{
+				if (kBuilding.isAreaBorderObstacle())
+				{
+					static const int iSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA = GC.getDefineINT("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA");
+
+					if (iCurrentEra > iSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA)
+					{
+						return 0;
+					}
+				}
+			}
+
+			const int iCost = getProductionNeeded(eBuilding);
+
 			// <!-- custom: save some computation by processing this early-on anyways etc -->
 			// too weak to justify any wonder now
 			// <!-- custom: see SAS defines to specifically tune its suboptions rather anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
+				// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable). Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+				// Cheap World Wonder grab policy: per-era iCost caps (Normal).
+				// If iCost <= cap(for current era) scaled by game speed, treat the WW as "cheap".
+				// Era index assumed: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future.
+
+				static const int iCheapWWCapAncientNormal     = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL");
+				static const int iCheapWWCapClassicalNormal   = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_CLASSICAL_NORMAL");
+				static const int iCheapWWCapMedievalNormal    = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MEDIEVAL_NORMAL");
+				static const int iCheapWWCapRenaissanceNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_RENAISSANCE_NORMAL");
+				static const int iCheapWWCapIndustrialNormal  = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_INDUSTRIAL_NORMAL");
+				static const int iCheapWWCapModernNormal      = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MODERN_NORMAL");
+				static const int iCheapWWCapFutureNormal      = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_FUTURE_NORMAL");
+
+				int iCheapWWCapNormal = iCheapWWCapFutureNormal;
+				switch (iCurrentEra)
+				{
+					case 0: iCheapWWCapNormal = iCheapWWCapAncientNormal; break;
+					case 1: iCheapWWCapNormal = iCheapWWCapClassicalNormal; break;
+					case 2: iCheapWWCapNormal = iCheapWWCapMedievalNormal; break;
+					case 3: iCheapWWCapNormal = iCheapWWCapRenaissanceNormal; break;
+					case 4: iCheapWWCapNormal = iCheapWWCapIndustrialNormal; break;
+					case 5: iCheapWWCapNormal = iCheapWWCapModernNormal; break;
+					default: iCheapWWCapNormal = iCheapWWCapFutureNormal; break; // includes era 6 and any later eras
+				}
+
+				// Scale cap to game speed (same style you use elsewhere)
+				const int iCheapWWCapAdjusted = (iCheapWWCapNormal * iGameSpeedMultiplier) / 100;
+
+				// Final flag: cheap enough to consider as "grab it"
+				const bool bCheapWorldWonder = (iCost <= iCheapWWCapAdjusted);
+				// If cheap, push it hard (so it doesn't get ignored by other builds).
+				if (bCheapWorldWonder)
+				{
+					// <!-- custom: minimal danger check since the risk is worth it as the wonder is so cheap anyways etc. -->
+					if (!bDanger)
+					{
+						return AI_BUILDING_ALWAYS_PICK_FIRST + 3000;
+					}
+				}
+
 				static const int iMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_BASE_HAMMERS");
 				static const int iMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
 
@@ -5519,7 +5577,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			const int iProductionModifier = getProductionModifier(eBuilding);
 			// “Can we realistically <!-- custom: build as i assume this is about starting new buildings --> it?” (turn cap)
 			// Use a simple time-to-build gate rather than only a flat hpt cut. It auto-scales with cost and modifiers.
-			int const iCost      = getProductionNeeded(eBuilding);
 			int const iWWMul100  = 100 + iProductionModifier; // 100 + (traits/stone/marble/religion/etc.)
 			// Estimated turns (ceil): cost / (hpt * (1+mods))
 			/*

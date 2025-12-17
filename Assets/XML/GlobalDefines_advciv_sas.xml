@@ -564,11 +564,62 @@
 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then anyways etc. -->
+	<!-- World Wonder special-case: "barbarian barrier" wonders (Great Wall: bBorderObstacle=1).
+	Enable/disable the special-case, and stop considering it after a max era.
+	Era index: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future -->
+	<!-- custom: if value is 0 (disabled), we won't build great wall after specified era index (e.g. 2, so from era 3 = medieval era, we won't build great wall. We assume this is all a wonder has else said wonder would be op so no need to check other things anyways etc.) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
 	<!-- custom: knob common to all world wonders, see below for more specific ones alternatively i mean if i may say but anyways etc. -->
-	<!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same). Tune below sub-kobs if you want more precision, or to restore a more base advciv like behaviour of wonder building, disable SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE entirely. I believe building settlers or workers is generally stronger especially early, so i kept the "optimize" flag enabled i mean but anyways etc. But you can disable it if you want a more wonder-building like behaviour, or maybe rather one of the sub-knobs as you prefer (but it can quickly become a rabbit hole xd so beware i mean if i may say but anyways etc.). See below to specifically tune its suboptions rather anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+	<!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable). Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: this ignores following SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE related rejects: if a world wonder is cheap enough, grab it ASAP. We can afford building 1-2 units less or some similar cost (e.g. Pyramids at industrial era still not build by AIs due to previous rejects). Code added with the help of chatgpt 5.2, check if accurate anyways etc. -->
+	<!-- Cheap World Wonder grab policy: per-era iCost caps (Normal)
+	If a world wonder's iCost (getProductionNeeded) is <= the cap for the current era (scaled by game speed), treat it as "cheap" and allow/encourage building it even if it fails strict hammer-city placement rules.
+
+	Era names assumed: Ancient, Classical, Medieval, Renaissance, Industrial, Modern, Future
+	Examples (Normal):
+	- Ancient cap 60: a 55-iCost WW is "cheap"; a 75-iCost WW is not.
+	- Classical cap 90: an 80-iCost WW is "cheap"; a 100-iCost WW is not.
+	- Medieval cap 150: a 140-iCost WW is "cheap"; a 175-iCost WW is not.
+	-->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL</DefineName>
+		<iDefineIntVal>60</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_CLASSICAL_NORMAL</DefineName>
+		<iDefineIntVal>90</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MEDIEVAL_NORMAL</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_RENAISSANCE_NORMAL</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_INDUSTRIAL_NORMAL</DefineName>
+		<iDefineIntVal>250</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MODERN_NORMAL</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_FUTURE_NORMAL</DefineName>
+		<iDefineIntVal>350</iDefineIntVal>
 	</Define>
 	<!-- Min base-hammers gate for wonders (used in CvCityAI::AI_buildingValue)
 	Formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA)
