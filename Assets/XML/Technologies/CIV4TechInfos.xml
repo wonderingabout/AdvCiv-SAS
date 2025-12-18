@@ -1859,7 +1859,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>15</iGridX>
-			<iGridY>17</iGridY>
+			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4030,8 +4030,8 @@
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>-8</iHealth>
-			<iHappiness>-8</iHappiness>
+			<iHealth>-9</iHealth>
+			<iHappiness>-9</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>56</iAsset>
 			<iPower>0</iPower>
@@ -4073,7 +4073,6 @@
 				<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
 				<PrereqTech>TECH_COMPUTERS</PrereqTech>
 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
-				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_DEPOPULATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_DEPOPULATION</Sound>
@@ -4142,7 +4141,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_COMPOSITES_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMPOSITES</Sound>
 			<SoundMP>AS2D_TECH_MP_COMPOSITES</SoundMP>
@@ -5963,11 +5964,9 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-			</OrPreReqs>
-			<AndPreReqs>
 				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
-			</AndPreReqs>
+			</OrPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MARINE_TECHNOLOGY</Sound>
 			<SoundMP>AS2D_TECH_MP_MARINE_TECHNOLOGY</SoundMP>
@@ -6346,28 +6345,27 @@
 			<SoundMP>AS2D_TECH_MP_RADIO</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Radio.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,11</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_REFRIGERATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_REFRIGERATION</Type>
-			<Description>TXT_KEY_TECH_REFRIGERATION</Description>
-			<Civilopedia>TXT_KEY_TECH_REFRIGERATION_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_ENVIRONMENTALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_ENVIRONMENTALISM</Type>
+			<Description>TXT_KEY_TECH_ENVIRONMENTALISM</Description>
+			<Civilopedia>TXT_KEY_TECH_ENVIRONMENTALISM_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2050</iCost>
+			<iCost>2500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: was ERA_MODERN -->
-			<Era>ERA_INDUSTRIAL</Era>
+			<Era>ERA_MODERN</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>0</iHealth>
+			<iHealth>1</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>48</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -6387,8 +6385,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>15</iGridX>
-			<iGridY>1</iGridY>
+			<iGridX>19</iGridX>
+			<iGridY>11</iGridY>
 			<!-- custom: was DOMAIN_SEA 1 -->
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -6396,26 +6394,20 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>4</iFlavor>
-				</Flavor>
-				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>7</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_REFRIGERATION_QUOTE</Quote>
-			<Sound>AS2D_TECH_REFRIGERATION</Sound>
-			<SoundMP>AS2D_TECH_MP_REFRIGERATION</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Refrigeration.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,7</Button>
+			<AndPreReqs>
+				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+			</AndPreReqs>
+			<Quote>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Quote>
+			<Sound>AS2D_TECH_ENVIRONMENTALISM</Sound>
+			<SoundMP>AS2D_TECH_MP_ENVIRONMENTALISM</SoundMP>
+			<Button>,Art/Interface/Buttons/Civics/Environmentalism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,1</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_SUPERCONDUCTORS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_SUPERCONDUCTORS</Type>
@@ -6574,7 +6566,7 @@
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
-			<iHappiness>2</iHappiness>
+			<iHappiness>3</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>64</iAsset>
 			<iPower>10</iPower>
@@ -6615,7 +6607,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -6863,7 +6855,7 @@
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>1</iHealth>
+			<iHealth>2</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>56</iAsset>
@@ -6899,7 +6891,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->

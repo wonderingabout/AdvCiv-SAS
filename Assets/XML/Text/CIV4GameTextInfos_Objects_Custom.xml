@@ -976,4 +976,9 @@
 		<Tag>TXT_KEY_TECH_ROMANTICISM</Tag>
 		<English>Romanticism</English>
 	</TEXT>
+	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM</Tag>
+		<English>Environmentalism</English>
+	</TEXT>
 </Civ4GameText>

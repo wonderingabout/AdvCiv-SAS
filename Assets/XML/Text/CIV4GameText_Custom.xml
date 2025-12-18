@@ -457,6 +457,11 @@
 		<Tag>TXT_KEY_TECH_ROMANTICISM_QUOTE</Tag>
 		<English>"If music be the food of love, play on." - William Shakespeare</English>
 	</TEXT>
+	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Tag>
+		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
+	</TEXT>
 
 
 

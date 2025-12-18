@@ -189,7 +189,6 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
@@ -912,11 +911,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -8325,11 +8323,10 @@
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -11137,7 +11134,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -12107,11 +12104,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -12198,11 +12194,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -12802,11 +12797,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>

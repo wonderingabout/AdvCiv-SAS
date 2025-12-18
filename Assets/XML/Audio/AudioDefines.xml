@@ -8956,7 +8956,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_REFRIGERATION</SoundID>
+			<SoundID>SND_TECH_ENVIRONMENTALISM</SoundID>
 			<Filename>Sounds/Tech/Tech_Refrigeration</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9600,7 +9600,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_REFRIGERATION</SoundID>
+			<SoundID>SND_TECH_MP_ENVIRONMENTALISM</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Refrigeration</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

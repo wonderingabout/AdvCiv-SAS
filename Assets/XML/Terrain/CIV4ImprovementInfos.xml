@@ -1696,7 +1696,7 @@
 			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>0</iYield>

@@ -13864,8 +13864,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_REFRIGERATION</ScriptID>
-		<SoundID>SND_TECH_REFRIGERATION</SoundID>
+		<ScriptID>AS2D_TECH_ENVIRONMENTALISM</ScriptID>
+		<SoundID>SND_TECH_ENVIRONMENTALISM</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15980,8 +15980,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_REFRIGERATION</ScriptID>
-		<SoundID>SND_TECH_MP_REFRIGERATION</SoundID>
+		<ScriptID>AS2D_TECH_MP_ENVIRONMENTALISM</ScriptID>
+		<SoundID>SND_TECH_MP_ENVIRONMENTALISM</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

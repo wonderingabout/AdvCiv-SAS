@@ -10752,11 +10752,7 @@
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: make the building available sooner while it is more relevant while the game lasts anyways etc especially considering its science effect would be pointless if there are no more not anymore any tech to research but anyways etc..., is maybe more historically accurate this was as per our reworked tech tree at least if not in civ4 +/- base advciv too maybe (didn't check) or not but anyways etc, was TECH_SUPERCONDUCTORS and tech types empty -->
 			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -13132,7 +13128,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CURRENCY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13662,13 +13658,9 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_REFRIGERATION with tech types empty -->
+			<!-- custom: was TECH_REFRIGERATION (now removed) with tech types empty -->
 			<PrereqTech>TECH_CORPORATION</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -13863,13 +13855,9 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_REFRIGERATION with tech types empty -->
+			<!-- custom: was TECH_REFRIGERATION (now removed) with tech types empty -->
 			<PrereqTech>TECH_CORPORATION</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
