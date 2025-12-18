@@ -45,7 +45,6 @@ Instead of:
 [Example of how to fast replace many redundant entries (e.g. 400+ strategy entries to obsolete anyways etc) using regexp (with chatgpt 5's help anyways etc) and vs code anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-how-to-fast-replace-many-redundant-entries-eg-400-strategy-entries-to-obsolete-anyways-etc-using-regexp-with-chatgpt-5s-help-anyways-etc-and-vs-code-anyways-etc)  
 [Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)  
 [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
-[Copy of the tutorial on how to modify GameFonts.tga for FREE](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#copy-of-the-tutorial-on-how-to-modify-gamefontstga-for-free)  
 [ICONS code XML names (may or not be exhaustive anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-anyways-etc-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe-anyways-etc)  
 [Insert an img in a text label in sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)  
 [Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building-anyways-etc)  
@@ -731,64 +730,6 @@ In the following example of code, please note that there is a specific order of 
  <Button>Art/Interface/Buttons/Process/ProcessWealth.dds</Button>
 </ProcessInfo>
 ```
-
-## Copy of the tutorial on how to modify GameFonts.tga for FREE
-
-Note: you may want to read all this at least the end before you start doing it, in case you see something that makes you change your mind/choose another approach instead, but do as you prefer anyways etc.
-
-Source: [CFC forum link](https://forums.civfanatics.com/threads/how-to-modify-gamefonts-tga-for-free.181119/)
-
-In case it is deleted, i have made a copy here which is as follows adjusted or not or and other or and not anyways etc for AdvCiv-SAS (formatting the github readme or and other or and not anyways etc):
-
-```text
-Tutorial: Editing GameFonts.tga for Free
-
-
-- BEFORE YOU START: Get the image(s) you want to add to the file.
-- Because I am really cheap, I usually hunt Google Images for what I want and then use IrfanView to resize and edit it. I then paste it into GIMP to save as a DDS file. (I am mystified by GIMP&#8217;s user interface and use it for as little as possible.)
-- Get a copy of DTXBmp; install it.
-- Go to the GameFonts.tga file you want to edit in File Manager. With the right mouse button, select "Open With" DTXBmp
-- You should get a screen that looks like this&#8230; DTXBmpScreenShot2.jpg
-- Click on the third icon from the left on the bottom; floating help identifies it as "send to editor".
-- The Windows Paint application will pop up with the main icon screen, using filename &#8216;norm.bmp&#8217;. At this point, I like to maximize that window and View->Zoom->Custom->200%
-- Pull up the image you want to add. Resize it to be 21 pixels wide by 20 pixels high. Hit Edit->Copy to put it on the clipboard. (Again, I like IrfanView for this purpose.)
-- Go over the Paint application and hit Edit->Paste. Then drag it to the next available empty spot of the type you want to use. In my case, I put it after the religion icons. If you are adding a resource, put it after the resource icons. You should be able to enclose your new bitmap within the purple gridlines so that all the lines still show. Click somewhere else in Paint to leave your image there permanently.
-- Put the crosshair cursor right at the point where you pasted your picture. The lower right corner of Paint will show the coordinates. Write these down somewhere.
-- Notice that all the existing icons in the file have a single green pixel after each icon. I have no idea what this is for, but according to rumor it might be important. So, go to one of the purple gridlines that has it, grab a 3x20 section containing the line, Edit->Copy and then Edit->Paste as once for each icon. You should be able to do this by eye. (Zoom helps!)
-- Hit File->Save. (I hope you are still with me because all this has been the EASY part!)
-- Go back to DTXBmp and hit the fourth icon from the left on bottom. "Refresh From Edit". The colored image in the center should now reflect your changes. [DO NOT CLOSE THE PAINT APP YET&#8212;you might still want it.]
-- Now, go over to the right side where there is a black square with white icons on it. This is the infamous alpha channel part of your tga file. Hit the second icon from the left under it. "Send to Editor".
-- [*]Another Paint application will pop up with the filename &#8216;trans.bmp&#8217;. I maximize and zoom here.
-- Now, take a look over the white icons and pick the one that is closest to your new image. This will usually be one of the big round ones or the square one for Confucianism. Select a 21x20 area around it. Hit Edit->Copy.
-- Now hit Edit->Paste. Move the pasted section to the coordinates that you wrote down in step #8. Click somewhere else in Paint to leave your image there permanently.
-- Hit File->Save.
-- Go back to DTXBmp. Under the black rectangle, hit the third icon from the left, "Refresh after Edit". Now both the colored image and the alpha channel should reflect your changes.
-- In DTXBmp, hit File->Save.
-- You are done. Close all the windows.
-- Exclaim "What a hassle that was!"
-- Reach over and smack your friend who is a graphics expert and is laughing hysterically at you by now. Remind him that you did this for FREE!
-
-The same process will work for GameFonts_75.tga, except that the size of each icon is 16x16 and the size of the bar with the green pixel is 3x16. I have never succeeded in converting GameFonts.tga by resizing it; I have always had to do the whole thing twice.
-
-- I played around with trying to generate the alpha channel by taking the original image and converting it to black & white and then taking the negative. - All of these efforts resulted in abyssmal failure. Cutting and pasting from the real alpha channel is all I could get to work.
-
-
-Free Windows Applications Mentioned in this Tutorial
-- DTXBmp may be found at http://fly.to/mwgfx/
-- Irfanview may be found at http://www.irfanview.com/
-- GIMP may be found at http://gimp-win.sourceforge.net/stable.html. (You need both the runtime environment and the application.)
-
-Cheers,
-Eusebius
-```
-
-I am not responsible if it is not updated anymore or inaccurate, but i hope it can be helpful hopefully or maybe not (is not helpful anyways etc) but in all cases is what i wanted to do (to write it here) anyways etc anyways etc anyways etc.
-
-Note: it may be much easier, especially if you import art assets from a mod, to also import the icons from the .tga of a mod, see some screenshots in the google drive link above (about this .tga part) where i show for example the difference between our (current) .tga files (in particular the GameFont.tga and GameFont_75.tga files here in this example anyways etc) (before fixing/updating the icons) and HR mod's .tga files (same i.e. GameFont.tga and GameFont_75.tga files anyways etc anyways etc anyways etc) anyways etc, but i find it also interesting even if painful to know how to do, it may be/serve helpful/us especially if you/we want to add your/our own assets that don't exist in any mod for example, but (this) is just a suggestion do as you prefer anyways etc.
-
-Note 2: This seems to be useful when reordering or/and adding/removing xml assets that depend on/use icons in the .tga file if i am not mistaken anyways etc, i don't know how it all works, but it seems that generally for example for religion assets, after having [reordered the xml order (for example in this git commit anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/025c696fac3f43dd2b2489d99f36fae3f407ecb4), now the icons are all messed up (paganism religion shows with the judaism icon and or other changes anyways etc, see for example screenshots 5085 and 5086), so the .tga icons's order seems to also need to reflect the xml order or vice versa, and similarly for the _75.tga file if i am not mistaken too do all these steps again for more fun if i may say or not as is more tedious but more accurate hopefully this way unless i am mistaken and there is somehow or could be a better way i don't know of maybe, else hopefully more accurate this way or whichever or not whichever way it may/would be, anyways etc anyways etc anyways etc, again i don't know exactly how it all works but i think this is the general idea and that it works helps quite good maybe or not or yes or and other or and not anyways etc hopefully helpful or not or yes or etc or and other or and not anyways etc.
-
-Note 3: you may want to make backups to avoid overwriting accidentally the wrong file or such or not having a backup of the file needed anyways etc anyways etc anyways etc...
 
 ## ICONS code XML names (may or not be exhaustive anyways etc) (with some color changing code as bonus or to be extra exhaustive a bit more than needed but is here if needed maybe anyways etc)
 
