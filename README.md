@@ -154,9 +154,10 @@ Added some missing info such as the great person "+n (ICON)" information in any 
 
 Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance anyways etc.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG" alt="0.401_city_screen.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG" alt="0.402_city_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG" alt="0.400_city_screen (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG" alt="0.400_city_screen (4).JPG" width="250"></img>
 
 ### Untradeable techs (bTrade) display information
 

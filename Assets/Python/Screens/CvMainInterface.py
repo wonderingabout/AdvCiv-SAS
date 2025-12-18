@@ -444,7 +444,9 @@ class CvMainInterface:
 # BUG - field of view slider - end
 
 		# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks but anyways etc. -->
-		self.SIDE_PANELS_WIDTH = 297
+		# <!-- custom: enlarge beyond the current inner edge of the bottom panels so we can display the bonus panels entirely (currently with even column display there is some text overlapping onto another which is not ideal anyways etc. Ideally would increase said panel's width as well, but not sure how easy it is, starting from first place needing the change anyways etc.)
+		# self.SIDE_PANELS_WIDTH = 297
+		self.SIDE_PANELS_WIDTH = 341
 
 		# <!-- custom: fetch the define once may be computaitonally cheaper (i think but not sure anyways etc.) -->
 		# <!-- custom: initialize cheaply once. -->
@@ -573,12 +575,19 @@ class CvMainInterface:
 		# While we're at it; this one gets treated similarly.
 		gSetSquare("GlobeToggle", "Top", 0, 0, BTNSZ(36))
 		self.setMiniMapRects()
+
+		# <!-- custom: enlarge the bottom panels now that we increased self.SIDE_PANELS_WIDTH to fit more info, so that the bottom panel is aligned with the enlarged side panels (that have bonuses, etc.), as chatgpt 5.2 confirmed thanks a lot anyways etc. Note: somehow width is slightly too low and not enough with just self.SIDE_PANELS_WIDTH, so adding some extra manual adjustment anyways etc. Doing it this way i could confirm chatgpt 5.2's explanation seems correct (check if accurate) anyways etc. -->
+		# also ensure CenterBottomPanel starts to the right of CityLeftPanel (needs +8 because LowerLeftCorner trims -8).
+		iEstimatedBottomPanelsExtraWidth = 8
+		iEstimatedBottomPanelsWidth = self.SIDE_PANELS_WIDTH + iEstimatedBottomPanelsExtraWidth
 		gSetRect("LowerLeftCornerPanel", "Top",
 				RectLayout.LEFT, RectLayout.BOTTOM,
-				HLEN(304), gRect("MiniMapPanel").height() + 17)
+				# HLEN(304), gRect("MiniMapPanel").height() + 17)
+				HLEN(iEstimatedBottomPanelsWidth), gRect("MiniMapPanel").height() + 17)
 		gSetRect("LowerRightCornerPanel", "Top",
 				RectLayout.RIGHT, RectLayout.BOTTOM,
 				gRect("LowerLeftCornerPanel").width(), gRect("LowerLeftCornerPanel").height())
+
 		gSetRect("LowerLeftCornerBackgr", "LowerLeftCornerPanel",
 				0, 4,
 				RectLayout.MAX, RectLayout.MAX)
@@ -1083,10 +1092,11 @@ class CvMainInterface:
 					gRect("CommerceSliderBtns3").xRight() + HSPACE(3), iY))
 
 			# <!-- custom after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui but anyways etc. thanks anyways etc.) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically anyways etc. -->
-			iEstimatedCommerceMargins = 16
+			# iEstimatedCommerceRightMargin = 16
+			iEstimatedCommerceRightMargin = 20
 			iEstimatedLeftSideSize = 152
 			# iCommercePanelHorizontalSpacingToTheRight = 70
-			iCommercePanelHorizontalSpacingToTheRight = self.SIDE_PANELS_WIDTH - iEstimatedLeftSideSize - iEstimatedCommerceMargins
+			iCommercePanelHorizontalSpacingToTheRight = self.SIDE_PANELS_WIDTH - iEstimatedLeftSideSize - iEstimatedCommerceRightMargin
 			gSetPoint("CityPercentText" + str(i), PointLayout(
 					# (The horizontal spacing here seems pretty arbitrary)
 					gRect("CommerceSliderBtns3").xRight() + HSPACE(iCommercePanelHorizontalSpacingToTheRight, 3), iY))
