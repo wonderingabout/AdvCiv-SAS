@@ -45,6 +45,11 @@
 		<DefineName>SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 

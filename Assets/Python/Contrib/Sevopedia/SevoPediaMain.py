@@ -184,6 +184,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.pediaHistory = []
 		self.pediaFuture = []
 
+		# <!-- custom: compute once to be computationally more efficient if i'm not mistaken in my thinking, and added with the help of chatgpt 5.2 thanks, anyways etc. -->
+		self.SAS_cacheCivicsTuple = None
+		self.SAS_cacheTechsTuple = None
+
 		self.mapListGenerators = {
 			SevoScreenEnums.PEDIA_TECHS		: self.placeTechs,
 			SevoScreenEnums.PEDIA_UNITS		: self.placeUnits,
@@ -387,6 +391,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: add highlight text for sevopedia sorting needs as we added but anyways etc, here fetched once for performance optimization or/and such if i'm not mistaken anyways etc. -->
 		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -522,8 +527,52 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
 			print("Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
 	
+	# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getTechList(self):
-		return self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo)
+		if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
+			if self.SAS_cacheTechsTuple is None:
+				techsList = []
+				iNumTechs = gc.getNumTechInfos()
+				iNumEras = gc.getNumEraInfos()
+
+				for iEra in range(iNumEras):
+					tmp = []
+
+					# Preserve XML order when Sort Lists is OFF (most conservative)
+					for iTech in range(iNumTechs):
+						info = gc.getTechInfo(iTech)
+						if info.isGraphicalOnly():
+							continue
+						if info.getEra() != iEra:
+							continue
+						tmp.append((info.getDescription(), iTech))
+
+					if not tmp:
+						continue
+
+					# If BUG "Sort Lists" is ON, alphabetize within each era group
+					if self.isSortLists():
+						tmp.sort()
+
+					if techsList:
+						techsList.append(("", -1))  # spacer between eras
+					techsList.append((gc.getEraInfo(iEra).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))  # era header
+
+					for (szName, iTech) in tmp:
+						techsList.append((szName, iTech))
+
+				self.SAS_cacheTechsTuple = tuple(techsList)
+
+			# <!-- custom: else do nothing, reuse cached tuple from last time if i'm not mistaken anyways etc. -->
+
+			return self.SAS_cacheTechsTuple
+
+		else:
+			if self.SAS_cacheTechsTuple is None:
+				# <!-- custom: base advciv's formula, only difference is we cache it now if i'm not mistaken anyways etc. -->
+				self.SAS_cacheTechsTuple = tuple(self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo))
+			
+			return self.SAS_cacheTechsTuple
 
 
 	def placeUnits(self):
@@ -747,46 +796,55 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getCivicList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, gc.getCivicInfo)
 
-	# <!-- custom: order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
 	# Step 2: Replace getCivicList() with “category + era tiers” (behind a SAS define)
 	# Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
 	# In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
 	def getCivicList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
-			civicsList = []
-			iNumCivics = gc.getNumCivicInfos()
-			iNumOptions = gc.getNumCivicOptionInfos()
+			if self.SAS_cacheCivicsTuple is None:
+				civicsList = []
+				iNumCivics = gc.getNumCivicInfos()
+				iNumOptions = gc.getNumCivicOptionInfos()
 
-			for iOption in range(iNumOptions):
-				tmp = []
+				for iOption in range(iNumOptions):
+					tmp = []
 
-				# Preserve XML order when Sort Lists is OFF (most conservative)
-				for iCivic in range(iNumCivics):
-					info = gc.getCivicInfo(iCivic)
-					if info.isGraphicalOnly():
+					# Preserve XML order when Sort Lists is OFF (most conservative)
+					for iCivic in range(iNumCivics):
+						info = gc.getCivicInfo(iCivic)
+						if info.isGraphicalOnly():
+							continue
+						if info.getCivicOptionType() != iOption:
+							continue
+						tmp.append((info.getDescription(), iCivic))
+
+					if not tmp:
 						continue
-					if info.getCivicOptionType() != iOption:
-						continue
-					tmp.append((info.getDescription(), iCivic))
 
-				if not tmp:
-					continue
+					# If BUG "Sort Lists" is ON, alphabetize within each option group
+					if self.isSortLists():
+						tmp.sort()
 
-				# If BUG "Sort Lists" is ON, alphabetize within each option group
-				if self.isSortLists():
-					tmp.sort()
+					if civicsList:
+						civicsList.append(("", -1))  # spacer between groups
+					civicsList.append((gc.getCivicOptionInfo(iOption).getDescription(), -1))  # header
 
-				if civicsList:
-					civicsList.append(("", -1))  # spacer between groups
-				civicsList.append((gc.getCivicOptionInfo(iOption).getDescription(), -1))  # header
+					for (szName, iCivic) in tmp:
+						civicsList.append((szName, iCivic))
 
-				for (szName, iCivic) in tmp:
-					civicsList.append((szName, iCivic))
+					self.SAS_cacheCivicsTuple = tuple(civicsList)
+			
+			# <!-- custom: else do nothing, reuse cached tuple from last time if i'm not mistaken anyways etc. -->
 
-			return civicsList
+			return self.SAS_cacheCivicsTuple
+
+		# <!-- custom: no grouping, full alphabetical ordered list as using the base advciv's list formula but anyways etc. -->
 		else:
-			# <!-- custom: no grouping, full alphabetical ordered list as was in base advciv anyways etc. -->
-			return self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo)
+			if self.SAS_cacheCivicsTuple is None:
+				self.SAS_cacheCivicsTuple = tuple(self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo))
+				
+			return self.SAS_cacheCivicsTuple
 
 
 	def placeReligions(self):
@@ -896,11 +954,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			elif (info == gc.getLeaderHeadInfo):
 				data2 = SevoPediaLeader.SevoPediaLeader.getCiv(item[1]) # </advc.001>
 
-			# <!-- custom: order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+			# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
 			# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
 			# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
-			elif info == gc.getCivicInfo:
-				# <!-- reuse fallback base advciv value since we don't change it in chatgpt 5.2's solution if i'm not mistaken anyways etc. -->
+			# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. --> -->
+			elif info == gc.getCivicInfo or info == gc.getTechInfo:
+				# <!-- custom: reuse fallback base advciv value since we don't change it in chatgpt 5.2's solution if i'm not mistaken anyways etc. -->
 				data2 = 1
 
 				if data1 == -1:

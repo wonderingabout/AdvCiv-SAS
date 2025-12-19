@@ -145,7 +145,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		#screen.setLabel(self.top.getNextWidgetName(), "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_COST + 25, self.Y_COST, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		listBoxName = self.top.getNextWidgetName()
-		szEra = gc.getEraInfo(techInfo.getEra()).getDescription() + " Era"
+		szEra = gc.getEraInfo(techInfo.getEra()).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
 
 		techCost = techInfo.getResearchCost()
 		if (self.top.iActivePlayer != -1):

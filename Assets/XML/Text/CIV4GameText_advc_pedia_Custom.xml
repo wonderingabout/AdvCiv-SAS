@@ -23,6 +23,13 @@ hopefully more readable or exportable if need/want be now -->
 
 
 
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_ERA</Tag>
+		<English>Era</English>
+	</TEXT>
+
+
+
 	<!-- custom: code (TXT_KEYs anyways etc) for our new placeCivilizations, placeObsoletesWith, and placeReplace methods added in sevopediaunit thanks to Claude AI's code and explanations and my prompts and (very small or not but all or not anyways etc) adjustments anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS</Tag>
