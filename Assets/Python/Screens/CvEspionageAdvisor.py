@@ -4,8 +4,7 @@
 from CvPythonExtensions import *
 from PyHelpers import PyPlayer
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
+import ScreenInput
 import CvScreenEnums
 
 # globals

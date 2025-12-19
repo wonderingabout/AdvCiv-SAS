@@ -17,9 +17,8 @@
 from CvPythonExtensions import *
 import CvUtil
 import CvPediaScreen
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()

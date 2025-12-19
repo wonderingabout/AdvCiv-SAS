@@ -2,8 +2,7 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
+import ScreenInput
 import time
 import PyHelpers
 import re

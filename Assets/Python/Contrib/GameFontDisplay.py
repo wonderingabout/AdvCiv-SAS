@@ -1,7 +1,6 @@
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused ScreenInput import or and other or and not anyways etc -->
-#import ScreenInput
+import ScreenInput
 import CvScreenEnums
 gc = CyGlobalContext()
 

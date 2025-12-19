@@ -9,23 +9,13 @@
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
 # <!-- custom: new :
-# - placeReplace (renamed from placeReplacements of: ) in particular, is imported from RFC DOC mod:
-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py
-# which may have then been modified or not for AdvCiv-SAS or/and enhanced or/and tweaked or/and adjusted anyways etc (see also sevopediabuilding (+/- 's code comments as you prefer or not or want or do or not or other or etc anyways etc) for details even though it was done later, it also served to adjust it or not anyways etc)
-# - placeCivilizations: added entirely (i only tweaked the coordinates to suit/match where i want(ed?) it anyways etc) by Claude AI from my prompt anyways etc, now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
-# - the place peak hill city terrains bonus features function/method in a similar manner,
-# - and the of this unit against modifiers
-# - as well as of other units modifiers (which would be/is against this (currently selected) unit this time anyways etc),
-# - as well as the placeFreePromotions
-# thanks a lot Claude AI! Anyways etc anyways etc anyways etc... -->
 
 
 
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 from _sevopedia_helpers import *
 
@@ -201,7 +191,7 @@ class SevoPediaUnit:
 
 	def placeStats(self):
 		screen = self.top.getScreen()
-		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am anyways etc) trying to avoid redundance as long as code seems to work fine or as intended i mean anyways etc and also to avoid or/and fix the ruff warning anyways etc, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least but anyways etc -->
+		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am anyways etc) trying to avoid redundance as long as code seems to work fine or as intended i mean anyways etc and also to avoid or/and fix the ruff warning anyways etc, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least; check if accurate and to be sure; anyways etc. -->
 		panelName = self.top.getNextWidgetName()
 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
 
@@ -817,6 +807,7 @@ class SevoPediaUnit:
 
 
 
+	# <!-- custom: placeReplace (renamed from placeReplacements) in particular is imported from RFC DOC mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py and adjusted or not for AdvCiv-SAS anyways etc. -->
 	def placeReplace(self):
 		xPanel = self.X_REPLACE
 		yPanel = self.Y_REPLACE

@@ -4,12 +4,10 @@
 #
 # EF: Converted from Civilopedia version by fitchn.
 
-
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 import BugUtil
 
 gc = CyGlobalContext()
@@ -64,8 +62,7 @@ class SevoPediaIndex:
 		
 		civicList = self.top.getCivicList()
 		religionList = self.top.getReligionList()
-		# <!-- custom: unused line so commented-out to fix ruff warning if i am not mistaken anyways etc -->
-		#corporationList = self.top.getCorporationList()
+		corporationList = self.top.getCorporationList()
 		
 		conceptList = self.top.getConceptList()
 		newConceptList = self.top.getNewConceptList()

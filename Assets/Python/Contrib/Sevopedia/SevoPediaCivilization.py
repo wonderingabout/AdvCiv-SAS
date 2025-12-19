@@ -8,15 +8,13 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from Middle-earth's mod's Platypedia, in:
-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py
-# which may be modified or not for AdvCiv-SAS -->
+
+
 
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -102,6 +100,8 @@ class SevoPediaCivilization:
 		screen.addDDSGFC(self.top.getNextWidgetName(), ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.iCivilization).getArtDefineTag()).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
+
+	# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from Middle-earth's mod's Platypedia C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py thanks and then modified or not for AdvCiv-SAS anyways etc. -->
 	def placeCities(self):
 		screen = self.top.getScreen()
 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_CONCEPT_CITIES", ()), "", True, True, self.X_CITIES, self.Y_CITIES, self.W_CITIES, self.H_CITIES, PanelStyles.PANEL_STYLE_BLUE50 )

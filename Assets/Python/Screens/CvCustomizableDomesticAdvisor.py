@@ -66,24 +66,25 @@ import BugUtil
 import FontUtil
 import GameUtil
 
-# <!-- custom: add imports at top of file to fix ruff warning E402 anyways etc -->
-import math
-# Needed to save changes
-import pickle
-# Needed to check for non-numbers (specially search function)
-import re
-#
-import time
-
 # BUG - Mac Support - start
 BugUtil.fixSets(globals())
 # BUG - Mac Support - end
+
+import math
 
 PyPlayer = PyHelpers.PyPlayer
 
 CityScreenOpt = BugCore.game.CityScreen
 AdvisorOpt = BugCore.game.CustDomAdv
 MainOpt = BugCore.game.MainInterface
+
+# Needed to save changes
+import pickle
+
+# Needed to check for non-numbers (specially search function)
+import re
+
+import time
 
 gc = CyGlobalContext()
 

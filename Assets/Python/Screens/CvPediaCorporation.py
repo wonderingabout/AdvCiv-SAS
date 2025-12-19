@@ -2,8 +2,7 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
-#import ScreenInput
+import ScreenInput
 import CvScreenEnums
 
 # globals

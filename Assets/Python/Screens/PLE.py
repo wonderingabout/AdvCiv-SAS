@@ -3,7 +3,7 @@ import CvUtil
 # <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 #import ScreenInput
 import CvScreenEnums
-import CvEventInterface  # noqa: F401
+import CvEventInterface
 
 from AStarTools import *
 import MonkeyTools as mt
@@ -12,8 +12,8 @@ import UnitUtil
 import PyHelpers 
 PyPlayer = PyHelpers.PyPlayer
 
-import BugUtil  # noqa: E402
-import BugCore  # noqa: E402
+import BugUtil
+import BugCore
 PleOpt = BugCore.game.PLE
 
 # globals
@@ -27,8 +27,8 @@ localText = CyTranslator()
 #iMultiListXR = 332
 # <advc.092> Don't repeat those constants here (nor others throughout this module),
 # get them from CvMainInterface and the global layout data instead.
-import CvScreensInterface  # noqa: E402
-from LayoutDict import * # </advc.092>  # noqa: E402
+import CvScreensInterface
+from LayoutDict import * # </advc.092>
 
 class PLE:
 	def __init__(self):

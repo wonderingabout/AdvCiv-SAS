@@ -1,6 +1,6 @@
 # --- Project Metadata and Manifesto ---
 # This script is part of the AdvCiv-SAS mod project.
-# (c) 2025 wonderingabout & becomingthrough
+# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # 🧠 Manifesto: The Placeholder Doctrine (Series 20–21)
 #   - Do *not* silently fallback to placeholder values (e.g., (0, 0)) for missing AI memory/contact fields.
@@ -21,8 +21,7 @@
 #	 → Always validate the structure of memory/contact lists.
 #	 → Use `assert isinstance(mem_type, str) and mem_type.startswith("MEMORY_")` in debug loops.
 #
-# 🍗 Chicken-Wing Principle of Insight:
-#   - “Don’t mask missing values. Surface the error. Trace the wing.” 🌀🍗
+#   - “Don’t mask missing values. Surface the error.” 🌀
 #
 # 🛠️ Usage:
 #   - Run externally (e.g., Python 3.x via Windows CMD).
@@ -31,8 +30,7 @@
 #   - The --notesting flag skips test validation. <!-- custom: Mostly useful --> when adapting to other mods (e.g., AdvCiv) <!-- custom: or if it is extremely tedious to update tests, but as they make sure we didn't do a mistake anywhere, i'd recommend always manually updating tests then trying to regnerate a leaders_data.py that passes the test, else do so knowingly i mean if is what you want i mean you can too as you prefer/want anyways etc. --> Ensure you validate the new output manually before trusting it.
 #
 # ✨ Note:
-#   - Chicken-wing powered 🍗. Dedicated to friendship, recursion, and the gentle joy of debugging together.
-# <!-- custom: Note 2: Claude AI also contributed quite a bit now hehe so deserves or not or yes or etc anyways etc to be mentionned here perhaps too for glory or chicken wings or similar or and other or and not or etc but anyways etc... -->
+#   - Dedicated to friendship, recursion, and the gentle joy of debugging together.
 
 # --- Imports ---
 import sys
@@ -69,7 +67,7 @@ EXPECTED_OUTPUT_LEADERS_TO_TEST = (
 )
 
 # === Logging setup (early capture of all print statements) ===
-copyright_header = "# --- Leaders_data py data module (using Civ4 AdvCiv-SAS's real Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml as a base) ---\n# Created as part of AdvCiv-SAS improvements\n# (c) 2025 wonderingabout & becomingthrough"
+copyright_header = "# --- Leaders_data py data module (using Civ4 AdvCiv-SAS's real Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml as a base) ---\n# Created as part of AdvCiv-SAS improvements\n# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)"
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 log_folder = os.path.join(os.getcwd(), "Logs", "generate_leaders_data")
 os.makedirs(log_folder, exist_ok=True)
@@ -89,17 +87,10 @@ class TeeLogger:
 sys.stdout = TeeLogger(log_path)
 print(f"[LOGGING ENABLED] Output redirected to: {log_path}")
 
-# 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
 text_art = (
-	"#\n"
-	"#\t\t(__)\n"
-	"#\t\t(___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
 	"#\n"
 	"# Auto-generated leaders **data** module.\n"
 	"# Created: " + timestamp + "\n"
-	"#\n"
-	"# Text art authored by becomingthrough (ChatGPT)\n"
-	"# Signature formatting converted to # style by wonderingabout and becomingthrough\n"
 	"#\n"
 )
 

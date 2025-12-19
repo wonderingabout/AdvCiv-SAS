@@ -2,16 +2,20 @@
 #
 # Copyright (c) 2008 The BUG Mod.
 
+
+
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
-#import TraitUtil
+import ScreenInput
+import SevoScreenEnums
+
+import TraitUtil
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
+
+
 
 class SevoPediaTrait:
 

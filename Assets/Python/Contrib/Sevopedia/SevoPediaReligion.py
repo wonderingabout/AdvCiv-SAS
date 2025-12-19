@@ -8,23 +8,13 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive
-# or not, anyways, is imported from History Rewritten mod:
-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
-# which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc -->
-#
-# <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
-# or not, anyways, is imported from Rise of Mankind (291) mod:
-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
-# which may be modified or not for AdvCiv-SAS -->
 
 
 
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 from _sevopedia_helpers import *
 
@@ -120,6 +110,7 @@ class SevoPediaReligion:
 	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
 	#			TableStyles.TABLE_STYLE_STANDARD)
 	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc -->
+	# <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from History Rewritten mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc. -->
 	def placeLeaders(self):
 		xPanel = self.X_LEADERS
 		yPanel = self.Y_LEADERS
@@ -176,6 +167,7 @@ class SevoPediaReligion:
 
 
 
+	# <!-- custom: part of the code here (placeBuilding and placeUnit in particular is imported from Rise of Mankind (291) mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\ which may be modified or not for AdvCiv-SAS anyways etc. -->
 	# Rise of Mankind 2.9
 	def placeBuilding(self):
 		screen = self.top.getScreen()

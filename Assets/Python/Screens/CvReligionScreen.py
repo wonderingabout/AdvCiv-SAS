@@ -7,8 +7,7 @@
 from CvPythonExtensions import *
 import PyHelpers
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
+import ScreenInput
 import CvScreenEnums
 
 # BUG - start

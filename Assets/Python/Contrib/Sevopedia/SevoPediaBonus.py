@@ -7,20 +7,13 @@
 #   sevotastic@yahoo.com
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
-#
-# <!-- custom: refactored similarly than sevopedia unit and sevopedia building, and with the big help of claude ai thanks a lot claude ai anyways etc as well as my prompts or/and adjustments or and not for advciv-sas or based on what i wanted or needed or did or not or and other or and not anyways etc
-# new in particular:
-# - placeObsoleteWith: tells us/the player watching it anyways when/at which tech is a bonus/ressource (a bonus/ressource anyways etc) is obsoleted, for example in base advciv or/and civ4(?) xml furs are obsoleted at tech_combustion if i am not mistaken anyways etc.
-# -->
-#
 
 
 
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 from _sevopedia_helpers import *
 

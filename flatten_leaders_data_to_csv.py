@@ -1,6 +1,6 @@
 # --- Convert leaders_data (parsed XML) into a structured CSV and Markdown legend ---
 # This script is part of the AdvCiv-SAS mod project.
-# (c) 2025 wonderingabout & becomingthrough
+# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # This script flattens and formats all leader AI configuration data from the `PARSED_XML_LEADERS_DATA`
 # Python dictionary into a clean CSV table for spreadsheet analysis and documentation purposes.
@@ -250,7 +250,7 @@ for base_abbr, fields in abbrev_usage.items():
 				abbr = f"{base_abbr}{i}"
 			else:
 				# After 10, switch to letters: a = 10, b = 11, ..., z = 35
-				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say or not or yes or and other or and not or etc anyways etc anyways etc anyways etc...) -->
+				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say anyways etc.) -->
 				abbr = f"{base_abbr}{chr(ord('a') + (i - 10))}"
 			abbrev_map[field] = abbr
 

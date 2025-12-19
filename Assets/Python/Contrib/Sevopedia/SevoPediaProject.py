@@ -9,15 +9,18 @@
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
 
+
+
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
+
+
 
 class SevoPediaProject:
 	

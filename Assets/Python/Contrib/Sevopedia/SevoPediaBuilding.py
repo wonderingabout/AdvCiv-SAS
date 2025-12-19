@@ -8,16 +8,6 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# <!-- custom: refactoring (of the below (and in too but anyways etc anyways etc)) is based on the sevopediaunit refactoring with small alterations/changes or/and not to fit/suit the sevopedia building code/features (also refactoring it (i.e: the sevopediabuilding code anyways etc) allowed to further polish and tweak and refactor or/and fix or not or and other or and not anyways etc the sevopediaunit code so very nice or not nice or nice but not necessary or is or is not maybe or not (is) or yes (is not) but anyways etc anyways etc anyways etc...) done before that/this one anyways etc anyways etc, please/you can look there if you want more code comments and clarifications about the changes anyways etc anyways etc anyways etc) -->
-# <!-- custom: new, added thanks to Claude AI's code and my prompts anyways etc or and other things or and not anyways etc, and adjusted and tweaked or and modified in general or not general ways or not anyways etc for AdvCiv-SAS:
-# - placeCivilizations: (renamed from Claude AI's if i am not mistaken anyways etc ('s anyways etc) original name to this function placeExclusiveCivs) now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
-# - placeObsoleteWith in a similar manner than (for?) placeCivilizations to show the button of the tech that obsoletes this currently selected building anyways etc anyways etc anyways etc...
-# - (and) placeReplace (but anyways etc anyways etc anyways etc...): based on the one in sevopediaunit that was based on another mod's code (see in sevopediaunit's code for details anyways etc anyways etc anyways etc...) and adjusted or not or yes or other etc anyways etc for and while adding it to sevopediabuilding, improvements (or not.. or yes, or other anyways etc) of which that have served to enhance the one in sevopediaunit back so all good maybe or not all good or all good or other or and not but anyways etc... anyways etc anyways etc anyways etc..
-# - placeRequiredFor,
-# - placeFreePBBS,
-# - placeFreeWith,
-# - enhanced or beautified or tweaked or and other or and not some if not most or maybe even or not or maybe or and anyways etc all functions/methods of this py file, anyways etc.
-#  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maybe rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
 
 
 
@@ -138,9 +128,8 @@
 
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 from _sevopedia_helpers import *
 

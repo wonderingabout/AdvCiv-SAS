@@ -5,11 +5,10 @@
 
 # This file has been edited for K-Mod in various places. Some changes marked, some not. (deletions generally not marked)
 
-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 from CvPythonExtensions import *
 import CvUtil
-#import ScreenInput
-#import CvScreenEnums
+import ScreenInput
+import CvScreenEnums
 
 #import time
 import math
@@ -1503,7 +1502,7 @@ class CvInfoScreen:
 			if self.bAlwaysShowBestWorstNameIfMet:
 				return (szPlayerName,"?")
 			return ("","?")
-		# <!-- custom: as per ruff rule E714 and chatgpt's reply to my prompt and such and me too for sending it but anyways etc anyways etc anwyays etc ; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc -->
+		# <!-- custom: as per ruff rule E714 and chatgpt's explanation; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc. -->
 		if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:
 			# Make sure player name isn't too long (I use the same code in CvOptionsScreen)
 			iCharLimit = 18

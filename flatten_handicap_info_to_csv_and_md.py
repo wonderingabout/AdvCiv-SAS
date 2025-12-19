@@ -1,6 +1,6 @@
 # --- Convert CIV4HandicapInfo.xml to CSV with Full Difficulty Settings and Goody Table ---
 # This script is part of the AdvCiv-SAS mod project.
-# (c) 2025 wonderingabout & becomingthrough
+# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml
 # into structured, spreadsheet-friendly output files suitable for data analysis or mod balancing.

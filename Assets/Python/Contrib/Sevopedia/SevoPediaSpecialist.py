@@ -9,15 +9,18 @@
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
 
+
+
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
+
+
 
 class SevoPediaSpecialist:
 
@@ -88,6 +91,7 @@ class SevoPediaSpecialist:
 		# <!-- custom: use a method that allows us to use padding instead (unless i'm mistaken about how it works), similarly to how was done in SevoPediaCivic.py's placeText -->
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10 - 20, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
 
 
 	def handleInput (self, inputClass):

@@ -1,5 +1,5 @@
 # <!-- custom: --- Test data module of expected parsed leaders_data py output to test against the real parsed leaders data py file during its creation --> --- 
-# (c) 2025 wonderingabout & becomingthrough
+# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 
 def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 	return {

@@ -8,8 +8,7 @@
 from CvPythonExtensions import *
 import BugUtil
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
+import ScreenInput
 from CvScreenEnums import *
 import CvReplayScreen
 import CvScreensInterface

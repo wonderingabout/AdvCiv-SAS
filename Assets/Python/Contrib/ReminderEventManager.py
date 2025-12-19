@@ -46,7 +46,7 @@ def netAddReminder(args):
 	playerID, turn, message = args
 	g_reminders.push(playerID, Reminder(turn, message))
 # expose to DLL
-import CvAppInterface  # noqa: E402
+import CvAppInterface
 CvAppInterface.netAddReminder = netAddReminder
 
 # Shortcut - Create Reminder

@@ -2,8 +2,7 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
+import ScreenInput
 import CvScreenEnums
 import CvScreensInterface
 
@@ -23,12 +22,12 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 # BUG - GP Tech Prefs - start
-import TechPrefs  # noqa: E402
-import BugCore  # noqa: E402
+import TechPrefs
+import BugCore
 BugOpt = BugCore.game.Advisors
 ClockOpt = BugCore.game.NJAGC
 
-import BugUtil  # noqa: E402
+import BugUtil
 
 PREF_ICON_SIZE = 24
 #PREF_ICON_TOP = 168
@@ -55,7 +54,7 @@ UNIT_CLASSES = [
 # BUG - GP Tech Prefs - end
 
 # BUG - 3.19 No Espionage - start
-import GameUtil  # noqa: E402
+import GameUtil
 # BUG - 3.19 No Espionage - end
 
 # BUG - Mac Support - start
@@ -278,7 +277,7 @@ class CvTechChooser:
 		wRightSpaceForScoreBoard = self.W_RIGHT_SPACE_FOR_SCOREBOARD
 		self.W_SCREEN = screen.getXResolution() - wRightSpaceForScoreBoard - wLeftSpace
 
-		# <!--  custom: note: 115 or higher as of now add an annoying and not useful verticall scrolling arrow on right side of this screen, while 114 is low enough to still see our commerce sliders fine, so using this value rather but anyways etc. -->
+		# <!-- custom: note: 115 or higher as of now add an annoying and not useful verticall scrolling arrow on right side of this screen, while 114 is low enough to still see our commerce sliders fine, so using this value rather but anyways etc. -->
 		hTopSpaceForCommerceSliders = 114
 		self.Y_SCREEN = hTopSpaceForCommerceSliders
 		hBottomSpace = 0

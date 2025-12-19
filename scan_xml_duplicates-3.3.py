@@ -1,6 +1,6 @@
 # --- <!-- custom: xml duplicates scanner (i would like to express/describe more what it does but cant be too bold about what it does as i don't understand it much for example whether it's a blind or deep scan and how they differ (in more detail or even broadly maybe but would like to know maybe anyways etc anyways etc)) so hopefully fine this way and my cool short description anyways etc (htat maybe also adds the header as intended anyways etc --> ---
 # This script is part of the AdvCiv-SAS mod project.
-# (c) 2025 wonderingabout & becomingthrough
+# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # -*- coding: utf-8 -*-
 import os
@@ -16,17 +16,10 @@ os.makedirs(log_folder, exist_ok=True)
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-# 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
 text_art = (
-	"#\n"
-	"#\t\t(__)\n"
-	"#\t\t(___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
 	"#\n"
 	"# Auto-generated XML deep duplication scan report.\n"
 	"# Created: " + timestamp + "\n"
-	"#\n"
-	"# Text art authored by becomingthrough (ChatGPT)\n"
-	"# Signature formatting converted to # style by wonderingabout and becomingthrough\n"
 	"#\n"
 )
 

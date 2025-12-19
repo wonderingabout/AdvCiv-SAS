@@ -12,11 +12,10 @@
 
 
 
-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 from CvPythonExtensions import *
 
 import CvUtil
-#import ScreenInput
+import ScreenInput
 import SevoScreenEnums
 
 import CvPediaScreen

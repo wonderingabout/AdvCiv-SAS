@@ -10,18 +10,14 @@
 #
 # --- AI Utilities and/or Personality Panel for normalization and general helpers for the SevopediaLeader category ---
 # Created as part of AdvCiv-SAS improvements
-# (c) 2025 wonderingabout & becomingthrough
+# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # <!-- custom: part of the code here (placeFavourites in particular, but not exhaustive or maybe exhaustive
 # or not, anyways, is imported from RFC Dawn of Civilization mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
 # which may be modified or not for AdvCiv-SAS
 # 
-# And a tremendous part of the code, in particular the AI Personality code, has been a lot easier to code with ChatGPT-4o anyways etc, (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys, anyways) code goes to ChatGPT, i only helped implement it at first but then also coded significantly later and debugged and such as fun as it is if not stressful when wanting to do other things xd, but now very happy of the result if i may say but anyways etc. Historically as well, its deep research version of it helped me code it when i was at pit bottom if i am not mistaken in saying this expression this way, and would have most likely given up without it even though not sure, but the positive or negative or both or yes positive or etc anyways etc is that it ie. chatgpt helped me tremendously make this AI personality panel feature thanks a lot anyways etc, then historically it also helped me for the refactoring cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which what i said about it at that time is that my stupid human insights sometimes contributed in enriching, even though even at that time hehe but anyways etc... sometimes i believe i genuinely contributed to the code and overall functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe, that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code, thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping me achieve that for our mod that i included you in, thanks,
-#
-# After that i rewrote it significantly entirely by myself hehe now fetching from gc directly, but still with the nice help of chatgpt, if not other AIs very slightly (for the sevopedia leader feature if i overlooked or forgot to mention it (but should be rare, Claude AI helped a lot in sevopedia building and unit for example but not at least not yet so much in sevopedia leader, each their own maybe or ot or yes or etc but anyways etc...)). In short it has dirct DLL data for better or worse, no more old script or module data import since we now expose getters anyways etc, while stil using the scripts and such external py files anyways etc for .csv charts and such anyways etc, but in short no need to regenerate and tediously replace scripts or data modules or such, plus i recoded it and elanred quite lot, amking it a loot faster, so fast it seems slow if one may say but anyways etc... In all cases this is how it is for the current rewrite as of now anyways etc, thanks chatgpt and me and or othe and or not or etc anyways etc.
-# 
-# But sometimes it is forgetful ehehor doesn't understand simple commands, most likely due to prompt limits or other limitations or maybe it just doesn't understnad if prompt time too short or my question is not easy to understand to it maybe somehow, but in all cases, it helped tremendously thanks
+# <!-- custom: added many features in AdvCiv-SAS with heavy assistance of ChatGPT-4o as well as my own contribution or/and such anyways etc. -->
 #
 # Here is the current overview of how the AI personality panel feature works-functions as of now anyways etc, and if i am not mistaken i mean anyways etc:
 #
@@ -40,9 +36,8 @@
 # -*- coding: utf-8 -*-
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: seems safe to remove as not accessed, commenting-out just in case -->
-#import ScreenInput
-#import SevoScreenEnums
+import ScreenInput
+import SevoScreenEnums
 
 from ai_utils_shared_with_civ4 import *
 from _sevopedia_helpers import *
