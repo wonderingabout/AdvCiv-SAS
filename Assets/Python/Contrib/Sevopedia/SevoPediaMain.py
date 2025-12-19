@@ -384,6 +384,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.TOC_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + u"</font>"
 		self.INDEX_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + u"</font>"
 
+		# <!-- custom: add highlight text for sevopedia sorting needs as we added but anyways etc, here fetched once for performance optimization or/and such if i'm not mistaken anyways etc. -->
+		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
+		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
 		self.szCategoryUnitUpgrades	= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", ())
@@ -742,9 +746,47 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeCivics(self):
 		self.list = self.getCivicList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, gc.getCivicInfo)
-	
+
+	# <!-- custom: order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+	# Step 2: Replace getCivicList() with “category + era tiers” (behind a SAS define)
+	# Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
+	# In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
 	def getCivicList(self):
-		return self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo)
+		if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
+			civicsList = []
+			iNumCivics = gc.getNumCivicInfos()
+			iNumOptions = gc.getNumCivicOptionInfos()
+
+			for iOption in range(iNumOptions):
+				tmp = []
+
+				# Preserve XML order when Sort Lists is OFF (most conservative)
+				for iCivic in range(iNumCivics):
+					info = gc.getCivicInfo(iCivic)
+					if info.isGraphicalOnly():
+						continue
+					if info.getCivicOptionType() != iOption:
+						continue
+					tmp.append((info.getDescription(), iCivic))
+
+				if not tmp:
+					continue
+
+				# If BUG "Sort Lists" is ON, alphabetize within each option group
+				if self.isSortLists():
+					tmp.sort()
+
+				if civicsList:
+					civicsList.append(("", -1))  # spacer between groups
+				civicsList.append((gc.getCivicOptionInfo(iOption).getDescription(), -1))  # header
+
+				for (szName, iCivic) in tmp:
+					civicsList.append((szName, iCivic))
+
+			return civicsList
+		else:
+			# <!-- custom: no grouping, full alphabetical ordered list as was in base advciv anyways etc. -->
+			return self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo)
 
 
 	def placeReligions(self):
@@ -830,21 +872,52 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		i = 0
 		for item in self.list:
 			data1 = item[1] # advc.001: Moved up
+
+			# <!-- custom: make a common initial variable so we can tweak it in specific elif or such blocks as we see fit and keep common logic at the end anyways etc; using a long name to avoid weird python scope inheritance issues to unrelated scopes if i'm not mistaken anyways etc. -->
+			sTitlePlaceItems = item[0]
+			widgetPlaceItems = widget
+			# Even though you later handle data1 == -1 inside the civics block, you still do szButtonPlaceItems = info(item[1]).getButton() before any header check.
+			# When getCivicList() inserts headers and spacers, you now have rows like ("Government", -1) and ("", -1). So you end up calling gc.getCivicInfo(-1).getButton() and Civ4 blows up with Access violation - no RTTI data!. Minimal fix:
+			if data1 != -1:
+				szButtonPlaceItems = info(data1).getButton()
+			else:
+				szButtonPlaceItems = ""
+
 			if info == gc.getConceptInfo:
 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
+				# <!-- custom: we cannot change to data1 here as we changed it in this scope so need to properly use item[1] rather as chatgpt 5.2 recommends and that indeed lead to an issue ingame of displaying always same sevopedia concept's text but anyways etc. To be safe, not changing it in other places as well unless we need to anyways etc. -->
 				data2 = item[1]
+
 			elif info == self.getNewConceptInfo or info == self.getShortcutInfo or info == self.getTraitInfo: # advc
 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
 				data2 = item[1]
+
 			# <advc.001> Widget help for leaders needs the civ ID in data2 (from Taurus)
 			elif (info == gc.getLeaderHeadInfo):
 				data2 = SevoPediaLeader.SevoPediaLeader.getCiv(item[1]) # </advc.001>
+
+			# <!-- custom: order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+			# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
+			# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
+			elif info == gc.getCivicInfo:
+				# <!-- reuse fallback base advciv value since we don't change it in chatgpt 5.2's solution if i'm not mistaken anyways etc. -->
+				data2 = 1
+
+				if data1 == -1:
+					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
+					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
+					szButtonPlaceItems = ""
+				# <!-- custom: else no change as per chatgpt 5.2's code thanks i mean but anyways etc. -->
+
+				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
+
 			else:
 				# advc (note): 0 tends to mean no tooltip (or an empty one?).
 				#    -1 should also work as the default; BULL likes to use 1.
 				data2 = 1
+
 			screen.appendTableRow(self.ITEM_LIST_ID)
-			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + item[0] + u"</font>", info(item[1]).getButton(), widget, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + sTitlePlaceItems + u"</font>", szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
 			i += 1
 		#screen.updateListBox(self.ITEM_LIST_ID)
 

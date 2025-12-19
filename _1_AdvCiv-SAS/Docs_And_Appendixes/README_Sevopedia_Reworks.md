@@ -193,7 +193,9 @@ Code provided by/with the help of claude ai too thanks if i may say (and thanks 
 
 More recently, added the `iCivicPercentAnger` info in sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really but anyways etc.
 
-Examples of output below anyways etc:
+Even more recently but anyways etc., they are now optionally groupable (as of now default but anyways etc.) by civic type (e.g. Government, Economy, etc.). Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's help too but anyways etc.
+
+Examples of output below anyways etc.:
 
 <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG" alt="0.740_sevopedia_civics_sample (2).JPG" width="250"></img>

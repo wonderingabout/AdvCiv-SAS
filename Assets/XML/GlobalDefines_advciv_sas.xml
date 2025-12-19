@@ -39,6 +39,15 @@
 
 
 
+	<!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.) instead of an alphabetical unordered very long list, as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+	<!-- custom: 1 to enable (recommended), 0 to disable -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: choose how wide the tech tree should be horizontally:
 		-> 0 (default): the tech tree goes from leftmost part of the screen (tightly compressed left margin as there is less room), to about halfway in the scoreboard on the right: we see leader name, the tech they are researching (if we know it), their tech %
 
