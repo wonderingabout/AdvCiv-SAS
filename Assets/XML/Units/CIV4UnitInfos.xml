@@ -3157,8 +3157,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>CORPORATION_1</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
-			<TechTypes/>
+			<!-- custom: Executives now require tech(s) to be built, matching their corresponding corporation's required tech(s). This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit i mean anyways etc.; was PrereqTech NONE and TechTypes empty anyways etc. -->
+			<PrereqTech>TECH_ECOLOGY</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -3324,8 +3329,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>CORPORATION_2</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
-			<TechTypes/>
+			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -3491,8 +3501,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>CORPORATION_3</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
-			<TechTypes/>
+			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -3658,8 +3673,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>CORPORATION_4</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
-			<TechTypes/>
+			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
+			<PrereqTech>TECH_RADIO</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -3825,8 +3845,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>CORPORATION_5</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
-			<TechTypes/>
+			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -3992,8 +4017,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>CORPORATION_6</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
-			<TechTypes/>
+			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
+			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -4159,7 +4189,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>CORPORATION_7</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
+			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
+			<PrereqTech>TECH_CORPORATION</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -20027,7 +20058,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
+			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_STEEL (now removed) -->
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<!-- custom: was empty anyways etc -->
 			<TechTypes>
@@ -20443,7 +20474,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
+			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_STEEL (now removed) -->
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<!-- custom: was empty anyways etc -->
 			<TechTypes>

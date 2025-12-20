@@ -29759,6 +29759,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: note: Executives now require tech(s) to be built (see there for details anyways etc.) If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit i mean anyways etc., was NONE. -->
 			<!-- custom: was TECH_MEDICINE -->
 			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<TechTypes>
@@ -29936,6 +29937,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
 			<!-- K-Mod: was MEDICINE -->
 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes>
@@ -30114,6 +30116,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
 			<!-- K-Mod: was PLASTICS -->
 			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<TechTypes>
@@ -30291,6 +30294,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
 			<!-- custom: was TECH_MARINE_TECHNOLOGY -->
 			<!-- K-Mod: was COMBUSTION -->
 			<PrereqTech>TECH_RADIO</PrereqTech>
@@ -30470,7 +30474,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: changed to another / to account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc, was the now removed TECH_RAILROAD anyways etc -->
+			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
+			<!-- custom: changed to another tech to accomodate reworked tech tree changes anyways etc., was the now removed TECH_RAILROAD anyways etc. -->
 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
@@ -30647,6 +30652,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
 			<!-- custom: was TECH_ROCKETRY and techtypes TECH_CORPORATION -->
 			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 			<TechTypes>
@@ -30825,6 +30831,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
 			<!-- K-Mod: was MASS_MEDIA and CORPORATION -->
 			<PrereqTech>TECH_CORPORATION</PrereqTech>
 			<TechTypes/>

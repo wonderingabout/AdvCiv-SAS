@@ -451,6 +451,7 @@ class CvMainInterface:
 		self.iBarExtraRowsExtraManualAdjust = None
 		# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
+		# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
 		# 1) Add a pinned-row member (once)
 		self.iCityBuildBarPinnedRow = None
 
@@ -3522,11 +3523,8 @@ class CvMainInterface:
 						bFound = True
 
 				# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
-				# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
-				# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
 				# 3) Replace the selectMultiList(...getCityTabSelectionRow()) in the city-screen block
-				# When extra rows are shown, don't let clicks on lower rows change the scroll position
-				# <!-- custom: note: after applying all the 3 steps of this fix, when clicking on lower rows while we are in the top rows sections, we successfully prevent auto-scrolling down as we want, however it seems that we click on the upper rows when we are in the bottom rows sections, then we auto-scroll back to top. It may not be ideal; or, maybe this is a nice side effect we can keep, as bottom rows mostly only have wonders and processes, and we don't want to build too many of them anyway, so kept as such anyways etc. -->
+				# <!-- custom: note: after applying all the 3 steps of this fix, when clicking on lower rows while we are in the top rows sections, we successfully prevent auto-scrolling down as we want, however it seems that when we click on the upper rows while we are in the bottom rows sections, then we auto-scroll back to top. It may not be ideal; or, maybe this is a nice side effect we can keep, as bottom rows mostly only have wonders and processes, and we don't want to build too many of them anyway, so kept as such anyways etc. -->
 				# screen.selectMultiList("BottomButtonList", CyInterface().getCityTabSelectionRow())
 				if self.iBarExtraRows > 0:
 					if self.iCityBuildBarPinnedRow is None:
@@ -7366,8 +7364,6 @@ class CvMainInterface:
 # BUG - PLE - end
 
 			# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
-			# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
-			# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
 			# 2) Update that pin only when the user clicks the city tab / scroll arrows
 			# Prevent BottomButtonList from auto-jumping when showing multiple build rows
 			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:

@@ -184,6 +184,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheRegularBuildingsTuple = None
 		self.SAS_cacheNationalWondersTuple = None
 		self.SAS_cacheWorldWondersTuple = None
+		self.SAS_cacheUnitsTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -396,6 +397,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -582,9 +584,158 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeUnits(self):
 		self.list = self.getUnitList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, gc.getUnitInfo)
-	
+
+	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getUnitList(self):
-		return self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
+		if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
+			if self.SAS_cacheUnitsTuple is None:
+				unitsList = []
+				baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
+
+				iNumEras = gc.getNumEraInfos()
+				iNumAndTechs = gc.getNUM_UNIT_AND_TECH_PREREQS()
+
+				# We also consider unit PrereqBuilding tech prereqs, since some units are gated by a building whose tech prereq might be indirect (special building).
+				iNumBuildingAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
+
+				# --- "No Tech Prerequisite" group first ---
+				tmp = []
+				for (szName, iUnit) in baseList:
+					info = gc.getUnitInfo(iUnit)
+					if info.isGraphicalOnly():
+						continue
+
+					iEra = -1
+
+					# Unit tech prereqs: <PrereqTech> + <TechTypes>
+					iTech = info.getPrereqAndTech()
+					if iTech >= 0:
+						iEra = gc.getTechInfo(iTech).getEra()
+
+					for j in range(iNumAndTechs):
+						iTech2 = info.getPrereqAndTechs(j)
+						if iTech2 >= 0:
+							iEra2 = gc.getTechInfo(iTech2).getEra()
+							if iEra2 > iEra:
+								iEra = iEra2
+
+					# PrereqBuilding tech prereqs (if any)
+					iPrereqBuilding = info.getPrereqBuilding()
+					if iPrereqBuilding >= 0:
+						bInfo = gc.getBuildingInfo(iPrereqBuilding)
+						iBuildingEra = -1
+
+						iBTech = bInfo.getPrereqAndTech()
+						if iBTech >= 0:
+							iBuildingEra = gc.getTechInfo(iBTech).getEra()
+
+						for k in range(iNumBuildingAndTechs):
+							iBTech2 = bInfo.getPrereqAndTechs(k)
+							if iBTech2 >= 0:
+								iBera2 = gc.getTechInfo(iBTech2).getEra()
+								if iBera2 > iBuildingEra:
+									iBuildingEra = iBera2
+
+						# SpecialBuilding tech prereq (monastery-like gating)
+						iSpecialBuildingType = bInfo.getSpecialBuildingType()
+						if iSpecialBuildingType >= 0:
+							iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
+							if iSpecialTech >= 0:
+								iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
+								if iSpecialEra > iBuildingEra:
+									iBuildingEra = iSpecialEra
+
+						if iBuildingEra > iEra:
+							iEra = iBuildingEra
+
+					# <!-- custom: note: executives's tech actual requirement not implemented here, as in advciv-sas they also have a prereq tech (see XML code comments or main changes guide or such for rationale anyways etc.). Otherwise the implementation so they are listed at e.g. "Industrial" Era and not "No Tech Prerequisite" (which does not reflect their effective ingame availabilty: not until later eras) would be tedious from what i understand of chatgpt 5.2's explanation and solution (plus we don't need to so better not anyways etc.); check if accurate anyways etc. -->
+					# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines (“captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech”).
+
+					if iEra == -1:
+						tmp.append((szName, iUnit))
+
+				if tmp:
+					if self.isSortLists():
+						tmp.sort()
+					unitsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+					for x in tmp:
+						unitsList.append(x)
+
+				# --- Era groups ---
+				for iEraLoop in range(iNumEras):
+					tmp = []
+
+					for (szName, iUnit) in baseList:
+						info = gc.getUnitInfo(iUnit)
+						if info.isGraphicalOnly():
+							continue
+
+						iEra = -1
+
+						iTech = info.getPrereqAndTech()
+						if iTech >= 0:
+							iEra = gc.getTechInfo(iTech).getEra()
+
+						for j in range(iNumAndTechs):
+							iTech2 = info.getPrereqAndTechs(j)
+							if iTech2 >= 0:
+								iEra2 = gc.getTechInfo(iTech2).getEra()
+								if iEra2 > iEra:
+									iEra = iEra2
+
+						iPrereqBuilding = info.getPrereqBuilding()
+						if iPrereqBuilding >= 0:
+							bInfo = gc.getBuildingInfo(iPrereqBuilding)
+							iBuildingEra = -1
+
+							iBTech = bInfo.getPrereqAndTech()
+							if iBTech >= 0:
+								iBuildingEra = gc.getTechInfo(iBTech).getEra()
+
+							for k in range(iNumBuildingAndTechs):
+								iBTech2 = bInfo.getPrereqAndTechs(k)
+								if iBTech2 >= 0:
+									iBera2 = gc.getTechInfo(iBTech2).getEra()
+									if iBera2 > iBuildingEra:
+										iBuildingEra = iBera2
+
+							iSpecialBuildingType = bInfo.getSpecialBuildingType()
+							if iSpecialBuildingType >= 0:
+								iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
+								if iSpecialTech >= 0:
+									iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
+									if iSpecialEra > iBuildingEra:
+										iBuildingEra = iSpecialEra
+
+							if iBuildingEra > iEra:
+								iEra = iBuildingEra
+
+						if iEra != iEraLoop:
+							continue
+
+						tmp.append((szName, iUnit))
+
+					if not tmp:
+						continue
+
+					if self.isSortLists():
+						tmp.sort()
+
+					if unitsList:
+						unitsList.append(("", -1))
+
+					unitsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+					for x in tmp:
+						unitsList.append(x)
+
+				self.SAS_cacheUnitsTuple = tuple(unitsList)
+
+			return self.SAS_cacheUnitsTuple
+
+		else:
+			if self.SAS_cacheUnitsTuple is None:
+				self.SAS_cacheUnitsTuple = tuple(self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo))
+			return self.SAS_cacheUnitsTuple
 
 
 	def placeUnitUpgrades(self):
@@ -1094,26 +1245,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			elif (info == gc.getLeaderHeadInfo):
 				data2 = SevoPediaLeader.SevoPediaLeader.getCiv(item[1]) # </advc.001>
 
-			# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
-			# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
-			# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
-			# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
-			elif info == gc.getCivicInfo or info == gc.getTechInfo or info == gc.getBuildingInfo:
-				# <!-- custom: reuse fallback base advciv value since we don't change it in chatgpt 5.2's solution if i'm not mistaken anyways etc. -->
-				data2 = 1
-
-				if data1 == -1:
-					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
-					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
-					szButtonPlaceItems = ""
-				# <!-- custom: else no change as per chatgpt 5.2's code thanks i mean but anyways etc. -->
-
-				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
-
 			else:
 				# advc (note): 0 tends to mean no tooltip (or an empty one?).
 				#    -1 should also work as the default; BULL likes to use 1.
 				data2 = 1
+
+				# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+				# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
+				# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
+				# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
+				if data1 == -1:
+					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
+					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
+					szButtonPlaceItems = ""
 
 			screen.appendTableRow(self.ITEM_LIST_ID)
 			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + sTitlePlaceItems + u"</font>", szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)

@@ -55,6 +55,11 @@
 		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: similarly for other sevopedia pages anyways etc. -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 

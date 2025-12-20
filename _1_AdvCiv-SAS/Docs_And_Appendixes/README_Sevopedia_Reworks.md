@@ -124,6 +124,8 @@ Also added the AI information now of as of now the UnitAI and iAIWeight informat
 
 Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for example for the generic settler or generic worker anyways etc) thanks to claude ai as well as well as thanks to my prompts and adjustments or such or not or yes or etc but anyways etc.
 
+Now grouped by eras (tech prereq of the asset) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG" alt="0.680_sevopedia_units_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG" alt="0.680_sevopedia_units_sample (3).JPG" width="250"></img>
@@ -134,7 +136,7 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
 
 Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
 
-Now grouped by eras (tech prereq of the building) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+Now grouped by eras (tech prereq of the asset) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
 
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
