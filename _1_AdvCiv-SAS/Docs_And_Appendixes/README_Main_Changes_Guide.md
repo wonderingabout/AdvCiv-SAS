@@ -406,7 +406,8 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
   - **Lighthouse:** gold oriented (**+x commerce** from worked tiles where applicable).
   - **Port (new):** production oriented (**+x hammer** from worked tiles where applicable).
   - **Moai Statues:** world wonder with broader water synergy; somewhat stronger overall.
-  - **Customs House:** buffed.  
+  - **Customs House:** buffed.
+- (Requires AdvCiv-SAS 5215+) **Great Person Buildings** (e.g. Academy, Scotland Yard) now **require a tech** (e.g. `TECH_LITERATURE`, `TECH_MONARCHY`) so they appear in the tech tree and in the Sevopedia Building's corresponding group rather than in the "No Tech Prerequisite" group. This may make strategic considerations more specialized and help slightly curb military beelines in particular.
 - Fewer **national** wonders and relatively more **world** wonders.
 - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
 - Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly lower).

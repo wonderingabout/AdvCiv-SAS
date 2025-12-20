@@ -181,7 +181,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: compute once to be computationally more efficient if i'm not mistaken in my thinking, and added with the help of chatgpt 5.2 thanks, anyways etc. -->
 		self.SAS_cacheCivicsTuple = None
 		self.SAS_cacheTechsTuple = None
-		self.SAS_cacheBuildingsTuple = None
+		self.SAS_cacheRegularBuildingsTuple = None
+		self.SAS_cacheNationalWondersTuple = None
+		self.SAS_cacheWorldWondersTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -623,6 +625,115 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		upgradesGraph.drawGraph()
 
 
+	# <!-- custom: helper we can reuse for regular buildings, national wonders, world wonders, with the help of chatgpt 5.2 thanks anyways etc. -->
+	def SAS_getBuildingsGroupedByEra_fromBaseList(self, baseList):
+		buildingsList = []
+
+		iNumEras = gc.getNumEraInfos()
+		iNumAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
+
+		# --- "All Eras" group first (no tech prereq) ---
+		tmp = []
+		for (szName, iBuilding) in baseList:
+			info = gc.getBuildingInfo(iBuilding)
+			if info.isGraphicalOnly():
+				continue
+
+			iEra = -1
+
+			# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically, check if accurate anyways etc. -->
+			# When first implementing era-tiered building lists, we hit a crash: AttributeError: 'CvBuildingInfo' object has no attribute 'getPrereqOrTechs' (Python traceback from SevoPediaMain.getBuildingList). We verified the cause by inspecting our exported Cy/Cv infos (as of now __SevoPediaBuilding-gc-inner-debug-content.txt and __SevoPediaBuilding-gc-debug-content.txt): CvBuildingInfo in this DLL exposes getPrereqAndTech() + getPrereqAndTechs(i), but NOT getPrereqOrTechs(i) (unlike some other mods / DLLs). (Mapping to our XML schema: <PrereqTech> maps to getPrereqAndTech(), and <TechTypes><PrereqTech>...</PrereqTech></TechTypes> maps to getPrereqAndTechs(i).)
+			# Fix: compute the building "availability era" using only these AND-tech prereqs: start with getPrereqAndTech(), then scan additional prereqs via getPrereqAndTechs(i) for i in range(gc.getNUM_BUILDING_AND_TECH_PREREQS()). We bucket the building into the LATEST (max) era among these prereq techs, so it shows up in the era when it actually becomes buildable.
+			# Empirical sanity check: we tested a building with two widely separated PrereqTech and TechTypes (e.g. TECH_MATHEMATICS (Classical) and TECH_FUSION (Future)) in both permutations (A then B, and B then A), and in both cases the building was listed under the later era (Future), confirming the "max era of prereqs" rule behaves correctly in practice.
+			# Additional sanity check: we also tested <PrereqTech>NONE</PrereqTech> with an existing TechTypes prereq (i.e. only the <TechTypes> prereq was set), and the building was still listed under the correct era, confirming the fallback scan of getPrereqAndTechs(i) works even when the main <PrereqTech> is NONE. -->
+			iTech = info.getPrereqAndTech()
+			if iTech >= 0:
+				iEra = gc.getTechInfo(iTech).getEra()
+
+			# extra AND tech prereqs (if any)
+			for j in range(iNumAndTechs):
+				iTech2 = info.getPrereqAndTechs(j)
+				if iTech2 >= 0:
+					iEra2 = gc.getTechInfo(iTech2).getEra()
+					if iEra2 > iEra:
+						iEra = iEra2
+
+			# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks anyways etc. -->
+			# Yep — that’s exactly why: for “special buildings” (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees “no building tech prereq” and dumps it into All Eras.
+			# Also consider SpecialBuilding tech prereq (e.g. Monastery -> TECH_MONARCHY in CIV4SpecialBuildingInfos.xml)
+			iSpecialBuildingType = info.getSpecialBuildingType()
+			if iSpecialBuildingType >= 0:
+				iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
+				if iSpecialTech >= 0:
+					iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
+					if iSpecialEra > iEra:
+						iEra = iSpecialEra
+
+			if iEra == -1:
+				tmp.append((szName, iBuilding))
+
+		if tmp:
+			if self.isSortLists():
+				tmp.sort()
+			buildingsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+			for x in tmp:
+				buildingsList.append(x)
+
+		# --- Era groups ---
+		for iEraLoop in range(iNumEras):
+			tmp = []
+
+			for (szName, iBuilding) in baseList:
+				info = gc.getBuildingInfo(iBuilding)
+				if info.isGraphicalOnly():
+					continue
+
+				iEra = -1
+
+				iTech = info.getPrereqAndTech()
+				if iTech >= 0:
+					iEra = gc.getTechInfo(iTech).getEra()
+
+				for j in range(iNumAndTechs):
+					iTech2 = info.getPrereqAndTechs(j)
+					if iTech2 >= 0:
+						iEra2 = gc.getTechInfo(iTech2).getEra()
+						if iEra2 > iEra:
+							iEra = iEra2
+
+				# In the “No Tech Prereq” pre-pass, you now compute iEra using SpecialBuilding tech prereq, so the monastery’s iEra becomes (say) Classical → it no longer goes into the “No Tech Prereq” bucket.
+				# But in the per-era loop, you do not apply the SpecialBuilding tech prereq logic, so iEra stays -1 there → it doesn’t match any iEraLoop.
+				# Result: it’s in neither list → it disappears.
+				# Fix (minimal): copy the same SpecialBuilding block into the per-era loop
+				iSpecialBuildingType = info.getSpecialBuildingType()
+				if iSpecialBuildingType >= 0:
+					iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
+					if iSpecialTech >= 0:
+						iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
+						if iSpecialEra > iEra:
+							iEra = iSpecialEra
+
+				if iEra != iEraLoop:
+					continue
+
+				tmp.append((szName, iBuilding))
+
+			if not tmp:
+				continue
+
+			if self.isSortLists():
+				tmp.sort()
+
+			if buildingsList:
+				buildingsList.append(("", -1))
+
+			buildingsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+			for x in tmp:
+				buildingsList.append(x)
+
+		return tuple(buildingsList)
+
+
 	def placeBuildings(self):
 		self.list = self.getBuildingList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
@@ -630,136 +741,48 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# <!-- custom: similarly, in sevopedia buildings, group techs by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getBuildingList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
-			if self.SAS_cacheBuildingsTuple is None:
-				buildingsList = []
+			if self.SAS_cacheRegularBuildingsTuple is None:
 				baseList = self.pediaBuilding.getBuildingSortedList(0)
-
-				iNumEras = gc.getNumEraInfos()
-				iNumAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
-
-				# --- "All Eras" group first (no tech prereq) ---
-				tmp = []
-				for (szName, iBuilding) in baseList:
-					info = gc.getBuildingInfo(iBuilding)
-					if info.isGraphicalOnly():
-						continue
-
-					iEra = -1
-
-					# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically, check if accurate anyways etc. -->
-					# When first implementing era-tiered building lists, we hit a crash: AttributeError: 'CvBuildingInfo' object has no attribute 'getPrereqOrTechs' (Python traceback from SevoPediaMain.getBuildingList). We verified the cause by inspecting our exported Cy/Cv infos (as of now __SevoPediaBuilding-gc-inner-debug-content.txt and __SevoPediaBuilding-gc-debug-content.txt): CvBuildingInfo in this DLL exposes getPrereqAndTech() + getPrereqAndTechs(i), but NOT getPrereqOrTechs(i) (unlike some other mods / DLLs). (Mapping to our XML schema: <PrereqTech> maps to getPrereqAndTech(), and <TechTypes><PrereqTech>...</PrereqTech></TechTypes> maps to getPrereqAndTechs(i).)
-					# Fix: compute the building "availability era" using only these AND-tech prereqs: start with getPrereqAndTech(), then scan additional prereqs via getPrereqAndTechs(i) for i in range(gc.getNUM_BUILDING_AND_TECH_PREREQS()). We bucket the building into the LATEST (max) era among these prereq techs, so it shows up in the era when it actually becomes buildable.
-					# Empirical sanity check: we tested a building with two widely separated PrereqTech and TechTypes (e.g. TECH_MATHEMATICS (Classical) and TECH_FUSION (Future)) in both permutations (A then B, and B then A), and in both cases the building was listed under the later era (Future), confirming the "max era of prereqs" rule behaves correctly in practice.
-					# Additional sanity check: we also tested <PrereqTech>NONE</PrereqTech> with an existing TechTypes prereq (i.e. only the <TechTypes> prereq was set), and the building was still listed under the correct era, confirming the fallback scan of getPrereqAndTechs(i) works even when the main <PrereqTech> is NONE. -->
-					iTech = info.getPrereqAndTech()
-					if iTech >= 0:
-						iEra = gc.getTechInfo(iTech).getEra()
-
-					# extra AND tech prereqs (if any)
-					for j in range(iNumAndTechs):
-						iTech2 = info.getPrereqAndTechs(j)
-						if iTech2 >= 0:
-							iEra2 = gc.getTechInfo(iTech2).getEra()
-							if iEra2 > iEra:
-								iEra = iEra2
-
-					# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks anyways etc. -->
-					# Yep — that’s exactly why: for “special buildings” (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees “no building tech prereq” and dumps it into All Eras.
-					# Also consider SpecialBuilding tech prereq (e.g. Monastery -> TECH_MONARCHY in CIV4SpecialBuildingInfos.xml)
-					iSpecialBuildingType = info.getSpecialBuildingType()
-					if iSpecialBuildingType >= 0:
-						iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
-						if iSpecialTech >= 0:
-							iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
-							if iSpecialEra > iEra:
-								iEra = iSpecialEra
-
-					if iEra == -1:
-						tmp.append((szName, iBuilding))
-
-				if tmp:
-					if self.isSortLists():
-						tmp.sort()
-					buildingsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
-					for x in tmp:
-						buildingsList.append(x)
-
-				# --- Era groups ---
-				for iEraLoop in range(iNumEras):
-					tmp = []
-
-					for (szName, iBuilding) in baseList:
-						info = gc.getBuildingInfo(iBuilding)
-						if info.isGraphicalOnly():
-							continue
-
-						iEra = -1
-
-						iTech = info.getPrereqAndTech()
-						if iTech >= 0:
-							iEra = gc.getTechInfo(iTech).getEra()
-
-						for j in range(iNumAndTechs):
-							iTech2 = info.getPrereqAndTechs(j)
-							if iTech2 >= 0:
-								iEra2 = gc.getTechInfo(iTech2).getEra()
-								if iEra2 > iEra:
-									iEra = iEra2
-
-						# In the “No Tech Prereq” pre-pass, you now compute iEra using SpecialBuilding tech prereq, so the monastery’s iEra becomes (say) Classical → it no longer goes into the “No Tech Prereq” bucket.
-						# But in the per-era loop, you do not apply the SpecialBuilding tech prereq logic, so iEra stays -1 there → it doesn’t match any iEraLoop.
-						# Result: it’s in neither list → it disappears.
-						# Fix (minimal): copy the same SpecialBuilding block into the per-era loop
-						iSpecialBuildingType = info.getSpecialBuildingType()
-						if iSpecialBuildingType >= 0:
-							iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
-							if iSpecialTech >= 0:
-								iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
-								if iSpecialEra > iEra:
-									iEra = iSpecialEra
-
-						if iEra != iEraLoop:
-							continue
-
-						tmp.append((szName, iBuilding))
-
-					if not tmp:
-						continue
-
-					if self.isSortLists():
-						tmp.sort()
-
-					if buildingsList:
-						buildingsList.append(("", -1))
-
-					buildingsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
-					for x in tmp:
-						buildingsList.append(x)
-
-				self.SAS_cacheBuildingsTuple = tuple(buildingsList)
-
-			return self.SAS_cacheBuildingsTuple
-
+				self.SAS_cacheRegularBuildingsTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
+			return self.SAS_cacheRegularBuildingsTuple
 		else:
-			if self.SAS_cacheBuildingsTuple is None:
-				self.SAS_cacheBuildingsTuple = tuple(self.pediaBuilding.getBuildingSortedList(0))
-			return self.SAS_cacheBuildingsTuple
+			if self.SAS_cacheRegularBuildingsTuple is None:
+				self.SAS_cacheRegularBuildingsTuple = tuple(self.pediaBuilding.getBuildingSortedList(0))
+			return self.SAS_cacheRegularBuildingsTuple
 
 
 	def placeNationalWonders(self):
 		self.list = self.getNationalWonderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
 	
+	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getNationalWonderList(self):
-		return self.pediaBuilding.getBuildingSortedList(1)
+		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+			if self.SAS_cacheNationalWondersTuple is None:
+				baseList = self.pediaBuilding.getBuildingSortedList(1)
+				self.SAS_cacheNationalWondersTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
+			return self.SAS_cacheNationalWondersTuple
+		else:
+			if self.SAS_cacheNationalWondersTuple is None:
+				self.SAS_cacheNationalWondersTuple = tuple(self.pediaBuilding.getBuildingSortedList(1))
+			return self.SAS_cacheNationalWondersTuple
 
 
 	def placeWorldWonders(self):
 		self.list = self.getWorldWonderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
-	
+
+	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks anyways etc. -->	
 	def getWorldWonderList(self):
-		return self.pediaBuilding.getBuildingSortedList(2)
+		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+			if self.SAS_cacheWorldWondersTuple is None:
+				baseList = self.pediaBuilding.getBuildingSortedList(2)
+				self.SAS_cacheWorldWondersTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
+			return self.SAS_cacheWorldWondersTuple
+		else:
+			if self.SAS_cacheWorldWondersTuple is None:
+				self.SAS_cacheWorldWondersTuple = tuple(self.pediaBuilding.getBuildingSortedList(2))
+			return self.SAS_cacheWorldWondersTuple
 
 
 	def placeProjects(self):
