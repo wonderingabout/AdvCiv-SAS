@@ -50,6 +50,11 @@
 		<DefineName>SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: in sevopedia buildings (as of now regular buildings, national wonders, world wonders), group techs by era (obtained from tech prereqs since Buildings don't have eras per-se if i'm not mistaken and as chatgpt 5.2 explained to me thanks but anyways etc.) (e.g. Ancient Era, Classical Era, No Tech Prereq (available at any era), etc.) instead of one long list -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 

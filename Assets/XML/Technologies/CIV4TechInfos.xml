@@ -415,15 +415,15 @@
 			</CommerceFlexible>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 3 -->
+			<!-- custom: was FLAVOR_MILITARY 3 espionage and growth 0 (was empty anyways etc.) culture 9 religion 4 production 3 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -432,6 +432,18 @@
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
 					<iFlavor>9</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -493,7 +505,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 3 -->
+			<!-- custom: was FLAVOR_MILITARY 3 science 0 and growth 0 (were missing anyways etc.) culture 10 religion 4 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -501,11 +513,19 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>6</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -1335,7 +1355,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- advc.015a: Production was 3 -->
+			<!-- advc.015a: Production was 3; add flavor science (was missing anyways etc.)-->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
@@ -2638,6 +2658,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: was flavors espionage 0 (empty) growth 1 science 6 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -2657,7 +2678,11 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>1</iFlavor>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -2793,7 +2818,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was flavor religion 3 culture 6 military 0 (add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc.). -->
+			<!-- custom: was flavor religion 3 culture 6 military 0 (add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc.) science 8. -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -2801,7 +2826,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>

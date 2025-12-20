@@ -23,9 +23,14 @@ hopefully more readable or exportable if need/want be now -->
 
 
 
+	<!-- custom: as of now used for sevopedia entries grouping by era or/ans such other use cases but anyways etc. -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_ERA</Tag>
 		<English>Era</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_NO_TECH_PREREQUISITE</Tag>
+		<English>No Tech Prerequisite</English>
 	</TEXT>
 
 

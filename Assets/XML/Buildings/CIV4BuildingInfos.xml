@@ -2123,7 +2123,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>NONE</PrereqTech>
+			<!-- custom: changed same as the generic barracks; was NONE. -->
+			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -2303,7 +2304,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>NONE</PrereqTech>
+			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -9617,7 +9618,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>NONE</PrereqTech>
+			<!-- custom: change tech prereq so this building appears in the Technology Advisor and is not listed in sevopedia buildings in the "No Tech Prerequisite" group anyways etc. For balance and strategy, also helps reward the science path more than give a generic free academy path for warmogners or anyone; anyways etc., was NONE. -->
+			<PrereqTech>TECH_LITERATURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -22747,7 +22749,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>NONE</PrereqTech>
+			<!-- custom: so it appears in tech tree, and so that in sevopedia buildings it is not listed under the as of now "No Tech Prerequisite section". No reason to put it especially late in the tech tree in terms of gameplay anyways etc. -->
+			<PrereqTech>TECH_MONARCHY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>

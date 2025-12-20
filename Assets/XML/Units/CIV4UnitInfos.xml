@@ -2977,8 +2977,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: no more old TECH_ALPHABET now replaced with TECH_NATURALISM now for tech tree efficiency and faster early game if i may say too indeed but anyways etc, advance it to a sooner tech or/and alternative one, was TECH_NATURALISM -->
-			<PrereqTech>TECH_MONARCHY</PrereqTech>
+			<!-- custom: was TECH_ALPHABET (now removed) -->
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>

@@ -134,6 +134,8 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
 
 Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
 
+Now grouped by eras (tech prereq of the building) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (3).JPG" alt="0.690_sevopedia_buildings_sample (3).JPG" width="250"></img>
@@ -164,7 +166,7 @@ Before that, i had also added a list of untradeable techs following the anti tec
 
 Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) thanks to gemini ai's help and my prompt too and adjustments or not but anyways etc too but anyways etc ; see similar precomputing logic or/and its explanation at sevoepdia reworks's sevopedia leader readme section in [README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category) for details anyways etc
 
-Now grouped by eras as well similarly than in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+Now grouped by eras as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
 
 <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG" alt="0.710_sevopedia_techs_sample (2).JPG" width="250"></img>
