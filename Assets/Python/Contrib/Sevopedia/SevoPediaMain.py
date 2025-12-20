@@ -820,6 +820,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					if iSpecialEra > iEra:
 						iEra = iSpecialEra
 
+			# Also consider PrereqReligion tech prereq (religion founding tech).
+			# Example: Islamic Temple may have no building tech prereq, but RELIGION_ISLAM is founded by TECH_LATER_ABRAHAMISM (Medieval Era), so the building effectively cannot exist before that era (except via conquest/trade of a religion-enabled city).
+			iPrereqReligion = info.getPrereqReligion()
+			if iPrereqReligion >= 0:
+				iReligionTech = gc.getReligionInfo(iPrereqReligion).getTechPrereq()
+				if iReligionTech >= 0:
+					iReligionEra = gc.getTechInfo(iReligionTech).getEra()
+					if iReligionEra > iEra:
+						iEra = iReligionEra
+
 			if iEra == -1:
 				tmp.append((szName, iBuilding))
 
@@ -863,6 +873,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
 						if iSpecialEra > iEra:
 							iEra = iSpecialEra
+
+				iPrereqReligion = info.getPrereqReligion()
+				if iPrereqReligion >= 0:
+					iReligionTech = gc.getReligionInfo(iPrereqReligion).getTechPrereq()
+					if iReligionTech >= 0:
+						iReligionEra = gc.getTechInfo(iReligionTech).getEra()
+						if iReligionEra > iEra:
+							iEra = iReligionEra
 
 				if iEra != iEraLoop:
 					continue
