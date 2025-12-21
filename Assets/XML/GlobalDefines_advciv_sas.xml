@@ -72,6 +72,12 @@
 		<DefineName>SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: in sevopedia main specialists list, group specialists by type (regular vs great) based on how RFC DOC mod does it thanks but anyways etc. -->
+	<!-- custom: 1 to enable (recommended), 0 to disable -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 

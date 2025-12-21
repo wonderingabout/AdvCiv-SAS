@@ -55,8 +55,7 @@
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_SPECIALIST</Tag>
-		<!-- custom: <English>Specialists</English>-->
-		<English>People</English>
+		<English>Specialists</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>

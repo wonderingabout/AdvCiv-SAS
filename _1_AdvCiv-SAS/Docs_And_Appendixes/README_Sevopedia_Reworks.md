@@ -24,6 +24,8 @@ Note 2: in below sample examples, click the images to view them full size.
 [example 11: shortcuts category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
 [example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
 [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category)  
+[example 14: projects category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-14-projects-category)  
+[example 15: specialists category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-15-specialists-category)  
 
 ## example 1: more AI Personality examples (in leaders category)
 
@@ -198,3 +200,19 @@ Examples of output below anyways etc.:
 <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG" alt="0.740_sevopedia_civics_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG" alt="0.740_sevopedia_civics_sample (3).JPG" width="250"></img>
+
+## example 14: projects category
+
+Did not beautify it, except from adding the grouping as we said as of now at the top of this file but anyways etc.
+
+Since this is a nice functionnal change, i wanted to show it here as well despite that but anyways etc.
+
+<img src="../Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG" alt="0.750_sevopedia_projects_sample (1).JPG" width="250"></img>
+
+## example 15: specialists category
+
+Beautified it a bit (removed the ugly blue panel around the buttons as we did in previous reworks but anyways etc.), but added the grouping (by specialist type (as of now normal vs great specialists if i'm not mistaken but anyways etc.)) similarly to how we said as of now at the top of this file but anyways etc.
+
+Still, i wanted to showcase it as i think it's quite nice thanks to RFC DOC's mod for having done the code i could use as a base for this plus chatgpt 5.2 for help (and thanks to me too as well but anyways etc.)
+
+<img src="../Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG" alt="0.760_sevopedia_specialists_sample (1).JPG" width="250"></img>

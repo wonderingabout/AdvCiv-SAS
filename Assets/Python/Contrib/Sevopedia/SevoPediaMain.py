@@ -189,6 +189,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheCorporationHQBuildingByCorp = None
 		self.SAS_cacheReligionsTuple = None
 		self.SAS_cacheProjectsTuple = None
+		self.SAS_cacheSpecialistsTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -405,6 +406,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -582,15 +584,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			print("Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
 	
 	def getTechList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
-			if self.SAS_cacheTechsTuple is None:
+		if self.SAS_cacheTechsTuple is None:
+			if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
 				self.SAS_cacheTechsTuple = self.SAS_getTechsGroupedByEra()
-			return self.SAS_cacheTechsTuple
-		else:
-			if self.SAS_cacheTechsTuple is None:
+			else:
 				# <!-- custom: base advciv's formula, only difference is we cache it now if i'm not mistaken anyways etc. -->
 				self.SAS_cacheTechsTuple = tuple(self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo))
-			return self.SAS_cacheTechsTuple
+		return self.SAS_cacheTechsTuple
 
 
 	def placeUnits(self):
@@ -692,16 +692,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getUnitList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
-			if self.SAS_cacheUnitsTuple is None:
-				baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
+		if self.SAS_cacheUnitsTuple is None:
+			baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
+			if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
 				self.SAS_cacheUnitsTuple = self.SAS_getUnitsGroupedByEra_fromBaseList(baseList)
-			return self.SAS_cacheUnitsTuple
-
-		else:
-			if self.SAS_cacheUnitsTuple is None:
-				self.SAS_cacheUnitsTuple = tuple(self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo))
-			return self.SAS_cacheUnitsTuple
+			else:
+				self.SAS_cacheUnitsTuple = tuple(baseList)
+		return self.SAS_cacheUnitsTuple
 
 
 	def placeUnitUpgrades(self):
@@ -849,15 +846,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	
 	# <!-- custom: similarly, in sevopedia buildings, group techs by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getBuildingList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
-			if self.SAS_cacheRegularBuildingsTuple is None:
-				baseList = self.pediaBuilding.getBuildingSortedList(0)
+		if self.SAS_cacheRegularBuildingsTuple is None:
+			baseList = self.pediaBuilding.getBuildingSortedList(0)
+			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 				self.SAS_cacheRegularBuildingsTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
-			return self.SAS_cacheRegularBuildingsTuple
-		else:
-			if self.SAS_cacheRegularBuildingsTuple is None:
-				self.SAS_cacheRegularBuildingsTuple = tuple(self.pediaBuilding.getBuildingSortedList(0))
-			return self.SAS_cacheRegularBuildingsTuple
+			else:
+				self.SAS_cacheRegularBuildingsTuple = tuple(baseList)
+		return self.SAS_cacheRegularBuildingsTuple
 
 
 	def placeNationalWonders(self):
@@ -962,23 +957,71 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getProjectList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
-			if self.SAS_cacheProjectsTuple is None:
-				baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
+		if self.SAS_cacheProjectsTuple is None:
+			baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
+			if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
 				self.SAS_cacheProjectsTuple = self.SAS_getProjectsGroupedByEra_fromBaseList(baseList)
-			return self.SAS_cacheProjectsTuple
-		else:
-			if self.SAS_cacheProjectsTuple is None:
-				self.SAS_cacheProjectsTuple = tuple(self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo))
-			return self.SAS_cacheProjectsTuple
+			else:
+				self.SAS_cacheProjectsTuple = tuple(baseList)
+		return self.SAS_cacheProjectsTuple
 
+
+	# Helper to group specialists by type (regular vs great). Great specialists are identified by "GREAT_" in SpecialistInfo.getType(), matching RFC DoC's convention.
+	def SAS_getSpecialistsGroupedByType(self):
+		specialistsList = []
+		greatSpecialistsList = []
+
+		# One pass: preserve XML order when Sort Lists is OFF.
+		for iSpecialist in range(gc.getNumSpecialistInfos()):
+			info = gc.getSpecialistInfo(iSpecialist)
+			if not info or info.isGraphicalOnly():
+				continue
+
+			szName = info.getDescription()
+			szType = info.getType()
+
+			if szType and (szType.find("GREAT_") > -1):
+				greatSpecialistsList.append((szName, iSpecialist))
+			else:
+				specialistsList.append((szName, iSpecialist))
+
+		# Optional sorting within each group
+		if self.isSortLists():
+			specialistsList.sort()
+			greatSpecialistsList.sort()
+
+		outList = []
+
+		if specialistsList:
+			# Reuse the category label for a localized "Specialists" header.
+			outList.append((localText.getText("TXT_KEY_PEDIA_CATEGORY_SPECIALIST", ()), -1))
+			for x in specialistsList:
+				outList.append(x)
+
+		if greatSpecialistsList:
+			if outList:
+				outList.append(("", -1))  # spacer between groups
+			outList.append(("Great Specialists", -1))
+			for x in greatSpecialistsList:
+				outList.append(x)
+
+		return tuple(outList)
 
 	def placeSpecialists(self):
 		self.list = self.getSpecialistList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, gc.getSpecialistInfo)
-	
+
+	# <!-- custom: in sevopedia specialists, group specialists by type: regular specialists vs great specialists (those whose <Type> contains "GREAT_"), based on RFC DOC mod's code thanks but anyways etc. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	# Notes (kept conservative)
+	# 	- “Great specialists” detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
+	# 	- I reused TXT_KEY_PEDIA_CATEGORY_SPECIALIST for the regular header (so it’s localized), and I used the literal string "Great Specialists" for the great header (since your mod likely doesn’t have RFC’s TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST). If you want, you can later add your own TXT_KEY and swap that line to localText.getText("TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST", ()).
 	def getSpecialistList(self):
-		return self.getSortedList(gc.getNumSpecialistInfos(), gc.getSpecialistInfo)
+		if self.SAS_cacheSpecialistsTuple is None:
+			if self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE:
+				self.SAS_cacheSpecialistsTuple = self.SAS_getSpecialistsGroupedByType()
+			else:
+				self.SAS_cacheSpecialistsTuple = tuple(self.getSortedList(gc.getNumSpecialistInfos(), gc.getSpecialistInfo))
+		return self.SAS_cacheSpecialistsTuple
 
 
 	def placeTerrains(self):
@@ -1155,15 +1198,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
 	# In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
 	def getCivicList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
-			if self.SAS_cacheCivicsTuple is None:
+		if self.SAS_cacheCivicsTuple is None:
+			if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
 				self.SAS_cacheCivicsTuple = self.SAS_getCivicsGroupedByCivicOption()
-			return self.SAS_cacheCivicsTuple
-		# <!-- custom: else no grouping, full alphabetical ordered list cached as a tuple, using the base advciv's list formula but anyways etc. -->
-		else:
-			if self.SAS_cacheCivicsTuple is None:
+			else:
 				self.SAS_cacheCivicsTuple = tuple(self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo))
-			return self.SAS_cacheCivicsTuple
+		return self.SAS_cacheCivicsTuple
 
 
 	# Compute the "availability era" for a religion, based on its founding tech prereq.
@@ -1234,15 +1274,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getReligionList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
-			if self.SAS_cacheReligionsTuple is None:
-				baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+		baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+		if self.SAS_cacheReligionsTuple is None:
+			if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
 				self.SAS_cacheReligionsTuple = self.SAS_getReligionsGroupedByEra_fromBaseList(baseList)
-			return self.SAS_cacheReligionsTuple
-		else:
-			if self.SAS_cacheReligionsTuple is None:
-				self.SAS_cacheReligionsTuple = tuple(self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo))
-			return self.SAS_cacheReligionsTuple
+			else:
+				self.SAS_cacheReligionsTuple = tuple(baseList)
+		return self.SAS_cacheReligionsTuple
 
 	# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
 	# This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
@@ -1329,15 +1367,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	
 	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getCorporationList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
-			if self.SAS_cacheCorporationsTuple is None:
-				baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
+		if self.SAS_cacheCorporationsTuple is None:
+			baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
+			if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
 				self.SAS_cacheCorporationsTuple = self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList)
-			return self.SAS_cacheCorporationsTuple
-		else:
-			if self.SAS_cacheCorporationsTuple is None:
-				self.SAS_cacheCorporationsTuple = tuple(self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo))
-			return self.SAS_cacheCorporationsTuple
+			else:
+				self.SAS_cacheCorporationsTuple = tuple(baseList)
+		return self.SAS_cacheCorporationsTuple
 
 	def placeConcepts(self):
 		self.list = self.getConceptList()

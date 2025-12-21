@@ -195,6 +195,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG" alt="0.730_sevopedia_promotions_sample (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG" alt="0.760_sevopedia_specialists_sample (1).JPG" width="250"></img>
 
 For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
 
