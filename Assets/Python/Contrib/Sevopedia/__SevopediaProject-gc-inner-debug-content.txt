@@ -1,7 +1,9 @@
-in sevopediaproject,
+in sevopediaproject, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
 printObjAttrs(projectInfo) where projectInfo is gc.getProjectInfo(self.iProject) , so in other words:
 printObjAttrs(gc.getProjectInfo(self.iProject)) if i am not mistaken anyways etc,
-returns/logs/prints this anyways etc:
+returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
+
+
 
 __class__
 

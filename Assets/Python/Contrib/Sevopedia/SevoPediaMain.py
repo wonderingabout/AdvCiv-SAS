@@ -190,6 +190,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheReligionsTuple = None
 		self.SAS_cacheProjectsTuple = None
 		self.SAS_cacheSpecialistsTuple = None
+		self.SAS_cacheBonusesTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -407,6 +408,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -571,7 +573,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in tmp:
 				techsList.append(x)
 
-		return tuple(techsList)
+		return techsList
 
 	def placeTechs(self):
 		self.list = self.getTechList()
@@ -586,7 +588,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getTechList(self):
 		if self.SAS_cacheTechsTuple is None:
 			if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
-				self.SAS_cacheTechsTuple = self.SAS_getTechsGroupedByEra()
+				self.SAS_cacheTechsTuple = tuple(self.SAS_getTechsGroupedByEra())
 			else:
 				# <!-- custom: base advciv's formula, only difference is we cache it now if i'm not mistaken anyways etc. -->
 				self.SAS_cacheTechsTuple = tuple(self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo))
@@ -688,14 +690,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in tmp:
 				unitsList.append(x)
 
-		return tuple(unitsList)
+		return unitsList
 
 	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getUnitList(self):
 		if self.SAS_cacheUnitsTuple is None:
 			baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
 			if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
-				self.SAS_cacheUnitsTuple = self.SAS_getUnitsGroupedByEra_fromBaseList(baseList)
+				self.SAS_cacheUnitsTuple = tuple(self.SAS_getUnitsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheUnitsTuple = tuple(baseList)
 		return self.SAS_cacheUnitsTuple
@@ -837,7 +839,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in tmp:
 				buildingsList.append(x)
 
-		return tuple(buildingsList)
+		return buildingsList
 
 
 	def placeBuildings(self):
@@ -849,7 +851,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.SAS_cacheRegularBuildingsTuple is None:
 			baseList = self.pediaBuilding.getBuildingSortedList(0)
 			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
-				self.SAS_cacheRegularBuildingsTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
+				self.SAS_cacheRegularBuildingsTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheRegularBuildingsTuple = tuple(baseList)
 		return self.SAS_cacheRegularBuildingsTuple
@@ -864,7 +866,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 			if self.SAS_cacheNationalWondersTuple is None:
 				baseList = self.pediaBuilding.getBuildingSortedList(1)
-				self.SAS_cacheNationalWondersTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
+				self.SAS_cacheNationalWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
 			return self.SAS_cacheNationalWondersTuple
 		else:
 			if self.SAS_cacheNationalWondersTuple is None:
@@ -881,7 +883,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 			if self.SAS_cacheWorldWondersTuple is None:
 				baseList = self.pediaBuilding.getBuildingSortedList(2)
-				self.SAS_cacheWorldWondersTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
+				self.SAS_cacheWorldWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
 			return self.SAS_cacheWorldWondersTuple
 		else:
 			if self.SAS_cacheWorldWondersTuple is None:
@@ -949,7 +951,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in tmp:
 				projectsList.append(x)
 
-		return tuple(projectsList)
+		return projectsList
 
 	def placeProjects(self):
 		self.list = self.getProjectList()
@@ -960,13 +962,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.SAS_cacheProjectsTuple is None:
 			baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
 			if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
-				self.SAS_cacheProjectsTuple = self.SAS_getProjectsGroupedByEra_fromBaseList(baseList)
+				self.SAS_cacheProjectsTuple = tuple(self.SAS_getProjectsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheProjectsTuple = tuple(baseList)
 		return self.SAS_cacheProjectsTuple
 
 
-	# Helper to group specialists by type (regular vs great). Great specialists are identified by "GREAT_" in SpecialistInfo.getType(), matching RFC DoC's convention.
+	# Helper to group specialists by type (e.g. Engineer vs Great Engineer). Great specialists are identified by "GREAT_" in SpecialistInfo.getType(), matching RFC DoC's convention.
 	def SAS_getSpecialistsGroupedByType(self):
 		specialistsList = []
 		greatSpecialistsList = []
@@ -1005,7 +1007,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in greatSpecialistsList:
 				outList.append(x)
 
-		return tuple(outList)
+		return outList
 
 	def placeSpecialists(self):
 		self.list = self.getSpecialistList()
@@ -1018,7 +1020,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getSpecialistList(self):
 		if self.SAS_cacheSpecialistsTuple is None:
 			if self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE:
-				self.SAS_cacheSpecialistsTuple = self.SAS_getSpecialistsGroupedByType()
+				self.SAS_cacheSpecialistsTuple = tuple(self.SAS_getSpecialistsGroupedByType())
 			else:
 				self.SAS_cacheSpecialistsTuple = tuple(self.getSortedList(gc.getNumSpecialistInfos(), gc.getSpecialistInfo))
 		return self.SAS_cacheSpecialistsTuple
@@ -1057,12 +1059,128 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
 
 
+	# Helper: pick the primary improvement that makes a bonus tradable (i.e. "improves" it). This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping. If multiple improvements can trade the same bonus (rare; mostly in modmods), we prefer an improvement that matches the bonus's water/land nature.
+	# That traceback is exactly because BtS/AdvCiv’s CvBonusInfo wrapper does not expose isWater() in Python (your dump confirms it: there’s no isWater in the bonus methods list) (__SevoPediaBonus-gc-inner-debug...)
+	# Meanwhile CvImprovementInfo does expose isWater() (and also uses isImprovementBonusTrade(...) in the wrapper), which is what we should rely on instead. (__SevoPediaImprovement-gc-inner…)
+	# So the fix is: stop calling bInfo.isWater() and infer land/water purely from the improvements that can trade the bonus.	
+	def SAS_getPrimaryImprovementForBonus(self, iBonus):
+		bInfo = gc.getBonusInfo(iBonus)
+		if not bInfo or bInfo.isGraphicalOnly():
+			return -1
+
+		# CvBonusInfo does not expose isWater() in Python (BtS/AdvCiv wrapper).
+		# Infer land/water only from improvements that can trade the bonus.
+		# If both exist (e.g. Oil in some mods), prefer land for now.
+		iBestAny = -1
+		iBestLand = -1
+		iBestWater = -1
+
+		for iImprovement in range(gc.getNumImprovementInfos()):
+			imprInfo = gc.getImprovementInfo(iImprovement)
+			if not imprInfo or imprInfo.isGraphicalOnly():
+				continue
+
+			# RFC DoC often uses isBonusTrade(); BtS/AdvCiv wrapper typically has
+			# isImprovementBonusTrade(). Support both safely.
+			if hasattr(imprInfo, "isBonusTrade"):
+				bTrades = imprInfo.isBonusTrade(iBonus)
+			else:
+				bTrades = imprInfo.isImprovementBonusTrade(iBonus)
+
+			if not bTrades:
+				continue
+
+			if iBestAny == -1:
+				iBestAny = iImprovement
+
+			if imprInfo.isWater():
+				if iBestWater == -1:
+					iBestWater = iImprovement
+			else:
+				if iBestLand == -1:
+					iBestLand = iImprovement
+
+		# If only one side exists, use it. If both exist, prefer land for now.
+		if iBestLand != -1 and iBestWater == -1:
+			return iBestLand
+		if iBestWater != -1 and iBestLand == -1:
+			return iBestWater
+		if iBestLand != -1:
+			return iBestLand
+		return iBestAny
+
+	# Group bonuses by their primary improvement (Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc).
+	# This mirrors RFC DoC's approach in CvPediaMain.placeResources(), adapted to our cached-list style.
+	# Notes on behavior (so it matches what you expect):
+	# 	- The improvement bucket is determined by improvement.isBonusTrade(bonus), which is exactly what you want for “Farm header contains Corn/Wheat”.
+	# 	- If a bonus can be improved by multiple improvements (rare), it picks a “primary” one, preferring water improvements for water bonuses and land improvements for land bonuses.
+	# 	- Header order is improvement XML order (consistent with your other grouped lists). BUG “Sort Lists” only sorts within each header.
+	def SAS_getBonusesGroupedByImprovement_fromBaseList(self, baseList):
+		bonusesList = []
+
+		noImprovement = []
+		groups = {}  # iImprovement -> [(szName, iBonus), ...]
+
+		# One pass over bonuses preserves XML order within each group when Sort Lists is OFF.
+		for (szName, iBonus) in baseList:
+			iImprovement = self.SAS_getPrimaryImprovementForBonus(iBonus)
+			if iImprovement == -1:
+				noImprovement.append((szName, iBonus))
+				continue
+
+			tmp = groups.get(iImprovement, None)
+			if tmp is None:
+				tmp = []
+				groups[iImprovement] = tmp
+			tmp.append((szName, iBonus))
+
+		# Optional sorting within each improvement group (when BUG "Sort Lists" is ON)
+		if self.isSortLists():
+			for k in groups.keys():
+				groups[k].sort()
+			noImprovement.sort()
+
+		# Preserve improvement XML order for headers (matches our other grouped lists).
+		for iImprovementLoop in range(gc.getNumImprovementInfos()):
+			tmp = groups.get(iImprovementLoop, None)
+			if not tmp:
+				continue
+
+			if bonusesList:
+				bonusesList.append(("", -1))
+
+			imprInfo = gc.getImprovementInfo(iImprovementLoop)
+			# Defensive: should exist, but keep safe.
+			szHeader = "Improvement"
+			if imprInfo:
+				szHeader = imprInfo.getDescription()
+			bonusesList.append((szHeader, -1))
+
+			for x in tmp:
+				bonusesList.append(x)
+
+		# Fallback bucket for bonuses that have no "bonus trade" improvement (rare)
+		if noImprovement:
+			if bonusesList:
+				bonusesList.append(("", -1))
+			bonusesList.append(("Other", -1))
+			for x in noImprovement:
+				bonusesList.append(x)
+
+		return bonusesList
+
 	def placeBonuses(self):
 		self.list = self.getBonusList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, gc.getBonusInfo)
 	
 	def getBonusList(self):
-		return self.getSortedList(gc.getNumBonusInfos(), gc.getBonusInfo)
+		if self.SAS_cacheBonusesTuple is None:
+			baseList = self.getSortedList(gc.getNumBonusInfos(), gc.getBonusInfo)
+			if self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT:
+				self.SAS_cacheBonusesTuple = tuple(self.SAS_getBonusesGroupedByImprovement_fromBaseList(baseList))
+			else:
+				self.SAS_cacheBonusesTuple = tuple(baseList)
+		return self.SAS_cacheBonusesTuple
 
 
 	def placeImprovements(self):
@@ -1187,7 +1305,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in tmp:
 				civicsList.append(x)
 
-		return tuple(civicsList)
+		return civicsList
 
 	def placeCivics(self):
 		self.list = self.getCivicList()
@@ -1200,7 +1318,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getCivicList(self):
 		if self.SAS_cacheCivicsTuple is None:
 			if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
-				self.SAS_cacheCivicsTuple = self.SAS_getCivicsGroupedByCivicOption()
+				self.SAS_cacheCivicsTuple = tuple(self.SAS_getCivicsGroupedByCivicOption())
 			else:
 				self.SAS_cacheCivicsTuple = tuple(self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo))
 		return self.SAS_cacheCivicsTuple
@@ -1266,7 +1384,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in tmp:
 				religionsList.append(x)
 
-		return tuple(religionsList)
+		return religionsList
 
 	def placeReligions(self):
 		self.list = self.getReligionList()
@@ -1277,7 +1395,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
 		if self.SAS_cacheReligionsTuple is None:
 			if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
-				self.SAS_cacheReligionsTuple = self.SAS_getReligionsGroupedByEra_fromBaseList(baseList)
+				self.SAS_cacheReligionsTuple = tuple(self.SAS_getReligionsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheReligionsTuple = tuple(baseList)
 		return self.SAS_cacheReligionsTuple
@@ -1359,7 +1477,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in tmp:
 				corpsList.append(x)
 
-		return tuple(corpsList)
+		return corpsList
 
 	def placeCorporations(self):
 		self.list = self.getCorporationList()
@@ -1370,7 +1488,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.SAS_cacheCorporationsTuple is None:
 			baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
 			if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
-				self.SAS_cacheCorporationsTuple = self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList)
+				self.SAS_cacheCorporationsTuple = tuple(self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheCorporationsTuple = tuple(baseList)
 		return self.SAS_cacheCorporationsTuple

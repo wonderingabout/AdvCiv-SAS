@@ -72,10 +72,15 @@
 		<DefineName>SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: in sevopedia main specialists list, group specialists by type (regular vs great) based on how RFC DOC mod does it thanks but anyways etc. -->
+	<!-- custom: in sevopedia main specialists list, group specialists by type (e.g. Engineer vs Great Engineer) based on how RFC DOC mod does it thanks but anyways etc. -->
 	<!-- custom: 1 to enable (recommended), 0 to disable -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: in sevopedia bonuses list, group bonuses by their primary improvement (Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) based on how RFC DOC mod does it thanks but anyways etc. -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
