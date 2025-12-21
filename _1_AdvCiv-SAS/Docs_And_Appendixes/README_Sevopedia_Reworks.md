@@ -2,7 +2,7 @@
 
 Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
 
-Not listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings. Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's very nice help too thanks but anyways etc.
+Not always listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings.
 
 Note: some many minor changes such as in sevopedia traits beautification changes may not be mentionned here for concision or/and effectiveness if i may say but anyways etc.
 
@@ -72,7 +72,9 @@ More recently, i also added the improvement's build time (`iTime` in XML (note: 
 
 Also refactored and beautified it (for example moved base yields on top in the improvement_pane, reordered and resized panels, etc if any other or yes or not or etc anyways etc), as well as added new TerrainMakesValids, FeatureMakesValids, and History info/panels anyways etc (txt_key s imported from m-e mod (see [/README.md#credits](/README.md#credits) for details anyways etc). As for placeMostYields in particular, beautified it especially more by now using buttons (images) instead of text such as ("(with Irrigation)" or "(with Guids)"), based on m-e mod's placeImprovements code if i am not mistaken but anyways etc, with claude ai and gemini ai's help, as well as my adjustments and such too or not or yes or etc anyways etc see sevopedia improvement py file or/and xml code comments for details anyways etc).
 
-Note: you can hover and click on the buttons in placeMostYields, as shown in one of the screenshots below when hovering on the steam power tech button, we can see which button/image it is, so no need to memorize them all, it also tells unknown effects of the tech or civic or other type of asset etc, as well as redirects on click
+Note: you can hover and click on the buttons in placeMostYields, as shown in one of the screenshots below when hovering on the steam power tech button, we can see which button/image it is, so no need to memorize them all, it also tells unknown effects of the tech or civic or other type of asset etc, as well as redirects on click.
+
+More recently, entries are now grouped by Land/Water (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks; implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
 
 <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG" alt="0.720_sevopedia_improvements_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG" alt="0.720_sevopedia_improvements_sample (2).JPG" width="250"></img>

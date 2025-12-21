@@ -191,6 +191,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheProjectsTuple = None
 		self.SAS_cacheSpecialistsTuple = None
 		self.SAS_cacheBonusesTuple = None
+		self.SAS_cacheImprovementsTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -409,6 +410,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -1174,20 +1176,55 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.SAS_cacheBonusesTuple
 
 
+	# <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks; implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
+	def SAS_getImprovementsGroupedByTerrain_fromBaseList(self, baseList):
+		r = []
+		land = []
+		water = []
+		for (szName, iImprovement) in baseList:
+			info = gc.getImprovementInfo(iImprovement)
+			if info and info.isWater():
+				water.append((szName, iImprovement))
+			else:
+				land.append((szName, iImprovement))
+
+		if land:
+			r.append(("Land Improvements", -1))
+			for x in land:
+				r.append(x)
+
+		if land and water:
+			r.append(("", -1))
+
+		if water:
+			r.append(("Water Improvements", -1))
+			for x in water:
+				r.append(x)
+
+		return r
+
 	def placeImprovements(self):
 		self.list = self.getImprovementList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, gc.getImprovementInfo)
 	
 	def getImprovementList(self):
-		imprList = self.getSortedList(gc.getNumImprovementInfos(), gc.getImprovementInfo)
-		# <advc.004y>
-		r = []
-		for descr,i in imprList:
-			info = gc.getImprovementInfo(i)
-			# The alt. conditions are for Forest Preserve and Fort
-			if info.getPillageGold() > 0 or info.isRequiresFeature() or info.isOutsideBorders():
-				r.append((descr,i))
-		return r # </advc.004y>
+		if self.SAS_cacheImprovementsTuple is None:
+			imprList = self.getSortedList(gc.getNumImprovementInfos(), gc.getImprovementInfo)
+			# <advc.004y>
+			baseList = []
+			for descr, i in imprList:
+				info = gc.getImprovementInfo(i)
+				# The alt. conditions are for Forest Preserve and Fort
+				if info.getPillageGold() > 0 or info.isRequiresFeature() or info.isOutsideBorders():
+					baseList.append((descr, i))
+			# </advc.004y>
+
+			if self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN:
+				self.SAS_cacheImprovementsTuple = tuple(self.SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList))
+			else:
+				self.SAS_cacheImprovementsTuple = tuple(baseList)
+
+		return self.SAS_cacheImprovementsTuple
 
 
 	def placeCivs(self):
