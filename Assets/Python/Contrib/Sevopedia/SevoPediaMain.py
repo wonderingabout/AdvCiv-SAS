@@ -522,6 +522,47 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.updateListBox(self.CATEGORY_LIST_ID)
 
 
+	# Helper to group techs by era (single-pass bucketing).
+	# Yep — techs are the easiest one to refactor “like buildings/units”, because a tech already has its era (getEra()), so we just do a single pass, bucket into groups[iEra], then emit era headers in era order.
+	def SAS_getTechsGroupedByEra(self):
+		techsList = []
+
+		iNumEras = gc.getNumEraInfos()
+		groups = {}  # iEra -> [(szName, iTech), ...]
+
+		# One pass over TechInfos preserves XML order when Sort Lists is OFF
+		iNumTechs = gc.getNumTechInfos()
+		for iTech in range(iNumTechs):
+			info = gc.getTechInfo(iTech)
+			if info.isGraphicalOnly():
+				continue
+
+			iEra = info.getEra()
+			szName = info.getDescription()
+
+			if iEra not in groups:
+				groups[iEra] = []
+			groups[iEra].append((szName, iTech))
+
+		# Optional sorting within each era group
+		if self.isSortLists():
+			for k in groups.keys():
+				groups[k].sort()
+
+		# Emit era groups in order
+		for iEra in range(iNumEras):
+			tmp = groups.get(iEra, None)
+			if not tmp:
+				continue
+
+			if techsList:
+				techsList.append(("", -1))  # spacer between eras
+			techsList.append((gc.getEraInfo(iEra).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+
+			for x in tmp:
+				techsList.append(x)
+
+		return tuple(techsList)
 
 	def placeTechs(self):
 		self.list = self.getTechList()
@@ -533,51 +574,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
 			print("Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
 	
-	# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getTechList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
 			if self.SAS_cacheTechsTuple is None:
-				techsList = []
-				iNumTechs = gc.getNumTechInfos()
-				iNumEras = gc.getNumEraInfos()
-
-				for iEra in range(iNumEras):
-					tmp = []
-
-					# Preserve XML order when Sort Lists is OFF (most conservative)
-					for iTech in range(iNumTechs):
-						info = gc.getTechInfo(iTech)
-						if info.isGraphicalOnly():
-							continue
-						if info.getEra() != iEra:
-							continue
-						tmp.append((info.getDescription(), iTech))
-
-					if not tmp:
-						continue
-
-					# If BUG "Sort Lists" is ON, alphabetize within each era group
-					if self.isSortLists():
-						tmp.sort()
-
-					if techsList:
-						techsList.append(("", -1))  # spacer between eras
-					techsList.append((gc.getEraInfo(iEra).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))  # era header
-
-					for (szName, iTech) in tmp:
-						techsList.append((szName, iTech))
-
-				self.SAS_cacheTechsTuple = tuple(techsList)
-
-			# <!-- custom: else do nothing, reuse cached tuple from last time if i'm not mistaken anyways etc. -->
-
+				self.SAS_cacheTechsTuple = self.SAS_getTechsGroupedByEra()
 			return self.SAS_cacheTechsTuple
-
 		else:
 			if self.SAS_cacheTechsTuple is None:
 				# <!-- custom: base advciv's formula, only difference is we cache it now if i'm not mistaken anyways etc. -->
 				self.SAS_cacheTechsTuple = tuple(self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo))
-			
 			return self.SAS_cacheTechsTuple
 
 
@@ -585,151 +590,105 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getUnitList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, gc.getUnitInfo)
 
+	# Compute the "availability era" for a unit, factoring in unit tech prereqs, prereq building tech, and religion founding tech (if any).
+	def SAS_getUnitAvailabilityEra(self, iUnit, iNumUnitAndTechs, iNumBuildingAndTechs):
+		info = gc.getUnitInfo(iUnit)
+		if not info or info.isGraphicalOnly():
+			return None  # caller should skip
+
+		iEra = -1
+
+		# Unit tech prereqs: <PrereqTech> + <TechTypes>
+		iTech = info.getPrereqAndTech()
+		if iTech >= 0:
+			iEra = gc.getTechInfo(iTech).getEra()
+
+		for j in range(iNumUnitAndTechs):
+			iTech2 = info.getPrereqAndTechs(j)
+			if iTech2 >= 0:
+				iEra2 = gc.getTechInfo(iTech2).getEra()
+				if iEra2 > iEra:
+					iEra = iEra2
+
+		# PrereqBuilding availability era (reuses our building-era helper, so it includes SpecialBuilding tech + religion tech, etc.)
+		iPrereqBuilding = info.getPrereqBuilding()
+		if iPrereqBuilding >= 0:
+			iBuildingEra = self.SAS_getBuildingAvailabilityEra(iPrereqBuilding, iNumBuildingAndTechs)
+			if iBuildingEra is not None and iBuildingEra > iEra:
+				iEra = iBuildingEra
+
+		# PrereqReligion tech prereq (religion founding tech).
+		# (Mostly redundant for missionaries in your setup since they already require a monastery building, but harmless and fixes any unit that uses PrereqReligion without a building gate.)
+		iPrereqReligion = info.getPrereqReligion()
+		if iPrereqReligion >= 0:
+			iReligionTech = gc.getReligionInfo(iPrereqReligion).getTechPrereq()
+			if iReligionTech >= 0:
+				iReligionEra = gc.getTechInfo(iReligionTech).getEra()
+				if iReligionEra > iEra:
+					iEra = iReligionEra
+
+		# <!-- custom: note: executives's tech actual requirement not implemented here, as in advciv-sas they also have a prereq tech (see XML code comments or main changes guide or such for rationale anyways etc.). Otherwise the implementation so they are listed at e.g. "Industrial" Era and not "No Tech Prerequisite" (which does not reflect their effective ingame availabilty: not until later eras) would be tedious from what i understand of chatgpt 5.2's explanation and solution (plus we don't need to so better not anyways etc.); check if accurate anyways etc. -->
+		# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines (“captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech”).
+
+		return iEra  # -1 means "no tech prereq bucket"
+
+	# Helper we can reuse for units.
+	def SAS_getUnitsGroupedByEra_fromBaseList(self, baseList):
+		unitsList = []
+
+		iNumEras = gc.getNumEraInfos()
+		iNumUnitAndTechs = gc.getNUM_UNIT_AND_TECH_PREREQS()
+		iNumBuildingAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
+
+		noTech = []
+		groups = {}  # iEra -> [(szName, iUnit), ...]
+
+		# One pass: compute era once and bucket
+		for (szName, iUnit) in baseList:
+			iEra = self.SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs)
+			if iEra is None:
+				continue
+
+			if iEra == -1:
+				noTech.append((szName, iUnit))
+			else:
+				if iEra not in groups:
+					groups[iEra] = []
+				groups[iEra].append((szName, iUnit))
+
+		# Optional sorting within each bucket
+		if self.isSortLists():
+			noTech.sort()
+			for k in groups.keys():
+				groups[k].sort()
+
+		# "No Tech Prerequisite" group first
+		if noTech:
+			unitsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+			for x in noTech:
+				unitsList.append(x)
+
+		# Era groups in order
+		for iEraLoop in range(iNumEras):
+			tmp = groups.get(iEraLoop, None)
+			if not tmp:
+				continue
+
+			if unitsList:
+				unitsList.append(("", -1))
+
+			unitsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+			for x in tmp:
+				unitsList.append(x)
+
+		return tuple(unitsList)
+
 	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getUnitList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
 			if self.SAS_cacheUnitsTuple is None:
-				unitsList = []
 				baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
-
-				iNumEras = gc.getNumEraInfos()
-				iNumAndTechs = gc.getNUM_UNIT_AND_TECH_PREREQS()
-
-				# We also consider unit PrereqBuilding tech prereqs, since some units are gated by a building whose tech prereq might be indirect (special building).
-				iNumBuildingAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
-
-				# --- "No Tech Prerequisite" group first ---
-				tmp = []
-				for (szName, iUnit) in baseList:
-					info = gc.getUnitInfo(iUnit)
-					if info.isGraphicalOnly():
-						continue
-
-					iEra = -1
-
-					# Unit tech prereqs: <PrereqTech> + <TechTypes>
-					iTech = info.getPrereqAndTech()
-					if iTech >= 0:
-						iEra = gc.getTechInfo(iTech).getEra()
-
-					for j in range(iNumAndTechs):
-						iTech2 = info.getPrereqAndTechs(j)
-						if iTech2 >= 0:
-							iEra2 = gc.getTechInfo(iTech2).getEra()
-							if iEra2 > iEra:
-								iEra = iEra2
-
-					# PrereqBuilding tech prereqs (if any)
-					iPrereqBuilding = info.getPrereqBuilding()
-					if iPrereqBuilding >= 0:
-						bInfo = gc.getBuildingInfo(iPrereqBuilding)
-						iBuildingEra = -1
-
-						iBTech = bInfo.getPrereqAndTech()
-						if iBTech >= 0:
-							iBuildingEra = gc.getTechInfo(iBTech).getEra()
-
-						for k in range(iNumBuildingAndTechs):
-							iBTech2 = bInfo.getPrereqAndTechs(k)
-							if iBTech2 >= 0:
-								iBera2 = gc.getTechInfo(iBTech2).getEra()
-								if iBera2 > iBuildingEra:
-									iBuildingEra = iBera2
-
-						# SpecialBuilding tech prereq (monastery-like gating)
-						iSpecialBuildingType = bInfo.getSpecialBuildingType()
-						if iSpecialBuildingType >= 0:
-							iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
-							if iSpecialTech >= 0:
-								iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
-								if iSpecialEra > iBuildingEra:
-									iBuildingEra = iSpecialEra
-
-						if iBuildingEra > iEra:
-							iEra = iBuildingEra
-
-					# <!-- custom: note: executives's tech actual requirement not implemented here, as in advciv-sas they also have a prereq tech (see XML code comments or main changes guide or such for rationale anyways etc.). Otherwise the implementation so they are listed at e.g. "Industrial" Era and not "No Tech Prerequisite" (which does not reflect their effective ingame availabilty: not until later eras) would be tedious from what i understand of chatgpt 5.2's explanation and solution (plus we don't need to so better not anyways etc.); check if accurate anyways etc. -->
-					# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines (“captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech”).
-
-					if iEra == -1:
-						tmp.append((szName, iUnit))
-
-				if tmp:
-					if self.isSortLists():
-						tmp.sort()
-					unitsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
-					for x in tmp:
-						unitsList.append(x)
-
-				# --- Era groups ---
-				for iEraLoop in range(iNumEras):
-					tmp = []
-
-					for (szName, iUnit) in baseList:
-						info = gc.getUnitInfo(iUnit)
-						if info.isGraphicalOnly():
-							continue
-
-						iEra = -1
-
-						iTech = info.getPrereqAndTech()
-						if iTech >= 0:
-							iEra = gc.getTechInfo(iTech).getEra()
-
-						for j in range(iNumAndTechs):
-							iTech2 = info.getPrereqAndTechs(j)
-							if iTech2 >= 0:
-								iEra2 = gc.getTechInfo(iTech2).getEra()
-								if iEra2 > iEra:
-									iEra = iEra2
-
-						iPrereqBuilding = info.getPrereqBuilding()
-						if iPrereqBuilding >= 0:
-							bInfo = gc.getBuildingInfo(iPrereqBuilding)
-							iBuildingEra = -1
-
-							iBTech = bInfo.getPrereqAndTech()
-							if iBTech >= 0:
-								iBuildingEra = gc.getTechInfo(iBTech).getEra()
-
-							for k in range(iNumBuildingAndTechs):
-								iBTech2 = bInfo.getPrereqAndTechs(k)
-								if iBTech2 >= 0:
-									iBera2 = gc.getTechInfo(iBTech2).getEra()
-									if iBera2 > iBuildingEra:
-										iBuildingEra = iBera2
-
-							iSpecialBuildingType = bInfo.getSpecialBuildingType()
-							if iSpecialBuildingType >= 0:
-								iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
-								if iSpecialTech >= 0:
-									iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
-									if iSpecialEra > iBuildingEra:
-										iBuildingEra = iSpecialEra
-
-							if iBuildingEra > iEra:
-								iEra = iBuildingEra
-
-						if iEra != iEraLoop:
-							continue
-
-						tmp.append((szName, iUnit))
-
-					if not tmp:
-						continue
-
-					if self.isSortLists():
-						tmp.sort()
-
-					if unitsList:
-						unitsList.append(("", -1))
-
-					unitsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
-					for x in tmp:
-						unitsList.append(x)
-
-				self.SAS_cacheUnitsTuple = tuple(unitsList)
-
+				self.SAS_cacheUnitsTuple = self.SAS_getUnitsGroupedByEra_fromBaseList(baseList)
 			return self.SAS_cacheUnitsTuple
 
 		else:
@@ -776,6 +735,56 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		upgradesGraph.drawGraph()
 
 
+	# Compute the "availability era" for a building, factoring in tech prereqs, special building tech, and religion founding tech.
+	def SAS_getBuildingAvailabilityEra(self, iBuilding, iNumAndTechs):
+		info = gc.getBuildingInfo(iBuilding)
+		if not info or info.isGraphicalOnly():
+			return None  # caller should skip
+
+		iEra = -1
+
+		# Main AND prereq tech (<PrereqTech>)
+		# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically, check if accurate anyways etc. -->
+		# When first implementing era-tiered building lists, we hit a crash: AttributeError: 'CvBuildingInfo' object has no attribute 'getPrereqOrTechs' (Python traceback from SevoPediaMain.getBuildingList). We verified the cause by inspecting our exported Cy/Cv infos (as of now __SevoPediaBuilding-gc-inner-debug-content.txt and __SevoPediaBuilding-gc-debug-content.txt): CvBuildingInfo in this DLL exposes getPrereqAndTech() + getPrereqAndTechs(i), but NOT getPrereqOrTechs(i) (unlike some other mods / DLLs). (Mapping to our XML schema: <PrereqTech> maps to getPrereqAndTech(), and <TechTypes><PrereqTech>...</PrereqTech></TechTypes> maps to getPrereqAndTechs(i).)
+		# Fix: compute the building "availability era" using only these AND-tech prereqs: start with getPrereqAndTech(), then scan additional prereqs via getPrereqAndTechs(i) for i in range(gc.getNUM_BUILDING_AND_TECH_PREREQS()). We bucket the building into the LATEST (max) era among these prereq techs, so it shows up in the era when it actually becomes buildable.
+		# Empirical sanity check: we tested a building with two widely separated PrereqTech and TechTypes (e.g. TECH_MATHEMATICS (Classical) and TECH_FUSION (Future)) in both permutations (A then B, and B then A), and in both cases the building was listed under the later era (Future), confirming the "max era of prereqs" rule behaves correctly in practice.
+		# Additional sanity check: we also tested <PrereqTech>NONE</PrereqTech> with an existing TechTypes prereq (i.e. only the <TechTypes> prereq was set), and the building was still listed under the correct era, confirming the fallback scan of getPrereqAndTechs(i) works even when the main <PrereqTech> is NONE. -->
+		iTech = info.getPrereqAndTech()
+		if iTech >= 0:
+			iEra = gc.getTechInfo(iTech).getEra()
+
+		# Extra AND tech prereqs (<TechTypes><PrereqTech>...)
+		for j in range(iNumAndTechs):
+			iTech2 = info.getPrereqAndTechs(j)
+			if iTech2 >= 0:
+				iEra2 = gc.getTechInfo(iTech2).getEra()
+				if iEra2 > iEra:
+					iEra = iEra2
+
+		# SpecialBuilding tech prereq (eg monasteries gated by SPECIALBUILDING tech)
+		# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks anyways etc. -->
+		# Yep — that’s exactly why: for “special buildings” (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees “no building tech prereq” and dumps it into All Eras.
+		# Also consider SpecialBuilding tech prereq (e.g. Monastery -> TECH_MONARCHY in CIV4SpecialBuildingInfos.xml)
+		iSpecialBuildingType = info.getSpecialBuildingType()
+		if iSpecialBuildingType >= 0:
+			iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
+			if iSpecialTech >= 0:
+				iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
+				if iSpecialEra > iEra:
+					iEra = iSpecialEra
+
+		# Also consider PrereqReligion tech prereq (religion founding tech).
+		# Example: Islamic Temple may have no building tech prereq, but RELIGION_ISLAM is founded by TECH_LATER_ABRAHAMISM (Medieval Era), so the building effectively cannot exist before that era (except via conquest/trade of a religion-enabled city).
+		iPrereqReligion = info.getPrereqReligion()
+		if iPrereqReligion >= 0:
+			iReligionTech = gc.getReligionInfo(iPrereqReligion).getTechPrereq()
+			if iReligionTech >= 0:
+				iReligionEra = gc.getTechInfo(iReligionTech).getEra()
+				if iReligionEra > iEra:
+					iEra = iReligionEra
+
+		return iEra  # -1 means "no tech prereq bucket"
+
 	# <!-- custom: helper we can reuse for regular buildings, national wonders, world wonders, with the help of chatgpt 5.2 thanks anyways etc. -->
 	def SAS_getBuildingsGroupedByEra_fromBaseList(self, baseList):
 		buildingsList = []
@@ -783,115 +792,39 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		iNumEras = gc.getNumEraInfos()
 		iNumAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
 
-		# --- "All Eras" group first (no tech prereq) ---
-		tmp = []
+		noTech = []
+		groups = {}  # iEra -> [(szName, iBuilding), ...]
+
+		# One pass: compute era once and bucket
 		for (szName, iBuilding) in baseList:
-			info = gc.getBuildingInfo(iBuilding)
-			if info.isGraphicalOnly():
-				continue
-
-			iEra = -1
-
-			# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically, check if accurate anyways etc. -->
-			# When first implementing era-tiered building lists, we hit a crash: AttributeError: 'CvBuildingInfo' object has no attribute 'getPrereqOrTechs' (Python traceback from SevoPediaMain.getBuildingList). We verified the cause by inspecting our exported Cy/Cv infos (as of now __SevoPediaBuilding-gc-inner-debug-content.txt and __SevoPediaBuilding-gc-debug-content.txt): CvBuildingInfo in this DLL exposes getPrereqAndTech() + getPrereqAndTechs(i), but NOT getPrereqOrTechs(i) (unlike some other mods / DLLs). (Mapping to our XML schema: <PrereqTech> maps to getPrereqAndTech(), and <TechTypes><PrereqTech>...</PrereqTech></TechTypes> maps to getPrereqAndTechs(i).)
-			# Fix: compute the building "availability era" using only these AND-tech prereqs: start with getPrereqAndTech(), then scan additional prereqs via getPrereqAndTechs(i) for i in range(gc.getNUM_BUILDING_AND_TECH_PREREQS()). We bucket the building into the LATEST (max) era among these prereq techs, so it shows up in the era when it actually becomes buildable.
-			# Empirical sanity check: we tested a building with two widely separated PrereqTech and TechTypes (e.g. TECH_MATHEMATICS (Classical) and TECH_FUSION (Future)) in both permutations (A then B, and B then A), and in both cases the building was listed under the later era (Future), confirming the "max era of prereqs" rule behaves correctly in practice.
-			# Additional sanity check: we also tested <PrereqTech>NONE</PrereqTech> with an existing TechTypes prereq (i.e. only the <TechTypes> prereq was set), and the building was still listed under the correct era, confirming the fallback scan of getPrereqAndTechs(i) works even when the main <PrereqTech> is NONE. -->
-			iTech = info.getPrereqAndTech()
-			if iTech >= 0:
-				iEra = gc.getTechInfo(iTech).getEra()
-
-			# extra AND tech prereqs (if any)
-			for j in range(iNumAndTechs):
-				iTech2 = info.getPrereqAndTechs(j)
-				if iTech2 >= 0:
-					iEra2 = gc.getTechInfo(iTech2).getEra()
-					if iEra2 > iEra:
-						iEra = iEra2
-
-			# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks anyways etc. -->
-			# Yep — that’s exactly why: for “special buildings” (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees “no building tech prereq” and dumps it into All Eras.
-			# Also consider SpecialBuilding tech prereq (e.g. Monastery -> TECH_MONARCHY in CIV4SpecialBuildingInfos.xml)
-			iSpecialBuildingType = info.getSpecialBuildingType()
-			if iSpecialBuildingType >= 0:
-				iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
-				if iSpecialTech >= 0:
-					iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
-					if iSpecialEra > iEra:
-						iEra = iSpecialEra
-
-			# Also consider PrereqReligion tech prereq (religion founding tech).
-			# Example: Islamic Temple may have no building tech prereq, but RELIGION_ISLAM is founded by TECH_LATER_ABRAHAMISM (Medieval Era), so the building effectively cannot exist before that era (except via conquest/trade of a religion-enabled city).
-			iPrereqReligion = info.getPrereqReligion()
-			if iPrereqReligion >= 0:
-				iReligionTech = gc.getReligionInfo(iPrereqReligion).getTechPrereq()
-				if iReligionTech >= 0:
-					iReligionEra = gc.getTechInfo(iReligionTech).getEra()
-					if iReligionEra > iEra:
-						iEra = iReligionEra
+			iEra = self.SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs)
+			if iEra is None:
+				continue  # graphical-only or invalid
 
 			if iEra == -1:
-				tmp.append((szName, iBuilding))
+				noTech.append((szName, iBuilding))
+			else:
+				if iEra not in groups:
+					groups[iEra] = []
+				groups[iEra].append((szName, iBuilding))
 
-		if tmp:
-			if self.isSortLists():
-				tmp.sort()
+		# Optional sorting within each bucket
+		if self.isSortLists():
+			noTech.sort()
+			for k in groups.keys():
+				groups[k].sort()
+
+		# "No Tech Prereq" group first
+		if noTech:
 			buildingsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
-			for x in tmp:
+			for x in noTech:
 				buildingsList.append(x)
 
-		# --- Era groups ---
+		# Era groups in order
 		for iEraLoop in range(iNumEras):
-			tmp = []
-
-			for (szName, iBuilding) in baseList:
-				info = gc.getBuildingInfo(iBuilding)
-				if info.isGraphicalOnly():
-					continue
-
-				iEra = -1
-
-				iTech = info.getPrereqAndTech()
-				if iTech >= 0:
-					iEra = gc.getTechInfo(iTech).getEra()
-
-				for j in range(iNumAndTechs):
-					iTech2 = info.getPrereqAndTechs(j)
-					if iTech2 >= 0:
-						iEra2 = gc.getTechInfo(iTech2).getEra()
-						if iEra2 > iEra:
-							iEra = iEra2
-
-				# In the “No Tech Prereq” pre-pass, you now compute iEra using SpecialBuilding tech prereq, so the monastery’s iEra becomes (say) Classical → it no longer goes into the “No Tech Prereq” bucket.
-				# But in the per-era loop, you do not apply the SpecialBuilding tech prereq logic, so iEra stays -1 there → it doesn’t match any iEraLoop.
-				# Result: it’s in neither list → it disappears.
-				# Fix (minimal): copy the same SpecialBuilding block into the per-era loop
-				iSpecialBuildingType = info.getSpecialBuildingType()
-				if iSpecialBuildingType >= 0:
-					iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
-					if iSpecialTech >= 0:
-						iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
-						if iSpecialEra > iEra:
-							iEra = iSpecialEra
-
-				iPrereqReligion = info.getPrereqReligion()
-				if iPrereqReligion >= 0:
-					iReligionTech = gc.getReligionInfo(iPrereqReligion).getTechPrereq()
-					if iReligionTech >= 0:
-						iReligionEra = gc.getTechInfo(iReligionTech).getEra()
-						if iReligionEra > iEra:
-							iEra = iReligionEra
-
-				if iEra != iEraLoop:
-					continue
-
-				tmp.append((szName, iBuilding))
-
+			tmp = groups.get(iEraLoop, None)
 			if not tmp:
 				continue
-
-			if self.isSortLists():
-				tmp.sort()
 
 			if buildingsList:
 				buildingsList.append(("", -1))
@@ -1100,6 +1033,40 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def isTraitInfo(self, info):
 		return info.getType().find("_TRAIT_") != -1
 
+	# <!-- custom: helper we can reuse for civics grouping, with the help of chatgpt 5.2 thanks anyways etc. -->
+	def SAS_getCivicsGroupedByCivicOption(self):
+		civicsList = []
+		iNumCivics = gc.getNumCivicInfos()
+		iNumOptions = gc.getNumCivicOptionInfos()
+
+		# One pass: bucket civics by option (preserves XML order naturally)
+		groups = [[] for _ in range(iNumOptions)]
+		for iCivic in range(iNumCivics):
+			info = gc.getCivicInfo(iCivic)
+			if info.isGraphicalOnly():
+				continue
+			iOption = info.getCivicOptionType()
+			if iOption >= 0 and iOption < iNumOptions:
+				groups[iOption].append((info.getDescription(), iCivic))
+
+		# Emit in option order (Government, Legal, Labor, etc.)
+		for iOption in range(iNumOptions):
+			tmp = groups[iOption]
+			if not tmp:
+				continue
+
+			# If BUG "Sort Lists" is ON, alphabetize within each option group
+			if self.isSortLists():
+				tmp.sort()
+
+			if civicsList:
+				civicsList.append(("", -1))  # spacer between groups
+			civicsList.append((gc.getCivicOptionInfo(iOption).getDescription(), -1))  # header
+
+			for x in tmp:
+				civicsList.append(x)
+
+		return tuple(civicsList)
 
 	def placeCivics(self):
 		self.list = self.getCivicList()
@@ -1112,47 +1079,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getCivicList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
 			if self.SAS_cacheCivicsTuple is None:
-				civicsList = []
-				iNumCivics = gc.getNumCivicInfos()
-				iNumOptions = gc.getNumCivicOptionInfos()
-
-				for iOption in range(iNumOptions):
-					tmp = []
-
-					# Preserve XML order when Sort Lists is OFF (most conservative)
-					for iCivic in range(iNumCivics):
-						info = gc.getCivicInfo(iCivic)
-						if info.isGraphicalOnly():
-							continue
-						if info.getCivicOptionType() != iOption:
-							continue
-						tmp.append((info.getDescription(), iCivic))
-
-					if not tmp:
-						continue
-
-					# If BUG "Sort Lists" is ON, alphabetize within each option group
-					if self.isSortLists():
-						tmp.sort()
-
-					if civicsList:
-						civicsList.append(("", -1))  # spacer between groups
-					civicsList.append((gc.getCivicOptionInfo(iOption).getDescription(), -1))  # header
-
-					for (szName, iCivic) in tmp:
-						civicsList.append((szName, iCivic))
-
-					self.SAS_cacheCivicsTuple = tuple(civicsList)
-			
-			# <!-- custom: else do nothing, reuse cached tuple from last time if i'm not mistaken anyways etc. -->
-
+				self.SAS_cacheCivicsTuple = self.SAS_getCivicsGroupedByCivicOption()
 			return self.SAS_cacheCivicsTuple
-
-		# <!-- custom: no grouping, full alphabetical ordered list as using the base advciv's list formula but anyways etc. -->
+		# <!-- custom: else no grouping, full alphabetical ordered list cached as a tuple, using the base advciv's list formula but anyways etc. -->
 		else:
 			if self.SAS_cacheCivicsTuple is None:
 				self.SAS_cacheCivicsTuple = tuple(self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo))
-				
 			return self.SAS_cacheCivicsTuple
 
 
