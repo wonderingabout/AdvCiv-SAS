@@ -1176,28 +1176,122 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.SAS_cacheBonusesTuple
 
 
-	# <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks; implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
+	def SAS_isBonusCapableImprovement(self, iImprovement):
+		info = gc.getImprovementInfo(iImprovement)
+		if not info or info.isGraphicalOnly():
+			return False
+
+		# If it connects/trades any bonus, it's bonus-capable.
+		for iBonus in range(gc.getNumBonusInfos()):
+			bInfo = gc.getBonusInfo(iBonus)
+			if bInfo and bInfo.isGraphicalOnly():
+				continue
+
+			if hasattr(info, "isBonusTrade"):
+				if info.isBonusTrade(iBonus):
+					return True
+			else:
+				if info.isImprovementBonusTrade(iBonus):
+					return True
+
+		# Some mods may give bonus yields even if trade flags are odd.
+		for iBonus in range(gc.getNumBonusInfos()):
+			bInfo = gc.getBonusInfo(iBonus)
+			if bInfo and bInfo.isGraphicalOnly():
+				continue
+			for iYield in range(YieldTypes.NUM_YIELD_TYPES):
+				if info.getImprovementBonusYield(iBonus, iYield) != 0:
+					return True
+
+		return False
+
+	# <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw  thanks; plus other subgroups we added in advciv-sas. Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
+	# Group improvements as:
+	# - Land (Growth): land improvements in an upgrade chain (e.g. Cottage -> Hamlet -> Village -> Town)
+	# - Land (Bonus-capable): land improvements that can interact with bonuses (trade/connect or bonus yields)
+	# - Land (Other): remaining land improvements
+	# - Water
 	def SAS_getImprovementsGroupedByTerrain_fromBaseList(self, baseList):
 		r = []
-		land = []
+		landGrowth = []
+		landBonusCapable = []
+		landOther = []
 		water = []
+
+		# Build set of improvements that are upgraded *to* by something (to detect chain membership, incl. final node).
+		dUpgradeTargets = {}
 		for (szName, iImprovement) in baseList:
 			info = gc.getImprovementInfo(iImprovement)
+			if info and hasattr(info, "getImprovementUpgrade"):
+				iUp = info.getImprovementUpgrade()
+				if iUp != -1:
+					dUpgradeTargets[iUp] = 1
+
+		# Cache bonus-capability per improvement to avoid re-scanning bonuses repeatedly.
+		dBonusCapable = {}
+
+		for (szName, iImprovement) in baseList:
+			info = gc.getImprovementInfo(iImprovement)
+
 			if info and info.isWater():
 				water.append((szName, iImprovement))
-			else:
-				land.append((szName, iImprovement))
+				continue
 
-		if land:
-			r.append(("Land Improvements", -1))
-			for x in land:
+			# Land
+			bGrowth = False
+			if info and hasattr(info, "getImprovementUpgrade"):
+				iUp = info.getImprovementUpgrade()
+				if iUp != -1 or dUpgradeTargets.has_key(iImprovement):
+					bGrowth = True
+
+			if bGrowth:
+				landGrowth.append((szName, iImprovement))
+			else:
+				if dBonusCapable.has_key(iImprovement):
+					bBonusCapable = dBonusCapable[iImprovement]
+				else:
+					bBonusCapable = self.SAS_isBonusCapableImprovement(iImprovement)
+					dBonusCapable[iImprovement] = bBonusCapable
+
+				if bBonusCapable:
+					landBonusCapable.append((szName, iImprovement))
+				else:
+					landOther.append((szName, iImprovement))
+
+		# Optional sorting if BUG Sort Lists is on
+		if self.isSortLists():
+			landGrowth.sort()
+			landBonusCapable.sort()
+			landOther.sort()
+			water.sort()
+
+		# Emit headers + items (same header/spacer style you already use)
+		if landGrowth:
+			r.append(("Land (Growth)", -1))
+			for x in landGrowth:
 				r.append(x)
 
-		if land and water:
+		if landGrowth and (landBonusCapable or landOther or water):
+			r.append(("", -1))
+
+		if landBonusCapable:
+			r.append(("Land (Bonus-capable)", -1))
+			for x in landBonusCapable:
+				r.append(x)
+
+		if landBonusCapable and (landOther or water):
+			r.append(("", -1))
+
+		if landOther:
+			r.append(("Land (Other)", -1))
+			for x in landOther:
+				r.append(x)
+
+		if (landGrowth or landBonusCapable or landOther) and water:
 			r.append(("", -1))
 
 		if water:
-			r.append(("Water Improvements", -1))
+			r.append(("Water", -1))
 			for x in water:
 				r.append(x)
 
