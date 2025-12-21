@@ -188,6 +188,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheCorporationsTuple = None
 		self.SAS_cacheCorporationHQBuildingByCorp = None
 		self.SAS_cacheReligionsTuple = None
+		self.SAS_cacheProjectsTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -403,6 +404,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -892,12 +894,83 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return self.SAS_cacheWorldWondersTuple
 
 
+	# Compute the "availability era" for a project, factoring in its tech prereq.
+	def SAS_getProjectAvailabilityEra(self, iProject):
+		info = gc.getProjectInfo(iProject)
+		if not info or info.isGraphicalOnly():
+			return None  # caller should skip
+
+		iTech = info.getTechPrereq()
+		if iTech >= 0:
+			return gc.getTechInfo(iTech).getEra()
+
+		return -1  # "No Tech Prerequisite" bucket
+
+
+	# Helper we can reuse for project lists, with the help of chatgpt 5.2 thanks anyways etc.
+	def SAS_getProjectsGroupedByEra_fromBaseList(self, baseList):
+		projectsList = []
+
+		iNumEras = gc.getNumEraInfos()
+
+		noTech = []
+		groups = {}  # iEra -> [(szName, iProject), ...]
+
+		# One pass: compute era once and bucket
+		for (szName, iProject) in baseList:
+			iEra = self.SAS_getProjectAvailabilityEra(iProject)
+			if iEra is None:
+				continue
+
+			if iEra == -1:
+				noTech.append((szName, iProject))
+			else:
+				if iEra not in groups:
+					groups[iEra] = []
+				groups[iEra].append((szName, iProject))
+
+		# Optional sorting within each bucket
+		if self.isSortLists():
+			noTech.sort()
+			for k in groups.keys():
+				groups[k].sort()
+
+		# "No Tech Prereq" group first
+		if noTech:
+			projectsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+			for x in noTech:
+				projectsList.append(x)
+
+		# Era groups in order
+		for iEraLoop in range(iNumEras):
+			tmp = groups.get(iEraLoop, None)
+			if not tmp:
+				continue
+
+			if projectsList:
+				projectsList.append(("", -1))
+
+			projectsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+			for x in tmp:
+				projectsList.append(x)
+
+		return tuple(projectsList)
+
 	def placeProjects(self):
 		self.list = self.getProjectList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, gc.getProjectInfo)
-	
+
+	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getProjectList(self):
-		return self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
+		if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
+			if self.SAS_cacheProjectsTuple is None:
+				baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
+				self.SAS_cacheProjectsTuple = self.SAS_getProjectsGroupedByEra_fromBaseList(baseList)
+			return self.SAS_cacheProjectsTuple
+		else:
+			if self.SAS_cacheProjectsTuple is None:
+				self.SAS_cacheProjectsTuple = tuple(self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo))
+			return self.SAS_cacheProjectsTuple
 
 
 	def placeSpecialists(self):
