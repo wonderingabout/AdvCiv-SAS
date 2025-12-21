@@ -185,6 +185,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheNationalWondersTuple = None
 		self.SAS_cacheWorldWondersTuple = None
 		self.SAS_cacheUnitsTuple = None
+		self.SAS_cacheCorporationsTuple = None
+		self.SAS_cacheCorporationHQBuildingByCorp = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -398,6 +400,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -1095,14 +1098,100 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getReligionList(self):
 		return self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
 
+	# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
+	# This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
+	# Map each corporation to its founding (HQ) building once, then reuse; used for grouping corporations by era.
+	def SAS_getCorporationHQBuilding(self, iCorporation):
+		if self.SAS_cacheCorporationHQBuildingByCorp is None:
+			m = {}
+			for iBuilding in range(gc.getNumBuildingInfos()):
+				bInfo = gc.getBuildingInfo(iBuilding)
+				if not bInfo or bInfo.isGraphicalOnly():
+					continue
+				iFounds = bInfo.getFoundsCorporation()
+				if iFounds >= 0:
+					m[iFounds] = iBuilding
+			self.SAS_cacheCorporationHQBuildingByCorp = m
+		return self.SAS_cacheCorporationHQBuildingByCorp.get(iCorporation, -1)
+
+	# Compute the "availability era" for a corporation, based on its founding building's prereq tech era.
+	def SAS_getCorporationAvailabilityEra(self, iCorporation, iNumBuildingAndTechs):
+		cInfo = gc.getCorporationInfo(iCorporation)
+		if not cInfo or cInfo.isGraphicalOnly():
+			return None  # caller should skip
+
+		iEra = -1
+
+		# In AdvCiv-SAS, corporations are typically gated by the founding building techs (see CIV4BuildingInfos.xml <FoundsCorporation>).
+		iHQBuilding = self.SAS_getCorporationHQBuilding(iCorporation)
+		if iHQBuilding >= 0:
+			iBuildingEra = self.SAS_getBuildingAvailabilityEra(iHQBuilding, iNumBuildingAndTechs)
+			if iBuildingEra is not None and iBuildingEra > iEra:
+				iEra = iBuildingEra
+
+		return iEra  # -1 means "No Tech Prerequisite" bucket
+
+	# Helper to group corporations by era for Sevopedia lists, mirroring the building/unit/tech patterns.
+	def SAS_getCorporationsGroupedByEra_fromBaseList(self, baseList):
+		corpsList = []
+
+		iNumEras = gc.getNumEraInfos()
+		iNumBuildingAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
+
+		noTech = []
+		groups = {}  # iEra -> [(szName, iCorporation), ...]
+
+		for (szName, iCorporation) in baseList:
+			iEra = self.SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs)
+			if iEra is None:
+				continue
+
+			if iEra == -1:
+				noTech.append((szName, iCorporation))
+			else:
+				if iEra not in groups:
+					groups[iEra] = []
+				groups[iEra].append((szName, iCorporation))
+
+		if self.isSortLists():
+			noTech.sort()
+			for k in groups.keys():
+				groups[k].sort()
+
+		if noTech:
+			corpsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+			for x in noTech:
+				corpsList.append(x)
+
+		for iEraLoop in range(iNumEras):
+			tmp = groups.get(iEraLoop, None)
+			if not tmp:
+				continue
+
+			if corpsList:
+				corpsList.append(("", -1))
+
+			corpsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+			for x in tmp:
+				corpsList.append(x)
+
+		return tuple(corpsList)
 
 	def placeCorporations(self):
 		self.list = self.getCorporationList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, gc.getCorporationInfo)
 	
+	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getCorporationList(self):
-		return self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
-
+		if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
+			if self.SAS_cacheCorporationsTuple is None:
+				baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
+				self.SAS_cacheCorporationsTuple = self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList)
+			return self.SAS_cacheCorporationsTuple
+		else:
+			if self.SAS_cacheCorporationsTuple is None:
+				self.SAS_cacheCorporationsTuple = tuple(self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo))
+			return self.SAS_cacheCorporationsTuple
 
 	def placeConcepts(self):
 		self.list = self.getConceptList()

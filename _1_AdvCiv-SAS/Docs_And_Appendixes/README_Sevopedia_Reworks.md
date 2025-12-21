@@ -2,6 +2,8 @@
 
 Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
 
+Not listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings if any. Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's very nice help too thanks but anyways etc.
+
 Note: as of now the following link is outdated, but for more sevopedia sample examples than shown in this readme, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing), although again as of now they are outdated i mean but anyways etc
 
 Note 2: in below sample examples, click the images to view them full size
@@ -124,8 +126,6 @@ Also added the AI information now of as of now the UnitAI and iAIWeight informat
 
 Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for example for the generic settler or generic worker anyways etc) thanks to claude ai as well as well as thanks to my prompts and adjustments or such or not or yes or etc but anyways etc.
 
-Now grouped by eras (tech prereq of the asset) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
-
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG" alt="0.680_sevopedia_units_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG" alt="0.680_sevopedia_units_sample (3).JPG" width="250"></img>
@@ -135,8 +135,6 @@ Now grouped by eras (tech prereq of the asset) as well similarly to how was done
 Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (images) show now, commerce double times as well( for example that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
 
 Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
-
-Now grouped by eras (tech prereq of the asset) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
 
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
@@ -168,8 +166,6 @@ Before that, i had also added a list of untradeable techs following the anti tec
 
 Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) thanks to gemini ai's help and my prompt too and adjustments or not but anyways etc too but anyways etc ; see similar precomputing logic or/and its explanation at sevoepdia reworks's sevopedia leader readme section in [README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category) for details anyways etc
 
-Now grouped by eras as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
-
 <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG" alt="0.710_sevopedia_techs_sample (2).JPG" width="250"></img>
 
@@ -198,8 +194,6 @@ It allowed to polish a bit the sevopedia religion that also had a placeSpecial p
 Code provided by/with the help of claude ai too thanks if i may say (and thanks to me too maybe as well if i may say too but anyways etc).
 
 More recently, added the `iCivicPercentAnger` info in sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really but anyways etc.
-
-Even more recently but anyways etc., they are now optionally groupable (as of now default but anyways etc.) by civic type (e.g. Government, Economy, etc.). Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's help too but anyways etc.
 
 Examples of output below anyways etc.:
 

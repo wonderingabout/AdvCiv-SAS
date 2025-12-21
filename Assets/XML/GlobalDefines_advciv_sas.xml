@@ -60,6 +60,10 @@
 		<DefineName>SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 
