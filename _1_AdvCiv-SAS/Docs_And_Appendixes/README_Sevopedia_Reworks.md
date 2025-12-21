@@ -88,7 +88,7 @@ More recently, also added thanks to bit of chatgpt's help too hehe even though m
 
 Update: since then, added AI information about `iAIObjective` and/or such fields in sevopedia bonus's placeSpecial panel (effects) anyways etc. Viewable ingame in sevopedia bonus or/and in xml, and done with the help of claude ai thanks to my prompts too and/or such anyways etc.
 
-Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) based on RFC DOC mod code's thanks and chatgpt 5.2's help as well thanks but anyways etc.
+Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig, etc) based on RFC DOC mod code's thanks and chatgpt 5.2's help as well thanks but anyways etc.
 
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>

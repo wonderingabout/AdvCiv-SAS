@@ -1059,107 +1059,98 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
 
 
-	# Helper: pick the primary improvement that makes a bonus tradable (i.e. "improves" it). This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping. If multiple improvements can trade the same bonus (rare; mostly in modmods), we prefer an improvement that matches the bonus's water/land nature.
-	# That traceback is exactly because BtS/AdvCiv’s CvBonusInfo wrapper does not expose isWater() in Python (your dump confirms it: there’s no isWater in the bonus methods list) (__SevoPediaBonus-gc-inner-debug...)
-	# Meanwhile CvImprovementInfo does expose isWater() (and also uses isImprovementBonusTrade(...) in the wrapper), which is what we should rely on instead. (__SevoPediaImprovement-gc-inner…)
-	# So the fix is: stop calling bInfo.isWater() and infer land/water purely from the improvements that can trade the bonus.	
-	def SAS_getPrimaryImprovementForBonus(self, iBonus):
+	# Helper: get ALL improvements that make a bonus tradable (i.e. "improve/connect" it).
+	# This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping.
+	# Unlike a "primary improvement" heuristic, we keep multi-improvement cases exhaustive by using
+	# a combined header like: "Well, Offshore Platform".
+	def SAS_getTradingImprovementsForBonus(self, iBonus):
 		bInfo = gc.getBonusInfo(iBonus)
 		if not bInfo or bInfo.isGraphicalOnly():
-			return -1
-
-		# CvBonusInfo does not expose isWater() in Python (BtS/AdvCiv wrapper).
-		# Infer land/water only from improvements that can trade the bonus.
-		# If both exist (e.g. Oil in some mods), prefer land for now.
-		iBestAny = -1
-		iBestLand = -1
-		iBestWater = -1
-
+			return []
+		r = []
 		for iImprovement in range(gc.getNumImprovementInfos()):
 			imprInfo = gc.getImprovementInfo(iImprovement)
 			if not imprInfo or imprInfo.isGraphicalOnly():
 				continue
-
-			# RFC DoC often uses isBonusTrade(); BtS/AdvCiv wrapper typically has
-			# isImprovementBonusTrade(). Support both safely.
+			# Support both wrapper styles (RFC often exposes isBonusTrade; BtS/AdvCiv uses isImprovementBonusTrade).
 			if hasattr(imprInfo, "isBonusTrade"):
 				bTrades = imprInfo.isBonusTrade(iBonus)
 			else:
 				bTrades = imprInfo.isImprovementBonusTrade(iBonus)
+			if bTrades:
+				r.append(iImprovement)
+		return r
 
-			if not bTrades:
-				continue
-
-			if iBestAny == -1:
-				iBestAny = iImprovement
-
-			if imprInfo.isWater():
-				if iBestWater == -1:
-					iBestWater = iImprovement
-			else:
-				if iBestLand == -1:
-					iBestLand = iImprovement
-
-		# If only one side exists, use it. If both exist, prefer land for now.
-		if iBestLand != -1 and iBestWater == -1:
-			return iBestLand
-		if iBestWater != -1 and iBestLand == -1:
-			return iBestWater
-		if iBestLand != -1:
-			return iBestLand
-		return iBestAny
-
-	# Group bonuses by their primary improvement (Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc).
-	# This mirrors RFC DoC's approach in CvPediaMain.placeResources(), adapted to our cached-list style.
-	# Notes on behavior (so it matches what you expect):
-	# 	- The improvement bucket is determined by improvement.isBonusTrade(bonus), which is exactly what you want for “Farm header contains Corn/Wheat”.
-	# 	- If a bonus can be improved by multiple improvements (rare), it picks a “primary” one, preferring water improvements for water bonuses and land improvements for land bonuses.
-	# 	- Header order is improvement XML order (consistent with your other grouped lists). BUG “Sort Lists” only sorts within each header.
+	# Group bonuses by the improvement(s) that connect them:
+	#   Farm -> Corn/Wheat/...
+	#   Pasture -> Sheep/Horse/...
+	# For multi-improvement bonuses (e.g. Oil: Well + Offshore Platform), we use a combined header.
+	# <!-- custom: we did this change because RFC DOC used another water/land tie breaker logic that would display Oil only under "Well", but the player needs to know too that "Offshore Platform" is another improvement trades for Oil. Also, if some mod mod added another improvement trades on land (e.g. Farm + Pasture for Milk (imaginary example anyways etc.)) then the water/land tie breaking would not be effective as well, and we'd miss the info that both improvements support this. This is the only case in our mod (Oil) that has more than one improvement trades if i'm not mistaken but anyways etc., so we don't need to complicate the logic further, while hopefully providing this logic in a bit cleaner or more relevant way to us than in RFC DOC mod (although their code helps lot and with chatgpt 5.2's help too and my help too xd i mean thanks to them and me xd as well but anyways etc.) -->
 	def SAS_getBonusesGroupedByImprovement_fromBaseList(self, baseList):
 		bonusesList = []
 
 		noImprovement = []
-		groups = {}  # iImprovement -> [(szName, iBonus), ...]
+		groups = {}  # key tuple(iImprovement, ...) -> [(szName, iBonus), ...]
 
 		# One pass over bonuses preserves XML order within each group when Sort Lists is OFF.
 		for (szName, iBonus) in baseList:
-			iImprovement = self.SAS_getPrimaryImprovementForBonus(iBonus)
-			if iImprovement == -1:
+			lImpr = self.SAS_getTradingImprovementsForBonus(iBonus)
+			if not lImpr:
 				noImprovement.append((szName, iBonus))
 				continue
 
-			tmp = groups.get(iImprovement, None)
+			# Keep improvement ids in XML order (already in-order due to the loop in SAS_getTradingImprovementsForBonus).
+			key = tuple(lImpr)
+			tmp = groups.get(key, None)
 			if tmp is None:
 				tmp = []
-				groups[iImprovement] = tmp
+				groups[key] = tmp
 			tmp.append((szName, iBonus))
 
-		# Optional sorting within each improvement group (when BUG "Sort Lists" is ON)
+		# Optional sorting within each improvement-group (when BUG "Sort Lists" is ON)
 		if self.isSortLists():
 			for k in groups.keys():
 				groups[k].sort()
 			noImprovement.sort()
 
-		# Preserve improvement XML order for headers (matches our other grouped lists).
-		for iImprovementLoop in range(gc.getNumImprovementInfos()):
-			tmp = groups.get(iImprovementLoop, None)
+		# Order headers:
+		#  - primarily by first improvement id (so this generally follows ImprovementInfos XML order),
+		#  - then by key length (single-improvement headers first),
+		#  - then by the key itself (stable).
+		keys = groups.keys()
+		def _cmpKeys(a, b):
+			ta = (a[0], len(a), a)
+			tb = (b[0], len(b), b)
+			if ta < tb:
+				return -1
+			if ta > tb:
+				return 1
+			return 0
+		keys.sort(_cmpKeys)
+
+		for key in keys:
+			tmp = groups.get(key, None)
 			if not tmp:
 				continue
 
 			if bonusesList:
 				bonusesList.append(("", -1))
 
-			imprInfo = gc.getImprovementInfo(iImprovementLoop)
-			# Defensive: should exist, but keep safe.
+			# Header text: single improvement name OR "A, B, C" for multi-improvement bonuses.
+			parts = []
+			for iImprovement in key:
+				imprInfo = gc.getImprovementInfo(iImprovement)
+				if imprInfo:
+					parts.append(imprInfo.getDescription())
 			szHeader = "Improvement"
-			if imprInfo:
-				szHeader = imprInfo.getDescription()
+			if parts:
+				szHeader = ", ".join(parts)
 			bonusesList.append((szHeader, -1))
 
 			for x in tmp:
 				bonusesList.append(x)
 
-		# Fallback bucket for bonuses that have no "bonus trade" improvement (rare)
+		# Fallback bucket for bonuses that have no connecting/trade improvement (rare)
 		if noImprovement:
 			if bonusesList:
 				bonusesList.append(("", -1))
