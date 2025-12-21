@@ -4,9 +4,9 @@ Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-r
 
 Not listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings if any. Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's very nice help too thanks but anyways etc.
 
-Note: as of now the following link is outdated, but for more sevopedia sample examples than shown in this readme, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing), although again as of now they are outdated i mean but anyways etc
+Note: some many minor changes such as in sevopedia traits beautification changes may not be mentionned here for concision or/and effectiveness if i may say but anyways etc.
 
-Note 2: in below sample examples, click the images to view them full size
+Note 2: in below sample examples, click the images to view them full size.
 
 ## Menu
 
@@ -24,8 +24,6 @@ Note 2: in below sample examples, click the images to view them full size
 [example 11: shortcuts category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
 [example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
 [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category)  
-
-Note: some many minor changes such as in sevopedia traits beautification changes may not be mentionned here for concision or/and effectiveness if i may say but anyways etc.
 
 ## example 1: more AI Personality examples (in leaders category)
 

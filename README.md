@@ -94,9 +94,7 @@ See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.
 
 About the mod AdvCiv-SAS in general, i added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod in [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/)
 
-Additionally, A preview of the changes (screenshots), can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
-
-If you want to know more about the project, how i ordered the tree tech historically, why i decided on balance changes and such, please visit these pages (as well).
+Additionally, some extra files can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
 
 ## How to play?
 

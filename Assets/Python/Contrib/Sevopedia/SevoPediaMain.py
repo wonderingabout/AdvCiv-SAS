@@ -187,6 +187,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheUnitsTuple = None
 		self.SAS_cacheCorporationsTuple = None
 		self.SAS_cacheCorporationHQBuildingByCorp = None
+		self.SAS_cacheReligionsTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -401,6 +402,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -1091,12 +1093,83 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return self.SAS_cacheCivicsTuple
 
 
+	# Compute the "availability era" for a religion, based on its founding tech prereq.
+	def SAS_getReligionAvailabilityEra(self, iReligion):
+		info = gc.getReligionInfo(iReligion)
+		if not info or info.isGraphicalOnly():
+			return None  # caller should skip
+
+		iTech = info.getTechPrereq()
+		if iTech >= 0:
+			return gc.getTechInfo(iTech).getEra()
+
+		return -1  # no tech prereq bucket
+
+
+	# Helper we can reuse for religions.
+	def SAS_getReligionsGroupedByEra_fromBaseList(self, baseList):
+		religionsList = []
+
+		iNumEras = gc.getNumEraInfos()
+
+		noTech = []
+		groups = {}  # iEra -> [(szName, iReligion), ...]
+
+		# One pass: compute era once and bucket
+		for (szName, iReligion) in baseList:
+			iEra = self.SAS_getReligionAvailabilityEra(iReligion)
+			if iEra is None:
+				continue
+
+			if iEra == -1:
+				noTech.append((szName, iReligion))
+			else:
+				if not groups.has_key(iEra):
+					groups[iEra] = []
+				groups[iEra].append((szName, iReligion))
+
+		# Optional sorting within each bucket
+		if self.isSortLists():
+			noTech.sort()
+			for k in groups.keys():
+				groups[k].sort()
+
+		# "No Tech Prerequisite" group first
+		if noTech:
+			religionsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+			for x in noTech:
+				religionsList.append(x)
+
+		# Era groups in order
+		for iEraLoop in range(iNumEras):
+			tmp = groups.get(iEraLoop, None)
+			if not tmp:
+				continue
+
+			if religionsList:
+				religionsList.append(("", -1))
+
+			religionsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+			for x in tmp:
+				religionsList.append(x)
+
+		return tuple(religionsList)
+
 	def placeReligions(self):
 		self.list = self.getReligionList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, gc.getReligionInfo)
-	
+
+	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 	def getReligionList(self):
-		return self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+		if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
+			if self.SAS_cacheReligionsTuple is None:
+				baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+				self.SAS_cacheReligionsTuple = self.SAS_getReligionsGroupedByEra_fromBaseList(baseList)
+			return self.SAS_cacheReligionsTuple
+		else:
+			if self.SAS_cacheReligionsTuple is None:
+				self.SAS_cacheReligionsTuple = tuple(self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo))
+			return self.SAS_cacheReligionsTuple
 
 	# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
 	# This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
