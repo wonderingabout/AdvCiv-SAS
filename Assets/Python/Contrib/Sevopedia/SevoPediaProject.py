@@ -33,15 +33,15 @@ class SevoPediaProject:
 		self.Y_REQUIRES = self.top.Y_PEDIA_PAGE
 		self.H_REQUIRES = 116
 
-		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
-		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
-		self.W_MAIN_PANE = self.top.W_PEDIA_PAGE - self.W_REQUIRES - 10
-		self.H_MAIN_PANE = 116
+		self.X_PROJECT_PANE = self.top.X_PEDIA_PAGE
+		self.Y_PROJECT_PANE = self.top.Y_PEDIA_PAGE
+		self.W_PROJECT_PANE = self.top.W_PEDIA_PAGE - self.W_REQUIRES - 10
+		self.H_PROJECT_PANE = 116
 
 		self.W_ICON = 100
 		self.H_ICON = 100
-		self.X_ICON = self.X_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
-		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
+		self.X_ICON = self.X_PROJECT_PANE + (self.H_PROJECT_PANE - self.H_ICON) / 2
+		self.Y_ICON = self.Y_PROJECT_PANE + (self.H_PROJECT_PANE - self.H_ICON) / 2
 		self.ICON_SIZE = 64
 
 		self.X_STATS_PANE = self.X_ICON + self.W_ICON
@@ -49,30 +49,37 @@ class SevoPediaProject:
 		self.W_STATS_PANE = 200
 		self.H_STATS_PANE = 200
 
-		self.X_SPECIAL = self.X_MAIN_PANE
-		self.Y_SPECIAL = self.Y_MAIN_PANE + self.H_MAIN_PANE + 10
+		self.X_SPECIAL = self.X_PROJECT_PANE
+		self.Y_SPECIAL = self.Y_PROJECT_PANE + self.H_PROJECT_PANE + 10
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
 		self.H_SPECIAL = 210
 
-		self.X_TEXT = self.X_MAIN_PANE
+		self.X_TEXT = self.X_PROJECT_PANE
 		self.Y_TEXT = self.Y_SPECIAL + self.H_SPECIAL + 10
-		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_MAIN_PANE
+		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_PROJECT_PANE
 		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
 
 
 
 	def interfaceScreen(self, iProject):
 		self.iProject = iProject
-		screen = self.top.getScreen()
 
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getProjectInfo(self.iProject).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
+		self.placeProjectPane()
 		self.placeStats()
 		self.placeRequires()
 		self.placeSpecial()
 		self.placeText()
+
+
+
+	def placeProjectPane(self):
+		screen = self.top.getScreen()
+
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_PROJECT_PANE, self.Y_PROJECT_PANE, self.W_PROJECT_PANE, self.H_PROJECT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
+		# screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getProjectInfo(self.iProject).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -98,11 +105,14 @@ class SevoPediaProject:
 			screen.appendListBoxString(panelName, u"<font=4>" + szProjectType.upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if (projectInfo.getProductionCost() > 0):
+			# <!-- custom: simplify textual info for hammer yield to minimum, remove the "COST:" ugly part but anyways etc. -->
 			if self.top.iActivePlayer == -1:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST", ((projectInfo.getProductionCost() * gc.getDefineINT("PROJECT_PRODUCTION_PERCENT"))/100,))
+				szCost = (projectInfo.getProductionCost() * gc.getDefineINT("PROJECT_PRODUCTION_PERCENT")) / 100
 			else:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST", (gc.getActivePlayer().getProjectProductionNeeded(self.iProject),))
-			screen.appendListBoxString(panelName, u"<font=4>" + szCost.upper() + u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+				szCost = gc.getActivePlayer().getProjectProductionNeeded(self.iProject)
+			# szTextHammerYield = u"<font=4>" + szCost.upper() + u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + u"</font>"
+			szTextHammerYield = u"<font=4>%c %d</font>" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)
+			screen.appendListBoxString(panelName, szTextHammerYield, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

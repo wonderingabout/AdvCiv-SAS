@@ -211,9 +211,9 @@ Examples of output below anyways etc.:
 
 ## example 14: projects category
 
-Did not beautify it, except from adding the grouping as we said as of now at the top of this file but anyways etc.
+Minor beautified and polished it a bit and now it's quite good xd at least not too bad hehe, and i had also added grouping for entries as in similar reworks previously, so it looks not too bad, quite good actually xd i mean if i may say but anyways etc.
 
-Since this is a nice functionnal change, i wanted to show it here as well despite that but anyways etc.
+As for the grouping, since this is a nice functionnal change, i wanted to show it here as well but anyways etc.
 
 <img src="../Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG" alt="0.750_sevopedia_projects_sample (1).JPG" width="250"></img>
 
