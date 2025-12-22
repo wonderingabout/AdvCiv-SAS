@@ -585,7 +585,10 @@ class SevoPediaBuilding:
 					buttonWidget = self.top.getNextWidgetName()
 					buttonX = self.X_FLAT_GREAT_PERSON + buttonXOffset
 					buttonY = self.Y_FLAT_GREAT_PERSON + buttonYOffset
-					screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					# <!-- custom: add tooltip when hovering on the great person button, with the help of chatgpt 5.2 thanks anyways etc. -->
+					# screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH,
+                WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iGreatPersonUnit, 1)
 
 				# <!-- custom: else block below's code untested but probably works, i guess it covers case where great person type is not any of the great people's types if i am not mistaken like great scientist and great prophet and such, but really i have no idea or don'tknow too much maybe, so test to be sure, may or not work-function, hopefully does but in all cases anyways etc... -->
 				else:
@@ -656,15 +659,6 @@ class SevoPediaBuilding:
 				isButtonFound = True
 				# <!-- custom: note: no specific text, no need for numTxt and such, simply display the button then end this part of the code anyways etc, but we still increment so that buttons that buttons that need/use a numTxt under have their numTxt correctly positioned anyways etc -->
 				iButtonIndex += 1
-
-		iPrereqBonus = gc.getBuildingInfo(self.iBuilding).getPrereqAndBonus()
-		if iPrereqBonus >= 0:
-			# Column index (always 0 when numLists=1)
-			columnIndex = 0
-			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqBonus, 1, False)
-
-			isButtonFound = True
-			iButtonIndex += 1
 
 		iPrereqAndBonus = gc.getBuildingInfo(self.iBuilding).getPrereqAndBonus()
 		if iPrereqAndBonus >= 0:
