@@ -193,6 +193,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheBonusesTuple = None
 		self.SAS_cacheImprovementsTuple = None
 		self.SAS_cacheTerrainsTuple = None
+		self.SAS_cacheFeaturesTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -413,6 +414,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
 
 		# These are terrain TYPES that should be classified under the "Land (High)" header rather than "Land (Flat)". This is purely a UI grouping choice.
 		self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
@@ -1111,9 +1113,76 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			SevoPediaFeature.do_pre_load_xml_features_info_required_data_validation()
 			self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = True
 			print("Sevopedia Feature pre load XML data validation done from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE=%s)." % str(self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE))
-	
+
+	# <!-- custom: in sevopedia feature list, group features by Land vs Water. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	# Implementation note:
+	# - Features do not have a single reliable "isWater" flag in the API (in many Civ4 DLLs), but they *do* have per-terrain booleans (FeatureInfo.isTerrain(iTerrain)).
+	# - So we treat a feature as "Water" if it can appear on at least one water terrain.
+	#
+	# IMPORTANT MOD-SPECIFIC NOTE (bugfix / exception):
+	# - In our CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>. This means TerrainInfo.isWater() returns True for them.
+	# - Many land features (e.g. Forest/Jungle) are valid on Hills, so if we blindly treat "any water terrain" as water, we would incorrectly classify lots of land features as Water.
+	# - Therefore we exclude our "Land (High)" terrains from the water-terrain scan used here.
+	def SAS_getFeaturesGroupedByLandWater_fromBaseList(self, baseList):
+		r = []
+		land = []
+		water = []
+
+		# Build the list of terrain IDs we treat as "water terrains" for feature classification.
+		# Exclude our Land (High) terrains (e.g. Hill/Peak) even if XML marks them as water.
+		landHighIds = []
+		for szType in self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES:
+			landHighIds.append(getInfoTypeOrFail(szType, gc))
+
+		waterTerrainIds = []
+		for iTerrain in range(gc.getNumTerrainInfos()):
+			tInfo = gc.getTerrainInfo(iTerrain)
+			if tInfo and tInfo.isWater() and (iTerrain not in landHighIds):
+				waterTerrainIds.append(iTerrain)
+
+		# Classify each feature by whether it can appear on any (true) water terrain.
+		for (szName, iFeature) in baseList:
+			fInfo = gc.getFeatureInfo(iFeature)
+
+			bIsWaterFeature = False
+			# FeatureInfo has terrain booleans in XML; treat as water if it can appear on any water terrain.
+			for iTerrain in waterTerrainIds:
+				if fInfo.isTerrain(iTerrain):
+					bIsWaterFeature = True
+					break
+
+			if bIsWaterFeature:
+				water.append((szName, iFeature))
+			else:
+				land.append((szName, iFeature))
+
+		if self.isSortLists():
+			land.sort()
+			water.sort()
+
+		if land:
+			r.append(("Land", -1))
+			for x in land:
+				r.append(x)
+
+		if land and water:
+			r.append(("", -1))
+
+		if water:
+			r.append(("Water", -1))
+			for x in water:
+				r.append(x)
+
+		return r
+
 	def getFeatureList(self):
-		return self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
+		if self.SAS_cacheFeaturesTuple is None:
+			baseList = self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
+			if self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER:
+				self.SAS_cacheFeaturesTuple = tuple(self.SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList))
+			else:
+				self.SAS_cacheFeaturesTuple = tuple(baseList)
+		return self.SAS_cacheFeaturesTuple
 
 
 	def placeBonuses(self):
