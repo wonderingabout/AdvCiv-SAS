@@ -65,7 +65,7 @@ Usage is similarly as (for) other scripts in this readme pythons scripts, for ex
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_handicap_info_to_csv_and_md.py
 ```
 
-The script requires to be at the root of your mod path (as in below path example, as is default provided in this mod) to successfully fetch the handiap info xml, tweak if you know how or/and need else runs fine as is maybe or and in all cases or not or yes anyways etc
+The script requires to be at the root of your mod path (as in below path example, as is default provided in this mod) to successfully fetch the handiap info xml, tweak if you know how or/and need else runs fine as is maybe or and in all cases anyways etc
 
 Example of usage:
 
@@ -198,7 +198,7 @@ Not only that, it is also required that all dependencies (such as ai_utils_share
 
 Then you can generate leaders_data.
 
-note: you also need to add the `--notesting` command argument to skip testing, since your mod xml is likely too different from the AdvCiv-SAS's xml for it to have testing be relevant, else you'd need to tediously fix the expected output for little gain, if you want to do that and need it fine and great if i may say even though is not for me to say, but what i mean is you simply want to make it work-run, easiest way is to skip testing although not optimal, you'll get the leaders_data.py you want this way that is used to generate later the .csv leaders_data table and its .md legend, but maybe good enough if not best suited anyways etc in this case or not or yes or anyways etc or other anyways etc, but first generate the leaders_data py file anyways etc.
+note: you also need to add the `--notesting` command argument to skip testing, since your mod xml is likely too different from the AdvCiv-SAS's xml for it to have testing be relevant, else you'd need to tediously fix the expected output for little gain, if you want to do that and need it fine and great if i may say even though is not for me to say, but what i mean is you simply want to make it work-run, easiest way is to skip testing although not optimal, you'll get the leaders_data.py you want this way that is used to generate later the .csv leaders_data table and its .md legend, but maybe good enough if not best suited anyways etc in this case or anyways etc or other anyways etc, but first generate the leaders_data py file anyways etc.
 
 For example for the AdvCiv mod (adjust to your mod path if non-Steam or/and other mod path for your mod anyways etc):
 
@@ -216,7 +216,7 @@ First, below and all fields we parse in leaders_data.py use as much as possible,
 
 There are some exceptions, for example what we call "generic" fields (see list/tuple anyways etc in generate_leaders_data.py for details anyways etc) are parsed with a "get" prefix instead. This is to match, even though not required as leaders_data.py is an external to civ4 data module that does not interact at all with sevopedia leader, but is for consistency in key/field naming anyways etc.
 
-See generate_leaders_data.py and sevopedia leader py file 's codes or/and code comments for reasons why it is more convenient to use "get" prefix (in short to call the getter name from gc then use it as key for flat fields not as a method/funcitn anymore but only key name, for some fields that are flat and that we parse easily from gc in sevopedia leader, see sevopedia leader py file 's code and/or code comments for details anyways etc hopefully helpful or not or yes or etc or and other or and not or etc anyways etc)
+See generate_leaders_data.py and sevopedia leader py file 's codes or/and code comments for reasons why it is more convenient to use "get" prefix (in short to call the getter name from gc then use it as key for flat fields not as a method/funcitn anymore but only key name, for some fields that are flat and that we parse easily from gc in sevopedia leader, see sevopedia leader py file 's code and/or code comments for details anyways etc hopefully helpful or etc or and other or and not or etc anyways etc)
 
 Below are some more details (non-exhaustive, refer to generate_leaders_data.py 's code or/and code comments for details or/and related files like ai_utils_shared_with_civ4.py as of now mainly (to a lesser extent as of now too sevopedia helpers py file in sevopedia folder as of now at least even though is civ4 specific, code comments may contain some info as well (didnt check though if such info there if any would be related to generate_leaders_data.py since it is independent code anyways etc)) too anyways etc)
 
