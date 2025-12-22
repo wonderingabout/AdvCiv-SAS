@@ -25,9 +25,8 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 # <!-- custom: change its value if you don't want to see this info anyways etc -->
-IS_SHOW_NON_TRADEABLE_TECHS_LIST = False
-if gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST") != 0:
-	IS_SHOW_NON_TRADEABLE_TECHS_LIST = True
+IS_SHOW_NON_TRADEABLE_TECHS_LIST = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST") > 0)
+
 
 
 # <!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time if i may say but anyways etc the list as string of untradeable techs anyways etc ; note also anyways etc: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak (my) (but anyways etc...) previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd if i may say but anyways etc -->

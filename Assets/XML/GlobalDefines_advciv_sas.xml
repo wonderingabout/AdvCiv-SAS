@@ -99,6 +99,15 @@
 
 
 
+	<!-- custom: enable buttons (i.e. images/icons for unit combats and units in the military advisor (F5 key)). -->
+	<!-- custom: 1 to enable (recommended), 0 to disable -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: choose how wide the tech tree should be horizontally:
 		-> 0 (default): the tech tree goes from leftmost part of the screen (tightly compressed left margin as there is less room), to about halfway in the scoreboard on the right: we see leader name, the tech they are researching (if we know it), their tech %
 

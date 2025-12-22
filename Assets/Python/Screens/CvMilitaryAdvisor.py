@@ -36,6 +36,7 @@ class CvMilitaryAdvisor:
 		self.UNIT_BUTTON_LABEL_ID = "MilitaryAdvisorUnitButtonLabel"
 		self.LEADER_PANEL_ID = "MilitaryAdvisorLeaderPanel"
 		self.UNIT_LIST_ID = "MilitaryAdvisorUnitList"
+		self.UNIT_ICON_ID = "MilitaryAdvisorUnitIcon"
 		self.GREAT_GENERAL_BAR_ID = "MilitaryAdvisorGreatGeneralBar"
 		self.GREAT_GENERAL_LABEL_ID = "MilitaryAdvisorGreatGeneralLabel"
 
@@ -141,6 +142,8 @@ class CvMilitaryAdvisor:
 		# Position: Screen Height - Bottom Panel - Bar Height - Padding
 		self.Y_GREAT_GENERAL_BAR = self.H_SCREEN - 55 - self.H_GREAT_GENERAL_BAR - 15
 
+		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = None
+
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.MILITARY_SCREEN_NAME, self.screenId)
@@ -158,6 +161,10 @@ class CvMilitaryAdvisor:
 			return
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+
+		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper but anyways etc. -->
+		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS is None:
+			self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
 
 		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + "</font>"
 		self.TITLE = u"<font=4b>" + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + "</font>"
@@ -327,6 +334,7 @@ class CvMilitaryAdvisor:
 		self.refreshUnitSelection(false)		
 	
 	# <!-- custom: refactor old code for this function while preserving behaviour otherwise as it is, with the help of chatgpt 5.2 Old code was shit in terms of redundance or such, is much much cleaner although i didn't look in detail to tell. Reviewed by gemini 3 pro which confirms it is nice anyways etc. -->
+	# <!-- custom: added icon buttons overlaid on listbox rows with indent - claude opus 4.5 -->
 	def refreshUnitSelection(self, bReload):
 		screen = self.getScreen()
 		
@@ -355,6 +363,22 @@ class CvMilitaryAdvisor:
 		iColorWhite = gc.getInfoTypeForString("COLOR_WHITE")
 		iWidget = WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT
 		iFont = CvUtil.FONT_LEFT_JUSTIFY
+
+		# <!-- custom: icon overlay settings - claude opus 4.5 -->
+		# Tunable values:
+		iIconSize = 25
+		iRowHeight = 25
+		iUnitIndent = 12  # how much to indent unit icons under category headers
+		iDetailIndent = 24  # how much to indent individual unit details
+		iListX = self.X_TEXT + self.MAP_MARGIN
+		iListY = self.Y_TEXT + self.MAP_MARGIN + 15
+		iListW = self.W_TEXT - 2*self.MAP_MARGIN
+		iListH = self.H_TEXT - 2*self.MAP_MARGIN - 15
+		# Space reserved for icon at start of each row text (category headers)
+		szIconSpace = u"      "
+		# Extra space for indented units
+		szUnitIndentSpace = u"  "
+		szDetailIndentSpace = u"      "
 
 		if (bReload):
 			def addUnitListRow(iIndex, szText, iData1, iData2):
@@ -407,12 +431,17 @@ class CvMilitaryAdvisor:
 		bAllSelected = (-1 in self.selectedGroupList)
 		szText = formatSelection(u"", szText, bAllSelected, bAllSelected)
 		if (bReload):
-			screen.addListBoxGFC(self.UNIT_LIST_ID, "", self.X_TEXT+self.MAP_MARGIN, self.Y_TEXT+self.MAP_MARGIN+15, self.W_TEXT-2*self.MAP_MARGIN, self.H_TEXT-2*self.MAP_MARGIN-15, TableStyles.TABLE_STYLE_STANDARD)
+			screen.addListBoxGFC(self.UNIT_LIST_ID, "", iListX, iListY, iListW, iListH, TableStyles.TABLE_STYLE_STANDARD)
 			screen.enableSelect(self.UNIT_LIST_ID, False)
 			screen.setStyle(self.UNIT_LIST_ID, "Table_StandardCiv_Style")
 		
 		iPrevUnitCombat = -2
 		iItem = addUnitListRow(0, szText, 1, -1)
+
+		# <!-- custom: collect icon data for overlay - claude opus 4.5 -->
+		# tuple: (button_path, iData1, iData2, iIndentLevel) where 0=category, 1=unit, 2=detail
+		iconList = []
+		iconList.append(("", 1, -1, 0))  # ALL UNITS row - no icon
 
 		dPrimaryColor = {}
 		dPyPlayer = {}
@@ -423,12 +452,18 @@ class CvMilitaryAdvisor:
 				if (iPrevUnitCombat != self.unitsList[iUnit][0] and self.unitsList[iUnit][0] != -1):
 					iPrevUnitCombat = self.unitsList[iUnit][0]
 					szDescription = gc.getUnitCombatInfo(self.unitsList[iUnit][0]).getDescription().upper()
-					szDescription = formatSelection(u"   ", szDescription, self.isSelectedGroup(self.unitsList[iUnit][0], False), self.isSelectedGroup(self.unitsList[iUnit][0], True))
+					szDescription = formatSelection(szIconSpace, szDescription, self.isSelectedGroup(self.unitsList[iUnit][0], False), self.isSelectedGroup(self.unitsList[iUnit][0], True))
 					iItem = addUnitListRow(iItem, szDescription, 1, self.unitsList[iUnit][0] + iNumUnitInfos)
+					# <!-- custom: combat icon (no indent) - claude opus 4.5 -->
+					szCombatButton = gc.getUnitCombatInfo(self.unitsList[iUnit][0]).getButton()
+					iconList.append((szCombatButton, 1, self.unitsList[iUnit][0] + iNumUnitInfos, 0))
 				
 				szDescription = gc.getUnitInfo(self.unitsList[iUnit][1]).getDescription() + u" (" + unicode(len(self.unitsList[iUnit][2])) + u")"
-				szDescription = formatSelection(u"      ", szDescription, self.isSelectedUnitType(self.unitsList[iUnit][1], False), self.isSelectedUnitType(self.unitsList[iUnit][1], True))
+				szDescription = formatSelection(szIconSpace + szUnitIndentSpace, szDescription, self.isSelectedUnitType(self.unitsList[iUnit][1], False), self.isSelectedUnitType(self.unitsList[iUnit][1], True))
 				iItem = addUnitListRow(iItem, szDescription, 1, self.unitsList[iUnit][1])
+				# <!-- custom: unit icon (indented) - claude opus 4.5 -->
+				szUnitButton = gc.getUnitInfo(self.unitsList[iUnit][1]).getButton()
+				iconList.append((szUnitButton, 1, self.unitsList[iUnit][1], 1))
 				
 				for loopUnit in self.unitsList[iUnit][2]:
 				
@@ -442,8 +477,11 @@ class CvMilitaryAdvisor:
 						if (loopUnit.isWaiting()):
 							szDescription = '*' + szDescription
 						
-						szDescription = formatSelection(u"         ", szDescription, self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), False), self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), True))
+						szDescription = formatSelection(szIconSpace + szDetailIndentSpace, szDescription, self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), False), self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), True))
 						iItem = addUnitListRow(iItem, szDescription, -loopUnit.getOwner(), loopUnit.getID())
+						# <!-- custom: individual unit icon (more indented) - claude opus 4.5 -->
+						szUnitButton = gc.getUnitInfo(loopUnit.getUnitType()).getButton()
+						iconList.append((szUnitButton, -loopUnit.getOwner(), loopUnit.getID(), 2))
 
 					iPlayer = loopUnit.getVisualOwner()
 					if (iPlayer not in dPyPlayer):
@@ -465,10 +503,25 @@ class CvMilitaryAdvisor:
 								iFlashColor = iColorWhite
 						screen.minimapFlashPlot(loopUnit.getX(), loopUnit.getY(), iFlashColor, -1)
 
+		# <!-- custom: overlay icon buttons on listbox rows with indent - claude opus 4.5 -->
+		if bReload:
+			iIconBaseX = iListX + 3
+			for iRow in range(len(iconList)):
+				szButton, iData1, iData2, iIndentLevel = iconList[iRow]
+				iIconY = iListY + (iRow * iRowHeight)
+				# Apply indent based on level: 0=category, 1=unit type, 2=individual unit
+				if iIndentLevel == 1:
+					iIconX = iIconBaseX + iUnitIndent
+				elif iIndentLevel == 2:
+					iIconX = iIconBaseX + iDetailIndent
+				else:
+					iIconX = iIconBaseX
+				szIconName = self.UNIT_ICON_ID + str(iRow)
+				if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS and szButton:
+					screen.setImageButton(szIconName, szButton, iIconX, iIconY, iIconSize, iIconSize, iWidget, iData1, iData2)
 
 
-					
-	
+
 	def refresh(self, bReload):
 	
 		if (self.iActivePlayer < 0):

@@ -564,7 +564,7 @@ Claude AI is the new member of the team if i may say anyways etc, i enjoy using 
 
 You can view the screenshot of this first successfully implemented in AdvCiv-SAS feature code by Claude AI here: ([Claude AI placeCivilizations related Google Drive folder](https://drive.google.com/drive/folders/1MLtCWamEl6P8rZs8f8xu0bfEBRUP0du1) with all or maybe rather at least many screenshots of the steps anyways etc).
 
-I used many versions/models of it thanks! Anyways etc.
+I used many versions/models of it thanks! In partilar recently, claude sonnet 4.5 which helped me plenty, and even more recently claude opus 4.5 which helped me add buttons to the military advisor (with chatgpt 5.2's help and digging thanks too but anyways etc.) that look super nice, thanks too hehe but anyways etc!
 
 ### Gemini AI
 
