@@ -129,6 +129,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
 - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
 - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
 - added the "Cannot be traded" tooltip in sevopedia tech as well as the list of all untradeable techs in any untradeable tech's sevopedia tech entry. Also added the "Can be researched multiple times" tooltip. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+- Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
 
 ## Code/Performance optimizations
 

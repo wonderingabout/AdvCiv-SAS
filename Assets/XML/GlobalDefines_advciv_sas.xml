@@ -88,6 +88,10 @@
 		<DefineName>SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 

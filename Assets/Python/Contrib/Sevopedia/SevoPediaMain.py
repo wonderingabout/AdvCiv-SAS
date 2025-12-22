@@ -192,6 +192,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheSpecialistsTuple = None
 		self.SAS_cacheBonusesTuple = None
 		self.SAS_cacheImprovementsTuple = None
+		self.SAS_cacheTerrainsTuple = None
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
@@ -288,7 +289,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink):
-		# <!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc ; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anyways etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anyways etc in known issues of advciv-sas readme for details as well anyways etc -->
+		# <!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anyways etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anyways etc in known issues of advciv-sas readme for details as well anyways etc -->
 		bAddToHistory = False
 		if (not self.pediaHistory):
 			bAddToHistory = True
@@ -411,6 +412,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
+
+		# These are terrain TYPES that should be classified under the "Land (High)" header rather than "Land (Flat)". This is purely a UI grouping choice.
+		self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -539,7 +544,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getTechList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, gc.getTechInfo)
 
-		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc ; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
+		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
 		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
 			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
 			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
@@ -1030,21 +1035,72 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeTerrains(self):
 		self.list = self.getTerrainList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, gc.getTerrainInfo)
-	
+
+	def SAS_getTerrainsGroupedByLandWater_fromBaseList(self, baseList):
+		r = []
+		landFlat = []
+		landHigh = []
+		water = []
+
+		# Terrain IDs considered "high land" purely for UI grouping (e.g. Hills/Peaks).
+		highIds = []
+		for szType in self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES:
+			iT = gc.getInfoTypeForString(szType)
+			if iT >= 0:
+				highIds.append(iT)
+
+		for (szName, iTerrain) in baseList:
+			info = gc.getTerrainInfo(iTerrain)
+
+			# IMPORTANT:
+			# In your CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>.
+			# Therefore info.isWater() returns True for them.
+			# For Sevopedia grouping we still want them under Land (High), so we treat LAND_HIGH as a deliberate UI override.
+			if iTerrain in highIds:
+				landHigh.append((szName, iTerrain))
+			elif info and info.isWater():
+				water.append((szName, iTerrain))
+			else:
+				landFlat.append((szName, iTerrain))
+
+		if self.isSortLists():
+			landFlat.sort()
+			landHigh.sort()
+			water.sort()
+
+		if landFlat:
+			r.append(("Land (Flat)", -1))
+			for x in landFlat:
+				r.append(x)
+
+		if landFlat and landHigh:
+			r.append(("", -1))
+
+		if landHigh:
+			r.append(("Land (High)", -1))
+			for x in landHigh:
+				r.append(x)
+
+		if (landFlat or landHigh) and water:
+			r.append(("", -1))
+
+		if water:
+			r.append(("Water", -1))
+			for x in water:
+				r.append(x)
+
+		return r
+
 	def getTerrainList(self):
-		# <!-- custom: add peak and hill to terrain display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc ; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such and myself too if i adjusted it a bit or lot or not adjusted but in all cases anyways etc anyways etc thanks anyways etc anyways etc anyways etc -->
-		terrainsList = self.getSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
-
-		# Add Hill as a pseudo-entry
-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
-		terrainsList.append((gc.getTerrainInfo(iHill).getDescription(), iHill))
-
-		# Add Peak as a pseudo-entry
-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
-		terrainsList.append((gc.getTerrainInfo(iPeak).getDescription(), iPeak))
-
-		return terrainsList
-
+		if self.SAS_cacheTerrainsTuple is None:
+			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such anyways etc. -->
+			# Note: TERRAIN_HILL and TERRAIN_PEAK already exist in CIV4TerrainInfos.xml, but have <bGraphicalOnly>1</bGraphicalOnly>, so they are hidden by the normal list. For Sevopedia, we want them visible, so we include GraphicalOnly here.
+			baseList = self.getUnfilteredSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
+			if self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER:
+				self.SAS_cacheTerrainsTuple = tuple(self.SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList))
+			else:
+				self.SAS_cacheTerrainsTuple = tuple(baseList)
+		return self.SAS_cacheTerrainsTuple
 
 	def placeFeatures(self):
 		self.list = self.getFeatureList()
@@ -1348,7 +1404,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getLeaderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, gc.getLeaderHeadInfo)
 
-		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt, it advised me to do this here anyways etc ; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
+		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt, it advised me to do this here anyways etc; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
 		if not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT:
 			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
 			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored anyways etc, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case anyways etc), but still before any leader is selected if i am not mistaken too anyways etc -->
@@ -1890,3 +1946,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.isSortLists() and not noSort:
 			list.sort()
 		return list
+	
+	# <!-- custom: according to chatgpt 5.2 and if i understood it correctly but anyways etc., TERRAIN_HILL and TERRAIN_PEAK already exist in our terrains list as per CIV4TerrainInfos.xml. However they have an <bGraphicalOnly>1</bGraphicalOnly> so they are excluded from the display. Reveal them from the display here. We'll later handle their incorrect <bWater>1</bWater> property when handling the list anyways etc. At least we have all the terrains we need now anyways etc. -->
+	# <!-- custom: generalize this logic by using an alternative helper that we can use if we need to (e.g. for peak, hill, or anything else we'd want it to use it for but anyways etc.) without affecting or slowing down the other parts of the code that already use the (filtered/default) getSortedList anyways etc, should be safer or cleaner for performance too if i'm not mistaken as chatgpt 5.2 noted if i understood it correctly anyways etc. It would also allow to add new entries in the future in an easier and cleaner way as well if i'm not mistaken i mean if i may say but anyways etc. -->
+	# Wrapper for clarity: same as getSortedList(), but includes GraphicalOnly entries (“Unfiltered” here specifically means “don’t filter GraphicalOnly”.).
+	# Useful for categories where GraphicalOnly infos are still meaningful in Sevopedia (e.g. terrains like TERRAIN_HILL / TERRAIN_PEAK in our CIV4TerrainInfos.xml).
+	def getUnfilteredSortedList(self, numInfos, getInfo, noSort=False, bCheckGraphicalOnly=False):
+		return self.getSortedList(numInfos, getInfo, noSort, bCheckGraphicalOnly)
