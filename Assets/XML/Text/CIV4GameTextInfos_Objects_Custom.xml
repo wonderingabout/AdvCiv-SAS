@@ -107,7 +107,7 @@
 
 
 
-	<!-- custom: rename _CLAM to the more general _MOLLUSCS, see docs or/and code comments or/and other places if any (if there are (or not or yes or and other or and not anyways etc anyways etc anyways etc) for details -->
+	<!-- custom: codex change: rename _CLAM to the more general _MOLLUSCS, see docs or/and code comments or/and other places if any (if there are ( -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_MOLLUSCS</Tag>
 		<English>Molluscs</English>
@@ -276,7 +276,7 @@
 		<Tag>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT</Tag>
 		<English>War Chariot</English>
 	</TEXT>
-	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe or not or yes but anyways etc to hopefully less confusing or not or yes or and other or and not anyways etc SECURITY_BUREAU anyways etc -->
+	<!-- custom: codex change: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>
 		<English>Security Bureau</English>
@@ -284,7 +284,7 @@
 
 
 
-	<!-- custom: rename GREAT_PALACE to FORBIDDEN_PALACE, hopefully clearer now too or maybe not or maybe yes or not or yes or and other or and not (but) but anyways etc anyways etc(...) -->
+	<!-- custom: codex change: rename GREAT_PALACE to FORBIDDEN_PALACE, hopefully clearer now too or maybe not or maybe yes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Tag>
 		<English>Forbidden Palace</English>

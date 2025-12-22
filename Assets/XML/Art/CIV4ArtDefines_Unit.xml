@@ -1942,7 +1942,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: new unit CAMEL_CUIRASSIER based on the cuirassier camel version of it anyways etc, art import similarly from the very nice FPK "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" of RFC DOC 's mod, of/from the art asset ART_DEF_UNIT_CAMEL_GUNNER too anyways etc and adjusted or not or yes or other or and other or etc or and etc anyways etc for advciv-sas anyways etc -->
+		<!-- custom: codex change: new unit CAMEL_CUIRASSIER based on the cuirassier camel version of it , art import similarly from the very nice FPK "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" of RFC DOC 's mod, of/from the art asset ART_DEF_UNIT_CAMEL_GUNNER too and adjusted -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_CUIRASSIER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Camel_Cuirassier/camelgunner_btn.dds</Button>

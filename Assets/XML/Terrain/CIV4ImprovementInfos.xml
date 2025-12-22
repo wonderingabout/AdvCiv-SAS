@@ -755,7 +755,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: seems more historically accurate or/and anyways etc making sense for our reworked tech tree of our mod advciv-sas anyways etc at least anyways etc if not others or not or yes or not or yes or other or etc anyways etc, was TECH_GAME_THEORY -->
+			<!-- custom: codex change: seems more historically accurate or/and making sense for our reworked tech tree of our mod advciv-sas at least if not others -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_PHYSICS</PrereqTech>
@@ -938,7 +938,7 @@
 						<iYieldChange>2</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
-				<!-- custom: +1 for the extra wine correlation indirectly (enhanced by other buildings so no need to boost it too much and is historically concordant to when wine commerce became more widespread if i am not mistaken from my memories of my research (even if little bit of it (i.e. of research) or not little bit or yes or not little bit anyways etc anyways etc indeed anyways etc anyways etc anyways etc...)) anyways etc ; also i wanted to put it on farms and did so originally if i may say but anyways etc, but grapes spawn on hills too so the plantation is a better fit to allow to improve grapes on hills as well if i may say, chatgpt also says to me from what i understand of its explanation and interpret if i may say but anyways etc that it is more accurate to use plantations rather than farms, still is needed for our mod but maybe fits well as well, perhaps better as it said even maybe or not or yes or etc but anyways etc -->
+				<!-- custom: codex change: +1 for the extra wine correlation indirectly (enhanced by other buildings so no need to boost it too much and is historically concordant to when wine commerce became more widespread if i am not mistaken from my memories of my research (even if little bit of it (i.e. of research) or not little bit or yes or not little bit indeed ...)) ; also i wanted to put it on farms and did so originally if i may say but , but grapes spawn on hills too so the plantation is a better fit to allow to improve grapes on hills as well if i may say, chatgpt also says to me from what i understand of its explanation and interpret if i may say but that it is more accurate to use plantations rather than farms, still is needed for our mod but maybe fits well as well, perhaps better as it said even maybe -->
 				<BonusTypeStruct>
 					<BonusType>BONUS_GRAPES</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
@@ -1068,7 +1068,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
-			<!-- custom: add BONUS_CAMEL here and whenever horse is too if i am not mistaken or in most places maybe instead or rather or not or yes or other or etc anyways etc but in all cases anyways etc, similarly to deer in tundra tiles, give camel, the only representative animal of desert tiles, a quite high food yield and such, hopefully is accurate too anyways etc as camels can store water in their bodies if i am not mistaken or such in similar or such or not anyway etc kind of "reservoir" if it's a word in english and if i may say or not but anyways etc ; in all cases should be balanced to make camel a king food as in among highest food yield food and to buff desert tiles too anyways etc ; as for bonus improvement yield for bonus_camel, do not make it too high since bonus_camel, unlike bonus_deer but anyways etc for example anyways etc, is often or sometimes surrounded by other luxurious tiles, still make t worth it and buff desert tiles and environement, but not too high that it would overboost a grassland city for exmaple with plenty food and just oned sert camel tile anyways etc, give a bit more hammer instead than (i had) originally planned/intended/thought but that maybe works well in this case for this bonus_camel anyways etc, should be (even) more balanced this way and hopefully interesting enjoyable but anyways etc anyways etc anyways etc -->
+			<!-- custom: codex change: add BONUS_CAMEL here and whenever horse is too if i am not mistaken or in most places maybe instead or rather -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_CATTLE</BonusType>

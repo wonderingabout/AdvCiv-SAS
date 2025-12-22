@@ -14,12 +14,12 @@
 		<French>Index</French>
 		<German>Index</German>
 		<Italian>Indice</Italian>
-		<Spanish>Índice</Spanish>
+		<Spanish>ï¿½ndice</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SCREEN_CONTENTS</Tag>
 		<English>Contents</English>
-		<French>Matières</French>
+		<French>Matiï¿½res</French>
 		<German>Inhalt</German>
 		<Italian>Contenuto</Italian>
 		<Spanish>Contenido</Spanish>
@@ -44,7 +44,7 @@
 		<!-- custom: <English>National Wonders</English> -->
 		<English>N. Wond.</English>
 	</TEXT>
-	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) (anyways etc) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now, anyways etc) -->
+	<!-- custom: codex change: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) () intuitive, or/and maybe also or yes -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS</Tag>
 		<!-- custom: <English>Great Wonders</English> -->
@@ -65,10 +65,10 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FAV_CIVIC_AND_RELIGION</Tag>
 		<English>Favorite Civic and Religion</English>
-		<French>Doctrine et Religion Préférée</French>
+		<French>Doctrine et Religion Prï¿½fï¿½rï¿½e</French>
 		<German>Bevorzugte Staatsform und Religion</German>
 		<Italian>Forme di governo e Religioni preferite</Italian>
-		<Spanish>Principio y religión favoritos</Spanish>
+		<Spanish>Principio y religiï¿½n favoritos</Spanish>
 	</TEXT>
 
 

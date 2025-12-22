@@ -231,7 +231,7 @@
 			<bAreaCleanPower>0</bAreaCleanPower>
 			<DiploVoteType>NONE</DiploVoteType>
 			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays i mean anyways etc) for them, hopefully (more?) interesting for human players this way too (at least maybe me or not or yes or an other or and not anyways etc) anyways etc -->
+			<!-- custom: codex change: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays i mean ) for them, hopefully (more?) interesting for human players this way too (at least maybe me -->
 			<bCapital>0</bCapital>
 			<bGovernmentCenter>1</bGovernmentCenter>
 			<bGoldenAge>0</bGoldenAge>
@@ -1106,8 +1106,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: according to https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles castle should be relevant much later than economics, which also seems a weird tech to "correlate" it with (obsolescence of castles, i don't see a clear link if i may say i mean anyways etc...) if that is an accurate word here anyways etc anyways etc anyways etc...
-		It's also interesting (i think but anyways etc) from a gameplay standpoint i think to make them relevant longer and not too soon obsolete so they are not worth building, and stockpilers run then rampage with pre-made farming strategies, it would require to be more careful about the whole game and pace now and war plans and such or not such or and other or and not, hopefully an interesting change but if not at least one i would like so doing it and hopefully helpful or enjoyable or and not or yes or and other or and not or etc or not or yes or other or not anyways etc anyways etc anyways etc... -->
+		<!-- custom: codex change: according to https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles castle should be relevant much later than economics, which also seems a weird tech to "correlate" it with (obsolescence of castles, i don't see a clear link if i may say i mean ...) if that is an accurate word here ... It's also interesting (i think but ) from a gameplay standpoint i think to make them relevant longer and not too soon obsolete so they are not worth building, and stockpilers run then rampage with pre-made farming strategies, it would require to be more careful about the whole game and pace now and war plans and such or not such or and other or and not, hopefully an interesting change but if not at least one i would like so doing it and hopefully helpful or enjoyable or and not or yes or and other or and not or etc See https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles. -->
 		<BuildingInfo> <!-- custom: class: castle, type: castle (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_CASTLE</Type>
@@ -5145,7 +5144,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth (wording that i thought of independently without reading the one below too interestingly or not or yes or etc or and other or and not, but anyways etc) if i may say relatively i mean but anyways etc ; also give 2 gold flavor as/to give the reworked lighthouse that depends on the harbor now a prebuilt condition faster (so we can build the lighthouse, now a gold based building (see there for details or and updated values anyways etc) anyways etc), was gold 8 and growth 3 anyways etc -->
+			<!-- custom: codex change: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth (wording that i thought of independently without reading the one below too interestingly -->
 			<!-- advc.020: was 10 Gold; should have a little Growth too
 				 (and Cothon should perhaps have a bit more Gold flavor than
 				 the normal Harbor) -->
@@ -5343,7 +5342,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth (wording that i thought of independently without reading the one below too interestingly or not or yes or etc or and other or and not, but anyways etc) if i may say relatively i mean but anyways etc ; also give 2 gold flavor as/to give the reworked lighthouse that depends on the harbor now a prebuilt condition faster (so we can build the lighthouse, now a gold based building (see there for details or and updated values anyways etc) anyways etc), was gold 8 and growth 3 anyways etc -->
+			<!-- custom: codex change: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth (wording that i thought of independently without reading the one below too interestingly -->
 			<!-- advc.020: was 10 Gold; should have a little Growth too
 				 (and Cothon should perhaps have a bit more Gold flavor than
 				 the normal Harbor) -->
@@ -5529,7 +5528,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: just like how the reworked harbor is now the food/health building, the reworked lighthouse is now the gold building anyways etc, adjust flavors as such anyways etc ; also add production flavor quite small or not but anyways etc as this building is a prereq for the new port building that gives quite a lot of production on water tiles anyways etc, and also is quite similar to how the harbor normal building also has a quite small or not but anyways etc gold flavor hopefully makes sense this way too even though not obligated, but is as it is or not or yes or etc or and other or and not or yes or etc anyways etc anyways etc... , was growth 10 -->
+			<!-- custom: codex change: just like how the reworked harbor is now the food/health building, the reworked lighthouse is now the gold building , adjust flavors as such ; also add production flavor quite small or not but as this building is a prereq for the new port building that gives quite a lot of production on water tiles , and also is quite similar to how the harbor normal building also has a quite small or not but gold flavor hopefully makes sense this way too even though not obligated, but is as it is -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -16304,7 +16303,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: codex change: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, ), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it -->
 			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -17065,7 +17064,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: codex change: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, ), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it -->
 			<PrereqTech>TECH_MONARCHY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -17826,7 +17825,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: codex change: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, ), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it -->
 			<PrereqTech>TECH_MONOTHEISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -18588,7 +18587,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: codex change: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, ), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it -->
 			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -19349,7 +19348,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: codex change: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, ), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it -->
 			<PrereqTech>TECH_MEDITATION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -20110,7 +20109,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: codex change: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, ), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it -->
 			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -20871,7 +20870,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: codex change: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, ), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it -->
 			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -25794,7 +25793,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: (AdvCiv had reduced this to 10 if i may say xd... but anyways etc... but thanks for all changes really i mean now also me i.e. i am anyways etc tweaking as i see fit or/and best fit or/and as i want too or not or yes or etc anyways etc i mean anyways was 0 / 0 / 10 -->
+			<!-- custom: codex change: (AdvCiv had reduced this to 10 if i may say xd... but ... but thanks for all changes really i mean now also me i.e. i am tweaking as i see fit or/and best fit or/and as i want too -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>

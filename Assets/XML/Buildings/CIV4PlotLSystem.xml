@@ -30,7 +30,7 @@
 			bExtraGoalOnly:1	- same behavior as bGoalOnly, but when placing nodes defined by szExtra attributes on a goal artref
 			
 		-->
-<!-- custom: imported (cleanly but anyways etc whatever that means or not or yes or etc or other or etc but anyways etc...) from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings\CIV4PlotLSystem.xml and modified or not for advciv-sas anyways etc -->
+<!-- custom: codex change: imported (cleanly but whatever that means -->
 <!-- custom: note: i am not sure if this file is useful or read by our mod or not, but tried to implement it with our changes as well in case it helps or is necessary i mean (check if accurate) but anyways etc. -->
 <LSystemInfos xmlns="x-schema:CIV4LSystemSchema.xml">
 	<!-- ******************************************************************************************** -->

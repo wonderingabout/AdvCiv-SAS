@@ -12611,7 +12611,7 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitue that seems relevant in tech position at least if i may say anyways etc in our reworked tech tree if not in theme too or not or yes or other or etc but anyways etc -->
+			<!-- custom: codex change: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitue that seems relevant in tech position at least if i may say in our reworked tech tree if not in theme too -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_BIOLOGY</ObsoleteTech>
