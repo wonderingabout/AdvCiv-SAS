@@ -123,7 +123,7 @@
 			<Description>TXT_KEY_FEATURE_JUNGLE</Description>
 			<Civilopedia>TXT_KEY_FEATURE_JUNGLE_PEDIA</Civilopedia>
 			<ArtDefineTag>ART_DEF_FEATURE_JUNGLE</ArtDefineTag>
-			<!-- custom: some or many websites i looked at or on google or such search anyways etc say jungle is vegetation and animal(s? But anyways etc) rich, so to rebalance it and make it as strong in different/other ways than forest, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below as of now anyways etc anyways etc anyways etc, was -1 / 0 / 0 -->
+			<!-- custom: codex change: some or many websites i looked at or on google or such search say jungle is vegetation and animal(s? But ) rich, so to rebalance it and make it as strong in different/other ways than forest, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below as of now -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>

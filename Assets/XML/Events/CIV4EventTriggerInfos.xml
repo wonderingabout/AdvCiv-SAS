@@ -16536,7 +16536,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
-			<!-- custom: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION anyways etc, use another relevant tech or/and around this tech time of previous tech if i am not mistaken instead in our reworked tech tree anyways etc anyways etc anyways etc -->
+			<!-- custom: codex change: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION , use another relevant tech or/and around this tech time of previous tech if i am not mistaken instead in our reworked tech tree -->
 			<AndPreReqs>
 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</AndPreReqs>

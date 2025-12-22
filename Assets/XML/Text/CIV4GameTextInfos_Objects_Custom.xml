@@ -258,15 +258,7 @@
 	</TEXT>
 
 
-	<!-- custom: extremely confusing base Civ4 (and still in AdvCiv (even though did not have or maybe rather import all asset files to (easily?) allow that but anyways etc, that could have done or not but as far as i'm concerned (maybe(or not(, but anwyays etc))) and to go back on topic, anyways etc: ) but anyways etc anyways etc...)
-	naming of the obelisk, now renamed:
-	- BUILDINGCLASS_OBELISK (when relating(related?) to the monument building class and not the (non existent(/existing?))(egyptian) obelisk building class) (and all similar entries such as art file(i.e. XML asset) tag names and such) to BUILDINGCLASS_MONUMENT
-	- BUILDING_OBELISK (when relating(related?) to the monument building and not the (egyptian) obelisk building) (same as above) to BUILDING_MONUMENT
-	- (so) exception(s?) being: TXT_KEY_BUILDING_OBELISK to TXT_KEY_BUILDING_EGYPTIAN_OBELISK (to match the existing civ4 format that (quite if not lot but anyways etc at least and still to go back on topic anyways etc) makes/made sense)
-	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be more confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not, but anyways etc and hopefully a lot clearer now, and helpful or not, but in all cases or not anyways etc)
-
-	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the nationality/country in the name i think, but hopefully a lot clearer in code now too, anyways etc, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now, anyways etc)
-	-->
+	<!-- custom: codex change: extremely confusing base Civ4 (and still in AdvCiv (even though did not have or maybe rather import all asset files to (easily?) allow that but , that could have done or not but as far as i'm concerned (maybe(or not(, but anwyays etc))) and to go back on topic, : ) but -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
 		<English>Obelisk</English>
@@ -294,7 +286,7 @@
 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
 		<English>The Three Gorges Dam</English>
 	</TEXT>
-	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but anyways etc even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but anyways etc anyways etc in this case anyways etc) and we need/want a music tech wonder anyways etc -->
+	<!-- custom: codex change: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
 		<English>Natya Shastra</English>
@@ -850,7 +842,7 @@
 
 
 
-	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
 		<English>Mounted Combat</English>
@@ -865,42 +857,42 @@
 		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM</Tag>
 		<English>Later Abrahamism</English>
 	</TEXT>
-	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: rename _UTOPIA to _COMMUNISM -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
 		<English>Communism</English>
 	</TEXT>
-	<!-- custom: rename _SAILING to _SEAFARING anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: rename _SAILING to _SEAFARING -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SEAFARING</Tag>
 		<English>Seafaring</English>
 	</TEXT>
-	<!-- custom: rename _OPTICS to _SAILING anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: rename _OPTICS to _SAILING -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SAILING</Tag>
 		<English>Sailing</English>
 	</TEXT>
-	<!-- custom: rename _COMPASS to _NAVIGATION anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: rename _COMPASS to _NAVIGATION -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_NAVIGATION</Tag>
 		<English>Navigation</English>
 	</TEXT>
-	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: replace _ALPHABET with _NATURALISM -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_NATURALISM</Tag>
 		<English>Naturalism</English>
 	</TEXT>
-	<!-- custom: rename _STEEL to _MARINE_TECHNOLOGY anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: rename _STEEL to _MARINE_TECHNOLOGY -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY</Tag>
 		<English>Marine Technology</English>
 	</TEXT>
-	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION</Tag>
 		<English>Theory of Evolution</English>
 	</TEXT>
-	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY anyways etc anyways etc anyways etc -->
+	<!-- custom: codex change: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_GAME_THEORY</Tag>
 		<English>Game Theory</English>

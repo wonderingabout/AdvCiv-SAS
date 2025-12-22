@@ -212,7 +212,7 @@
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds</Button>
 		</BuildingArtInfo>
-		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time anyways etc, and adjusted or not anyways etc for advciv-sas anyways etc, vry pretty result or/and pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doing or and do but anyways etc anyways etc worth it i would say maybe yes in this case but anywas etc anyways etc anyways etc -->
+		<!-- custom: codex change: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time , and adjusted or not for advciv-sas , vry pretty result or/and pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doing or and do but -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HOSPITAL</Type>
 			<LSystem>LSYSTEM_2x1</LSystem>
@@ -283,7 +283,7 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Bank.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,8</Button>
 		</BuildingArtInfo>
-		<!-- custom: import from RI mod's ART_DEF_BUILDING_VENICE_CUSTOM_HOUSE in RI_37_Structures7.FPK and RI_37_Structures9.FPK and RI_37_Structures6.FPK for the nif animation and such related files anyways etc anyways etc anyways etc ; and as for the button, import(ed but anyways etc) from HR mod's HR_Structures.fpk anyways etc -->
+		<!-- custom: codex change: import from RI mod's ART_DEF_BUILDING_VENICE_CUSTOM_HOUSE in RI_37_Structures7.FPK and RI_37_Structures9.FPK and RI_37_Structures6.FPK for the nif animation and such related files -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PORTUGAL_FEITORIA</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
@@ -966,7 +966,7 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Shrine_Buddhist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,13</Button>
 		</BuildingArtInfo>
-		<!-- custom: art import for the pagan (i.e. religious anyways etc anyways etc anyways etc) buildings from RFC DOC mod zoroastrian buildings's art assets such as ART_DEF_BUILDING_ZOROASTRIAN_TEMPLE and adjusted or not for advciv-sas anyways etc -->
+		<!-- custom: codex change: art import for the pagan (i.e. religious -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PAGAN_TEMPLE</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>

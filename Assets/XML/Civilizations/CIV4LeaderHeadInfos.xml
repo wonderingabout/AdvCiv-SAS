@@ -110,11 +110,7 @@
 			<MemoryDecays/>
 			<MemoryAttitudePercents/>
 			<NoWarAttitudeProbs/>
-			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, but anyways etc, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
-			Make sure to build enough workers and early enough to develop the land too, anyways etc.
-			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend.
-			It seems also 25 (for UNITAI_WORKER, anyways etc anyways etc...) is not enough to make enough workers and fast/soon enough, trying a higher number, anyways etc.
-			-->
+			<!-- custom: codex change: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, but , enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution. Make sure to build enough workers and early enough to develop the land too, . Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend. It seems also 25 (for UNITAI_WORKER -->
 			<UnitAIWeightModifiers>
 				<UnitAIWeightModifier>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
@@ -240,7 +236,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc, was 0 -->
+			<!-- custom: codex change: additionally to iBuildUnitProb changes to some/specific leaders -->
 			<iBuildUnitProb>10</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
@@ -905,7 +901,7 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc -->
+			<!-- custom: codex change: additionally to iBuildUnitProb changes to some/specific leaders -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -1108,7 +1104,7 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<iBuildUnitProb>30</iBuildUnitProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc similarly to other real civ4 leaders (i.e. excluding barbarians and defaults and or such if any more of these (types of non-real leaders i mean anyways etc anyways etc anyways etc) i mean anyways etc anyways etc anyways etc) if i may say anyways etc -->
+			<!-- custom: codex change: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say and military focused overall and throughout the game similarly to other real civ4 leaders (i.e. excluding barbarians and defaults and or such if any more of these (types of non-real leaders i mean -->
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
@@ -3735,7 +3731,7 @@
 			<iDogpileWarRand>125</iDogpileWarRand>
 			<iMakePeaceRand>20</iMakePeaceRand>
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
-			<!-- custom: seems especially vengeful, (which i like but anyways etc...), especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) from quite little in this case i know about him but anyways etc, was 0 in cyrus among other uncommented changes in ewuare's xml i mean too but anyways etc anyways etc anyways etc -->
+			<!-- custom: codex change: seems especially vengeful, (which i like but ...), especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) from quite little in this case i know about him but , was 0 in cyrus among other uncommented changes in ewuare's xml i mean too but -->
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->

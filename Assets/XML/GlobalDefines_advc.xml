@@ -1470,7 +1470,7 @@
 	<!-- Same as above, but applies to scenarios instead of map scripts.
 		 Note that the True Starts option doesn't apply at all to
 		 scenarios with pre-placed cities. -->
-	<!-- custom: same too anyways etc hehe but or not but or yes but but anyways etc anyways etc anyways etc, was 1 -->
+	<!-- custom: codex change: same too hehe but or not but or yes but but -->
 	<Define>
 		<DefineName>TRUE_STARTS_SANITIZE_SCENARIOS</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

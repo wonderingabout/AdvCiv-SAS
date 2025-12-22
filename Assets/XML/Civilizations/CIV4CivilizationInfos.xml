@@ -4194,12 +4194,7 @@
 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
 					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
 				</Building>
-				<!-- custom: lines such as 
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so if i may say but anyways etc), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help too and my help too and its help too too and my help too too etc anyways etc anyways etc anyways etc -->
+				<!-- custom: codex change: lines such as <Building> <BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType> <BuildingType>NONE</BuildingType> </Building> don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so if i may say but ), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help too and my help too and its help too too and my help too too etc -->
 				<!-- custom: codex change: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units Same for forge, provide military only small (relatively ) production bonus instead Test to not put the stable too for efficiency and maybe bit accuracy/realism maybe -->
 				<!-- custom: (Normal Buildings)-->
 				<Building>
@@ -4334,7 +4329,7 @@
 				</Building>
 				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless, anyways etc)-->
 
-				<!-- custom: also allow barbarians (even though i am not sure these lines make any difference seemingly since it was an old code comment but as for logic yes i(/we((?)?)) would not mind barbarians having holy cities if they discover a religion but they seem to do it on their own just fine regardless, i saw them have the mahadhobi thing if i am not mistaken too good for them anyways moving on as in focusing on civ4 again anyways etc this mod advciv-sas i mean anyways etc anyways etc) would not holy cities in case they are first to found a religion and get a great prophet for it, (and (anyways etc)) also allow them to build all religious buildings in case a religion reaches them no reason why they couldn't, and otherwise still remain warmongerers i tihnk, (but) anyways etc (it also declutters the xml a bit (xd.. (i am free indeed(!...)if i may say (yes) but anwyays etc....))-->
+				<!-- custom: codex change: also allow barbarians (even though i am not sure these lines make any difference seemingly since it was an old code comment but as for logic yes i(/we((?)?)) would not mind barbarians having holy cities if they discover a religion but they seem to do it on their own just fine regardless, i saw them have the mahadhobi thing if i am not mistaken too good for them anyways moving on as in focusing on civ4 again this mod advciv-sas i mean -->
 			</Buildings>
 
 
@@ -4431,7 +4426,7 @@
 					<UnitClassType>UNITCLASS_SPY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
-				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born (in a barbarian city) and (is)(too) if i am not mistaken anyways etc anyways etc -->
+				<!-- custom: codex change: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born (in a barbarian city) and (is)(too) if i am not mistaken -->
 				<Unit>
 					<UnitClassType>UNITCLASS_GREAT_ARTIST</UnitClassType>
 					<UnitType>NONE</UnitType>
@@ -4486,7 +4481,7 @@
 					<TechType>TECH_SEAFARING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: not putting mysticism here to reduce (if even slightly or lot anyways etc) the likeliness of barbarians having a holy city for religions such as paganism, judaism, hinduism or any other early one in particular, but if it were to happen, in that rare likeliness without them having free mysticism, then it should still be fine (i think anyways etc), as even if a barbarian city somehow becomes a holy city, it could be captured too, and it is also i think anyways etc not too far fetched that(/for? (anyways etc)) a barbarian city would be(come? Anyways etc) a holy city for paganism or another religion, but trying to prevent that even if a bit or hopefully lot, so that relgiion plays a key and more important part in diplomacy among players as i want to rperesent it for civ4, not as what i believe it should be ideally, but (is also maybe not (too?) bad design (this way maybe or not or and other or and not anyways etc) anyways etc anyways etc -->
+				<!-- custom: codex change: not putting mysticism here to reduce (if even slightly or lot ) the likeliness of barbarians having a holy city for religions such as paganism, judaism, hinduism or any other early one in particular, but if it were to happen, in that rare likeliness without them having free mysticism, then it should still be fine (i think ), as even if a barbarian city somehow becomes a holy city, it could be captured too, and it is also i think not too far fetched that(/for? ()) a barbarian city would be(come? ) a holy city for paganism or another religion, but trying to prevent that even if a bit or hopefully lot, so that relgiion plays a key and more important part in diplomacy among players as i want to rperesent it for civ4, not as what i believe it should be ideally, but (is also maybe not (too?) bad design (this way maybe or not or and other or and not ) -->
 				<FreeTech>
 					<TechType>TECH_MASONRY</TechType>
 					<bFreeTech>1</bFreeTech>

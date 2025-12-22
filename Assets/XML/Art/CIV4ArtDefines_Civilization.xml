@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Civilization art path information -->
-<!-- custom: file taken cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art and modified or/and not anyways etc for AdvCiv-SAS anyways etc anyways etc anyways etc... -->
+<!-- custom: codex change: file taken cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art and modified or/and not for AdvCiv-SAS -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
 	<CivilizationArtInfos>
 		<CivilizationArtInfo>

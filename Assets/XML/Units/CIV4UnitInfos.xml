@@ -1874,7 +1874,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iAirUnitCap>0</iAirUnitCap>
 			<iDropRange>0</iDropRange>
 			<iNukeRange>-1</iNukeRange>
-			<!-- custom: due to war state, they often in cities, so to (partially try to) avoid (or/and compensate that (situation bu anyways etc anyways etc) anyways etc anyways etc) that, make them work extra fast -->
+			<!-- custom: codex change: due to war state, they often in cities, so to (partially try to) avoid (or/and compensate that (situation bu -->
 			<iWorkRate>500</iWorkRate>
 			<iBaseDiscover>0</iBaseDiscover>
 			<iDiscoverMultiplier>0</iDiscoverMultiplier>
@@ -7984,7 +7984,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in eastern europe and asia, see code comment at the german_hussar about the Köppen climate classification map for details hopefully helpful or otn or yes or etc but anyways etc anyways etc anyways etc -->
+			<!-- custom: codex change: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in eastern europe and asia, see code comment at the german_hussar about the Köppen climate classification map for details hopefully helpful or otn or yes or etc but -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
@@ -9308,7 +9308,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: better suited as defenders with our changes anyways etc, but allow some offensive variety as well in case it helps if a city is somehow guarded by mounted units only or such anyways etc anyways etc -->
+			<!-- custom: codex change: better suited as defenders with our changes , but allow some offensive variety as well in case it helps if a city is somehow guarded by mounted units only or such -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
@@ -12638,7 +12638,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: was "MOUNTED" 25 but now these are split so adjust accordingly anyways etc if i may say and if i am not mistaken in doing so at least i want so but anyways etc anyways etc anyways etc -->
+			<!-- custom: codex change: was "MOUNTED" 25 but now these are split so adjust accordingly if i may say and if i am not mistaken in doing so at least i want so but -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -14808,7 +14808,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: as the cannot move effect only applies to tiles outside of cultural borders if i am not mistaken anyways etc, also add a modifier to the chariot units with a stronger penalty since they are wheeled and not so much ranged (mounted_melee in advciv-sas as of now anyways etc anyways etc anyways etc) at least in advciv-sas anyways etc, was empty -->
+			<!-- custom: codex change: as the cannot move effect only applies to tiles outside of cultural borders if i am not mistaken , also add a modifier to the chariot units with a stronger penalty since they are wheeled and not so much ranged (mounted_melee in advciv-sas as of now -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -15169,7 +15169,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases anyways etc anyways etc anyways etc... -->
+			<!-- custom: codex change: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_HORSE_KNIGHT</UnitClassUpgradeType>
@@ -15374,7 +15374,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases anyways etc anyways etc anyways etc... -->
+			<!-- custom: codex change: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_HORSE_KNIGHT</UnitClassUpgradeType>
@@ -15615,7 +15615,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases anyways etc anyways etc anyways etc... -->
+			<!-- custom: codex change: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_HORSE_KNIGHT</UnitClassUpgradeType>
@@ -15830,7 +15830,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases anyways etc anyways etc anyways etc... ; also as for war_elephants, make them upgrade to knights rather than cuirassiers as in base advciv +/- civ4 xml if i am not mistaken anyways etc, so they are more useful and versatile, should be quite realistic too this way anyways etc that elephant riders convert to knight horse or camel riding anyways etc but i didn't check to be sure hopefully realistic/accurate/entertaining or/and pleasurable enough for adciv-sas our mod but anyways etc anyways etc anyways etc..., was UNITCLASS_HORSE_CUIRASSIER -->
+			<!-- custom: codex change: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_HORSE_KNIGHT</UnitClassUpgradeType>
@@ -16052,7 +16052,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases anyways etc anyways etc anyways etc... ; also as for war_elephants, make them upgrade to knights rather than cuirassiers as in base advciv +/- civ4 xml if i am not mistaken anyways etc, so they are more useful and versatile, should be quite realistic too this way anyways etc that elephant riders convert to knight horse or camel riding anyways etc but i didn't check to be sure hopefully realistic/accurate/entertaining or/and pleasurable enough for adciv-sas our mod but anyways etc anyways etc anyways etc..., was UNITCLASS_HORSE_CUIRASSIER -->
+			<!-- custom: codex change: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_HORSE_KNIGHT</UnitClassUpgradeType>
@@ -17355,7 +17355,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: according to quick read somewhere anyways etc, it seems camel units would scare horse units resulting in a stalemate, it also seems they are generally more useful and efficient units than horse units at least in the desert, trying to give promotions that show/reflect this (and in this case specifically for the arabian camel unit else we would need to balance horse units similarly or give them some other kind of boost or rework anyways etc) while being balanced and as i want it too for advciv-sas but or not but or yes but anyways etc but or not but or etc anyways etc anyways etc anyways etc -->
+			<!-- custom: codex change: according to quick read somewhere , it seems camel units would scare horse units resulting in a stalemate, it also seems they are generally more useful and efficient units than horse units at least in the desert, trying to give promotions that show/reflect this (and in this case specifically for the arabian camel unit else we would need to balance horse units similarly or give them some other kind of boost or rework ) while being balanced and as i want it too for advciv-sas but or not but or yes but but or not but or etc -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
@@ -19173,7 +19173,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
-			<!-- custom: make it so oil is not needed anymore, it requiring uranium to propell if i may say but anyways etc and be powered or such for a long time and long distances of travel with the power of explosions and or such too if i may say in this case but anyways etc anyways etc anyways etc ; may also help for balance or/and flavor, as this unit is at the tech_fusion as of now and so it doesn't become op maybe anyways etc, to have rivalry and fights over bonuses even in late game anyways etc at least in theory if i may say and in this case but anyways etc -->
+			<!-- custom: codex change: make it so oil is not needed anymore, it requiring uranium to propell if i may say but and be powered or such for a long time and long distances of travel with the power of explosions and or such too if i may say in this case but -->
 			<BonusType>BONUS_URANIUM</BonusType>
 			<PrereqBonuses>
 				<BonusType>BONUS_ALUMINUM</BonusType>
@@ -21828,7 +21828,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: now that caravels are removed, upgrade to another military offensive naval unit of around that time such as the frigate instead ; also add ship_of_the_line so they appear nicely in military tree plus no reason to prevent it if AI or a player wants to upgrade a trireme to a ship of the line, fits the theme very well if anything if i may say anyways etc anyways etc anyways etc -->
+			<!-- custom: codex change: now that caravels are removed, upgrade to another military offensive naval unit of around that time such as the frigate instead ; also add ship_of_the_line so they appear nicely in military tree plus no reason to prevent it if AI or a player wants to upgrade a trireme to a ship of the line, fits the theme very well if anything if i may say -->
 			<!-- advc.905a: Changed upgrade to Frigate into upgrade to Privateer
 				 -->
 			<UnitClassUpgrades>
@@ -21985,7 +21985,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<!-- custom: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without trigegring war, that now only privateers can do if i am not mistaken at least among visible naval units if i am not mistaken in my guess about invisible units not triggering war if entering without open borders anyways etc anyways etc ; as for the effect bRivalTerritory is set to 0 in the galleon as well same as what it was, even though they have UNITAI_EXPLORE_SEA, was annoying from my memory of advciv games that caravels could send many spies in particular without ever declaring war and without me allowing them to enter my borders, but anyways etc, hopefully much more sensical now and pleasant this way, that they have to respect water rights or something, and galleon is a bit more affordable and civilian like unit but anyways etc, may also help to simplify gameplay a bit as we don't need strongly/strongly need but anyways etc the caravel if the galleon is cheap enough and fast enough, may help the AI indirectly or simplify gameplay perhaps, not ideal but maybe a desirable change at least for me, but anyways etc anyways etc anyways etc... -->
+		<!-- custom: codex change: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without trigegring war, that now only privateers can do if i am not mistaken at least among visible naval units if i am not mistaken in my guess about invisible units not triggering war if entering without open borders -->
 		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEON, type: UNIT_GALLEON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Class>UNITCLASS_GALLEON</Class>
 			<Type>UNIT_GALLEON</Type>
@@ -22276,7 +22276,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost as this is more of a civilan unit anyways, a bit more since it is said to be smaller, and to give portugal a small sailing/naval advantage if i may say anyways etc anyways etc -->
+			<!-- custom: codex change: reduce cost as this is more of a civilan unit anyways, a bit more since it is said to be smaller, and to give portugal a small sailing/naval advantage if i may say -->
 			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>

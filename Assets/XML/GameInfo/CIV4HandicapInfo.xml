@@ -830,7 +830,7 @@
 			<!-- advc.251 (start) -->
 			<!-- was 80 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
-			<!-- custom: not immediately clear to me what this does looking at .cpp code from little or not little i udnerstand of it but anyways etc (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my udnerstanding or non-not udnerstanding or understanding still bit of but anyways etc anyways etc anyways etc.., was 110 -->
+			<!-- custom: codex change: not immediately clear to me what this does looking at .cpp code from little or not little i udnerstand of it but (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my udnerstanding or non-not udnerstanding or understanding still bit of but -->
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>115</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>115</iGPThresholdPercent>

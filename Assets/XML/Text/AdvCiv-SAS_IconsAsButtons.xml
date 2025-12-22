@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need anyways etc, record the button Path as a txtKey for reference (centralized) (multibly possible now but anyways etc) as well as forgot my sentence but maybe for exhaustiveness as well if i may say but anyways etc.
-
-See also /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but anyways etc.
-
-See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there anyways etc anyways etc anyways etc) anyways etc
--->
+<!-- custom: codex change: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need , record the button Path as a txtKey for reference (centralized) (multibly possible now but ) as well as forgot my sentence but maybe for exhaustiveness as well if i may say but . See also /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but . See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there -->
 <Civ4GameText>
 	<!-- custom: 🕊️ emoji similarly from emojiterra anyways etc -->
     <TEXT>
@@ -85,8 +80,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 
 
 
-    <!-- custom: ⚔️ emoji ('s choice/idea/suggestion but anyways etc anyways etc anyways etc.) is from chatgpt's code anyways etc
-    then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example anyways etc, there are also several images to choose from in the website as well for example but anyways etc, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well but anyways etc...), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite... but anyways etc...) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details anyways etc, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say anyways etc anyways etc anyways etc... -->
+    <!-- custom: codex change: ⚔️ emoji ('s choice/idea/suggestion but See https://emojiterra.com/fr/epees-croisees/, https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png. -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Crossed_Swords/2694_64px.dds</English>

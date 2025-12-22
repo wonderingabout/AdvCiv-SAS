@@ -218,7 +218,7 @@
 			<Type>BUILD_LUMBERMILL</Type>
 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
 			<Help/>
-			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine in this case i mean anyways etc anyways etc, plus buffes tech_machinery too anyways etc, was TECH_GUILDS (now removed) -->
+			<!-- custom: codex change: historically more accurate in our reworked tech tree at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill , machinery is a bit late but fine in this case i mean -->
 			<!-- K-Mod: was REPLACEABLE_PARTS -->
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<!-- advc.902: was 800 -->
@@ -371,7 +371,7 @@
 			<Type>BUILD_QUARRY</Type>
 			<Description>TXT_KEY_BUILD_QUARRY</Description>
 			<Help/>
-			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine anyways etc..., if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or/and tech tree, after rechecking hehe or not hehe but anyways etc is indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too i mean but anyways etc anyways etc anyways etc for the build improvement tech prereq i mean but anyways etc anyways etc anyways etc..., was TECH_MASONRY anyways etc -->
+			<!-- custom: codex change: build_quarry moved earlier at same time as mining i mean build mine ..., if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or/and tech tree, after rechecking hehe or not hehe but is indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too i mean but -->
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>600</iTime>
 			<iCost>0</iCost>
@@ -628,7 +628,7 @@
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
-			<!-- custom: move to an earlier tech and buff remove_jungle, now at same time as remove_forest, plus is necessary to make it sooner due to our tech_tree starting sooner in history or rather bronze working is quite late, maybe stone tools are enough or something to carve tree paths (i did not check though but anyways etc hopefully accurate enough or relevant enough for our needs and game and mod in advciv-sas hopefully fits well anyways etc anyways etc anyways etc...), was TECH_IRON_WORKING -->
+			<!-- custom: codex change: move to an earlier tech and buff remove_jungle, now at same time as remove_forest, plus is necessary to make it sooner due to our tech_tree starting sooner in history or rather bronze working is quite late, maybe stone tools are enough or something to carve tree paths (i did not check though but hopefully accurate enough or relevant enough for our needs and game and mod in advciv-sas hopefully fits well -->
 			<!-- custom: also give hammer on chop, after all jungle is composed of trees and such as well, give less than cleanly ordered forest trees and also to balance out forest and jungle each with their strengths if i may say anyways etc ; also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>

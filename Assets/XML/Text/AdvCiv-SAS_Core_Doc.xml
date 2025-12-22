@@ -139,7 +139,7 @@ Rename the tag									Original untouched; you're free to localize your version
 
 
 
-	<!-- custom: see code comment at (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml for details anyways etc, i adjusted gemini ai's code and help thanks a lot still anyways etc hehe if i may say but anyways etc anyways etc anyways etc ; note: it is also fine if i may say but anyways etc if the info below is unfortunately outdated if i may say but anyways etc or/and not relevant in our mod anymore, we don't support it, but use it mostly if not only for its redirect feature/behaviour similarly to how we handle the redirect in sevopedia unit as of now to concept_cities, if it can help all good, else we do not maintain these, but add them at least for this purpose of redirecting if i may say in our mod i.e. advciv-sas but anyways etc -->
+	<!-- custom: codex change: see code comment at (adjust to your mod path ) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml for details , i adjusted gemini ai's code and help thanks a lot still hehe if i may say but -->
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_RIVERS</Tag>
 		<English>Rivers</English>

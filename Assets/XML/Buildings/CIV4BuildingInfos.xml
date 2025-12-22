@@ -290,7 +290,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians anyways etc) to have the time and space to build in this case at least i mean but anyways etc so accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or if i am not mistaken i mean but anyways etc anyways etc anyways etc ; also adjusted considering there are lone barbarians already so barbarian cities don't need to produce too much extra else cnanot be so easily be met especially by AI players if they create settlers or buildings or such in particular, not making barbarians too weak but significantly decreasing their early impact that is already additive to lone barbairans but anyways etc, was 0 -->
+			<!-- custom: codex change: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians ) to have the time and space to build in this case at least i mean but so accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or if i am not mistaken i mean but -->
 			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now but anyways etc, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost and/or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result if i'm not mistaken but anyways etc, was -40 after our change to nerf barbarians as were too op -->
 			<iMilitaryProductionModifier>-25</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
@@ -312,13 +312,13 @@
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
-			<!-- custom: since they work tiles more with their workers (and have a bit more cities too), they don't need such a strong gold boost as before with original palace implementation (and bit more gold per city too due to number not only yields of worker(d) tiles worked (repetition) but anyways etc anyways etc), so reducing gold yield a bit if not more than bit and bit lot or more or not but anyways etc anyways etc -->
+			<!-- custom: codex change: since they work tiles more with their workers (and have a bit more cities too), they don't need such a strong gold boost as before with original palace implementation (and bit more gold per city too due to number not only yields of worker(d) tiles worked (repetition) but -->
 			<YieldChanges>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
 				<iYield>4</iYield>
 			</YieldChanges>
-			<!-- custom: more culture for barbarian buildings or cities rather as only for palace, so they can avoid being culturally pressed by other civs without (a bit unrealistically) building too many barbarian specific culture buildings or and things or not anyways etc at least (as of)(?) now if not always or (maybe?) not but anyways etc anyways etc ; more spy for fun too also i mean.. but anyways etc hehe or not hehe or yes hehe or and other or and not or yes or not or etc anyways etc... -->
+			<!-- custom: codex change: more culture for barbarian buildings or cities rather as only for palace, so they can avoid being culturally pressed by other civs without (a bit unrealistically) building too many barbarian specific culture buildings or and things or not at least (as of)(?) now if not always or (maybe?) not but -->
 			<CommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -2165,7 +2165,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, was 0 -->
+			<!-- custom: codex change: see code comment at BUILDING_BARRACKS for details -->
 			<iAIWeight>75</iAIWeight>
 			<!-- custom: was 60 -->
 			<iCost>65</iCost>
@@ -2318,7 +2318,7 @@
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe rather but anyways etc), not sure it is needed or has a real influence or not, but better be safe here maybe, and is also if i am not mistaken or not or and other or and not but in all cases anyways etc anyways etc -->
+			<!-- custom: codex change: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe rather but ), not sure it is needed or has a real influence or not, but better be safe here maybe, and is also if i am not mistaken or not or and other or and not but in all cases -->
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
@@ -2516,7 +2516,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: note: told AIs to never build this if i'm not mistaken in the DLL in as of now CvCityAI::AI_buildingValue if we don't have any of the required bonuses to produce units with it, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details anyways etc, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit but anyways etc) to build this but anyways etc -->
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, was 0 -->
+			<!-- custom: codex change: see code comment at BUILDING_BARRACKS for details -->
 			<iAIWeight>75</iAIWeight>
 			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2617,7 +2617,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, was flavor military 10 -->
+			<!-- custom: codex change: see code comment at BUILDING_BARRACKS for details -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -2691,7 +2691,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, was 0 -->
+			<!-- custom: codex change: see code comment at BUILDING_BARRACKS for details -->
 			<iAIWeight>80</iAIWeight>
 			<iCost>75</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2775,7 +2775,7 @@
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
-			<!-- custom: reduce it/this, give instead military production bonus to buff the building and make it more versatile, kind of like how the zulu barracks (ikhanda) are at least in base civ4 (if i am not mistaken) (but anyways etc anyways etc anyways etc...) if i am not mistaken anyways etc, was 4 -->
+			<!-- custom: codex change: reduce it/this, give instead military production bonus to buff the building and make it more versatile, kind of like how the zulu barracks (ikhanda) are at least in base civ4 (if i am not mistaken) (but -->
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -2794,7 +2794,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, value unchanged as of now anyways etc -->
+			<!-- custom: codex change: see code comment at BUILDING_BARRACKS for details -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -3228,7 +3228,7 @@
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
-			<!-- custom: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific costly in terms of investment if i may say that it is their only civ-specific building so it better be strong and worth it else rework it, but anyways etc anyways etc anyways etc..., was 50 -->
+			<!-- custom: codex change: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific costly in terms of investment if i may say that it is their only civ-specific building so it better be strong and worth it else rework it, but -->
 			<iFoodKept>40</iFoodKept>
 			<iAirlift>0</iAirlift>
 			<iAirModifier>0</iAirModifier>
@@ -3891,7 +3891,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: a bit less production than the INCAN_QULLQA but still quite important for production even though less / a bit less indeed but anyways etc anyways etc... -->
+			<!-- custom: codex change: a bit less production than the INCAN_QULLQA but still quite important for production even though less / a bit less indeed but -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -4966,7 +4966,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: harbor reworked, now is a building before the lighthouse and buffed too if i am not mistaken anyways etc anyways etc, relatively to how old lighthouse was anyways etc ; oldest harbor should be much sooner than tech compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now anyways etc -->
+		<!-- custom: codex change: harbor reworked, now is a building before the lighthouse and buffed too if i am not mistaken See https://en.wikipedia.org/wiki/Wadi_al-Jarf. -->
 		<BuildingInfo> <!-- custom: class: harbor, type: harbor (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
 			<Type>BUILDING_HARBOR</Type>
@@ -5031,7 +5031,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now if i am not mistaken too but or not but but anyways etc anyways etc... so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, was 80 -->
+			<!-- custom: codex change: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now if i am not mistaken too but or not but but -->
 			<iCost>50</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -5114,7 +5114,7 @@
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
-			<!-- custom: also add whale to buff it, should be historically (quite if not lot but anyways etc anyways etc) accurate anyways etc -->
+			<!-- custom: codex change: also add whale to buff it, should be historically (quite if not lot but -->
 			<BonusHealthChanges>
 				<BonusHealthChange>
 					<BonusType>BONUS_MOLLUSCS</BonusType>
@@ -5312,7 +5312,7 @@
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
-			<!-- custom: also add whale to buff it, should be historically (quite if not lot but anyways etc anyways etc) accurate anyways etc -->
+			<!-- custom: codex change: also add whale to buff it, should be historically (quite if not lot but -->
 			<BonusHealthChanges>
 				<BonusHealthChange>
 					<BonusType>BONUS_MOLLUSCS</BonusType>
@@ -7443,7 +7443,7 @@
 			<FreeStartEra>ERA_FUTURE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make them available sooner while they are still relevant and i mean as early as possible before game ends in this case anyways etc, and historically (more at least but anyways etc) accurate but anyways etc but anyways etc anyways etc, was TECH_ASSEMBLY_LINE -->
+			<!-- custom: codex change: make them available sooner while they are still relevant and i mean as early as possible before game ends in this case , and historically (more at least but ) accurate but but -->
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -7806,7 +7806,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: they were relevant sooner in tech/history if i am not mistaken from quite quick in this case anyways etc glances/searches on wikipedia or and such anyways etc anyways etc anyways etc, plus to make them buildable sooner too anyways etc anyways etc anyways etc, was the now removed anyways etc TECH_PLASTICS -->
+			<!-- custom: codex change: they were relevant sooner in tech/history if i am not mistaken from quite quick in this case glances/searches on wikipedia or and such -->
 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -10221,7 +10221,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
+			<!-- custom: codex change: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones , nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but -->
 			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -10418,7 +10418,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
+			<!-- custom: codex change: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones , nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but -->
 			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -10603,7 +10603,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
+			<!-- custom: codex change: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones , nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but -->
 			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -13068,7 +13068,7 @@
 				</BonusHealthChange>
 			</BonusHealthChanges>
 			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types anyways etc) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
-			<!-- custom: similarly, sugar is not (too) good for health (but is also not too bad either quite good even necessary if i am not mistaken (but anyways etc anyways etc anyways etc) depending on dosage if i may say and it is the accurate english word anyways etc anyways etc anyways etc...), but sure makes happy if i may say i mean anyways... so making it (i.e. sugar anyways etc) give happiness instead, buffing sugar at the same time which i think is cool/desirable if i may say at least in advciv-sas anyways etc as sugar is a bit weak otherwise anyways etc unlike its quite strong influence on population (how to live without sugar, but anyways etc.. not too much or not i am not responsible, only trying to represent the game as accurately and as i enjoy it to do hopefully enjoyable for others or and not anyways is what i want(ed) and want to do for sugar so anyways etc anyways etc anyways etc) -->
+			<!-- custom: codex change: similarly, sugar is not (too) good for health (but is also not too bad either quite good even necessary if i am not mistaken (but -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
 					<BonusType>BONUS_GRAPES</BonusType>
@@ -13269,7 +13269,7 @@
 				</BonusHealthChange>
 			</BonusHealthChanges>
 			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types anyways etc) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
-			<!-- custom: similarly, sugar is not (too) good for health (but is also not too bad either quite good even necessary if i am not mistaken (but anyways etc anyways etc anyways etc) depending on dosage if i may say and it is the accurate english word anyways etc anyways etc anyways etc...), but sure makes happy if i may say i mean anyways... so making it (i.e. sugar anyways etc) give happiness instead, buffing sugar at the same time which i think is cool/desirable if i may say at least in advciv-sas anyways etc as sugar is a bit weak otherwise anyways etc unlike its quite strong influence on population (how to live without sugar, but anyways etc.. not too much or not i am not responsible, only trying to represent the game as accurately and as i enjoy it to do hopefully enjoyable for others or and not anyways is what i want(ed) and want to do for sugar so anyways etc anyways etc anyways etc) -->
+			<!-- custom: codex change: similarly, sugar is not (too) good for health (but is also not too bad either quite good even necessary if i am not mistaken (but -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
 					<BonusType>BONUS_GRAPES</BonusType>
@@ -13997,7 +13997,7 @@
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
-			<!-- custom: remove hit bonuses/ressources from building_american_mall too, rework building instead by giving more gold which may be fine for a building so late in the game as compensation if i/one or not may say or not but anyways etc and other changes or not (and but anyways etc) in this case but anyways etc anyways etc -->
+			<!-- custom: codex change: remove hit bonuses/ressources from building_american_mall too, rework building instead by giving more gold which may be fine for a building so late in the game as compensation if i/one or not may say or not but and other changes or not (and but ) in this case but -->
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
@@ -14900,7 +14900,7 @@
 			<iMaxLatitude>90</iMaxLatitude>
 			<!-- custom: was 0 -->
 			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
-			<!-- custom: since this is cumulative if i am not mistaken and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too if i am not mistaken but anyways etc (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it but anyways etc) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new one but anyways etc it helped in this case at least but anyways etc)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe if i am not mistaken culturally consistent or thematically consistent but anyways etc with the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas if i may say but anyways etc, so choosing a quite small in this case but anyways etc value that should hopefully in this case but anyways etc still be significant but anyways etc ; or so it seem sif i am not mistaken that it seemms to stack (didn't check lot but hopefully correct but anwyays etc anyways etc anyways etc), was 0 -->
+			<!-- custom: codex change: since this is cumulative if i am not mistaken and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too if i am not mistaken but (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it but ) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new one but it helped in this case at least but )), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe if i am not mistaken culturally consistent or thematically consistent but with the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas if i may say but , so choosing a quite small in this case but value that should hopefully in this case but still be significant but ; or so it seem sif i am not mistaken that it seemms to stack (didn't check lot but hopefully correct but anwyays etc See https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com. -->
 			<iGreatGeneralRateModifier>25</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
@@ -15047,7 +15047,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: change as per the reworked tech tree now that physics is sooner in tech tree anyways etc, not sure if accurate checked only a bit but should not be too far off and tech steam power is bloated, i don't see a direct correlation with tech steam power i mean anyways etc as well unless i'm mistaken bu didn't check lot again anyways etc, also accounting the time to build them maybe fine as is with this change fine as it is now changed i mean but or not but or yes but but anyways etc anyways etc, and this buffs tech physics that is a bit weak at least as of now anyways etc, was TECH_STEAM_POWER -->
+			<!-- custom: codex change: change as per the reworked tech tree now that physics is sooner in tech tree , not sure if accurate checked only a bit but should not be too far off and tech steam power is bloated, i don't see a direct correlation with tech steam power i mean as well unless i'm mistaken bu didn't check lot again , also accounting the time to build them maybe fine as is with this change fine as it is now changed i mean but or not but or yes but but -->
 			<PrereqTech>TECH_PHYSICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -16254,7 +16254,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: codex change: update flavors based on new reworked monastery effect, as for military effect keep(ing but -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -17016,7 +17016,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: codex change: update flavors based on new reworked monastery effect, as for military effect keep(ing but -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -17777,7 +17777,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: codex change: update flavors based on new reworked monastery effect, as for military effect keep(ing but -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -18539,7 +18539,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: codex change: update flavors based on new reworked monastery effect, as for military effect keep(ing but -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -19300,7 +19300,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: codex change: update flavors based on new reworked monastery effect, as for military effect keep(ing but -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -20061,7 +20061,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: codex change: update flavors based on new reworked monastery effect, as for military effect keep(ing but -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -20822,7 +20822,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: codex change: update flavors based on new reworked monastery effect, as for military effect keep(ing but -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -21581,7 +21581,7 @@
 			</BuildingClassNeededs>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
-			<!-- custom: effect imported from kujira website (translate to english with web browser or and such anyways etc): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist thanks to my idea of searching it too but anyways etc anyways etc anyways etc ; seems to fit quite well the theme of the building's history i mean of burning down and such from little of it i googled online and some drawings of it showing quite a lot of forest around it from very quick glances anyways etc, hopefully both balanced, varied, and gradual not op effect but strong enough anyways etc, was empty -->
+			<!-- custom: codex change: effect imported from kujira website (translate to english with web browser or and such ): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist thanks to my idea of searching it too but See https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist. -->
 			<ImprovementFreeSpecialists>
 				<ImprovementFreeSpecialist>
 					<ImprovementType>IMPROVEMENT_FOREST_PRESERVE</ImprovementType>
@@ -21803,7 +21803,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: TECH_NATURALISM (if we rework it indeed as such anyways etc) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era anyways etc at least in terms of civ4 gameplay in our mod advciv-sas or and other or and not, also boosting culture path and wonders by building them sooner indirectly but anyways etc anyways etc, was TECH_NATIONALISM -->
+			<!-- custom: codex change: TECH_NATURALISM (if we rework it indeed as such ) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era at least in terms of civ4 gameplay in our mod advciv-sas or and other or and not, also boosting culture path and wonders by building them sooner indirectly but -->
 			<PrereqTech>TECH_NATURALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -26318,7 +26318,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: now sooner and reworked so adjust(ing for this building/wonder but anyways etc anyways etc) cost anyways etc, was 1250 -->
+			<!-- custom: codex change: now sooner and reworked so adjust(ing for this building/wonder but -->
 			<iCost>575</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
@@ -28291,7 +28291,7 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<!-- custom: similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too anyways etc) to be built anyways etc, at least is what ideally i would want if i may say but anyways etc, however unfortunately monasteries are not merged under the same class if i am not mistaken so i can't sadly require x monasteries, require a library instead (and reduce number a bit but anyways etc), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead if i may say but anyways etc anyways etc, was empty -->
+			<!-- custom: codex change: similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too ) to be built , at least is what ideally i would want if i may say but , however unfortunately monasteries are not merged under the same class if i am not mistaken so i can't sadly require x monasteries, require a library instead (and reduce number a bit but ), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead if i may say but -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
@@ -28939,7 +28939,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: move it sooner so it can be built sooner, seems to fit the theme well and tech_liberalism doesn't have a wonder as well anyways etc so we can maybe use it i mean in this case anyways etc anyways etc anyways etc, was TECH_RADIO -->
+			<!-- custom: codex change: move it sooner so it can be built sooner, seems to fit the theme well and tech_liberalism doesn't have a wonder as well so we can maybe use it i mean in this case -->
 			<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -29579,7 +29579,7 @@
 			<DiploVoteType>NONE</DiploVoteType>
 			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
 			<bCapital>0</bCapital>
-			<!-- custom: avoid redundant effect with forbidden_palace / forbidden palace before we renamed asset name i mean anyways etc in advciv-sas i mean too but anyways etc, give another(other) effect(s) anyways etc anyways etc, was 1 -->
+			<!-- custom: codex change: avoid redundant effect with forbidden_palace / forbidden palace before we renamed asset name i mean in advciv-sas i mean too but , give another(other) effect(s) -->
 			<bGovernmentCenter>0</bGovernmentCenter>
 			<!-- custom: was 0 -->
 			<bGoldenAge>1</bGoldenAge>
