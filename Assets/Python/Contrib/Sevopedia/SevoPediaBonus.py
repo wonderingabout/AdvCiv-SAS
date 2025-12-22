@@ -360,12 +360,13 @@ class SevoPediaBonus:
 				bAnyDisplayed = True
 				screen.attachImageButton( panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False )
 
+		# <!-- custom: in the aluminium bonus, all projects show the apostolic palace in the tooltip, and redirect to the apostolic palace instead of the correct project. Fixed with the help of chatgpt 5.2 thanks anyways etc. -->
 		# <advc.004y>
 		for iProject in range(gc.getNumProjectInfos()):
 			info = gc.getProjectInfo(iProject)
 			if info.getBonusProductionModifier(self.iBonus) != 0:
 				bAnyDisplayed = True
-				screen.attachImageButton(panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+				screen.attachImageButton(panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
 		# </advc.004y>
 
 		if not bAnyDisplayed:
