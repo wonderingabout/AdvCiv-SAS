@@ -42,7 +42,7 @@ import json
 from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import *
 
 # --- Command-line arguments ---
-# <!-- custom: useful for example to skip testing where/when/for other mods who'd want to run our generate_leaders_data.py script for example, but don't have an updated test in expected output, or even if they had it their expected output may be greatly or still a bit but enough sadly or not to make test fail hehe if i may say but anyways etc... rather than add and tediously update the expected output, just to use the leaders_data.py for other external scripts that depend on leaders_data.py such as flatten_leaders_data_to_csv.py, perhaps not even for the AI Personality Panel in sevopedia leader, it would be too tedious, purposeless, meritless gainless perhaps if i may say but anyways etc..., and not worth it to go through all that hassle, so provide the option to skip testing altogether by command line argv instead as i did in past project(s) hehe if i may say, without understanding much, now i may not know much of the theory behind it but it's fun to implement such an idea myself hehe when relevant and as i thought to do so, in this case for the flatten leaders data to csv and such script, or and for other or and not, but anyways etc, but anyways etc anyways etc anyways etc... -->
+# <!-- custom: useful for example to skip testing where/when/for other mods who'd want to run our generate_leaders_data.py script for example, but don't have an updated test in expected output, or even if they had it their expected output may be greatly or still a bit but enough sadly or not to make test fail hehe if i may say but anyways etc... rather than add and tediously update the expected output, just to use the leaders_data.py for other external scripts that depend on leaders_data.py such as flatten_leaders_data_to_csv.py, perhaps not even for the AI Personality Panel in sevopedia leader, it would be too tedious, purposeless, meritless gainless perhaps if i may say but anyways etc..., and not worth it to go through all that hassle, so provide the option to skip testing altogether by command line argv instead as i did in past project(s) hehe if i may say, without understanding much, now i may not know much of the theory behind it but it's fun to implement such an idea myself hehe when relevant and as i thought to do so, in this case for the flatten leaders data to csv and such script. -->
 ARGV_NO_TESTING = "--notesting" in sys.argv
 
 if not ARGV_NO_TESTING:
@@ -56,7 +56,7 @@ else:
 	print("[WARNING] Skipping get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE import due to --notesting flag.")
 
 EXPECTED_OUTPUT_LEADERS_TO_TEST = (
-	# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/> for example or other unexpected or missing or other or and not value(s) anyways etc anyways etc anyways etc... -->
+	# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/>. -->
 	"LEADER_BARBARIAN",
 	"LEADER_DEFAULTS",
 	# <!-- custom: then the rest of the batch/crew or and other i must say or and not or and other or and not but anyways etc... still the staff is here actually i said it now even though is not professional team but anyways etc... -->
@@ -187,7 +187,7 @@ GENERIC_RENAMED_FIELDS = (
 )
 
 ATTITUDE_MAP = {
-	# <!-- custom: according to https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e5%bf%85%e8%a6%81%e6%85%8b%e5%ba%a6 (translate (website) to english using your web browser or/and other etc) and my revised judgment, "none" attitude type is actually more permissive than furious, meaning even if (ai) leader is furious, as long as (ai) lader is at least furious (meaning effectively always), they will allow or maybe rather not refuse(?) such behaviour or maybe trade rather anyways etc, as for actual values, now that we have in sevopedia leader a parsing directly from xml field for all attitude threshold fields (see sevopedia_helpers or sevopedialeader py file code comments or and similar doc for details anyways etc), match closer DLL behaviour or rather numbers anyways etc by going from -1 (none) to 4 (friendly) (unlike what i had done from -3 to 2 which would work-function well too anyways etc but more consistent this way perhaps but anyways etc anyways etc anyways etc -->
+	# <!-- custom: according to https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e5%bf%85%e8%a6%81%e6%85%8b%e5%ba%a6 (translate (website) to english using your web browser or/and other etc) and my revised judgment, "none" attitude type is actually more permissive than furious, meaning even if (ai) leader is furious, as long as (ai) lader is at least furious (meaning effectively always), they will allow or maybe rather not refuse(?) such behaviour or maybe trade rather anyways etc, as for actual values, now that we have in sevopedia leader a parsing directly from xml field for all attitude threshold fields (see sevopedia_helpers or sevopedialeader py file code comments or and similar doc for details anyways etc), match closer DLL behaviour or rather numbers anyways etc by going from -1 (none) to 4 (friendly) (unlike what i had done from -3 to 2 which would work-function well too anyways etc but more consistent this way perhaps. -->
 	"NONE": -1,
 	"ATTITUDE_FURIOUS": 0,
 	"ATTITUDE_ANNOYED": 1,
@@ -702,7 +702,7 @@ def flatten_all_contacts(leaders_data):
 		aggregated_field_name_3 = f"iAggregatedContactProb{short_name_3}"
 		aggregated_raw_field_name_3 = f"iAggregatedRawContactProb{short_name_3}"
 
-		# <!-- custom: here we reuse contact_min_max defined at step _2, this is not a mistake if i am not mistaken i mean without pun or anythig but anyways etc anyways etc anyways etc hopefully helpful or not or yes or etc or and other or and not or yes or etc anyways etc -->
+		# <!-- custom: here we reuse contact_min_max defined at step _2, this is not a mistake. -->
 		min_rand_3, max_rand_3, min_delay_3, max_delay_3 = contact_min_max_2[contact_type_3]
 
 		for leader_type_3, leader_data_3 in leaders_data.items():
@@ -853,7 +853,7 @@ def flatten_all_memories(leaders_data, is_positive, is_affection):
 			if attitude_percent_raw_1 is None or decay_raw_1 is None:
 				raise ValueError(f"[FATAL] Memory attitude percent / decay missing for {mem_type_1} in {leader_type_1}. Did you run force_complete_memory_attitudes/decays() first?")
 
-			# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed anyways etc) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment anyways etc) same as in XML fields structuration too for raw attitude percents and decays anyways etc anyways etc anyways etc, i.e. for example only for example iMemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc -->
+			# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment) same as in XML fields structuration too for raw attitude percents and decays, i.e. for example only for example iMemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML. -->
 			# Save raw for UI
 			parsed_name_attitude_percent_1 = f"iMemoryAttitudePercent{short_name_1}"
 			if parsed_name_attitude_percent_1 not in leader_data_1:
@@ -982,7 +982,7 @@ def remove_intermediate_memory_fields(leaders_data):
 	# - Because the final aggregate scores are meant to be displayed in the Sevopedia UI.
 	# - These `Positive` and `Negative` variants are the *output* of the flattening process, not intermediate data.
 	#
-	# Therefore, <!-- custom: anyways etc `Positive` or `Negative` are also --> intentionally not part of the cleanup pattern. <!-- custom: as adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only clean affection and resentment versions of the adjusted temporary data we used to calculate raw aggregated positive and negative memory affections and resentments if i am not mistaken indeed most likely maybe but maybe i am not (i.e. maybe i am not mistaken anyways etc) hopefully helpful or not too or yes too helpful i mean but anyways etc anyways etc anyways etc -->
+	# Therefore, <!-- custom: anyways etc `Positive` or `Negative` are also --> intentionally not part of the cleanup pattern. <!-- custom: as adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only clean affection and resentment versions of the adjusted temporary data we used to calculate raw aggregated positive and negative memory affections and resentments if i am not mistaken. -->
 
 	# <!-- custom: in short if i am not mistaken anyways etc here 2 of 4 combinations to clean for adjusted fields, so alll (positive and negative) affections, and all (positive and negative) resentments anyways etc, so loop overall all memory types not just positive or negative ones only/restricetedly anyways etc -->
 	# --- Memory fields ---

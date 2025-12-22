@@ -11,7 +11,7 @@
 
 
 
-		# <!-- custom: note about "Check for required buildings" anyways etc
+		# <!-- custom: note about "Check for required buildings":
 		# For the example for Eiffel Tower (base advciv data):
 		# 	<PrereqBuildingClasses/>
 		# 	<BuildingClassNeededs>
@@ -21,7 +21,7 @@
 		# 		</BuildingClassNeeded>
 		# 	</BuildingClassNeededs>
 		#
-		# But for (,) for example (anyways etc) the Oxford University (base advciv data) for example anyways etc
+		# But for example (anyways etc) the Oxford University (base advciv data) has:
 		# 	<PrereqBuildingClasses>
 		# 		<PrereqBuildingClass>
 		# 			<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
@@ -37,8 +37,7 @@
 		#
 		# So if i am not mistaken we need to account for both:
 		# - BuildingClassNeededs (buildingInfo.isBuildingClassNeededInCity(i) below if i am not mistaken indeed (but) anyways etc) (see also (translate to english with your web browser or/and such or not if you want/wish/please or not as you prefer or not or yes or and other or and not anyways etc: https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbuildingclasses)), and
-		# - PrereqBuildingClasses (buildingInfo.getPrereqNumOfBuildingClass(i) below if i am not mistaken anyways etc... anyways etc anyways etc... , see also as well https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildingclassneededs if you want/wish/do or not or and other or and not anyways etc anyways etc anyways etc...) and represent them accurately ideally too anyways etc(...) anyways etc anyways etc...
-		# -->
+		# - PrereqBuildingClasses (buildingInfo.getPrereqNumOfBuildingClass(i) below if i am not mistaken, see also as well https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildingclassneededs -->
 
 
 
@@ -63,7 +62,7 @@
 
 
 
-		# <!-- custom: For (/to) parsing (parse?) this (i.e. free power only not power for example with ressource(s?)/bonus(es? (which is PowerBonus if i am not mistaken and that we ignore then if i am not mistaken to do so anyways etc anyways etc anyways etc anyways etc((.)... anyways etc...)) anyways) (tentative (for me to assess (anyways etc)) (but maybe successful (/fructful?) anyways etc) rules seem to be after some testing (with a "power>1" global search in unit infos and tweaking or maybe rather anyways etc temporarily modifying some values to see some if not all or not or yes or and other or and not anyways etc edge case reuslts), for example:
+		# <!-- custom: Info about how we parse this:
 		# - BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details anyways etc) anyways etc)):
 		# 	<bPower>0</bPower>
 		# 	<bDirtyPower>0</bDirtyPower>
@@ -74,22 +73,7 @@
 		# 	<bDirtyPower>1</bDirtyPower>
 		# 	<bAreaCleanPower>1</bAreaCleanPower>
 		# The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case anyways etc) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is anyways etc, they don't seem to cumulate anyways etc
-		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial if i am not mistaken anyways etc) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER) to match and reflect and inform of this (unhappiness existence and count anyways etc) (if we are (ideally maybe yes or not or yes or and other or and not or etc anyways etc) not mistaken in our understanding indeed maybe or not or yes or and other or and not anyways etc). -->
-
-
-
-		# #<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFreePBBS panel for example anyways etc anyways etc anyways etc
-		# #powerButton = "Art/Interface/Buttons/Buildings/Power.dds"  # You might need to adjust this path
-		# powerButton = ",Art/Interface/Buttons/Units/GreatProphet.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,1"
-		# # etc...
-		# 				screen.attachImageButton(panelName, "", powerButton, 
-		# 							GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-		# 							WidgetTypes.WIDGET_GENERAL, -1, -1, False)
-		# We eventually don't use it as we in the end don't implement the unreliable and messy free power functionality (at least we couldn't make it work), but hopefully helpful enough and helped us fix other issues as well or understand better the game (how it works/functions) anyways etc...
-		# For reference, the power button code can be found here using the Warlords atlas (i assume it was used for a religion, but probably works very well for the power button if we were to implement it, which we don't do here in the end, anyways etc):
-		# in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\Art\Interface\Buttons\Warlords_Atlas_2.dds
-		# powerButtonPath = ",Art/Interface/MainScreen/CityScreen/Great_Engineer.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11"
-		# -->
+		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial if i am not mistaken anyways etc) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER). -->
 
 
 
@@ -119,9 +103,6 @@
 	# New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
 	#
 	# This should now match your intended behavior exactly!
-	#
-	# -
-	#
 	# It seems to work as intended so adding this since is quite/very technical, in case is helpful too, anyways etc anyways etc anyways etc... -->
 
 
@@ -177,7 +158,6 @@ class SevoPediaBuilding:
 
 		self.H_STATS_PANE_LINE_HEIGHT = 38
 
-		# <!-- custom: before starting, store great people change's placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse in "custom: 6.1.2" (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom: 6.1.1:" for details -->
 		self.X_FLAT_GREAT_PERSON = None
 		self.Y_FLAT_GREAT_PERSON = None
 
@@ -302,7 +282,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: table code based on placeAiPersonality panel method/function in sevopedialeader we (me and chatgpt) had written and enhanced together and all anyways etc, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
+	# <!-- custom: table code based on placeAIPersonality panel method/function in sevopedialeader we (me and chatgpt) had written and enhanced together and all anyways etc, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
 	def placeStats(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -502,8 +482,6 @@ class SevoPediaBuilding:
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 		
 		# <!-- custom: 6: Great people change with button display of the great people type too if i am not mistaken anyways etc, and great people modifier -->
-		
-		# <!-- custom: 6.1.1: Only display the great people button and the flat value, for example "(Great People button) +2", use a button later in "custom 6.1.2:" rather instead anyways etc ; modifiers are handled as a separate item as +50% great person for example is not specific to any great person type unlike for example +2 great artist, so it would not make sense to put +50% where the button is anyways etc, plus easier to handle button position with our current button positioning code too anyways etc -->
 		if buildingInfo.getGreatPeopleRateChange() != 0:
 			# Create the text with the great person rate change
 			szText = localText.getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
@@ -513,13 +491,12 @@ class SevoPediaBuilding:
 			
 			# Display the text
 			self.fillStatsCell(screen, szText2, x, y)
-			# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 6.1.2" anyways etc -->
+			# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later. -->
 			self.X_FLAT_GREAT_PERSON = x
 			self.Y_FLAT_GREAT_PERSON = y
-			# <!-- custom: now that we have stored the flat great person coordinates to place our great person button later, we can get the next coordinates for "custom: 6.2" (great person modifier), we will complete "custom: 6.1.2" (ie. 2nd step of 6.1 anyways etc) later after 6.2 if that makes sense hopefully helpful or not or yes or and other or and not or yes anyways etc anyways etc anyways etc -->
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-		# <!-- custom: 6.2: while we're still in same panel, but as a separate grid item than the flat great person one, also add Great People Modifier (similar to how we handle yield modifiers) anyways etc -->
+		# <!-- custom: also add Great People Modifier (similar to how we handle yield modifiers) anyways etc. -->
 		iGreatPeopleModifier = buildingInfo.getGreatPeopleRateModifier()
 		iGlobalGreatPeopleModifier = buildingInfo.getGlobalGreatPeopleRateModifier()
 
@@ -551,14 +528,9 @@ class SevoPediaBuilding:
 			self.fillStatsCell(screen, szText2, x, y)
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-		# <!-- custom: 6.1.2: now that textual and placeStats display is finished (minus Great People info), go back to custom 6.1 step to now handle its second part which is adding the button. Handle great people type's button display as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using the flat great person coordinates we previously stored in self.X_FLAT_GREAT_PERSON and self.Y_FLAT_GREAT_PERSON anyways etc -->
+		# <!-- custom: now that textual and placeStats display is finished (minus Great People info), add the button now. -->
 		# Only proceed if this building affects great people rate
 		if buildingInfo.getGreatPeopleRateChange() != 0:
-			screen = self.top.getScreen()
-			panelName = self.top.getNextWidgetName()
-			greatPersonTxtKeyPanel = ""
-			self.setupStatsPanel(screen, panelName, greatPersonTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
-
 			buttonXOffset = 66
 			# <!-- custom: slightly shift the button if button size (w and h) are higher than 32 to simulate a better centering effect towards the text of "+2" (great people count example) for example, the buttonYOffset = +2 if it were same value is purely coincidental value that suited us to center the button, no correlation or link at least voluntary anyways etc -->
 			buttonYOffset = -2
@@ -580,27 +552,13 @@ class SevoPediaBuilding:
 					greatPersonInfo = gc.getUnitInfo(iGreatPersonUnit)
 					greatPersonButton = greatPersonInfo.getButton()
 
-				# This approach uses a separate panel with both an button and text
 				if greatPersonButton:
 					buttonWidget = self.top.getNextWidgetName()
-					buttonX = self.X_FLAT_GREAT_PERSON + buttonXOffset
-					buttonY = self.Y_FLAT_GREAT_PERSON + buttonYOffset
 					# <!-- custom: add tooltip when hovering on the great person button, with the help of chatgpt 5.2 thanks anyways etc. -->
-					# screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_GENERAL, -1, -1)
-					screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH,
-                WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iGreatPersonUnit, 1)
-
-				# <!-- custom: else block below's code untested but probably works, i guess it covers case where great person type is not any of the great people's types if i am not mistaken like great scientist and great prophet and such, but really i have no idea or don'tknow too much maybe, so test to be sure, may or not work-function, hopefully does but in all cases anyways etc... -->
-				else:
-					# Just add text if no button
-					textWidget = self.top.getNextWidgetName()
-					# X position <!-- custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hopefully should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not be accurate or updated anyways etc)  anyways etc) --> 
-					textX = self.X_FLAT_GREAT_PERSON + buttonXOffset - 10
-					# Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
-					textY = self.Y_FLAT_GREAT_PERSON
-					textWithSymbol = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), gpRateText)
-					textWithFont = u"<font=3>%s</font>" % textWithSymbol
-					screen.setLabelAt(textWidget, panelName, textWithFont, CvUtil.FONT_LEFT_JUSTIFY, textX, textY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					# convert to coords relative to the stats panel (which starts at X_STATS_PANE / Y_STATS_PANE)
+					buttonX = (self.X_FLAT_GREAT_PERSON + buttonXOffset) - self.X_STATS_PANE
+					buttonY = (self.Y_FLAT_GREAT_PERSON + buttonYOffset) - self.Y_STATS_PANE
+					screen.setImageButtonAt(buttonWidget, panelName, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iGreatPersonUnit, 1)
 
 
 

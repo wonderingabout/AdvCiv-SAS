@@ -330,7 +330,7 @@ print("✔ Export complete with legend references.")
 print(f"→ Output CSV saved as: {table_csv_filename}")
 
 
-# <!-- custom: do not leave previous columns in same line empty of the footnote/legend (of (*) but anyways etc...) row, else we get the "We can make this file beautiful and searchable if this error is corrected: It looks like row 113 should actually have 10 columns, instead of 11 in line 112." in github web view, even though displays nicely in libre office for example though but anyways etc anyways etc anyways etc... hopefully helpful and fixed this way in the github web view but anyways etc anyways etc anyways etc..., easiest way to cleanly solve this seems to move the footnote to a separate legend file, plus we can add other info there if need(ed?) anyways etc -->
+# <!-- custom: do not leave previous columns in same line empty of the footnote/legend row, else we get the "We can make this file beautiful and searchable if this error is corrected: It looks like row 113 should actually have 10 columns, instead of 11 in line 112." in github web view, even though displays nicely in libre office for example though and fixed this way in the github web view, easiest way to cleanly solve this seems to move the footnote to a separate legend file, plus we can add other info there if needed. -->
 # Save footnote to a separate file for GitHub-safe display
 with open(legend_md_filename, "w", encoding="utf-8") as md:
 	md.write("# Handicap Info Legend Notes\n\n")

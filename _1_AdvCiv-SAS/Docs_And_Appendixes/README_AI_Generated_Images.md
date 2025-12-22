@@ -38,7 +38,7 @@ Example with some buildings (the Gord (new Russian building based on the castle,
 
 ### Tech buttons
 
-Example with some techs (for example the theory of evolution new tech if we add it todo, mounted combat/riding/warfare (edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefully good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it if i may say, but anyways etc anyways etc anyways etc... this image i mean anyways etc...)))
+Example with some techs (for example the theory of evolution new tech, mounted combat) i edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefully good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it but anyways etc.
 
 Update: now used/added anyways etc. Nano banana pro (see [/README.md#nano-banana-pro](/README.md#nano-banana-pro)) to do it which it did amazingly and very easily which fixes the a tech's image and recolored the border as blue with just this simple prompt:
 
