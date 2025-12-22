@@ -40,7 +40,7 @@ class SevoPediaBonus:
 		self.W_BONUS_PANE = (self.top.R_PEDIA_PAGE - self.X_BONUS_PANE - self.MEDIUM_MARGIN) / 2
 		self.H_BONUS_PANE = 250
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		# <!-- custom: codex change: import and adjust iIconFrameSize from SevopediaUnit. -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -196,7 +196,7 @@ class SevoPediaBonus:
 
 
 
-	# <!-- custom: switch to an horizontal panel version provided by claude ai at my request it kindly did so for me and as a consequence all who would play this mod advciv-sas i am making or/and others kindly too or not or both or not or and other or and not anyways etc using it too, anyways etc, thanks claude ai and all or not all or yes all or not or other or etc anyways etc anyways etc anyways etc and me too perhaps or not or yes anyways etc anyways etc anyways etc, and then also modified by me or and not for advciv-sas or and not or and other or and not anyways etc anyways etc anyways etc -->
+	# <!-- custom: codex change: switch to a horizontal improvements panel (Claude base, then modified). -->
 	# <!-- custom: note: this needs to be debugged (simplify code, add left side padding before first button, anyways etc, but hopefully works well enough for now anyways etc -->
 	def placeImprovements(self):
 		screen = self.top.getScreen()
@@ -415,7 +415,7 @@ class SevoPediaBonus:
 		isButtonFound = False
 		#iButtonIndex = 0
 
-		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: codex change: list terrains where this bonus can appear. -->
 		for iTerrain in xrange(gc.getNumTerrainInfos()):
 			# Check if bonus can appear on this terrain
 			if gc.getBonusInfo(self.iBonus).isTerrain(iTerrain):
@@ -473,7 +473,7 @@ class SevoPediaBonus:
 		isButtonFound = False
 		#iButtonIndex = 0
 
-		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: codex change: list terrains where this bonus can appear. -->
 		for iFeature in xrange(gc.getNumFeatureInfos()):
 			# Check if bonus can appear on this <!-- custom: feature but anyways etc anyways etc anyways etc -->
 			if gc.getBonusInfo(self.iBonus).isFeature(iFeature):
@@ -532,7 +532,7 @@ class SevoPediaBonus:
 		isButtonFound = False
 		#iButtonIndex = 0
 
-		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: codex change: list terrains where this bonus can appear. -->
 		for iTerrain in xrange(gc.getNumTerrainInfos()):
 			if gc.getBonusInfo(self.iBonus).isFeatureTerrain(iTerrain):
 				# Column index (always 0 when numLists=1)

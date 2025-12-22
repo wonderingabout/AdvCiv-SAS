@@ -3,7 +3,7 @@
 
 
 # <!-- custom: modified from Claude AI's (kindly shared (to me or and all or not or and other or and not but anyways etc anyways etc anyways etc...)) or not for AdvCiv-SAS or/and my personal taste or feel or/and wish or thought or and other or and not anyways etc anyways etc anyways etc... -->
-# <!-- custom: be careful/make sure to launch this at interfaceScreen level or later, else at __init__ this/the output is still empty, so run this later to have the actual tech info output ; but also be careful to not launch/run/call this but anyways etc later than your error line if you have any, else the code execution would stop before you reach your debugger's call and you won't see any debug (e.g. if you have a code error at line 200, call debugger method at line 199 or sooner, not at line 201+ as it would never be reached before execution stops and you don't see debug content anyways etc), a good place may be the top of interfaceScreen generally i would say but check to be sure hopefully helpful or not or yes or etc but anyways etc -->
+# <!-- custom: codex change: call after interfaceScreen so output is populated; place before error lines. -->
 # Get all attributes of the object
 def printObjAttrs(obj):
 	print ("[DEBUG] Beginning of show obj inner fields if i am not mistaken anyways etc.")
@@ -27,7 +27,7 @@ def printObjAttrs(obj):
 
 # <!-- custom: working-functioning anyways etc (see output example below after function code anyways etc) debug for leader info (fetches xml), thanks a lot to chatgpt thanks to which and with my prompt too it was super fast hehe to add all after debugging the bit harder flavor, nowarattitudeprob, contact, memory, and bbai fields in debug, the rest are super fast now and thanks for all and in your help in these too hehe chatgpt an thanks to me to myself too for my pormpts or and such and for all or not for all or yes for all or etc anyways etc anyways etc anyways etc -->
 def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
-	# <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel anyways etc anyways etc anyways etc for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive or not or yes or and other or and not or other or yes or other or etc or as i want or yes or not or yes or other or etc anyways etc:
+	# <!-- custom: codex change: skip unused leader fields (e.g., LEADER_DEFAULTS) in debug output. -->
 	#
 	#	<Type>LEADER_DEFAULTS</Type>
 	#	<Description></Description>
@@ -111,9 +111,9 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 
 	# <!-- custom: there are "AttitudeThreshold" and "RefuseAttitudeThreshold", handle the most common case, they seem to all be about refusing something or not being able to do it if threshold is not met if i am not mistaken, handle them as such, anyways etc -->
 	print("\n\n==== ATTITUDE THRESHOLDS ====")
-	# <!-- custom: if i am not mistaken, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in(with? But anyways etc) leader_ragnar anyways etc), here is the table conversion map if i am not mistaken anyways etc of attitude to num if i am not mistaken anyways etc below but anyways etc anyways etc anyways etc: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
+	# <!-- custom: codex change: DLL attitude mapping matches leaders_data; no string parsing needed. -->
 	#
-	# Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious) if i am not mistaken and as we successfully guessed in generate_leaders_data.py anyways etc, and friendly being the highest, so we can use this map of the dll directly without needing to parse atittude str to num for our compare/rank(ing? But anyways etc) of leaders in AI personality panel directly very nice else we could have done too but very nice they did too in base advciv +/- in civ 4 too or and other inbetween mods if was not already there or not thanks all or not and me too hehe or not or yes or not or all or and etc anyways etc thanks anyways etc, i am happy to use these and thankful too if i am may say even though i mostly thought intuitively thought happy but i am thankful too if i think of it maybe but happy inside if i may say anyways ec but anyways etc outside too maybe or not or yes in this case or and other or and not but anyways etc -->
+	# <!-- custom: codex change: DLL mapping mirrors leaders_data; keep as reference. -->
 	#
 	# <!-- custom: Among all leaders, LEADER_ELIZABETH and LEADER_TOKUGAWA only have a value of 5 somehow, which triggers an error with our current map:
 	#
@@ -143,7 +143,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 		2: "ATTITUDE_CAUTIOUS",
 		3: "ATTITUDE_PLEASED",
 		4: "ATTITUDE_FRIENDLY",
-		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error anyways etc, added this value also as this seems like a purposeful valid DLL behaviour if i may say anyways etc, see above for explanation or/and of my understanding of it hopefully helpful or not or yes or etc or and other or and not anyways etc -->
+		5: "ALWAYS??" # <!-- custom: codex change: include value 5 to avoid errors; comment out to reproduce. -->
 	}
 
 	for attr in dir(info):
@@ -333,7 +333,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	# 			</DiploMusicWarEra>
 	# 		</DiplomacyMusicWar>
 	#
-	# and we have reached end of a leader info's xml if i am not mistaken, hopefully we parsed all we needed or maybe not hopefully or yes hopefully or not or yes or etc but anyways etc... hopefully we have all (we need) or not or yes or etc or and other or and not or yes or etc anyways etc -->
+	# <!-- custom: codex change: end-of-XML sentinel for leader debug output. -->
 
 	# <!-- custom: example of output for example for leader gandhi anyways etc with lineskip/extra newlines removed anyways etc for concision anyways etc, for example for Gandhi anyways etc -->
 

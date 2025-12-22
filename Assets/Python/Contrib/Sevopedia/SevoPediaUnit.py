@@ -43,7 +43,7 @@ class SevoPediaUnit:
 		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE - self.MEDIUM_MARGIN) / 4
 		self.H_UNIT_PANE = 190
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		# <!-- custom: codex change: import and adjust iIconFrameSize from SevopediaUnit. -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -477,7 +477,7 @@ class SevoPediaUnit:
 				iButtonIndex += 1
 
 		# Check for UnitCombatMods
-		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index ; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i mean but anyways etc the code (ignorantly perhaps of me but good to try or not or yes but anyways etc), so making sure i mean to have a separate loop for combat type modifiers if i am not mistaken in understanding this anyways etc -->
+		# <!-- custom: codex change: separate loop because UnitClass index != UnitCombat index. -->
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
 			# Loop through all units to find those with UnitCombatMods against this combat type
@@ -748,7 +748,7 @@ class SevoPediaUnit:
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
 			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
 
-		# <!-- custom: if unit grants unit(s) on capture anyways etc, code added thanks to claude ai as well as my prompt and adjustments and/or such or not or yes or etc anyways etc -->
+		# <!-- custom: codex change: show unit-capture info in the Special panel. -->
 		unitCaptureClassType = unitInfo.getUnitCaptureClassType()
 		if unitCaptureClassType != -1:
 			unitCaptureClassTypeInfo = gc.getUnitClassInfo(unitCaptureClassType)
@@ -925,7 +925,7 @@ class SevoPediaUnit:
 			return
 
 		for k in range(gc.getNumPromotionInfos()):
-			# <!-- custom: disable isPromotionValid(k, self.iUnit, False) check as some promotions are missing such as collateral damage 1 and 2 and also leadership promotion in the generic swordsman panel for example, as advised by chatgpt, anyways etc (it said "In-game, a Swordsman may earn the promotion eventually (e.g. through experience), but if it doesn't yet satisfy all prereqs, isPromotionValid might return False" which i don't know if it is accurate but maybe is, hopefully helpful or not or yes or etc but anyways etc) -->
+			# <!-- custom: codex change: skip isPromotionValid to avoid hiding promos; filter by combat type. -->
 			#if (isPromotionValid(k, self.iUnit, False) and not gc.getPromotionInfo(k).isGraphicalOnly()):
 			if gc.getPromotionInfo(k).getUnitCombat(eUnitCombat) > 0 and not gc.getPromotionInfo(k).isGraphicalOnly():
 				screen.appendMultiListButton(rowListName, gc.getPromotionInfo(k).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, k, -1, False)

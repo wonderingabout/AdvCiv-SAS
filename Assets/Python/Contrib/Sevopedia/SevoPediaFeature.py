@@ -169,7 +169,7 @@ class SevoPediaFeature:
 
 
 
-	# <!-- custom: code provided by claude ai and chatgpt too anyways etc) thanks to my prompts (too! but anyways etc...) and adjustments too or not or yes or etc but anyways etc -->
+	# <!-- custom: codex change: populate feature panels using AI-assisted refactor. -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
@@ -447,8 +447,8 @@ class SevoPediaFeature:
 
 				unitInfoDomain = unitInfo.getDomainType()
 
-				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd but anyways etc..), so having permissive domain any allowed here unlike in peak code if i am not mistaken anyways etc (but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc but anyways etc); however still require unitInfo.isCanMoveAllTerrain(), as ice cap (ice feature) is only allowed on water terrains it seems, and bCanMoveImpassable is not enough for land units to allow them to walk there if i'm not mistaken but anyways etc. So as of now we'd allow the gunship and airship to walk on ice cap, but not the scout or quechua warrior, even though they all have the bCanMoveImpassable, but only the airship and gunship among these also have canMoveAllTerrain as of now i'm not mistaken so only these can also walk on ice cap on top of walking on peak if i'm not mistaken but anyways etc; note: code provided by chatgpt 5 thanks to my prompts and or such and which i adjusted and/or such, check if accurate but anyways etc -->
-				# <!-- custom: below condition/code by chatgpt 5 which i formatted or refactored/adjusted a bit or not or yes or etc, check if accurate anyways etc -->
+					# <!-- custom: codex change: allow any-domain units on Ice Cap only if canMoveAllTerrain. -->
+					# <!-- custom: codex change: broaden Ice Cap eligibility using canMoveAllTerrain. -->
 				# Your Relevant Units panel (from earlier) already shows:
 				# - land/air with All-Terrain (Gunship, Airship, Recon Drone), and
 				# - sea units with a bypass (Move-Impassable or passable tech).
@@ -478,7 +478,7 @@ class SevoPediaFeature:
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				# <!-- custom: below condition/code by chatgpt 5, check if accurate anyways etc -->
+					# <!-- custom: codex change: broaden Ice Cap eligibility using canMoveAllTerrain. -->
 				blocked = (
 					(info.isImpassable() or unitInfo.getFeatureImpassable(self.iFeature)) and
 					not unitInfo.isCanMoveImpassable() and

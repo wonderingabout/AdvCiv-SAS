@@ -274,7 +274,7 @@ void CvGame::setInitialItems()
 		regenerateMap(true); // </advc.tsl>
 }
 
-// <!-- custom: new helpers addition quite self explanatory xd if i may say but anyways etc, see also known issue as of now 42 for details too, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; hopefully helpful or not or yes or etc but anyways etc ; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure but anyways etc) during civ4 run time anyways etc, as advised by chatgpt 5 too but anyways etc -->
+// <!-- custom: codex change: add map-heaviness helper; avoid static map type to handle reloads. -->
 // CvGame.cpp — the “braindead” recompute (just ==)
 void CvGame::recomputeMapnameHeaviness()
 {

@@ -118,7 +118,7 @@ LEADER_TO_INSPECT_IN_DEBUG_OUTPUT = "LEADER_CATHERINE"
 # --- Mappings ---
 
 # <!-- custom: codex change: keep key names aligned with Sevopedia getter-style naming for consistency. -->
-# <!-- custom: note: iLoveOfPeace not here since not used in AdvCiv hence not in AdvCiv-SAS too anyways etc ; similarly or/and also as well, fields we don't use or parse in a specific way or at all in sevopedia leader keep their generic XML parsed tag name in generate_leaders_data.py, even though we could rename them if we want since this script is not related/does not interact to the AI personality panel of/in sevopedia leader, but doing so for consistency of naming hopefully helpful or not or yes or etc or and other or and not anyways etc -->
+# <!-- custom: codex change: iLoveOfPeace omitted (unused); unparsed fields keep XML tag names for consistency. -->
 GENERIC_RENAMED_FIELDS = (
 	"iWonderConstructRand",
 	"iBaseAttitude",
@@ -1074,7 +1074,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 					errors.append(f"[TYPE WARNING] Leader {leader_type}: Expected string for <{tag}>, got numeric '{text}'")
 				leader_data[tag] = text
 
-		# <!-- custom: nested fields not handled in a specific way (i.e. those not in NESTED_FIELDS_TO_SPECIFICALLY_PARSE anyways etc) --> like <Traits>, <UnitAIWeightModifiers>, etc. <!-- custom: (just parse all as a JSON-like object, we don't use these fields in the AI Personality Panel i mean anyways etc so this is fine just to have their data as well in our leaders_data to be exhaustive if i am not mistaken in doing so or want to or not or and seems accurate to me maybe rather or not or yes or and other or and not but anwyays etc -->
+		# <!-- custom: codex change: parse unhandled nested tags (e.g., <Traits>) as list-of-dicts for completeness. -->
 		# These are allowed and will be treated as list-of-dicts if present
 		else:
 			sub_entries = [
@@ -1082,7 +1082,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 			]
 			leader_data[tag] = sub_entries
 
-	# <!-- custom: for example <Flavors/> such as in LEADER_DEFAULTS is fine as in base advciv's xml at least as of now anyways (we'll fill it with 0 0 0 0 0 0 later as part of aprsing as we do with other subnested fields such as other missing flavor like flavor gold missing in leader alexander for example so we put iFlavorGold 0 which is fine, just extend(ing but anyways etc) this logic to all flavor sub fields missing while <Flavors/> itself exists, all fine), but if the field <Flavors/> or <Flavors> is entirely missing from the leader's XML, throw an error instead, same for all fields we parse for our leaders anyways etc if i am not mistaken is how we should do and handle it but anyways etc at least can if i am not mistaken but anyways etc, i tested this code and it successfully throws an error if <Flavors/> is removed entirely in LEADER_DEFAULTS, but/and not as we want too if <Flavors/> exists but is empty, as we want too, so reliable code to have as well as part of our safer more secure parsing if i may say at least for nested fields to specifically parse if not more or not or yes or and other or and not anyways etc -->
+	# <!-- custom: codex change: allow empty <Flavors/> but require the tag; missing tag raises an error. -->
 	for required_tag in NESTED_FIELDS_TO_SPECIFICALLY_PARSE:
 		if required_tag not in seen_tags:
 			raise ValueError(f"[FATAL] Missing required nested tag <{required_tag}> in leader {leader_type}. Expected at least <{required_tag}/>.")

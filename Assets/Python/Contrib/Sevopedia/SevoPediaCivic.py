@@ -34,7 +34,7 @@ class SevoPediaCivic:
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
 		# <!-- custom: based on sevopediareligion's code (the placeLeaders function there that we added as well in this case i mean but anyways etc), see there for details and differences of implementation --> 
-		# <!-- custom: this (287 anyways etc) should be accurate according to my measurements if i am not mistaken for a 4 leaders panel but the screen.appendMultiListButton uses seemingly (approximately from my vision but anyways etc) a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty if i may say anyways etc, to solve this, reducing the width, while keeping in mind the correct value should be 287 if i am not mistaken for 4 leaders per row total width including margins (or keeping here as i may or in case i forget or not forget maybe or not or yes or and other or and not anyways etc) -->
+		# <!-- custom: codex change: reduce leaders panel width to balance margins (287 -> 282). -->
 		#self.W_LEADERS = 287
 		self.W_LEADERS = 282
 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS

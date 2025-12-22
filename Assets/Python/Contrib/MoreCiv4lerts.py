@@ -317,7 +317,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 					popPercent = 0.0
 					NextpopPercent = 0.0
 
-				# <!-- custom: replace "<>" with "!=" as per pylance error "Operator "<>" is not supported in Python 3; use "!=" instead" and asking chatgpt thanks to my prompt too to be sure i mean anwyays etc thanks to chatgpt and me and those who read this or not or and all or not or yes or anyways etc anyways etc anyways etc -->
+				# <!-- custom: codex change: replace "<>" with "!=" for Python 3 compatibility. -->
 				if (totalPop > 1 and (currentTurn != self.lastDomLimitMsgTurn or (ourPop + popGrowthCount) != self.lastPopCount)):
 					self.lastPopCount = ourPop + popGrowthCount
 					if (popPercent >= VictoryPopPercent):

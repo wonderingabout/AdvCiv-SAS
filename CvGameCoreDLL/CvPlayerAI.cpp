@@ -15087,7 +15087,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 	int iTotal = 0;
 	FOR_EACH_ENUM(UnitClass)
 	{
-		// <!-- custom: performance optimization by chatgpt 5 thanks a lot but anyways etc which i slightly tweaked (added const but anyways etc) or not or yes or etc but anyways etc -->
+		// <!-- custom: codex change: skip unit classes with zero count for a small perf win. -->
 		// Tiny (optional) micro-perf tweak you can apply to all three: skip classification work when you own zero of that class. It avoids a few GC.getInfo(...) calls
 		const int iHave = getUnitClassCount(eLoopUnitClass);
 		if (iHave == 0)

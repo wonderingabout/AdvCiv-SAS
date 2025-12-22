@@ -8,7 +8,7 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see modding ressources readme at /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md (or whichever path it may be anyways etc if changed path or modifications i did or may have done additionally or kept as is but anyways etc), hopefully helpful or not or yes or etc or and other or and not anyways etc. There is a google drive link and screenshots for steps (most anyways etc) of how i did it if you'd want to try it or do it and see how i did myself hopefully helpful or/and enjoyable or/and plesant or not or yes or and other or and not but or not but or yes but but anyways etc.
+# <!-- custom: codex change: use buildBTradeString to show "Cannot be traded"; see /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md -->
 #
 # Without the DLL modification, i assume it would still run fine if i am not mistaken, just you would not have the bullet point at the tech, for example Future tech, that it cannot be traded in placeSpecial, but only the summary at the end of the list of all non tradeable tech that uses the already existing in base advciv if i am not mistaken anyways etc gc.getTechInfo(iTech).isTrade() if i am not mistaken, but which info of (this tech is not tradeable) is in base advciv not displayed in the placeSpecial bullet of the currently selected tech unless you modify DLL as explained before anyways etc. -->
 
@@ -280,7 +280,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from chatgpt thanks to my prompt and adjustments or not or yes or and other or and etc too anyways etc anyways etc anyways etc -->
+	# <!-- custom: codex change: add non-tradeable tech list at end of placeSpecial. -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()

@@ -24,7 +24,7 @@ def get_positive_memory_indexes_to_types():
 
 
 def get_negative_memory_indexes_to_types():
-	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such hopefully helpful or not or yes or and other or and not anyways etc): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any -->
+	# <!-- custom: codex change: MEMORY_RECEIVED_TECH_FROM_ANY polarity is unclear; see https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any -->
 	#
 	# "You have rejected another civilization's technology."
 	# occurs to the civilization that has received a technology each time a contacted civilization acquires a technology through trade.
@@ -41,7 +41,7 @@ def get_negative_memory_indexes_to_types():
 	# and our debug ingame in sevopedia shows (see (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py for details):
 	# Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): Attitude 0, Decay 20
 	#
-	# here is also chatgpt's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search anyways etc) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc anyways etc:
+	# <!-- custom: codex change: external summary below is informational; verify if needed. -->
 	#
 	# "
 	# 🧠 What it does
@@ -343,7 +343,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 def get_contact_rand_and_delay_invert_flags():
 	# <!-- custom: the higher the contact rand (say 200 > 50 anyways etc), the lower the 1/n = 1/200 vs 1/50 chance if i am not mistaken of contact event / prob from my memory of the terminology if i may say or words used in kujira about memory fields or such but anyways etc, so we invert -->
 	b_invert_contact_rands = True
-	# <!-- custom: also, the higher the delay (say 100 > 5 (turns? If i am not mistaken too but anyways etc)), the longer until next contact, so the lower the contact event / prob, so we invert anyways etc delays too if i may say or not or yes or etc anyways etc -->
+	# <!-- custom: codex change: invert contact delays since higher delay lowers contact frequency. -->
 	b_invert_contact_delays = True
 	return b_invert_contact_rands, b_invert_contact_delays
 

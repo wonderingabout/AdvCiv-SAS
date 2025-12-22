@@ -35,7 +35,7 @@ class SevoPediaReligion:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: this (287 anyways etc) should be accurate according to my measurements if i am not mistaken for a 4 leaders panel but the screen.appendMultiListButton uses seemingly (approximately from my vision but anyways etc) a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty if i may say anyways etc, to solve this, reducing the width, while keeping in mind the correct value should be 287 if i am not mistaken for 4 leaders per row total width including margins (or keeping here as i may or in case i forget or not forget maybe or not or yes or and other or and not anyways etc) -->
+		# <!-- custom: codex change: reduce leaders panel width to balance margins (287 -> 282). -->
 		#self.W_LEADERS = 287
 		self.W_LEADERS = 282
 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
@@ -47,7 +47,7 @@ class SevoPediaReligion:
 		self.W_RELIGION_PANE = 200
 		self.H_RELIGION_PANE = 230
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		# <!-- custom: codex change: import and adjust iIconFrameSize from SevopediaUnit. -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -55,7 +55,7 @@ class SevoPediaReligion:
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
 		# <!-- custom: icon at the center of the panel for its middle point (both middle point of the icon/button and of the religion_panel should and are wanted for us to coincide here anyways etc if we/i are/am not mistaken anyways etc anyways etc anyways etc...)
-		# Note: formula is approximative but seems to work quite well for a button size of 64px, may be improved indeed or not or yes or not or and other or and not or etc or not etc or yes or and other or and not anyways etc -->
+		# <!-- custom: codex change: icon centering tuned for 64px buttons; adjust if sizes change. -->
 		self.X_ICON = self.X_RELIGION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
 		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
 
@@ -110,7 +110,7 @@ class SevoPediaReligion:
 	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
 	#			TableStyles.TABLE_STYLE_STANDARD)
 	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc -->
-	# <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from History Rewritten mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc. -->
+	# <!-- custom: codex change: placeLeaders adapted from History Rewritten (CvPediaReligion.py). -->
 	def placeLeaders(self):
 		xPanel = self.X_LEADERS
 		yPanel = self.Y_LEADERS
@@ -145,7 +145,7 @@ class SevoPediaReligion:
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
-		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
+		# <!-- custom: codex change: add all leaders whose favorite religion matches. -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			leaderInfo = gc.getLeaderHeadInfo(iLeader)
 			if leaderInfo.getFavoriteReligion() == self.iReligion:

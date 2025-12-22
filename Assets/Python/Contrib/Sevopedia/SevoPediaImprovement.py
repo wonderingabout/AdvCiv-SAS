@@ -339,7 +339,7 @@ class SevoPediaImprovement:
 
 
 
-	# <!-- custom: new addition thanks to chatgpt and my prompt and own base code too i imported and tweaked form other places in our mod anyways etc as well as my own adjustments to its code too or not or yes or etc but anyways etc ; as for logic if i am not mistaken this is how it works-functions based on chatgpt's explanation as well as my own research/findings in (translate to english using web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids: if some terrains are specified then the improvement is only allowed on these terrains, else improvement is allowed on all terrains ; not sure i got it all right (in particular in the case of irrigation or such conditions seemingly allowing the improvement on a terrain even if not listed here), so i am not sure it is all accurate but maybe is, check to be sure, and adjust this if needed i mean anyways etc ; i implemented it as such and also added an explicative text that maybe the restriction could be elsewhere if not in improvementinfos (not stated directly but may be indiretly inferred from text maybe as of now but anyways etc) hopefully helpful or not or yes or etc but anyways etc -->
+	# <!-- custom: codex change: explain terrain validity rules; see https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids -->
 	def placeTerrainMakesValids(self):
 		xPanel = self.X_TERRAIN_MAKES_VALIDS
 		yPanel = self.Y_TERRAIN_MAKES_VALIDS

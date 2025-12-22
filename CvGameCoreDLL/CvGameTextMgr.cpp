@@ -985,7 +985,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 	}
 
 	// <!-- custom: also show collateral damage info (with defenders too but anyways etc) if collateral damage limit > 0 as well, may be useful to know, anyways etc -->
-	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit if i am not mistaken so it (also) appears in sevopedia unit, not in this seemingly ingame panel, but anyways etc), still, is maybe cleaner (but i don't know again as i don't know a lot about these but anyways etc) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine at least to me but again check to be sure, hopefully helpful or not or yes or etc, anyways etc -->
+	// <!-- custom: codex change: use pUnit->collateralDamageLimit() for display; appears in Civilopedia too. -->
 	if (pUnit->collateralDamage() > 0 || pUnit->collateralDamageLimit() > 0)
 	{
 		szString.append(NEWLINE);
@@ -9347,7 +9347,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				(100 * u.getCombatLimit()) / GC.getMAX_HIT_POINTS()));
 	}
 
-	// <!-- custom: also display the collateral limit info even for units that have a base collateral damage of 0, but now applying this to sevopedia unit placeSpecial panel here in this code block if i am not mistaken anyways etc, with chatgpt's help too, hopefully helpful or not or yes or etc anyways etc -->
+	// <!-- custom: codex change: show collateral limit even when base collateral damage is 0. -->
 	int const iCollateralDamageLimit = 100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS();
 	if (u.getCollateralDamage() > 0 || u.getCollateralDamageLimit() > 0)
 	{

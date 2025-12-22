@@ -869,7 +869,7 @@ void CvCityAI::AI_chooseProduction()
 	// You already hoist kPlayer, kTeam, kGame, kArea, pCapital—perfect. When you compute repeated odds driven by getPopulation() or “danger” branches, keep those in locals if used multiple times in the same block (very small win). The hot work in this function is in the called evaluators, not the GC lookups.
 	int const iCityPopulation = getPopulation();
 
-	// <!-- custom: optimization i found myself but anyways etc; done with the help of chatgpt 5 and that i then adjusted or not or yes or etc but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: codex change: minor optimization; verify if needed. -->
 	// use sCityName (or kCityName) multiple times in this function
 	// My advice here is to avoid binding a pointer to a temporary object. If getName() doesn’t return const CvWString&, we can store a local copy, like so:
 	// Overhead of calling getName() or .GetCString() is minimal, but if repeated often, I could store it to save on performance. However, I must be cautious about pointer invalidation if name changes within the function (though rare). A better approach might be using const CvWString& szCityName = getName() to store it safely before passing .GetCString() when needed. If it’s only used once—没必要! For performance, it’s okay to use getName().GetCString() directly in formatting.
@@ -3271,7 +3271,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 	int aiUnitAIVal[NUM_UNITAI_TYPES] = { 0 };
 
-	// <!-- custom: info if helps in this mess, here about most unitais not all (those i had plus not some like great person unitais as not relevant here i think but check to be sure if i were to be mistaken maybe i mean or not or yes or etc but anyways etc) see modding ressouces in our docs for details if i may say i.e. mine but anyways etc and source there and check if this is accurate too anyways etc -->
+	// <!-- custom: codex change: UNITAI notes for reference; see modding resources for full list. -->
 	// - UNITAI_ATTACK: General purpose; unit prioritizes joining an attack stack, but also may wander off on search and destroy/explore, sit in a city and defend it, etc.
 	// UNITAI_ATTACK_CITY: Join an attack stack -> If in an attack stack, lead assault on a city once the AI decides the stack should attack a city
 	// - UNITAI_COLLATERAL: Similar to UNITAI_ATTACK_CITY, but may also attack enemy stacks in the field
@@ -3901,7 +3901,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			}
 		}
 
-		// <!-- custom: make sure only highest pop city produces a settler. This is because it uses food as production too, and with all its food from all population, settler would be produced very fast, while the smaller cities would take a long time and halt their growth to do so. Also, highest pop cities are more likely to stagnate and so as such to not be using their food anyway, so this should be in most cases the most efficient. And since it would be tedious to check each city and all to see which is biggest, simply go for capital, which generally at least in most cases should be biggest or among biggest if i'm not mistaken due to having earliest start and generally enough food to grow due to start optimizations or such in particular if i'm not mistaken but anyways etc. Finally if i may say but anyways etc, in our mod as of now the settler is a national unit with only 1 allowed, including the existing unit if any, so this change is compatible with that and with us reverting it in the future. This change may not always be the most efficient, and AIs may miss a wonder or 2 as a result as i forgot to say too but anyways etc, but it is maybe not so bad, and i believe in most cases it should be much more efficient use of food as well as cities optimization; code below by chatgpt 5 and that i adjusted or not how i saw fit or wanted mostly keeping as it did but reordering or such or and other or and not but anyways etc, check if accurate and is also thanks to my prompt too if i may say as well as feeding it real capital sample code of this mod that (the sample) is before our mod too also i mean but anyways etc ; also a side effect of not using capital cities now that settler is a national unit with 1 allowed, is that if city C takes 50 turns to produce a settler, the whole empire will be stuck with no new city, so really necessary after all hehe if i may say after further consideration in this case i mean but anyways etc (got the idea thanks to reading a reply of chatgpt 5 although it didn't say that but gave me the idea thanks chatgpt 5 and thanks to me too if i may say and maybe to those who read or not or yes or other or etc but anyways etc...) -->
+		// <!-- custom: codex change: restrict settler builds to capital to avoid growth stalls. -->
 		if (!bCapital)
 		{
 			aiUnitAIVal[UNITAI_SETTLE] = 0;
@@ -4689,7 +4689,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	const int iFreeExperience = kBuilding.getFreeExperience();
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
 
-	// <!-- custom: add some sanity / optimization rules of when to not build and sometimes when to always build some buildings rather than others. For example, walls are a waste of hammer at peace, or we are stronger than our ennemies, these could be used to produce almost 2 more axemen or half a settler or a worker as of now more or less, and similarly for many buildings there is a time when they are most relevant and other times when they really aren't yet AI inefficiently builds them anyway. Added these rules with chatgpt 5 thanks to my prompts and adjustments too if i may say but anyways etc, check if accurate, it somehow seems strongly passionate if i may say in these/its code comments hehe, sometimes mentionning K-Mod when i am not sure it is K-Mod, check if accurate xd and maybe enjoy or not or yes or etc but anyways etc, hopefully this makes AI a lot stronger or/and sharper but anyways etc with its best building management, and is similarly done to how we fine-tuned with a set or pre-rules the promotions AI would choose in CvUnitAI::AI_promotionValue anyways etc -->
+	// <!-- custom: codex change: add heuristics to skip low-value buildings (e.g., walls in peace). -->
 	const bool bMinor = kOwner.isMinorCiv();
 	const bool bBarbarian = kOwner.isBarbarian();
 
@@ -4821,7 +4821,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						return 0;
 					}
-					// If they’re actually scary (≥120%), <!-- custom: build walls with highest priority, we are likely to get attacked, walls or castle or such would help a lot more than any other building, but not for wonders unfortunately if i may say but anyways etc as it is unlikely we complete them on time before war ends or we die or we make any advantage of them anyways etc (worst case we'd be building it for them, invest that hammer in units or last ditch efforts rather that may help more maybe i would say in this case i mean but anyways etc) ; note: the else if is a bit redundant if i am not mistaken but anyways etc hopefully clearer as such maybe or not or yes or etc but anyways etc -->
+					// If they?re actually scary (>=120%), <!-- custom: codex change: prioritize walls/castles over wonders when under threat. -->
 					else if (bEnemyStrong)
 					{
 						return AI_BUILDING_ALWAYS_PICK_FIRST;
@@ -10250,7 +10250,7 @@ namespace
 }
 
 // <!-- custom: update: disabling it entirely throws off workboats that use this too, then they stay parked in city, so updated this to disable it functionally only for land workers as we want them to use our optimized AI worker logic, but as for sea workers, fine if they do as such as long as works-functions anyways etc ; added thanks to claude ai and my prompt too etc anyways etc -->
-// <!-- custom: since we handle all this ourselves now in CvUnitAI::AI_bestCityBuild, we don't want any interference, disabled as part of trying to solve spices plains forcibly irrigated despite our code controlling most of the ai worker build decisions now, as well as flood plains or flatland grass as well very inefficiently farmed when city is not even starved, let us handle it ourselves rather there as we seem to already do for most but anyways etc, added by chatgpt o3 anyways etc and adjusted or not or yes or etc by me too if i may say but anyways etc ; update: this solved the farm on spices plains issue and also unwanted as well farm on flood plains, AI workers chose to go for production economy for some reason xd, but our best improvements are still chosen reliably it seems (e.g. cottage on flood plains or nothing unless we are starved, see CvUnitAI::AI_bestCityBuild for details anyways etc) -->
+// <!-- custom: codex change: disable AI_getImprovementValue to avoid interfering with AI_bestCityBuild. -->
 // advc (note): K-Mod function based on AI_updateBestBuild
 int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement,
 	int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange,
@@ -12701,7 +12701,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							// clamp to avoid negative
 							const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
-							// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described suggested although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
+							// <!-- custom: codex change: worker cap decays 10% per era starting Renaissance. -->
 							// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
 							const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value but anyways etc -->
 							const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
@@ -13932,7 +13932,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 			iGrowthValue += 8 // in addition to other effects.
 					+ (AI_isStrongEmphasis() ? 3 : 0); // advc.131d
 		} // </k146>
-		// <!-- custom: we have a major bug or/and suboptimal behaviour in this case i mean but anyways etc of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs anyways etc), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34 but anyways etc) ; both seem to come down to cities choosing production over food. Attempt for now in this change i mean but anyways etc to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd but anyways etc, hopefully helpful or not or yes or etc but check to be sure if i may say but anyways etc -->
+		// <!-- custom: codex change: boost food value to avoid stagnation (see issue 34). -->
 		// Add a small boost for non-emphasized food to make it more valuable than production
 		else if (iFoodYield > 0 && !AI_isEmphasizeAvoidGrowth()) {
 			iGrowthValue += 2;
@@ -14361,7 +14361,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 		iValue += std::max(1, iCommerceValue);
 	}
 
-	// <!-- custom: weird code comment above but anyways etc, adding here a patch/fix by chatgpt 3-o as well thanks to my prompt and adjustments or not or yes or etc or/and such too but anyways etc, to attempt to fix as of now known issue 40 of a china AI city in this example staying pop 1 for 50 turns seemingly due to one or a few high production tiles, and producting archers, walls, workers etc (which is maybe not bad, but favour growth rather at least more, as city is pop 3 at turn 100 while it could grow so fast instead if it could do this still, seems really bad as city is very happy so could have grown a lot. So make food value a function of happiness vs unhappiness ratio, so that the closer we are to hapiness vs unhappiness cap (i.e. 0, equal hapyp vs unhappy, the less we value foodn, and also meaning if we are very happy, favour growth), hopefully not going overboard of having size 10 cities with 1 hammer and max pop and many unhappy citizens but anyways etc ; note: chatgpt 3-o went with +6% food increase per happy if i am not mistaken, but i felt it's too conservative, grow if we can, so although i have no idea of actual values trying other values experimentally and we see but anyways etc -->
+	// <!-- custom: codex change: scale food value by happiness to avoid pop-1 stagnation (see issue 40). -->
 	// ------------------------------------------------------------------
 	// boost food if there is spare happiness
 	// ------------------------------------------------------------------
@@ -14445,7 +14445,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 		const bool bHuman = kOwner.isHuman();
 
-		// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue if i'm not mistaken but anyways etc, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case, hopefully helpful or not or yes or etc, anyways etc -->
+		// <!-- custom: codex change: disallow citizen specialist for AI; early return for performance. -->
 		// <!-- custom: it seems we deleted the no citizen logic or it is missing here for some reason, adding it again anyways etc as recommended by chatgpt 5.1; i adjusted its code by removing some extra other stuff, anyways etc -->
         // -----------------------------------------------------------------
         // 0) Citizen guard – only as LAST RESORT
@@ -14566,7 +14566,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		{
 			const int iCityPopulation = getPopulation();
 
-			// <!-- custom: AIs often misassign specialists especially when their city is still small and perhaps low food too, resulting in pop 2 cities being stagnant. Sometimes even 2 specialists were assigned in said cities. Happened to barbarians too. It would be amazing to retweak all, but i believe a simple sanity/safe patch of preventing cities <= 4 to use a specialist of any kind would help a lot, see known issue as of now 45 for details anyways etc, also code by chatgpt 5 that i adjusted or not or yes or etc but anyways etc, check if accurate and thanks for help chatgpt 5 hehe anyways etc -->
+			// <!-- custom: codex change: block specialists in very small cities (<=4) to avoid stagnation. -->
 			if (iCityPopulation <= 4)
 			{
 				if (new_job.first /* hiring any specialist */)
@@ -15972,7 +15972,7 @@ void CvCityAI::AI_barbChooseProduction()
 	// advc.305:
 	int iCityAge = kGame.getGameTurn() - getGameTurnAcquired();
 
-	// <!-- custom: optimization i found myself but anyways etc; done with the help of chatgpt 5 and that i then adjusted or not or yes or etc but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: codex change: minor optimization; verify if needed. -->
 	// use sCityName (or kCityName) multiple times in this function
 	// My advice here is to avoid binding a pointer to a temporary object. If getName() doesn’t return const CvWString&, we can store a local copy, like so:
 	// Overhead of calling getName() or .GetCString() is minimal, but if repeated often, I could store it to save on performance. However, I must be cautious about pointer invalidation if name changes within the function (though rare). A better approach might be using const CvWString& szCityName = getName() to store it safely before passing .GetCString() when needed. If it’s only used once—没必要! For performance, it’s okay to use getName().GetCString() directly in formatting.
@@ -16702,7 +16702,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
 		if (eBonus != NO_BONUS && eBonus != eLoopBonus)
 			continue;
 
-		// <!-- custom: optimization i found myself but anyways etc; done with the help of chatgpt 5 and that i then adjusted or not or yes or etc but anyways etc, check if accurate anyways etc -->
+		// <!-- custom: codex change: minor optimization; verify if needed. -->
 		// Good eye—there are a couple more tiny hoists you can do here. Your eOwner/eTeam locals are already the main win. The next cheap gains:
 		// - Cache the plot owner once per iteration (used twice).
         const PlayerTypes ePlotOwner = kPlot.getOwner();

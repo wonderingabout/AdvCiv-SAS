@@ -36,7 +36,7 @@
 		# 	</BuildingClassNeededs>
 		#
 		# So if i am not mistaken we need to account for both:
-		# - BuildingClassNeededs (buildingInfo.isBuildingClassNeededInCity(i) below if i am not mistaken indeed (but) anyways etc) (see also (translate to english with your web browser or/and such or not if you want/wish/please or not as you prefer or not or yes or and other or and not anyways etc: https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbuildingclasses)), and
+		# <!-- custom: codex change: handle BuildingClassNeededs; see https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbuildingclasses -->
 		# - PrereqBuildingClasses (buildingInfo.getPrereqNumOfBuildingClass(i) below if i am not mistaken, see also as well https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildingclassneededs -->
 
 
@@ -134,7 +134,7 @@ class SevoPediaBuilding:
 		self.W_BUILDING_PANE = (self.top.R_PEDIA_PAGE - self.X_BUILDING_PANE - self.MEDIUM_MARGIN) / 2
 		self.H_BUILDING_PANE = 190
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		# <!-- custom: codex change: import and adjust iIconFrameSize from SevopediaUnit. -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -562,7 +562,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: additional info by chatgpt thanks to my prompt too but anyways etc: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also anyways etc "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for anyways etc to which chatgpt also replied anyways etc thanks but or not but or yes but but anyways etc "In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." hopefully helpful or not or yes thanks or not thanks or yes thanks anyways etc anyways etc anyways etc -->
+	# <!-- custom: codex change: helper resolves default building by class; current building already concrete. -->
 	def get_iDefaultBuilding_current_civ(self, i):
 		# Get the default building of this class for the current civilization
 		if self.top.iActivePlayer != -1:
@@ -686,7 +686,7 @@ class SevoPediaBuilding:
 					screen.appendMultiListButton(rowListName, projectInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
 
 					if not bFirst:
-						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad or not or yes or and other or and not anyways etc anyways etc anyways etc...), not having thus to rewrite our otherwise working/functionning(functionnal?) code, anyways etc anyways etc anyways etc... -->
+						# <!-- custom: codex change: render the "or" label as numTxt between buttons to keep alignment. -->
 						# (Also) S(s)ince our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe if i may say, but anyways etc anyways etc anyways etc... -->
 						numTxt = localText.getText("TXT_KEY_OR", ())
 						# <!-- custom: "or" numTxt aligned between this button and the previous one anyways etc -->
@@ -1198,7 +1198,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: if i am not mistaken this handles several civs sharing a special building/unit, see screenshot 3068 in the drive for example where the building mall as a test anyways etc is shared between both civilization American empire and Mali empire for example or/and for details or/and other source or maybe rather too as well test it yourself or not if need(ed) or other or etc anyways etc ; we reduced width to 84px or some smaller width value because it is unlikely we use this feature in advciv-sas (simpler if one civ has one civ-specific unit and civ-specific building unique to them, but it is in theory possible like other mods do if i am not mistaken to share them across several civs, hence the name "civs" even though width is so small (i assume it would scroll if more than one button too so display is not lost or not or yes or other or etc anyways etc --> 
+	# <!-- custom: codex change: reduce civs panel width; shared-unique civs still supported. -->
 	def placeCivilizations(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()

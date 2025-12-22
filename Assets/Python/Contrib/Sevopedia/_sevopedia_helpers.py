@@ -154,7 +154,7 @@ def SAS_isFeatureRemovable(iFeature, gc):
 
 
 
-# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1 if i am not mistaken anyways etc, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now anyways etc should raise an error not silently pass if i may say and if i am not mistaken anyways etc ; also useful to access any asset id safely if i am not mistaken such as hills or peak terrains 's id, or hills's button for example too if i am not mistaken anyways etc ; is also useful to detect and signal loudly if i may say anyways etc errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now anyways etc instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me anyways etc based on previous parts of this code comment if i am not mistaken and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd if i may say but anyways etc anyways etc anyways etc hopefully helpful or not or yes or etc anyways etc... in short this is a very helpful helper... pun was not intended, but why not keep it now that it's written, i have no reason not to and nothing against it, but anyways etc, hopefully helpful or not or yes or etc but anyways etc... -->
+# <!-- custom: codex change: getInfoTypeOrFail raises on missing IDs to catch bad tags early. -->
 def getInfoTypeOrFail(tag, gc):
 	iType = gc.getInfoTypeForString(tag)
 	if iType == -1:
@@ -287,7 +287,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on anyways etc numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example anyways etc "+25%") if i am not mistaken in trying it as such anyways etc, so we add a tiny bit of in this case if i may say anyways etc extra x correction (extraCorrectionX) anyways etc etc -->
 	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 
-	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text i mean anyways etc, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length anyways etc), then it is fine i think anyways etc to hardcode it here for convenience and efficiency anyways etc at least i want to do so hopefully convenient or/and helpful or not or yes or etc anyways etc to do so i mean anyways etc -->
+	# <!-- custom: codex change: apply a small fixed Y offset for numTxt alignment. -->
 	extraCorrectionY = -9
 	textY = multiListY + button_size + extraCorrectionY + (buttonRow * button_size) + (buttonRow * HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING)
 

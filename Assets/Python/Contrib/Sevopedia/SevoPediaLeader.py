@@ -51,7 +51,7 @@ localText = CyTranslator()
 IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
 IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
 
-# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too -->
+# <!-- custom: codex change: debug logging is optional; disabled by default to reduce IO. -->
 IS_DEBUG_LEADER = False
 
 # <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization anyways etc, so set B_WARN to false if i am not mistaken in my understanding anyways etc -->
@@ -90,7 +90,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 	def check_required_newly_exposed_python_getters_gc_leader_exist():
-		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or not or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mean maybe this joke or something too or not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
+		# <!-- custom: codex change: AI personality panel requires DLL-exposed getters; raise if missing (see README fixes). -->
 
 		REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
 			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
@@ -122,7 +122,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 
-	# <!-- custom: modified from claude ai's code sample anyways etc, see sevopedia helpers py also for details about these anyways etc ; note: NUM_MEMORY_TYPES_ASSESSED are not here in sevopedia leader since/as anyways etc we use a different looping emthod as in methodology if i may say but anyways etc, see positive_or_negative_memory_indexes and its related code comments if any hopefully that would hopefully be helpful perhaps to understand if i may say or and such help in other ways perhaps yes or not or yes or and other or etc anyways etc but anyways etc anyways etc anyways etc -->
+	# <!-- custom: codex change: Claude-based sample; memory looping uses positive/negative indexes. -->
 	NUM_CONTACT_TYPES_ASSESSED = 14
 	NUM_ATTITUDE_TYPES_ASSESSED = 5
 
@@ -650,7 +650,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		
 		# <!-- custom: after all min and max parsing is done, some sanity and warning checks -->
 		for key in leader_info_minimums:
-			# <!-- custom: ensure our leader_info_minimums is reliable even if a bit if not lot or not or yes or etc but anyways etc before proceeding further anyways etc -->
+			# <!-- custom: codex change: assert min/max key parity before normalization. -->
 			if key not in leader_info_maximums:
 				raise KeyError(u"[KEY ERROR] Missing leader_info_maximums key=%s, in leader_info_minimums but not in leader_info_maximums, cannot proceed if both leader_info_minimums and leader_info_maximums all have same keys, please check your min and max computing or and DLL behaviour that may explain missing fields." % key)
 
@@ -669,7 +669,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 	leader_info_minimums, leader_info_maximums = get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
 
-	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not in this case i mean, anyways etc, we have enough sanity checks overall everywhere to not need to resanity check this xd if i may say even though may help maybe but anyways etc is bit tedious since dbug also helps if i may say but anyways etc (see SevopediaLead_derExamplesOfOutputs.txt or whichever file it is named if still in this mod Sevopedia folder for example of outputs anyways etc), so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums anywayse tc hopefully helpful or not or yes or etc or and other or and not or yes or etc anwyays etc but anyways etc anyways etc anyways etc -->
+	# <!-- custom: codex change: min/max dictionaries are key-only; skip leader-index sanity checks. -->
 
 
 
@@ -724,7 +724,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				# <!-- custom: just strip tail (i.e. without appending any abbreviated_tail as a replacement if i am not mistaken anyways etc) -->
 				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "VictoryWeight", "", label_raw, max_length)
 			elif key_or_suffix_without_front.endswith("RefuseAttitudeThreshold"):
-				# <!-- custom: no need for a "RAT" abbreviated_tail as would clutter and they are all in same category at least as of now if not always or not or yes or etc anyways etc ; so opt for a more compact label instead if i may say i mean anyways etc anyways etc -->
+				# <!-- custom: codex change: omit RAT suffix to keep labels compact. -->
 				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "RefuseAttitudeThreshold", "", label_raw, max_length)
 			elif key_or_suffix_without_front.endswith("AttitudeThreshold"):
 				# <!-- custom: the "AT" vs "RAT" here is informative though i think for the few fields that have it i think so display it i think i mean anyways etc -->
@@ -782,7 +782,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			"EQUAL_SCALE_SYMBOL": "=",
 		}
 
-		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now if i am not mistaken anyways etc see latest value or/and code comments or/and docs for updated value or and info hopefully helpful or not or yes or etc anyways etc) anyways etc) order anyways etc -->
+		# <!-- custom: codex change: contact index labels follow NUM_CONTACT_TYPES_ASSESSED order. -->
 		contact_index_labels = {
 			0: "Relig. Press.",		# CONTACT_RELIGION_PRESSURE
 			1: "Civic Press.",		# CONTACT_CIVIC_PRESSURE
@@ -853,7 +853,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		for iLeader in NON_EXCLUDED_LEADERS:
 			leader_info_cached = {}
 
-			# <!-- custom: note: later in the code at UI stage or somewhere after the whole compute_and_store_leaders_info_cached caching function anyways etc, to access the tuple line to display in the table for non-agrgegated and perhaps some other ai attributes or not anyways etc, we may use for some attributes the getter name as a key but we don't call it, it is just more conveninent to store it this way as this is consistent with existing getter name and we didn't flatten field/attribute since it was not nested xml so no need to use another key name than one that starts with "get" for this field/attribute anyways etc, it is still a flat one, so do at load for example for iLeader = 5 dynamically while in the UI loop per attribute/key if i am not mistaken anyways etc LEADERS_INFO_CACHED[5]["getBaseAttitude"] to access the tuple to display, while for some other attributes/fields anyways etc we may use an "i" type of key name such as for some nested fields like flavors for example anyways etc LEADERS_INFO_CACHED[5]["iFlavorMilitary"] since we flatten them as such if i am not mistaken anyways etc, vs also for some other nested fields like aggregated attributes for example similarly (if other kind of fields exist, as of now not but is to be exhaustive or as it is or and other or and not but anyways etc) instead we may do for example anyways etc LEADERS_INFO_CACHED[5]["iAggregatedNegativeMemoryHiredTradeEmbargoResentment"] (not using a "get" getter name for the key here either, but these are all key names regardless of "i" or "get" or other name/prefix in key name to access in LEADERS_INFO_CACHED if i am not mistaken anyways etc that we don't call like getters even if there is a "get", but only use as key names anyways etc), hopefully clearer or/and helps maybe ideally or not or yes or etc understand or see how it works-functions but or not but or yes but but anyways etc anyways etc anyways etc, i find it quite plesant design this way, but anyways etc -->
+				# <!-- custom: codex change: cache uses getter keys for direct fields and i* keys for flattened fields. -->
 
 			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
@@ -1168,7 +1168,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
-			# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough at least in this case if not always or not or yes or other or etc but anyways etc -->
+			# <!-- custom: codex change: hide this field to keep table width manageable. -->
 			# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
@@ -1753,7 +1753,7 @@ class SevoPediaLeader:
 		self.setupAIPanel(screen, self.AI_PANEL_MIDDLE_TXT_KEY, xPanelMiddle)
 		self.setupAIPanel(screen, self.AI_PANEL_LEFT_TXT_KEY, xPanelLeft)
 
-		# <!-- custom: performance optimization if i'm not mistaken anyways etc and after asking chatgpt to test it to be sure about my intuition i had but anyways etc anyways etc anyways etc... which seems to have turned out correct (at least chatgpt ran a real benchmark with the sample size of its choice anyways etc a diff of (3.366469383239746, 2.984344720840454) seconds for (Method 1 (repeated LEADERS_INFO_CACHED[i] lookup): ~3.37 seconds, Method 2 (store info = LEADERS_INFO_CACHED[i] once): ~2.98 seconds if i am not mistaken in my understanding of it too but anyways etc if not then all good else as is or not but in all cases or not or yes or etc or and other or yes or etc anyways etc) but anyways etc...: store the currently selected leader's LEADERS_INFO_CACHED[iLeader] pointer as the leader_info_cached variable so it is a bit faster to access it this was rather than rebrowsing through the giant or/and parent too but anyways etc pointer here, to indeed access it (i.e. this sub-pointer anyways etc relative to LEADERS_INFO_CACHED parent pointer to the dict anyways etc) rather than through LEADERS_INFO_CACHED at each attribute (we have +/-100 as for us if i may say anyways etc in AdvCiv-SAS) too or around it if i am not too mistaken but anyways etc -->
+		# <!-- custom: codex change: cache LEADERS_INFO_CACHED[iLeader] locally for speed. -->
 		leader_info_cached = LEADERS_INFO_CACHED[iLeader]
 
 		self.renderAICategories(screen, AI_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
