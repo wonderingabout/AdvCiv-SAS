@@ -34,7 +34,7 @@ or/and modify existing ones, for example, archery units would become:
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Description>
 			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Bow_Long/ucarcher.dds</Button>
 		</UnitCombatInfo>
-		<!-- custom: art import from c2c mod's PROMOTION_ARROW_BARRAGE1 's button quite similarly anyways etc anyways etc anyways etc -->
+		<!-- custom: codex change: reuse C2C PROMOTION_ARROW_BARRAGE1 button art. -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_ARCHER_CROSSBOW</Type>
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Description>

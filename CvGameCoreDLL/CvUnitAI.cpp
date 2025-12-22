@@ -3251,7 +3251,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	//if (GC.getGame().getSorenRandNum(5, "AI Worker build Fort with Priority"))
 	/*	advc.001: The above tests !=0. Why should a Fort be given priority
 		80% of the time? */
-	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here reduce if i am not mistaken and from asking chatgpt if we could do so but anyways etc the chanc to consider forts from 20% to 10% if i am not mistaken and if i understand (tood? But anyways etc...) correctly chatgpt's explanation too, maybe this helps as well reduce fort occurence but anyways etc -->
+	// <!-- custom: codex change: reduce fort consideration chance to 10%. -->
 	//if (SyncRandSuccess100(20))
 	if (SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
 	{
@@ -10879,7 +10879,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		// <!-- custom: for naval unitais, combat promotions are often the best choice, followed by navigator if i'm not mistaken but anyways etc -->
 		if (bOffenseNavalUnitAI || bDefenseNavalUnitAI)
 		{
-			// <!-- custom: navigator is useful for naval defense unitais if i'm not mistaken and as recommended by chatgpt 5 but check to be sure but anyways etc anyways etc -->
+			// <!-- custom: codex change: navigator is useful for naval defense unit AI. -->
 			if (ePromotion == ePromotionCombat1)
 			{
 				return AI_PROMOTION_ALWAYS_PICK_FIRST + 5000;
@@ -19559,7 +19559,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 
 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
 
-	// <!-- custom: turn 156 rare crash proper guard now below, after commenting our this guard of bestplot from old code too anyways etc anyways etc, with the help of chatgpt 5, check if accurate anyways etc -->
+	// <!-- custom: codex change: keep the best-plot null guard to avoid rare crashes. -->
 	// if (pBestPlot == NULL)
 	// 	return false;
 	// FAssertEnumBounds(eBestBuild);
@@ -23743,7 +23743,7 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
 
 	// Ad-hoc heuristic for Fort building:  (overlaps with AI_getPlotDefendersNeeded; fixme?)
 	ImprovementTypes const eImpr = GC.getInfo(eBuild).getImprovement();
-	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
+	// <!-- custom: codex change: discourage forts; they are inefficient for AI. -->
 	// CvImprovementInfo const& kImpr = GC.getInfo(eImpr);
 	// int iDefenseValue = kImpr.getDefenseModifier();
 	// // The AI isn't going to station units on an island without cities

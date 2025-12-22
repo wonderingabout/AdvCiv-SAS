@@ -9681,7 +9681,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			szBuffer.append(szTempBuffer);
 		}
 	} // </advc.905b>
-	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar i mean anyways etc), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken, anyways etc anyways etc anyways etc... -->
+	// <!-- custom: codex change: omit "Starts with..." in the Civilopedia; handled in the Free panel. -->
 	if (!bCivilopediaText)
 	{
 		bool bFirst = true;
@@ -10765,15 +10765,15 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 	{
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
-		// <!-- custom: also add the K-Mod code block nice info if i may say but anyways etc anyways etc anyways etc for area clean power to not misleadingly assume but anyways etc anyways etc anyways etc that (areacleanpower) power has no unhealthy effect or be ignorant or confused about it anyways etc
-		// But since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one anyways etc) and part of this K-Mod code if i may say anyways etc anyways etc anyways etc...
+		// <!-- custom: codex change: add K-Mod clean-power health info for area power. -->
+		// <!-- custom: codex change: show clean-power health value only for area power. -->
 		// But since i am not sure that dirty power is cancelled in this city if both areacleanpower and dirtypower are specified, added a "(?)" as well anyways etc -->
 		// <!-- custom: split the message info between/to cover anyways etc clean and dirty cases anyways etc -->
 		// K-Mod. Also include base health change from power.
 		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case anyways etc -->
 
 		// K-Mod end
-		// <!-- custom: then add info about the effect and its value (number anyways etc anyways etc anyways etc...) in all cities as well, since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one anyways etc) anyways etc -->
+		// <!-- custom: codex change: add clean-power health info to the all-cities appendix. -->
 		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case anyways etc -->
 		szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES"));
 		int iPowerHealthChangeAll = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
@@ -11605,9 +11605,9 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 	}
 	if (kBuilding.getPowerBonus() != NO_BONUS)
 	{
-		// <!-- custom: add info about whether power is clean or dirty for bonus as well, and add the power icon, similarly to how was done in the other TXT_KEY_BUILDING_PROVIDES_POWER similar/apparented reworks of the placeSpecial messages anyways etc, see this DLL code or/and XML txt key changes or/and sevopediabuilding if any change is there too about this or not in all cases anyways etc anyways etc anyways etc... -->
+		// <!-- custom: codex change: indicate clean/dirty power and show the power icon for bonus power. -->
 		szBuffer.append(NEWLINE);
-		// <!-- custom: common message at the start anyways etc anyways etc anyways etc -->
+		// <!-- custom: codex change: add a shared prefix line for power-bonus text. -->
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_WITH",
 				GC.getInfo((BonusTypes)kBuilding.getPowerBonus()).getTextKeyWide()));
 

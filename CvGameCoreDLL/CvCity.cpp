@@ -1010,7 +1010,7 @@ void CvCity::doTurn()
 								{
 									if (bNoExcessTrebuchetsLike)
 									{
-										// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
+										// <!-- custom: codex change: skip trebuchets once war starts and the enemy is strong. -->
 										if (bAtWar && bEnemyStrong)
 										{
 											continue; // don’t add more narrow-purpose siege when not stronger

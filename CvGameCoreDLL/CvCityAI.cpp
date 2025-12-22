@@ -10360,7 +10360,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
 						eImprovement, eLoopYield, kOwner.getID());
 			}
 			if (iImprYieldChange <= 0 && kPlot.getWorkingCity() != NULL)
-				// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here increase the division to keep code as it is functionnally but with stricter behaviour if i am not mistaken towards forts but anyways etc -->
+				// <!-- custom: codex change: reduce fort preference by strengthening the penalty. -->
 				//rValue /= 3;
 				rValue /= 10;
 			// </advc.121>
@@ -11830,7 +11830,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					{
 						int iCapTrebs = 20;
 
-						// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
+						// <!-- custom: codex change: skip trebuchets once war starts and the enemy is strong. -->
 						if (bAtWar && bEnemyStrong)
 						{
 							return false; // don’t add more narrow-purpose siege when not stronger
@@ -13023,7 +13023,7 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold);
 	if (eBestBuilding != NO_BUILDING)
 	{
-		// <!-- custom: try to prevent barbarians from building world wonders, their purpose is to fight not to compete for wonders no matter how well they are developped, at least in advciv-sas, increasing iBuildUnitProb to 100 and using NONE in civilizations info xml file seem to be no good or not always reliable/consistent as they still build world wonders in some cases and quite often, so patching the DLL rather hopefully helps reliably solve this, with chatgpt's help and my prompts and adjustments or not or yes or etc or and such or not or yes or etc too but anyways etc anyways etc anyways etc -->
+		// <!-- custom: codex change: block barbarians from choosing world wonders; XML settings were insufficient. -->
 		// Check if Barbarian is trying to build a world wonder and skip it
 		const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 		if (kOwner.isBarbarian())

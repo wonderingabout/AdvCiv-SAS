@@ -2,7 +2,7 @@ TOOLKIT=$(PROGRAMFILES)\Civ4SDK\Microsoft Visual C++ Toolkit 2003
 PSDK=$(PROGRAMFILES)\Civ4SDK\WindowsSDK
 CIV4_PATH=$(PROGRAMFILES)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword
 #
-# <!-- custom: note by chatgpt thanks to my prompt too anyways etc hopefully helpful anyways etc, also note below that Civ4Libs folder is just an example, it could be any folder name other than "Civ4Libs" and path other than program files if you prefer as long as it has the required Boost 1.32.0 and Python24 folders (and their files obviously not just empty folders i mean anyways etc anyways etc), just i wanted them to be outside of git so that it doesn't clutter and in case we do manual backups too as i do quite some times/many times anyways or not or yes anyways etc -->
+# <!-- custom: codex change: Civ4Libs path can be any folder outside git if it contains Boost 1.32.0 and Python24. -->
 # CIV4_LIB_INSTALL_PATH is not set here.
 # Instead, it should be defined as a Windows environment variable.
 # Example (permanent):

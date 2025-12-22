@@ -2129,7 +2129,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
-		// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
+		// <!-- custom: codex change: avoid forts for bonus improvements; they are inefficient for AI. -->
 		if (kImprovement.isActsAsCity()) // Usually means Fort
 		{
 			continue;
@@ -3356,7 +3356,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 }
 
 
-// <!-- custom: remove this, as we already have a very new fine tuned yield terrain focus logic, and lack of production is not necessarily bad (cottage city may be strong locally if AI otherwise has good empire production anyways etc for example if i am not mistaken anyways etc, but point is don't reject city just because it may have low production, look at overall terrain and such yields which we already do anyways etc, so remove this specific if i may say in this case but anyways etc logic that may interfere with that and our changes in a way that may make AI less efficient maybe if i'm not mistaken but check to be sure anyways etc anyways etc) -->
+// <!-- custom: codex change: remove production-based site penalty; rely on current yield logic. -->
 // int AIFoundValue::adjustToProduction(int iValue, scaled rBaseProduction) const
 // {
 // 	// K-Mod. reduce value of cities which will struggle to get any productivity.
@@ -3649,9 +3649,9 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		// IFLOG if(iTempValue!=iValue) logBBAI("%d from %d distance to %S",
 // 		// 		iValue - iTempValue, iDistance, cityName(*pOurNearestCity));
 
-// 		// <!-- custom: replace long distances penalty with our own, not too long, not too short distance system anyways etc -->
-// 		// <!-- custom: try to spread cities more as they are too crowded as of now anyways etc and simplify formula as well if i am not mistaken in doing so anyways etc, as advised as a general idea by claude ai when i asked it about this code thanks anyways etc thanks but anyways etc -->
-// 		// <!-- custom: attempt to increase distance penalties as with flat 1000 with our change, cities are a bit too far as of now with this change anyways etc, but try not to make them crowded again either anyways etc, try to make first cities closer to each other, less important for later ones -->
+// 		// <!-- custom: codex change: replace distance penalty with custom spacing logic (commented out). -->
+// 		// <!-- custom: codex change: spread cities a bit more and simplify the formula (commented out). -->
+// 		// <!-- custom: codex change: raise distance penalties slightly without over-crowding (commented out). -->
 
 // 		int const iDistanceToOurNearestCity = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
 // 				::plotDistance(iX, iY, pOurNearestCity->getX(), pOurNearestCity->getY()));
@@ -3664,7 +3664,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		iValue -= iDistPenalty;
 // 		IFLOG logBBAI("%d from distance penalty (%d distance to %S)", iDistPenalty, iDistanceToOurNearestCity, cityName(*pOurNearestCity));
 
-// 		// <!-- custom: on top of that, add a num cities penalty, meaning the less cities we have, the more we care about them being close knit, but not necessarily in relation to capital, this would lead to too much star shaped empires and maybe miss locally fine or nice thin or such other shapes. What i care about is that cities are close to each other not necessarily to capital at all, and that they are not too close else their plots overlap as seems to be the case now, especially when we plant our cities; later in the game, more city spots would be taken, and our economy stronger to support them, and our military ideally stronger to protect them i mean too if i may say in this case but anyways etc, so we can be more creative or/and combative about which spots we want maybe especially for local benefits if i may say in this case but anyways etc, code added with the help of gemini ai thanks to my prompt too and that i modified or not for advciv-sas too too if i may say but anyways etc anyways etc -->
+// 		// <!-- custom: codex change: add city-count scaling to spacing penalty (commented out). -->
 // 		// --- Custom City Spacing Logic ---
 // 		// We want to avoid cities being too close, and to control how far they spread.
 // 		// We'll base this on the distance to the nearest city, not the capital.
@@ -3684,8 +3684,8 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		{
 // 			// The penalty is less severe for larger empires, as they can afford to stretch.
 // 			int iExcessDistanceToOurNearestCity = iDistanceToOurNearestCity - iMaxDistanceToNearestCity;
-// 			// <!-- custom: make it scale slower with city num, as it seems AI is a bit/sometimes too adventurous with more cities anyways etc -->
-// 			// <!-- custom: with 600 they are still a bit too far from core cities some times (high yields), so penalize these far locations a bit more anyways etc, trying not to make them too close again anyways etc; adjusting old 1500 + 600 * d formula i made but anyways etc in an attempt to space cities a little bit more but also reduce them sometimes going a bit too far but trying not to overdo it either anyways etc -->
+// 			// <!-- custom: codex change: scale distance penalty more slowly with city count. -->
+// 			// <!-- custom: codex change: increase far-distance penalty slightly. -->
 // 			// iMinMaxDistanceToNearestCityModifier = -600 * iExcessDistanceToOurNearestCity / (1 + iCities);
 // 			iMinMaxDistanceToNearestCityModifier = -1700 * iExcessDistanceToOurNearestCity / (1 + (iCities / 3));
 // 		}

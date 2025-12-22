@@ -549,7 +549,7 @@ public:
 	{
 		return m_pUnitInfo->isIgnoreBuildingDefense();
 	}
-	// <!-- custom: add these so we can show TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW ingame in map view of a unit, if i am not mistaken, too anyways etc anyways etc -->
+	// <!-- custom: codex change: expose impassable terrain/feature checks for map view text. -->
 	bool isAnyTerrainImpassable() const																	
 	{
 		return m_pUnitInfo->isAnyTerrainImpassable();
