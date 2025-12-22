@@ -416,8 +416,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
 
-		# These are terrain TYPES that should be classified under the "Land (High)" header rather than "Land (Flat)". This is purely a UI grouping choice.
-		self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
+		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
+		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
 
 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
@@ -1041,12 +1041,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_getTerrainsGroupedByLandWater_fromBaseList(self, baseList):
 		r = []
 		landFlat = []
-		landHigh = []
+		graphicalOnlyHigh = []
 		water = []
 
 		# Terrain IDs considered "high land" purely for UI grouping (e.g. Hills/Peaks).
 		highIds = []
-		for szType in self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES:
+		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
 			iT = gc.getInfoTypeForString(szType)
 			if iT >= 0:
 				highIds.append(iT)
@@ -1057,9 +1057,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# IMPORTANT:
 			# In your CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>.
 			# Therefore info.isWater() returns True for them.
-			# For Sevopedia grouping we still want them under Land (High), so we treat LAND_HIGH as a deliberate UI override.
+			# For Sevopedia grouping we still want them under GraphicalOnly (High), so we treat LAND_HIGH as a deliberate UI override.
 			if iTerrain in highIds:
-				landHigh.append((szName, iTerrain))
+				graphicalOnlyHigh.append((szName, iTerrain))
 			elif info and info.isWater():
 				water.append((szName, iTerrain))
 			else:
@@ -1067,23 +1067,23 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		if self.isSortLists():
 			landFlat.sort()
-			landHigh.sort()
+			graphicalOnlyHigh.sort()
 			water.sort()
 
 		if landFlat:
-			r.append(("Land (Flat)", -1))
+			r.append(("Land", -1))
 			for x in landFlat:
 				r.append(x)
 
-		if landFlat and landHigh:
+		if landFlat and graphicalOnlyHigh:
 			r.append(("", -1))
 
-		if landHigh:
-			r.append(("Land (High)", -1))
-			for x in landHigh:
+		if graphicalOnlyHigh:
+			r.append(("GraphicalOnly (High)", -1))
+			for x in graphicalOnlyHigh:
 				r.append(x)
 
-		if (landFlat or landHigh) and water:
+		if (landFlat or graphicalOnlyHigh) and water:
 			r.append(("", -1))
 
 		if water:
@@ -1122,22 +1122,22 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# IMPORTANT MOD-SPECIFIC NOTE (bugfix / exception):
 	# - In our CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>. This means TerrainInfo.isWater() returns True for them.
 	# - Many land features (e.g. Forest/Jungle) are valid on Hills, so if we blindly treat "any water terrain" as water, we would incorrectly classify lots of land features as Water.
-	# - Therefore we exclude our "Land (High)" terrains from the water-terrain scan used here.
+	# - Therefore we exclude our "GraphicalOnly (High)" terrains from the water-terrain scan used here.
 	def SAS_getFeaturesGroupedByLandWater_fromBaseList(self, baseList):
 		r = []
 		land = []
 		water = []
 
 		# Build the list of terrain IDs we treat as "water terrains" for feature classification.
-		# Exclude our Land (High) terrains (e.g. Hill/Peak) even if XML marks them as water.
-		landHighIds = []
-		for szType in self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES:
-			landHighIds.append(getInfoTypeOrFail(szType, gc))
+		# Exclude our GraphicalOnly (High) terrains (e.g. Hill/Peak) even if XML marks them as water.
+		graphicalOnlyHighIds = []
+		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
+			graphicalOnlyHighIds.append(getInfoTypeOrFail(szType, gc))
 
 		waterTerrainIds = []
 		for iTerrain in range(gc.getNumTerrainInfos()):
 			tInfo = gc.getTerrainInfo(iTerrain)
-			if tInfo and tInfo.isWater() and (iTerrain not in landHighIds):
+			if tInfo and tInfo.isWater() and (iTerrain not in graphicalOnlyHighIds):
 				waterTerrainIds.append(iTerrain)
 
 		# Classify each feature by whether it can appear on any (true) water terrain.
