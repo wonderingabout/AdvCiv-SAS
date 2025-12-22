@@ -58,6 +58,8 @@ Also clarified the ressources (called bonuses ina advciv-sas as per the code nam
 
 Note: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on land or/and water or other if any other but anyways etc impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
 
+Also added Land/Water grouping similarly than for sevopedia terrain entries, and then i also got the idea to subdivide Land entries into as of now Land (Removable) and Land (Other), reads much clearer like how as of now Land (Growth) was for cottages and such i mean if i may say but anyways, done with the help of chatgpt 5.2 thanks but anyways etc.
+
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG" alt="0.640_sevopedia_features_sample (3).JPG" width="250"></img>

@@ -1,8 +1,10 @@
-in sevopediabuilding, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
-printObjAttrs(gc.getFeatureInfo(self.iBuilding))
+in sevopediafeature, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+printObjAttrs(gc.getFeatureInfo(self.iFeature))
 returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
 
 
+
+[DEBUG] Beginning of show obj inner fields if i am not mistaken anyways etc.
 
 __class__
 
@@ -109,3 +111,5 @@ isRequiresRiver
 isTerrain
 
 isVisibleAlways
+
+[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.

@@ -1044,10 +1044,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		graphicalOnlyHigh = []
 		water = []
 
-		# Terrain IDs considered "high land" purely for UI grouping (e.g. Hills/Peaks).
+		# Terrain IDs considered "GraphicalOnly (High)" purely for UI grouping (e.g. Hills/Peaks).
 		highIds = []
 		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
-			iT = gc.getInfoTypeForString(szType)
+			iT = getInfoTypeOrFail(szType, gc)
 			if iT >= 0:
 				highIds.append(iT)
 
@@ -1055,9 +1055,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			info = gc.getTerrainInfo(iTerrain)
 
 			# IMPORTANT:
-			# In your CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>.
-			# Therefore info.isWater() returns True for them.
-			# For Sevopedia grouping we still want them under GraphicalOnly (High), so we treat LAND_HIGH as a deliberate UI override.
+			# In your CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>. Therefore info.isWater() returns True for them. For Sevopedia grouping we still want them under GraphicalOnly (High), so we treat LAND_HIGH as a deliberate UI override.
 			if iTerrain in highIds:
 				graphicalOnlyHigh.append((szName, iTerrain))
 			elif info and info.isWater():
@@ -1114,38 +1112,40 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = True
 			print("Sevopedia Feature pre load XML data validation done from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE=%s)." % str(self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE))
 
-	# <!-- custom: in sevopedia feature list, group features by Land vs Water. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	# <!-- custom: in sevopedia feature list, group features by Land (Removable), Land (Other), and Water. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
 	# Implementation note:
-	# - Features do not have a single reliable "isWater" flag in the API (in many Civ4 DLLs), but they *do* have per-terrain booleans (FeatureInfo.isTerrain(iTerrain)).
-	# - So we treat a feature as "Water" if it can appear on at least one water terrain.
+	# - We detect "Water" features by checking if the feature can appear on any true water terrain using FeatureInfo.isTerrain(iTerrain).
+	# - We detect "Removable" land features by scanning CvBuildInfo for a build that removes that feature.
 	#
-	# IMPORTANT MOD-SPECIFIC NOTE (bugfix / exception):
-	# - In our CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>. This means TerrainInfo.isWater() returns True for them.
-	# - Many land features (e.g. Forest/Jungle) are valid on Hills, so if we blindly treat "any water terrain" as water, we would incorrectly classify lots of land features as Water.
-	# - Therefore we exclude our "GraphicalOnly (High)" terrains from the water-terrain scan used here.
+	# IMPORTANT MOD-SPECIFIC NOTE:
+	# - In our CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>.
+	# - Many land features are valid on hills, so if we treat every isWater terrain as water here,
+	#   we'd misclassify many land features as "Water".
+	# - Therefore we exclude our GraphicalOnly (High) terrains from the water-terrain scan used here. -->
 	def SAS_getFeaturesGroupedByLandWater_fromBaseList(self, baseList):
 		r = []
-		land = []
+		landRemovable = []
+		landOther = []
 		water = []
 
-		# Build the list of terrain IDs we treat as "water terrains" for feature classification.
 		# Exclude our GraphicalOnly (High) terrains (e.g. Hill/Peak) even if XML marks them as water.
 		graphicalOnlyHighIds = []
 		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
-			graphicalOnlyHighIds.append(getInfoTypeOrFail(szType, gc))
+			iT = getInfoTypeOrFail(szType, gc)
+			graphicalOnlyHighIds.append(iT)
 
+		# Build list of "true water terrains" for feature classification.
 		waterTerrainIds = []
 		for iTerrain in range(gc.getNumTerrainInfos()):
 			tInfo = gc.getTerrainInfo(iTerrain)
 			if tInfo and tInfo.isWater() and (iTerrain not in graphicalOnlyHighIds):
 				waterTerrainIds.append(iTerrain)
 
-		# Classify each feature by whether it can appear on any (true) water terrain.
 		for (szName, iFeature) in baseList:
 			fInfo = gc.getFeatureInfo(iFeature)
 
+			# Water feature if it can appear on at least one true water terrain.
 			bIsWaterFeature = False
-			# FeatureInfo has terrain booleans in XML; treat as water if it can appear on any water terrain.
 			for iTerrain in waterTerrainIds:
 				if fInfo.isTerrain(iTerrain):
 					bIsWaterFeature = True
@@ -1154,18 +1154,31 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if bIsWaterFeature:
 				water.append((szName, iFeature))
 			else:
-				land.append((szName, iFeature))
+				# Land feature: split removable vs other
+				if SAS_isFeatureRemovable(iFeature, gc):
+					landRemovable.append((szName, iFeature))
+				else:
+					landOther.append((szName, iFeature))
 
 		if self.isSortLists():
-			land.sort()
+			landRemovable.sort()
+			landOther.sort()
 			water.sort()
 
-		if land:
-			r.append(("Land", -1))
-			for x in land:
+		if landRemovable:
+			r.append(("Land (Removable)", -1))
+			for x in landRemovable:
 				r.append(x)
 
-		if land and water:
+		if landRemovable and landOther:
+			r.append(("", -1))
+
+		if landOther:
+			r.append(("Land (Other)", -1))
+			for x in landOther:
+				r.append(x)
+
+		if (landRemovable or landOther) and water:
 			r.append(("", -1))
 
 		if water:

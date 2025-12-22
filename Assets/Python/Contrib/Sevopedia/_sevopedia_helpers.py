@@ -135,6 +135,25 @@ def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
 
 
 
+# <!-- custom: added with the help of chatgpt 5.2 thanks to help separate Land features in sevopedia into as of now Land (Removable) and Land (Other) anyways etc. -->
+# A feature is "removable" if there exists a Build that removes it (e.g. Chop Forest, Clear Jungle, Remove Fallout).
+# We do this via CvBuildInfo because CvFeatureInfo in our DLL does not expose getRemoveTech().
+def SAS_isFeatureRemovable(iFeature, gc):
+	for iBuild in range(gc.getNumBuildInfos()):
+		buildInfo = gc.getBuildInfo(iBuild)
+		if not buildInfo or buildInfo.isGraphicalOnly():
+			continue
+
+		# In BtS/AdvCiv-style DLLs, isFeatureRemove is per-feature (takes iFeature).
+		# If a modmod changes this API, it should be adjusted here (centralized).
+		if buildInfo.isFeatureRemove(iFeature):
+			# Some builds may have 0 time for some features in some mods, so we treat any "remove" as removable.
+			return True
+
+	return False
+
+
+
 # <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1 if i am not mistaken anyways etc, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now anyways etc should raise an error not silently pass if i may say and if i am not mistaken anyways etc ; also useful to access any asset id safely if i am not mistaken such as hills or peak terrains 's id, or hills's button for example too if i am not mistaken anyways etc ; is also useful to detect and signal loudly if i may say anyways etc errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now anyways etc instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me anyways etc based on previous parts of this code comment if i am not mistaken and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd if i may say but anyways etc anyways etc anyways etc hopefully helpful or not or yes or etc anyways etc... in short this is a very helpful helper... pun was not intended, but why not keep it now that it's written, i have no reason not to and nothing against it, but anyways etc, hopefully helpful or not or yes or etc but anyways etc... -->
 def getInfoTypeOrFail(tag, gc):
 	iType = gc.getInfoTypeForString(tag)
