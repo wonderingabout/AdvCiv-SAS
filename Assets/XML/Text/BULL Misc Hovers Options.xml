@@ -10,83 +10,12 @@
 <!-- Leaderhead -->
 
 	<!-- advc.sha: Permanently disabled (won't merge this from BULL) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_TEXT</Tag>
-		<English>Hidden Attitude</English>
-		<German>Verborgene Modifikatoren</German>
-		<Italian>Hidden Attitude</Italian>
-		<Spanish>Actitud Oculta</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_HOVER</Tag>
-		<English>When checked, displays the hidden attitude modifiers (possibly spoiler).</English>
-		<German>Zeigt die verborgenen Beziehungsmodifikatoren anderer Oberhäupter an (möglicher Spoiler)</German>
-		<Italian>When checked, displays the hidden attitude modifiers (possibly spoiler).</Italian>
-		<Spanish>Permite mostrar los modificadores de actitud ocultos (posibles spoilers).</Spanish>
-	</TEXT>
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADWORSTENEMY_TEXT</Tag>
-		<English>Worst Enemy</English>
-		<German>Erzfeind</German>
-		<Italian>Worst Enemy</Italian>
-		<Spanish>Peor Enemigo</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADWORSTENEMY_HOVER</Tag>
-		<English>When checked, the worst enemy of each AI rival is shown in the hover text for their icon.</English>
-		<German>Zeigt den Erzfeind jedes Gegenspielers an, wenn der Mauszeiger über desssen Symbol bewegt wird</German>
-		<Italian>When checked, the worst enemy of each AI rival is shown in the hover text for their icon.</Italian>
-		<Spanish>Se muestra el peor enemigo de cada rival IA en el texto flotante para su icono.</Spanish>
-	</TEXT>
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADDEFENSIVEPACTS_TEXT</Tag>
-		<English>Defensive Pacts</English>
-		<German>Verteidigungsbündnisse</German>
-		<Italian>Defensive Pacts</Italian>
-		<Spanish>Acuerdos de Protección</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADDEFENSIVEPACTS_HOVER</Tag>
-		<English>When checked, the defensive pacts of each rival are shown in the hover text for their icon.</English>
-		<German>Zeigt die Verteidigungsbündnisse jedes Gegenspielers an, wenn der Mauszeiger über desssen Symbol bewegt wird</German>
-		<Italian>When checked, the defensive pacts of each rival are shown in the hover text for their icon.</Italian>
-		<Spanish>Permite mostrar los acuerdos de protección de cada rival en su texto flotante.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #57 -->
 
 <!-- Plot -->
 
 	<!-- advc.004: Permanently disabled (won't merge this from BULL) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LATLONGCOORDS_TEXT</Tag>
-		<English>Longitude / Latitude</English>
-		<German>Längengrad / Breitengrad</German>
-		<Italian>Longitude / Latitude</Italian>
-		<Spanish>Longitud / Latitud</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LATLONGCOORDS_HOVER</Tag>
-		<English>When checked, the longitude and latitude are shown when hovering over a plot once you have centered the map.</English>
-		<German>Zeigt bei zentrierter Karte den Längen- und Breitengrad eines Geländefeldes an, wenn der Mauszeiger darüber bewegt wird</German>
-		<Italian>When checked, the longitude and latitude are shown when hovering over a plot once you have centered the map.</Italian>
-		<Spanish>Muestra la latitud y longitud cuando se deje el ratón sobre una casilla una vez esté centrado el mapa.</Spanish>
-	</TEXT>
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDS_TEXT</Tag>
-		<English>Partial Builds</English>
-		<German>Unvollständige Bauten</German>
-		<Italian>Costruzione parziale</Italian>
-		<Spanish>Construcción Parcial</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDS_HOVER</Tag>
-		<English>When checked, hovering over a plot that has partially-completed builds (improvements, routes, and chops) will show how many worker turns are required to complete them as long as your workers can actually do so.</English>
-		<German>Zeigt, wenn der Mauszeiger über ein Geländefeld mit teilweise fertig gestellten Bauten (Modernisierungen, Straßen und Waldrodungen) bewegt wird, an, wie viele Runden ein Bautrupp noch benötigt, um sie fertig zu stellen, wenn der Bautrupp diese Aktionen beherrscht</German>
-		<Italian>Quando è selezionato, posizionare il cursore su una casella che contiene costruzioni (miglioramenti, strade, eccetera) parzialmente completate mostrerà quanti turni di lavoro sono necessari per completare l'opera.</Italian>
-		<Spanish>Dejar el ratón sobre una casilla con mejoras no terminadas mostarará el número de turnos necesarios para terminar.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #58 -->
 	<!-- advc.011b (German: not enough room for "stets anzeigen") -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDSALWAYS_TEXT</Tag>
@@ -104,20 +33,7 @@
 	</TEXT>
 
 	<!-- advc.099f (always enabled as of AdvCiv v1.0) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_TEXT</Tag>
-		<English>Always Show Tile Culture</English>
-		<German>Kulturanteile stets anzeigen</German>
-		<Italian>Always Show Tile Culture</Italian>
-		<Spanish>Always Show Tile Culture</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_HOVER</Tag>
-		<English>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</English>
-		<German>Zeigt Kulturanteile im Hilfetext aller einsehbaren Felder an. Wenn diese Option nicht angekreuzt ist, werden Kulturanteile neutraler Felder nur bei gedrückter [COLOR_HIGHLIGHT_TEXT]Umschalt[COLOR_REVERT]taste angezeigt.</German>
-		<Italian>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Italian>
-		<Spanish>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #59 -->
 
 <!-- Unit -->
 	<!-- advc (tbd.): Move this to 'Unit Naming Options.xml' -->
@@ -206,52 +122,13 @@
 <!-- Tech -->
 	
 	<!-- advc.910: Permanently disabled (won't merge this from BULL) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__SPEDUPTECHS_TEXT</Tag>
-		<English>Speeds Up ...</English>
-		<German>Beschleunigt ...</German>
-		<Italian>Accelera ...</Italian>
-		<Spanish>Acelera...</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__SPEDUPTECHS_HOVER</Tag>
-		<English>When checked, displays the technologies that will be sped up by acquiring the technology you are hovering over (e.g. Animal Husbandry would be shown for Agriculture once you have acquired Hunting).</English>
-		<German>Zeigt Technologien an, die durch das Vorhandensein der Technologie beschleunigt würden, über der sich der Mauszeiger befindet (beispielsweise würde "Tierzucht" bei "Landwirtschaft" erscheinen, wenn bereits "Jagd" erforscht wäre)</German>
-		<Italian>Quando è selezionato, nel testo a comparsa di una Tecnologia vengono mostrate le Tecnologie che risultano accelerate dall'acquisizione della Tecnologia in questione (p. es. una volta acquisita la tecnologia 'Caccia', se posizionerete il cursore sulla tecnologia 'Agricoltura' vi verrà ricordato che questa accelererà la tecnologia 'Allevamento di animali').</Italian>
-		<Spanish>Permite mostrar las tecnologías cuyo avance será acelerado una vez adquieras la tecnología sobre la cual mantienes el ratón (por ejemplo, Ganadería se mostraría para Agricultura una vez que adquieras Caza).</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #60 -->
 	<!-- advc.073: Not going to make this optional -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__TECHTRADEDENIAL_TEXT</Tag>
-		<English>Technology Trade Denial</English>
-		<German>Verweigerung von Technologien</German>
-		<Italian>Rifiuto di commercio di Tecnologie</Italian>
-		<Spanish>Intercambios de Tecnología</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__TECHTRADEDENIAL_HOVER</Tag>
-		<English>When checked, hovering over a technology in the "Won't Trade" column of the Foreign Advisor's TECHS page will show you the AI's reason for denying the trade.</English>
-		<German>Zeigt die Gründe für die Verweigerung eines Handels an, wenn der Mauszeiger über eine Technologie in der Spalte "Unverhandelbar" auf der Seite "Technologien" des Auslandsberaters bewegt wird</German>
-		<Italian>Quando è selezionato, posizionando il cursore su una Tecnologia nella colonna 'Non commercia' della pagina delle Tecnologie del Consigliere Estero verrà visualizzata la ragione per cui l'AI rifiuta di commerciare tale Tecnologia.</Italian>
-		<Spanish>Si se activa, dejar el ratón sobre una tecnología de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrará las razones de la IA para negarse a ese intercambio.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #61 -->
 
 <!-- Bonus -->
 	<!-- advc.073: Not going to make this optional -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BONUSTRADEDENIAL_TEXT</Tag>
-		<English>Resource Trade Denial</English>
-		<German>Verweigerung von Ressourcen</German>
-		<Italian>Rifiuto di commercio di Risosre</Italian>
-		<Spanish>Intercambios de Recursos</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BONUSTRADEDENIAL_HOVER</Tag>
-		<English>When checked, hovering over a resource in the "Won't Trade" column of the Foreign Advisor's RESOURCES page will show you the AI's reason for denying the trade.</English>
-		<German>Zeigt die Gründe für die Verweigerung eines Handels an, wenn der Mauszeiger über eine Ressource in der Spalte "Unverhandelbar" auf der Seite "Ressourcen" des Auslandsberaters bewegt wird</German>
-		<Italian>Quando è selezionato, posizionando il cursore su una Risorsa nella colonna 'Non commercia' della pagina delle Risorse del Consigliere Estero verrà visualizzata la ragione per cui l'AI rifiuta di commerciare tale Risorsa.</Italian>
-		<Spanish>Si se activa, dejar el ratón sobre un recurso de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrará las razones de la IA para negarse a ese intercambio.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #62 -->
 	
 
 <!-- City Screen -->

@@ -427,37 +427,6 @@
 	</TEXT>
 	
 	<!-- advc.067: Now unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_TEXT</Tag>
-		<English>Completed Percentage</English>
-		<French>Pourcentage Complét&#233;</French>
-		<German>Verstrichene Runden (in Prozent)</German>
-		<Italian>Percentuale completata</Italian>
-		<Spanish>Porcentaje Completado</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_HOVER</Tag>
-		<English>When checked, the completed percentage is displayed if Time Victory is enabled.</English>
-		<French>En activant, le pourcentage complété pour une Victoire de Temps est montré.</French>
-		<German>Zeigt die verstrichenen Runden als Prozentsatz der insgesamt verfügbaren Runden an, falls "Punktsieg" aktiviert ist</German>
-		<Italian>Quando è selezionato, viene visualizzata la percentuale di turni completati (se la Vittoria a Tempo è abilitata).</Italian>
-		<Spanish>Muestra el porcentaje de turnos completado si la condición de Victoria por Tiempo está habilitada</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWALTCOMPLETEDPERCENT_TEXT</Tag>
-		<English>Completed Percentage</English>
-		<French>Pourcentage Complét&#233;</French>
-		<German>Verstrichene Runden (in Prozent)</German>
-		<Italian>Percentuale completata</Italian>
-		<Spanish>Porcentaje completado</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWALTCOMPLETEDPERCENT_HOVER</Tag>
-		<English>When checked, the completed percentage is displayed if Time Victory is enabled.</English>
-		<French>En activant, le pourcentage complété pour une Victoire de Temps est montré.</French>
-		<German>Zeigt die verstrichenen Runden als Prozentsatz der insgesamt verfügbaren Runden an, falls "Punktsieg" aktiviert ist</German>
-		<Italian>Quando è selezionato, viene visualizzata la percentuale di turni completati (se la Vittoria a Tempo è abilitata).</Italian>
-		<Spanish>Muestra el porcentaje de turnos completado si la condición de Victoria por Tiempo está habilitada</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #42 -->
 
 </Civ4GameText>

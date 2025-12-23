@@ -8,28 +8,8 @@
 - like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc
 - also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
 see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details anyways etc -->
-<!-- custom: units now have terrain and feature (+/- plot types e.g. hill for some units such as of now the quechua warrior but anyways etc) attack or/and defense combat modifiers. Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular if i am not mistaken but anyways etc). See sevopedia entry of each unit for details or sevopedia terrain or/and sevopedia feature page(s) to easily visualize these with the new UI additions we made there as well but anyways etc. For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or/and other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience but anyways etc, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. Note: as of now i'm using plains as a representative of savanna more or less anyways etc -->
-<!-- custom: note about collateral damage calculation in advciv and by extension in our mod xd if i'm not mistaken since i as of now didn't change it, according to chatgpt 5 and thanks to my prompt / after i asked it and or such but anyways etc, and about whether it is additive or multiplicative or other, after feeding it our relevant code (which i found in CvUnit::collateralCombat if i was not mistaken in how i found it  (check if accurate as i don't know too much about these but i could or not be right or not or yes or other or etc but anyways etc), manual, and it doing a quite extensive web search before but anyways etc. I formatted this comment too if i may say, check if accurate, hopefully helpful or not or yes or etc, but anyways etc:
-
-"
-Great catch digging into your own DLL + notes — that settles it.
-In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple add-on:
-	- The “collateral strength” is
-
-	iCollateralStrength = baseCombatStr * collateralDamage() / 100
-
-	If collateralDamage() == 0, that term is 0.
-
-	- However, the function doesn’t bail if your unit has promotion-based bonus: it returns only if iCollateralStrength <= 0 && getExtraCollateralDamage() <= 0.
-	- The actual damage per target is then computed from a ratio that still includes a non-zero iStrengthFactor based on the defender’s strength, and finally scaled by 100 + getExtraCollateralDamage() (your Collateral I, II, …).
-	→ With base collateral 0, promotions still work, but the numbers are modest (exactly what your doc meant by “with the multiplicative formula, 0 base ⇒ Barrage does little”).
-
-	So the mental model is:
-	- Not 0 + 15 = 15%.
-	- Also not 0 × 1.15 = 0% (i.e., “no effect”).
-	- It’s “small baseline from the strength-ratio” × (1 + promo bonus), and capped by your MaxUnits and Limit.
-"
--->
+<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #83 -->
+<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #84 -->
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<UnitInfos>
 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -5845,7 +5825,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: split UNITCOMBAT_MELEE into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK, for axeman units at least for the generic axeman, seems relevant to have/keep anyways etc both effects, but no reason to make axes especially good against swords, if anything i read the opposite online or something, but no need to make it too drastic. Focus should be on making Axes strong vs polearm, as for swords, it's fine if they have a more or less even match up, probably more balanced as such as well, axemen still have the advantage of being cheaper, available earlier (and also as of now requiring less bonuses as copper only is fine for axes as of now unlike for swords if i am not mistaken but anyways etc), and slightly stronger with this multiplier (5 * 1.25 = 6.25 vs 6 for swords outside city if i am not mistaken but anyways etc, which seems more balanced and sensical as well anyways etc). Chatgpt 5 also agrees or/and helped me find this hehe thanks i mean too hehe toto but anyways etc, check if accurate anyways etc. Also, this is good because bronze axemen were ridiculously strong vs later melee units if not the maceman that also had btw a ridiculous melee all units which was way too op or not balanced anyways etc, so all in all seems like a great change but check if accurate anyways etc -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #85 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
@@ -9312,7 +9292,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: if a pikeman was standing and a cuirassier like unit or even a foot unit with a gun i mean if i may say but anyways etc, and they had a gun nearby to defend themselves they could use, surely they wouldn't just sit around as sitting ducks i mean if i may say but anyways etc but use the gun right (especially since in our mod as of now pikemen are useless / very ineffective against mounted_ranged that the cuirassier units are, so allow musket. May hopefully also help reduce / tone down a bit the AI spam quite late game of pikemen (sometimes even at turn 300 when much better options like cannons or musketmen are available it seems in autoplay at a quick glance in this case i mean if i'm not mistaken if i may say but anyways etc; result ingame: drastically reduced the AI mid late spam of pikemen when very inefficient at least in this short autoplay sample in this case i mean but anyways etc: all the more reason to leave as such if i may say but anyways etc, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #86 -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
@@ -15516,7 +15496,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: give forest and jungle penalty for most if not all mounted_melee units anyways etc, as i assume it would be less practical (also as they are overall larger in this case anyways etc mount + rider it would be harder for them to take cover if i am not mistaken anyways etc, so simplifying this by giving an overall penalty identical to most if not all mounted_melee units anyways etc, see code comments at featureattacks or featuredefenses of mounted_ranged units if any penalty or such modifiers also or not applies to them anyways etc) for them to navigate these features and they would lose their speed or such advantage too if i am not mistaken anyways etc, and would now be at a disadvantage vs melee or such units i assume if i am not mistaken anyways etc, so give them both attack and defense penalty, should be too op or significant if i may say anyways etc militarily as cities don't have forest or jungle in the tiles they are founded on after they are founded on a tile if i am not mistaken i mean anyways etc ; also even assuming tile is roaded, their escape options may still be limited to the road path and they may get ambushed, so simplifying this with a global penalty as of now at least if not always or not or yes but anyways etc for mounted_melee units on forest and jungle as of now anyways etc, the other terrains i mean such as grassland and plains that are flat do not give a significant advantage that is not already part of the unit's strength/stats, also would be op as they'd get a grassland or plains modifier advantage on attacking cities and or such, and then melee units would need them too, so unless the advantage is strong or the tile weak, avoiding to buff too much terrains at least for mounted_melee or/and other such or other units anyways etc, was empty -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #87 -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -19670,7 +19650,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: i assume ennemies would take more easily cover in this crowded terrain that would weaken the impacts as well or such, making it hard to aim due to low visibility, that may advantage foot infantry or/and swift units or/and such if i am not mistaken anyways etc, also if the ground is not stable or muddy or any such thing, it may be hard to fire attacks as well as i imagine it i mean as i don't know if it would go well, so considering they have impassable thing on these features, it is also consistent or/and in line with these to give them penalties related(ing?) to these feature things as well if i may say but anyways etc ; also similarly to mounted units, the contraption is maybe heavy if i may say to defend it so it would be more vulnerable to ambushes and or such without being able to retaliate too much if i may say or am not mistaken but anyways etc, hopefully accurate enough in my imagination showing it as such in our mod anyways etc, as for later siege units, they are considered at least as of now but anyways etc solid as in robust enough to handle terrain movement fine or/and modern enough to fire reliably strong(er? But anyways etc) hits but anyways etc, was empty -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #88 -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -22005,7 +21985,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<!-- custom: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without trigegring war, that now only privateers can do if i am not mistaken at least among visible naval units if i am not mistaken in my guess about invisible units not triggering war if entering without open borders anyways etc anyways etc ; as for the effect bRivalTerritory is set to 0 in the galleon as well same as what it was, even though they have UNITAI_EXPLORE_SEA, was annoying from my memory of advciv games that caravels could send many spies in particular without ever declaring war and without me allowing them to enter my borders, but anyways etc, hopefully much more sensical now and pleasant this way, that they have to respect water rights or something, and galleon is a bit more affordable and civilian like unit but anyways etc, may also help to simplify gameplay a bit as we don't need strongly/strongly need but anyways etc the caravel if the galleon is cheap enough and fast enough, may help the AI indirectly or simplify gameplay perhaps, not ideal but maybe a desirable change at least for me, but anyways etc anyways etc anyways etc... -->
+		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #89 -->
 		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEON, type: UNIT_GALLEON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Class>UNITCLASS_GALLEON</Class>
 			<Type>UNIT_GALLEON</Type>

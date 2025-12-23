@@ -557,7 +557,15 @@ Helped me nicely fix or enhance things, although i didn't test it too much yet b
 
 #### 5.2
 
+##### ChatGPT Web
+
 Also helped me nicely fix python issues very effectively thanks, i didn't test it yet as well to have a more elaborate opinion or such but it helped me lot thanks but anyways etc.
+
+##### GPT-5.2-Codex (VS Code extension)
+
+Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments into [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) and replaced them in-place with short custom markers, motivated by my user (wonderingabout) finding a very long 9000+ char XML comment that may have been linked to the AdvCiv-SAS 5240 AI fix (noticed ingame: AI founding much more cities and being stronger in tech pace and militarily).
+
+I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it.
 
 ### Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
 

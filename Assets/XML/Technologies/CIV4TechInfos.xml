@@ -5638,7 +5638,7 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
-			<!-- custom: _COMMUNISM effect seems more relevant here anyways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from TECH_COMMUNISM anyways etc -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #24 -->
 			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>

@@ -226,31 +226,7 @@
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 		</WorldInfo>
 		<!-- advc.test: For testing MAX_CIV_PLAYERS > 18 -->
-		<!--WorldInfo>
-			<Type>WORLDSIZE_XXL</Type>
-			<Description>XXL</Description>
-			<Help>No help text available</Help>
-			<iDefaultPlayers>23</iDefaultPlayers>
-			<iUnitNameModifier>0</iUnitNameModifier>
-			<iTargetNumCities>6</iTargetNumCities>
-			<iNumFreeBuildingBonuses>7</iNumFreeBuildingBonuses>
-			<iBuildingClassPrereqModifier>75</iBuildingClassPrereqModifier>
-			<iMaxConscriptModifier>50</iMaxConscriptModifier>
-			<iWarWearinessModifier>-25</iWarWearinessModifier>
-			<iUnitCostPercent>91</iUnitCostPercent>
-			<iGridWidth>73</iGridWidth>
-			<iGridHeight>51</iGridHeight>
-			<iTerrainGrainChange>3</iTerrainGrainChange>
-			<iFeatureGrainChange>3</iFeatureGrainChange>
-			<iResearchPercent>164</iResearchPercent>
-			<iTradeProfitPercent>30</iTradeProfitPercent>
-			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
-			<iNumCitiesMaintenancePercent>20</iNumCitiesMaintenancePercent>
-			<iColonyMaintenancePercent>27</iColonyMaintenancePercent>
-			<iCorporationMaintenancePercent>45</iCorporationMaintenancePercent>
-			<iNumCitiesAnarchyPercent>6</iNumCitiesAnarchyPercent>
-			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
-		</WorldInfo-->
+		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #23 -->
 		
 	</WorldInfos>
 </Civ4WorldInfo>

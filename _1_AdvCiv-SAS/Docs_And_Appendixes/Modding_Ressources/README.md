@@ -243,10 +243,10 @@ git fetch origin
 
 # choose names
 # new tag
-TAG=5210
-SHA=39914c9b3d5f0422b05cab7fbba55d088658932a  # <- the TAG commit
-OLDNAME="AdvCiv-SAS 5160"                     # quote because of spaces
-BASE=2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c # <- the OLDNAME commit
+TAG=5240
+SHA=b5ecf7a37ae7330c65384a4f880d20d344193230  # <- the TAG commit
+OLDNAME="AdvCiv-SAS 5210"                     # quote because of spaces
+BASE=39914c9b3d5f0422b05cab7fbba55d088658932a # <- the OLDNAME commit
 WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
 
 # replace the tag locally with correct date + message

@@ -4456,14 +4456,7 @@
 				</Unit>
 			</Units>
 			<FreeUnitClasses/>
-			<!-- custom: barbarians now start with free buildings (given as a civ specific lower hammer cost building equivalent of it instead (else free building applies only to the first barbarian city and not all barbarian cities)), and techs too anyways (even though they should get them free as they start (i assume from other civs or by some mechanics((?))(), still making extra sure they always start with them (i.e. with these techs anyways etc))), hopefully stronger this way without interfering too much in religions at least not directly, and compensates at least partly their later start in cities hopefully anyways etc
-			I tried giving them a free worker but it seems ignored by the DLL/game (whichever accurate version of this explanation it is or/and other is not or yes or and other or and not anyways etc, ), but military units seem to work, only for the first barbarian civ, so instead not giving any specific military units, and making a few core units like the worker much cheaper for barbarians as they start later and have penalties and such of smaller and sparse cities, anyways etc, hopefully more interesting (gameplay) this way i mean anyways or not or yes or and other or and not, anyways etc.
-			Putting the free (barbarian) buildings also here in FreeBuildingClasses also ensures the first barbarian city always get them without needing to build it themsleves or risk skipping it.
-
-			Not putting the lighthouse in case city is not naval anyways etc.
-			Not putting the castle here in case tech is not yet unlocked by barbarians, a bit too far to give it for free, anyways etc
-			Not putting the monument here and at all so it is consistent with the no tech mysticism free tech, and also the palace that all cities have should give enough culture by itself, and hopefully barbarians are more efficient this way and perhaps more realistic too (their behaviour and such maybe or/and tendencies or/and other or/and not or yes but anyways etc), as they can't bring their monuments wih themselves if they roam, and now they can focus slightly more on building units or whichever thing they should do more, also more consistent with no mysticism and such, or/and other reasons or/and not, but anyways etc anyways etc
-			-->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #17 -->
 			<FreeBuildingClasses>
 				<FreeBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>

@@ -13,51 +13,11 @@
 
 <!-- Ask Declare War -->
 	<!-- advc: Unlikely to become an option -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__ASKDECLAREWARUNITS_TEXT</Tag>
-		<English>Offer to Declare War</English>
-		<German>Kriegserklärung anbieten</German>
-		<Italian>Offer to Declare War</Italian>
-		<Spanish>Ofrecer Declarar la Guerra</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__ASKDECLAREWARUNITS_HOVER</Tag>
-		<English>When checked, gives you the option to declare war when moving into a tile containing a rival unit. Always gives the option when moving into rival territory without open borders.</English>
-		<German>Bietet bei Betreten eines Geländefeldes die Möglichkeit einer Kriegserklärung an, wenn sich auf diesem eine gegnerische Einheit befindet (wird bei Betreten eines gegnerischen Geländefeldes ohne Vertrag über Offene Grenzen immer abgefragt)</German>
-		<Italian>When checked, gives you the option to declare war when moving into a tile containing a rival unit. Always gives the option when moving into rival territory without open borders.</Italian>
-		<Spanish>Si se activa, se te da la opción de declarar la guerra cuando te muevas en una casilla que contenga una unidad enemiga. Siempre se da la opción cuando una unidad se mueva en territorio enemigo sin apertura de fronteras.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #47 -->
 
 <!-- Sentry Healing -->
 	<!-- advc.004l: Unlikely to be merged -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__SENTRYHEALING_TEXT</Tag>
-		<English>Sentry While Healing</English>
-		<German>Wache bei Heilung</German>
-		<Italian>Sentinella durante la guarigione</Italian>
-		<Spanish>Vigilar Mientras se Cura</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__SENTRYHEALING_HOVER</Tag>
-		<English>When checked, units ordered to heal will awaken when they spot danger, acting like sentries.</English>
-		<German>Veranlasst Einheiten, die sich gerade heilen, bei Gefahr aktiv zu werden</German>
-		<Italian>Quando è selezionato, le Unità che hanno ricevuto l'ordine di curarsi si riattiveranno quando avvertono un pericolo, fungendo da sentinelle.</Italian>
-		<Spanish>Si se activa, las unidades a las que se les ordene curarse se despertarán cuando vean peligro.</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__SENTRYHEALINGONLYNEUTRAL_TEXT</Tag>
-		<English>Only Neutral Territory</English>
-		<German>Nur in neutralem Gebiet</German>
-		<Italian>Solo in territorio neutrale</Italian>
-		<Spanish>Solo Territorio Neutral</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__SENTRYHEALINGONLYNEUTRAL_HOVER</Tag>
-		<English>When checked, if Sentry While Healing is enabled, units will awaken to danger only when in neutral territory. This stops your attacking force from waking up each turn outside an enemy city or your defenders inside friendly territory.</English>
-		<German>Falls die Option "Wache bei Heilung" gewählt wurde, werden Einheiten nur bei Gefahr aktiv, wenn sie sich in neutralem Gebiet befinden (verhindert beispielsweise, dass sich heilende Einheiten während eines Angriffs auf eine feindliche Stadt oder verteidigende Einheiten in befreundetem Gebiet jede Runde wieder aktiv werden)</German>
-		<Italian>Quando è selezionato, se è stata abilitata l'opzione 'Sentinella durante la guarigione', le Unità che hanno ricevuto l'ordine di curarsi si riattiveranno quando avvertono un pericolo solamente se si trovano in territorio neutrale. Ciò vi eviterà alle vostre forze d'attacco di attivarsi ogni turno in prossimità di una Città nemica ed alle vostre forze di difesa di riattivarsi in territorio nemico.</Italian>
-		<Spanish>Si se activa, y Vigilar mientras se Cura está también activa, las unidades sólo despertarán al peligro cuando estén en territorio neutral.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #48 -->
 
 <!-- Ignore Harmless Barbarians -->
 	<!-- advc.004l: Unlikely to be merged -->
@@ -79,33 +39,6 @@
 <!-- PreChop -->
 	<!-- advc.011b: Unlikely to be merged (although having prechop always enabled
 		 could be more convenient than the current solution). -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__PRECHOPFORESTS_TEXT</Tag>
-		<English>PreChop Forests</English>
-		<German>Warten vor Abholzung</German>
-		<Italian>Disboscamento incompleto</Italian>
-		<Spanish>Precortar Bosques</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__PRECHOPFORESTS_HOVER</Tag>
-		<English>When checked, Workers ordered to chop a forest will stop with 1 turn remaining. Issue the order again to finish the chop.</English>
-		<German>Stoppt Bautrupps, die die Aktion "Wald abholzen" ausführen, 1 Runde, bevor die Aktion beendet wird, und lässt sie auf einen weiteren Befehl warten</German>
-		<Italian>Quando è selezionato, i Lavoratori a cui è stato ordinato di tagliare una Foresta si fermeranno quando mancherà un turno al completamento dell'incarico. Per terminare il disboscamento è necessario impartire nuovamente l'ordine.</Italian>
-		<Spanish>Si se activa, los Trabajadores a los que se les ordene talar un bosque se detendrán cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminarán el talado.</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__PRECHOPIMPROVEMENTS_TEXT</Tag>
-		<English>PreChop Improvements</English>
-		<German>Warten vor Fertigstellung</German>
-		<Italian>Miglioramento con disboscamento incompleto</Italian>
-		<Spanish>Precortar Mejoras</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__PRECHOPIMPROVEMENTS_HOVER</Tag>
-		<English>When checked, Workers ordered to build an improvement that will remove a forest will stop with 1 turn remaining. Issue the order again to finish the improvement.</English>
-		<German>Stoppt Bautrupps, die eine Modernisierung auf einem Wald-Geländefeld errichten und diesen damit entfernen würden, 1 Runde, bevor die Aktion beendet wird, und lässt sie auf einen weiteren Befehl warten</German>
-		<Italian>Quando è selezionato, i Lavoratori a cui è stato ordinato di tagliare una Foresta e successivamente costruire un miglioramento si fermeranno quando mancherà un turno al completamento dell'incarico. Per terminare la costruzione è necessario impartire nuovamente l'ordine.</Italian>
-		<Spanish>Si se activa, los Trabajadores a los que se les ordene construir una mejora que resulte en el talado de un bosque se detendrán cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminarán la mejora.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #49 -->
 
 </Civ4GameText>

@@ -674,54 +674,7 @@
 		<Spanish>Registrado</Spanish>
 	</TEXT>
 	
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_BUILDS</Tag>
-		<English>Research and Builds:</English>
-		<French>Recherche et Construction:</French>
-		<German>Forschung / Bauten:</German>
-		<Italian>Ricerca e costruzioni:</Italian>
-		<Spanish>Investigación y Construcción:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_CITIES</Tag>
-		<English>Cities:</English>
-		<French>Villes:</French>
-		<German>Städte:</German>
-		<Italian>Città:</Italian>
-		<Spanish>Ciudades:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_EVENTS</Tag>
-		<English>Events:</English>
-		<French>Evènements:</French>
-		<German>Ereignisse:</German>
-		<Italian>Eventi:</Italian>
-		<Spanish>Eventos:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_POLITICS</Tag>
-		<English>Diplomacy:</English>
-		<French>Diplomatie:</French>
-		<German>Diplomatie:</German>
-		<Italian>Diplomazia:</Italian>
-		<Spanish>Diplomacia:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_COMBAT</Tag>
-		<English>Combat:</English>
-		<French>Combat:</French>
-		<German>Kampf:</German>
-		<Italian>Combattimento:</Italian>
-		<Spanish>Combate:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_TRADE</Tag>
-		<English>Trade and Demands:</English>
-		<French>Trade and Demands:</French>
-		<German>Handel / Forderungen:</German>
-		<Italian>Commercio:</Italian>
-		<Spanish>Comercio:</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #36 -->
 	<!-- advc.004: Replacing the above (restructured) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_TECHCIVICS</Tag>

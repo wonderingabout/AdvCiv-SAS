@@ -215,22 +215,7 @@
 	</TEXT>
 
 	<!-- advc.104: Disabled this checkbox -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_TEXT</Tag>
-		<English>War Mobilization Icons</English>
-		<French>War Mobilization Icons</French>
-		<German>Kriegsvorbereitungen</German>
-		<Italian>Icone di Mobilitazione</Italian>
-		<Spanish>Icono de Mobilización</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_HOVER</Tag>
-		<English>When checked, shows an orange fist icon when the AI is mobilizing for war (We Have Enough on Our Hands).</English>
-		<French>When checked, shows an orange fist icon when the AI is mobilizing for war (We Have Enough on Our Hands).</French>
-		<German>Zeigt ein orangenes Faust-Symbol an, wenn sich eine Zivilisation auf einen Krieg vorbereitet (engl. "We Have Enough on Our Hands")</German>
-		<Italian>Quando è selezionato, mostra un'apposita icona quando la Civiltà si sta mobilitando per la guerra ('We Have Enough on Our Hands', WHEOH).</Italian>
-		<Spanish>Cuando se activa, muestra un puño naranja cuando la IA se está preparando para la guerra.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #37 -->
 	
 	<!-- advc.004: was "Number of Cities" -->
 	<TEXT>

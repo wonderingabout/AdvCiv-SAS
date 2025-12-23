@@ -4,32 +4,7 @@
 <!-- Plot L System -->
 <!-- -->
 <!-- When debugging LSystems, refer to Civ4/Logs/LSystem.log for help -->
-<!-- Attribute Overview
-     
-     On specific art:	ONE artref is picked as long as it satisfies all the subconstraints below
-        Bonus
-        Imporvement
-        Scalars:
-			bApplyRotation	- if set, the art will be rotated according to its cumulative rotation when placed
-			bZMode_Ground	- if set, the builder will try to force the art to not z-write nor z-test
-			bIsPartOfImprovement, bIsPartOfBonus - when provided once during a plot build on any placed artref, this will
-			                                       prevent the LSystem from falling back to a fixed placement alg
-			
-	On nodes:
-		RegionTest			- if value is 1, then the node will be tested against cut regions when expanded
-							- if the value is 0 then this won't happen
-							- if value is 0NW then the node won't be region tested or water tested
-							- if the value is 1NW then the node will be region tested but won't be water tested
-		
-     On productions:
-        Bonus			- can be multiple, if any met constraint met, then the production is expandable
-        Improvement		- as with bonus
-		Scalars:	
-			bGoalOnly:1	- if true, then the production can only be expanded if we're in GOAL seek mode
-						- note, this does not prevent child nodes from being visited by DFS or BFS
-			bExtraGoalOnly:1	- same behavior as bGoalOnly, but when placing nodes defined by szExtra attributes on a goal artref
-			
-		-->
+<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #15 -->
 <!-- custom: imported (cleanly but anyways etc whatever that means or not or yes or etc or other or etc but anyways etc...) from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings\CIV4PlotLSystem.xml and modified or not for advciv-sas anyways etc -->
 <!-- custom: note: i am not sure if this file is useful or read by our mod or not, but tried to implement it with our changes as well in case it helps or is necessary i mean (check if accurate) but anyways etc. -->
 <LSystemInfos xmlns="x-schema:CIV4LSystemSchema.xml">

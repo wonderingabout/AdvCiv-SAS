@@ -40,7 +40,7 @@
 
 
 
-	<!-- custom: remove the very unclear "Enables" text, that is at best inaccurate/unclear at worse a clear error, regardless of intent which is not for me to judge perhaps (at least not too much maybe or not or yes or and other or and not or other or etc anyways etc anyways etc anyways etc), and it does indeed "enable" something if i may say anyways etc, but perhaps it could have been rephrased in a clearer way perhaps if i may say anyways etc anyways etc anyways etc, and in all cases maybe rather anyways etc, i hope i can make it clearer by trying to find what it does, for example in https://modiki.civfanatics.com/index.php/Civ4BonusInfos (and similar info in kujira's website translated to english as well, see ctrl+f "kujira" global search for details anyways etc), it states about this: "The technology that enables the trading of this resource." , S(s)o (anyways etc) i think we can rephrase it for concision (since it should be about (ideally) 84px (, but in practice a bit larger since we have the room and display a bit more text of it and smooth spacing if i may say anyways etc anyways etc anyways etc...) since there is only one tech if i am not mistaken anyways etc) to for example as below anyways etc hopefully helpful or not anyways etc -->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #74 -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BONUS_TRADE</Tag>
 		<English>Tradeable Since</English>

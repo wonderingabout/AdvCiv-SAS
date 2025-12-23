@@ -35,7 +35,7 @@
 			<Type>PROCESS_CULTURE</Type>
 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
-			<!-- custom: polytheism now instead of drama, maybe is more accurate/realistic to have it sooner on top of maybe helping calm revolts sooner? Or/and more diverse strategies possible now? Trying this as it may fit better in AdvCiv-SAS. Note: not putting it in start tech else AIs build culture in their capital which is inefficient, rather than retweak all if even feasable in xml which i doubt but maybe i don't know, it seems easier to remove the culture goalpsot if i may say but anyways etc a bit later, at polytheism, maybe more balanced this way too as culture is a bit too easy to have at MYSTICISM maybe, plus since our tech tree rework is simplified, mysticism is a starting tech we don't have a tech(s) before it so maybe all around better or and more balanced or and more suitable or and more desirable for us in advciv-sas at least is how i'd want to try it set it but anyways etc ; after more consideration and testing, move PROCESS_CULTURE back to TECH_MUSIC_THEORY, AI is a bit too bad or/and too inefficient maybe at using it too early, make it available later but also soon enough as we want/wanted anyways etc. Update: back to drama since we have removed the now old TECH_MUSIC_THEORY anyways etc., and since AIs handle this sometimes bad in the early game. This tech prereq change helps culture techs being stronger by condensing their effects and make them more "bulky" if i may say but anyways etc. -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #22 -->
 			<TechPrereq>TECH_DRAMA</TechPrereq>
 			<ProductionToCommerceModifiers>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
