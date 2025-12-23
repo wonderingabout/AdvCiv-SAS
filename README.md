@@ -42,6 +42,7 @@ As for the future, development is mostly finished on my end, it is tempting to i
 &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
 [Assets Rebalancing](/README.md#assets-rebalancing)  
 [48 Civs DLL](/README.md#48-civs-dll)  
+[Long Comments Archive](/README.md#long-comments-archive)  
 [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
 ["Temporary" crashes](/README.md#temporary-crashes)  
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
@@ -331,6 +332,11 @@ Note: it seems that savegames are not compatible when switching from 18 civ DLL 
 
 Note 2: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL anyways etc.
 
+## Long Comments Archive
+
+Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see update notes [here](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for that version [here](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)). To keep files readable, we consolidated long comments into [Long_Comments/](/Long_Comments/). See details in [commit 940d04c](/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](/pull/17).
+Note: we try to balance comment cleanup with keeping concise technical explanations in code when they help maintainers.
+
 ## Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc
 
 See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details.
@@ -563,9 +569,7 @@ Also helped me nicely fix python issues very effectively thanks, i didn't test i
 
 ##### GPT-5.2-Codex (VS Code extension)
 
-Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments into [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) and replaced them in-place with short custom markers, motivated by my user (wonderingabout) finding a very long 9000+ char XML comment that may have been linked to the AdvCiv-SAS 5240 AI fix (noticed ingame: AI founding much more cities and being stronger in tech pace and militarily).
-
-I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it.
+Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit 940d04c](/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
 
 ### Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
 
