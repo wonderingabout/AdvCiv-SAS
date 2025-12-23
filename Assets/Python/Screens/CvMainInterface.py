@@ -454,6 +454,9 @@ class CvMainInterface:
 		# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
 		# 1) Add a pinned-row member (once)
 		self.iCityBuildBarPinnedRow = None
+		# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 anyways etc. -->
+		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
+		
 
 ############## Basic operational functions ###################
 
@@ -1530,6 +1533,14 @@ class CvMainInterface:
 
 		xResolution = self.xResolution
 		yResolution = self.yResolution
+
+		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper but anyways etc. -->
+		if self.iBarExtraRows is None:
+			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
+			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
+		if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS is None:
+			self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS") > 0)
+
 		lTop = gRect("Top")
 
 		self.setDefaultHelpTextArea()
@@ -2121,11 +2132,6 @@ class CvMainInterface:
 
 		# <!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
 		# City screen: show more build rows in production chooser
-		# <!-- custom: initialize cheaply once. -->
-		if self.iBarExtraRows is None:
-			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
-			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
-
 		if self.iBarExtraRows > 0:
 			if CyInterface().isCityScreenUp():
 				iTMargin += - (self.iBarExtraRows * iButtonSize) + self.iBarExtraRowsExtraManualAdjust # extend upward; keep bottom aligned
@@ -6098,9 +6104,13 @@ class CvMainInterface:
 			for i in range(iOrders):
 				szLeftBuffer = u""
 				szRightBuffer = u""
+				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 anyways etc. -->
+				szButton = ""
 				if (CyInterface().getOrderNodeType(i) == OrderTypes.ORDER_TRAIN):
 					szLeftBuffer = gc.getUnitInfo(
 							CyInterface().getOrderNodeData1(i)).getDescription()
+					if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+						szButton = gc.getUnitInfo(CyInterface().getOrderNodeData1(i)).getButton()
 					iProductionTurns = pHeadSelectedCity.getUnitProductionTurnsLeft(
 							CyInterface().getOrderNodeData1(i), i)
 					if iProductionTurns > 0: # advc.004x
@@ -6133,6 +6143,8 @@ class CvMainInterface:
 # BUG - Production Decay - end
 				elif (CyInterface().getOrderNodeType(i) == OrderTypes.ORDER_CONSTRUCT):
 					szLeftBuffer = gc.getBuildingInfo(CyInterface().getOrderNodeData1(i)).getDescription()
+					if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+						szButton = gc.getBuildingInfo(CyInterface().getOrderNodeData1(i)).getButton()
 					iProductionTurns = pHeadSelectedCity.getBuildingProductionTurnsLeft(
 							CyInterface().getOrderNodeData1(i), i)
 					if iProductionTurns > 0: # advc.004x
@@ -6160,6 +6172,8 @@ class CvMainInterface:
 # BUG - Production Decay - end
 				elif (CyInterface().getOrderNodeType(i) == OrderTypes.ORDER_CREATE):
 					szLeftBuffer = gc.getProjectInfo(CyInterface().getOrderNodeData1(i)).getDescription()
+					if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+						szButton = gc.getProjectInfo(CyInterface().getOrderNodeData1(i)).getButton()
 					iProductionTurns = pHeadSelectedCity.getProjectProductionTurnsLeft(
 							CyInterface().getOrderNodeData1(i), i)
 					if iProductionTurns > 0: # advc.004x
@@ -6172,11 +6186,14 @@ class CvMainInterface:
 # BUG - Production Started - end
 				elif (CyInterface().getOrderNodeType(i) == OrderTypes.ORDER_MAINTAIN):
 					szLeftBuffer = gc.getProcessInfo(CyInterface().getOrderNodeData1(i)).getDescription()
+					if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+						szButton = gc.getProcessInfo(CyInterface().getOrderNodeData1(i)).getButton()
 				screen.appendTableRow("SelectedCityText")
-				screen.setTableText("SelectedCityText", 0, iRow, szLeftBuffer, "",
-						WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText("SelectedCityText", 1, iRow, szRightBuffer, "",
-						WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 anyways etc. -->
+				screen.setTableText("SelectedCityText", 0, iRow, szLeftBuffer, szButton, WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)  
+
+				screen.setTableText("SelectedCityText", 1, iRow, szRightBuffer, "", WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 				screen.show("SelectedCityText")
 				screen.show("SelectedUnitPanel")
 				iRow += 1

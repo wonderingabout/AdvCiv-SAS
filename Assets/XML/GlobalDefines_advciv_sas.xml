@@ -134,6 +134,12 @@
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
 		<iDefineIntVal>-17</iDefineIntVal>
 	</Define>
+	<!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 anyways etc. -->
+	<!-- custom: 1 to enable (recommended), 0 to disable -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 

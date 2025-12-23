@@ -567,6 +567,8 @@ You can view the screenshot of this first successfully implemented in AdvCiv-SAS
 
 I used many versions/models of it thanks! In partilar recently, claude sonnet 4.5 which helped me plenty, and even more recently claude opus 4.5 which helped me add buttons to the military advisor (with chatgpt 5.2's help and digging thanks too but anyways etc.) that look super nice, thanks too hehe but anyways etc!
 
+In particular as well, Claude opus 4.5 also helped add buttons (i.e. icons) to the city screen's production queue at first try as well nice, despite chatgpt 5.2 struggling to do so (on other tasks chatgpt 5.2 does well as well but anyways etc.). But anyways etc.
+
 ### Gemini AI
 
 #### 2.5 Flash
