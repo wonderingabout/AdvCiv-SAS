@@ -7,7 +7,7 @@
 <!-- custom: to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units anyways etc if i am not mistaken anyways etc:
 - like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc
 - also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
-see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details anyways etc -->
+see also Long_Comments/Long_Comments_XML.txt comment #90 for details anyways etc -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #83 -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #84 -->
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
