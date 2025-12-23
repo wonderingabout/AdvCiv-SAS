@@ -161,38 +161,7 @@
 	</TEXT>
 	
 	<!-- advc.210b: Now unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGOCCUPATION_TEXT</Tag>
-		<English>Pending</English>
-		<French>Prochain tour</French>
-		<German>Nächste Runde</German>
-		<Italian>Imminente</Italian>
-		<Spanish>Pendiente</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGOCCUPATION_HOVER</Tag>
-		<English>Displays an alert when a city will be pacified next turn, ending occupation.</English>
-		<French>When checked, displays an alert when a city will be pacified next turn, ending occupation.</French>
-		<German>Meldet, wenn die Unruhen in einer (eroberten) Stadt in der nächsten Runde enden</German>
-		<Italian>Quando è selezionato, viene visualizzato un avviso quando una città verrà pacificata al turno successivo, ponendo fine al periodo di occupazione.</Italian>
-		<Spanish>Muestra un aviso cuando una ciudad vaya a ser pacificada el próximo turno, terminando con la ocupación.</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYOCCUPATION_TEXT</Tag>
-		<English>Pacification</English>
-		<French>Pacification</French>
-		<German>Beruhigung</German>
-		<Italian>Pacificazione</Italian>
-		<Spanish>Pacificación</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYOCCUPATION_HOVER</Tag>
-		<English>Displays an alert when a city has been pacified, ending occupation.</English>
-		<French>When checked, displays an alert when a city has been pacified, ending occupation.</French>
-		<German>Meldet, wenn die Unruhen in einer (eroberten) Stadt enden</German>
-		<Italian>Quando è selezionato, viene visualizzato un avviso quando una città viene pacificata, ponendo fine al periodo di occupazione.</Italian>
-		<Spanish>Muestra un aviso cuando una ciudad sea pacificada, terminando con la ocupación.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #39 -->
 
 <!-- Hurry -->
 	

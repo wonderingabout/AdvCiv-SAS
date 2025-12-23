@@ -474,16 +474,7 @@
 		</LeaderheadArtInfo>
 		-->
 
-		<!-- custom: our old static version of Ogiso Igodo (if needed, we have now switched to Ewuare instead for accuracy with the animation and overall historical importance/reliability of the data thanks to or/and also as advised thanks by chatgpt i mean anyways etc, but the earlier version of the leader of the kingdom of benin used a static image at first not animations as i didn't know how to (easily anyways etc) add nif animations (import them from mods i mean as of now is easiest still i didn't know how to easily do so at the time anyways etc) so keeping this info here in case it helps or we want to add some static images instead of an animated leader portrait/head if i am not mistaken anyways etc): add Ogiso Igodo's Art (Picture) did/done as advised to me by ChatGPT with some adjustments or not for AdvCiv-SAS
-		<LeaderheadArtInfo>
-			<Type>ART_DEF_LEADER_OGISO_IGODO</Type>
-			<Button>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/Ogiso_Igodo_Button.dds</Button>
-			<NIF>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/Ogiso_Igodo_NIF_Static.dds</NIF>
-			<KFM>art/LeaderHeads/Mansa_Musa/mansa_musa.kfm</KFM>
-			<NoShaderNIF>art/LeaderHeads/Mansa_Musa/mansa_musa_noshader.nif</NoShaderNIF>
-			<BackgroundKFM>art/LeaderHeads/Mansa_Musa/Mansa_Musa_BG.kfm</BackgroundKFM>
-		</LeaderheadArtInfo>
-		-->
+		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #4 -->
 
 
 

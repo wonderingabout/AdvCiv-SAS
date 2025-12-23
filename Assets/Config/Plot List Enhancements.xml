@@ -181,30 +181,7 @@
 					get="isShowMoveHighlighter"/>
 			
 			<!-- advc.069 These are unused -->
-			<!--option id="MH_Color_Impassable_Terrain" key="Color Impassable Terrain" 
-					type="color" default="COLOR_CLEAR" 
-					get="getImpassableTerrainColor"/>
-			<option id="MH_Color_Passable_Terrain" key="Color Passable Terrain" 
-					type="color" default="COLOR_WHITE" 
-					get="getPassableTerrainColor"/>
-			<option id="MH_Color_Passable_Neutral_Territory" key="Color Passable Neutral Territory" 
-					type="color" default="COLOR_PLAYER_DARK_YELLOW" 
-					get="getNeutralTerritoryColor"/>
-			<option id="MH_Color_Passable_Enemy_Territory" key="Color Passable Enemy Territory" 
-					type="color" default="COLOR_PLAYER_DARK_RED" 
-					get="getEnemyTerritoryColor"/>
-			<option id="MH_Color_Passable_Barbarian_Territory" key="Color Passable Barbarian Territory" 
-					type="color" default="COLOR_PLAYER_DARK_CYAN" 
-					get="getBarbarianTerritoryColor"/>
-			<option id="MH_Color_Neutral_Unit" key="Color Neutral Unit" 
-					type="color" default="COLOR_YELLOW" 
-					get="getNeutralUnitColor"/>
-			<option id="MH_Color_Enemy_Unit" key="Color Enemy Unit" 
-					type="color" default="COLOR_RED" 
-					get="getEnemyUnitColor"/>
-			<option id="MH_Color_Barbarian_Unit" key="Color Barbarian Unit" 
-					type="color" default="COLOR_CYAN" 
-					get="getBarbarianUnitColor"/-->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #1 -->
 		</section>
 	</options>
 </mod>

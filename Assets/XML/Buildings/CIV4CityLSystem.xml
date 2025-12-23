@@ -5,36 +5,8 @@
 <!-- CityLSystem -->
 <!-- -->
 <!-- When debugging LSystems, refer to Civ4/Logs/LSystem.log for help -->
-<!-- CityLSystems use the follwing ArtRef attributes:
-
-        Attribute     Syntax                Meaning
-        ____________________________________________________________________________________________________________
-		Rotation      float,[float,...]     The ArtRef is allowed only if it its containing node 
-		                                    has one of the given rotations. This helps with
-		                                    shadow alignment. Rotations are in degrees.
-		                                    
-        Era           ERA_ALL or            This ArtRef is allowed regardless of the game era.
-                                            This is the default if this attribute is not manually specified.
-                      ERA_xxx,[era_xxx,.. ] A list of era types, specified in CIV4EraInfos, during which this
-                                            art may be used.
-                                            
-        ArtStyle      ARTSTYLE_ALL          This art reference is allowed regardless of the game era.
-                                            This is the default if not otherwise specified.
-                      ARTSTYLE_xxx,[...]    A list of art styles, specified in CIV4GlobalTypes, for which
-                                            this art is valid. A ArtStyles are Civilization-sepcific 
-                                            and are specified in CIV4CivilizationInfos.xml
-  
-		You can add the following items to a node or production...
-			<Attribute Class="ScalarList">szWithCityNameNotEqualTo:CityName1,CityName2</Attribute> : inhibits the production/node when a city is in the list
-			<Attribute Class="ScalarList">szWithCityNameEqualTo:CityName1,CityName2</Attribute>    : inhibits the production/node when a city not is in the list			
-		
-  -->
-<!-- custom: for this file there were 2 versions:
-- one seemingly vanilla civ4(?) (not taken here for AdvCiv-SAS): C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Buildings\CIV4CityLSystem.xml
-- and one other(/another anyways etc) longer (in line(s?) count (anyways etc)) (that i took for AdvCiv-SAS and then modified it as needed or/and wanted or/and other or/and not anyways etc anyways etc): C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Buildings\CIV4CityLSystem.xml
-
-I am not sure which i should take, but since there are redundancies i guess i should pick only one, and then warlords even though i don't know a lot about it i assume (barely at all anyways etc but maybe i can make assumptions (educated maybe anyways etc) or guesses anyways etc that if as i researched (very) quick anyways etc civ4 bts is based on warlords (if i am not mistaken)), and considering the warlords file version of it is longer, i went with((/)i.e. picked) the warlords version of this file anyways etc, may revert if doesn't work, maybe is not used in BTS anymore or maybe is, but since it mentions a "TAO" asset that i would want to rename to "DAO" trying it to see if works, hopefully no issue but if there is hopefully i see it at game start or during (one quick or few or just one or/and other(s) or not autoplays anyways etc), or maybe it wuold/may just run fine or maybe not or/and other or/and not etc (but) (etc) anyways etc
--->
+<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #13 -->
+<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #14 -->
 <LSystemInfos xmlns="x-schema:CIV4LSystemSchema.xml">
 	<!-- ******************************************************************************************** -->
 	<!-- Modders: this might help you understand what is going on ... -->

@@ -348,48 +348,7 @@
 		<Spanish>Selecciona el número de turnos a esperar antes de mostrar la exclamación para un edificio cuya producción está decayendo. Un edificio empieza a decaer tras estar en la cola sin añadir [ICON_PRODUCTION] durante 50 turnos. Los Proyectos nunca decaen.</Spanish>
 	</TEXT>
 	<!-- advc.094: Not going to use these -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVER_TEXT</Tag>
-		<English>Hover</English>
-		<German>Tooltip</German>
-		<Italian>Testo a comparsa</Italian>
-		<Spanish>Mostrar Decaimiento</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVER_HOVER</Tag>
-		<English>When checked, displays the number of turns before and amount of decay in the hover text for units and buildings in the build queue.</English>
-		<German>Zeigt im Tooltip von Einheiten und Gebäuden in der Produktionsliste die Anzahl der Runden an, bis ein Produktionsfortschritt verfällt und wie viele [ICON_PRODUCTION] dann verloren gehen</German>
-		<Italian>Quando è selezionato, mostra nel testo a comparsa delle Unità e degli Edifici in coda di produzione il numero di turni prima che perdano la produzione accumulata e l'ammontare di tale perdita.</Italian>
-		<Spanish>Si se activa, muestra el número de turnos que faltan para que la producción empiece a decaer así como la cantidad de reducción en el texto flotante para unidades y edificios en la cola de producción.</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVERUNITTHRESHOLD_TEXT</Tag>
-		<English>Unit Warning</English>
-		<German>Einheiten-Warnung</German>
-		<Italian>Avviso per le Unit&#224;</Italian>
-		<Spanish>Decaimiento Unidades</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVERUNITTHRESHOLD_HOVER</Tag>
-		<English>Select the number of turns before a unit will decay at which time the decay information is first displayed.</English>
-		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt einer produzierten Einheit verfällt und ein gelbes Ausrufezeichen angezeigt wird</German>
-		<Italian>Inserisci il numero di turni prima che una Unità in coda perda la produzione accumulata mancanti i quali verranno visualizzate per la prima volta le informazioni relative.</Italian>
-		<Spanish>Selecciona el número de turnos a esperar antes de mostrar información de decaimiento.</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVERBUILDINGTHRESHOLD_TEXT</Tag>
-		<English>Building Warning</English>
-		<German>Gebäude-Warnung</German>
-		<Italian>Avviso per gli Edifici</Italian>
-		<Spanish>Decaimiento edificios</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVERBUILDINGTHRESHOLD_HOVER</Tag>
-		<English>Select the number of turns before a building will decay at which time the decay information is first displayed.</English>
-		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt eines produzierten Gebäudes verfällt und ein gelbes Ausrufezeichen angezeigt wird</German>
-		<Italian>Inserisci il numero di turni prima che un Edificio in coda perda la produzione accumulata mancanti i quali verranno visualizzate per la prima volta le informazioni relative.</Italian>
-		<Spanish>Selecciona el número de turnos a esperar antes de mostrar información de decaimiento.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #32 -->
 	
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONPOPUPTRAINCIVILIANUNITSFOREVER_TEXT</Tag>

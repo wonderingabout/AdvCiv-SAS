@@ -25,37 +25,7 @@
 		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pestaña.</Spanish>
 	</TEXT-->
 	
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_LIST</Tag>
-		<English>PLE|Vanilla|BUG</English>
-		<French>PLE|Vanilla|BUG</French>
-		<German>PLE|Standard|BUG</German>
-		<Italian>PLE|Vanilla|BUG</Italian>
-		<Spanish>PLE|Estándar|BUG</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_TEXT</Tag>
-		<English>Draw Method</English>
-		<French>Draw Method</French>
-		<German>Anzeigemethode</German>
-		<Italian>Draw Method</Italian>
-		<Spanish>Modo de Dibujado</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_HOVER</Tag>
-		<English>Sets the draw method.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vanilla[COLOR_REVERT] - uses the 'draw' code that was in the original game (or close enough)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - uses the BUG team developed 'draw' code - newly developed so it might be a little unstable but does promise greatly enhanced performance (ie speed) when dealing with large stacks[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - uses the 'draw' code that was originally provided by the PLE enhancement</English>
-		<German>Bestimmt die Anzeigemethode:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Standard[COLOR_REVERT] - Einsatz der regulären Anzeigemethode des Spiels[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - Einsatz der Anzeigemethode, die vom Team der BUG Mod neu entwickelt wurde (daher möglicherweise etwas instabil), um nur die grafischen Elemente neu zu laden, die sich verändert haben, und so die Geschwindigkeit der Anzeige bei großen Truppenmassen drastisch erhöht[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - Einsatz der von der ursprünglichen PLE-Mod verwendeten Anzeigemethode</German>
-		<Italian>Sets the draw method.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vanilla[COLOR_REVERT] - uses the 'draw' code that was in the original game (or close enough)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - uses the BUG team developed 'draw' code - newly developed so it might be a little unstable but does promise greatly enhanced performance (ie speed) when dealing with large stacks[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - uses the 'draw' code that was originally provided by the PLE enhancement</Italian>
-		<Spanish>Permite seleccionar el modo de dibujado.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Estándar[COLOR_REVERT] - Modo de dibujado empleado en el juego original[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - Modo de dibujado desarrollado por el equipo BUG[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - Modo de dibujado empleado originalmente por PLE</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__PLE_STYLE_HOVER</Tag>
-		<English>Enables the Plot List Enhancements mod and the rest of the options on this tab.</English>
-		<French>Active le mod Plot List Enhancements ainsi que le reste des options sur cet onglet.</French>
-		<German>Aktiviert die Verbesserungen der Einheitenliste am unteren Bildschirmrand (verwendet 12monkeys' "Plot List Enhancements"-Mod)</German>
-		<Italian>Abilita il mod 'Plot List Enhancements' (PLE, Icone delle Unità Avanzate) e le altre opzioni in questa pagina.</Italian>
-		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pestaña.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #43 -->
 	<!-- advc.069: Replacing the above. The last one actually had no
 		 effect in BUG/K-Mod, and now the effect isn't the one described
 		 above either. -->
@@ -153,11 +123,7 @@
 		<English>Single Row|Wrapped Row|Multi Rows|Multi Columns</English>
 		<German>Einzeilig|mit Umbruch|Mehrzeilig|Mehrspaltig</German>
 	</TEXT>
-	<!-- Old translations:
-		 <French>Détermine le mode de vue quand vous démarrez Civ IV.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Une Ligne[COLOR_REVERT] - Vue par défaut de Civ IV[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Plusieures Lignes[COLOR_REVERT] - Vue par défaut de Beyond the Sword[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Groupes Verticaux[COLOR_REVERT] - Les Unités sont groupées en colonnes[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Groupes Horizontaux[COLOR_REVERT] - Les Unités sont groupées en rangées</French>
-		 <Italian>Determina la modalità di visualizzazione utilizzata all'avvio del gioco:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Riga singola[COLOR_REVERT] - visualizzazione originale di Civ4;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Righe multiple[COLOR_REVERT] - visualizzazione originale di Civ4:BtS;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Gruppi verticali[COLOR_REVERT] - le Unità vengono raggruppate per colonna;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Gruppi orizzontali[COLOR_REVERT] - le Unità vengono raggruppate per riga.</Italian>
-		 <Spanish>Fija la vista a emplear cuando inicias Civilization IV.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Fila Simple[COLOR_REVERT] - Vista de Civilization IV original[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Múltiples Filas[COLOR_REVERT] - Vista de Beyond the Sword[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grupos Verticales[COLOR_REVERT] - Las unidades se agrupan en columnas[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grupos Horizontales[COLOR_REVERT] - Las unidades se agrupan en filas</Spanish>
-		 -->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #44 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DEFAULT_VIEW_MODE_HOVER</Tag>
 		<English>Sets the view (icon arrangement) that is used at game start.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Single Row[COLOR_REVERT] - The original Civ 4 view with arrows if the row of icons is too long to fit on the screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Wrapped Row[COLOR_REVERT] - The BtS view, which wraps the single row into multiple rows when running out of horizontal space.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Multi Rows[COLOR_REVERT] - Units are grouped together (by type or selection) and each group is shown on a separate row.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Vertical Groups[COLOR_REVERT] - Units are grouped together and each group is shown in a separate column.</English>
@@ -460,70 +426,7 @@
 	</TEXT>
 	
 	<!-- advc.069: unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__HORIZONTAL_SPACING_TEXT</Tag>
-		<English>Horizontal Spacing</English>
-		<French>Espacement Horizontal</French>
-		<German>Horizontaler Abstand</German>
-		<Italian>Spaziatura orizzontale</Italian>
-		<Spanish>Espaciado Horizontal</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__HORIZONTAL_SPACING_HOVER</Tag>
-		<English>Specifies the horizontal spacing between icons (default value is 34).</English>
-		<French>Specifie l'espacement horizontal des icônes (valeur par défaut = 34).</French>
-		<German>Bestimmt den horizontalen Abstand zwischen den Einheitensymbolen (der Standardwert ist 34)</German>
-		<Italian>Indica la spaziatura orizzontale fra le icone (il valore predefinito è '34').</Italian>
-		<Spanish>Especifica el espaciado horizontal entre los iconos (el valor por defecto es 34).</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__VERTICAL_SPACING_TEXT</Tag>
-		<English>Vertical Spacing</English>
-		<French>Espacement Vertical</French>
-		<German>Vertikaler Abstand</German>
-		<Italian>Spaziatura verticale</Italian>
-		<Spanish>Espaciado Horizontal</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__VERTICAL_SPACING_HOVER</Tag>
-		<English>Specifies the vertical spacing between icons (default value is 42).</English>
-		<French>Specifie l'espacement vertical des icônes (valeur par défaut = 42).</French>
-		<German>Bestimmt den vertikalen Abstand zwischen den Einheitensymbolen (der Standardwert ist 42)</German>
-		<Italian>Indica la spaziatura orizzontale fra le icone (il valore predefinito è '42').</Italian>
-		<Spanish>Especifica el espaciado vertical entre los iconos (el valor por defecto es 42).</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_X_TEXT</Tag>
-		<English>Horizontal Position</English>
-		<French>Position Horizontale</French>
-		<German>Horizontale Position</German>
-		<Italian>Posizione orizzontale</Italian>
-		<Spanish>Posición Horizontal</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_X_HOVER</Tag>
-		<English>Specifies the horizontal position of the Unit Info hover pane (default value is 5).</English>
-		<French>Specifie la position horizontale de l'infobulle d'Info d'Unité (valeur par défaut = 5).</French>
-		<German>Bestimmt die horizontale Position des neuen Info-Tooltips der Einheitensymbole (der Standardwert ist 5)</German>
-		<Italian>Indica la posizione orizzontale del Pannello di Informazioni sulle Unità (il valore predefinito è '5').</Italian>
-		<Spanish>Especifica la posición horizontal del texto flotante del panel de información de unidades (el valor por defecto es 5).</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_Y_TEXT</Tag>
-		<English>Vertical Position</English>
-		<French>Position Verticale</French>
-		<German>Vertikale Position</German>
-		<Italian>Posizione  verticale</Italian>
-		<Spanish>Posición Vertical</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_Y_HOVER</Tag>
-		<English>Specifies the vertical position of the Unit Info hover pane (default value is 160).</English>
-		<French>Specifie la position verticale de l'infobulle d'Info d'Unité (valeur par défaut = 160).</French>
-		<German>Bestimmt die vertikale Position des neuen Info-Tooltips der Einheitensymbole (der Standardwert ist 160)</German>
-		<Italian>Indica la posizione verticale del Pannello di Informazioni sulle Unità (il valore predefinito è '160').</Italian>
-		<Spanish>Especifica la posición vertical del texto flotante del panel de información de unidades (el valor por defecto es 160).</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #45 -->
 	
 	<!-- advc.069: Already unused in BUG (always enabled) -->
 	<!--TEXT>
@@ -554,13 +457,7 @@
 		<Spanish>Espaciado Promociones</Spanish>
 	</TEXT-->
 	<!-- rewritten (English, German) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_PROMO_ICON_OFFSET_Y_HOVER</Tag>
-		<English>This offset can be used to adjust the vertical position of the promotion icons displayed by PLE inside the help text for a unit icon. A positive offset moves the icons up, a negative one moves them down.</English>
-		<German>Zur manuellen Korrektur der vertikalen Position der Beförderungssymbole im PLE-Einheiten-Hilfetext. Ein positiver Wert verschiebt die Symbole nach oben, ein negativer Wert nach unten.</German>
-		<Italian>Determina il posizionamento verticale delle Icone di Promozione nel Pannello di Informazioni sulle Unità (il valore predefinito è '0', i valori positivi indicano uno spostamento verso l'alto e quelli negativi verso il basso). Utilizza questa impostazione per aggiustare il piazzamento delle icone di promozione quando utilizzi dei temi personalizzati che modificano il font predefinito di Civ4 (per esempio, ti consigliamo di impostare un valore di '6' se utilizzi il tema del mod BlueMarble).</Italian>
-		<Spanish>Especifica el espaciado vertical de los iconos de promoción en el texto flotante del panel de información de unidades (el valor por defecto es cero, valores positivos hacia arriba). Es necesario modificar este valor al usar temas que modifican la fuente. Por ejemplo, hay que usar 6 con BlueMarble.</Spanish>
-	</TEXT!-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #46 -->
 
 	<!-- advc.069: Had to shorten German -->
 	<TEXT>

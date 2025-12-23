@@ -93,13 +93,7 @@
 
 
 
-	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
-	fit to me than "Cow".
-	Be careful, according to, for example: https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 , some animals are countable (5 cats for example) in English while others are best fit at singular (5 sheep for example)
-	There are less gains in changing what is already working. But specifically for cattle however rather than cows as it applies to all sexes of the cows, while still being specific and not generic if i'm not mistaken: https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
-	https://context.reverso.net/translation/english-french/cows
-	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4): "Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep." - The Bible, Deuteronomy 28:4
-	So i think it's very immersive and nice to use cattle here too on top of being more accurate it seems. -->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #77 -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_CATTLE</Tag>
 		<English>Cattle</English>
@@ -131,7 +125,7 @@
 
 
 
-	<!-- custom: renamed specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me anyways etc, see after this bracket for details anyways etc: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s direction but anyways etc as is or not anyways etc) ; and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully, anyways etc, see the code comment (global search with VS Code if need anyways etc "K-Mod: was UNITAI_GREAT_MERCHANT") in (update if path is non-Steam for AdvCiv-SAS or the mod you use anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4UnitAIInfos.xml for details -->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #78 -->
 	<TEXT>
 		<Tag>TXT_KEY_SPECIALIST_GREAT_PRIEST</Tag>
 		<English>Great Priest</English>
@@ -258,15 +252,7 @@
 	</TEXT>
 
 
-	<!-- custom: extremely confusing base Civ4 (and still in AdvCiv (even though did not have or maybe rather import all asset files to (easily?) allow that but anyways etc, that could have done or not but as far as i'm concerned (maybe(or not(, but anwyays etc))) and to go back on topic, anyways etc: ) but anyways etc anyways etc...)
-	naming of the obelisk, now renamed:
-	- BUILDINGCLASS_OBELISK (when relating(related?) to the monument building class and not the (non existent(/existing?))(egyptian) obelisk building class) (and all similar entries such as art file(i.e. XML asset) tag names and such) to BUILDINGCLASS_MONUMENT
-	- BUILDING_OBELISK (when relating(related?) to the monument building and not the (egyptian) obelisk building) (same as above) to BUILDING_MONUMENT
-	- (so) exception(s?) being: TXT_KEY_BUILDING_OBELISK to TXT_KEY_BUILDING_EGYPTIAN_OBELISK (to match the existing civ4 format that (quite if not lot but anyways etc at least and still to go back on topic anyways etc) makes/made sense)
-	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be more confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not, but anyways etc and hopefully a lot clearer now, and helpful or not, but in all cases or not anyways etc)
-
-	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the nationality/country in the name i think, but hopefully a lot clearer in code now too, anyways etc, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now, anyways etc)
-	-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #79 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
 		<English>Obelisk</English>

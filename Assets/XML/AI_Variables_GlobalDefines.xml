@@ -265,22 +265,7 @@
 	</Define>
 
 	<Define>
-		<!-- Recommended: 100 (BtS behavior)
-			 If this percentage is less than 100, all AI personality values
-			 from Civ4LeaderHeadInfos.xml are moved toward their median. Formula:
-			 ((UWAI_PERSONALITY_PERCENT * x +
-			 (100 - UWAI_PERSONALITY_PERCENT) * m) / 100
-			 where x is a personality value of a given leader and m the median
-			 over all leader personalities defined in XML (except the Barbarian
-			 leader). E.g. UWAI_PERSONALITY_PERCENT=50 moves the values halfway
-			 to the  median, making the AI personalities half as pronounced.
-			 0 eliminates the personalities (apart from traits). Favorite civic
-			 and religion are normally unaffected, but, in the special case of
-			 UWAI_PERSONALITY_PERCENT=0, all leaders are set to having no
-			 favorites. (They'll still "care for their brothers and sisters of
-			 the faith" though.) UWAI_PERSONALITY_PERCENT>100 makes the
-			 personalities more pronounced (not tested). Negative values invert
-			 the personalities (not tested and not recommended). -->
+		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #2 -->
 		<!-- custom: have personalities be more pronounced (experimental), maybe
 		it would make the game more entertaining, or games in general more
 		varied, without affecting as much effectiveness of decisions as compared
@@ -362,7 +347,7 @@
 	</Define>
 	<Define>
 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
-		<!-- custom: at first i thought some cities are not good enough but AI still settles them and cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't seem to do too much especially if increased too much. A very low value (around 300 for example) seemed to be mostly ignored too (except AI had more cities that were a bit too crammed. Trying other values, it seems 550 somehow, i don't know why, but consistently provides better city spots to the AI, would need more testing to make sure., was 600; update much later: these don't seem to do much if at all, i'd recommend modifying the DLL/.cpp or such files rather, for example i could change AI settling preferences/recommended spots in map view too it seems as well by modifying AIFoundValue::evaluate in CitySiteEvaluator.cpp and other related functions or/and code or other parts of the code if any other anyways etc; see also the custom main changes guide or/and known issues documentation about such changes anyways etc. Update: now tunable for many settings as of now in GlobalDefines_advciv_sas.xml anyways etc -->
+		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #3 -->
 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
 		<iDefineIntVal>550</iDefineIntVal>
 	</Define>

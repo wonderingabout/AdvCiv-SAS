@@ -290,7 +290,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians anyways etc) to have the time and space to build in this case at least i mean but anyways etc so accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or if i am not mistaken i mean but anyways etc anyways etc anyways etc ; also adjusted considering there are lone barbarians already so barbarian cities don't need to produce too much extra else cnanot be so easily be met especially by AI players if they create settlers or buildings or such in particular, not making barbarians too weak but significantly decreasing their early impact that is already additive to lone barbairans but anyways etc, was 0 -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #8 -->
 			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now but anyways etc, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost and/or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result if i'm not mistaken but anyways etc, was -40 after our change to nerf barbarians as were too op -->
 			<iMilitaryProductionModifier>-25</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
@@ -1990,7 +1990,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, if i am not mistaken anyways etc, also increase iAIWeight so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira anyways etc for details) example to be sure anyways etc, and also by seeing what FFH2 mod does (it uses a value of 40 for example anyways etc) as of now from 0 to 70, so all AI leaders (except barbarian as it just needs more units more efficient for it i think anyways etc) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well, if i am not mistaken, hopefully AI would plan more and execute better their rushes with stronger in experience if i may say anyways etc units even if these rushes are slightly delayed as a result if i am not mistaken anyways etc, was 0 -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #9 -->
 			<iAIWeight>70</iAIWeight>
 			<iCost>50</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2477,7 +2477,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<!-- custom: no reason to go out of our way to make the stable i.e. this building anyways etc obsolete, it will naturally be unpopular with time in this case anyways etc, plus if a mod wanted to add mounted civilian units or maybe us in advciv-sas but unlikely who knows one never knows i mean even though unlikely anyways etc, but the general idea i mean is that it may still serve some purpose to have a stable, and if there are no more horse or other mounted units, then the building is useless anyway, and if there are some even if civ is backwards or such other purpose like alternate tech path or mod added mod mod like they say anyways etc civilian unit, still why not? So put none instead anyways etc (very questioable base civ4 +/- obsolete tech too, unless horses or camels were flying... like in some religions believe it or not that are surprisingly popular and not obsolete, one where it is claimed a river or sea was cut in half with a normal wooden stick but no one has a poof of it somehow, but nevermind this as this is a code space i don't know if i should apologize (as this is what i wanted to say too but anyways etc) but to go back on point here is main reasoning, anyways etc), was TECH_ADVANCED_FLIGHT -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #10 -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
@@ -4075,7 +4075,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: aqueduct class buildings reworked/rebalanced, the health effect alone may not be enough and aqueduct feels quite useless, still just reducing its cost doesnt make it a more valuable as in unique as in worth building still, so adding food instead, which should correlate/(i.e. be quite accurate with the water brought to a city effect, anyways etc, directly or indirectly may increase not just health but also city food yields, and a bit stronger this way as well i think, more gradual game where food yield increases with time maybe, with the granary being a bit weaker now as part of our rework, maybe this early middle game gives food yield a quite needed boost depending on strategies, may be interesting this way and add diversity in strategy, but may be skipped if city has enough food though, (part of the reason why i reduced the flavor a bit more) but anyways etc), also reducing growth a bit more as i had same idea hehe independently if i may say indeed (like in the aqueduct wikipedia's page if i may say but anyways etc...), anyways etc, was growth 8 -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #11 -->
 			<!-- advc.020: Was 10 Growth. I worry that this much flavor on
 			     every health building will make Growth leaders overrate health
 			     buildings. -->
@@ -14901,7 +14901,7 @@
 			<iMaxLatitude>90</iMaxLatitude>
 			<!-- custom: was 0 -->
 			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
-			<!-- custom: since this is cumulative if i am not mistaken and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too if i am not mistaken but anyways etc (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it but anyways etc) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new one but anyways etc it helped in this case at least but anyways etc)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe if i am not mistaken culturally consistent or thematically consistent but anyways etc with the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas if i may say but anyways etc, so choosing a quite small in this case but anyways etc value that should hopefully in this case but anyways etc still be significant but anyways etc ; or so it seem sif i am not mistaken that it seemms to stack (didn't check lot but hopefully correct but anwyays etc anyways etc anyways etc), was 0 -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #12 -->
 			<iGreatGeneralRateModifier>25</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>

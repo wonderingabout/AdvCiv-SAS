@@ -540,32 +540,7 @@
 		<Spanish>[ICON_BULLET]%D1_Change %F2_HappOrUnhapp por[SPACE]</Spanish>
 	</TEXT>	
 	-->
-	<!-- unused tags
-	<TEXT>
-		<Tag>TXT_KEY_MISC_NUCLEAR_WINTER_NEAR_CITY</Tag>
-		<English>Radioactive dust fills the skies near %s1_CityName!</English>
-		<French>*Hiver nucléaire* Alerte ! R&#233;chauffement plan&#233;taire pr&#232;s de %s1_CityName !</French>
-		<German>*Kernwinter* Nahe der Stadt %s1_CityName zeigen sich Auswirkungen der globalen Erw&#228;rmung!</German>
-		<Italian>*Inverno nucleare* Gli effetti del riscaldamento globale colpiscono %s1_CityName!</Italian>
-		<Spanish>*Invierno nuclear* El calentamiento global causa efecto cerca de %s1_CityName.</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_GAME_OPTION_RISING_SEAS</Tag>
-		<English>Rising Seas</English>
-		<French>Mers Er Hausse</French>
-		<German>Steigende Meere</German>
-		<Italian>Innalzamento del livello del mare </Italian>
-		<Spanish>Mares De Levantamiento</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_GAME_OPTION_RISING_SEAS_HELP</Tag>
-		<English>Global warming can raise sea level.</English>
-		<French>Le rechauffement global peut soulever le niveau de la mer.</French>
-		<German>Die globale Erwarmung kann Meeresspiegel anheben.</German>
-		<Italian>Il riscaldamento globale può innalzare il livello del mare.</Italian>
-		<Spanish>El calentamiento del planeta puede levantar nivel del mar.</Spanish>
-	</TEXT>
-	[end of unused tags] -->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #75 -->
 
 	<!-- New diplomacy text -->
 	<!-- advc.002c: German was unidiomatic -->

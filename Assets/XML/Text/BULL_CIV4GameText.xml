@@ -10,38 +10,7 @@
 
 	<!-- Food Assist -->
 	<!-- advc.189: Handled through (less verbose) text in Civ4GameText_advc.xml -->
-	<!--TEXT>
-		<Tag>TXT_KEY_CITY_BAR_FOOD_GROW</Tag>
-		<English>[NEWLINE]%d1 [ICON_FOOD]/Turn[NEWLINE]Growing: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])</English>
-		<French>[NEWLINE]%d1 [ICON_FOOD]/tour[NEWLINE]Croissance : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])</French>
-		<German>[NEWLINE]%d1 [ICON_FOOD]/Runde[NEWLINE]Wachstum: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Runde:Runden])</German>
-		<Italian>[NEWLINE]%d1 [ICON_FOOD]/Turno[NEWLINE]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])</Italian>
-		<Spanish>[NEWLINE]%d1 [ICON_FOOD]/turno[NEWLINE]Creciendo: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CITY_BAR_FOOD_STAGNATE</Tag>
-		<English>[NEWLINE]Stagnant: %d1/%d2 [ICON_FOOD]</English>
-		<French>[NEWLINE]Pas de croissance : %d1/%d2 [ICON_FOOD]</French>
-		<German>[NEWLINE]Stagnation: %d1/%d2 [ICON_FOOD]</German>
-		<Italian>[NEWLINE]Stagnante: %d1/%d2 [ICON_FOOD]</Italian>
-		<Spanish>[NEWLINE]Estancada: %d1/%d2 [ICON_FOOD]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CITY_BAR_FOOD_SHRINK</Tag>
-		<English>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turn[NEWLINE][COLOR_YELLOW]Shrinking: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])[COLOR_REVERT]</English>
-		<French>[NEWLINE]%d1 [ICON_BAD_FOOD]/tour[NEWLINE][COLOR_YELLOW]Rétrécissement : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])[COLOR_REVERT]</French>
-		<German>[NEWLINE]%d1 [ICON_BAD_FOOD]/Runde[NEWLINE][COLOR_YELLOW]Schrumpfung: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Runde:Runden])[COLOR_REVERT]</German>
-		<Italian>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turno[NEWLINE][COLOR_YELLOW]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])[COLOR_REVERT]</Italian>
-		<Spanish>[NEWLINE]%d1 [ICON_BAD_FOOD]/turno[NEWLINE][COLOR_YELLOW]Crecimiento: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CITY_BAR_FOOD_STARVE</Tag>
-		<English>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turn[NEWLINE][COLOR_WARNING_TEXT]STARVATION: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</English>
-		<French>[NEWLINE]%d1 [ICON_BAD_FOOD]/tour[NEWLINE][COLOR_WARNING_TEXT]FAMINE : %d2/%d3 [ICON_FOOD][COLOR_REVERT]</French>
-		<German>[NEWLINE]%d1 [ICON_BAD_FOOD]/Runde[NEWLINE][COLOR_WARNING_TEXT]HUNGERSNOT: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</German>
-		<Italian>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turno[NEWLINE][COLOR_WARNING_TEXT]CARESTIA: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</Italian>
-		<Spanish>[NEWLINE]%d1 [ICON_BAD_FOOD]/turno[NEWLINE][COLOR_WARNING_TEXT]&#161;HAMBRUNA: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #63 -->
 	
 	<!-- Base Production -->
 	<TEXT>
@@ -211,38 +180,7 @@
 	</TEXT>
 	<!-- advc: Color was cyan for peace and DP. But they're listed as
 		 active deals anyway, so these texts are redundant. -->
-	<!--TEXT>
-		<Tag>TXT_KEY_PEACE_TREATY_WITH</Tag>
-		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Peace Treaty with %s1_player[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Trait&#233; de paix avec %s1_player[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Friedensvertrag mit %s1_player[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Trattato di pace con %s1_player[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Tratado de paz con %s1_player[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEACE_TREATY_WITH_YOU</Tag>
-		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]You have a Peace Treaty[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vous disposez d'un trait&#233; de paix[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ihr habt einen Friedensvertrag[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Si dispone di un trattato di pace[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ustedes tiene un tratado de paz[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_DEFENSIVE_PACT_WITH</Tag>
-		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Defensive Pact with %s1_player[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Défensive pacte avec %s1_player[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Verteidigungsbündnis mit %s1_player[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Difensive patto con %s1_player[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Pacto defensivo con %s1_player[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_DEFENSIVE_PACT_WITH_YOU</Tag>
-		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]You have a Defensive Pact[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vous disposez d'un pacte défensif[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ihr habt ein Verteidigungsbündnis[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Si dispone di un patto di difesa[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ustedes tiene un pacto defensivo[COLOR_REVERT]</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #64 -->
 	<!-- advc: Color was yellow in these three -->
 	<TEXT>
 		<Tag>TXT_KEY_WORST_ENEMY_OF</Tag>
