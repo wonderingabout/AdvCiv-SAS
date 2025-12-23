@@ -846,7 +846,7 @@
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1900</iCost>
+			<iCost>1950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -1010,7 +1010,7 @@
 			<iAIWeight>100</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>875</iCost>
+			<iCost>950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -1156,7 +1156,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>2050</iCost>
+			<iCost>2075</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1244,7 +1244,7 @@
 			<!-- custom: is a strong military tech or quite strong one at least anyways etc, was 0 -->
 			<!-- advc.552: Was 10; rather give this weight to Nationalism -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>1900</iCost>
+			<iCost>1950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1395,7 +1395,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 1400 -->
-			<iCost>1700</iCost>
+			<iCost>1750</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
@@ -1535,7 +1535,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2050</iCost>
+			<iCost>2075</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1846,7 +1846,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2050</iCost>
+			<iCost>2075</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: ERA_MODERN -->
@@ -2929,7 +2929,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 700 -->
-			<iCost>1150</iCost>
+			<iCost>1250</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -2996,7 +2996,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>875</iCost>
+			<iCost>950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3068,7 +3068,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1150</iCost>
+			<iCost>1250</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3144,7 +3144,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1900</iCost>
+			<iCost>1950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3219,7 +3219,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1150</iCost>
+			<iCost>1250</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3458,7 +3458,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1700</iCost>
+			<iCost>1750</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
@@ -3532,7 +3532,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 3600 -->
-			<iCost>1900</iCost>
+			<iCost>1950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -5327,7 +5327,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.306: was 700 -->
-			<iCost>875</iCost>
+			<iCost>950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -5559,7 +5559,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>1150</iCost>
+			<iCost>1250</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -5711,7 +5711,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>1900</iCost>
+			<iCost>1950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -5854,7 +5854,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1900</iCost>
+			<iCost>1950</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -6007,7 +6007,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>2050</iCost>
+			<iCost>2075</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>

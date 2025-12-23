@@ -833,52 +833,48 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 // - std::vector lookup: O(1) direct index, very cache-friendly.
 // - Init time: vector also wins (no per-node allocations), but you only init once, so the big win is lookup.
 // Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry” can be represented by NO_BUILD. That makes a vector the ideal structure.
+// <!-- custom: update: since each build cleanly pairs only to one and only one bonus on land builds in our mod (exception being oil to offshore platform (water) and well (land), but here we're only handling land so effectively only 1), then we can prefetch this data and cache it to avoid reuse, added with the help of chatgpt 5.2 anyways etc. -->
+// I checked your uploaded CIV4ImprovementInfos.xml: there are exactly 29 land bonuses that have bBonusTrade=1 on a land improvement, and they match your manual list one-for-one (Oil is Well on land; Offshore Platform is water-only so it gets filtered out automatically).
+// So you can keep the static-vector caching, but populate it dynamically by scanning:
+//	- BuildInfo -> ImprovementType
+// 	- ImprovementInfo -> isWater() (skip water)
+// 	- ImprovementInfo -> isImprovementBonusTrade(eBonus) (bonus-trade flag)
 std::vector<BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
 {
-	// <!-- custom: refactor of this new function i had added, with chatgpt 5 so we can reuse it in other .cpp files, and simplifying/optimizing its performance to cache it or such since it shouldn't change while we can anyways etc and if was not done before already (i don't know too much about these, check if accurate anyways etc), check if accurate anyways etc -->
-    static std::vector<BuildTypes> v; // created once, reused forever
-    static bool v_inited = false;
-    if (v_inited) return v;
+	static std::vector<BuildTypes> v;
+	static bool v_inited = false;
+	if (v_inited) return v;
 
-	// you must size it to GC.getNumBonusInfos() because we index by BonusTypes (the XML enum id). I also added a tiny bounds guard on read.
-	// size to the number of bonuses; default to NO_BUILD (dense table indexed by BonusTypes)
 	const int iNumBonuses = GC.getNumBonusInfos();
 	v.assign(iNumBonuses, NO_BUILD);
 
-	// <!-- custom: note: we initialize this once per session so no need to make a static const of this total int define as we use it at every new game loaded during our entire civ4 session if i'm not mistaken but anyways etc -->
-	const int iSAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS = GC.getDefineINT("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS");
-
-	// <!-- custom: note 2: ideally move this to some utils so we don't need to recheck everytime if it is inited every time (i guess, check if my guess is accurate but anyways etc) -->
-    for (int i = 0; i < iSAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS; ++i)
+	// Auto-infer: for each build that creates a LAND improvement, map any bonus it connects (bBonusTrade=1).
+	// Tie handling: later builds overwrite earlier ones (deterministic by XML enum order).
+	for (int iBuild = 0; iBuild < GC.getNumBuildInfos(); ++iBuild)
 	{
-		// GC.getDefineSTRING(...) doesn’t do printf-style formatting, and CvString::Format is an instance method that returns void, so you can’t chain it. Build the key first, then call getDefineSTRING.
-		CvString keyBonus;
-		keyBonus.Format("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_%d", i);
-		CvString keyBuild;
-		keyBuild.Format("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_%d", i);
-
-		// <!-- custom: note: no need to store them as static const lookups as we need them only once at first initalize and then they are not needed anymore if i'm not mistaken but anyways etc; added thanks to chatgpt 5 and my prompts too and/or such, check if accurate anyways etc -->
-		const CvString bonusName = GC.getDefineSTRING(keyBonus);
-		const CvString buildName = GC.getDefineSTRING(keyBuild);
-		if (bonusName.empty() || buildName.empty()) continue;
-
-        const BonusTypes eBonus = (BonusTypes)GC.getInfoTypeForString(bonusName);
-        const BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString(buildName);
-
-		// guard bad ids (user responsibility; we skip silently)
-        if ((eBonus == NO_BONUS) || (eBuild == NO_BUILD))
-		{
+		const BuildTypes eBuild = (BuildTypes)iBuild;
+		const ImprovementTypes eImp = GC.getBuildInfo(eBuild).getImprovement();
+		if (eImp == NO_IMPROVEMENT)
 			continue;
-			// silently skip (or IFLOG a warning if you like)
-		}
-		else
-		{
-            v[eBonus] = eBuild;
-		}
-    }
 
-    v_inited = true;
-    return v;
+		const CvImprovementInfo& kImp = GC.getInfo(eImp);
+
+		// Land-only table (workers-on-land bonuses). Water bonuses (fish/oil offshore etc) stay NO_BUILD here.
+		if (kImp.isWater())
+			continue;
+
+		for (int iBonus = 0; iBonus < iNumBonuses; ++iBonus)
+		{
+			const BonusTypes eBonus = (BonusTypes)iBonus;
+			if (kImp.isImprovementBonusTrade(eBonus))
+			{
+				v[iBonus] = eBuild; // overwrite ties (your requested behavior)
+			}
+		}
+	}
+
+	v_inited = true;
+	return v;
 }
 
 BuildTypes CvUnitAI::getBonusSpecificLandBuild(BonusTypes eBonus)
