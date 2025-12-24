@@ -899,12 +899,12 @@ Explanation and data shown thanks to chatgpt 5, who also helped me and gave me f
 "When evaluating a home plot containing a resource (bonus), the AI applies penalties to avoid settling directly on it — except in rare cases where the tile is low-food and/or the improved yield is not too high.
 This preserves the bonus for later improvement, unless local conditions strongly favor settling there."
 
-| Bonus Type (by natural yield)                          | Terrain Conditions | Hills?               | Improvement Yield Scaling       | Value Adjustment                                          | Reasoning                                                                               |
-| ------------------------------------------------------ | ------------------ | -------------------- | ------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| **Food Bonus** (`aiNatureYield[FOOD] ≥ 1`)             | Any                | Any                  | N/A                             | **−400**                                                  | Strong avoidance: food bonuses are highly valuable improved; settling wastes them.      |
-| **Production Bonus** (`aiNatureYield[PRODUCTION] ≥ 1`) | Snow / Desert      | Any                  | +25 per hammer from improvement | **Base −200**<br>−**Reduced by 200** for low-food terrain | Low-food terrain makes settling more acceptable; high improved yield increases penalty. |
-| Production Bonus                                       | Any other terrain  | No special reduction | +25 per hammer from improvement | **−200** + scaling                                        | Keeps strong production bonuses for improvement; slight openness if low-yield.          |
-| **Commerce Bonus** (`aiNatureYield[COMMERCE] ≥ 1`)     | Any                | Any                  | N/A                             | **−100**                                                  | Preserves commerce potential from improved resource.                                    |
+| Bonus Type (by natural yield) | Terrain Conditions | Hills? | Improvement Yield Scaling | Value Adjustment | Reasoning |
+| --- | --- | --- | --- | --- | --- |
+| **Food Bonus** (`aiNatureYield[FOOD] ≥ 1`) | Any | Any | N/A | **−400** | Strong avoidance: food bonuses are highly valuable improved; settling wastes them. |
+| **Production Bonus** (`aiNatureYield[PRODUCTION] ≥ 1`) | Snow / Desert | Any | +25 per hammer from improvement | **Base −200**<br>−**Reduced by 200** for low-food terrain | Low-food terrain makes settling more acceptable; high improved yield increases penalty. |
+| Production Bonus | Any other terrain | No special reduction | +25 per hammer from improvement | **−200** + scaling | Keeps strong production bonuses for improvement; slight openness if low-yield. |
+| **Commerce Bonus** (`aiNatureYield[COMMERCE] ≥ 1`) | Any | Any | N/A | **−100** | Preserves commerce potential from improved resource. |
 
 ### About water bonuses/ressources in range but ignored by AI settling instead a non-coastal location
 
@@ -938,20 +938,20 @@ Data shown thanks to chatgpt 5, who also helped me and gave me feedback on these
 
 "Settle Near — This table influences how the AI values surrounding tiles within a city’s workable radius when choosing a site. It doesn’t remove the tile, but adjusts city-site desirability based on local environment quality, rewarding strong growth or production neighbors (e.g., flood plains, grass hills) and penalizing unproductive or hard-to-use terrain (e.g., flat desert, snow)."
 
-| Terrain       | Feature      | Hills? | Value Adjustment | Reasoning                                                                                                  |
-| ------------- | ------------ | ------ | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| **Desert**    | Flood Plains | Any    | **+50**          | Very high food and strong cottage potential despite health penalty; great for early growth in city radius. |
-| Desert        | Oasis        | Any    | **+50**          | Solid food + commerce with fresh water access; cannot improve further but valuable from start.             |
-| Desert        | None / Other | Yes    | −25              | Low food but yields hammers from mining; minor defensive bonus.                                            |
-| Desert        | None / Other | No     | −50              | No food and no improvement potential (unless modded); very weak tile to have in city radius.               |
-| **Grassland** | Any          | Yes    | +50              | Low food cost with high hammer yield; strong early production option.                                      |
-| Grassland     | Any          | No     | +50              | Excellent growth potential and flexible improvements.                                                      |
-| **Plains**    | Any          | Yes    | +10              | Decent hammers but low food; moderate overall value.                                                       |
-| Plains        | Any          | No     | −10              | Needs irrigation to match grass food; cottaging slows growth; weaker early-game choice.                    |
-| **Tundra**    | Any          | Yes    | −40              | Low food and weak yield; worse than plains hills.                                                          |
-| Tundra        | Any          | No     | −25              | Slightly better with mod’s commerce buff but still weak for growth.                                        |
-| **Snow**      | Any          | Yes    | −50              | Same low food as tundra hill; minimal yield, high opportunity cost.                                        |
-| Snow          | Any          | No     | −50              | Comparable to flat desert without features — essentially unusable for growth or production.                |
+| Terrain | Feature | Hills? | Value Adjustment | Reasoning |
+| --- | --- | --- | --- | --- |
+| **Desert** | Flood Plains | Any | **+50** | Very high food and strong cottage potential despite health penalty; great for early growth in city radius. |
+| Desert | Oasis | Any | **+50** | Solid food + commerce with fresh water access; cannot improve further but valuable from start. |
+| Desert | None / Other | Yes | −25 | Low food but yields hammers from mining; minor defensive bonus. |
+| Desert | None / Other | No | −50 | No food and no improvement potential (unless modded); very weak tile to have in city radius. |
+| **Grassland** | Any | Yes | +50 | Low food cost with high hammer yield; strong early production option. |
+| Grassland | Any | No | +50 | Excellent growth potential and flexible improvements. |
+| **Plains** | Any | Yes | +10 | Decent hammers but low food; moderate overall value. |
+| Plains | Any | No | −10 | Needs irrigation to match grass food; cottaging slows growth; weaker early-game choice. |
+| **Tundra** | Any | Yes | −40 | Low food and weak yield; worse than plains hills. |
+| Tundra | Any | No | −25 | Slightly better with mod’s commerce buff but still weak for growth. |
+| **Snow** | Any | Yes | −50 | Same low food as tundra hill; minimal yield, high opportunity cost. |
+| Snow | Any | No | −50 | Comparable to flat desert without features — essentially unusable for growth or production. |
 
 ### Choose best home plot to settle on (e.g. a hill plains tile or a desert tile is ideal, but not a flood plains tile that would be really bad unless otherwise very good locally (e.g. many bonuses nearby in potential city radius or such anyways etc)
 
@@ -965,19 +965,19 @@ Data shown thanks to chatgpt 5, who also helped me and gave me feedback on these
 
 Note: we can't settle on oasis if i'm not mistaken but anyways etc so not shown in table and section below anyways etc.
 
-| Terrain       | Feature      | Hills? | Value Adjustment | Reasoning                                                                   |
-| ------------- | ------------ | ------ | ---------------- | --------------------------------------------------------------------------- |
-| **Desert**    | Flood Plains | Any    | **−75**          | Avoid settling on strong early food tile unless locally exceptional.        |
-| Desert        | None / Other | Yes    | **+50**          | Low-food tile; decent fallback with extra hammer & defense.                 |
-| Desert        | None / Other | No     | **+50**          | Low-food tile; okay to remove for city center yields.                       |
-| **Grassland** | Any          | Yes    | **−75**          | Grass hills are very strong tiles; avoid removing them unless clearly best. |
-| Grassland     | Any          | No     | **−50**          | Flat grass is valuable; avoid if possible.                                  |
-| **Plains**    | Any          | Yes    | **+100**         | Excellent: low food, extra hammer, defensive bonus — ideal start.           |
-| Plains        | Any          | No     | **+25**          | Good: removes low-food tile, but not a top priority.                        |
-| **Tundra**    | Any          | Yes    | **+50**          | Decent: low food tile with extra hammer and defense.                        |
-| Tundra        | Any          | No     | **+25**          | Slightly good: reduces a weak tile.                                         |
-| **Snow**      | Any          | Yes    | **+50**          | Similar to tundra hills; okay to settle on.                                 |
-| Snow          | Any          | No     | **+50**          | Same as desert: low food, safe to replace.                                  |
+| Terrain | Feature | Hills? | Value Adjustment | Reasoning |
+| --- | --- | --- | --- | --- |
+| **Desert** | Flood Plains | Any | **−75** | Avoid settling on strong early food tile unless locally exceptional. |
+| Desert | None / Other | Yes | **+50** | Low-food tile; decent fallback with extra hammer & defense. |
+| Desert | None / Other | No | **+50** | Low-food tile; okay to remove for city center yields. |
+| **Grassland** | Any | Yes | **−75** | Grass hills are very strong tiles; avoid removing them unless clearly best. |
+| Grassland | Any | No | **−50** | Flat grass is valuable; avoid if possible. |
+| **Plains** | Any | Yes | **+100** | Excellent: low food, extra hammer, defensive bonus — ideal start. |
+| Plains | Any | No | **+25** | Good: removes low-food tile, but not a top priority. |
+| **Tundra** | Any | Yes | **+50** | Decent: low food tile with extra hammer and defense. |
+| Tundra | Any | No | **+25** | Slightly good: reduces a weak tile. |
+| **Snow** | Any | Yes | **+50** | Similar to tundra hills; okay to settle on. |
+| Snow | Any | No | **+50** | Same as desert: low food, safe to replace. |
 
 ### Results from these (non-home plot and non-bonus) settling on and settling near changes
 
@@ -1563,27 +1563,27 @@ Below is a summary of these by chatgpt 5 which i adjusted a bit and suggested th
 
 ### 1) Hard Blocks (global)
 
-| Promotion(s)                                                  |                             Action | Rationale                                                                        |
-| ------------------------------------------------------------- | ---------------------------------: | -------------------------------------------------------------------------------- |
-| **Amphibious**                                                |                         **Forbid** | Too situational for AI; often wasted picks.                                      |
+| Promotion(s) | Action | Rationale |
+| --- | ---: | --- |
+| **Amphibious** | **Forbid** | Too situational for AI; often wasted picks. |
 | **Sentry**, **Woodsman I–III**, **Medic I–IV**, **Logistics** | **Forbid** (with exceptions below) | These are frequently poor/unreliable on generic AI combat units. See exceptions. |
 
 Exceptions for Sentry / Woodsman / Medic / Logistics
 
-| Condition (Unit)                                                                                                |      Action | Rationale                                                                                             |
-| --------------------------------------------------------------------------------------------------------------- | ----------: | ----------------------------------------------------------------------------------------------------- |
+| Condition (Unit) | Action | Rationale |
+| --- | ---: | --- |
 | UnitCombat = **RECON** *and* UnitAI ∈ { **EXPLORE**, **SPY**, **EXPLORE\_SEA**, **SPY\_SEA**, **PIRATE\_SEA** } | **Allowed** | On scouts/recon & recon-like roles, vision/mobility/woods and field medic uses are actually valuable. |
-| Any other unit/role                                                                                             |  **Forbid** | Avoids weak picks on frontline attackers/defenders.                                                   |
+| Any other unit/role | **Forbid** | Avoids weak picks on frontline attackers/defenders. |
 
 >Note: Medic_Ambulatory is still reachable via your XML alternate prereqs (e.g., through FirstStrike2), so the “no Medic I–IV” rule doesn’t block all medic paths.
 
 ### 2) Always Pick First — Strict Offensive (City Attackers)
 
-| UnitAI                                      | Promotion           |                        Action | Rationale                                               |
-| ------------------------------------------- | ------------------- | ----------------------------: | ------------------------------------------------------- |
-| **ATTACK\_CITY**, **ATTACK\_CITY\_LEMMING** | **City Raider I**   | **Always pick first** (+2000) | Best attack vs cities; highest priority when available. |
-| 〃                                           | **City Raider II**  | **Always pick first** (+1000) | Continue the chain as long as legal/available.          |
-| 〃                                           | **City Raider III** |         **Always pick first** | Finish the CR line for strong siege/assault hitters.    |
+| UnitAI | Promotion | Action | Rationale |
+| --- | --- | ---: | --- |
+| **ATTACK\_CITY**, **ATTACK\_CITY\_LEMMING** | **City Raider I** | **Always pick first** (+2000) | Best attack vs cities; highest priority when available. |
+| 〃 | **City Raider II** | **Always pick first** (+1000) | Continue the chain as long as legal/available. |
+| 〃 | **City Raider III** | **Always pick first** | Finish the CR line for strong siege/assault hitters. |
 
 ### 3) Offense Blocks (when UnitAI is Offensive)
 
@@ -1592,10 +1592,10 @@ Who counts as Offensive?
 ATTACK, ATTACK_CITY, ATTACK_CITY_LEMMING, COLLATERAL, PARADROP, and all ATTACK_SEA.
 (Hybrids such as COUNTER / CITY_COUNTER are intentionally excluded—see §5.)
 
-| Promotion(s)                               |     Action | Rationale                                                                                                |
-| ------------------------------------------ | ---------: | -------------------------------------------------------------------------------------------------------- |
-| **City Garrison I–III**                    | **Forbid** | Defensive city bonuses don’t help an attacker.                                                           |
-| **Hills Master I–III**                     | **Forbid** | Too map-/situation-dependent; AI tends to overinvest.                                                    |
+| Promotion(s) | Action | Rationale |
+| --- | ---: | --- |
+| **City Garrison I–III** | **Forbid** | Defensive city bonuses don’t help an attacker. |
+| **Hills Master I–III** | **Forbid** | Too map-/situation-dependent; AI tends to overinvest. |
 | **Counter Melee / Mounted / Siege / Tank** | **Forbid** | Narrow anti-types are less reliable for general attackers; prefer broadly strong lines (Combat/CR/etc.). |
 
 ### 4) Always Pick First — Strict Defensive (City Defenders)
@@ -1605,11 +1605,11 @@ Who counts as Strict Defensive?
 CITY_DEFENSE, CITY_SPECIAL
 (We exclude RESERVE/RESERVE_SEA here; see §5.)
 
-| Promotion             |                        Action | Rationale                                   |
-| --------------------- | ----------------------------: | ------------------------------------------- |
-| **City Garrison I**   | **Always pick first** (+2000) | Immediate and reliable city defense power.  |
-| **City Garrison II**  | **Always pick first** (+1000) | Continue CG line for strong static defense. |
-| **City Garrison III** |         **Always pick first** | Finish the line.                            |
+| Promotion | Action | Rationale |
+| --- | ---: | --- |
+| **City Garrison I** | **Always pick first** (+2000) | Immediate and reliable city defense power. |
+| **City Garrison II** | **Always pick first** (+1000) | Continue CG line for strong static defense. |
+| **City Garrison III** | **Always pick first** | Finish the line. |
 
 ### 5) Defense Blocks (when UnitAI is Strictly Defensive)
 
@@ -1618,20 +1618,20 @@ Who counts as Strictly Defensive?
 CITY_DEFENSE, CITY_SPECIAL
 (RESERVE and RESERVE_SEA are hybrids; do not apply these defense-only forbids to them.)
 
-| Promotion(s)                                              |     Action | Rationale                                                                              |
-| --------------------------------------------------------- | ---------: | -------------------------------------------------------------------------------------- |
-| **Blitzkrieg**, **Mobility Cost/Range**, **Retreat I–II** | **Forbid** | Mobility/retreat are low value for static city defense.                                |
-| **City Raider I–III**                                     | **Forbid** | Offensive city-attack line; wasted on defenders.                                       |
-| **City Bombard Damage**                                   | **Forbid** | “Siege support” promo doesn’t help on defense.                                         |
-| **Collateral Damage I–V**                                 | **Forbid** | Collateral triggers on *attack*, not while defending; poor value for static defenders. |
-| **Navigator**                                             | **Forbid** | For units that can choose it, being bulky is still more important for defenders.                                 |
-| **Counter Archer**                                        | **Forbid** | Narrow anti-archer line is typically inferior to CG/Combat for defense.                |
+| Promotion(s) | Action | Rationale |
+| --- | ---: | --- |
+| **Blitzkrieg**, **Mobility Cost/Range**, **Retreat I–II** | **Forbid** | Mobility/retreat are low value for static city defense. |
+| **City Raider I–III** | **Forbid** | Offensive city-attack line; wasted on defenders. |
+| **City Bombard Damage** | **Forbid** | “Siege support” promo doesn’t help on defense. |
+| **Collateral Damage I–V** | **Forbid** | Collateral triggers on *attack*, not while defending; poor value for static defenders. |
+| **Navigator** | **Forbid** | For units that can choose it, being bulky is still more important for defenders. |
+| **Counter Archer** | **Forbid** | Narrow anti-archer line is typically inferior to CG/Combat for defense. |
 
 ### 6) Hybrid UnitAIs (no forced pushes/blocks)
 
-| UnitAI                         | Treatment                                               | Rationale                                                                                         |
-| ------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **RESERVE**, **RESERVE\_SEA**  | **No special boost/forbid** (beyond global hard blocks) | They swing between shuffling defense and opportunistic offense; over-constraining can hurt.       |
+| UnitAI | Treatment | Rationale |
+| --- | --- | --- |
+| **RESERVE**, **RESERVE\_SEA** | **No special boost/forbid** (beyond global hard blocks) | They swing between shuffling defense and opportunistic offense; over-constraining can hurt. |
 | **COUNTER**, **CITY\_COUNTER** | **No special boost/forbid** (beyond global hard blocks) | Mixed behavior (intercepts near cities but also attacks nearby threats). Let base scoring decide. |
 
 ### Results of known issue 47 changes
@@ -1691,7 +1691,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 #### Tuning knobs (quick reference)
 
 | Knob | Default | Effect |
-|---|---:|---|
+| --- | ---: | --- |
 | Enemy strong threshold | 120 | When ≥, prefer static defense / skip econ; kill WW. |
 | Enemy weak threshold | 80 | When ≤ and at war, allow barracks/stable pushes. |
 | Harbor trigger (food) | `iFoodDifference <= 1` | Permissive gate to force Harbor first unless city is in food-as-production mode. |
@@ -1708,9 +1708,9 @@ It only documents logic that exists in the code we just reviewed (no speculation
 #### Non‑wonder buildings
 
 | Category | Detection (code) | Gates / Actions | Thresholds & scaling | Rationale / Notes |
-|---|---|---|---|---|
-| **Water-food on sea (Harbor)** | `getSeaPlotYieldChange(YIELD_FOOD) > 0` \|\| `getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0` | If `iFoodDifference <= 1` **and** `!isFoodProduction()` → **ALWAYS\_PICK\_FIRST**; otherwise fall through to normal logic | Uses raw surplus; no growth/war checks; only in `!bWonder` | Prevents stagnant/low-food coastal and island cities from stalling on low-value builds; settler/worker mode is exempt |
-| **Defensive (Walls/Castle/…​)** | `getDefenseModifier>=25` \|\| `getBombardDefenseModifier>=20` \|\| `RaiseDefense>=15` \|\| `getAllCityDefenseModifier>=10` | If **not at war** → **skip**. If **at war & enemy weak & !danger** → **skip**. If **enemy strong** → **ALWAYS_PICK_FIRST**. | Enemy strong ≥120%; enemy weak ≤80%. | Avoid static defense spam in peace; build urgently only when truly threatened. |
+| --- | --- | --- | --- | --- |
+| **Water-food on sea (Harbor)** | `getSeaPlotYieldChange(YIELD_FOOD) > 0` \| \| `getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0` | If `iFoodDifference <= 1` **and** `!isFoodProduction()` → **ALWAYS\_PICK\_FIRST**; otherwise fall through to normal logic | Uses raw surplus; no growth/war checks; only in `!bWonder` | Prevents stagnant/low-food coastal and island cities from stalling on low-value builds; settler/worker mode is exempt |
+| **Defensive (Walls/Castle/…​)** | `getDefenseModifier>=25` \| \| `getBombardDefenseModifier>=20` \| \| `RaiseDefense>=15` \| \| `getAllCityDefenseModifier>=10` | If **not at war** → **skip**. If **at war & enemy weak & !danger** → **skip**. If **enemy strong** → **ALWAYS_PICK_FIRST**. | Enemy strong ≥120%; enemy weak ≤80%. | Avoid static defense spam in peace; build urgently only when truly threatened. |
 | **Land‑unit pumps (Barracks‑like)** | Land XP ≥2 **or** land prod mod ≥20 | If `iBaseHammersPerTurn < 8` → no special push. If **at war & enemy strong/danger** → **skip**. If **war plan** **or** (**at war & enemy weak**) → **ALWAYS_PICK_FIRST**. | `iPumpGate=8` hpt. | Don’t delay units when weak; do invest when pressing or advantaged. |
 | **Stable** | BuildingClass == STABLE | Require **TECH_MOUNTED_COMBAT**. If no **Horse/Camel/Elephants** connected → **skip**. If **enemy strong** → **skip**. If **war plan** or **at war & enemy weak** → **ALWAYS_PICK_FIRST**. | — | Never build without mounts; prioritize when we’ll field mounted. |
 | **Naval pumps** | Sea XP/Prod modifiers | If map is **land‑heavy** (`isLandHeavyMap`) → **skip**. | — | Don’t sink hammers into navy on land maps. |
@@ -1718,7 +1718,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 | **Food‑kept (Granary, etc.)** | `iFoodKept >= 25` | If **low happy** (`<=1`) → **skip**. If **at war & enemy strong** → **skip**. If **happy ≥4** **and** `iEffectiveFood ≥4` → **ALWAYS_PICK_FIRST**. | — | Build when growth can be used; don’t store food into a cap. |
 | **Health** | `getAdditionalHealthByBuilding(...) > 0` | If **healthy already** (`iHealthLevel ≥2`) **or** `(iHealthLevel ≥0 && iEffectiveFood < 2)` → **skip**. If **at war & enemy strong** → **skip**. Else if `iHealthLevel ≤1 && iHappinessSurplus ≥2 && iEffectiveFood ≥2` → **ALWAYS_PICK_FIRST**. | Uses city‑specific net health gain (future=true). | Urgent when we can grow into it; otherwise punt. |
 | **Production multipliers (Forge/Factory‑like)** | `iTotalHammersModifier ≥ 20` | **Early window**: if **low prod (≤12 hpt)** **and** **low growth** (`iFoodDifference ≤1` or no happy) **and** **weak happy gain (≤2)** → **skip**. If **at war & enemy strong** → **skip**. | Early window: first ~100 turns @ Normal (scaled). | Avoid stunting early cities that can’t leverage the multiplier yet. |
-| **Happiness** | `getAdditionalHappinessByBuilding(...) > 0` \|\| `isNoUnhappiness()` | If **happy headroom ≥3** and **low food** (`iFoodDifference ≤1`) → **skip**. If **at war & enemy strong** → **skip**. If **at/over cap** (`iHappinessSurplus ≤ 0`) **and** `iEffectiveFood ≥2` → **ALWAYS_PICK_FIRST**. | — | Add happy when it immediately unlocks growth; otherwise hold. |
+| **Happiness** | `getAdditionalHappinessByBuilding(...) > 0` \| \| `isNoUnhappiness()` | If **happy headroom ≥3** and **low food** (`iFoodDifference ≤1`) → **skip**. If **at war & enemy strong** → **skip**. If **at/over cap** (`iHappinessSurplus ≤ 0`) **and** `iEffectiveFood ≥2` → **ALWAYS_PICK_FIRST**. | — | Add happy when it immediately unlocks growth; otherwise hold. |
 | **Science** | Research % ≥20 **or** flat beakers **or** (Scientist slots/free) | If **at war** **or** **danger** **or** **war plan** → **skip**. | — | Don’t pause survival or momentum for beakers. |
 | **Economy (Gold)** | Gold % ≥20 **or** flat gold **or** (Merchant slots/free) and **not** previously classified | Same war/danger/war‑plan **skip**. If %‑only and city **gold rate < 6** → **skip**. | — | ROI gate for early banks/markets. |
 | **Trade‑route econ** | Adds routes **or** has trade route % (incl. foreign) | If war/danger/war‑plan → **skip**. If **foreign %** but **no foreign routes** and **doesn’t add routes** → **skip**. If **tiny base trade** (`iTradeYield ≤3`) then require **+routes**: base 3→ +1, base ≤2→ +2; otherwise **skip**. | Uses current `iTradeYield` in this city; counts “virtual” route when % mods present. | Build CH/Harbor where trade exists or where added routes will matter. |
@@ -1751,38 +1751,38 @@ It only documents logic that exists in the code we just reviewed (no speculation
 
 #### Shared (applies to World & National wonders)
 
-| Gate                             | Condition                                 | Action                                                                                                                                                 | Notes                                                         |
-| -------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| **Throughput floor**             | `iBaseHpt < 8`                            | Skip                                                                                                                                                   | Don’t starve cities on wonders.                               |
-| **Time-to-build**                | `iTurnsWW > softCap`                      | Skip                                                                                                                                                   | Uses **build-time** modifiers (stone/marble/traits/religion). |
-| **NP-style unhealth reducer**    | `getUnhealthyPopulationModifier() ≤ −50`  | If **war/danger/warplan/enemyStrong** → skip. Else require **pop ≥ 12** and **pop ≥ 2nd-highest (iTopPop2)** and **iHealthLevel < 2**; otherwise skip. | Keeps these for big, unhealthy hubs.                          |
-| **Production-multiplier wonder** | `iTotalHammersModifier ≥ 20` (post-build) | Require **bTop2HammerLeeway**                                                                                                                          | Concentrates scaling wonders in real hammer hubs.             |
+| Gate | Condition | Action | Notes |
+| --- | --- | --- | --- |
+| **Throughput floor** | `iBaseHpt < 8` | Skip | Don’t starve cities on wonders. |
+| **Time-to-build** | `iTurnsWW > softCap` | Skip | Uses **build-time** modifiers (stone/marble/traits/religion). |
+| **NP-style unhealth reducer** | `getUnhealthyPopulationModifier() ≤ −50` | If **war/danger/warplan/enemyStrong** → skip. Else require **pop ≥ 12** and **pop ≥ 2nd-highest (iTopPop2)** and **iHealthLevel < 2**; otherwise skip. | Keeps these for big, unhealthy hubs. |
+| **Production-multiplier wonder** | `iTotalHammersModifier ≥ 20` (post-build) | Require **bTop2HammerLeeway** | Concentrates scaling wonders in real hammer hubs. |
 
 ---
 
 #### World Wonders (only)
 
-| Gate                           | Condition                                                                       | Action                                    | Notes                                                              |
-| ------------------------------ | ------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ |
-| **War / pressure**             | `bAtWar` \|\| `bDanger` \|\| `bWarPlan` \|\| `bEnemyStrong`                     | Skip                                      | Don’t throw the game to a race.                                    |
-| **Early “no-modifier” window** | After \~**35 turns @ Normal** (speed-scaled) **and** `iProductionModifier < 25` | Skip                                      | Once the early snipe window closes, require ≥25% build-time oomph. |
-| **Very-early throughput**      | Inside early window **and** `iBaseHpt ≤ 7`                                      | Skip                                      | Not enough production to snipe.                                    |
-| **Hammer competitiveness**     | **Require `bTop2HammerLeeway`**                                                 | Skip if false                             | Ensures only near-top cities enter races.                          |
-| **Coastal-lean WW**            | Sea XP/Prod, coastal routes, or sea plot yield effects present                  | Require **≥3 coastal cities empire-wide** | Flat empire rule to avoid marginal coastal WWs on land empires.    |
-| **Race pressure**              | `PrereqAndTech` held by **≥3** met teams                                        | Skip                                      | Simple heat check (AND-tech gate).                                 |
+| Gate | Condition | Action | Notes |
+| --- | --- | --- | --- |
+| **War / pressure** | `bAtWar` \| \| `bDanger` \| \| `bWarPlan` \| \| `bEnemyStrong` | Skip | Don’t throw the game to a race. |
+| **Early “no-modifier” window** | After \~**35 turns @ Normal** (speed-scaled) **and** `iProductionModifier < 25` | Skip | Once the early snipe window closes, require ≥25% build-time oomph. |
+| **Very-early throughput** | Inside early window **and** `iBaseHpt ≤ 7` | Skip | Not enough production to snipe. |
+| **Hammer competitiveness** | **Require `bTop2HammerLeeway`** | Skip if false | Ensures only near-top cities enter races. |
+| **Coastal-lean WW** | Sea XP/Prod, coastal routes, or sea plot yield effects present | Require **≥3 coastal cities empire-wide** | Flat empire rule to avoid marginal coastal WWs on land empires. |
+| **Race pressure** | `PrereqAndTech` held by **≥3** met teams | Skip | Simple heat check (AND-tech gate). |
 
 ---
 
 #### National Wonders (only)
 
-| Subtype                                  | Detection                                 | Gates / Actions                                                                                                                                                                                              | Notes                                               |
-| ---------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
-| **General NW gate**                      | —                                         | **Require `bTop3HammerLeeway`**                                                                                                                                                                              | Keeps NWs in top-tier production cities by default. |
-| **Military pump (Heroic-Epic-like)**     | Land production modifiers                 | If **enemyStrong/danger** → skip. Else **require `bTop2HammerLeeway`**; and if **warplan** or **(at war & enemy weak)** and **this city ≥ 2nd-best hpt**, return a strong **“pick first”** nudge.            | Concentrates pumps in true hammers when pushing.    |
-| **Land-XP NW**                           | Land XP modifiers                         | Same pressure skips and **`bTop2HammerLeeway`**; smaller nudge when pressing.                                                                                                                                | —                                                   |
-| **Government Center (Forbidden Palace)** | `isGovernmentCenter()` (non-Palace class) | If **#cities ≤ 6** or **capital** → skip. Else, if **≥3 cities** have **maintenance ≥ 6 gpt**, and **this city’s maint ≥ 2nd-highest**, and **no war pressure**, return a modest **“pick first”** nudge.     | Place where it actually cuts costs; avoid capital.  |
-| **Palace move**                          | Palace building class                     | Under pressure → skip. After \~**100 turns @ Normal** and **#cities ≥ 4**, require **both**: this city’s **base hpt ≥ 1.5×** capital **and** **beakers/turn ≥ 1.5×** capital → small **“pick first”** nudge. | The “both” rule prevents oscillation.               |
-| **Fallback**                             | —                                         | If **bAtWar/bDanger/bWarPlan/bEnemyStrong** → skip.                                                                                                                                                          | Conservative default under pressure.                |
+| Subtype | Detection | Gates / Actions | Notes |
+| --- | --- | --- | --- |
+| **General NW gate** | — | **Require `bTop3HammerLeeway`** | Keeps NWs in top-tier production cities by default. |
+| **Military pump (Heroic-Epic-like)** | Land production modifiers | If **enemyStrong/danger** → skip. Else **require `bTop2HammerLeeway`**; and if **warplan** or **(at war & enemy weak)** and **this city ≥ 2nd-best hpt**, return a strong **“pick first”** nudge. | Concentrates pumps in true hammers when pushing. |
+| **Land-XP NW** | Land XP modifiers | Same pressure skips and **`bTop2HammerLeeway`**; smaller nudge when pressing. | — |
+| **Government Center (Forbidden Palace)** | `isGovernmentCenter()` (non-Palace class) | If **#cities ≤ 6** or **capital** → skip. Else, if **≥3 cities** have **maintenance ≥ 6 gpt**, and **this city’s maint ≥ 2nd-highest**, and **no war pressure**, return a modest **“pick first”** nudge. | Place where it actually cuts costs; avoid capital. |
+| **Palace move** | Palace building class | Under pressure → skip. After \~**100 turns @ Normal** and **#cities ≥ 4**, require **both**: this city’s **base hpt ≥ 1.5×** capital **and** **beakers/turn ≥ 1.5×** capital → small **“pick first”** nudge. | The “both” rule prevents oscillation. |
+| **Fallback** | — | If **bAtWar/bDanger/bWarPlan/bEnemyStrong** → skip. | Conservative default under pressure. |
 
 ---
 
@@ -1847,10 +1847,10 @@ Note on performance: our DLL seems quite a bit slower but nothing dramatic, ther
 Thanks to chatgpt 5 for the table again hehe thanks anyways etc:
 
 | Turn | **New DLL (Run 1)** | **Old DLL (Run 2)** |
-| ---: | :-----------------: | :-----------------: |
-|   50 |        16.2 s       |        15.4 s       |
-|  100 |        45.3 s       |        40.5 s       |
-|  150 |        91.2 s       |        87.5 s       |
+| ---: | :---: | :---: |
+| 50 | 16.2 s | 15.4 s |
+| 100 | 45.3 s | 40.5 s |
+| 150 | 91.2 s | 87.5 s |
 
 ## 48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc
 
@@ -1973,31 +1973,31 @@ The results of before/after change are resumed by chatgpt 5's own analysis of ea
 
 >Before (pre-canScrap change)
 
-| Turn | Year    | Workers | Scout | Archers | Ancient Macemen |
-| ---: | :------ | ------: | ----: | ------: | --------------: |
-|   37 | 4750 BC |       2 |     1 |       3 |               6 |
-|   38 | 4500 BC |       2 |     1 |       4 |               6 |
-|   39 | 4375 BC |       2 |     1 |       4 |               5 |
-|   40 | 4250 BC |       2 |     1 |       4 |               6 |
-|   41 | 4125 BC |       2 |     1 |       4 |               5 |
-|   42 | 4000 BC |       2 |     1 |       4 |               6 |
-|   43 | 3875 BC |       2 |     1 |       4 |               5 |
-|   44 | 3750 BC |       2 |     1 |       4 |               5 |
+| Turn | Year | Workers | Scout | Archers | Ancient Macemen |
+| ---: | :--- | ---: | ---: | ---: | ---: |
+| 37 | 4750 BC | 2 | 1 | 3 | 6 |
+| 38 | 4500 BC | 2 | 1 | 4 | 6 |
+| 39 | 4375 BC | 2 | 1 | 4 | 5 |
+| 40 | 4250 BC | 2 | 1 | 4 | 6 |
+| 41 | 4125 BC | 2 | 1 | 4 | 5 |
+| 42 | 4000 BC | 2 | 1 | 4 | 6 |
+| 43 | 3875 BC | 2 | 1 | 4 | 5 |
+| 44 | 3750 BC | 2 | 1 | 4 | 5 |
 
 >Pattern: macemen oscillate 6 ↔ 5, dropping right after a completion.
 >
 >After (post-canScrap change)
 
-| Turn | Year    | Workers | Scout | Archers | Ancient Macemen |
-| ---: | :------ | ------: | ----: | ------: | --------------: |
-|   37 | 4750 BC |       2 |     1 |       3 |               6 |
-|   38 | 4500 BC |       2 |     1 |       4 |               6 |
-|   39 | 4375 BC |       2 |     1 |       4 |               6 |
-|   40 | 4250 BC |       2 |     1 |       4 |               7 |
-|   41 | 4125 BC |       2 |     1 |       4 |               7 |
-|   42 | 4000 BC |       2 |     1 |       4 |               8 |
-|   43 | 3875 BC |       2 |     1 |       4 |               8 |
-|   44 | 3750 BC |       2 |     1 |       4 |               8 |
+| Turn | Year | Workers | Scout | Archers | Ancient Macemen |
+| ---: | :--- | ---: | ---: | ---: | ---: |
+| 37 | 4750 BC | 2 | 1 | 3 | 6 |
+| 38 | 4500 BC | 2 | 1 | 4 | 6 |
+| 39 | 4375 BC | 2 | 1 | 4 | 6 |
+| 40 | 4250 BC | 2 | 1 | 4 | 7 |
+| 41 | 4125 BC | 2 | 1 | 4 | 7 |
+| 42 | 4000 BC | 2 | 1 | 4 | 8 |
+| 43 | 3875 BC | 2 | 1 | 4 | 8 |
+| 44 | 3750 BC | 2 | 1 | 4 | 8 |
 
 >Pattern: steady growth 6 → 8, no post-build drop.
 >
@@ -2051,20 +2051,20 @@ Note: i went beyond fixing the issue at hand and added some nice extra sanity ch
 
 #### 1) Unit categories and the scrapping decision
 
-| Category                      | Identification (by UnitAI / traits)                                                                                              | canScrap() result        |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| **Land combat**               | `ATTACK`, `ATTACK_CITY`, `ATTACK_CITY_LEMMING`, `COUNTER`, `CITY_COUNTER`, `CITY_DEFENSE`, `CITY_SPECIAL`, `RESERVE`, `PARADROP` | **Never scrap**          |
-| **Land combat (fallback)**    | `DOMAIN_LAND && canFight()` (safety net for modmods)                                                                             | **Never scrap**          |
-| **Naval – frontline**         | `ATTACK_SEA`, `RESERVE_SEA`, `PIRATE_SEA`                                                                                        | **Never scrap**          |
-| **Naval – explore / support** | `EXPLORE_SEA`, `ASSAULT_SEA`, `ESCORT_SEA`                                                                                       | **Never scrap**          |
-| **Naval – air platforms**     | `CARRIER_SEA`, `MISSILE_CARRIER_SEA`                                                                                             | **Never scrap**          |
-| **Naval – civilians**         | `SETTLER_SEA`, `WORKER_SEA`, `MISSIONARY_SEA`, `SPY_SEA`                                                                         | **Never scrap**          |
-| **Land civilians (most)**     | `EXPLORE`, `SETTLE`, `MISSIONARY`, `SPY`                                                                                         | **Never scrap**          |
-| **Workers (land)**            | `WORKER`                                                                                                                         | **Conditional** (see §2) |
-| **Air combat**                | `ATTACK_AIR`, `DEFENSE_AIR`                                                                                                      | **Never scrap**          |
-| **Great People**              | `GREAT_PROPHET`, `GREAT_ARTIST`, `GREAT_SCIENTIST`, `GREAT_GENERAL`, `GREAT_MERCHANT`, `GREAT_ENGINEER`, `GREAT_SPY`             | **Never scrap**          |
-| **Missiles**                  | `ICBM`, `MISSILE_AIR`                                                                                                            | **Never scrap**          |
-| **Any unit with cargo**       | `getCargo() > 0`                                                                                                                 | **Never scrap**          |
+| Category | Identification (by UnitAI / traits) | canScrap() result |
+| --- | --- | --- |
+| **Land combat** | `ATTACK`, `ATTACK_CITY`, `ATTACK_CITY_LEMMING`, `COUNTER`, `CITY_COUNTER`, `CITY_DEFENSE`, `CITY_SPECIAL`, `RESERVE`, `PARADROP` | **Never scrap** |
+| **Land combat (fallback)** | `DOMAIN_LAND && canFight()` (safety net for modmods) | **Never scrap** |
+| **Naval – frontline** | `ATTACK_SEA`, `RESERVE_SEA`, `PIRATE_SEA` | **Never scrap** |
+| **Naval – explore / support** | `EXPLORE_SEA`, `ASSAULT_SEA`, `ESCORT_SEA` | **Never scrap** |
+| **Naval – air platforms** | `CARRIER_SEA`, `MISSILE_CARRIER_SEA` | **Never scrap** |
+| **Naval – civilians** | `SETTLER_SEA`, `WORKER_SEA`, `MISSIONARY_SEA`, `SPY_SEA` | **Never scrap** |
+| **Land civilians (most)** | `EXPLORE`, `SETTLE`, `MISSIONARY`, `SPY` | **Never scrap** |
+| **Workers (land)** | `WORKER` | **Conditional** (see §2) |
+| **Air combat** | `ATTACK_AIR`, `DEFENSE_AIR` | **Never scrap** |
+| **Great People** | `GREAT_PROPHET`, `GREAT_ARTIST`, `GREAT_SCIENTIST`, `GREAT_GENERAL`, `GREAT_MERCHANT`, `GREAT_ENGINEER`, `GREAT_SPY` | **Never scrap** |
+| **Missiles** | `ICBM`, `MISSILE_AIR` | **Never scrap** |
+| **Any unit with cargo** | `getCargo() > 0` | **Never scrap** |
 
 #### 2) Worker scrapping logic (the only conditional case)
 
@@ -2091,16 +2091,16 @@ Only allow scrapping if totalWorkers **>** cap.
 Sample caps (integer arithmetic)
 
 | Cities (N) | Base (2.5N) | MinWorkers | Renaissance (90%) | Industrial (80%) | Modern (70%) | Future (60% floor) |
-| ---------: | ----------: | ---------: | ----------------: | ---------------: | -----------: | -----------------: |
-|          2 |           5 |          3 |                 4 |                4 |            4 |                  3 |
-|          4 |          10 |          4 |                 9 |                8 |            7 |                  6 |
-|          6 |          15 |          4 |                13 |               12 |           10 |                  9 |
-|          8 |          20 |          5 |                18 |               16 |           14 |                 12 |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2 | 5 | 3 | 4 | 4 | 4 | 3 |
+| 4 | 10 | 4 | 9 | 8 | 7 | 6 |
+| 6 | 15 | 4 | 13 | 12 | 10 | 9 |
+| 8 | 20 | 5 | 18 | 16 | 14 | 12 |
 
 #### 3) Global time gate
 
-| Guard                   | Value                                                                                |
-| ----------------------- | ------------------------------------------------------------------------------------ |
+| Guard | Value |
+| --- | --- |
 | **No disbanding phase** | Before turn **150 @ Normal speed**, scaled by game speed: `150 * TrainPercent / 100` |
 
 #### 4) Design notes / asymmetry with production
@@ -2111,13 +2111,13 @@ Sample caps (integer arithmetic)
 
 #### 5) Tuning dials (all hardcoded for simplicity)
 
-| Constant                     |             Current | Effect                                                              |
-| ---------------------------- | ------------------: | ------------------------------------------------------------------- |
-| `iNoDisbandAtAllTurnsNormal` |             **150** | Length of early “no disband” window (scaled by speed).              |
-| Worker decay start era       | **Renaissance (3)** | Bring forward/back to change when pruning can begin.                |
-| Worker decay per era         |             **10%** | Linearly reduces target from Ren; floor at 60%.                     |
-| Worker floor                 |     **60% of base** | Ensures we always retain a useful workforce.                        |
-| `minWorkers` slope           |        **3 + 0.3N** | Keeps small empires functional and large empires from hitting zero. |
+| Constant | Current | Effect |
+| --- | ---: | --- |
+| `iNoDisbandAtAllTurnsNormal` | **150** | Length of early “no disband” window (scaled by speed). |
+| Worker decay start era | **Renaissance (3)** | Bring forward/back to change when pruning can begin. |
+| Worker decay per era | **10%** | Linearly reduces target from Ren; floor at 60%. |
+| Worker floor | **60% of base** | Ensures we always retain a useful workforce. |
+| `minWorkers` slope | **3 + 0.3N** | Keeps small empires functional and large empires from hitting zero. |
 
 #### 6) Quick pseudo-flow (for readers)
 
@@ -2159,29 +2159,29 @@ Caps compare empire-wide counts using AI_totalUnitAIs(...), which includes units
 
 #### 1) Naval unit AIs
 
-| Group                 | AIs                                   |            Base cap | Map tweak                  | Threat tweak                                                       | Notes                                                        |              |   |                                                            |                                                 |            |                                      |
-| --------------------- | ------------------------------------- | ------------------: | -------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | ------------ | - | ---------------------------------------------------------- | ----------------------------------------------- | ---------- | ------------------------------------ |
-| **Frontline**         | `ATTACK_SEA, RESERVE_SEA, PIRATE_SEA` |                 `N` | `2N` on NavalHeavy         | Halve (min 1) if bAtWar                                          |                                                              | bEnemyStrong |   | bDanger                                                    |                                                 | bWarPlan | Prevents late naval bloat on Pangaea |
-| **Explore**           | `EXPLORE_SEA`                         |        `1 + ⌊0.3N⌋` | `2 + ⌊0.3N⌋` on NavalHeavy | Halve (min 1) if any threat                                        | Keep a small scout fleet only                                |              |   |                                                            |                                                 |            |                                      |
-| **Assault (offense)** | `ASSAULT_SEA`                         |                 `N` | `2N` on NavalHeavy         | **Block** if bEnemyStrong                                        |                                                              | bDanger      |   | bWarPlan                                                 | Don’t plan invasions under pressure             |            |                                      |
-| **Escort (defense)**  | `ESCORT_SEA`                          |                 `N` | `2N` on NavalHeavy         | Reduce to **60%** (min 1) if any threat                            | Keeps some cover, but trims excess                           |              |   |                                                            |                                                 |            |                                      |
-| **Air platforms**     | `CARRIER_SEA, MISSILE_CARRIER_SEA`    |                 `N` | `2N` on NavalHeavy         | Reduce to **60%** (min 1) if any threat                            |                                                              |              |   |                                                            |                                                 |            |                                      |
-| **Settler ships**     | `SETTLER_SEA`                         |        `1 + ⌊0.3N⌋` | `2 + ⌊0.3N⌋` on NavalHeavy | If threat: **block** on land-heavy maps; allow **1** on NavalHeavy | Avoid risky expansion during danger                          |              |   |                                                            |                                                 |            |                                      |
-| **Workboats**         | `WORKER_SEA`                          | `N` (≤ Renaissance) | `2N` on NavalHeavy         | —                                                                  | After Renaissance: `1 + ⌊0.3N⌋` (or `2 + ⌊0.3N⌋` NavalHeavy) |              |   |                                                            |                                                 |            |                                      |
-| **Missionary ships**  | `MISSIONARY_SEA`                      | `N` (≤ Renaissance) | `2N` on NavalHeavy         | **Block** if any threat                                            | After Ren: `1 + ⌊0.3N⌋` (or `2 + ⌊0.3N⌋`)                    |              |   |                                                            |                                                 |            |                                      |
-| **Spy ships**         | `SPY_SEA`                             |                 `N` | `⌊1.5N⌋` on NavalHeavy     | **Block** if bAtWar                                              |                                                              | bEnemyStrong |   | bDanger. If `bWarPlan` and **not** NavalHeavy: **block** | Naval recon is only for naval maps / calm times |            |                                      |
+| Group | AIs | Base cap | Map tweak | Threat tweak | Notes | | | | | | |
+| --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Frontline** | `ATTACK_SEA, RESERVE_SEA, PIRATE_SEA` | `N` | `2N` on NavalHeavy | Halve (min 1) if bAtWar | | bEnemyStrong | | bDanger | | bWarPlan | Prevents late naval bloat on Pangaea |
+| **Explore** | `EXPLORE_SEA` | `1 + ⌊0.3N⌋` | `2 + ⌊0.3N⌋` on NavalHeavy | Halve (min 1) if any threat | Keep a small scout fleet only | | | | | | |
+| **Assault (offense)** | `ASSAULT_SEA` | `N` | `2N` on NavalHeavy | **Block** if bEnemyStrong | | bDanger | | bWarPlan | Don’t plan invasions under pressure | | |
+| **Escort (defense)** | `ESCORT_SEA` | `N` | `2N` on NavalHeavy | Reduce to **60%** (min 1) if any threat | Keeps some cover, but trims excess | | | | | | |
+| **Air platforms** | `CARRIER_SEA, MISSILE_CARRIER_SEA` | `N` | `2N` on NavalHeavy | Reduce to **60%** (min 1) if any threat | | | | | | | |
+| **Settler ships** | `SETTLER_SEA` | `1 + ⌊0.3N⌋` | `2 + ⌊0.3N⌋` on NavalHeavy | If threat: **block** on land-heavy maps; allow **1** on NavalHeavy | Avoid risky expansion during danger | | | | | | |
+| **Workboats** | `WORKER_SEA` | `N` (≤ Renaissance) | `2N` on NavalHeavy | — | After Renaissance: `1 + ⌊0.3N⌋` (or `2 + ⌊0.3N⌋` NavalHeavy) | | | | | | |
+| **Missionary ships** | `MISSIONARY_SEA` | `N` (≤ Renaissance) | `2N` on NavalHeavy | **Block** if any threat | After Ren: `1 + ⌊0.3N⌋` (or `2 + ⌊0.3N⌋`) | | | | | | |
+| **Spy ships** | `SPY_SEA` | `N` | `⌊1.5N⌋` on NavalHeavy | **Block** if bAtWar | | bEnemyStrong | | bDanger. If `bWarPlan` and **not** NavalHeavy: **block** | Naval recon is only for naval maps / calm times | | |
 
 >Build is refused if AI_totalUnitAIs(...) ≥ cap for that group.
 
 #### 2) Land civilian AIs
 
-| Group            | AIs          |                             Cap | Threat tweak                                                   | Notes                       |              |   |                                                     |                                     |
-| ---------------- | ------------ | ------------------------------: | -------------------------------------------------------------- | --------------------------- | ------------ | - | --------------------------------------------------- | ----------------------------------- |
-| **Explorers**    | `EXPLORE`    |      `2` (or `1` on NavalHeavy) | **Block** if any threat                                        |                             |              |   |                                                     |                                     |
-| **Settlers**     | `SETTLE`     |                             `1` | **Block** if any threat                                        | “One at a time” rule        |              |   |                                                     |                                     |
-| **Workers**      | `WORKER`     |                       see below | Slightly lenient: **block only** when `bAtWar && bEnemyStrong` | Era-scaled cap (next table) |              |   |                                                     |                                     |
-| **Missionaries** | `MISSIONARY` |   `N` (≤ Renaissance), else `2` | **Block** if any threat                                        |                             |              |   |                                                     |                                     |
-| **Spies**        | `SPY`        | `N` (or `⌊1.5N⌋` on NavalHeavy) | **Block** if bAtWar                                          |                             | bEnemyStrong |   | bDanger; if `bWarPlan && !NavalHeavy` → **block** | Don’t stall land wars with spy spam |
+| Group | AIs | Cap | Threat tweak | Notes | | | | |
+| --- | --- | ---: | --- | --- | --- | --- | --- | --- |
+| **Explorers** | `EXPLORE` | `2` (or `1` on NavalHeavy) | **Block** if any threat | | | | | |
+| **Settlers** | `SETTLE` | `1` | **Block** if any threat | “One at a time” rule | | | | |
+| **Workers** | `WORKER` | see below | Slightly lenient: **block only** when `bAtWar && bEnemyStrong` | Era-scaled cap (next table) | | | | |
+| **Missionaries** | `MISSIONARY` | `N` (≤ Renaissance), else `2` | **Block** if any threat | | | | | |
+| **Spies** | `SPY` | `N` (or `⌊1.5N⌋` on NavalHeavy) | **Block** if bAtWar | | bEnemyStrong | | bDanger; if `bWarPlan && !NavalHeavy` → **block** | Don’t stall land wars with spy spam |
 
 Worker production cap (matches scrapping doc):
 
@@ -2195,9 +2195,9 @@ Worker production cap (matches scrapping doc):
 
 #### 3) Air combat (empire cap)
 
-| Group                             | AIs                       |     Cap | Threat tweak |
-| --------------------------------- | ------------------------- | ------: | ------------ |
-| **Fighters + Bombers (combined)** | `ATTACK_AIR, DEFENSE_AIR` | `3 * N` | None         |
+| Group | AIs | Cap | Threat tweak |
+| --- | --- | ---: | --- |
+| **Fighters + Bombers (combined)** | `ATTACK_AIR, DEFENSE_AIR` | `3 * N` | None |
 
 #### 4) Unhandled AIs
 
@@ -2211,14 +2211,14 @@ Everything not listed above (e.g., land military) is free to build here; pruning
 
 #### 6) Tuning dials
 
-| Constant / Rule            | Current                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Naval frontline base cap   | `N` (or `2N` on NavalHeavy)                                                                            |
-| Threat halving / 60% trims | Halve or 60% as listed above (min 1)                                                                   |
-| Explorer caps              | Land: 2 (1 on NavalHeavy). Sea: `1 + 0.3N` (2 + 0.3N on NavalHeavy)                                    |
-| Settler caps               | Land: 1. Sea: `1 + 0.3N` (2 + 0.3N on NavalHeavy), but block under threat except allow 1 on NavalHeavy |
-| Worker base + decay        | Base `2.5N`; -10%/era from Renaissance; floor 60%; min `3 + 0.3N`                                      |
-| Air (fighters+bombers)     | `3N` combined                                                                                          |
+| Constant / Rule | Current |
+| --- | --- |
+| Naval frontline base cap | `N` (or `2N` on NavalHeavy) |
+| Threat halving / 60% trims | Halve or 60% as listed above (min 1) |
+| Explorer caps | Land: 2 (1 on NavalHeavy). Sea: `1 + 0.3N` (2 + 0.3N on NavalHeavy) |
+| Settler caps | Land: 1. Sea: `1 + 0.3N` (2 + 0.3N on NavalHeavy), but block under threat except allow 1 on NavalHeavy |
+| Worker base + decay | Base `2.5N`; -10%/era from Renaissance; floor 60%; min `3 + 0.3N` |
+| Air (fighters+bombers) | `3N` combined |
 
 #### 7) Mini flow (for readers)
 

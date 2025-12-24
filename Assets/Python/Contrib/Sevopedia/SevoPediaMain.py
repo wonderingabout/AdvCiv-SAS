@@ -287,7 +287,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_safeDeleteWidget(self, screen, szWidget):
 		try:
 			screen.deleteWidget(szWidget)
-		except:
+		except Exception:
 			pass
 
 	# <!-- custom: type-to-filter search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->

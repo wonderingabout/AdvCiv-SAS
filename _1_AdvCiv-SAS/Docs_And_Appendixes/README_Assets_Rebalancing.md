@@ -48,68 +48,68 @@ Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** o
 
 Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without concern as long as there is not too much of it.
 
-| Civ               | Old FreeTechs                 | New FreeTechs                 | Rationale |
-|-------------------|-------------------------------|-------------------------------|-----------|
-| America           | Fishing, Agriculture          | **Fishing, Hunting**          | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
-| Arabia            | The Wheel, Mysticism          | **Mysticism, Pottery**        | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
-| Aztec             | Mysticism, Hunting            | **Mining, Mysticism**         | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
-| Babylon           | Agriculture, The Wheel        | **Pottery, Mysticism**        | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry → Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
-| Byzantium         | The Wheel, Mysticism          | **Mysticism, Fishing**        | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
-| Carthage          | Fishing, Mining               | **Fishing, Pottery**          | Maritime commerce + cottages; **drops Mining** to lower early snowball and reduce pair repetition. |
-| Celt              | Hunting, Mysticism            | **Hunting, Mining**           | **Gallic Warrior** metallurgy path justified; shifts from “druidic” to martial. **Intentional strong pair** (Mining+Hunting) for civ-specific unit identity; kept rare overall. |
-| China             | Agriculture, Mining           | **Mining, Pottery**           | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
-| Egypt             | The Wheel, Agriculture        | **Hunting, Pottery**          | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
-| England           | Fishing, Mining               | **Fishing, Mining**           | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
-| Ethiopia          | Hunting, Mining               | **Hunting, Mysticism**        | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
-| Kingdom of Benin  | /                             | **Mysticism, Fishing**        | Coastal trade + religious courts; already balanced and flavorful. |
-| France            | The Wheel, Agriculture        | **Hunting, Pottery**          | Aristocratic hunt + towns; replaces disallowed pair. |
-| Germany           | Pottery, Mining               | **Pottery, Mining**           | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
-| Greece            | Fishing, Hunting              | **Fishing, Mysticism**        | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Avoids Mining+Pottery/Hunting spikes. |
-| Holy Roman        | Mysticism, Hunting            | **Mysticism, Hunting**        | Clerical legitimacy + levies; varied without Mining spikes. |
-| Inca              | Agriculture, Mysticism        | **Pottery, Mining**           | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
-| India             | Mysticism, Mining             | **Mysticism, Mining**         | Spiritual tradition + engineering; not an “amazing” pair. |
-| Japan             | Fishing, The Wheel            | **Fishing, Hunting**          | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
-| Khmer             | Hunting, Mining               | **Fishing, Hunting**          | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
-| Korea             | Mining, Mysticism             | **Mining, Mysticism**         | Metalwork/engineering + Confucian culture; solid, non-“amazing” pair. |
-| Mali              | The Wheel, Mining             | **Hunting, Pottery**          | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
-| Maya              | Mining, Mysticism             | **Mysticism, Pottery**        | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
-| Mongol            | The Wheel, Hunting            | **Hunting, Mysticism**        | Pastoral steppe with early horses: Hunting → Animal Husbandry → Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
-| Native America    | Agriculture, Fishing          | **Hunting, Mining**           | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
-| Netherlands       | Agriculture, Fishing          | **Fishing, Pottery**          | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
-| Ottoman           | The Wheel, Agriculture        | **Fishing, Pottery**          | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
-| Persia            | Agriculture, Hunting          | **Hunting, Mining**           | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
-| Portugal          | Fishing, Mining               | **Fishing, Pottery**          | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
-| Rome              | Fishing, Mining               | **Fishing, Mining**           | Metals for **Legionary** timing; avoids Hunting and Mining+Pottery extremes. |
-| Russia            | Hunting, Mining               | **Pottery, Mining**           | Land-empire emphasis (settlement/crafts) and less “fishy” opening. Keeps metal identity; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
-| Spain             | Fishing, Mysticism            | **Fishing, Mysticism**        | Maritime reach + organized religion; avoids Mining spikes. |
-| Sumeria           | Mysticism, Pottery            | **Mysticism, Mining**         | **Vulture** (axe) loves metals; still not the “amazing” Mining+Pottery/Hunting. |
-| Scandinavia       | Fishing, Hunting              | **Fishing, Hunting**          | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
-| Zulu              | Agriculture, Hunting          | **Hunting, Mining**           | **Intentionally keep an OP pair (Mining+Hunting)** for **Impi** flavor/identity; brings Agriculture into compliance. |
+| Civ | Old FreeTechs | New FreeTechs | Rationale |
+| --- | --- | --- | --- |
+| America | Fishing, Agriculture | **Fishing, Hunting** | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
+| Arabia | The Wheel, Mysticism | **Mysticism, Pottery** | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
+| Aztec | Mysticism, Hunting | **Mining, Mysticism** | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
+| Babylon | Agriculture, The Wheel | **Pottery, Mysticism** | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry → Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
+| Byzantium | The Wheel, Mysticism | **Mysticism, Fishing** | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
+| Carthage | Fishing, Mining | **Fishing, Pottery** | Maritime commerce + cottages; **drops Mining** to lower early snowball and reduce pair repetition. |
+| Celt | Hunting, Mysticism | **Hunting, Mining** | **Gallic Warrior** metallurgy path justified; shifts from “druidic” to martial. **Intentional strong pair** (Mining+Hunting) for civ-specific unit identity; kept rare overall. |
+| China | Agriculture, Mining | **Mining, Pottery** | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
+| Egypt | The Wheel, Agriculture | **Hunting, Pottery** | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
+| England | Fishing, Mining | **Fishing, Mining** | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
+| Ethiopia | Hunting, Mining | **Hunting, Mysticism** | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
+| Kingdom of Benin | / | **Mysticism, Fishing** | Coastal trade + religious courts; already balanced and flavorful. |
+| France | The Wheel, Agriculture | **Hunting, Pottery** | Aristocratic hunt + towns; replaces disallowed pair. |
+| Germany | Pottery, Mining | **Pottery, Mining** | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
+| Greece | Fishing, Hunting | **Fishing, Mysticism** | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Avoids Mining+Pottery/Hunting spikes. |
+| Holy Roman | Mysticism, Hunting | **Mysticism, Hunting** | Clerical legitimacy + levies; varied without Mining spikes. |
+| Inca | Agriculture, Mysticism | **Pottery, Mining** | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
+| India | Mysticism, Mining | **Mysticism, Mining** | Spiritual tradition + engineering; not an “amazing” pair. |
+| Japan | Fishing, The Wheel | **Fishing, Hunting** | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
+| Khmer | Hunting, Mining | **Fishing, Hunting** | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+| Korea | Mining, Mysticism | **Mining, Mysticism** | Metalwork/engineering + Confucian culture; solid, non-“amazing” pair. |
+| Mali | The Wheel, Mining | **Hunting, Pottery** | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
+| Maya | Mining, Mysticism | **Mysticism, Pottery** | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
+| Mongol | The Wheel, Hunting | **Hunting, Mysticism** | Pastoral steppe with early horses: Hunting → Animal Husbandry → Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
+| Native America | Agriculture, Fishing | **Hunting, Mining** | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
+| Netherlands | Agriculture, Fishing | **Fishing, Pottery** | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
+| Ottoman | The Wheel, Agriculture | **Fishing, Pottery** | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
+| Persia | Agriculture, Hunting | **Hunting, Mining** | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
+| Portugal | Fishing, Mining | **Fishing, Pottery** | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
+| Rome | Fishing, Mining | **Fishing, Mining** | Metals for **Legionary** timing; avoids Hunting and Mining+Pottery extremes. |
+| Russia | Hunting, Mining | **Pottery, Mining** | Land-empire emphasis (settlement/crafts) and less “fishy” opening. Keeps metal identity; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
+| Spain | Fishing, Mysticism | **Fishing, Mysticism** | Maritime reach + organized religion; avoids Mining spikes. |
+| Sumeria | Mysticism, Pottery | **Mysticism, Mining** | **Vulture** (axe) loves metals; still not the “amazing” Mining+Pottery/Hunting. |
+| Scandinavia | Fishing, Hunting | **Fishing, Hunting** | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
+| Zulu | Agriculture, Hunting | **Hunting, Mining** | **Intentionally keep an OP pair (Mining+Hunting)** for **Impi** flavor/identity; brings Agriculture into compliance. |
 
 #### Global tech totals (should sum to 70 = 35 civs × 2)
 
-| Tech      | Count |
-|-----------|-------|
-| Fishing   | 14    |
-| Hunting   | 14    |
-| Mysticism | 14    |
-| Pottery   | 14    |
-| Mining    | 14    |
+| Tech | Count |
+| --- | --- |
+| Fishing | 14 |
+| Hunting | 14 |
+| Mysticism | 14 |
+| Pottery | 14 |
+| Mining | 14 |
 
 #### Starting pair counts (canonicalized; order-insensitive)
 
-| Pair                   | Count |
-|------------------------|-------|
-| Mining + Mysticism     | 4     |
-| Fishing + Hunting      | 4     |
-| Fishing + Mysticism    | 4     |
-| Fishing + Pottery      | 4     |
-| Hunting + Mining       | 4     |
-| Mining + Pottery       | 4     |
-| Hunting + Pottery      | 3     |
-| Mysticism + Pottery    | 3     |
-| Hunting + Mysticism    | 3     |
-| Fishing + Mining       | 2     |
+| Pair | Count |
+| --- | --- |
+| Mining + Mysticism | 4 |
+| Fishing + Hunting | 4 |
+| Fishing + Mysticism | 4 |
+| Fishing + Pottery | 4 |
+| Hunting + Mining | 4 |
+| Mining + Pottery | 4 |
+| Hunting + Pottery | 3 |
+| Mysticism + Pottery | 3 |
+| Hunting + Mysticism | 3 |
+| Fishing + Mining | 2 |
 
 **Sanity checks:**
 
@@ -135,7 +135,7 @@ See below in the main table after changes as it includes the before values as we
 #### raw traits assignment count
 
 | Trait | Count |
-|---|---|
+| --- | --- |
 | Spiritual | 11 |
 | Imperialist | 11 |
 | Aggressive | 10 |
@@ -151,7 +151,7 @@ See below in the main table after changes as it includes the before values as we
 #### pairs count
 
 | Pair | Count |
-|---|---|
+| --- | --- |
 | Imperialist + Spiritual | 2 |
 | Aggressive + Charismatic | 1 |
 | Aggressive + Creative | 1 |
@@ -209,7 +209,7 @@ See below in the main table after changes as it includes the before values as we
 #### main table after changes to traits anyways etc
 
 | Leader | Current Traits | Recommendation | Rationale |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Alexander | Philosophical, Aggressive | **Keep** | Philosopher-king + relentless conqueror fits. |
 | Asoka | Spiritual, Organized | **Spiritual, Protective** | Edicts focused on welfare/stability: medical care for people & animals, wells/trees, non-violence. Reads as “guardian of the realm’s well-being.” |
 | Augustus | Imperialist, Industrious | **Keep** | Empire builder + massive works program. |
@@ -266,25 +266,25 @@ See below in the main table after changes as it includes the before values as we
 
 #### new traits total count
 
-| Trait         | Count |
-|---------------|------:|
-| Spiritual     |    12 |
-| Aggressive    |    12 |
-| Imperialist   |    12 |
-| Charismatic   |    11 |
-| Industrious   |    11 |
-| Organized     |    11 |
-| Financial     |    10 |
-| Protective    |    10 |
-| Philosophical |     9 |
-| Creative      |     8 |
+| Trait | Count |
+| --- | ---: |
+| Spiritual | 12 |
+| Aggressive | 12 |
+| Imperialist | 12 |
+| Charismatic | 11 |
+| Industrious | 11 |
+| Organized | 11 |
+| Financial | 10 |
+| Protective | 10 |
+| Philosophical | 9 |
+| Creative | 8 |
 
 Sanity: 53 leaders × 2 = 106 total assignments.
 
 #### new pairs total count anyways etc
 
 | Pair | Count |
-|---|---|
+| --- | --- |
 | Aggressive + Imperialist | 3 |
 | Organized + Protective | 3 |
 | Aggressive + Organized | 2 |
@@ -345,36 +345,36 @@ See below in the main table after changes as it includes the before values as we
 
 ### before changes favourite civics count per civic anyways etc
 
-| Civic              | Count as favourite |
-|--------------------|--------------------|
-| Hereditary Rule    | 9                  |
-| Representation     | 5                  |
-| Bureaucracy        | 4                  |
-| Free Religion      | 4                  |
-| Theocracy          | 4                  |
-| Vassalage          | 4                  |
-| Nationhood         | 3                  |
-| Organized Religion | 3                  |
-| Police State       | 3                  |
-| Universal Suffrage | 3                  |
-| Caste System       | 2                  |
-| Free Market        | 2                  |
-| Mercantilism       | 2                  |
-| State Property     | 2                  |
-| Emancipation       | 1                  |
-| Environmentalism   | 1                  |
-| Free Speech        | 1                  |
-| Pacifism           | 0                  |
-| Serfdom            | 0                  |
-| Slavery            | 0                  |
+| Civic | Count as favourite |
+| --- | --- |
+| Hereditary Rule | 9 |
+| Representation | 5 |
+| Bureaucracy | 4 |
+| Free Religion | 4 |
+| Theocracy | 4 |
+| Vassalage | 4 |
+| Nationhood | 3 |
+| Organized Religion | 3 |
+| Police State | 3 |
+| Universal Suffrage | 3 |
+| Caste System | 2 |
+| Free Market | 2 |
+| Mercantilism | 2 |
+| State Property | 2 |
+| Emancipation | 1 |
+| Environmentalism | 1 |
+| Free Speech | 1 |
+| Pacifism | 0 |
+| Serfdom | 0 |
+| Slavery | 0 |
 
-| Civic            | Count as favourite |
-|------------------|--------------------|
-| Barbarism        | 0                  |
-| Decentralization | 0                  |
-| Despotism        | 0                  |
-| Paganism         | 0                  |
-| Tribalism        | 0                  |
+| Civic | Count as favourite |
+| --- | --- |
+| Barbarism | 0 |
+| Decentralization | 0 |
+| Despotism | 0 |
+| Paganism | 0 |
+| Tribalism | 0 |
 
 - sanity: total favourites across all civics = **53** (should match number of leaders)
 
@@ -386,96 +386,96 @@ note: as of now advciv-sas civics are (check if updated in sevopedia/xml but any
 
 Also i added this info from chatgpt 5.1's thoughts as i found it very accurate and nicely phrased thanks anyways etc: "I think favorite civics should relate to the core of a leader's regime—such as government, legal, or religious systems—not just practices like slavery, which were widespread. For example, Caesar, Hannibal, and Pericles all had slavery—so choosing "Slavery" for one wouldn't add accuracy. Similarly, serfdom or trade bloc membership should be linked more to their regime and identity, not the specific labor practices of their time.".
 
-| Leader            | Current Favourite Civic | Recommendation         | Rationale                                                                                                                                                                                                                                                                                                 |
-| ----------------- | ----------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Alexander         | Vassalage               | **Keep**               | Alexander’s distinct pattern is: aristocratic companions who owe service for status/land, overlordship of allied Greek poleis and subject kings, use of a Persian-style layered hierarchy (satraps, sub-kings). In other words: a very militarised overlord + vassal network structure. Given that, I think Claude is right that our previous change doesn’t really add clarity; it just makes him “generic monarch” instead of “overlord of vassals”. I’d now revert Alexander back to Vassalage as favourite civic. That gives us one very clear “Vassalage leader” in the classical era (plus Ragnar etc.), and still leaves Hereditary Rule plenty represented elsewhere. `<!-- custom: note: based on claude sonnet 4.5's feedback anyways etc -->` |
-| Asoka             | Free Religion           | **Pacifism**           | Post-Kalinga, Asoka is defined by renouncing conquest, promoting dhamma, and issuing moral edicts; a peace-focused religious civic captures his historical identity much better than a modern pluralist Free Religion.                                                                                    |
-| Augustus          | Representation          | **Bureaucracy**        | Augustus builds a durable imperial administration (provinces, census, tax, standing army) centered on Rome; Civ-style Bureaucracy is exactly “imperial capital + strong apparatus,” which fits him far better than Representation.                                                                        |
-| Bismarck          | Nationhood              | **Keep**               | His short, limited wars (1864, 1866, 1870–71) are national unification wars built on conscription and mass mobilization; “Nation in arms” plus post-1871 nation-state management fits Nationhood very well.                                                                                               |
-| Boudica           | Universal Suffrage      | **Nationhood**         | Historically she leads a revolt framed as defending “the people” and their land against Rome, rallying tribes into a war coalition; at Civ scale that is closer to a draft/war-mobilization civic than to late-game elections. We avoid Tribalism as a favourite because it’s an empty civic in your mod. |
-| Brennus           | Organized Religion      | **Vassalage**          | I’d lean to changing Brennus to Vassalage – that gives him something more personal, and different from Boudica, without stretching what we actually know. For this Brennus (279 BCE, Thermopylae/Delphi one), the only clear thing in the sources is that he’s a fearsome coalition war-leader. He commands a big multi-tribal force with subordinate chiefs and warbands – lots of personal loyalty and “follow this chieftain into Greece for plunder.” We know far more about him as an overlord of warriors than as a religious organiser or nation-builder. So: Boudica = Nationhood → “people’s war / uprising of the Britons”. Brennus = Vassalage → “overlord with allied chiefs and retinues on campaign.” That keeps them both Celtic and warlike, but with distinctly different regime “shapes”. `<!-- custom: based on my past research, Brennus was fairly areligious, so after pointing/suggesting/asking chatgpt 5.1 this question/point, it told me organized religion works as a celtic society broad abstraction but not so typical of brennus himself who was not known for his piety or such if i understood it correctly. Since i want something more personalized to leaders ideally, changed it from the old organized religion then instead of keeping same trait anyways etc. It then rereviewed the table again with this perspective/idea in mind and no other change needed for accuracy or such according to it, except for Cyrus (see his line for details anyways etc) check if accurate anyways etc thanks for help lot still chatgpt 5.1 anyways etc: -->` "Short answer: with the Brennus change, I don’t see any other leader where the current favourite civic clearly misses their personal/regime identity in the way “Organized Religion → Brennus” did." anyways etc. |
-| Catherine         | Hereditary Rule         | **Keep**               | Whatever her Enlightenment correspondence, she is an autocratic empress whose legitimacy rests on dynastic monarchy and palace coups; Hereditary Rule is exactly that.                                                                                                                                    |
-| Charlemagne       | Vassalage               | **Keep**               | Carolingian rule is the textbook example of counts, marcher lords, and benefices granted for service; Vassalage is one of the most accurate favourite civic matches in the entire roster.                                                                                                                 |
-| Churchill         | Nationhood              | **Keep**               | Churchill’s moment is wartime Britain: mass conscription, propaganda, and appeals to “the nation” rather than technocratic administration or economics. Nationhood fits that role.                                                                                                                        |
-| Cyrus             | Vassalage               | **Hereditary Rule**    | Cyrus is a dynastic “King of Kings” ruling through satraps but anchored in royal lineage; in your civic set, simple Hereditary Rule is a closer abstraction than medieval-style Vassalage. `<!-- custom: following note at brennus: -->` "Right, so the “conflicted” feeling with Cyrus is basically: he looks like a Vassalage guy (King of Kings + satraps), but he is first and foremost a dynastic monarch. What Cyrus actually did (very condensed)" + "He overthrew the Median king, then conquered Lydia and Babylon, creating the Achaemenid Empire in the mid-6th c. BCE. To hold all that together, he used satraps – regional governors – to rule provinces on his behalf. The Achaemenid kings used the title “King of Kings” (shahanshah / basileus tōn basileōn), signalling that there were other kings beneath them – local dynasts and city-kings who stayed in place as subordinates. He’s also famous (maybe a bit romantically) for relatively lenient policies toward conquered peoples – e.g. letting exiles return and respecting local cults (Cyrus Cylinder, Jewish return from Babylon, etc.). So structurally, that does smell a lot like Civ’s Vassalage: a top ruler with subordinate rulers owing service." + "So the conflict is: Vassalage captures the shape of his empire. Hereditary Rule captures the core of his kingship and keeps Darius as the administrative/system guy. On balance, for your goals (personalised, regime-identity-focused, and avoiding too much overlap with Darius), Hereditary Rule wins by a nose. If someday you introduce a second Persian leader focused on the “network of subject kings” angle, that one would be a great place to use Vassalage as their favourite." |
-| Darius            | Free Religion           | **Bureaucracy**        | Darius is the system-builder: satrapies, royal roads, inspectors, standardized tribute. His key trait is administrative statecraft, not modern religious liberty; Bureaucracy fits that centralizing impulse.                                                                                             |
-| De Gaulle         | Nationhood              | **Keep**               | From the Free French to the Fifth Republic, his whole persona is “voice of the nation” and institutional refounder; a national-mobilization civic suits him well.                                                                                                                                         |
-| Elizabeth         | Free Religion           | **Free Market**        | Her reign is the birth of English global commerce: chartered companies, privateering, Atlantic ventures. A trade-centric economic civic (Free Market) better captures the “Elizabethan sea-trade” identity than a modern secular religion policy.                                                         |
-| Ewuare            | Hereditary Rule         | **Keep**               | The Oba of Benin is a sacral, hereditary monarch whose power rests on lineage, court ritual, and palace institutions; that is straight Hereditary Rule in Civ terms.                                                                                                                                      |
-| Frederick         | Universal Suffrage      | **Bureaucracy**        | Frederick the Great is the archetypal “enlightened despot” running a drill-state and efficient civil service; he is much more a bureaucratic monarch than any kind of democrat.                                                                                                                           |
-| Gandhi            | Universal Suffrage      | **Pacifism**           | Gandhi’s historical persona centers on non-violent resistance, fasting, and moral pressure, not on holding office inside a voting system; a peace-oriented religious civic is a cleaner expression of his role.                                                                                           |
-| Genghis Khan      | Police State            | **Keep**               | Mongol rule under Genghis is total war, harsh law, and near-total social mobilization; Police State is a very accurate Civ-level abstraction.                                                                                                                                                             |
-| Gilgamesh         | Hereditary Rule         | **Keep**               | Bronze Age Uruk is a city-state under a semi-divine king; a basic hereditary monarchy fits that legendary setting well enough.                                                                                                                                                                            |
-| Hammurabi         | Bureaucracy             | **Keep**               | He is literally the go-to example for codified law and early centralized administration; Bureaucracy is exactly what his Civ design is already gesturing at.                                                                                                                                              |
-| Hannibal          | Free Market             | **Keep**               | If you keep the current meaning of “Trade Bloc” (intergovernmental economic union), I still think Hannibal → Free Market is more accurate than Hannibal → Trade Bloc. Why I’d still lean Hannibal = Free Market" + "Given your own rule: favourite civic = the thing that best captures the leader’s regime identity or vibe, not “we need to showcase this civic” then for Hannibal: Core Hannibal / Carthage vibe: Maritime merchant city-empire" + "Money + ports + trade routes fund mercenary armies" + "Carthage as a rich commercial power clashing with a land empire (Rome)" + "Conceptually that is much closer to: Free Market → “commerce-driven society where markets and trade dominate the economy” than to: Trade Bloc → “formal intergovernmental agreement / customs union between multiple states”" + "Your Trade Bloc pedia text (screenshot) is very explicitly about: USMCA, EU-style blocs, 19–20th century economic integration, regional organisations, etc. Carthage’s system is an imperial maritime network, not an institutional trade bloc among equal partners. So if we stay literal about the concept as written, Hannibal’s “dream civic” is still Free Market." + "Given everything you’ve told me about accuracy > symmetry, my honest recommendation is still: Hannibal → Free Market, zero Trade Bloc favourites is OK." |
-| Hatshepsut        | Organized Religion      | **Keep**               | Her major beats are Punt expeditions, temple building, and religious legitimation of her rule; a “temples help build things” civic matches that temple-economy flavor well.                                                                                                                               |
-| Huayna Capac      | Hereditary Rule         | **State Property**     | The Inca economy is state-planned: no private land, labor tax (mit’a), state storehouses and roads. A command-economy civic like State Property maps far better to that than a generic monarchy favourite.                                                                                                |
-| Isabella          | Theocracy               | **Keep**               | Reconquista, Inquisition, and militant Catholic policy: she is almost the archetype for a Theocracy in Civ terms.                                                                                                                                                                                         |
-| Joao              | Hereditary Rule         | **Free Market**        | Portuguese expansion under Joao leans into Atlantic trade, colonies, and commercial charters; a pro-commerce economic civic is a better summary than another monarchy tag.                                                                                                                                |
-| Julius Caesar     | Representation          | **Police State**       | In practice Caesar’s regime is a personal dictatorship backed by loyal legions and proscriptions; a hardline Police State matches that concentration of power better than a representative-government civic.                                                                                              |
-| Justinian         | Theocracy               | **Keep**               | He rules an explicitly Christian empire, sponsors councils, enforces orthodoxy, and fuses imperial and religious authority; Theocracy is on-point here.                                                                                                                                                   |
-| Kublai Khan       | Bureaucracy             | **Keep**               | As Yuan emperor he leans heavily on Chinese imperial bureaucracy and civil officials; Bureaucracy is exactly the flavor you want to highlight for him.                                                                                                                                                    |
-| Lincoln           | Emancipation            | **Nationhood**         | Lincoln’s presidency is the archetype of “save the Union” via mass mobilization: conscription, war bonds, and appeals to the nation; a draft/propaganda civic expresses that better than a labor-law civic.                                                                                               |
-| Louis XIV         | Hereditary Rule         | **Keep**               | “L’etat, c’est moi” is pure absolutist monarchy; Hereditary Rule is the clean and accurate match.                                                                                                                                                                                                         |
-| Mansa Musa        | Free Market             | **Keep**               | His fame comes from gold, caravans, and trade routes linking West Africa to the wider Islamic world; a trade-oriented economic civic suits him perfectly. Mansa Musa – Free Market vs Trade Bloc: I agree with your current choice: Free Market. His story is gold + caravans + pilgrimage and wealth, not designing a customs union. |
-| Mao Zedong        | State Property          | **Keep**               | Mao leads a communist revolution and then rules a centrally planned economy with collectivization and five-year plans; State Property is exactly the canonical choice.                                                                                                                                    |
-| Mehmed            | Vassalage               | **Hereditary Rule**    | Mehmed II is a dynastic Ottoman sultan; while he does rely on timar grants and provincial notables, the core structure is an hereditary sultanate, which fits Hereditary Rule better than medieval Vassalage.                                                                                             |
-| Moctezuma         | Police State            | **Theocracy**          | The Aztec state fuses ruler and priesthood, with ritual war and sacrifice as religious duty; a state-religion fusion civic better captures that sacral militarism than a generic police regime.                                                                                                           |
-| Napoleon          | Representation          | **Nationhood**         | Napoleon is the poster child for levée en masse and national armies fighting for “la nation”; Nationhood captures the mass-mobilization aspect of Napoleonic France more clearly than any formal representative system.                                                                                   |
-| Pacal             | Hereditary Rule         | **Caste System**       | Classic Maya society is strongly stratified with nobles, priests, and commoners in fixed roles; a labor/social-stratification civic like Caste System is a closer abstraction than a generic monarchy favourite.                                                                                          |
-| Pericles          | Representation          | **Keep**               | Periclean Athens stands in for democracy in Civ: assembly, juries, pay for civic service; using Representation for that is standard and thematically right.                                                                                                                                               |
-| Peter             | Bureaucracy             | **Keep**               | Peter the Great is all about building a Western-style, centrally administered state (Table of Ranks, new capital, modernized army); Bureaucracy is a perfect description.                                                                                                                                 |
-| Qin Shi Huang     | Bureaucracy             | **Police State**       | Qin unification is remembered for harsh Legalist law, forced labor, book burnings, and secret police; in your civic set that’s closer to a hard Police State than to neutral “capital gets extra commerce.”                                                                                               |
-| Ragnar            | Hereditary Rule         | **Vassalage**          | Viking warbands and jarls revolve around personal loyalty and service to a war-leader; Civ’s Vassalage (lords owing military service) is a good abstraction for that retinue-based society.                                                                                                               |
-| Ramesses          | Organized Religion      | **Keep**               | Ramesses II is temple and monument king, backed by priestly legitimation; staying with Organized Religion keeps the “temple economy builds big things” vibe intact.                                                                                                                                       |
-| Roosevelt         | Mercantilism            | **Universal Suffrage** | FDR governs within a mature electoral democracy, re-elected multiple times and using the state to intervene in the economy; a modern democratic government civic fits his role better than a narrow trade-policy one.                                                                                     |
-| Saladin           | Theocracy               | **Keep**               | He’s remembered as the pious unifier leading jihad and defending Jerusalem; a tight fusion of state and religion is exactly what Theocracy represents.                                                                                                                                                    |
-| Shaka             | Police State            | **Keep**               | Shaka’s Zulu state is a hyper-militarized regimental society with intense discipline and coercion; Police State is a very accurate Civ-scale summary.                                                                                                                                                     |
-| Sitting Bull      | Environmentalism        | **Nationhood**         | In Civ terms he stands for defending his people’s land and sovereignty against an expanding state; a “defend the nation/people” civic matches that resistance role better than a late-game environmental/trade-bloc civic.                                                                                |
-| Stalin            | State Property          | **Keep**               | Stalin’s USSR is the classic example of full state ownership and command planning; State Property is the obvious and accurate favourite.                                                                                                                                                                  |
-| Suleiman          | Hereditary Rule         | **Bureaucracy**        | Suleiman “the Lawgiver” is as much about kanun (imperial law) and administrative order as conquest; highlighting a capital-centered admin civic better reflects that than another generic monarchy favourite.                                                                                             |
-| Suryavarman       | Caste System            | **Keep**               | Angkor-era Khmer society is highly hierarchical with temple elites and organized labor; Caste System is a good abstraction for that social order.                                                                                                                                                         |
-| Tokugawa          | Mercantilism            | **Protectionism**      | The Tokugawa shogunate’s sakoku policy (closed borders, tightly controlled trade) is basically a protectionist, restricted-trade order; your Protectionism civic maps to that very cleanly and replaces Mercantilism in the mod.                                                                          |
-| Victoria          | Representation          | **Free Market**        | Victorian Britain is the textbook 19th-century industrial capitalist and free-trade power (post-Corn Laws etc.); a pro-market economic civic captures that better than tweaking the government form.                                                                                                      |
-| Wang Kon          | Caste System            | **Organized Religion** | As founder of Goryeo he strongly supports Buddhism and religious institutions as pillars of the state; a temple-driven Organized Religion civic fits his Spiritual/Organized flavor better than labor structure alone.                                                                                    |
-| Washington        | Free Speech             | **Representation**     | Washington presides over the founding of a representative republic and then voluntarily steps down; a government civic representing representative institutions is the cleanest expression of his role.                                                                                                   |
-| Willem van Oranje | Free Religion           | **Keep**               | He’s famous for religious tolerance and coalition politics in the Dutch Revolt; a pluralist Free Religion civic is exactly his slot.                                                                                                                                                                      |
-| Zara Yaqob        | Theocracy               | **Keep**               | Zara Yaqob is known for enforcing strict Christian orthodoxy and writing doctrinal works; a strong state-church fusion civic is the right summary.                                                                                                                                                        |
+| Leader | Current Favourite Civic | Recommendation | Rationale |
+| --- | --- | --- | --- |
+| Alexander | Vassalage | **Keep** | Alexander’s distinct pattern is: aristocratic companions who owe service for status/land, overlordship of allied Greek poleis and subject kings, use of a Persian-style layered hierarchy (satraps, sub-kings). In other words: a very militarised overlord + vassal network structure. Given that, I think Claude is right that our previous change doesn’t really add clarity; it just makes him “generic monarch” instead of “overlord of vassals”. I’d now revert Alexander back to Vassalage as favourite civic. That gives us one very clear “Vassalage leader” in the classical era (plus Ragnar etc.), and still leaves Hereditary Rule plenty represented elsewhere. `<!-- custom: note: based on claude sonnet 4.5's feedback anyways etc -->` |
+| Asoka | Free Religion | **Pacifism** | Post-Kalinga, Asoka is defined by renouncing conquest, promoting dhamma, and issuing moral edicts; a peace-focused religious civic captures his historical identity much better than a modern pluralist Free Religion. |
+| Augustus | Representation | **Bureaucracy** | Augustus builds a durable imperial administration (provinces, census, tax, standing army) centered on Rome; Civ-style Bureaucracy is exactly “imperial capital + strong apparatus,” which fits him far better than Representation. |
+| Bismarck | Nationhood | **Keep** | His short, limited wars (1864, 1866, 1870–71) are national unification wars built on conscription and mass mobilization; “Nation in arms” plus post-1871 nation-state management fits Nationhood very well. |
+| Boudica | Universal Suffrage | **Nationhood** | Historically she leads a revolt framed as defending “the people” and their land against Rome, rallying tribes into a war coalition; at Civ scale that is closer to a draft/war-mobilization civic than to late-game elections. We avoid Tribalism as a favourite because it’s an empty civic in your mod. |
+| Brennus | Organized Religion | **Vassalage** | I’d lean to changing Brennus to Vassalage – that gives him something more personal, and different from Boudica, without stretching what we actually know. For this Brennus (279 BCE, Thermopylae/Delphi one), the only clear thing in the sources is that he’s a fearsome coalition war-leader. He commands a big multi-tribal force with subordinate chiefs and warbands – lots of personal loyalty and “follow this chieftain into Greece for plunder.” We know far more about him as an overlord of warriors than as a religious organiser or nation-builder. So: Boudica = Nationhood → “people’s war / uprising of the Britons”. Brennus = Vassalage → “overlord with allied chiefs and retinues on campaign.” That keeps them both Celtic and warlike, but with distinctly different regime “shapes”. `<!-- custom: based on my past research, Brennus was fairly areligious, so after pointing/suggesting/asking chatgpt 5.1 this question/point, it told me organized religion works as a celtic society broad abstraction but not so typical of brennus himself who was not known for his piety or such if i understood it correctly. Since i want something more personalized to leaders ideally, changed it from the old organized religion then instead of keeping same trait anyways etc. It then rereviewed the table again with this perspective/idea in mind and no other change needed for accuracy or such according to it, except for Cyrus (see his line for details anyways etc) check if accurate anyways etc thanks for help lot still chatgpt 5.1 anyways etc: -->` "Short answer: with the Brennus change, I don’t see any other leader where the current favourite civic clearly misses their personal/regime identity in the way “Organized Religion → Brennus” did." anyways etc. |
+| Catherine | Hereditary Rule | **Keep** | Whatever her Enlightenment correspondence, she is an autocratic empress whose legitimacy rests on dynastic monarchy and palace coups; Hereditary Rule is exactly that. |
+| Charlemagne | Vassalage | **Keep** | Carolingian rule is the textbook example of counts, marcher lords, and benefices granted for service; Vassalage is one of the most accurate favourite civic matches in the entire roster. |
+| Churchill | Nationhood | **Keep** | Churchill’s moment is wartime Britain: mass conscription, propaganda, and appeals to “the nation” rather than technocratic administration or economics. Nationhood fits that role. |
+| Cyrus | Vassalage | **Hereditary Rule** | Cyrus is a dynastic “King of Kings” ruling through satraps but anchored in royal lineage; in your civic set, simple Hereditary Rule is a closer abstraction than medieval-style Vassalage. `<!-- custom: following note at brennus: -->` "Right, so the “conflicted” feeling with Cyrus is basically: he looks like a Vassalage guy (King of Kings + satraps), but he is first and foremost a dynastic monarch. What Cyrus actually did (very condensed)" + "He overthrew the Median king, then conquered Lydia and Babylon, creating the Achaemenid Empire in the mid-6th c. BCE. To hold all that together, he used satraps – regional governors – to rule provinces on his behalf. The Achaemenid kings used the title “King of Kings” (shahanshah / basileus tōn basileōn), signalling that there were other kings beneath them – local dynasts and city-kings who stayed in place as subordinates. He’s also famous (maybe a bit romantically) for relatively lenient policies toward conquered peoples – e.g. letting exiles return and respecting local cults (Cyrus Cylinder, Jewish return from Babylon, etc.). So structurally, that does smell a lot like Civ’s Vassalage: a top ruler with subordinate rulers owing service." + "So the conflict is: Vassalage captures the shape of his empire. Hereditary Rule captures the core of his kingship and keeps Darius as the administrative/system guy. On balance, for your goals (personalised, regime-identity-focused, and avoiding too much overlap with Darius), Hereditary Rule wins by a nose. If someday you introduce a second Persian leader focused on the “network of subject kings” angle, that one would be a great place to use Vassalage as their favourite." |
+| Darius | Free Religion | **Bureaucracy** | Darius is the system-builder: satrapies, royal roads, inspectors, standardized tribute. His key trait is administrative statecraft, not modern religious liberty; Bureaucracy fits that centralizing impulse. |
+| De Gaulle | Nationhood | **Keep** | From the Free French to the Fifth Republic, his whole persona is “voice of the nation” and institutional refounder; a national-mobilization civic suits him well. |
+| Elizabeth | Free Religion | **Free Market** | Her reign is the birth of English global commerce: chartered companies, privateering, Atlantic ventures. A trade-centric economic civic (Free Market) better captures the “Elizabethan sea-trade” identity than a modern secular religion policy. |
+| Ewuare | Hereditary Rule | **Keep** | The Oba of Benin is a sacral, hereditary monarch whose power rests on lineage, court ritual, and palace institutions; that is straight Hereditary Rule in Civ terms. |
+| Frederick | Universal Suffrage | **Bureaucracy** | Frederick the Great is the archetypal “enlightened despot” running a drill-state and efficient civil service; he is much more a bureaucratic monarch than any kind of democrat. |
+| Gandhi | Universal Suffrage | **Pacifism** | Gandhi’s historical persona centers on non-violent resistance, fasting, and moral pressure, not on holding office inside a voting system; a peace-oriented religious civic is a cleaner expression of his role. |
+| Genghis Khan | Police State | **Keep** | Mongol rule under Genghis is total war, harsh law, and near-total social mobilization; Police State is a very accurate Civ-level abstraction. |
+| Gilgamesh | Hereditary Rule | **Keep** | Bronze Age Uruk is a city-state under a semi-divine king; a basic hereditary monarchy fits that legendary setting well enough. |
+| Hammurabi | Bureaucracy | **Keep** | He is literally the go-to example for codified law and early centralized administration; Bureaucracy is exactly what his Civ design is already gesturing at. |
+| Hannibal | Free Market | **Keep** | If you keep the current meaning of “Trade Bloc” (intergovernmental economic union), I still think Hannibal → Free Market is more accurate than Hannibal → Trade Bloc. Why I’d still lean Hannibal = Free Market" + "Given your own rule: favourite civic = the thing that best captures the leader’s regime identity or vibe, not “we need to showcase this civic” then for Hannibal: Core Hannibal / Carthage vibe: Maritime merchant city-empire" + "Money + ports + trade routes fund mercenary armies" + "Carthage as a rich commercial power clashing with a land empire (Rome)" + "Conceptually that is much closer to: Free Market → “commerce-driven society where markets and trade dominate the economy” than to: Trade Bloc → “formal intergovernmental agreement / customs union between multiple states”" + "Your Trade Bloc pedia text (screenshot) is very explicitly about: USMCA, EU-style blocs, 19–20th century economic integration, regional organisations, etc. Carthage’s system is an imperial maritime network, not an institutional trade bloc among equal partners. So if we stay literal about the concept as written, Hannibal’s “dream civic” is still Free Market." + "Given everything you’ve told me about accuracy > symmetry, my honest recommendation is still: Hannibal → Free Market, zero Trade Bloc favourites is OK." |
+| Hatshepsut | Organized Religion | **Keep** | Her major beats are Punt expeditions, temple building, and religious legitimation of her rule; a “temples help build things” civic matches that temple-economy flavor well. |
+| Huayna Capac | Hereditary Rule | **State Property** | The Inca economy is state-planned: no private land, labor tax (mit’a), state storehouses and roads. A command-economy civic like State Property maps far better to that than a generic monarchy favourite. |
+| Isabella | Theocracy | **Keep** | Reconquista, Inquisition, and militant Catholic policy: she is almost the archetype for a Theocracy in Civ terms. |
+| Joao | Hereditary Rule | **Free Market** | Portuguese expansion under Joao leans into Atlantic trade, colonies, and commercial charters; a pro-commerce economic civic is a better summary than another monarchy tag. |
+| Julius Caesar | Representation | **Police State** | In practice Caesar’s regime is a personal dictatorship backed by loyal legions and proscriptions; a hardline Police State matches that concentration of power better than a representative-government civic. |
+| Justinian | Theocracy | **Keep** | He rules an explicitly Christian empire, sponsors councils, enforces orthodoxy, and fuses imperial and religious authority; Theocracy is on-point here. |
+| Kublai Khan | Bureaucracy | **Keep** | As Yuan emperor he leans heavily on Chinese imperial bureaucracy and civil officials; Bureaucracy is exactly the flavor you want to highlight for him. |
+| Lincoln | Emancipation | **Nationhood** | Lincoln’s presidency is the archetype of “save the Union” via mass mobilization: conscription, war bonds, and appeals to the nation; a draft/propaganda civic expresses that better than a labor-law civic. |
+| Louis XIV | Hereditary Rule | **Keep** | “L’etat, c’est moi” is pure absolutist monarchy; Hereditary Rule is the clean and accurate match. |
+| Mansa Musa | Free Market | **Keep** | His fame comes from gold, caravans, and trade routes linking West Africa to the wider Islamic world; a trade-oriented economic civic suits him perfectly. Mansa Musa – Free Market vs Trade Bloc: I agree with your current choice: Free Market. His story is gold + caravans + pilgrimage and wealth, not designing a customs union. |
+| Mao Zedong | State Property | **Keep** | Mao leads a communist revolution and then rules a centrally planned economy with collectivization and five-year plans; State Property is exactly the canonical choice. |
+| Mehmed | Vassalage | **Hereditary Rule** | Mehmed II is a dynastic Ottoman sultan; while he does rely on timar grants and provincial notables, the core structure is an hereditary sultanate, which fits Hereditary Rule better than medieval Vassalage. |
+| Moctezuma | Police State | **Theocracy** | The Aztec state fuses ruler and priesthood, with ritual war and sacrifice as religious duty; a state-religion fusion civic better captures that sacral militarism than a generic police regime. |
+| Napoleon | Representation | **Nationhood** | Napoleon is the poster child for levée en masse and national armies fighting for “la nation”; Nationhood captures the mass-mobilization aspect of Napoleonic France more clearly than any formal representative system. |
+| Pacal | Hereditary Rule | **Caste System** | Classic Maya society is strongly stratified with nobles, priests, and commoners in fixed roles; a labor/social-stratification civic like Caste System is a closer abstraction than a generic monarchy favourite. |
+| Pericles | Representation | **Keep** | Periclean Athens stands in for democracy in Civ: assembly, juries, pay for civic service; using Representation for that is standard and thematically right. |
+| Peter | Bureaucracy | **Keep** | Peter the Great is all about building a Western-style, centrally administered state (Table of Ranks, new capital, modernized army); Bureaucracy is a perfect description. |
+| Qin Shi Huang | Bureaucracy | **Police State** | Qin unification is remembered for harsh Legalist law, forced labor, book burnings, and secret police; in your civic set that’s closer to a hard Police State than to neutral “capital gets extra commerce.” |
+| Ragnar | Hereditary Rule | **Vassalage** | Viking warbands and jarls revolve around personal loyalty and service to a war-leader; Civ’s Vassalage (lords owing military service) is a good abstraction for that retinue-based society. |
+| Ramesses | Organized Religion | **Keep** | Ramesses II is temple and monument king, backed by priestly legitimation; staying with Organized Religion keeps the “temple economy builds big things” vibe intact. |
+| Roosevelt | Mercantilism | **Universal Suffrage** | FDR governs within a mature electoral democracy, re-elected multiple times and using the state to intervene in the economy; a modern democratic government civic fits his role better than a narrow trade-policy one. |
+| Saladin | Theocracy | **Keep** | He’s remembered as the pious unifier leading jihad and defending Jerusalem; a tight fusion of state and religion is exactly what Theocracy represents. |
+| Shaka | Police State | **Keep** | Shaka’s Zulu state is a hyper-militarized regimental society with intense discipline and coercion; Police State is a very accurate Civ-scale summary. |
+| Sitting Bull | Environmentalism | **Nationhood** | In Civ terms he stands for defending his people’s land and sovereignty against an expanding state; a “defend the nation/people” civic matches that resistance role better than a late-game environmental/trade-bloc civic. |
+| Stalin | State Property | **Keep** | Stalin’s USSR is the classic example of full state ownership and command planning; State Property is the obvious and accurate favourite. |
+| Suleiman | Hereditary Rule | **Bureaucracy** | Suleiman “the Lawgiver” is as much about kanun (imperial law) and administrative order as conquest; highlighting a capital-centered admin civic better reflects that than another generic monarchy favourite. |
+| Suryavarman | Caste System | **Keep** | Angkor-era Khmer society is highly hierarchical with temple elites and organized labor; Caste System is a good abstraction for that social order. |
+| Tokugawa | Mercantilism | **Protectionism** | The Tokugawa shogunate’s sakoku policy (closed borders, tightly controlled trade) is basically a protectionist, restricted-trade order; your Protectionism civic maps to that very cleanly and replaces Mercantilism in the mod. |
+| Victoria | Representation | **Free Market** | Victorian Britain is the textbook 19th-century industrial capitalist and free-trade power (post-Corn Laws etc.); a pro-market economic civic captures that better than tweaking the government form. |
+| Wang Kon | Caste System | **Organized Religion** | As founder of Goryeo he strongly supports Buddhism and religious institutions as pillars of the state; a temple-driven Organized Religion civic fits his Spiritual/Organized flavor better than labor structure alone. |
+| Washington | Free Speech | **Representation** | Washington presides over the founding of a representative republic and then voluntarily steps down; a government civic representing representative institutions is the cleanest expression of his role. |
+| Willem van Oranje | Free Religion | **Keep** | He’s famous for religious tolerance and coalition politics in the Dutch Revolt; a pluralist Free Religion civic is exactly his slot. |
+| Zara Yaqob | Theocracy | **Keep** | Zara Yaqob is known for enforcing strict Christian orthodoxy and writing doctrinal works; a strong state-church fusion civic is the right summary. |
 
 - sanity: leaders listed in this table = **53** (one favourite civic per leader)
 
 ### after changes favourite civics count per civic anyways etc
 
-| Civic              | Count as favourite |
-|--------------------|--------------------|
-| Bureaucracy        | 7                  |
-| Nationhood         | 7                  |
-| Hereditary Rule    | 6                  |
-| Free Market        | 5                  |
-| Theocracy          | 5                  |
-| Police State       | 4                  |
-| Vassalage          | 4                  |
-| Organized Religion | 3                  |
-| State Property     | 3                  |
-| Caste System       | 2                  |
-| Pacifism           | 2                  |
-| Representation     | 2                  |
-| Free Religion      | 1                  |
-| Protectionism      | 1                  |
-| Universal Suffrage | 1                  |
-| Free Speech        | 0                  |
-| Serfdom            | 0                  |
-| Slavery            | 0                  |
-| Trade Bloc         | 0                  |
-| Wage Labor         | 0                  |
+| Civic | Count as favourite |
+| --- | --- |
+| Bureaucracy | 7 |
+| Nationhood | 7 |
+| Hereditary Rule | 6 |
+| Free Market | 5 |
+| Theocracy | 5 |
+| Police State | 4 |
+| Vassalage | 4 |
+| Organized Religion | 3 |
+| State Property | 3 |
+| Caste System | 2 |
+| Pacifism | 2 |
+| Representation | 2 |
+| Free Religion | 1 |
+| Protectionism | 1 |
+| Universal Suffrage | 1 |
+| Free Speech | 0 |
+| Serfdom | 0 |
+| Slavery | 0 |
+| Trade Bloc | 0 |
+| Wage Labor | 0 |
 
-| Civic                | Count as favourite |
-|----------------------|--------------------|
-| Barbarism            | 0                  |
-| Decentralization     | 0                  |
-| Despotism            | 0                  |
-| Prehistoric Religion | 0                  |
-| Tribalism            | 0                  |
+| Civic | Count as favourite |
+| --- | --- |
+| Barbarism | 0 |
+| Decentralization | 0 |
+| Despotism | 0 |
+| Prehistoric Religion | 0 |
+| Tribalism | 0 |
 
 Sanity: total favourites across all civics = 53 (one per leader, matches leader count).
 
@@ -559,58 +559,58 @@ Not documented in my old notes (sometimes as of now directly in XML code comment
 
 A summary of my previous notes with the help of chatgpt 5.1 (check if accurate anyways etc.) anyways etc, showing base advciv's (except for some leader(s) like Ewuare since they didn't exist in base advciv but anyways etc.) favourite religion vs advciv-sas.
 
-| Leader             | Base         | New              | Rationale |
-| ------------------ | ------------ | ---------------- | --------- |
-| Alexander          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Asoka              | Buddhism     | Keep             |           |
-| Augustus           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Bismarck           | Christianity | Keep             |           |
-| Boudica            | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Brennus            | None         | Keep             | Already had no favourite religion; the Brennus note mainly informed other XML tweaks (less religious emphasis, more civics focus), not a favourite religion change. |
-| Catherine          | Christianity | Keep             |           |
-| Charlemagne        | Christianity | Keep             |           |
-| Churchill          | Christianity | **None**         | Biographical sketches don’t show a strong personal attachment to any one faith; dropping his Christian favourite both matches that and helps reduce Christianity’s over-representation in the roster. |
-| Cyrus              | None         | Keep             | After a quick read of his religious views, Cyrus looks relatively open and not strongly attached to a single faith, so leaving his favourite religion as None still fits. |
-| Darius             | None         | **Paganism**     | Darius appears more overtly religious than Cyrus in the sources; giving him a specific favourite religion in-game (Paganism as generic Achaemenid state cult) reflects that. |
-| De Gaulle          | Christianity | Keep             |           |
-| Elizabeth          | Christianity | Keep             |           |
-| Ewuare             |              | **Paganism**     | New leader in AdvCiv-SAS; for the Kingdom of Benin, Christianity appears late and local religion (including human sacrifice and royal ritual) is central, so Ewuare uses Paganism as favourite religion. |
-| Frederick          | Christianity | **None**         | French and other sources often describe Frederick II as deist/agnostic; his favourite religion is changed from Christianity to None to reflect that more sceptical stance. |
-| Gandhi             | Hinduism     | Keep             |           |
-| Genghis Khan       | None         | **Daoism**       | Historically tengrist but showed particular respect for the Quanzhen Daoist master Qiu Chuji; among your available religions, Daoism is the closest fit, and it usefully fills what was previously an empty favourite-religion slot for him. |
-| Gilgamesh          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Hammurabi          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Hannibal           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Hatshepsut         | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Huayna Capac       | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Isabella           | Christianity | Keep             |           |
-| Joao               | Christianity | Keep             |           |
-| Julius Caesar      | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Justinian          | Christianity | Keep             |           |
-| Kublai Khan        | Buddhism     | Keep             |           |
-| Lincoln            | Christianity | **None**         | Sources generally paint Lincoln as religiously complex / sceptical rather than a clear Christian partisan; treating him as effectively agnostic and removing his Christian favourite keeps him more neutral. |
-| Louis XIV          | Christianity | Keep             |           |
-| Mansa Musa         | Christianity | **Islam**        | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Mao Zedong         | Hinduism     | **None**         | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Mehmed             | Islam        | Keep             |           |
-| Moctezuma          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Napoleon           | Christianity | Keep             |           |
-| Pacal              | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Pericles           | None         | **Paganism**     | Pericles leans heavily on civic religion, festivals and public cult; giving him Paganism as a favourite ties him to the generic “classical city cults” bucket instead of leaving him without any religious preference. |
-| Peter              | None         | **Christianity** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Qin Shi Huang      | Daoism       | Keep             |           |
-| Ragnar             | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Ramesses           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Roosevelt          | Christianity | Keep             |           |
-| Saladin            | Islam        | Keep             |           |
-| Shaka              | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Sitting Bull       | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Stalin             | None         | Keep             |           |
-| Suleiman           | Islam        | Keep             |           |
-| Suryavarman        | Hinduism     | Keep             |           |
-| Tokugawa           | Buddhism     | Keep             |           |
-| Victoria           | Christianity | Keep             |           |
-| Wang Kon           | Confucianism | **Buddhism**     | As founder of Goryeo he promoted Buddhism as state religion; with Confucianism removed from AdvCiv-SAS, switching his favourite to Buddhism keeps him anchored to an organised religion that matches the history better than Paganism or None. |
-| Washington         | Christianity | Keep             |           |
-| Willem van Oranje  | Christianity | Keep             |           |
-| Zara Yaqob         | Christianity | Keep             |           |
+| Leader | Base | New | Rationale |
+| --- | --- | --- | --- |
+| Alexander | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Asoka | Buddhism | Keep | |
+| Augustus | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Bismarck | Christianity | Keep | |
+| Boudica | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Brennus | None | Keep | Already had no favourite religion; the Brennus note mainly informed other XML tweaks (less religious emphasis, more civics focus), not a favourite religion change. |
+| Catherine | Christianity | Keep | |
+| Charlemagne | Christianity | Keep | |
+| Churchill | Christianity | **None** | Biographical sketches don’t show a strong personal attachment to any one faith; dropping his Christian favourite both matches that and helps reduce Christianity’s over-representation in the roster. |
+| Cyrus | None | Keep | After a quick read of his religious views, Cyrus looks relatively open and not strongly attached to a single faith, so leaving his favourite religion as None still fits. |
+| Darius | None | **Paganism** | Darius appears more overtly religious than Cyrus in the sources; giving him a specific favourite religion in-game (Paganism as generic Achaemenid state cult) reflects that. |
+| De Gaulle | Christianity | Keep | |
+| Elizabeth | Christianity | Keep | |
+| Ewuare | | **Paganism** | New leader in AdvCiv-SAS; for the Kingdom of Benin, Christianity appears late and local religion (including human sacrifice and royal ritual) is central, so Ewuare uses Paganism as favourite religion. |
+| Frederick | Christianity | **None** | French and other sources often describe Frederick II as deist/agnostic; his favourite religion is changed from Christianity to None to reflect that more sceptical stance. |
+| Gandhi | Hinduism | Keep | |
+| Genghis Khan | None | **Daoism** | Historically tengrist but showed particular respect for the Quanzhen Daoist master Qiu Chuji; among your available religions, Daoism is the closest fit, and it usefully fills what was previously an empty favourite-religion slot for him. |
+| Gilgamesh | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Hammurabi | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Hannibal | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Hatshepsut | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Huayna Capac | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Isabella | Christianity | Keep | |
+| Joao | Christianity | Keep | |
+| Julius Caesar | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Justinian | Christianity | Keep | |
+| Kublai Khan | Buddhism | Keep | |
+| Lincoln | Christianity | **None** | Sources generally paint Lincoln as religiously complex / sceptical rather than a clear Christian partisan; treating him as effectively agnostic and removing his Christian favourite keeps him more neutral. |
+| Louis XIV | Christianity | Keep | |
+| Mansa Musa | Christianity | **Islam** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Mao Zedong | Hinduism | **None** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Mehmed | Islam | Keep | |
+| Moctezuma | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Napoleon | Christianity | Keep | |
+| Pacal | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Pericles | None | **Paganism** | Pericles leans heavily on civic religion, festivals and public cult; giving him Paganism as a favourite ties him to the generic “classical city cults” bucket instead of leaving him without any religious preference. |
+| Peter | None | **Christianity** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Qin Shi Huang | Daoism | Keep | |
+| Ragnar | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Ramesses | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Roosevelt | Christianity | Keep | |
+| Saladin | Islam | Keep | |
+| Shaka | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Sitting Bull | None | **Paganism** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Stalin | None | Keep | |
+| Suleiman | Islam | Keep | |
+| Suryavarman | Hinduism | Keep | |
+| Tokugawa | Buddhism | Keep | |
+| Victoria | Christianity | Keep | |
+| Wang Kon | Confucianism | **Buddhism** | As founder of Goryeo he promoted Buddhism as state religion; with Confucianism removed from AdvCiv-SAS, switching his favourite to Buddhism keeps him anchored to an organised religion that matches the history better than Paganism or None. |
+| Washington | Christianity | Keep | |
+| Willem van Oranje | Christianity | Keep | |
+| Zara Yaqob | Christianity | Keep | |
