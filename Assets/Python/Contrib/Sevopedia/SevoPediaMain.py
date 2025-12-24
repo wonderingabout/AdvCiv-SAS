@@ -211,6 +211,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: debounce for type-to-filter to prevent double keypress even when key-up events are interleaved (chatgpt 5.2 + claude opus 4.5) -->
 		# Note: BtS/AdvCiv can fire NOTIFY_CHARACTER twice per press for letters/digits, and the 2nd event can arrive after another key when typing fast.
 		self.SAS_keyDebounceByKey = {}
+
+		# <!-- custom: map original list indices to displayed rows when filtering so selection/highlight stays correct (chatgpt 5.2 + claude opus 4.5) -->
+		self.SAS_listIdxToRow = None
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
@@ -431,11 +434,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.iItem = iItem
 			for i, item in enumerate(self.list):
 				if (item[1] == iItem):
-					BugUtil.debug("Selecting %dth item %d" % (i, iItem))
-					#screen.setSelectedListBoxStringGFC(self.ITEM_LIST_ID, i)
-					screen.selectRow(self.ITEM_LIST_ID, i, True)
-					self.iItemIndex = i
+					# <!-- custom: when filtering, select the displayed row, not the original list index (chatgpt 5.2 + claude opus 4.5) -->
+					iRowToSelect = i
+					if self.SAS_isSearchActive() and (self.SAS_listIdxToRow is not None):
+						iRowToSelect = self.SAS_listIdxToRow.get(i, i)
+					BugUtil.debug("Selecting %dth item %d (row %d)" % (i, iItem, iRowToSelect))
+					#screen.setSelectedListBoxStringGFC(self.ITEM_LIST_ID, iRowToSelect)
+					screen.selectRow(self.ITEM_LIST_ID, iRowToSelect, True)
+					self.iItemIndex = iRowToSelect
 					#break
+					# <!-- custom: End - when filtering, select the displayed row, not the original list index (chatgpt 5.2 + claude opus 4.5) -->
 
 		#self.iCategory = iCategory
 		BugUtil.debug("Drawing screen %d item %d" % (iCategory, iItem))
@@ -1969,20 +1977,78 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: get filter string for type-to-filter (chatgpt 5.2 + claude opus 4.5) -->
 		szFilter = self.SAS_szSearchString.strip().lower()
 		bFiltering = (len(szFilter) > 0)
-		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+
+		# <!-- custom: when filtering, keep headers and separators only for groups that contain at least one match (chatgpt 5.2 + claude opus 4.5) -->
+		# Implementation note:
+		# - self.list may contain header/separator rows encoded as ("Title", -1) or ("", -1).
+		# - When filtering, we precompute which original list indices should be shown.
+		# - We also build SAS_listIdxToRow so pediaJump can select the correct displayed row.
+		setShowListIdx = None
+		self.SAS_listIdxToRow = None
+		if bFiltering:
+			setShowListIdx = set()
+
+			# Identify header rows (non-empty title with data1 == -1)
+			listHeaderIdx = []
+			for iListIdx, it in enumerate(self.list):
+				if it[1] == -1:
+					szTitle = it[0]
+					if (szTitle is not None) and (len(szTitle.strip()) > 0):
+						listHeaderIdx.append(iListIdx)
+
+			# If there are no headers in this list, fall back to the simple behavior.
+			if len(listHeaderIdx) == 0:
+				for iListIdx, it in enumerate(self.list):
+					if it[1] != -1:
+						szName = it[0]
+						if (szName is not None) and (szFilter in szName.lower()):
+							setShowListIdx.add(iListIdx)
+			else:
+				listShownHeaderIdx = []
+				for iH, iHeaderIdx in enumerate(listHeaderIdx):
+					if (iH + 1) < len(listHeaderIdx):
+						iNextHeaderIdx = listHeaderIdx[iH + 1]
+					else:
+						iNextHeaderIdx = len(self.list)
+					bSectionHasMatch = False
+					# Scan items in this header section for matches.
+					for j in range(iHeaderIdx + 1, iNextHeaderIdx):
+						it = self.list[j]
+						if it[1] != -1:
+							szName = it[0]
+							if (szName is not None) and (szFilter in szName.lower()):
+								bSectionHasMatch = True
+								setShowListIdx.add(j)
+					if bSectionHasMatch:
+						listShownHeaderIdx.append(iHeaderIdx)
+						setShowListIdx.add(iHeaderIdx)
+
+				# Include a blank separator ("", -1) before each shown header, except the first shown section.
+				for iK in range(1, len(listShownHeaderIdx)):
+					iHeaderIdx = listShownHeaderIdx[iK]
+					iSpacerIdx = iHeaderIdx - 1
+					if iSpacerIdx >= 0:
+						it = self.list[iSpacerIdx]
+						if it[1] == -1:
+							szTitle = it[0]
+							if (szTitle is None) or (len(szTitle.strip()) == 0):
+								setShowListIdx.add(iSpacerIdx)
+
+			# Build list-index -> displayed-row mapping for correct highlighting in pediaJump.
+			self.SAS_listIdxToRow = {}
 
 		i = 0
-		for item in self.list:
+		for idx, item in enumerate(self.list):
 			data1 = item[1] # advc.001: Moved up
 
-			# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
-			# <!-- custom: if filtering, skip headers/spacers and non-matching items (chatgpt 5.2 + claude opus 4.5) -->
+			# <!-- custom: if filtering, skip rows not selected by our header-aware filter (chatgpt 5.2 + claude opus 4.5) -->
 			if bFiltering:
-				if data1 == -1:
+				if idx not in setShowListIdx:
 					continue
-				szName = item[0]
-				if (szName is None) or (szFilter not in szName.lower()):
-					continue
+
+			# <!-- custom: record mapping from original list index to displayed row index (chatgpt 5.2 + claude opus 4.5) -->
+			if self.SAS_listIdxToRow is not None:
+				self.SAS_listIdxToRow[idx] = i
 			# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
 			# <!-- custom: make a common initial variable so we can tweak it in specific elif or such blocks as we see fit and keep common logic at the end anyways etc; using a long name to avoid weird python scope inheritance issues to unrelated scopes if i'm not mistaken anyways etc. -->
@@ -2210,7 +2276,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return 1
 		
 		return 0
-		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) --># <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
 
 
