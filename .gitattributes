@@ -36,9 +36,5 @@
 /_0_Common_Docs/git_log_anonymized_email.txt                            export-ignore
 /_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/                export-ignore
 /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/                  export-ignore
-/Assets/XML/BasicInfos/CIV4BasicInf_os.txt                              export-ignore
-/Assets/XML/BasicInfos/CIV4UnitAIInf_os.txt                             export-ignore
-/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt             export-ignore
-/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt                   export-ignore
 /Assets/Res/Fonts/other_mods/                                           export-ignore
 /Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt export-ignore

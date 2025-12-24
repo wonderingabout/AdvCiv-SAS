@@ -6,6 +6,8 @@ Note:
 
 
 
+[DEBUG] Beginning of show obj inner fields if i am not mistaken anyways etc.
+
 IsGraphicsInitialized
 
 __class__
@@ -515,3 +517,5 @@ setDefineINT
 setDefineSTRING
 
 updateCameraStartDistance
+
+[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.
