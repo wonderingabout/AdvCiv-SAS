@@ -10,32 +10,41 @@ Note 2: in below sample examples, click the images to view them full size.
 
 ## Menu
 
-[example 0: added a search bar used in several sevopedia pages](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-0-added-a-search-bar-used-in-several-sevopedia-pages)  
-[example 1: more AI Personality examples (in leaders category)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category)  
-[example 2: unit chart category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
-[example 3: features category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)  
-[example 3.5: improvements category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-35-improvements-category)  
-[example 4: bonuses category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-4-bonuses-category)  
-[example 5: religion category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)  
-[example 6: civilization category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-6-civilization-category)  
-[example 7: unit list category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category)  
-[example 8: building category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category)  
-[example 9: terrains category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)  
-[example 10: techs category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)  
-[example 11: shortcuts category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
-[example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
-[example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category)  
-[example 14: projects category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-14-projects-category)  
-[example 15: specialists category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-15-specialists-category)  
+[Some Lower Level Changes or new features](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+&emsp;[example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages)  
+&emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
+[Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+&emsp;[example 1: more AI Personality examples (in leaders category)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category)  
+&emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
+&emsp;[example 3: features category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)  
+&emsp;[example 3.5: improvements category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-35-improvements-category)  
+&emsp;[example 4: bonuses category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-4-bonuses-category)  
+&emsp;[example 5: religion category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)  
+&emsp;[example 6: civilization category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-6-civilization-category)  
+&emsp;[example 7: unit list category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category)  
+&emsp;[example 8: building category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category)  
+&emsp;[example 9: terrains category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)  
+&emsp;[example 10: techs category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)  
+&emsp;[example 11: shortcuts category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
+&emsp;[example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
+&emsp;[example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category)  
+&emsp;[example 14: projects category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-14-projects-category)  
+&emsp;[example 15: specialists category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-15-specialists-category)  
 
-## example 0: added a search bar used in several sevopedia pages
+## Some Lower Level Changes or new features
+
+Here are some lower level changes we did to the sevopedia, such as adding a search bar in many pages, keyboard navigation using the UP/DOWN arrows, etc.
+
+Note: some other changes such as caching, header groupings, etc. are not mentionned here but instead in their respective sections in this doc or/and in other docs.
+
+### example 0.1: added a search bar. Used in several sevopedia pages
 
 In AdvCiv-SAS 5247, with the help of claude opus 4.5 and chatgpt 5.2, we introduced a search bar in AdvCiv-SAS that is shared by several sevopedia pages. It allows to **search** for entries using the **keyboard**.
 
 The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame.
 
-- 1st commit: : It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame: []().
-- 2nd commit: now preserves headers and spacers, and seemingly functions just as well if groupings (headers + their spacers) are disabled, as in `SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA` for instance. See screenshot provided showing this being supported successfully in this sample: []().
+- 1st commit: It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame: [commit/6c67df16f99479500a820d34dddd4f4fe569bc8e](https://github.com/wonderingabout/AdvCiv-SAS/commit/6c67df16f99479500a820d34dddd4f4fe569bc8e).
+- 2nd commit: now preserves headers and spacers, and seemingly functions just as well if groupings (headers + their spacers) are disabled, as in `SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA` for instance. See screenshot provided showing this being supported successfully in this sample: [commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17](https://github.com/wonderingabout/AdvCiv-SAS/commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17).
 
 See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
 
@@ -43,7 +52,19 @@ See individual sevopedia screenshots to see its general appearence. As for how t
 <img src="../Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
 
-## example 1: more AI Personality examples (in leaders category)
+### example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages
+
+In AdvCiv-SAS 5252, based on C2C mod's code thanks, and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard arrows navigation (using the UP and DOWN arrows to browse entries).
+
+The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+
+- 1st commit: It is the conservative first stable functional version. Has some minor issues such sometimes as the tree pages (Unit Tree, Promotions Tree) having the arrows not result in anything unless the player clicks on the page itself, or some similar or related issues: []().
+
+## Sevopedia Pages individual reworks
+
+This section focuses on the higher level changes we did to sevopedia, mostly about UI or such.
+
+### example 1: more AI Personality examples (in leaders category)
 
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
@@ -55,14 +76,14 @@ note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in
 
 note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels anyways etc
 
-## example 2: unit chart category
+### example 2: unit chart category
 
 (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
 
 <img src="../Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG" alt="0.630_sevopedia_units_chart_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG" alt="0.630_sevopedia_units_chart_sample (2).JPG" width="250"></img>
 
-## example 3: features category
+### example 3: features category
 
 Based on rfc doc mod's code originally, and significantly tweaked or/and enhanced since then.
 
@@ -80,7 +101,7 @@ Also added Land/Water grouping similarly than for sevopedia terrain entries, and
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG" alt="0.640_sevopedia_features_sample (3).JPG" width="250"></img>
 
-## example 3.5: improvements category
+### example 3.5: improvements category
 
 One of the oldest sevopedia reworks, i added it in this readme much later so i hope or i think or maybe it fits quite well or maybe well here but anyways etc.
 
@@ -98,7 +119,7 @@ More recently, entries are now grouped by Land/Water (e.g. Land Improvements -> 
 <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG" alt="0.720_sevopedia_improvements_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG" alt="0.720_sevopedia_improvements_sample (3).JPG" width="250"></img>
 
-## example 4: bonuses category
+### example 4: bonuses category
 
 Mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
 
@@ -114,7 +135,7 @@ Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Maize, Pasture -
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG" alt="0.650_sevopedia_bonuses_sample (3).JPG" width="250"></img>
 
-## example 5: religion category
+### example 5: religion category
 
 new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or/and adjustments or/and not anyways etc, as well as civ4 BUG_Doc, see code comments in sevopediareligion.py for details.
 
@@ -124,7 +145,7 @@ new Leaders (based on History Rewritten's code) and Buildings (based originally/
 
 looks quite very great hehe (at least i think so) anyways etc...
 
-## example 6: civilization category
+### example 6: civilization category
 
 new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are not or maybe bit less or maybe not ((,) i.e) in other others ways or not or/and other or not anyways etc) But anyways etc) Platypedia's code) panel anyways etc ; then reordered the existing panels too for a nice display at least i think (but) anyways etc and enjoy hehe if you want (i mean anyways...) but anyways etc:
 
@@ -132,7 +153,7 @@ new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are
 <img src="../Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (2).JPG" alt="0.670_sevopedia_civilizations_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG" alt="0.670_sevopedia_civilizations_sample (3).JPG" width="250"></img>
 
-## example 7: unit list category
+### example 7: unit list category
 
 Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
 
@@ -152,7 +173,7 @@ Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for 
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG" alt="0.680_sevopedia_units_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG" alt="0.680_sevopedia_units_sample (3).JPG" width="250"></img>
 
-## example 8: building category
+### example 8: building category
 
 Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (images) show now, commerce double times as well( for example that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
 
@@ -162,7 +183,7 @@ Also added later iConquestProb display in placeSpecial, idea i got from watching
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (3).JPG" alt="0.690_sevopedia_buildings_sample (3).JPG" width="250"></img>
 
-## example 9: terrains category
+### example 9: terrains category
 
 Done much later in development of advciv-sas mod, added in particular new placeRelevantUnits and placeUnitsImpassable if i am not mistaken anyways etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
 
@@ -182,7 +203,7 @@ Update: i have recently found with the help of chatgpt 5.2 that these `TERRAIN_H
 
 See also the [features category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)
 
-## example 10: techs category
+### example 10: techs category
 
 This is a more recent refactor and beautify that adds era information and such other beautifications. The info pane (top left info of the tech, era, cost as of now anyways etc) in particular is imported from rfc doc mod and modified/beautified/adjusted further or not for advciv-sas anyways etc.
 
@@ -193,11 +214,11 @@ Note: the untradeable techs list as string/text is very efficiently precomputed 
 <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG" alt="0.710_sevopedia_techs_sample (2).JPG" width="250"></img>
 
-## example 11: shortcuts category
+### example 11: shortcuts category
 
 No graphical change, only added info about some shortcuts, as of now only about Alt+S (Toggle on/off write some text ("Enter caption") on a tile) anyways etc.
 
-## example 12: promotions category
+### example 12: promotions category
 
 This is also a very as of now recent in this case i mean but anyways etc refactor, beautification (moderate in this case i mean but anyways etc), and enhancement by adding as of now the free promotions (units) and place promotion (buildings) using the multilist code from previous sevopedia reworks.
 
@@ -209,7 +230,7 @@ Output is really nice and nicely informative too if i may say but anyways etc, e
 <img src="../Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (2).JPG" alt="0.730_sevopedia_promotions_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG" alt="0.730_sevopedia_promotions_sample (3).JPG" width="250"></img>
 
-## example 13: civics category
+### example 13: civics category
 
 This is another very nice rework :) I should have thought of it sooner xd if i may say in this case i mean but anyways etc, but it is the quite natural expansion of the placeLeaders panel in sevopedia religion (not that i believe (anymore) in them if i may say i mean but anyways etc).
 
@@ -225,7 +246,7 @@ Examples of output below anyways etc.:
 <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG" alt="0.740_sevopedia_civics_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG" alt="0.740_sevopedia_civics_sample (3).JPG" width="250"></img>
 
-## example 14: projects category
+### example 14: projects category
 
 Minor beautified and polished it a bit and now it's quite good xd at least not too bad hehe, and i had also added grouping for entries as in similar reworks previously, so it looks not too bad, quite good actually xd i mean if i may say but anyways etc.
 
@@ -233,7 +254,7 @@ As for the grouping, since this is a nice functionnal change, i wanted to show i
 
 <img src="../Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG" alt="0.750_sevopedia_projects_sample (1).JPG" width="250"></img>
 
-## example 15: specialists category
+### example 15: specialists category
 
 Beautified it a bit (removed the ugly blue panel around the buttons as we did in previous reworks but anyways etc.), but added the grouping (by specialist type (as of now normal vs great specialists if i'm not mistaken but anyways etc.)) similarly to how we said as of now at the top of this file but anyways etc.
 

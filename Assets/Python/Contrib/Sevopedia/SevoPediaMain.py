@@ -337,8 +337,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# <!-- custom: identify keys that need debounce in the type-to-filter search (chatgpt 5.2 + claude opus 4.5) -->
 	# We debounce only letters/digits. Space appears to be delivered only once in BtS/AdvCiv and should not be throttled.
 	def SAS_shouldDebounceKey(self, iKey):
-		return ((iKey >= int(InputTypes.KB_A) and iKey <= int(InputTypes.KB_Z)) or
-				(iKey >= int(InputTypes.KB_0) and iKey <= int(InputTypes.KB_9)))
+		# Letters A-Z
+		if iKey >= int(InputTypes.KB_A) and iKey <= int(InputTypes.KB_Z):
+			return True
+		# Digits 0-9
+		if iKey >= int(InputTypes.KB_0) and iKey <= int(InputTypes.KB_9):
+			return True
+		# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+		if iKey == int(InputTypes.KB_UP) or iKey == int(InputTypes.KB_DOWN):
+			return True
+		# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+		return False
+
 	def SAS_getVisibleCharacter(self, inputClass):
 		iKey = inputClass.getData()
 		bShift = inputClass.isShiftKeyDown()
@@ -364,6 +374,60 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return u""
 	# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
+	# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+	# Navigate the item list by iDirection rows (-1 = up, +1 = down). Skips headers/spacers (item[1] == -1) and respects filtering.
+	def SAS_navigateItemList(self, iDirection):
+		if not self.isContentsShowing():
+			return False
+		if not self.list or len(self.list) == 0:
+			return False
+		
+		# Build list of selectable (non-header) indices that are currently displayed
+		listSelectableRows = []
+		for idx, item in enumerate(self.list):
+			if item[1] == -1:
+				continue  # Skip headers/spacers
+			# If filtering, check if this item is in the displayed rows
+			if self.SAS_isSearchActive() and self.SAS_listIdxToRow is not None:
+				if idx not in self.SAS_listIdxToRow:
+					continue  # Not displayed due to filter
+			listSelectableRows.append(idx)
+		
+		if len(listSelectableRows) == 0:
+			return False
+		
+		# Find current position in selectable list
+		iCurrentPos = -1
+		for i, idx in enumerate(listSelectableRows):
+			if self.list[idx][1] == self.iItem:
+				iCurrentPos = i
+				break
+		
+		# Calculate new position
+		if iCurrentPos == -1:
+			# No item selected, select first or last based on direction
+			if iDirection > 0:
+				iNewPos = 0
+			else:
+				iNewPos = len(listSelectableRows) - 1
+		else:
+			iNewPos = iCurrentPos + iDirection
+			# Clamp to valid range
+			if iNewPos < 0:
+				iNewPos = 0
+			elif iNewPos >= len(listSelectableRows):
+				iNewPos = len(listSelectableRows) - 1
+		
+		# Get the item at new position and jump to it
+		iNewListIdx = listSelectableRows[iNewPos]
+		iNewItem = self.list[iNewListIdx][1]
+		
+		if iNewItem != self.iItem:
+			self.pediaJump(self.iCategory, iNewItem, False, False)
+			return True
+		
+		return False
+	# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
 
 	def getScreen(self):
@@ -2266,6 +2330,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 								self.SAS_keyDebounceByKey = {}
 								self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
 								return 1
+						# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+						# <!-- custom: arrow key navigation for item list (chatgpt 5.2 + claude opus 4.5) -->
+						# Handle UP arrow to navigate to previous item
+						elif iKey == int(InputTypes.KB_UP):
+							if self.SAS_navigateItemList(-1):
+								return 1
+						# Handle DOWN arrow to navigate to next item
+						elif iKey == int(InputTypes.KB_DOWN):
+							if self.SAS_navigateItemList(1):
+								return 1
+						# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
 		# Existing TOC/INDEX buttons.
 		if (inputClass.getFunctionName() == self.TOC_ID):
