@@ -221,4 +221,12 @@
 		<Tag>TXT_KEY_VOTE_TRADE_BLOC</Tag>
 		<English>U.N. Resolution #1190 (Global Civic - Trade Bloc)</English>
 	</TEXT>
+
+
+
+	<!-- custom: this only lists units without a unit combat, not military ones like swordsmen or such. Rename "All Units" to a clearer or more accurate name. -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_ALL_UNITS</Tag>
+		<English>No UnitCombat</English>
+	</TEXT>
 </Civ4GameText>

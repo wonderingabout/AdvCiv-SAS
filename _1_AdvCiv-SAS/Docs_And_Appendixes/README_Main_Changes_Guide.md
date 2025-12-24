@@ -90,6 +90,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 
 - “WFYABTA” → “We fear you are trading more than us.” Same mechanic; the new text reflects that it’s about trading volume, not tech pace.
 - Fixed misleading event text such as “The forge has been destroyed” used even when building actually survives (e.g. “The forge has caught fire” instead).
+- (Requires AdvCiv-SAS 5251+) “All Units” → “No UnitCombat” in the Military Advisor: was inaccurate: this does not list all units (e.g. military units such as swordsmen), but only `<Combat>NONE</Combat>` units (e.g. Worker, Workboat, Missionary).
 - Nuclear interception text clarifies that displayed chance is **adjusted** by nuke evasion; see the forum thread for context ([civfanatics](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/)).
 - “Civilopedia” → “Sevopedia.”
 - “Ressource(s)” → “Bonus(es).”
@@ -388,7 +389,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 
 ### Events
 
-- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not bring a real gameplay value to make up for that, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
+- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
 
 ### Culture
 

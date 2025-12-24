@@ -94,6 +94,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
 
 - some convenience and quality of life changes: for example WFYABTA ("We fear you are becoming too advanced" is now renamed as "We fear you are trading more than us", but it is exactly the same effect, just it is not related to tech pace at all (i was 4 techs behind from an AI if i remember correctly but still got this message from it, after some (frustrating) research i found it is not related to tech advancement but how much you trade with all players (trade less and it will/should(?) fade eventually)))
 - also some other fixes about "the forge has been destroyed" when it was sometimes not destroyed misleading messaged tweaked to something not misleading (for example "The forge has caught fire")
+- (Requires AdvCiv-SAS 5251+) “All Units” → “No UnitCombat” in the Military Advisor: was inaccurate: this does not list all units (e.g. military units such as swordsmen), but only `<Combat>NONE</Combat>` units (e.g. Worker, Workboat, Missionary).
 - (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this [civfanatics forums nukes and such thread](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/) for details
 - the civilopedia is renamed the sevopedia, it is the same thing but is the name of the more modern version (made by modders) of it.
 - Renamed "Ressource" to "Bonus" (so "ressources" would be "bonuses" now anyways etc) for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.
@@ -400,7 +401,7 @@ Note: please see note here as well in this custom main changes guide about the .
 
 ### Events
 
-- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not bring a real gameplay value to make up for that, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
+- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
 
 ### Culture
 
