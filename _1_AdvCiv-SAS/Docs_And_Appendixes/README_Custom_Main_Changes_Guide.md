@@ -44,6 +44,7 @@ The aim is to make more and more options player-tunable via XML in SAS defines, 
 &emsp;[Civics (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civics-non-exhaustive-see-sevopedia-orand-xml-for-details)  
 &emsp;[Technologies (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)  
 &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#eras)  
+&emsp;[Events](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#events)  
 &emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#culture)  
 &emsp;[Religions (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#religions-non-exhaustive-see-sevopedia-orand-xml-for-details)  
 &emsp;[Corporations (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#corporations-non-exhaustive-see-sevopedia-orand-xml-for-details)  
@@ -396,6 +397,10 @@ Note: please see note here as well in this custom main changes guide about the .
 - increased `iGrowthPercent` (food per food bar full modifier), `iTrainPercent` (production cost for any unit modifier if i'm not mistaken anyways etc), `iConstructPercent` (hammer cost for buildings modifier), and `iCreatePercent` (hammer cost for a project modifier) from 100/100/100/90/80/70/60 to 100 at all eras, i don't care about realism here as well. May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is if i may say but anyways etc, and i want instead gameplay to be predictable, reliable, and gradual as i said but anyways etc.
 - similarly increased `iBuildPercent` and `iImprovementPercent` from 100/100/100/90/80/70/60 to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was but anyways etc.
 - also increased `iCulturePercent` from 100/100/80/70/60/50/50 to 100 at all eras. I don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc).
+
+### Events
+
+- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not bring a real gameplay value to make up for that, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
 
 ### Culture
 

@@ -44,6 +44,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 &emsp;[Civics (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-non-exhaustive)  
 &emsp;[Technologies (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)  
 &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#eras)  
+&emsp;[Events](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#events)  
 &emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#culture)  
 &emsp;[Religions (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#religions-non-exhaustive)  
 &emsp;[Corporations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#corporations-non-exhaustive)  
@@ -384,6 +385,10 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 - **Eras — growth & production scaling flattened**: set `iGrowthPercent` (food-to-grow), `iTrainPercent` (unit cost), `iConstructPercent` (building cost), and `iCreatePercent` (project cost) to **100 for all eras** (**was** `100 / 100 / 100 / 90 / 80 / 70 / 60`). Removes late-era discounts that sped up mid/late game; pacing is now **predictable and gradual**, with balance handled directly via per-item `iCost` instead.
 - **Eras — worker builds & improvements scaling flattened**: set `iBuildPercent` and `iImprovementPercent` from **100/100/100/90/80/70/60 → 100** at **all eras**. The original reason for the era-based scaling isn’t known; this change is intentional to keep tile-development pacing **predictable and consistent** across eras and to tune balance directly through base costs/worker rates rather than hidden era multipliers.
 - **Eras — culture scaling flattened**: set `iCulturePercent` from **100/100/80/70/60/50/50 → 100** at **all eras**. Removes late-era culture acceleration so culture growth stays **consistent** and driven by **commerce/buildings**, not hidden era multipliers. In **AdvCiv-SAS**, if we ever want modern (or ancient) culture to weigh differently, we prefer adjusting the **explicit culture values on buildings/units** rather than reintroducing era-wide modifiers.
+
+### Events
+
+- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not bring a real gameplay value to make up for that, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
 
 ### Culture
 
