@@ -216,6 +216,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_listIdxToRow = None
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
+		# <!-- custom: cache selectable (non-header) indices for arrow navigation (chatgpt 5.2 + claude opus 4.5) -->
+		self.SAS_selectableListIdx = []
+		self.SAS_itemToSelectablePos = {}
+
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
 		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes if i may say or not or yes or etc but anyways etc anyways etc anyways etc -->
@@ -382,26 +386,27 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if not self.list or len(self.list) == 0:
 			return False
 		
-		# Build list of selectable (non-header) indices that are currently displayed
-		listSelectableRows = []
-		for idx, item in enumerate(self.list):
-			if item[1] == -1:
-				continue  # Skip headers/spacers
-			# If filtering, check if this item is in the displayed rows
-			if self.SAS_isSearchActive() and self.SAS_listIdxToRow is not None:
-				if idx not in self.SAS_listIdxToRow:
-					continue  # Not displayed due to filter
-			listSelectableRows.append(idx)
-		
+		# Prefer cached selectable indices (built in placeItems)
+		listSelectableRows = getattr(self, "SAS_selectableListIdx", None)
+		if not listSelectableRows:
+			# Fallback: old behavior (build by scanning)
+			listSelectableRows = []
+			for idx, item in enumerate(self.list):
+				if item[1] == -1:
+					continue
+				if self.SAS_isSearchActive() and getattr(self, "SAS_listIdxToRow", None) is not None:
+					if not self.SAS_listIdxToRow.has_key(idx):
+						continue
+				listSelectableRows.append(idx)
+
 		if len(listSelectableRows) == 0:
 			return False
-		
-		# Find current position in selectable list
+
+		# O(1) lookup of current position if possible
 		iCurrentPos = -1
-		for i, idx in enumerate(listSelectableRows):
-			if self.list[idx][1] == self.iItem:
-				iCurrentPos = i
-				break
+		dPos = getattr(self, "SAS_itemToSelectablePos", None)
+		if dPos is not None:
+			iCurrentPos = dPos.get(self.iItem, -1)
 		
 		# Calculate new position
 		if iCurrentPos == -1:
@@ -2126,6 +2131,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# Build list-index -> displayed-row mapping for correct highlighting in pediaJump.
 			self.SAS_listIdxToRow = {}
 
+			# <!-- custom: rebuild arrow-navigation caches (chatgpt 5.2 + claude opus 4.5) -->
+			self.SAS_selectableListIdx = []
+			self.SAS_itemToSelectablePos = {}
+
 		i = 0
 		for idx, item in enumerate(self.list):
 			data1 = item[1] # advc.001: Moved up
@@ -2177,6 +2186,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
 					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
 					szButtonPlaceItems = ""
+
+			# <!-- custom: cache selectable rows for arrow navigation (skip headers/spacers) (chatgpt 5.2 + claude opus 4.5) -->
+			if item[1] != -1:
+				self.SAS_itemToSelectablePos[item[1]] = len(self.SAS_selectableListIdx)
+				self.SAS_selectableListIdx.append(idx)
 
 			screen.appendTableRow(self.ITEM_LIST_ID)
 			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + sTitlePlaceItems + u"</font>", szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
