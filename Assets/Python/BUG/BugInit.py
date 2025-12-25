@@ -101,5 +101,5 @@ def callInits():
 		name, func = g_initQueue.pop(0)
 		try:
 			func()
-		except Exception:
+		except:
 			BugUtil.trace("BugInit - init '%s' failed" % name)

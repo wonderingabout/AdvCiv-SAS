@@ -50,7 +50,7 @@ def initAfterReload():
 		try:
 			import CvScreensInterface
 			CvScreensInterface.reinitMainInterface()
-		except Exception:
+		except:
 			import BugUtil
 			BugUtil.error("BugInit - failure rebuilding main interface after reloading Python modules")
 		getEventManager().fireEvent("PythonReloaded")

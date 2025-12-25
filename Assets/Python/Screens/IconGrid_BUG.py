@@ -382,7 +382,7 @@ class IconGrid_BUG:
 						bDataFound = True
 						try:
 							iconData = rowData.cells[startIndex + offset].icons[0]
-						except Exception:
+						except:
 							bDataFound = False
 
 						szIcon_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset)
@@ -444,7 +444,7 @@ class IconGrid_BUG:
 						try:
 #							BugUtil.debug("Stacked Bar try")
 							stackedbarData = rowData.cells[startIndex + offset].stackedbar[0]
-						except Exception:
+						except:
 							bDataFound = False
 
 #						BugUtil.debug("Stacked Bar data found? %s" % (bDataFound))
@@ -490,7 +490,7 @@ class IconGrid_BUG:
 					bDataFound = True
 					try:
 						iconData = rowData.cells[startIndex + offset].icons[0]
-					except Exception:
+					except:
 						bDataFound = False
 
 					if bDataFound:
@@ -537,7 +537,7 @@ class IconGrid_BUG:
 					bDataFound = True
 					try:
 						stackedbarData = rowData.cells[startIndex + offset].stackedbar[0]
-					except Exception:
+					except:
 						bDataFound = False
 
 					if bDataFound:		

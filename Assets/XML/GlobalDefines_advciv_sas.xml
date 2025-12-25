@@ -12,16 +12,35 @@
 
 
 
-	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled anyways etc -->
+	<!-- custom: Leader AI Cache:
+		0 = compute at runtime (still fairly fast, but needless computation: this ignores the predumped file (SevoPediaLeaderCachePredumped.py) and always recomputes the ai personality panel's values for the first time we access the sevopedia leader panel, and the same again every time we start the game and do so again (i.e. computes only once during same session, not many times, and does not compute if we don't access sevopedia leader, but still computes once every time we do for the first time during this session); optional for modders or temporarily for players who want to change some display options in the ai personality panel until they have updated the predump, then they can use 1 rather)
+		
+		1 = load from predumped file (SevoPediaLeaderCachePredumped.py) (recommended for most players: fastest and cheapest for your computer as all the values are computed, but if you want to change something like adding emojis in headers, changing any xml value in leader info, you need to manually update the predumped file (set this to 0 temporarily and when you have updated the file you can set this to 1 again if you want). -->
+
+	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
+	Set to 0 to compute at runtime  -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later). Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such. -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled anyways etc. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels" section anyways etc -->
+	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels" section anyways etc. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.  -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+
+
+
 	<!-- custom: change its value if you don't want to see AI information in the special abilities panel anyways etc -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_UNIT_SHOW_AI_INFORMATION</DefineName>

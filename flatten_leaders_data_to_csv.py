@@ -286,7 +286,7 @@ for leader_id in PARSED_XML_LEADERS_DATA:
 					]
 					val = ", ".join(formatted)
 					
-			except Exception:
+			except:
 				val = val  # fallback silently
 		elif col == "Traits":
 			try:
@@ -297,7 +297,7 @@ for leader_id in PARSED_XML_LEADERS_DATA:
 						for trait in trait_list if isinstance(trait, dict)
 					]
 					val = ", ".join(formatted)
-			except Exception:
+			except:
 				val = val
 		elif col == "UnitAIWeightModifiers":
 			try:
@@ -308,7 +308,7 @@ for leader_id in PARSED_XML_LEADERS_DATA:
 						for entry in unit_ai_list if isinstance(entry, dict)
 					]
 					val = ", ".join(formatted)
-			except Exception:
+			except:
 				val = val  # fallback if needed
 
 		cleaned_row[col] = val

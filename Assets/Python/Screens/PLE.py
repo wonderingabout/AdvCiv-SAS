@@ -253,7 +253,7 @@ class PLE:
 				if (lActUnitInfo != self.dPLEUnitInfo[ id ]):
 					self.setPLEUnitList(True)
 					# mt.debug("update unload:"+str(self.iLoopCnt))
-		except Exception:
+		except:
 			# mt.debug("Sel Unit: <fail>")
 			pass
 
@@ -1926,7 +1926,7 @@ class PLE:
 		pUnit = self.listPLEButtons[id][0]
 		try:
 			iUnitType = pUnit.getUnitType()
-		except Exception:
+		except:
 			return
 
 		pUnitTypeInfo = gc.getUnitInfo(iUnitType)

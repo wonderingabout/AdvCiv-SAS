@@ -369,7 +369,7 @@ def initModFolder():
 		replay = CyReplayInfo()
 		replay.createInfo(0)
 		modDir = replay.getModName().replace('\\', r'/')
-	except Exception:
+	except:
 		BugUtil.trace("replay not ready")
 	else:
 		if modDir and len(modDir) > 2:
@@ -429,7 +429,7 @@ def initNoCustomAssetsSetting():
 				from configobj import ConfigObj
 				config = ConfigObj(join(getModDir(), getModFolder() + ".ini"), encoding='utf_8')
 				_noCustomAssets = config["CONFIG"].as_bool("NoCustomAssets")
-			except Exception:
+			except:
 				BugUtil.trace("BugPath - failed to parse mod INI file for NoCustomAssets")
 		BugUtil.info("BugPath - NoCustomAssets is %s", _noCustomAssets)
 	_noCustomAssetsSettingInitDone = True
@@ -493,7 +493,7 @@ def initRootFolder():
 		for version, key, subkey in MY_DOCUMENTS_FOLDER_REG_KEYS:
 			try:
 				myDocuments = getRegValue(_winreg.HKEY_CURRENT_USER, key, subkey)
-			except Exception:
+			except:
 				pass
 			else:
 				if setUserDir(join(myDocuments, MY_GAMES_FOLDER)):
@@ -568,7 +568,7 @@ def initDataFolder():
 						pass
 					# sucks.
 					shutil.copytree(default_dir, dir)
-				except Exception:
+				except:
 					BugUtil.trace("Failed to copy settings")
 		if not isdir(dir):
 			# Second attempt: create the directory manually
@@ -716,11 +716,11 @@ def isfile(path):
 def safeDebugPath(message, path):
 	try:
 		BugUtil.debug(message, path)
-	except Exception:
+	except:
 		pass
 
 def safeInfoPath(message, path):
 	try:
 		BugUtil.info(message, path)
-	except Exception:
+	except:
 		pass

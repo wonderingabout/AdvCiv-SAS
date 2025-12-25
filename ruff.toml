@@ -9,4 +9,5 @@ select = ["E", "F"]
 # F403: 'from module import *' used; can't track undefined names
 # F405: Name may be undefined, or defined from star imports
 # E501: Line too long (we allow longer lines in Civ4 UI scripts)
-ignore = ["F403", "F405", "E501"]  # Allow star imports, undefined names, long lines
+# E722: Do not use bare `except` (<!-- custom: for python 2.4 compatibility as per claude opus 4.5's explanation thanks: "Python 2.4 compatibility note: Your bare except: clause is fine for Python 2.4. If you ever want to catch specific exceptions with the error message, use the old syntax: except ImportError, e: instead of except ImportError as e:." -->)
+ignore = ["F403", "F405", "E501", "E722"]  # Allow star imports, undefined names, long lines, bare except

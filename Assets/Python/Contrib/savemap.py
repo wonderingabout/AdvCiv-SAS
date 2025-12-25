@@ -179,7 +179,7 @@ def savemap(argsList=None):
 			pathStr = pathname + goodName + ".py"
 			try:
 				f = open(pathStr)
-			except Exception:
+			except:
 				# File doesn't exist yet: good (or pathname is inaccessible; we'll see about that)
 				break
 			BugUtil.debug("savemap: File '%s' already exists", pathStr)
@@ -191,7 +191,7 @@ def savemap(argsList=None):
 			f.close()
 		try:
 			f = open(pathStr, 'w')
-		except Exception:
+		except:
 			BugUtil.debug("savemap: Cannot open path '%s' for writing", pathStr)
 			customAssets = True
 			continue

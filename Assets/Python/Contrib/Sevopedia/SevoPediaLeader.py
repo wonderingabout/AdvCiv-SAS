@@ -12,24 +12,11 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# <!-- custom: part of the code here (placeFavourites in particular, but not exhaustive or maybe exhaustive
-# or not, anyways, is imported from RFC Dawn of Civilization mod:
-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
-# which may be modified or not for AdvCiv-SAS
-# 
-# <!-- custom: added many features in AdvCiv-SAS with heavy assistance of ChatGPT-4o as well as my own contribution or/and such anyways etc. -->
+# Store in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc...)
+# Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe even though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
+# UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
 #
-# Here is the current overview of how the AI personality panel feature works-functions as of now anyways etc, and if i am not mistaken i mean anyways etc:
-#
-# 1) Precompute (once at module load before any leader is selected at all)
-#	 - Exclude leaders (typically barbarian, as for defaults DLL has excluded it entirely from idnexes it seems in abse advciv and since we use similar if not identical code since we didn't modify  this part thanks for making it anyways etc, no need to handle leader_defaults it seems anyways etc)
-#	 - Compute raw aggregated fields (contact probs, and positive and negative memory affections and resentments): they are now flat fields like any other field, ready to be processed then stored anyways etc.
-# 	 - Store minmax of all fields we want to parse, like Base peace weight, max war rand, sometimes flattening fields like flavors that are initially nested in XML, now stored for exmapel as iFlavorMilitary or iFlavorReligion if i am not mistaken too for example anyways etc flat fields anyways etc, also including raw aggregated fields like iAggregatedContactProbReligionPressure for example, and similarly for raw aggregated positive and negative memory affections and resentments anyways etc
-#	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc...)
-#	 - Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe even though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
-# 2) UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
-#
-# Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways, -->
+# <!-- custom: note: some code comments may be outdated as they were written when we would compute once per civ4 game launch the LEADERS_INFO_CACHED for efficiency, however since then we as of now now switched to no compute at all (use precomputed SevoPediaLeaderCachePredumped.py) (see also toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))) as it is even cheaper and should scale better with mods that have more leaders or xml attributes (if i'm not mistaken). Plus the values rarely change and are only for UI so not worth spending so much on them even if was more efficient. -->
 
 
 
@@ -64,24 +51,124 @@ if IS_DEBUG_LEADER:
 EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
 	"LEADER_BARBARIAN",
 )
-
 EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_leader_indexes_from_leader_types(EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS, gc)
 
-
-
 # <!-- custom: more consistently and reliably exclude leaders by having a ready list of such leaders we can call -->
-
 if IS_DEBUG_LEADER:
 	print("[DEBUG] EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s" % str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS))
 
 
 
-# <!-- custom: note: collapse this below function with VS Code or similar to easily see right at next lines (at least as of now anyways etc) viewed the class SevoPediaLeader code anyways etc -->
+# Simple system to dump leader AI personality cache to PythonDbg.log, then optionally load it from a pre-generated .py module instead of computing at runtime.
+#
+# USAGE:
+# ------
+# 1. Set IS_USE_PREDUMPED_CACHE = False (default)
+# 2. Play the game, open Sevopedia → Leaders category
+# 3. In PythonDbg.log, find the block between:
+#       # === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===
+#       ...
+#       # === SAS_LEADER_AI_CACHE_PYMODULE_END ===
+# 4. Copy that block into a new file: SevoPediaLeaderCachePredumped.py
+# 5. Place that file in your mod's Python folder
+# 6. Set IS_USE_PREDUMPED_CACHE to True (via XML SAS defines)
+# 7. Now the game loads the pre-dumped data instead of computing it
+#
+# NOTES:
+# ------
+# - If you change emoji settings or leader XML, you need to re-dump
+# - The dumped data includes: LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+# === Cache dump/load config and helpers ===
+IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED") > 0)
+IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG") > 0)
+# Name of the pre-dumped module (without .py extension)
+PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
+
+
+
+def dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
+	# Dumps the leader cache to PythonDbg.log in a format that can be copy-pasted into a .py module file.
+
+	leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories = leader_cache
+
+	# BEGIN marker
+	print("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
+	print("")
+
+	# Header with generation info
+	print("# Generated from in-game dump to PythonDbg.log")
+	print("# Copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
+	print("#")
+	print("# Generation info:")
+	print("#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos())
+	print("#   - Excluded leader types: %r" % (excluded_leader_types,))
+	print("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
+	print("#   - Raw XML field names: %s" % str(is_raw_xml_names))
+	print("")
+
+	# The actual data
+	print("LEADERS_INFO_CACHED = %r" % (leaders_info_cached,))
+	print("")
+	print("AI_RIGHT_CATEGORIES = %r" % (ai_right_categories,))
+	print("")
+	print("AI_MIDDLE_CATEGORIES = %r" % (ai_middle_categories,))
+	print("")
+	print("AI_LEFT_CATEGORIES = %r" % (ai_left_categories,))
+
+	# END marker
+	print("")
+	print("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
+
+	print("AI Personality Panel cache dumped to PythonDbg.log successfully.")
+
+
+
+def try_load_predumped_cache():
+	# Attempts to load the pre-dumped cache module.
+	if not IS_USE_PREDUMPED_CACHE:
+		return None
+
+	try:
+		# Dynamic import of the pre-dumped module
+		predumped = __import__(PREDUMPED_MODULE_NAME)
+		
+		leaders_info_cached = predumped.LEADERS_INFO_CACHED
+		ai_right_categories = predumped.AI_RIGHT_CATEGORIES
+		ai_middle_categories = predumped.AI_MIDDLE_CATEGORIES
+		ai_left_categories = predumped.AI_LEFT_CATEGORIES
+		
+		print("AI Personality Panel cache Loaded pre-dumped cache from %s.py" % PREDUMPED_MODULE_NAME)
+		return (leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories)
+	
+	except:
+		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED in XML SAS defines." % PREDUMPED_MODULE_NAME)
+
+
+
+def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
+	# Main entry point. Either loads pre-dumped cache or computes it.
+	# Always dumps to log when computing (so you can grab it later).
+
+	# Try loading pre-dumped first
+	predumped = try_load_predumped_cache()
+	if predumped is not None:
+		return predumped
+	
+	# Compute at runtime
+	print("AI Personality Panel cache Computing leader cache at runtime...")
+	leader_cache = compute_func()
+	
+	# Dump to log only if enabled via define
+	if IS_DUMP_CACHE_TO_LOG:
+		dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names)
+	
+	return leader_cache
+
+
+
+# <!-- custom: note: collapse this below function with the VS Code UI option or similar to see the line after function definition directly (i.e. as of now around line 1530, right after function definition line e.g. around line 100) for easier reading if desired. -->
 # <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main anyways etc -->
-def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
-
-
-
+def _compute_leader_cache_internal():
 	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
 	# Build once <!-- custom: at this function's scope as we don't need it outside of it but need it many times here if i'm not mistaken but anyways etc -->
 	NUM_LEADERS = gc.getNumLeaderHeadInfos()
@@ -1476,14 +1563,27 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 		return ai_right_categories, ai_middle_categories, ai_left_categories
 
-	# === AI Panel's Categor<!-- custom: ies anyways etc --> ===
+
+
+	# === AI Panel's Categories ===
 	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText)
 
-	# <!-- custom: final return. Note that this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we don't cache needlessly in case we never access sevopedia leader at all during entire gaming session (i.e. i mean until game is exited i mean anyways etc), but also before any leader is selected for display as this would slow display of said leader, especially if we'd have to cache at every leader slection which would be ridiculously and needlessly expensive computaitnally anyways etc. So the return to this SevoPediaLeader 's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession function, if it is changed, needs to also be changed in a similar way in SevoPediaMain 's placeLeaders, hopefully clearer or and helpful but anyways etc anyways etc anyways etc -->
+	# <!-- custom: final return. Note that this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players if i'm not mistaken in SevoPediaMain 's placeLeaders. -->
 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short, anyways etc -->
-	print("[DEBUG] Sevopedia Leader cache prebuilt by Sevopedia Leader's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited)")
+	print("[DEBUG] Sevopedia Leader cache prebuilt by Sevopedia Leader's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession() which if it was called, should cause this message to appear only once for the entire game session (i.e. since civ4 was launched), even if we browse another category or exit sevopedia.")
 
 	return LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+
+
+
+def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
+	# Wrapper that either loads pre-dumped cache or computes it
+	return get_leader_cache_predumped_or_compute(
+		compute_func = _compute_leader_cache_internal,
+		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS,
+		is_emoji_enabled = IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS,
+		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
+	)
 
 
 
@@ -1624,7 +1724,7 @@ class SevoPediaLeader:
 
 
 
-	# <!-- custom: imported from RFC DOC and modified or/and not for AdvCiv-SAS, anyways, -->
+	# <!-- custom: imported from RFC DOC (C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py) and modified or/and not for AdvCiv-SAS. -->
 	def placeFavorites(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()

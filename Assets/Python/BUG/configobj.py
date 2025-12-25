@@ -674,7 +674,7 @@ class Section(dict):
                 # bound again in case name has changed
                 entry = self.scalars[i]
                 out[entry] = val
-            except Exception:
+            except:
                 if raise_errors:
                     raise
                 else:
@@ -686,7 +686,7 @@ class Section(dict):
             if call_on_sections:
                 try:
                     function(self, entry, **keywargs)
-                except Exception:
+                except:
                     if raise_errors:
                         raise
                     else:

@@ -18,14 +18,13 @@ def printObjAttrs(obj):
 				print(u"%s\n" % attr)
 			else:
 				print(u"%s = %s\n" % (attr, attr_value))
-		except Exception:
+		except:
 			print(u"%s - Error accessing\n" % attr)
 	
 	print ("[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.")
 
 
 
-# <!-- custom: working-functioning anyways etc (see output example below after function code anyways etc) debug for leader info (fetches xml), thanks a lot to chatgpt thanks to which and with my prompt too it was super fast hehe to add all after debugging the bit harder flavor, nowarattitudeprob, contact, memory, and bbai fields in debug, the rest are super fast now and thanks for all and in your help in these too hehe chatgpt an thanks to me to myself too for my pormpts or and such and for all or not for all or yes for all or etc anyways etc anyways etc anyways etc -->
 def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	# <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel anyways etc anyways etc anyways etc for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive or not or yes or and other or and not or other or yes or other or etc or as i want or yes or not or yes or other or etc anyways etc:
 	#

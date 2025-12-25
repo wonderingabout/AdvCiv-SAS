@@ -620,6 +620,5 @@ def initOrders():
 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_LAND_UNITS] = ORDER_SENTRY
 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_NAVAL_UNITS] = ORDER_SENTRY
 		MOVE_TO_MISSIONS.append(MissionTypes.MISSION_MOVE_TO_SENTRY)
-	# <!-- custom: do not use bare exceptions as per ruff rule E722 similarly anyways etc, was "except:" -->
-	except Exception:
+	except:
 		pass

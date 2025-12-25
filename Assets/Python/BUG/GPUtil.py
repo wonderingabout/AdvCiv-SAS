@@ -108,7 +108,7 @@ def getColor(gpType):
 def getUnitIcon(iUnit):
 	try:
 		return g_unitIcons[iUnit]
-	except Exception:
+	except:
 		BugUtil.warn("no GP icon for unit %d", iUnit)
 		return u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)
 

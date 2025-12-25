@@ -338,7 +338,7 @@ class Callback:
 				return handler()
 			else:
 				return handler(argsList)
-		except Exception:
+		except:
 			BugUtil.trace("Error in %s callback handler %s", handler.__module__, self.name)
 	
 	def callListener(self, listener, argsList, result):
@@ -349,7 +349,7 @@ class Callback:
 				value = listener(argsList, result)
 			if value is not None:
 				BugUtil.warn("BugGameUtils - %s - ignoring %s listener's return value %r", self.name, listener.__module__, value)
-		except Exception:
+		except:
 			BugUtil.trace("Error in %s callback listener %s", listener.__module__, self.name)
 	
 	def __call__(self, argsList=None):

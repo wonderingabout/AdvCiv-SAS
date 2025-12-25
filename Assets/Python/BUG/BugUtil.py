@@ -724,7 +724,7 @@ def fixSets(namespace):
 	#
 	try:
 		set
-	except Exception:
+	except:
 		import sets
 		namespace["set"] = sets.Set
 		namespace["frozenset"] = sets.ImmutableSet
@@ -818,5 +818,5 @@ def isNoEspionage():
 	#
 	try:
 		return gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE)
-	except Exception:
+	except:
 		return False
