@@ -554,6 +554,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.iItem = -1
 			self.iItemIndex = -1
 
+			# <!-- custom: force keyboard focus so UP/DOWN works without requiring a click (chatgpt 5.2 + claude opus 4.5) -->
+			try:
+				screen = self.getScreen()
+				# Focus the left list when present
+				if self.SAS_lastItemsWidget is not None:
+					try:
+						screen.setFocus(self.ITEM_LIST_ID)
+					except:
+						pass
+			except:
+				pass
 		self.tab = self.TAB_TOC
 
 	def isIndexShowing(self):
@@ -910,6 +921,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.UPGRADES_GRAPH_ID = self.getNextWidgetName()
 		screen.addScrollPanel(self.UPGRADES_GRAPH_ID, u"", self.X_ITEMS, self.Y_PEDIA_PAGE - 13, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 2, PanelStyles.PANEL_STYLE_STANDARD)
 		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)
+
+		# <!-- custom: focus the graph so arrow scrolling works without clicking (chatgpt 5.2 + claude opus 4.5) -->
+		try:
+			screen.setFocus(self.UPGRADES_GRAPH_ID)
+		except:
+			pass
+
 		upgradesGraph = UnitUpgradesGraph.UnitUpgradesGraph(self)
 		upgradesGraph.getGraph()
 		upgradesGraph.drawGraph()
@@ -945,6 +963,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.UPGRADES_GRAPH_ID = self.getNextWidgetName()
 		screen.addScrollPanel(self.UPGRADES_GRAPH_ID, u"", self.X_ITEMS, self.Y_PEDIA_PAGE - 13, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 2, PanelStyles.PANEL_STYLE_STANDARD)
 		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)
+
+		# <!-- custom: focus the graph so arrow scrolling works without clicking (chatgpt 5.2 + claude opus 4.5) -->
+		try:
+			screen.setFocus(self.UPGRADES_GRAPH_ID)
+		except:
+			pass
+
 		upgradesGraph = UnitUpgradesGraph.PromotionsGraph(self)
 		upgradesGraph.getGraph()
 		upgradesGraph.drawGraph()
