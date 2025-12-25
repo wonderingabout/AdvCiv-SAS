@@ -347,10 +347,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Digits 0-9
 		if iKey >= int(InputTypes.KB_0) and iKey <= int(InputTypes.KB_9):
 			return True
+		# Backspace (and optionally Delete) can also double-fire
+		# No need for KB_DELETE or KB_RETURN since:
+		# 	- Delete has nothing to do (no cursor position)
+		# 	- Enter exits Sevopedia (default game behavior, not our code)
+		if iKey == int(InputTypes.KB_BACKSPACE):
+			return True
+
 		# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 		if iKey == int(InputTypes.KB_UP) or iKey == int(InputTypes.KB_DOWN):
 			return True
 		# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+
 		return False
 
 	def SAS_getVisibleCharacter(self, inputClass):
