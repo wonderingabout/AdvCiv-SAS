@@ -1065,9 +1065,10 @@
 					<bTerrain>1</bTerrain>
 				</TerrainBoolean>
 			</TerrainBooleans>
+			<!-- custom: in real world map forest-like areas seem much more prevalent, also fine to change to as of now forest according to chatgpt 5.2. Also, since we as of now removed sheep from grass, maybe this is fine to allow pig on forest that has a grass only, and since jungle is as of now stronger (no inherent food penalty) in advciv-sas, fine to weaken it a bit on that end as well i think, was FEATURE_JUNGLE -->
 			<FeatureBooleans>
 				<FeatureBoolean>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<FeatureType>FEATURE_FOREST</FeatureType>
 					<bFeature>1</bFeature>
 				</FeatureBoolean>
 			</FeatureBooleans>
@@ -1183,11 +1184,8 @@
 			<bFlatlands>1</bFlatlands>
 			<bNoRiverSide>1</bNoRiverSide>
 			<bNormalize>1</bNormalize>
+			<!-- custom: more accurate (heavy population in savanna-like regions (africa, western asia, australia, etc.)), thematic (cultural/religious population differences), and balanced (grass over-repesented in food bonuses and stronger in general) to remove grass and allow sheep as of now only on plains, was TERRAIN_GRASS and TERRAIN_PLAINS -->
 			<TerrainBooleans>
-				<TerrainBoolean>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<bTerrain>1</bTerrain>
-				</TerrainBoolean>
 				<TerrainBoolean>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<bTerrain>1</bTerrain>
