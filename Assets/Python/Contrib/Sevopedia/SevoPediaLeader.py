@@ -141,7 +141,7 @@ def try_load_predumped_cache():
 		return (leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories)
 	
 	except:
-		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED in XML SAS defines." % PREDUMPED_MODULE_NAME)
+		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
 
 
 

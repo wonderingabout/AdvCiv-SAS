@@ -1005,23 +1005,23 @@ void CvCity::doTurn()
 										continue;
 									}
 								}
-								// <!-- custom: simplified trebuchets like rule anyways etc -->
+								// <!-- custom: simplified trebuchets like rule -->
 								else
 								{
 									if (bNoExcessTrebuchetsLike)
 									{
-										// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
+										// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant -->
 										if (bAtWar && bEnemyStrong)
 										{
 											continue; // don’t add more narrow-purpose siege when not stronger
 										}
-										// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
+										// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken) but i didn't check, check if accurate. -->
 										if (bDanger)
 										{
 											continue; // don’t add more narrow-purpose siege when not stronger
 										}
-										// <!-- custom: note: !bWarPlan cap change computed instead before the loop to avoid multi counting but anyways etc -->
-										// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
+										// <!-- custom: note: !bWarPlan cap change computed instead before the loop to avoid multi counting. -->
+										// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units. -->
 										if (bEnemyStrong)
 										{
 											continue;

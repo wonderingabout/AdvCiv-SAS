@@ -31,7 +31,7 @@ Instead of:
 &emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)  
 &emsp;[add media assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#add-media-assets)  
 &emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas-anyways-etc)  
-&emsp;[full git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#full-git-log-with-anonymized-email-in-a-txt)  
+&emsp;[git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#git-log-with-anonymized-email-in-a-txt)  
 &emsp;[how to create/edit git tags at specific commits with a tag message](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-createedit-git-tags-at-specific-commits-with-a-tag-message)  
 &emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#manuals-and-docs-in-txt)  
 &emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)  
@@ -157,19 +157,23 @@ Personally i do so in Notepad++ where i also store notes of ideas of things to a
 
 I started this habit somewhere in this advciv-sas mod development i mean but is very helpful anyways etc, so adding mention of it if helps but anyways etc anyways etc anyways etc.
 
-### full git log with anonymized email in a .txt
+### git log with anonymized email in a .txt
 
-Always keep a .txt copy of the full git log of the/your entire project, very useful when doing a global search (for example with VS Code), you can gain while doing so precious information about some features you want to know more about.
+It can be useful to keep a .txt copy of the full git log of your project, for grep with a global search (for example with VS Code) or such. You can gain while doing so precious information about some features you want to know more about.
 
-You can create such an exhaustive git log automatically in one command, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+To create a git log based on past commits using a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user):
 
-```cmd
-cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso > git_log_anonymized_email.txt
+```shell
+# 1. Set your commit hashes here
+start=8d6bf6e0f61004e415aa3584e906fdb77275c1f8 # old (excluded): e.g. AdCiv-SAS 4986.
+end=1b9d2c8d9eee565d2f5d7b5daba48514cb823234   # last (included), e.g.: AdCiv-SAS 5256
+
+# 2. Run the command (uses the variables above)
+cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
+git log "$start".."$end" --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso > git_log_anonymized_email.txt
 ```
 
-For example for AdvCiv-SAS, i put this file (that i ideally should/try to update every while) in this folder for example [/_0_Common_Docs/git_log_anonymized_email.txt](/_0_Common_Docs/git_log_anonymized_email.txt) (but any place (you want) should do (fine) as long as it is in your mod (anywhere inside it maybe anyways)).
-
-note: it should be possible to create erase in one command the old git log but for now at least anyways etc i prefer to manually copy paste, even though risk is low thanks to git commit versioning and having a github backup or such other files or not anyways etc, still for now doing as such but this command may be optimized/enhanced perhaps rather by having it copy it there directly and overwrite old file, which should be quite safe considering it is a rarely used and not actively written on file only a log if i may say as chatgpt would recommend to me about other topics or files when evaluating safety of a change or/and discuss it suggest it with me in this case i mean but anyways etc if i may say or talking about it with it but anyways etc.
+For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Common_Docs/git_logs/) and [/_1_AdvCiv-SAS/git_logs/](/_1_AdvCiv-SAS/git_logs/) folders.
 
 ### how to create/edit git tags at specific commits with a tag message
 

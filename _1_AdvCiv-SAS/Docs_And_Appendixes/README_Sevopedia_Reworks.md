@@ -45,7 +45,7 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
 
 - 1st commit: It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame: [commit/6c67df16f99479500a820d34dddd4f4fe569bc8e](https://github.com/wonderingabout/AdvCiv-SAS/commit/6c67df16f99479500a820d34dddd4f4fe569bc8e).
 - 2nd commit: now preserves headers and spacers, and seemingly functions just as well if groupings (headers + their spacers) are disabled, as in `SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA` for instance. See screenshot provided showing this being supported successfully in this sample: [commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17](https://github.com/wonderingabout/AdvCiv-SAS/commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17).
-- 3rd commit: fix backspace key (delete to the left last written char if any) firing twice when pressed once in the search bar. Note: no need to support delete to the right key nor enter key if i'm not mistaken and as per chatgpt 5.2 and claude opus 4.5's review and solution thanks []().
+- 3rd commit: fix backspace key (delete to the left last written char if any) firing twice when pressed once in the search bar. Note: no need to support delete to the right key nor enter key if i'm not mistaken and as per chatgpt 5.2 and claude opus 4.5's review and solution thanks [commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234](https://github.com/wonderingabout/AdvCiv-SAS/commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234).
 
 See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
 

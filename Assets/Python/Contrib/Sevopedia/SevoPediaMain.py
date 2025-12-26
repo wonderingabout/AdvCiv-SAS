@@ -220,9 +220,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_selectableListIdx = []
 		self.SAS_itemToSelectablePos = {}
 
-		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation. -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
-		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes if i may say or not or yes or etc but anyways etc anyways etc anyways etc -->
+		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes. -->
 		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
 		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
 
@@ -471,7 +471,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink):
-		# <!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anyways etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anyways etc in known issues of advciv-sas readme for details as well anyways etc -->
+		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now in known issues of advciv-sas readme for details as well. -->
 		bAddToHistory = False
 		if (not self.pediaHistory):
 			bAddToHistory = True
@@ -754,7 +754,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getTechList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, gc.getTechInfo)
 
-		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
+		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code. -->
 		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
 			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
 			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
@@ -1344,13 +1344,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getFeatureList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, gc.getFeatureInfo)
 
-		# <!-- custom: quite similarly if i may say but anyways etc to other precompute codes in sevopedia main, also do sevopedia bonus's pre-loading logic at time where it is more/most efficient if i may say but anyways etc anyways etc anyways etc -->
+		# <!-- custom: quite similarly to other precompute codes in sevopedia main, also do sevopedia bonus's pre-loading logic at time where it is more/most efficient. -->
 		if not self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE:
 			SevoPediaFeature.do_pre_load_xml_features_info_required_data_validation()
 			self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = True
 			print("Sevopedia Feature pre load XML data validation done from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE=%s)." % str(self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE))
 
-	# <!-- custom: in sevopedia feature list, group features by Land (Removable), Land (Other), and Water. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	# <!-- custom: in sevopedia feature list, group features by Land (Removable), Land (Other), and Water. Added with the help of chatgpt 5.2 thanks. -->
 	# Implementation note:
 	# - We detect "Water" features by checking if the feature can appear on any true water terrain using FeatureInfo.isTerrain(iTerrain).
 	# - We detect "Removable" land features by scanning CvBuildInfo for a build that removes that feature.
