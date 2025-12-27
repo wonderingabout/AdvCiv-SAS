@@ -1758,23 +1758,6 @@
 		<Italian>Media rivali (ca.)</Italian>
 		<Spanish>Medio rival (aprox.)</Spanish>
 	</TEXT>
-	<!-- Just the German translations ("rival" was translated as a verb) -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_INFO_RIVAL_BEST</Tag>
-		<English>Rival Best</English>
-		<French>Meilleur rival</French>
-		<German>Stärkster Gegner</German>
-		<Italian>Migliore rivale</Italian>
-		<Spanish>Mejor rival</Spanish>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_INFO_RIVAL_WORST</Tag>
-		<English>Rival Worst</English>
-		<French>Pire rival</French>
-		<German>Schwächster Gegner</German>
-		<Italian>Peggiore rivale</Italian>
-		<Spanish>Peor rival</Spanish>
-	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_THOUSANDS_SEPARATOR</Tag>
 		<English>,</English>

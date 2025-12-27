@@ -276,7 +276,18 @@
 	<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language but anyways etc, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it if i may say but anyways etc anyways etc anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
-		<English>USAmerican</English>
+		<English>US American</English>
+	</TEXT>
+
+
+	<!-- custom: add " (Rank)" so we can have more compact strings in the values. -->
+	<TEXT>
+		<Tag>TXT_KEY_INFO_RIVAL_BEST</Tag>
+		<English>Rival Best (Rank)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_INFO_RIVAL_WORST</Tag>
+		<English>Rival Worst (Rank)</English>
 	</TEXT>
 
 

@@ -62,19 +62,43 @@ class CvInfoScreen:
 		self.INTERFACE_ART_INFO = "TECH_BG"
 
 		self.WIDGET_ID = "DemoScreenWidget"
-		self.LINE_ID   = "DemoLine"
+		self.LINE_ID = "DemoLine"
 
 		self.Z_BACKGROUND = -6.1
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
 		self.DZ = -0.2
 		self.Z_HELP_AREA = self.Z_CONTROLS - 1
 
-		self.X_SCREEN = 0
-		self.Y_SCREEN = 0
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
-		self.X_TITLE = 512
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# self.X_SCREEN = 0
+		# self.Y_SCREEN = 0
+		# self.W_SCREEN = 1024
+		# self.H_SCREEN = 768
+		# <!-- custom: note: screen is not available at init it seems unlike in the way it is done as of now in CvTechChooser where self.X_SCREEN and such are initialized in interfaceScreen that already has a screen variable. I tried adding screen in init in the foreign advisor but it lead to crashes, so using hardcoded values of 1920 and 1080 to avoid that, and is done as per gemini 3 pro's recommendation as well (check if accurate especially as i don't know too much about these but it seems to be so empircially but check to be sure anyways etc.) -->
+		xHardcodedResolution = 1920
+		yHardcodedResolution = 1080
+
+		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.) -->
+		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such but anyways etc. -->
+
+		wLeftSpaceForCommerceSliders = 172
+		self.X_SCREEN = wLeftSpaceForCommerceSliders
+		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
+		wRightSpaceForScoreBoard = 390
+		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
+
+		hTopSpaceForTechBar = 28
+		self.Y_SCREEN = hTopSpaceForTechBar
+		hBottomSpace = 0
+		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
+		self.H_SCREEN = yHardcodedResolution - hTopSpaceForTechBar - hBottomSpace
+
+		# <!-- custom: properly center put the title where we want in the X axis, after our changes the title is too much on the left side and not centered -->
+		# self.X_TITLE = 512
+		# self.Y_TITLE = 8
+		self.X_TITLE = self.W_SCREEN / 2
 		self.Y_TITLE = 8
+
 		self.BORDER_WIDTH = 4
 		self.W_HELP_AREA = 200
 
@@ -148,47 +172,54 @@ class CvInfoScreen:
 		self.graphLeftButtonID = ""
 		self.graphRightButtonID = ""
 
+		# <!-- custom: originally was only used by the graph tab, now used by other tabs as well, moved up for clarity and in case we use it in other tabs. -->
+		# <!-- custom: note: old tabs' dimensions and some related code comments removed for readability. -->
+		self.X_MARGIN = 45
+		self.Y_MARGIN = 80
+		self.SMALL_MARGIN = 20
+
 ################################################## GRAPH ###################################################
 
-		self.X_MARGIN	= 45
-		self.Y_MARGIN	= 80
-		self.H_DROPDOWN	= 35
+		# <!-- custom: add "_GRAPH_" to the name to not confuse it with the "_WONDERS_" dropdown and avoid future mistakes if i'm not mistaken. -->
+		self.H_GRAPH_DROPDOWN = 35
 
-		self.X_DEMO_DROPDOWN	= self.X_MARGIN
-		self.Y_DEMO_DROPDOWN	= self.Y_MARGIN
-		self.W_DEMO_DROPDOWN	= 150 #247
+		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
+		self.X_DEMO_DROPDOWN = self.X_MARGIN
+		self.Y_DEMO_DROPDOWN = self.Y_MARGIN
+		# <!-- custom: make the legend larger as text is too tight currently, and we have more room now. -->
+		self.W_DEMO_DROPDOWN = 200
 
-		self.X_ZOOM_DROPDOWN	= self.X_DEMO_DROPDOWN
-		self.Y_ZOOM_DROPDOWN	= self.Y_DEMO_DROPDOWN + self.H_DROPDOWN
+		self.X_ZOOM_DROPDOWN = self.X_DEMO_DROPDOWN
+		self.Y_ZOOM_DROPDOWN = self.Y_DEMO_DROPDOWN + self.H_GRAPH_DROPDOWN
 
-		self.W_ZOOM_DROPDOWN	= self.W_DEMO_DROPDOWN
+		self.W_ZOOM_DROPDOWN = self.W_DEMO_DROPDOWN
 
-		self.X_LEGEND		= self.X_DEMO_DROPDOWN
-		self.Y_LEGEND		= self.Y_ZOOM_DROPDOWN + self.H_DROPDOWN + 3
-		self.W_LEGEND		= self.W_DEMO_DROPDOWN
-		#self.H_LEGEND		= 200	this is computed from the number of players
+		self.X_LEGEND = self.X_DEMO_DROPDOWN
+		self.Y_LEGEND = self.Y_ZOOM_DROPDOWN + self.H_GRAPH_DROPDOWN + 3
+		self.W_LEGEND = self.W_DEMO_DROPDOWN
+		#self.H_LEGEND = 200	this is computed from the number of players
 
 		self.X_GRAPH = self.X_DEMO_DROPDOWN + self.W_DEMO_DROPDOWN + 10
 		self.Y_GRAPH = self.Y_MARGIN
 		self.W_GRAPH = self.W_SCREEN - self.X_GRAPH - self.X_MARGIN
-		self.H_GRAPH = 590
+		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
 
-		self.W_LEFT_BUTTON  = 20
-		self.H_LEFT_BUTTON  = 20
-		self.X_LEFT_BUTTON  = self.X_GRAPH
-		self.Y_LEFT_BUTTON  = self.Y_GRAPH + self.H_GRAPH
+		self.W_LEFT_BUTTON = 20
+		self.H_LEFT_BUTTON = 20
+		self.X_LEFT_BUTTON = self.X_GRAPH
+		self.Y_LEFT_BUTTON = self.Y_GRAPH + self.H_GRAPH
 
-		self.W_RIGHT_BUTTON  = self.W_LEFT_BUTTON
-		self.H_RIGHT_BUTTON  = self.H_LEFT_BUTTON
-		self.X_RIGHT_BUTTON  = self.X_GRAPH + self.W_GRAPH - self.W_RIGHT_BUTTON
-		self.Y_RIGHT_BUTTON  = self.Y_LEFT_BUTTON
+		self.W_RIGHT_BUTTON = self.W_LEFT_BUTTON
+		self.H_RIGHT_BUTTON = self.H_LEFT_BUTTON
+		self.X_RIGHT_BUTTON = self.X_GRAPH + self.W_GRAPH - self.W_RIGHT_BUTTON
+		self.Y_RIGHT_BUTTON = self.Y_LEFT_BUTTON
 
-		self.X_LEFT_LABEL   = self.X_LEFT_BUTTON + self.W_LEFT_BUTTON + 10
-		self.X_RIGHT_LABEL  = self.X_RIGHT_BUTTON - 10
+		self.X_LEFT_LABEL = self.X_LEFT_BUTTON + self.W_LEFT_BUTTON + 10
+		self.X_RIGHT_LABEL = self.X_RIGHT_BUTTON - 10
 		self.Y_LABEL		= self.Y_GRAPH + self.H_GRAPH + 3
 
-		self.X_LEGEND_MARGIN	= 10
-		self.Y_LEGEND_MARGIN	= 5
+		self.X_LEGEND_MARGIN = 10
+		self.Y_LEGEND_MARGIN = 5
 		self.X_LEGEND_LINE	= self.X_LEGEND_MARGIN
 		self.Y_LEGEND_LINE	= self.Y_LEGEND_MARGIN + 9  # to center it relative to the text
 		self.W_LEGEND_LINE	= 30
@@ -224,33 +255,47 @@ class CvInfoScreen:
 
 ############################################### DEMOGRAPHICS ###############################################
 
-		self.X_CHART = 45
-		self.Y_CHART = 80
-		self.W_CHART = 934
-		self.H_CHART = 600
+		# <!-- custom: rename self.X_CHART and such to self.X_DEMOGRAPHICS_CHART and such for clarity and most importantly to avoid future errors. -->
+		# <!-- custom: note: deleted seemingly unused self.BUTTON_SIZE if i'm not mistaken. -->
 
-		self.BUTTON_SIZE = 20
+		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
+		self.X_DEMOGRAPHICS_CHART = self.X_MARGIN
+		self.Y_DEMOGRAPHICS_CHART = self.Y_MARGIN
+		self.W_DEMOGRAPHICS_CHART = self.W_SCREEN - 2 * self.X_DEMOGRAPHICS_CHART
+		self.H_DEMOGRAPHICS_CHART = self.H_SCREEN - 2 * self.Y_DEMOGRAPHICS_CHART
 
-		self.W_TEXT = 140
-		self.H_TEXT = 15
-		self.X_TEXT_BUFFER = 0
-		self.Y_TEXT_BUFFER = 43
+		# <!-- custom: make self.W_TEXT and such local since we don't use them outside init it seems and add "demographics" so it is clearr if i'm not mistaken. -->
+		demographics_W_TEXT = 140
+		demographics_H_TEXT = 15
+		demographics_X_TEXT_BUFFER = 0
+		demographics_Y_TEXT_BUFFER = 43
+
+		# <!-- custom: make these dimensions as parameters so we can control them at init rather where more of the info is centralized. -->
+		self.W_DEMOGRAPHICS_COL_DEM = 260
+		demographicsNumericalColsW = 150
+		# <!-- custom: note: setting some values too low would sometimes cause the "(Rank X)" type of text to not be shown in some cases although it seems fixed now but check to be sure. See for details: `if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:`. -->
+		demographicsRivalColsW = 220
+		self.W_DEMOGRAPHICS_COL_VALUE = demographicsNumericalColsW
+		self.W_DEMOGRAPHICS_COL_RANK = demographicsNumericalColsW
+		self.W_DEMOGRAPHICS_COL_RIVAL_BEST = demographicsRivalColsW
+		self.W_DEMOGRAPHICS_COL_RIVAL_WORST = demographicsRivalColsW
+		self.W_DEMOGRAPHICS_COL_RIVAL_AVG = demographicsNumericalColsW
 
 		self.X_COL_1 = 535
-		self.X_COL_2 = self.X_COL_1 + self.W_TEXT + self.X_TEXT_BUFFER
-		self.X_COL_3 = self.X_COL_2 + self.W_TEXT + self.X_TEXT_BUFFER
-		self.X_COL_4 = self.X_COL_3 + self.W_TEXT + self.X_TEXT_BUFFER
+		self.X_COL_2 = self.X_COL_1 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
+		self.X_COL_3 = self.X_COL_2 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
+		self.X_COL_4 = self.X_COL_3 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
 
 		self.Y_ROW_1 = 100
-		self.Y_ROW_2 = self.Y_ROW_1 + self.H_TEXT + self.Y_TEXT_BUFFER
-		self.Y_ROW_3 = self.Y_ROW_2 + self.H_TEXT + self.Y_TEXT_BUFFER
-		self.Y_ROW_4 = self.Y_ROW_3 + self.H_TEXT + self.Y_TEXT_BUFFER
-		self.Y_ROW_5 = self.Y_ROW_4 + self.H_TEXT + self.Y_TEXT_BUFFER
-		self.Y_ROW_6 = self.Y_ROW_5 + self.H_TEXT + self.Y_TEXT_BUFFER
-		self.Y_ROW_7 = self.Y_ROW_6 + self.H_TEXT + self.Y_TEXT_BUFFER
-		self.Y_ROW_8 = self.Y_ROW_7 + self.H_TEXT + self.Y_TEXT_BUFFER
-		self.Y_ROW_9 = self.Y_ROW_8 + self.H_TEXT + self.Y_TEXT_BUFFER
-		self.Y_ROW_10 = self.Y_ROW_9 + self.H_TEXT + self.Y_TEXT_BUFFER
+		self.Y_ROW_2 = self.Y_ROW_1 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_3 = self.Y_ROW_2 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_4 = self.Y_ROW_3 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_5 = self.Y_ROW_4 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_6 = self.Y_ROW_5 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_7 = self.Y_ROW_6 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_8 = self.Y_ROW_7 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_9 = self.Y_ROW_8 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_10 = self.Y_ROW_9 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
 
 		self.bAbleToShowAllPlayers = false
 		self.iShowingPlayer = -1
@@ -258,85 +303,102 @@ class CvInfoScreen:
 
 ############################################### TOP CITIES ###############################################
 
-		self.X_LEFT_PANE = 45
-		self.Y_LEFT_PANE = 70
-		self.W_LEFT_PANE = 470
-		self.H_LEFT_PANE = 620
+		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
+		self.W_WONDERS_RIGHT_PANE = 640
+		# <!-- custom: gap between the panels as noted by gemini 3 pro and chatgpt 5.2 before it thanks. -->
+		self.W_WONDERS_INTER_PANE_GAP = self.SMALL_MARGIN
 
-		# Text
+		# <!-- custom: in many of these variable names, add or rename to "_TOP_CITIES_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
+		self.X_TOP_CITIES_LEFT_PANE = self.X_MARGIN
+		self.Y_TOP_CITIES_LEFT_PANE = self.Y_MARGIN
+		self.W_TOP_CITIES_LEFT_PANE = self.W_SCREEN - (2 * self.X_TOP_CITIES_LEFT_PANE) - self.W_WONDERS_INTER_PANE_GAP - self.W_WONDERS_RIGHT_PANE
+		self.H_TOP_CITIES_LEFT_PANE = 620
 
-		self.W_TC_TEXT = 280
-		self.H_TC_TEXT = 15
-		self.X_TC_TEXT_BUFFER = 0
-		self.Y_TC_TEXT_BUFFER = 43
+		# <!-- custom: commented-out as they seem unused if i'm not mistaken. -->
+		# <!-- custom: note: deleted self.W_TC_TEXT variables and such and self.X_ROTATION_CITY_ANIMATION variables and such, and self.W_CITIES_WONDER and self.H_CITIES_WONDER as they seem unused if i'm not mistaken. -->
 
 		# Animated City thingies
-
-		self.X_CITY_ANIMATION = self.X_LEFT_PANE + 20
+		self.X_CITY_ANIMATION = self.X_TOP_CITIES_LEFT_PANE + 20
 		self.Z_CITY_ANIMATION = self.Z_BACKGROUND - 0.5
 		self.W_CITY_ANIMATION = 150
 		self.H_CITY_ANIMATION = 110
 		self.Y_CITY_ANIMATION_BUFFER = self.H_CITY_ANIMATION / 2
 
-		self.X_ROTATION_CITY_ANIMATION = -20
-		self.Z_ROTATION_CITY_ANIMATION = 30
-		self.SCALE_ANIMATION = 0.5
-
 		# Placement of Cities
-
-		self.X_COL_1_CITIES = self.X_LEFT_PANE + 20
+		self.X_COL_1_CITIES = self.X_TOP_CITIES_LEFT_PANE + 20
 		self.Y_CITIES_BUFFER = 118
 
 		self.Y_ROWS_CITIES = []
-		self.Y_ROWS_CITIES.append(self.Y_LEFT_PANE + 20)
+		self.Y_ROWS_CITIES.append(self.Y_TOP_CITIES_LEFT_PANE + 20)
 		for i in range(1,5):
 			self.Y_ROWS_CITIES.append(self.Y_ROWS_CITIES[i-1] + self.Y_CITIES_BUFFER)
 
-		self.X_COL_1_CITIES_DESC = self.X_LEFT_PANE + self.W_CITY_ANIMATION + 30
+		# <!-- custom: right part of the top cities panel if i'm not mistaken. -->
+		# <!-- custom: not sure why but the inter-spacing between the left and right part of the top cities panel is shorter than the side margins inside the top cities panel, so manually adjusting it if i'm not mistaken. -->
+		topCitiesInterLeftRightPartsGapAdjust = 2
+		self.X_COL_1_CITIES_DESC = self.X_TOP_CITIES_LEFT_PANE + self.W_CITY_ANIMATION + 30 + topCitiesInterLeftRightPartsGapAdjust
 		self.Y_CITIES_DESC_BUFFER = -4
-		self.W_CITIES_DESC = 275
+		# <!-- custom: not sure why but -30 -20 was too long and -30 -10 was too short, so manually adjusting if i'm not mistaken and understood correctly gemini 3 pro's overall explanation. -->
+		topcitiesRightPartWAdjust = -16
+		self.W_CITIES_DESC = self.W_TOP_CITIES_LEFT_PANE - self.W_CITY_ANIMATION - 30 + topcitiesRightPartWAdjust - topCitiesInterLeftRightPartsGapAdjust
 		self.H_CITIES_DESC = 60
 
 		self.Y_CITIES_WONDER_BUFFER = 57
-		self.W_CITIES_WONDER = 275
-		self.H_CITIES_WONDER = 51
 
 ############################################### WONDERS ###############################################
 
-		self.X_RIGHT_PANE = 520
-		self.Y_RIGHT_PANE = 70
-		self.W_RIGHT_PANE = 460
-		self.H_RIGHT_PANE = 620
+		# <!-- custom: in many of these variable names, add "_WONDERS_" or "_WONDER_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
+		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
+		self.X_WONDERS_RIGHT_PANE = self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE + self.W_WONDERS_INTER_PANE_GAP
+		self.Y_WONDERS_RIGHT_PANE = self.Y_MARGIN
+		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
+		self.H_WONDERS_RIGHT_PANE = self.H_SCREEN - 2 * self.Y_WONDERS_RIGHT_PANE
+
+		# <!-- custom: moved up a bit for clarity and ease of access to where the other wonder dimensions are if i'm not mistaken. -->
+		self.X_WONDERS_CHART = self.X_WONDERS_RIGHT_PANE + self.SMALL_MARGIN
+		self.Y_WONDERS_CHART = self.Y_WONDERS_RIGHT_PANE + 60
+		self.W_WONDERS_CHART = self.W_WONDERS_RIGHT_PANE - (2 * self.SMALL_MARGIN)
+		self.H_WONDERS_CHART = self.H_WONDERS_RIGHT_PANE - self.Y_WONDERS_RIGHT_PANE
+
+		# <!-- custom: externalize the wonder chart column width dimensions to init so we can manage them in a more centralized and easier way if i'm not mistaken. -->
+		self.W_WONDERS_CHART_COL_ENTER_CITY_BUTTON = 30
+		# advc.002b: Confer 5 width from the owner column to the date column
+		self.W_WONDERS_CHART_COL_DATE = 85
+		self.W_WONDERS_CHART_COL_OWNER = 145
+		self.W_WONDERS_CHART_COL_CITY = 145
+		totalWondersCharMostColsW = self.W_WONDERS_CHART_COL_ENTER_CITY_BUTTON + self.W_WONDERS_CHART_COL_DATE + self.W_WONDERS_CHART_COL_OWNER + self.W_WONDERS_CHART_COL_CITY
+		self.W_WONDERS_CHART_COL_NAME = self.W_WONDERS_CHART - totalWondersCharMostColsW
 
 		# Info about this wonder, e.g. name, cost so on
-
-		self.X_STATS_PANE = self.X_RIGHT_PANE + 20
-		self.Y_STATS_PANE = self.Y_RIGHT_PANE + 20
-		self.W_STATS_PANE = 210
-		self.H_STATS_PANE = 220
+		self.X_WONDERS_STATS_PANE = self.X_WONDERS_RIGHT_PANE + 20
+		self.Y_WONDERS_STATS_PANE = self.Y_WONDERS_RIGHT_PANE + 20
+		self.W_WONDERS_STATS_PANE = 210
+		self.H_WONDERS_STATS_PANE = 220
 
 		# Wonder mode dropdown Box
+		# the 3 is the 'fudge factor' due to the widgets not lining up perfectly
+		self.WONDERS_FUDGE_FACTOR = 3
 
-		self.X_DROPDOWN = self.X_RIGHT_PANE + 240 + 3 # the 3 is the 'fudge factor' due to the widgets not lining up perfectly
-		self.Y_DROPDOWN = self.Y_RIGHT_PANE + 20
-		self.W_DROPDOWN = 200
+		self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 240 + self.WONDERS_FUDGE_FACTOR
+		self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20
+		self.W_WONDERS_DROPDOWN = 200
 
 		# List Box that displays all wonders built
-
-		self.X_WONDER_LIST = self.X_RIGHT_PANE + 240 + 6 # the 6 is the 'fudge factor' due to the widgets not lining up perfectly
-		self.Y_WONDER_LIST = self.Y_RIGHT_PANE + 60
-		self.W_WONDER_LIST = 200 - 6 # the 6 is the 'fudge factor' due to the widgets not lining up perfectly
+		self.X_WONDER_LIST = self.X_WONDERS_RIGHT_PANE + 240 + (2 * self.WONDERS_FUDGE_FACTOR)
+		self.Y_WONDER_LIST = self.Y_WONDERS_RIGHT_PANE + 60
+		self.W_WONDER_LIST = 200 - (2 * self.WONDERS_FUDGE_FACTOR)
 		self.H_WONDER_LIST = 180
 
 		# Animated Wonder thingies
-
 		self.X_WONDER_GRAPHIC = 540
-		self.Y_WONDER_GRAPHIC = self.Y_RIGHT_PANE + 20 + 200 + 35
+		self.Y_WONDER_GRAPHIC = self.Y_WONDERS_RIGHT_PANE + 20 + 200 + 35
 		self.W_WONDER_GRAPHIC = 420
 		self.H_WONDER_GRAPHIC = 190
 
 		self.X_ROTATION_WONDER_ANIMATION = -20
 		self.Z_ROTATION_WONDER_ANIMATION = 30
+		# <!-- custom: moved from the top cities part of the init since it seems this is used only for wonders if i'm not mistaken, renamed from self.SCALE_ANIMATION to reflect that as well. -->
+		self.WONDERS_SCALE_ANIMATION = 0.5
 
 		# Icons used for Projects instead because no on-map art exists
 		self.X_PROJECT_ICON = self.X_WONDER_GRAPHIC + self.W_WONDER_GRAPHIC / 2
@@ -344,14 +406,28 @@ class CvInfoScreen:
 		self.W_PROJECT_ICON = 128
 
 		# Special Stats about this wonder
+		self.X_WONDER_SPECIAL_TITLE = 540
+		self.Y_WONDER_SPECIAL_TITLE = 310 + 200 + 7
 
-		self.X_SPECIAL_TITLE = 540
-		self.Y_SPECIAL_TITLE = 310 + 200 + 7
+		self.X_WONDER_SPECIAL_PANE = 540
+		self.Y_WONDER_SPECIAL_PANE = 310 + 200 + 20 + 15
+		self.W_WONDER_SPECIAL_PANE = 420
+		self.H_WONDER_SPECIAL_PANE = 140 - 15
 
-		self.X_SPECIAL_PANE = 540
-		self.Y_SPECIAL_PANE = 310 + 200 + 20 + 15
-		self.W_SPECIAL_PANE = 420
-		self.H_SPECIAL_PANE = 140 - 15
+		# <!-- custom: moved from drawWondersTab to init for consistency/clarity if i'm not mistaken in doing so. -->
+		# (Pane geometry for Top Cities + Wonders is computed above in the TOP CITIES section.)
+		# self.X_WONDERS_RIGHT_PANE / self.Y_WONDERS_RIGHT_PANE / self.W_WONDERS_RIGHT_PANE / self.H_WONDERS_RIGHT_PANE
+		# Info about this wonder, e.g. name, cost, etc. (scale the legacy 460x620 right pane layout)
+
+		# <!-- custom: comment-out the alternative else block and unindent similarly to how was done for the stats tab coordinates as of now in init as well. So i applied this here as well in the wonders tab to simplify if i'm not mistaken in doing so (not sure, check if accurate). -->
+		# if AdvisorOpt.isShowInfoWonders():
+		self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 20
+		self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20
+		self.W_WONDERS_DROPDOWN = 420 #DanF 200
+		# else:
+		# 	self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 240 + self.WONDERS_FUDGE_FACTOR
+		# 	self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20
+		# 	self.W_WONDERS_DROPDOWN = 200
 
 		self.szWDM_WorldWonder = "World Wonders"
 		self.szWDM_NatnlWonder = "National Wonders"
@@ -363,37 +439,51 @@ class CvInfoScreen:
 
 		self.szWonderDisplayMode = self.szWDM_WorldWonder
 
-		self.iWonderID = -1			# BuildingType ID of the active wonder, e.g. Palace is 0, Globe Theater is 66
-		self.iActiveWonderCounter = 0		# Screen ID for this wonder (0, 1, 2, etc.) - different from the above variable
-
-		self.X_WONDERS_CHART = self.X_RIGHT_PANE + 20 #DanF
-		self.Y_WONDERS_CHART = self.Y_RIGHT_PANE + 60
-		self.W_WONDERS_CHART = 420
-		self.H_WONDERS_CHART = 540
+		self.iWonderID = -1 			# BuildingType ID of the active wonder, e.g. Palace is 0, Globe Theater is 66
+		self.iActiveWonderCounter = 0	# Screen ID for this wonder (0, 1, 2, etc.) - different from the above variable
 
 ############################################### STATISTICS ###############################################
 
 		# STATISTICS TAB
 
-		# Top Panel
+		# <!-- custom: moved from drawStatsTab to init for consistency/clarity. -->
+		# Bottom Chart
+		#BUG: improvements - start
+		#if AdvisorOpt.isShowImprovements():
+		# <!-- custom: comment-out since never reached, and unindent, and removed the else block to comment-out to the side the old values to simplify instead. -->
+		# if True: # advc.004
+		self.X_STATS_BOTTOM_CHART = self.X_MARGIN
+		self.Y_STATS_BOTTOM_CHART = 280
+		# <!-- custom: upscale, make more dynamic, and beautify this tab similarly with chatgpt 5.2's help thanks. -->
+		iTotalStatsTabBottomW = self.W_SCREEN - 2 * self.X_STATS_BOTTOM_CHART
+		# Keep the old column proportions (935 total at 1024x768).
+		self.W_STATS_BOTTOM_CHART_UNITS = int(iTotalStatsTabBottomW * 455 / 935)
+		self.W_STATS_BOTTOM_CHART_BUILDINGS = int(iTotalStatsTabBottomW * 260 / 935)
+		self.W_STATS_BOTTOM_CHART_IMPROVEMENTS = iTotalStatsTabBottomW - self.W_STATS_BOTTOM_CHART_UNITS - self.W_STATS_BOTTOM_CHART_BUILDINGS
+		self.H_STATS_BOTTOM_CHART = self.H_SCREEN - self.Y_STATS_BOTTOM_CHART - 78
+		#BUG: improvements - end
 
-		self.X_STATS_TOP_PANEL = 45
-		self.Y_STATS_TOP_PANEL = 75
-		self.W_STATS_TOP_PANEL = 935
+		# <!-- custom: moved down so we can use the bottom panel's dimensions. -->
+		# Top Panel
+		self.X_STATS_TOP_PANEL = self.X_MARGIN
+		self.Y_STATS_TOP_PANEL = self.Y_MARGIN
+		self.W_STATS_TOP_PANEL = self.W_SCREEN - 2 * self.X_STATS_TOP_PANEL
 		self.H_STATS_TOP_PANEL = 180
 
 		# Leader
-
-		self.X_LEADER_ICON = 250
+		self.X_LEADER_ICON = self.X_STATS_TOP_PANEL + self.X_MARGIN
 		self.Y_LEADER_ICON = 95
 		self.H_LEADER_ICON = 140
 		self.W_LEADER_ICON = 110
 
 		# Top Chart
-
-		self.X_STATS_TOP_CHART = 400
+		self.X_STATS_TOP_CHART = self.X_LEADER_ICON + self.X_MARGIN + self.W_LEADER_ICON
 		self.Y_STATS_TOP_CHART = 130
-		self.W_STATS_TOP_CHART = 380
+		# self.W_STATS_TOP_CHART = 380
+		# self.W_STATS_TOP_CHART = self.W_STATS_TOP_PANEL - self.X_STATS_TOP_CHART
+		# <!-- custom: for some reason we need to add this value to be well aligned with the right edge of the units bottom chart so add as a quick fix, maybe not ideal not sure but fixes it (check if accurate).  -->
+		iExtraWTopChartValue = 12
+		self.W_STATS_TOP_CHART = self.W_STATS_BOTTOM_CHART_UNITS - self.X_STATS_TOP_CHART + iExtraWTopChartValue
 		self.H_STATS_TOP_CHART = 102
 
 		self.STATS_TOP_CHART_W_COL_0 = 304
@@ -429,6 +519,9 @@ class CvInfoScreen:
 
 		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
 
+		# <!-- custom: move these up as we don't need to compute them every time if i'm not mistaken. -->
+		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
+
 		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), gc.getInfoTypeForString("COLOR_PLAYER_GRAY")).upper()
 		
@@ -459,6 +552,7 @@ class CvInfoScreen:
 		# Put bullet in a variable, then disable it.
 		#szBullet = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR))
 		szBullet = ""
+
 		# </advc.077>
 		self.TEXT_ECONOMY_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_ECONOMY_MEASURE", ())
 		self.TEXT_INDUSTRY_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_INDUSTRY_MEASURE", ())
@@ -470,6 +564,18 @@ class CvInfoScreen:
 		self.TEXT_HEALTH_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_POPULATION_MEASURE", ())
 		# advc.077: was IMP_EXP
 		self.TEXT_EXP_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_ECONOMY_MEASURE", ())
+
+		# <!-- custom: move these up from drawTextChart as we don't need to compute them every time if i'm not mistaken, and simplified into one variable (old code deleted). -->
+		# New: Append icons, and use different text keys for economy, industry, agriculture.
+		# Add measure after a colon (and commented out below)
+		self.szEconomyTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%c+%c)" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(), gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())) + ": " + self.TEXT_ECONOMY_MEASURE
+		self.szIndustryTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + ": " + self.TEXT_INDUSTRY_MEASURE
+		self.szAgricultureTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_AGRICULTURE_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()) + ": " + self.TEXT_AGRICULTURE_MEASURE
+		self.szMilitaryTitle =  self.TEXT_MILITARY + (u" (%c)" % self.getIcon(FontSymbols.STRENGTH_CHAR))
+		self.szHappinessTitle = self.TEXT_HAPPINESS + (u" (%c)" % self.getIcon(FontSymbols.HAPPY_CHAR))
+		self.szHealthTitle = self.TEXT_HEALTH + (u" (%c)" % self.getIcon(FontSymbols.HEALTHY_CHAR)) + ": " + self.TEXT_HEALTH_MEASURE
+		self.szExpTitle = self.TEXT_EXP + (u" (%c)" % self.getIcon(FontSymbols.TRADE_CHAR)) + ": " + self.TEXT_EXP_MEASURE
+		self.szLandAreaTitle = self.TEXT_LAND_AREA + ": " + self.TEXT_LAND_AREA_MEASURE
 
 		self.TEXT_TIME_PLAYED = localText.getText("TXT_KEY_INFO_SCREEN_TIME_PLAYED", ())
 		self.TEXT_CITIES_CURRENT = localText.getText("TXT_KEY_CONCEPT_CITIES", ()) # K-Mod
@@ -528,7 +634,15 @@ class CvInfoScreen:
 
 		self.BUG_GRAPH_HELP = localText.getText("TXT_KEY_BUG_CHART_HELP", ())
 		self.BUG_LEGEND_DEAD = localText.getText("TXT_KEY_BUG_DEAD_CIV", ())
+		# <!-- custom: performance optimimization: avoid redundant reuse if i'm not mistaken. -->
+		self.BUG_LEGEND_DEAD_SQ_BRACKETED = " [" + self.BUG_LEGEND_DEAD + "]"
 #BUG: Change Graphs - end
+
+		# <!-- custom: move these up from drawWondersDropdownBox or such as we don't need to compute them every time if i'm not mistaken, and simplified into one variable (old code replaced). -->
+		self.TEXT_WORLD_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_WORLD_WONDERS", ())
+		self.TEXT_NATIONAL_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS", ())
+		self.TEXT_PROJECTS = localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ())
+		self.szWondersSpecialTitle = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u"</font>"
 
 		# world wonder / national wonder / projects icons / buttons
 		self.BUGWorldWonder_On = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_ON").getPath()
@@ -612,9 +726,17 @@ class CvInfoScreen:
 		# Set the background widget and exit button
 		screen.addDDSGFC("DemographicsScreenBackground", ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
+		# screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		# screen.showWindowBackground( False )
+		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, self.H_SCREEN - 55, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.showWindowBackground( False )
-		screen.setDimensions(screen.centerX(self.X_SCREEN), screen.centerY(self.Y_SCREEN), self.W_SCREEN, self.H_SCREEN)
+
+		# <!-- custom: here, in this code that reuses the foreign advisor changes, there is a difference, here it seems that we need to actually change the center settings else the screen stays at the center, and now changing it as as of now below we can freely move the military advisor screen around the window as we want anyways etc, as per a similar suggestion of gemini 3 pro thanks but anyways etc. -->
+		# screen.setDimensions(screen.centerX(self.X_SCREEN), screen.centerY(self.Y_SCREEN), self.W_SCREEN, self.H_SCREEN)
+		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+
 		self.szExitButtonName = self.getNextWidgetName()
 		screen.setText(self.szExitButtonName, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
@@ -818,7 +940,7 @@ class CvInfoScreen:
 		self.szTurnsDropdownWidget = self.getNextWidgetName()
 		screen.addDropDownBoxGFC(self.szTurnsDropdownWidget, iX_ZOOM_DROPDOWN, iY_ZOOM_DROPDOWN, self.W_ZOOM_DROPDOWN, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
 		start = CyGame().getStartTurn()
-		now   = CyGame().getGameTurn()
+		now = CyGame().getGameTurn()
 		nTurns = now - start - 1
 		screen.addPullDownString(self.szTurnsDropdownWidget, self.TEXT_ENTIRE_HISTORY, 0, 0, False)
 		self.dropDownTurns.append(nTurns)
@@ -846,7 +968,7 @@ class CvInfoScreen:
 
 	def checkGraphBounds(self):
 		start = CyGame().getStartTurn()
-		end   = CyGame().getGameTurn() - 1
+		end = CyGame().getGameTurn() - 1
 		if (self.graphEnd - self.graphZoom < start):
 			self.graphEnd = start + self.graphZoom
 		if (self.graphEnd > end):
@@ -938,12 +1060,15 @@ class CvInfoScreen:
 	def drawGraphLines(self, sGRAPH_CANVAS_ID):
 		screen = self.getScreen()
 
+		# <!-- custom: performance optimimization: avoid redundant reuse if i'm not mistaken. -->
+		color_grey = gc.getInfoTypeForString("COLOR_GREY")
+
 		if (self.xSelPt != 0 or self.ySelPt != 0):
-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, 0, self.ySelPt, self.W_GRAPH, self.ySelPt, gc.getInfoTypeForString("COLOR_GREY"))
-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, self.xSelPt, 0, self.xSelPt, self.H_GRAPH, gc.getInfoTypeForString("COLOR_GREY"))
+			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, 0, self.ySelPt, self.W_GRAPH, self.ySelPt, color_grey)
+			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, self.xSelPt, 0, self.xSelPt, self.H_GRAPH, color_grey)
 		else:
-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, -1, -1, -1, -1, gc.getInfoTypeForString("COLOR_GREY"))
-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, -1, -1, -1, -1, gc.getInfoTypeForString("COLOR_GREY"))
+			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, -1, -1, -1, -1, color_grey)
+			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, -1, -1, -1, -1, color_grey)
 
 
 	def drawXLabel(self, screen, turn, x, just = CvUtil.FONT_CENTER_JUSTIFY):
@@ -1275,7 +1400,7 @@ class CvInfoScreen:
 			for p in aiLegendPlayers:
 				szPlayerName = self.getPlayerName(p)
 				if not gc.getPlayer(p).isAlive():
-					szPlayerName += " [" + self.BUG_LEGEND_DEAD + "]"
+					szPlayerName += self.BUG_LEGEND_DEAD_SQ_BRACKETED
 				if iW_LEGEND < self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10:
 					iW_LEGEND = self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10
 			for p in self.aiPlayersMetNAEspionage:
@@ -1284,7 +1409,7 @@ class CvInfoScreen:
 					continue # </advc.091>
 				szPlayerName = self.getPlayerName(p)
 				if not gc.getPlayer(p).isAlive():
-					szPlayerName += " [" + self.BUG_LEGEND_DEAD + "]"
+					szPlayerName += self.BUG_LEGEND_DEAD_SQ_BRACKETED
 				if iW_LEGEND < self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10:
 					iW_LEGEND = self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10
 		iLegendRows = self.iNumPlayersMet + self.iNumPlayersMetNAEspionage # advc.091
@@ -1371,7 +1496,7 @@ class CvInfoScreen:
 					textColorG = 175
 					textColorB = 175
 					textColorA = gc.getPlayer(p).getPlayerTextColorA()
-					name += " [" + self.BUG_LEGEND_DEAD + "]"
+					name += self.BUG_LEGEND_DEAD_SQ_BRACKETED
 				else:
 					textColorR = gc.getPlayer(p).getPlayerTextColorR()
 					textColorG = gc.getPlayer(p).getPlayerTextColorG()
@@ -1504,11 +1629,15 @@ class CvInfoScreen:
 			return ("","?")
 		# <!-- custom: as per ruff rule E714 and chatgpt's explanation; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc. -->
 		if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:
-			# Make sure player name isn't too long (I use the same code in CvOptionsScreen)
-			iCharLimit = 18
-			if len(szPlayerName) > iCharLimit:
-				szPlayerName = szPlayerName[:iCharLimit-3] + '...'
-			szPlayerName += " (" + localText.getText("TXT_KEY_DEMO_SCREEN_RANK_TEXT", ()) + " " + str(self.getRank(aiGroup, iPlayer)) + ")"
+			# <!-- custom: according to claude opus 4.5, this causes the rank text info (" (Rank X)") to not be shown if we change the self.W_DEMOGRAPHICS_COL_ values. Since we enlarged the graph, just remove this unreliable string truncation logic or whatever it is. Even removing did not reliably fix the issue it seems. We don't need the "Rank" text that badly anyway, so just remove it and append it to header rather; it's more compact as such as a nice side effect i mean and perhaps more readable as well or faster so. -->
+			# # Make sure player name isn't too long (I use the same code in CvOptionsScreen)
+			# iCharLimit = 18
+			# if len(szPlayerName) > iCharLimit:
+			# 	szPlayerName = szPlayerName[:iCharLimit-3] + '...'
+			# szPlayerName += " (" + localText.getText("TXT_KEY_DEMO_SCREEN_RANK_TEXT", ()) + " " + str(self.getRank(aiGroup, iPlayer)) + ")"
+			# Build the rank suffix first so we know its length
+			szRankSuffix = " (" + str(self.getRank(aiGroup, iPlayer)) + ")"
+			szPlayerName += szRankSuffix
 		return (szPlayerName, self.separateThousands(valuePlayerPair[0]) + szMeasure)
 	
 	def getPlayerStr(self, valuePlayerPair, aiGroup = None):
@@ -1522,7 +1651,7 @@ class CvInfoScreen:
 		return r - (r % iMultiple)
 	
 	def separateThousands(self, iValue):
-		szSep = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
+		szSep = self.szSepBase
 		# The rest of the function is adopted from this StackOverflow answer by Nadia Alramli: https://stackoverflow.com/posts/1823189/revisions
 		s = '%d' % iValue
 		groups = []
@@ -1756,51 +1885,47 @@ class CvInfoScreen:
 		# Create Table
 		szTable = self.getNextWidgetName()
 		# advc.077: iColumns instead of 6
-		screen.addTableControlGFC(szTable, iColumns, self.X_CHART, self.Y_CHART, self.W_CHART, self.H_CHART, true, true, 32, 32, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szTable, iColumns, self.X_DEMOGRAPHICS_CHART, self.Y_DEMOGRAPHICS_CHART, self.W_DEMOGRAPHICS_CHART, self.H_DEMOGRAPHICS_CHART, true, true, 32, 32, TableStyles.TABLE_STYLE_STANDARD)
 		#screen.setTableColumnHeader(szTable, 0, self.TEXT_DEMOGRAPHICS_SMALL, 224) # Total graph width is 430
 		# <advc.077> Changes throughout the rest of this function
 		# Replacing literals
 		iNextCol = 0
 		iTitleCol = iNextCol # </advc.077>
 		# 20 added to column width
-		screen.setTableColumnHeader(szTable, iTitleCol, localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()), 244) # K-Mod
-		iBestWorstExtraWidth = 0
-		iRankColumnWidth = 76 # was 90
+		screen.setTableColumnHeader(szTable, iTitleCol, localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()), self.W_DEMOGRAPHICS_COL_DEM) # K-Mod
+		# <!-- custom: note: removed the iBestWorstExtraWidt part of the code to simplify this and as we have the extra room now anyway: it added needless complication. -->
+
 		# Move rank up
 		iRankCol = -1
 		if not self.bRankInValueColumn:
 			iNextCol += 1
 			iRankCol = iNextCol 
-			screen.setTableColumnHeader(szTable, iRankCol, self.TEXT_RANK, iRankColumnWidth)
-		else: # Use the space for the best/ worst columns then. These may occasionally need the extra space b/c of long leader names and two-digit rank numbers.
-			iBestWorstExtraWidth += iRankColumnWidth / 2
+			screen.setTableColumnHeader(szTable, iRankCol, self.TEXT_RANK, self.W_DEMOGRAPHICS_COL_VALUE)
 		iNextCol += 1
 		iValueCol = iNextCol
 		
 		szValueHead = self.TEXT_VALUE
 		if self.bRankInValueColumn:
 			szValueHead += "/ " + self.TEXT_RANK
-		# Column width was 155
-		screen.setTableColumnHeader(szTable, iValueCol, szValueHead, 120)
+		screen.setTableColumnHeader(szTable, iValueCol, szValueHead, self.W_DEMOGRAPHICS_COL_RANK)
 		iBestCol = -1
 		if True:#bShowBest: # Actually, show the header always. So that the player might guess that there is more info to come later in the game.
 			iNextCol += 1
 			iBestCol = iNextCol
-			# Column width was 155
-			screen.setTableColumnHeader(szTable, iBestCol, self.TEXT_BEST, 170 + iBestWorstExtraWidth)
+			screen.setTableColumnHeader(szTable, iBestCol, self.TEXT_BEST, self.W_DEMOGRAPHICS_COL_RIVAL_BEST)
 		# Worst col moved before avg col
 		iWorstCol = -1
 		if bShowWorst:
 			iNextCol += 1
 			iWorstCol = iNextCol
 			# Column width was 155
-			screen.setTableColumnHeader(szTable, iWorstCol, self.TEXT_WORST, 170 + iBestWorstExtraWidth)
+			screen.setTableColumnHeader(szTable, iWorstCol, self.TEXT_WORST, self.W_DEMOGRAPHICS_COL_RIVAL_WORST)
 		iAvgCol = -1
 		if bShowAvg:
 			iNextCol += 1
 			iAvgCol = iNextCol
 			# Column width was 155
-			screen.setTableColumnHeader(szTable, iAvgCol, self.TEXT_AVERAGE, 154)
+			screen.setTableColumnHeader(szTable, iAvgCol, self.TEXT_AVERAGE, self.W_DEMOGRAPHICS_COL_RIVAL_AVG)
 		#iTargetRows = 18 + 5 # 18 normal items + 5 lines for spacing
 		# Replacing the above
 		iTargetRows = 8 * 3
@@ -1811,145 +1936,137 @@ class CvInfoScreen:
 		iNumRows = screen.getTableNumRows(szTable)
 		#iRow = iNumRows - 1 # unused
 		#iCol = 0 # Use the column ids from above instead
-		# New: Append icons, and use different text keys for economy, industry, agriculture.
-		szEconomyTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%c+%c)" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(), gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()))
-		szIndustryTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
-		szAgricultureTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_AGRICULTURE_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar())
-		szMilitaryTitle =  self.TEXT_MILITARY + (u" (%c)" % self.getIcon(FontSymbols.STRENGTH_CHAR))
-		szHappinessTitle = self.TEXT_HAPPINESS + (u" (%c)" % self.getIcon(FontSymbols.HAPPY_CHAR))
-		szHealthTitle = self.TEXT_HEALTH + (u" (%c)" % self.getIcon(FontSymbols.HEALTHY_CHAR))
-		szExpTitle = self.TEXT_EXP + (u" (%c)" % self.getIcon(FontSymbols.TRADE_CHAR))
-		# Add measure after a colon (and commented out below)
-		szEconomyTitle += ": " + self.TEXT_ECONOMY_MEASURE
-		szIndustryTitle += ": " + self.TEXT_INDUSTRY_MEASURE
-		szAgricultureTitle += ": " + self.TEXT_AGRICULTURE_MEASURE
-		szLandAreaTitle = self.TEXT_LAND_AREA + ": " + self.TEXT_LAND_AREA_MEASURE
-		szHealthTitle += ": " + self.TEXT_HEALTH_MEASURE
-		szExpTitle += ": " + self.TEXT_EXP_MEASURE
+
+		# <!-- custom: not sure it helps, but since we reuse the same variables every time, may as well cache them once if i'm not mistaken. Note: using longer and more detailed names to avoid weird python inheritance issues with variables in unrelated scopes if i'm not mistaken. -->
+		chartRowWidget = WidgetTypes.WIDGET_GENERAL
+		chartRowId1 = -1
+		chartRowId2 = -1
+		chartRowFont = CvUtil.FONT_LEFT_JUSTIFY
+
 		# Row numbers after 12 changed; now evenly distributed.
-		screen.setTableText(szTable, iTitleCol, 0, szEconomyTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		#screen.setTableText(szTable, iTitleCol, 1, self.TEXT_ECONOMY_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iTitleCol, 3, szIndustryTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		#screen.setTableText(szTable, iTitleCol, 4, self.TEXT_INDUSTRY_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iTitleCol, 6, szAgricultureTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		#screen.setTableText(szTable, iTitleCol, 7, self.TEXT_AGRICULTURE_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iTitleCol, 9, szMilitaryTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iTitleCol, 0, self.szEconomyTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		#screen.setTableText(szTable, iTitleCol, 1, self.TEXT_ECONOMY_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iTitleCol, 3, self.szIndustryTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		#screen.setTableText(szTable, iTitleCol, 4, self.TEXT_INDUSTRY_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iTitleCol, 6, self.szAgricultureTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		#screen.setTableText(szTable, iTitleCol, 7, self.TEXT_AGRICULTURE_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iTitleCol, 9, self.szMilitaryTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 11
-		screen.setTableText(szTable, iTitleCol, 12, szLandAreaTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		#screen.setTableText(szTable, iTitleCol, 12, self.TEXT_LAND_AREA_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iTitleCol, 12, self.szLandAreaTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		#screen.setTableText(szTable, iTitleCol, 12, self.TEXT_LAND_AREA_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 14
-		screen.setTableText(szTable, iTitleCol, 15, self.TEXT_POPULATION, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iTitleCol, 15, self.TEXT_POPULATION, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 16
-		screen.setTableText(szTable, iTitleCol, 18, szHappinessTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iTitleCol, 18, self.szHappinessTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 18
-		screen.setTableText(szTable, iTitleCol, 21, szHealthTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		#screen.setTableText(szTable, iTitleCol, 19, self.TEXT_HEALTH_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iTitleCol, 21, self.szHealthTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		#screen.setTableText(szTable, iTitleCol, 19, self.TEXT_HEALTH_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		if self.bShowExports:
 			# row was 21
-			screen.setTableText(szTable, iTitleCol, 24, szExpTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			#screen.setTableText(szTable, iTitleCol, 22, self.TEXT_EXP_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iTitleCol, 24, self.szExpTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			#screen.setTableText(szTable, iTitleCol, 22, self.TEXT_EXP_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		#iCol = 1
 		# Decimal separators added. In the best/worst columns, it's easiest to do this for all values, so do it for all values here too.
-		screen.setTableText(szTable, iValueCol, 0, self.separateThousands(iEconomy), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iValueCol, 3, self.separateThousands(iIndustry), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iValueCol, 6, self.separateThousands(iAgriculture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iValueCol, 9, self.separateThousands(iMilitary), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iValueCol, 0, self.separateThousands(iEconomy), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iValueCol, 3, self.separateThousands(iIndustry), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iValueCol, 6, self.separateThousands(iAgriculture), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iValueCol, 9, self.separateThousands(iMilitary), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 11
-		screen.setTableText(szTable, iValueCol, 12, self.separateThousands(iLandArea), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iValueCol, 12, self.separateThousands(iLandArea), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 14
-		screen.setTableText(szTable, iValueCol, 15, self.separateThousands(iPopulation), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iValueCol, 15, self.separateThousands(iPopulation), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 16
-		screen.setTableText(szTable, iValueCol, 18, self.separateThousands(iHappiness) + self.TEXT_HAPPINESS_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iValueCol, 18, self.separateThousands(iHappiness) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 18
-		screen.setTableText(szTable, iValueCol, 21, self.separateThousands(iHealth), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iValueCol, 21, self.separateThousands(iHealth), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		if self.bShowExports:
 			# row was 21
-			screen.setTableText(szTable, iValueCol, 24, self.separateThousands(iNetTrade), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iValueCol, 24, self.separateThousands(iNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		#iCol = 2
 		if bShowBest:
 			# Replaced str(i...GameBest) with getPlayerStr and getValueStr, and put them in separate rows.
-			screen.setTableText(szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iBestCol, 0, self.getValueStr(economyGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iBestCol, 3, self.getValueStr(industryGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iBestCol, 7,self. getPlayerStr(agricultureGameBest, aiGroupAgriculture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iBestCol, 6, self.getValueStr(agricultureGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iBestCol, 9, self.getValueStr(militaryGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 0, self.getValueStr(economyGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 3, self.getValueStr(industryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 7,self. getPlayerStr(agricultureGameBest, aiGroupAgriculture), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 6, self.getValueStr(agricultureGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 9, self.getValueStr(militaryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 12
-			screen.setTableText(szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 11
-			screen.setTableText(szTable, iBestCol, 12, self.getValueStr(landAreaGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 12, self.getValueStr(landAreaGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 15
-			screen.setTableText(szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 14
-			screen.setTableText(szTable, iBestCol, 15, self.getValueStr(populationGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 15, self.getValueStr(populationGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 17
-			screen.setTableText(szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 16
-			screen.setTableText(szTable, iBestCol, 18, self.getValueStr(happinessGameBest, self.TEXT_HAPPINESS_MEASURE), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 18, self.getValueStr(happinessGameBest, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 19
-			screen.setTableText(szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 18
-			screen.setTableText(szTable, iBestCol, 21, self.getValueStr(healthGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iBestCol, 21, self.getValueStr(healthGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			if self.bShowExports:
 				# row was 22
-				screen.setTableText(szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText(szTable, iBestCol, 24, self.getValueStr(netTradeGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+				screen.setTableText(szTable, iBestCol, 24, self.getValueStr(netTradeGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		#iCol = 3
 		if bShowAvg:
 			# Decimal separators added
-			screen.setTableText(szTable, iAvgCol, 0, self.separateThousands(iEconomyGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iAvgCol, 3, self.separateThousands(iIndustryGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iAvgCol, 6, self.separateThousands(iAgricultureGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iAvgCol, 9, self.separateThousands(iMilitaryGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iAvgCol, 0, self.separateThousands(iEconomyGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iAvgCol, 3, self.separateThousands(iIndustryGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iAvgCol, 6, self.separateThousands(iAgricultureGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iAvgCol, 9, self.separateThousands(iMilitaryGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 11
-			screen.setTableText(szTable, iAvgCol, 12, self.separateThousands(iLandAreaGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iAvgCol, 12, self.separateThousands(iLandAreaGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 14
-			screen.setTableText(szTable, iAvgCol, 15, self.separateThousands(iPopulationGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iAvgCol, 15, self.separateThousands(iPopulationGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 16
-			screen.setTableText(szTable, iAvgCol, 18, self.separateThousands(iHappinessGameAverage) + self.TEXT_HAPPINESS_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iAvgCol, 18, self.separateThousands(iHappinessGameAverage) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 18
-			screen.setTableText(szTable, iAvgCol, 21, self.separateThousands(iHealthGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iAvgCol, 21, self.separateThousands(iHealthGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			if self.bShowExports:
 				# row was 21
-				screen.setTableText(szTable, iAvgCol, 24, self.separateThousands(iNetTradeGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(szTable, iAvgCol, 24, self.separateThousands(iNetTradeGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		#iCol = 4
 		if bShowWorst:
 			# Replaced str(i...GameWorst) with getPlayerStr and getValueStr, and put them in a separate rows.
-			screen.setTableText(szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iWorstCol, 0, self.getValueStr(economyGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iWorstCol, 3, self.getValueStr(industryGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iWorstCol, 6, self.getValueStr(agricultureGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(szTable, iWorstCol, 9, self.getValueStr(militaryGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 0, self.getValueStr(economyGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 3, self.getValueStr(industryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 6, self.getValueStr(agricultureGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 9, self.getValueStr(militaryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 12
-			screen.setTableText(szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 11
-			screen.setTableText(szTable, iWorstCol, 12, self.getValueStr(landAreaGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 12, self.getValueStr(landAreaGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 15
-			screen.setTableText(szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 14
-			screen.setTableText(szTable, iWorstCol, 15, self.getValueStr(populationGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 15, self.getValueStr(populationGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 17
-			screen.setTableText(szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 16
-			screen.setTableText(szTable, iWorstCol, 18, self.getValueStr(happinessGameWorst, self.TEXT_HAPPINESS_MEASURE), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 18, self.getValueStr(happinessGameWorst, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 19
-			screen.setTableText(szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 18
-			screen.setTableText(szTable, iWorstCol, 21, self.getValueStr(healthGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iWorstCol, 21, self.getValueStr(healthGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			if self.bShowExports:
 				# row was 22
-				screen.setTableText(szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 				# row was 21
-				screen.setTableText(szTable, iWorstCol, 24, self.getValueStr(netTradeGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(szTable, iWorstCol, 24, self.getValueStr(netTradeGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		#iCol = 5
 		# Put it in iValueCol if that option is set
@@ -1958,21 +2075,21 @@ class CvInfoScreen:
 		if self.bRankInValueColumn:
 			iCol = iValueCol
 			iOffset = 1
-		screen.setTableText(szTable, iCol, 0 + iOffset, str(iEconomyRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iCol, 3 + iOffset, str(iIndustryRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iCol, 6 + iOffset, str(iAgricultureRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.setTableText(szTable, iCol, 9 + iOffset, str(iMilitaryRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iCol, 0 + iOffset, str(iEconomyRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 3 + iOffset, str(iIndustryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 6 + iOffset, str(iAgricultureRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 9 + iOffset, str(iMilitaryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 11
-		screen.setTableText(szTable, iCol, 12 + iOffset, str(iLandAreaRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iCol, 12 + iOffset, str(iLandAreaRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 14
-		screen.setTableText(szTable, iCol, 15 + iOffset, str(iPopulationRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iCol, 15 + iOffset, str(iPopulationRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 16
-		screen.setTableText(szTable, iCol, 18 + iOffset, str(iHappinessRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iCol, 18 + iOffset, str(iHappinessRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 18
-		screen.setTableText(szTable, iCol, 21 + iOffset, str(iHealthRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTable, iCol, 21 + iOffset, str(iHealthRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		if self.bShowExports:
 			# row was 21
-			screen.setTableText(szTable, iCol, 24 + iOffset, str(iNetTradeRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iCol, 24 + iOffset, str(iNetTradeRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# </advc.077>
 		return
 
@@ -1987,7 +2104,7 @@ class CvInfoScreen:
 		# Background Panes
 		self.szLeftPaneWidget = self.getNextWidgetName()
 		screen.addPanel( self.szLeftPaneWidget, "", "", true, true,
-			self.X_LEFT_PANE, self.Y_LEFT_PANE, self.W_LEFT_PANE, self.H_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
+			self.X_TOP_CITIES_LEFT_PANE, self.Y_TOP_CITIES_LEFT_PANE, self.W_TOP_CITIES_LEFT_PANE, self.H_TOP_CITIES_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
 
 		self.drawTopCities()
 		self.drawWondersTab()
@@ -2184,21 +2301,11 @@ class CvInfoScreen:
 #############################################################################################################
 
 	def drawWondersTab(self):
-
-		if AdvisorOpt.isShowInfoWonders():
-			self.X_DROPDOWN = self.X_RIGHT_PANE + 20 # the 3 is the 'fudge factor' due to the widgets not lining up perfectly    #DanF 240 + 3
-			self.Y_DROPDOWN = self.Y_RIGHT_PANE + 20
-			self.W_DROPDOWN = 420 #DanF 200
-		else:
-			self.X_DROPDOWN = self.X_RIGHT_PANE + 240 + 3 # the 3 is the 'fudge factor' due to the widgets not lining up perfectly
-			self.Y_DROPDOWN = self.Y_RIGHT_PANE + 20
-			self.W_DROPDOWN = 200
-
 		screen = self.getScreen()
 
 		self.szRightPaneWidget = self.getNextWidgetName()
 		screen.addPanel( self.szRightPaneWidget, "", "", true, true,
-			self.X_RIGHT_PANE, self.Y_RIGHT_PANE, self.W_RIGHT_PANE, self.H_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
+			self.X_WONDERS_RIGHT_PANE, self.Y_WONDERS_RIGHT_PANE, self.W_WONDERS_RIGHT_PANE, self.H_WONDERS_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
 
 		self.drawWondersDropdownBox()
 
@@ -2221,46 +2328,46 @@ class CvInfoScreen:
 				sWW = self.BUGWorldWonder_On
 				sNW = self.BUGNatWonder_Off
 				sPj = self.BUGProject_Off
-				sDesc = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_WORLD_WONDERS", ())
+				sDesc = self.TEXT_WORLD_WONDERS
 			elif self.szWonderDisplayMode == self.szWDM_NatnlWonder:
 				sWW = self.BUGWorldWonder_Off
 				sNW = self.BUGNatWonder_On
 				sPj = self.BUGProject_Off
-				sDesc = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS", ())
+				sDesc = self.TEXT_NATIONAL_WONDERS
 			else:
 				sWW = self.BUGWorldWonder_Off
 				sNW = self.BUGNatWonder_Off
 				sPj = self.BUGProject_On
-				sDesc = localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ())
+				sDesc = self.TEXT_PROJECTS
 
 			sDesc = u"<font=4>" + sDesc + u"</font>"
 
-			screen.setImageButton(self.BUGWorldWonderWidget, sWW,  self.X_DROPDOWN +  0, self.Y_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_WORLD_WONDERS, -1, -1)
-			screen.setImageButton(self.BUGNatWonderWidget, sNW,  self.X_DROPDOWN + 30, self.Y_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_NATIONAL_WONDERS, -1, -1)
-			screen.setImageButton(self.BUGProjectWidget, sPj,  self.X_DROPDOWN + 60, self.Y_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_PROJECTS, -1, -1)
+			screen.setImageButton(self.BUGWorldWonderWidget, sWW,  self.X_WONDERS_DROPDOWN +  0, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_WORLD_WONDERS, -1, -1)
+			screen.setImageButton(self.BUGNatWonderWidget, sNW,  self.X_WONDERS_DROPDOWN + 30, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_NATIONAL_WONDERS, -1, -1)
+			screen.setImageButton(self.BUGProjectWidget, sPj,  self.X_WONDERS_DROPDOWN + 60, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_PROJECTS, -1, -1)
 
-			screen.setLabel(self.getNextWidgetName(), "Background", sDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_DROPDOWN + 100, self.Y_DROPDOWN + 3, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", sDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_WONDERS_DROPDOWN + 100, self.Y_WONDERS_DROPDOWN + 3, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		else:
 			screen.addDropDownBoxGFC(self.szWondersDropdownWidget,
-				self.X_DROPDOWN, self.Y_DROPDOWN, self.W_DROPDOWN, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+				self.X_WONDERS_DROPDOWN, self.Y_WONDERS_DROPDOWN, self.W_WONDERS_DROPDOWN, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
 
 			if (self.szWonderDisplayMode == self.szWDM_WorldWonder):
 				bDefault = true
 			else:
 				bDefault = false
-			screen.addPullDownString(self.szWondersDropdownWidget, localText.getText("TXT_KEY_TOP_CITIES_SCREEN_WORLD_WONDERS", ()), 0, 0, bDefault )
+			screen.addPullDownString(self.szWondersDropdownWidget, self.TEXT_WORLD_WONDERS, 0, 0, bDefault )
 
 			if (self.szWonderDisplayMode == self.szWDM_NatnlWonder):
 				bDefault = true
 			else:
 				bDefault = false
-			screen.addPullDownString(self.szWondersDropdownWidget, localText.getText("TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS", ()), 1, 1, bDefault )
+			screen.addPullDownString(self.szWondersDropdownWidget, self.TEXT_NATIONAL_WONDERS, 1, 1, bDefault )
 
 			if (self.szWonderDisplayMode == self.szWDM_Project):
 				bDefault = true
 			else:
 				bDefault = false
-			screen.addPullDownString(self.szWondersDropdownWidget, localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ()), 2, 2, bDefault )
+			screen.addPullDownString(self.szWondersDropdownWidget, self.TEXT_PROJECTS, 2, 2, bDefault )
 
 		return
 
@@ -2366,7 +2473,7 @@ class CvInfoScreen:
 
 		# Stats Panel
 		panelName = self.getNextWidgetName()
-		screen.addPanel( panelName, "", "", true, true, self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( panelName, "", "", true, true, self.X_WONDERS_STATS_PANE, self.Y_WONDERS_STATS_PANE, self.W_WONDERS_STATS_PANE, self.H_WONDERS_STATS_PANE, PanelStyles.PANEL_STYLE_IN )
 
 ############################################### DISPLAY SINGLE WONDER ###############################################
 
@@ -2423,7 +2530,7 @@ class CvInfoScreen:
 						szProjectType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
 					szStatsText += szProjectType.upper()
 
-				screen.addMultilineText(self.getNextWidgetName(), szStatsText, self.X_STATS_PANE + 5, self.Y_STATS_PANE + 15, self.W_STATS_PANE - 10, self.H_STATS_PANE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.addMultilineText(self.getNextWidgetName(), szStatsText, self.X_WONDERS_STATS_PANE + 5, self.Y_WONDERS_STATS_PANE + 15, self.W_WONDERS_STATS_PANE - 10, self.H_WONDERS_STATS_PANE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# Add Graphic
 				iIconX = self.X_PROJECT_ICON - self.W_PROJECT_ICON / 2
@@ -2432,13 +2539,11 @@ class CvInfoScreen:
 				screen.addDDSGFC(self.getNextWidgetName(), gc.getProjectInfo(self.iWonderID).getButton(), iIconX, iIconY, self.W_PROJECT_ICON, self.W_PROJECT_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				# Special Abilities ListBox
-
-				szSpecialTitle = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u"</font>"
 				self.szSpecialTitleWidget = self.getNextWidgetName()
-				screen.setText(self.szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_SPECIAL_TITLE, self.Y_SPECIAL_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.szSpecialTitleWidget, "", self.szWondersSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_WONDER_SPECIAL_TITLE, self.Y_WONDER_SPECIAL_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 				panelName = self.getNextWidgetName()
-				screen.addPanel( panelName, "", "", true, true, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
+				screen.addPanel( panelName, "", "", true, true, self.X_WONDER_SPECIAL_PANE, self.Y_WONDER_SPECIAL_PANE, self.W_WONDER_SPECIAL_PANE, self.H_WONDER_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
 
 				listName = self.getNextWidgetName()
 				screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
@@ -2525,24 +2630,21 @@ class CvInfoScreen:
 					szText = localText.getText("TXT_KEY_PEDIA_GREAT_PEOPLE", (pWonderInfo.getGreatPeopleRateChange(),))
 					szStatsText += szText + (u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)) + "\n"
 
-				screen.addMultilineText(self.getNextWidgetName(), szStatsText, self.X_STATS_PANE + 5, self.Y_STATS_PANE + 15, self.W_STATS_PANE - 10, self.H_STATS_PANE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.addMultilineText(self.getNextWidgetName(), szStatsText, self.X_WONDERS_STATS_PANE + 5, self.Y_WONDERS_STATS_PANE + 15, self.W_WONDERS_STATS_PANE - 10, self.H_WONDERS_STATS_PANE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# Add Graphic
 				screen.addBuildingGraphicGFC(self.getNextWidgetName(), self.iWonderID,
 					self.X_WONDER_GRAPHIC, self.Y_WONDER_GRAPHIC, self.W_WONDER_GRAPHIC, self.H_WONDER_GRAPHIC,
-					WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_WONDER_ANIMATION, self.Z_ROTATION_WONDER_ANIMATION, self.SCALE_ANIMATION, True)
+					WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_WONDER_ANIMATION, self.Z_ROTATION_WONDER_ANIMATION, self.WONDERS_SCALE_ANIMATION, True)
 
 				# Special Abilities ListBox
 
-				szSpecialTitle = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u"</font>"
+				# <!-- custom: note: there was a localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) commented-out in the base advciv code at the addPanel part, removed for concision/clarity. -->
 				self.szSpecialTitleWidget = self.getNextWidgetName()
-				screen.setText(self.szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_SPECIAL_TITLE, self.Y_SPECIAL_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.szSpecialTitleWidget, "", self.szWondersSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_WONDER_SPECIAL_TITLE, self.Y_WONDER_SPECIAL_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 				panelName = self.getNextWidgetName()
-				# <!-- custom: comment out properly then use one liner anyways etc -->
-				#screen.addPanel( panelName, "", "", true, true,#localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ())
-				#		 self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
-				screen.addPanel( panelName, "", "", true, true, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
+				screen.addPanel( panelName, "", "", true, true, self.X_WONDER_SPECIAL_PANE, self.Y_WONDER_SPECIAL_PANE, self.W_WONDER_SPECIAL_PANE, self.H_WONDER_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
 
 				listName = self.getNextWidgetName()
 				screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
@@ -2849,17 +2951,15 @@ class CvInfoScreen:
 		sOwner = BugUtil.getPlainText("TXT_KEY_WONDER_OWNER")
 		sCity = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
 
-		screen.setTableColumnHeader(self.szWondersTable, 0, "", 30)
-		screen.setTableColumnHeader(self.szWondersTable, 1, sName, 115)
-		# advc.002b: Confer 5 width from the owner column to the date column
-		screen.setTableColumnHeader(self.szWondersTable, 2, sDate, 75)
-		screen.setTableColumnHeader(self.szWondersTable, 3, sOwner, 95)
-		screen.setTableColumnHeader(self.szWondersTable, 4, sCity, 100)
+		screen.setTableColumnHeader(self.szWondersTable, 0, "", self.W_WONDERS_CHART_COL_ENTER_CITY_BUTTON)
+		screen.setTableColumnHeader(self.szWondersTable, 1, sName, self.W_WONDERS_CHART_COL_NAME)
+		screen.setTableColumnHeader(self.szWondersTable, 2, sDate, self.W_WONDERS_CHART_COL_DATE)
+		screen.setTableColumnHeader(self.szWondersTable, 3, sOwner, self.W_WONDERS_CHART_COL_OWNER)
+		screen.setTableColumnHeader(self.szWondersTable, 4, sCity, self.W_WONDERS_CHART_COL_CITY)
 
 		iWBB = len(self.aaWondersBeingBuilt_BUG)
 
 		for iWonderLoop in range(iWBB):
-
 #			self.aaWondersBeingBuilt_BUG contains the following:
 			iWonderType = self.aaWondersBeingBuilt_BUG[iWonderLoop][0]
 			szWonderBuiltBy = self.aaWondersBeingBuilt_BUG[iWonderLoop][1]
@@ -2905,7 +3005,6 @@ class CvInfoScreen:
 			screen.setTableText(self.szWondersTable, 4, iWonderLoop, szCityName     , "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		for iWonderLoop in range(self.iNumWonders):
-
 #			self.aaWondersBuilt_BUG contains the following:
 			iTurnYearBuilt = self.aaWondersBuilt_BUG[iWonderLoop][0]
 			iWonderType = self.aaWondersBuilt_BUG[iWonderLoop][1]
@@ -2962,25 +3061,6 @@ class CvInfoScreen:
 #############################################################################################################
 
 	def drawStatsTab(self):
-
-		# Bottom Chart
-#BUG: improvements - start
-		#if AdvisorOpt.isShowImprovements():
-		if True: # advc.004
-			self.X_STATS_BOTTOM_CHART = 45
-			self.Y_STATS_BOTTOM_CHART = 280
-			self.W_STATS_BOTTOM_CHART_UNITS = 455
-			self.W_STATS_BOTTOM_CHART_BUILDINGS = 260
-			self.W_STATS_BOTTOM_CHART_IMPROVEMENTS = 220
-			self.H_STATS_BOTTOM_CHART = 410
-		else:
-			self.X_STATS_BOTTOM_CHART = 45
-			self.Y_STATS_BOTTOM_CHART = 280
-			self.W_STATS_BOTTOM_CHART_UNITS = 545
-			self.W_STATS_BOTTOM_CHART_BUILDINGS = 390
-			self.H_STATS_BOTTOM_CHART = 410
-#BUG: improvements - end
-
 		screen = self.getScreen()
 
 		iNumUnits = gc.getNumUnitInfos()
@@ -3092,11 +3172,17 @@ class CvInfoScreen:
 		# Graph itself
 		iRow = 0
 
+		# <!-- custom: not sure it helps, but since we reuse the same variables every time, may as well cache them once if i'm not mistaken. Note: using longer and more detailed names to avoid weird python inheritance issues with variables in unrelated scopes if i'm not mistaken. -->
+		statsRowWidget = WidgetTypes.WIDGET_GENERAL
+		statsRowId1 = -1
+		statsRowId2 = -1
+		statsRowFont = CvUtil.FONT_LEFT_JUSTIFY
+
 		screen.appendTableRow(szTopChart)
 		iCol = 0
-		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		iCol = 1
-		screen.setTableText(szTopChart, iCol, iRow, szTimeString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(szTopChart, iCol, iRow, szTimeString, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
 		# K-Mod.
 		iNumCitiesCurrent = gc.getPlayer(self.iActivePlayer).getNumCities()
@@ -3105,34 +3191,34 @@ class CvInfoScreen:
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# K-Mod end (note. I've also changed some of the structure of the surrounding code...)
 		# advc.004:
 		if iNumCitiesBuilt != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# advc.004:
 		if iNumCitiesRazed != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesRazed), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesRazed), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# advc.004:
 		if iNumReligionsFounded != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumReligionsFounded), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, str(iNumReligionsFounded), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
 		# K-Mod.
 		iNumGoldenAges = CyStatistics().getPlayerNumGoldenAges(self.iActivePlayer)
@@ -3141,9 +3227,9 @@ class CvInfoScreen:
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# K-Mod end
 
 ################################################### BOTTOM PANEL ###################################################
@@ -3246,23 +3332,23 @@ class CvInfoScreen:
 			screen.appendTableRow(szUnitsTable)
 			#iRow = iUnitLoop
 			iCol = 0
-			screen.setTableText(szUnitsTable, iCol, iRow, szUnitName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szUnitsTable, iCol, iRow, szUnitName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
 			iCol = 1
 			iNumUnitsCurrent = aiUnitsCurrent[iUnitLoop]
-			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsCurrent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
 			iCol = 2
 			iNumUnitsBuilt = aiUnitsBuilt[iUnitLoop]
-			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsBuilt), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
 			iCol = 3
 			iNumUnitsKilled = aiUnitsKilled[iUnitLoop]
-			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsKilled), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsKilled), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
 			iCol = 4
 			iNumUnitsLost = aiUnitsLost[iUnitLoop]
-			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsLost), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsLost), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iRow += 1 # K-Mod
 
 		# Add Buildings to table
@@ -3281,10 +3367,10 @@ class CvInfoScreen:
 			#iRow = iBuildingLoop
 			iCol = 0
 			szBuildingName = gc.getBuildingInfo(iBuildingLoop).getDescription()
-			screen.setTableText(szBuildingsTable, iCol, iRow, szBuildingName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szBuildingsTable, iCol, iRow, szBuildingName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
 			iNumBuildingsBuilt = aiBuildingsBuilt[iBuildingLoop]
-			screen.setTableInt(szBuildingsTable, iCol, iRow, str(iNumBuildingsBuilt), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableInt(szBuildingsTable, iCol, iRow, str(iNumBuildingsBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iRow += 1 # K-Mod
 
 #BUG: improvements - start
@@ -3302,9 +3388,9 @@ class CvInfoScreen:
 				(szImprovementName, iImprovementLoop) = improvIDsByName[i] # </advc.004>
 				screen.appendTableRow(szImprovementsTable) # K-Mod
 				iCol = 0
-				screen.setTableText(szImprovementsTable, iCol, iRow, szImprovementName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(szImprovementsTable, iCol, iRow, szImprovementName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 				iCol = 1
-				screen.setTableInt(szImprovementsTable, iCol, iRow, str(aiImprovementsCurrent[iImprovementLoop]), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableInt(szImprovementsTable, iCol, iRow, str(aiImprovementsCurrent[iImprovementLoop]), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 				iRow += 1
 #BUG: improvements - end
 

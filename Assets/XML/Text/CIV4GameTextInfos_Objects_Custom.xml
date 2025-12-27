@@ -321,11 +321,10 @@
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
 		<English>Kingdom Of Benin</English>
 	</TEXT>
-	<!-- custom: i found no clear mention of an adjective, going with "people of Benin" mentionned here: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding
-	Also using People of Benin would be a weird adjective form so using Kingdom of Benin instead -->
+	<!-- custom: i found no clear mention of an adjective, going with "people of Benin" mentionned here: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding. After asking gemini 3 pro, it recommended "Edo" (as in "Edo people") and also suggested "Bini" (as in "Bini workers"). As it advised, i also thought independently beforehand that Beninese should be avoided since the modern Benin is not to be confused with the old Kingdom of Benin. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
-		<English>the people of Benin</English>
+		<English>Edo</English>
 	</TEXT>
 	<!-- custom: this mentions clearly and several times the impluvium as a special building the Kingdom Of Benin had: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture -->
 	<TEXT>
