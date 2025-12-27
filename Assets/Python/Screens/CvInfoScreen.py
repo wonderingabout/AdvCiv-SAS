@@ -469,30 +469,37 @@ class CvInfoScreen:
 		self.X_STATS_TOP_PANEL = self.X_MARGIN
 		self.Y_STATS_TOP_PANEL = self.Y_MARGIN
 		self.W_STATS_TOP_PANEL = self.W_SCREEN - 2 * self.X_STATS_TOP_PANEL
-		self.H_STATS_TOP_PANEL = 180
+		# <!-- custom: effectively hide it if i'm not mistaken, we don't need to see it as it is not too pretty i think. -->
+		self.H_STATS_TOP_PANEL = 0
 
 		# Leader
-		self.X_LEADER_ICON = self.X_STATS_TOP_PANEL + self.X_MARGIN
+		self.X_LEADER_ICON = self.X_STATS_TOP_PANEL
 		self.Y_LEADER_ICON = 95
-		self.H_LEADER_ICON = 140
-		self.W_LEADER_ICON = 110
+		# <!-- custom: as per my sevopedia leader measurments, the ratio should be somewhere close to this:
+		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)    ;    (reverse-ratio: 1,1214)
+		# - current (stats tab): 110 x 140              (ratio: 0,7857)
+		# We want to increase the button's size a bit since we have some room it seems, as well as fix ratio to be as close as possible to ingame one if i'm not mistaken: -->
+		# - current (stats tab): 115 x 140              (ratio: 0,8214) seems closest at same height
+		# It seems that H 156 is closest or close enough to maintain symetry with the top, and so the closest to have a ratio as close as possible to ingame diplomacy seems to be as such:
+		# - current (stats tab): 128 x 156              (ratio: 0,8205) seems closest at H 156. -->
+		self.W_LEADER_ICON = 128
+		self.H_LEADER_ICON = 156
 
 		# Top Chart
 		self.X_STATS_TOP_CHART = self.X_LEADER_ICON + self.X_MARGIN + self.W_LEADER_ICON
-		self.Y_STATS_TOP_CHART = 130
-		# self.W_STATS_TOP_CHART = 380
-		# self.W_STATS_TOP_CHART = self.W_STATS_TOP_PANEL - self.X_STATS_TOP_CHART
-		# <!-- custom: for some reason we need to add this value to be well aligned with the right edge of the units bottom chart so add as a quick fix, maybe not ideal not sure but fixes it (check if accurate).  -->
+		self.Y_STATS_TOP_CHART = self.Y_LEADER_ICON
+		# <!-- custom: for some reason we need to add this value to be well aligned with the right edge of the units bottom chart so add as a quick fix, maybe not ideal not sure but fixes it (check if accurate). -->
 		iExtraWTopChartValue = 12
 		self.W_STATS_TOP_CHART = self.W_STATS_BOTTOM_CHART_UNITS - self.X_STATS_TOP_CHART + iExtraWTopChartValue
-		self.H_STATS_TOP_CHART = 102
+		self.H_STATS_TOP_CHART = self.H_LEADER_ICON
 
-		self.STATS_TOP_CHART_W_COL_0 = 304
 		self.STATS_TOP_CHART_W_COL_1 = 76
+		self.STATS_TOP_CHART_W_COL_0 = self.W_STATS_TOP_CHART - self.STATS_TOP_CHART_W_COL_1
+		
 
 		self.iNumTopChartCols = 2
 
-		self.X_LEADER_NAME = self.X_STATS_TOP_CHART
+		self.X_LEADER_NAME = self.X_LEADER_ICON
 		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
 
 		self.reset()
