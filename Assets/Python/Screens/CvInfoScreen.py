@@ -273,7 +273,6 @@ class CvInfoScreen:
 		# <!-- custom: make these dimensions as parameters so we can control them at init rather where more of the info is centralized. -->
 		self.W_DEMOGRAPHICS_COL_DEM = 260
 		demographicsNumericalColsW = 150
-		# <!-- custom: note: setting some values too low would sometimes cause the "(Rank X)" type of text to not be shown in some cases although it seems fixed now but check to be sure. See for details: `if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:`. -->
 		demographicsRivalColsW = 220
 		self.W_DEMOGRAPHICS_COL_VALUE = demographicsNumericalColsW
 		self.W_DEMOGRAPHICS_COL_RANK = demographicsNumericalColsW
@@ -1637,7 +1636,7 @@ class CvInfoScreen:
 			return ("","?")
 		# <!-- custom: as per ruff rule E714 and chatgpt's explanation; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc. -->
 		if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:
-			# <!-- custom: according to claude opus 4.5, this causes the rank text info (" (Rank X)") to not be shown if we change the self.W_DEMOGRAPHICS_COL_ values. Since we enlarged the graph, just remove this unreliable string truncation logic or whatever it is. Even removing did not reliably fix the issue it seems. We don't need the "Rank" text that badly anyway, so just remove it and append it to header rather; it's more compact as such as a nice side effect i mean and perhaps more readable as well or faster so. -->
+			# <!-- custom: We don't need to show all this info, nor do we need to truncate the string since our table is upscaled, so disable this as claude opus 4.5 says we can when i asked it about it thanks (check if accurate). It's also prettier i think and faster to read as such. -->
 			# # Make sure player name isn't too long (I use the same code in CvOptionsScreen)
 			# iCharLimit = 18
 			# if len(szPlayerName) > iCharLimit:
@@ -3342,7 +3341,11 @@ class CvInfoScreen:
 			screen.appendTableRow(szUnitsTable)
 			#iRow = iUnitLoop
 			iCol = 0
-			screen.setTableText(szUnitsTable, iCol, iRow, szUnitName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+
+			# <!-- custom: add buttons in the stats tab's rows with claude opus 4.5's help thanks. -->
+			#screen.setTableText(szUnitsTable, iCol, iRow, szUnitName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+			szUnitButton = gc.getUnitInfo(iUnitLoop).getButton()
+			screen.setTableText(szUnitsTable, iCol, iRow, szUnitName, szUnitButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnitLoop, -1, statsRowFont)
 
 			iCol = 1
 			iNumUnitsCurrent = aiUnitsCurrent[iUnitLoop]
@@ -3377,7 +3380,12 @@ class CvInfoScreen:
 			#iRow = iBuildingLoop
 			iCol = 0
 			szBuildingName = gc.getBuildingInfo(iBuildingLoop).getDescription()
-			screen.setTableText(szBuildingsTable, iCol, iRow, szBuildingName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+
+			# <!-- custom: add buttons in the stats tab's rows with claude opus 4.5's help thanks. -->
+			# screen.setTableText(szBuildingsTable, iCol, iRow, szBuildingName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+			szBuildingButton = gc.getBuildingInfo(iBuildingLoop).getButton()
+			screen.setTableText(szBuildingsTable, iCol, iRow, szBuildingName, szBuildingButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, statsRowFont)
+
 			iCol = 1
 			iNumBuildingsBuilt = aiBuildingsBuilt[iBuildingLoop]
 			screen.setTableInt(szBuildingsTable, iCol, iRow, str(iNumBuildingsBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
@@ -3398,7 +3406,12 @@ class CvInfoScreen:
 				(szImprovementName, iImprovementLoop) = improvIDsByName[i] # </advc.004>
 				screen.appendTableRow(szImprovementsTable) # K-Mod
 				iCol = 0
-				screen.setTableText(szImprovementsTable, iCol, iRow, szImprovementName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+
+				# <!-- custom: add buttons in the stats tab's rows with claude opus 4.5's help thanks. -->
+				# screen.setTableText(szImprovementsTable, iCol, iRow, szImprovementName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+				szImprovementButton = gc.getImprovementInfo(iImprovementLoop).getButton()
+				screen.setTableText(szImprovementsTable, iCol, iRow, szImprovementName, szImprovementButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovementLoop, -1, statsRowFont)
+
 				iCol = 1
 				screen.setTableInt(szImprovementsTable, iCol, iRow, str(aiImprovementsCurrent[iImprovementLoop]), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 				iRow += 1
