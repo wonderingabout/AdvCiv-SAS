@@ -361,12 +361,14 @@ class CvInfoScreen:
 		self.H_WONDERS_CHART = self.H_WONDERS_RIGHT_PANE - self.Y_WONDERS_RIGHT_PANE
 
 		# <!-- custom: externalize the wonder chart column width dimensions to init so we can manage them in a more centralized and easier way if i'm not mistaken. -->
-		self.W_WONDERS_CHART_COL_ENTER_CITY_BUTTON = 30
+		self.W_WONDERS_CHART_COL_BUTTON = 30
+		# <!-- custom: make the first (0) column show the wonder's button as prettier and more informative, and move the move to city's map position mechanic to the "City" column (4) instead: old code commented-out or removed for redability and concision. Note: the id needs to be the same in handleInput and the table construction or the redirect to city BUG mechanic won't work as per claude opus 4.5's solution and my testing's results if i'm not mistaken. -->
+		self.WONDERS_COL_MOVE_TO_CITY_ID = 4
 		# advc.002b: Confer 5 width from the owner column to the date column
 		self.W_WONDERS_CHART_COL_DATE = 85
 		self.W_WONDERS_CHART_COL_OWNER = 145
 		self.W_WONDERS_CHART_COL_CITY = 145
-		totalWondersCharMostColsW = self.W_WONDERS_CHART_COL_ENTER_CITY_BUTTON + self.W_WONDERS_CHART_COL_DATE + self.W_WONDERS_CHART_COL_OWNER + self.W_WONDERS_CHART_COL_CITY
+		totalWondersCharMostColsW = self.W_WONDERS_CHART_COL_BUTTON + self.W_WONDERS_CHART_COL_DATE + self.W_WONDERS_CHART_COL_OWNER + self.W_WONDERS_CHART_COL_CITY
 		self.W_WONDERS_CHART_COL_NAME = self.W_WONDERS_CHART - totalWondersCharMostColsW
 
 		# Info about this wonder, e.g. name, cost so on
@@ -643,6 +645,12 @@ class CvInfoScreen:
 		self.TEXT_NATIONAL_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS", ())
 		self.TEXT_PROJECTS = localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ())
 		self.szWondersSpecialTitle = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u"</font>"
+
+		# <!-- custom: moved here from drawWondersList_BUG: performance optimimization: avoid redundant recomputation if i'm not mistaken. -->
+		self.sNameWonders = BugUtil.getPlainText("TXT_KEY_WONDER_NAME")
+		self.sDateWonders = BugUtil.getPlainText("TXT_KEY_WONDER_DATE")
+		self.sOwnerWonders = BugUtil.getPlainText("TXT_KEY_WONDER_OWNER")
+		self.sCityWonders = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
 
 		# world wonder / national wonder / projects icons / buttons
 		self.BUGWorldWonder_On = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_ON").getPath()
@@ -2944,18 +2952,13 @@ class CvInfoScreen:
 		screen.addTableControlGFC(self.szWondersTable, 5, self.X_WONDERS_CHART, self.Y_WONDERS_CHART, self.W_WONDERS_CHART, self.H_WONDERS_CHART, True, True, 24,24, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(self.szWondersTable)
 
-		zoomArt = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		# <!-- custom: old zoomArt = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath() declaration no longer needed after our change to the columns as per claude opus 4.5's review (see comments at self.WONDERS_COL_MOVE_TO_CITY_ID). -->
 
-		sName = BugUtil.getPlainText("TXT_KEY_WONDER_NAME")
-		sDate = BugUtil.getPlainText("TXT_KEY_WONDER_DATE")
-		sOwner = BugUtil.getPlainText("TXT_KEY_WONDER_OWNER")
-		sCity = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
-
-		screen.setTableColumnHeader(self.szWondersTable, 0, "", self.W_WONDERS_CHART_COL_ENTER_CITY_BUTTON)
-		screen.setTableColumnHeader(self.szWondersTable, 1, sName, self.W_WONDERS_CHART_COL_NAME)
-		screen.setTableColumnHeader(self.szWondersTable, 2, sDate, self.W_WONDERS_CHART_COL_DATE)
-		screen.setTableColumnHeader(self.szWondersTable, 3, sOwner, self.W_WONDERS_CHART_COL_OWNER)
-		screen.setTableColumnHeader(self.szWondersTable, 4, sCity, self.W_WONDERS_CHART_COL_CITY)
+		screen.setTableColumnHeader(self.szWondersTable, 0, "", self.W_WONDERS_CHART_COL_BUTTON)
+		screen.setTableColumnHeader(self.szWondersTable, 1, self.sNameWonders, self.W_WONDERS_CHART_COL_NAME)
+		screen.setTableColumnHeader(self.szWondersTable, 2, self.sDateWonders, self.W_WONDERS_CHART_COL_DATE)
+		screen.setTableColumnHeader(self.szWondersTable, 3, self.sOwnerWonders, self.W_WONDERS_CHART_COL_OWNER)
+		screen.setTableColumnHeader(self.szWondersTable, self.WONDERS_COL_MOVE_TO_CITY_ID, self.sCityWonders, self.W_WONDERS_CHART_COL_CITY)
 
 		iWBB = len(self.aaWondersBeingBuilt_BUG)
 
@@ -2998,11 +3001,13 @@ class CvInfoScreen:
 				szCityName = localText.changeTextColor(szCityName, color)
 
 			screen.appendTableRow(self.szWondersTable)
-			screen.setTableText(self.szWondersTable, 0, iWonderLoop, ""             , zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(self.szWondersTable, 1, iWonderLoop, szWonderName   , "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# screen.setTableText(self.szWondersTable, 0, iWonderLoop, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.szWondersTable, 0, iWonderLoop, "", pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.szWondersTable, 1, iWonderLoop, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			screen.setTableInt (self.szWondersTable, 2, iWonderLoop, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			screen.setTableText(self.szWondersTable, 3, iWonderLoop, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(self.szWondersTable, 4, iWonderLoop, szCityName     , "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# screen.setTableText(self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 
 		for iWonderLoop in range(self.iNumWonders):
 #			self.aaWondersBuilt_BUG contains the following:
@@ -3048,12 +3053,17 @@ class CvInfoScreen:
 				szCityName = localText.changeTextColor(szCityName, color)
 
 			screen.appendTableRow(self.szWondersTable)
-			if bKnown and bRevealed:
-				screen.setTableText(self.szWondersTable, 0, iWonderLoop+iWBB, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(self.szWondersTable, 1, iWonderLoop+iWBB, szWonderName   , "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# if bKnown and bRevealed:
+			# 	screen.setTableText(self.szWondersTable, 0, iWonderLoop+iWBB, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.szWondersTable, 0, iWonderLoop+iWBB, ""             , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.szWondersTable, 1, iWonderLoop+iWBB, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			screen.setTableInt (self.szWondersTable, 2, iWonderLoop+iWBB, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			screen.setTableText(self.szWondersTable, 3, iWonderLoop+iWBB, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName     , "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			if bKnown and bRevealed:
+				screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName , "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+			else:
+				screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName , "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 #############################################################################################################
@@ -3527,7 +3537,7 @@ class CvInfoScreen:
 
 				# BUG Wonders table
 				elif (szWidgetName == self.szWondersTable):
-					if (inputClass.getMouseX() == 0):
+					if (inputClass.getMouseX() == self.WONDERS_COL_MOVE_TO_CITY_ID):
 						screen.hideScreen()
 						pPlayer = gc.getPlayer(inputClass.getData1())
 						pCity = pPlayer.getCity(inputClass.getData2())
