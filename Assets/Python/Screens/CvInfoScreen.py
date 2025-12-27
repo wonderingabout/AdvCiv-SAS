@@ -493,7 +493,7 @@ class CvInfoScreen:
 		self.W_STATS_TOP_CHART = self.W_STATS_BOTTOM_CHART_UNITS - self.X_STATS_TOP_CHART + iExtraWTopChartValue
 		self.H_STATS_TOP_CHART = self.H_LEADER_ICON
 
-		self.STATS_TOP_CHART_W_COL_1 = 76
+		self.STATS_TOP_CHART_W_COL_1 = 100
 		self.STATS_TOP_CHART_W_COL_0 = self.W_STATS_TOP_CHART - self.STATS_TOP_CHART_W_COL_1
 		
 
@@ -501,6 +501,10 @@ class CvInfoScreen:
 
 		self.X_LEADER_NAME = self.X_LEADER_ICON
 		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
+
+		# <!-- custom: 32 is a bit too high and overfills the rows where the buttons are at, this seems to fit well ingame as well as recommended by claude opus 4.5 thanks.. -->
+		self.W_STATS_BUTTON_SIZE = 24
+		self.H_STATS_BUTTON_SIZE = 24
 
 		self.reset()
 
@@ -665,6 +669,14 @@ class CvInfoScreen:
 		self.BUGNatWonder_Off = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
 		self.BUGProject_On = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_ON").getPath()
 		self.BUGProject_Off = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+
+		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
+		self.szTimeIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds"  # ⏳
+		self.szCityIconStats = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		self.szFoundCityIconStats = "Art/Interface/Buttons/Actions/FoundCity.dds"
+		self.szRazeIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Fire/1f525_64px.dds"  # 🔥
+		self.szReligionIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Dove/1f54a_64px.dds"  # 🕊️
+		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
 
 	def reset(self):
 
@@ -3174,7 +3186,7 @@ class CvInfoScreen:
 
 		# Create Table
 		szTopChart = self.getNextWidgetName()
-		screen.addTableControlGFC(szTopChart, self.iNumTopChartCols, self.X_STATS_TOP_CHART, self.Y_STATS_TOP_CHART, self.W_STATS_TOP_CHART, self.H_STATS_TOP_CHART, False, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szTopChart, self.iNumTopChartCols, self.X_STATS_TOP_CHART, self.Y_STATS_TOP_CHART, self.W_STATS_TOP_CHART, self.H_STATS_TOP_CHART, False, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		# Add Columns
 		screen.setTableColumnHeader(szTopChart, 0, "", self.STATS_TOP_CHART_W_COL_0)
@@ -3194,9 +3206,11 @@ class CvInfoScreen:
 		statsRowId2 = -1
 		statsRowFont = CvUtil.FONT_LEFT_JUSTIFY
 
+		# <!-- custom: added buttons in the top chart with the help of claude opus 4.5 thanks, old code replaced. -->
+		# Time Played - using gear as a "game mechanics" metaphor, or add a clock emoji later
 		screen.appendTableRow(szTopChart)
 		iCol = 0
-		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, self.szTimeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		iCol = 1
 		screen.setTableText(szTopChart, iCol, iRow, szTimeString, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
@@ -3207,16 +3221,16 @@ class CvInfoScreen:
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, self.szCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
 			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-		# K-Mod end (note. I've also changed some of the structure of the surrounding code...)
+		# K-Mod end
 		# advc.004:
 		if iNumCitiesBuilt != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, self.szFoundCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
 			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# advc.004:
@@ -3224,7 +3238,7 @@ class CvInfoScreen:
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, self.szRazeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
 			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesRazed), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# advc.004:
@@ -3232,7 +3246,7 @@ class CvInfoScreen:
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, self.szReligionIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
 			screen.setTableText(szTopChart, iCol, iRow, str(iNumReligionsFounded), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
@@ -3243,7 +3257,7 @@ class CvInfoScreen:
 			iRow += 1
 			screen.appendTableRow(szTopChart)
 			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, self.szGoldenAgeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iCol = 1
 			screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# K-Mod end
@@ -3252,18 +3266,18 @@ class CvInfoScreen:
 
 		# Create Tables
 		szUnitsTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szUnitsTable, self.iNumUnitStatsChartCols, self.X_STATS_BOTTOM_CHART, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_UNITS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szUnitsTable, self.iNumUnitStatsChartCols, self.X_STATS_BOTTOM_CHART, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_UNITS, self.H_STATS_BOTTOM_CHART, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szUnitsTable)
 
 		szBuildingsTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szBuildingsTable, self.iNumBuildingStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_BUILDINGS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szBuildingsTable, self.iNumBuildingStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_BUILDINGS, self.H_STATS_BOTTOM_CHART, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szBuildingsTable)
 
 #BUG: improvements - start
 		#if AdvisorOpt.isShowImprovements():
 		if True: # advc.004
 			szImprovementsTable = self.getNextWidgetName()
-			screen.addTableControlGFC(szImprovementsTable, self.iNumImprovementStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_IMPROVEMENTS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+			screen.addTableControlGFC(szImprovementsTable, self.iNumImprovementStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_IMPROVEMENTS, self.H_STATS_BOTTOM_CHART, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 			screen.enableSort(szImprovementsTable)
 #BUG: improvements - end
 
