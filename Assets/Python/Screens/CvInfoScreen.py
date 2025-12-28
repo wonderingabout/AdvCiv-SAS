@@ -227,6 +227,12 @@ class CvInfoScreen:
 		self.Y_LEGEND_TEXT	= self.Y_LEGEND_MARGIN
 		self.H_LEGEND_TEXT	= 16
 
+		# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
+		self.iGraphLeaderIconSize = 16
+
+		# <!-- custom: Y offset for turn number label below year in graph tab, added with claude opus 4.5's help thanks. -->
+		self.iGraphTurnLabelYOffset = 16
+
 #BUG: Change Graphs - start
 		self.Graph_Status_1in1 = 0
 		self.Graph_Status_7in1 = 1
@@ -1126,8 +1132,10 @@ class CvInfoScreen:
 				return
 #BUG: Change Graphs - end
 
-		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + self.getTurnDate(turn) + u"</font>",
-						just , x , self.Y_LABEL, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: show year on first line, added with claude opus 4.5's help thanks. -->
+		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + self.getTurnDate(turn) + u"</font>", just, x, self.Y_LABEL, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: show turn number on second line below year, added with claude opus 4.5's help thanks. -->
+		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>T%d</font>" % turn, just, x, self.Y_LABEL + self.iGraphTurnLabelYOffset, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def drawGraphs(self):
 
@@ -1511,12 +1519,16 @@ class CvInfoScreen:
 
 			str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
 
+			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
+			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
+			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, self.iGraphLeaderIconSize)
+			szNameWithLeader = u"<font=2>%s %s</font>" % (szLeaderImg, str)
+
 #BUG: Change Graphs - start
 			if AdvisorOpt.isGraphs():
-				screen.setText(self.sPlayerTextWidget[p], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.WIDGET_GENERAL, -1, -1)
 			else:
-				screen.setLabel(self.sPlayerTextWidget[p], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY,
-								self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 #BUG: Change Graphs - end
 
 			yLine += self.H_LEGEND_TEXT
@@ -1653,6 +1665,17 @@ class CvInfoScreen:
 		if (not self.bRanksAmongKnown or self.bRevealAll or
 				self.pActiveTeam.isHasMet(gc.getPlayer(iPlayer).getTeam())):
 			aiGroup.append((iValue, iPlayer))
+
+	# <!-- custom: helper function to format rank with medal icons for ranks 1-3, added with claude opus 4.5's help thanks. -->
+	def getRankStr(self, iRank):
+		if iRank == 1:
+			return self.szRank1ImgTag
+		elif iRank == 2:
+			return self.szRank2ImgTag
+		elif iRank == 3:
+			return self.szRank3ImgTag
+		else:
+			return str(iRank)
 
 	# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. Old code removed or commented-out for concision and readability. -->
 	def getPlayerValueStr(self, valuePlayerPair, szMeasure = "", aiGroup = None):
@@ -2132,21 +2155,22 @@ class CvInfoScreen:
 		if self.bRankInValueColumn:
 			iCol = iValueCol
 			iOffset = 1
-		screen.setTableText(szTable, iCol, 0 + iOffset, str(iEconomyRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-		screen.setTableText(szTable, iCol, 3 + iOffset, str(iIndustryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-		screen.setTableText(szTable, iCol, 6 + iOffset, str(iAgricultureRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-		screen.setTableText(szTable, iCol, 9 + iOffset, str(iMilitaryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		# <!-- custom: use getRankStr to show medal icons for ranks 1-3, added with claude opus 4.5's help thanks. -->
+		screen.setTableText(szTable, iCol, 0 + iOffset, self.getRankStr(iEconomyRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 3 + iOffset, self.getRankStr(iIndustryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 6 + iOffset, self.getRankStr(iAgricultureRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 9 + iOffset, self.getRankStr(iMilitaryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 11
-		screen.setTableText(szTable, iCol, 12 + iOffset, str(iLandAreaRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 12 + iOffset, self.getRankStr(iLandAreaRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 14
-		screen.setTableText(szTable, iCol, 15 + iOffset, str(iPopulationRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 15 + iOffset, self.getRankStr(iPopulationRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 16
-		screen.setTableText(szTable, iCol, 18 + iOffset, str(iHappinessRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 18 + iOffset, self.getRankStr(iHappinessRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 18
-		screen.setTableText(szTable, iCol, 21 + iOffset, str(iHealthRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		screen.setTableText(szTable, iCol, 21 + iOffset, self.getRankStr(iHealthRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		if self.bShowExports:
 			# row was 21
-			screen.setTableText(szTable, iCol, 24 + iOffset, str(iNetTradeRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iCol, 24 + iOffset, self.getRankStr(iNetTradeRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# </advc.077>
 		return
 

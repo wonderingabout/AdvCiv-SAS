@@ -301,6 +301,28 @@ Sometimes you need to wrap them in a string, sometimes the timing of whenever yo
 					szPlayerName = u"%s (%d)" % (szPlayerName, iRank)
 ```
 
+Note that this can be generalized to any button, not just our AdvCiv-SAS new buttons, so for example leader buttons can be added in the info screen's tab as textual icons (see screenshots in the UI reworks section for examples). Example of code:
+
+```py
+		# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
+		self.iGraphLeaderIconSize = 16
+
+			# <!-- custom: then later in the code... -->
+			str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
+
+			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
+			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
+			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, self.iGraphLeaderIconSize)
+			szNameWithLeader = u"<font=2>%s %s</font>" % (szLeaderImg, str)
+
+#BUG: Change Graphs - start
+			if AdvisorOpt.isGraphs():
+				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.WIDGET_GENERAL, -1, -1)
+			else:
+				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+#BUG: Change Graphs - end
+```
+
 The relevant files can be found in:
 
 - XML: as of now in [/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml) and in [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml)
