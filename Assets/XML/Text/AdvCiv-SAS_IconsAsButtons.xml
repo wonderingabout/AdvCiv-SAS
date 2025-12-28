@@ -136,6 +136,6 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: ⏳ emoji similarly from emojiterra. -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH</Tag>
-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds</English>
 	</TEXT>
 </Civ4GameText>

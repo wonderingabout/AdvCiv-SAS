@@ -503,6 +503,8 @@ class CvInfoScreen:
 		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
 
 		# <!-- custom: 32 is a bit too high and overfills the rows where the buttons are at, this seems to fit well ingame as well as recommended by claude opus 4.5 thanks.. -->
+		self.W_DEMOGRAPHICS_BUTTON_SIZE = 24
+		self.H_DEMOGRAPHICS_BUTTON_SIZE = 24
 		self.W_STATS_BUTTON_SIZE = 24
 		self.H_STATS_BUTTON_SIZE = 24
 
@@ -587,7 +589,9 @@ class CvInfoScreen:
 		self.szHappinessTitle = self.TEXT_HAPPINESS + (u" (%c)" % self.getIcon(FontSymbols.HAPPY_CHAR))
 		self.szHealthTitle = self.TEXT_HEALTH + (u" (%c)" % self.getIcon(FontSymbols.HEALTHY_CHAR)) + ": " + self.TEXT_HEALTH_MEASURE
 		self.szExpTitle = self.TEXT_EXP + (u" (%c)" % self.getIcon(FontSymbols.TRADE_CHAR)) + ": " + self.TEXT_EXP_MEASURE
-		self.szLandAreaTitle = self.TEXT_LAND_AREA + ": " + self.TEXT_LAND_AREA_MEASURE
+		# <!-- custom add char icons there with claude opus 4.5's help thanks. -->
+		self.szLandAreaTitle = u"%s (%c): %s" % (self.TEXT_LAND_AREA, CyGame().getSymbolID(FontSymbols.MAP_CHAR), self.TEXT_LAND_AREA_MEASURE)
+		self.szPopulationTitle = u"%s (%c)" % (self.TEXT_POPULATION, CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
 
 		self.TEXT_TIME_PLAYED = localText.getText("TXT_KEY_INFO_SCREEN_TIME_PLAYED", ())
 		self.TEXT_CITIES_CURRENT = localText.getText("TXT_KEY_CONCEPT_CITIES", ()) # K-Mod
@@ -671,11 +675,11 @@ class CvInfoScreen:
 		self.BUGProject_Off = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 
 		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
-		self.szTimeIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds"  # ⏳
+		self.szTimeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH", ()))  # ⏳
 		self.szCityIconStats = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.szFoundCityIconStats = "Art/Interface/Buttons/Actions/FoundCity.dds"
-		self.szRazeIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Fire/1f525_64px.dds"  # 🔥
-		self.szReligionIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Dove/1f54a_64px.dds"  # 🕊️
+		self.szRazeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH", ()))  # 🔥
+		self.szReligionIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", ()))  # 🕊️
 		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
 
 	def reset(self):
@@ -1668,7 +1672,16 @@ class CvInfoScreen:
 	
 	def getPlayerStr(self, valuePlayerPair, aiGroup = None):
 		return self.getPlayerValueStr(valuePlayerPair, "", aiGroup)[0]
-		
+
+	# <!-- custom: add buttons in the demographics tab with the help of claude opus 4.5 thanks. -->
+	def getPlayerButton(self, valuePlayerPair):
+		iPlayer = valuePlayerPair[1]
+		if iPlayer >= 0:
+			player = gc.getPlayer(iPlayer)
+			if player and (self.pActiveTeam.isHasMet(player.getTeam()) or self.bRevealAll):
+				return gc.getLeaderHeadInfo(player.getLeaderType()).getButton()
+		return ""
+
 	def getValueStr(self, valuePlayerPair, szMeasure = ""):
 		return self.getPlayerValueStr(valuePlayerPair, szMeasure)[1]
 	# Based on function in CvGameCoreUtils. Not worth exporting those two lines.
@@ -1911,7 +1924,7 @@ class CvInfoScreen:
 		# Create Table
 		szTable = self.getNextWidgetName()
 		# advc.077: iColumns instead of 6
-		screen.addTableControlGFC(szTable, iColumns, self.X_DEMOGRAPHICS_CHART, self.Y_DEMOGRAPHICS_CHART, self.W_DEMOGRAPHICS_CHART, self.H_DEMOGRAPHICS_CHART, true, true, 32, 32, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szTable, iColumns, self.X_DEMOGRAPHICS_CHART, self.Y_DEMOGRAPHICS_CHART, self.W_DEMOGRAPHICS_CHART, self.H_DEMOGRAPHICS_CHART, true, true, self.W_DEMOGRAPHICS_BUTTON_SIZE, self.H_DEMOGRAPHICS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		#screen.setTableColumnHeader(szTable, 0, self.TEXT_DEMOGRAPHICS_SMALL, 224) # Total graph width is 430
 		# <advc.077> Changes throughout the rest of this function
 		# Replacing literals
@@ -1977,11 +1990,15 @@ class CvInfoScreen:
 		screen.setTableText(szTable, iTitleCol, 6, self.szAgricultureTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		#screen.setTableText(szTable, iTitleCol, 7, self.TEXT_AGRICULTURE_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		screen.setTableText(szTable, iTitleCol, 9, self.szMilitaryTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-		# row was 11
+
+		# <!-- custom add char icons there with claude opus 4.5's help thanks. -->
+		# row was 11 - Land Area with map icon
+
 		screen.setTableText(szTable, iTitleCol, 12, self.szLandAreaTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		#screen.setTableText(szTable, iTitleCol, 12, self.TEXT_LAND_AREA_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-		# row was 14
-		screen.setTableText(szTable, iTitleCol, 15, self.TEXT_POPULATION, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		# row was 14 - Population with citizen icon
+		screen.setTableText(szTable, iTitleCol, 15, self.szPopulationTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+
 		# row was 16
 		screen.setTableText(szTable, iTitleCol, 18, self.szHappinessTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 18
@@ -2010,36 +2027,37 @@ class CvInfoScreen:
 			# row was 21
 			screen.setTableText(szTable, iValueCol, 24, self.separateThousands(iNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
+		# <!-- custom: add buttons in the demographics tab with the help of claude opus 4.5 thanks. Old code removed or commented-out for readability and concision. -->
 		#iCol = 2
 		if bShowBest:
 			# Replaced str(i...GameBest) with getPlayerStr and getValueStr, and put them in separate rows.
-			screen.setTableText(szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), self.getPlayerButton(economyGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			screen.setTableText(szTable, iBestCol, 0, self.getValueStr(economyGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			screen.setTableText(szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), self.getPlayerButton(industryGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			screen.setTableText(szTable, iBestCol, 3, self.getValueStr(industryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			screen.setTableText(szTable, iBestCol, 7,self. getPlayerStr(agricultureGameBest, aiGroupAgriculture), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 7, self.getPlayerStr(agricultureGameBest, aiGroupAgriculture), self.getPlayerButton(agricultureGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			screen.setTableText(szTable, iBestCol, 6, self.getValueStr(agricultureGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			screen.setTableText(szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), self.getPlayerButton(militaryGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			screen.setTableText(szTable, iBestCol, 9, self.getValueStr(militaryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 12
-			screen.setTableText(szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), self.getPlayerButton(landAreaGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 11
 			screen.setTableText(szTable, iBestCol, 12, self.getValueStr(landAreaGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 15
-			screen.setTableText(szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), self.getPlayerButton(populationGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 14
 			screen.setTableText(szTable, iBestCol, 15, self.getValueStr(populationGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 17
-			screen.setTableText(szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), self.getPlayerButton(happinessGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 16
 			screen.setTableText(szTable, iBestCol, 18, self.getValueStr(happinessGameBest, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 19
-			screen.setTableText(szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), self.getPlayerButton(healthGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 18
 			screen.setTableText(szTable, iBestCol, 21, self.getValueStr(healthGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			if self.bShowExports:
 				# row was 22
-				screen.setTableText(szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+				screen.setTableText(szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), self.getPlayerButton(netTradeGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 				screen.setTableText(szTable, iBestCol, 24, self.getValueStr(netTradeGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		#iCol = 3
@@ -2064,33 +2082,33 @@ class CvInfoScreen:
 		#iCol = 4
 		if bShowWorst:
 			# Replaced str(i...GameWorst) with getPlayerStr and getValueStr, and put them in a separate rows.
-			screen.setTableText(szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), self.getPlayerButton(economyGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			screen.setTableText(szTable, iWorstCol, 0, self.getValueStr(economyGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			screen.setTableText(szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), self.getPlayerButton(industryGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			screen.setTableText(szTable, iWorstCol, 3, self.getValueStr(industryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			screen.setTableText(szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), self.getPlayerButton(agricultureGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			screen.setTableText(szTable, iWorstCol, 6, self.getValueStr(agricultureGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			screen.setTableText(szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), self.getPlayerButton(militaryGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			screen.setTableText(szTable, iWorstCol, 9, self.getValueStr(militaryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 12
-			screen.setTableText(szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), self.getPlayerButton(landAreaGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 11
 			screen.setTableText(szTable, iWorstCol, 12, self.getValueStr(landAreaGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 15
-			screen.setTableText(szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), self.getPlayerButton(populationGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 14
 			screen.setTableText(szTable, iWorstCol, 15, self.getValueStr(populationGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 17
-			screen.setTableText(szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), self.getPlayerButton(happinessGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 16
 			screen.setTableText(szTable, iWorstCol, 18, self.getValueStr(happinessGameWorst, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 19
-			screen.setTableText(szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			screen.setTableText(szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), self.getPlayerButton(healthGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 18
 			screen.setTableText(szTable, iWorstCol, 21, self.getValueStr(healthGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			if self.bShowExports:
 				# row was 22
-				screen.setTableText(szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+				screen.setTableText(szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), self.getPlayerButton(netTradeGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 				# row was 21
 				screen.setTableText(szTable, iWorstCol, 24, self.getValueStr(netTradeGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
