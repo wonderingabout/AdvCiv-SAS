@@ -26,14 +26,13 @@ As for the future, i have some more content prepared for the future era (no pun 
 &emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[City Screen rework](/README.md#city-screen-rework)  
-&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
-&emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
-&emsp;[Some lower level changes (search bar, keyboard UP/DOWN navigation, etc.)](/README.md#search-bar)  
-&emsp;[Concepts (as of now in the "Outdated" sevopedia category)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category)  
-&emsp;[Mods Info](/README.md#mods-info)  
-[Images as buttons](/README.md#images-as-buttons)  
+&emsp;[Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-etc)  
+&emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
+[UI (Common)](/README.md#ui-common)  
+&emsp;[Images as buttons](/README.md#images-as-buttons)  
+&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
 [Python Scripts and .csv tables](/README.md#python-scripts-and-csv-tables)  
 &emsp;[.csv and .md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
 &emsp;[.csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
@@ -158,19 +157,6 @@ Additionally, also added a new specialists breakdown as of now on bottom-right. 
 <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG" alt="0.400_city_screen (4).JPG" width="250"></img>
 
-### Untradeable techs (bTrade) display information
-
-For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5000_bTrade_bRepeat_example.JPG" alt="0.5000_bTrade_bRepeat_example.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
-
-See also for details:
-
-- [README_Main_Changes_Guide.md#technologies-non-exhaustive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)
-- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
-- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
-
 ## UI (Main Sevopedia reworks)
 
 ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
@@ -201,7 +187,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 
 For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
 
-### Extra notes specifically about the sevopedia leader's AI Personality Panel feature
+#### Extra notes specifically about the sevopedia leader's AI Personality Panel feature
 
 note 1: its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
@@ -209,7 +195,7 @@ note 2: you can enable/disable the emoji display as you prefer (see [README_AI_P
 
 note 3: if you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). This was done so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See for details: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
 
-### Some lower level changes (search bar, keyboard UP/DOWN navigation, etc.)
+### Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)
 
 #### Search Bar
 
@@ -227,7 +213,9 @@ See for details: [example 0.1: added a search bar. Used in several sevopedia pag
 
 Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
 
-### Concepts (as of now in the "Outdated" sevopedia category)
+### Some other sevopedia reworks
+
+#### Concepts (as of now in the "Outdated" sevopedia category)
 
 These are not supported in advciv-sas, hence the "outdated" name (i.e. i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images (see [README_Sevopedia_Reworks.md#example-35-improvements-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-35-improvements-category) for a few examples detailed there anyways etc), or that i found informative or/and wanted to add anyways etc. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
 
@@ -244,7 +232,7 @@ Added new concepts, as of now:
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG" alt="0.800_conceptinfos_example (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG" alt="0.800_conceptinfos_example (2).JPG" width="250"></img>
 
-### Mods Info
+#### Mods Info
 
 The sevopedia "Mods Info" (reusing the old civ4 concepts category or similar if i am not mistaken anyways etc, thanks to [@f1rpo](https://github.com/f1rpo)'s help too anyways etc) category adds info about mods and such, including but not only AdvCiv-SAS.
 
@@ -253,9 +241,13 @@ As of now this mostly contains other mods than advciv-sas-related changes (non-e
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
-## Images as buttons
+## UI (Common)
+
+### Images as buttons
 
 Not mentionned previously at the UI section, but we use in AdvCiv-SAS an Images as buttons approach, typically to add emoji as buttons without having to tediously add them as textual icons, for example in sevopedia (such as of now in the AI Personality Panel's emojis, or in the Info Screen (F9 key ingame)'s Statistics tab's top chart (Time Played, Cities, etc.)).
+
+Basically, what i did was downloading them (usually .png and usually from [emojiterra.com](http://emojiterra.com/)), then with Paint.NET resize to 64x64 and save as .dds.
 
 ```xml
 	<!-- custom: ⏳ emoji similarly from emojiterra. -->
@@ -265,7 +257,7 @@ Not mentionned previously at the UI section, but we use in AdvCiv-SAS an Images 
 	</TEXT>
 ```
 
-With a dynamic implementation based on `localtext`, so that if path changes in the future or for centralization purposes or such, it makes it easier as such. Example (from [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)):
+With a dynamic implementation based on `localtext`, so that if path changes in the future or for centralization purposes or such, it makes it easier as such. For example (from [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)),adding emojis or other images or such as buttons:
 
 ```py
 		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
@@ -274,10 +266,58 @@ With a dynamic implementation based on `localtext`, so that if path changes in t
 		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, self.szTimeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 ```
 
+An alternative implementation (such as in [SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py)) allows to introduce them as plain text using `<img>` tags. For example:
+
+```py
+		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
+			button_path = localText.getText(emoji_name_to_button_path_txt_keys[emoji_name], ())
+			button_size = 16
+			line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
+			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
+```
+
+Sometimes you need to wrap them in a string, sometimes the timing of whenever you wrap them to string can produce weird results it seems if i'm not mistaken. If in doubt, consider hardcoding the path as a string directly. However, here is another working implementation that successfully uses localText to fetch button paths as textual icons:
+
+```py
+		# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. -->
+		szRank1IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))  # 🏆
+		szRank2IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH", ()))  # 🥈
+		szRank3IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH", ()))  # 🥉
+		
+		# <!-- custom: precompute full image tag strings for efficiency, added with claude opus 4.5's help thanks. -->
+		self.szRank1ImgTag = u"<img=%s size=%d></img>" % (szRank1IconPath, self.iRankIconSize)
+		self.szRank2ImgTag = u"<img=%s size=%d></img>" % (szRank2IconPath, self.iRankIconSize)
+		self.szRank3ImgTag = u"<img=%s size=%d></img>" % (szRank3IconPath, self.iRankIconSize)
+
+			# <!-- custom: then later in the code... -->
+			if iRank > 0:
+				if iRank == 1:
+					szPlayerName = u"%s %s" % (szPlayerName, self.szRank1ImgTag)
+				elif iRank == 2:
+					szPlayerName = u"%s %s" % (szPlayerName, self.szRank2ImgTag)
+				elif iRank == 3:
+					szPlayerName = u"%s %s" % (szPlayerName, self.szRank3ImgTag)
+				else:
+					szPlayerName = u"%s (%d)" % (szPlayerName, iRank)
+```
+
 The relevant files can be found in:
 
 - XML: as of now in [/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml) and in [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml)
 - `.dds`: as of now in [/Assets/Art/AdvCiv_SAS/Images_As_Buttons/](/Assets/Art/AdvCiv_SAS/Images_As_Buttons/)
+
+### Untradeable techs (bTrade) display information
+
+For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5000_bTrade_bRepeat_example.JPG" alt="0.5000_bTrade_bRepeat_example.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+
+See also for details:
+
+- [README_Main_Changes_Guide.md#technologies-non-exhaustive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)
+- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
+- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
 
 ## Python Scripts and .csv tables
 
