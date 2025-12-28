@@ -314,16 +314,18 @@ class CvInfoScreen:
 		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
 		self.W_WONDERS_RIGHT_PANE = 640
 		# <!-- custom: gap between the panels as noted by gemini 3 pro and chatgpt 5.2 before it thanks. -->
-		self.W_WONDERS_INTER_PANE_GAP = self.SMALL_MARGIN
-
-		# <!-- custom: in many of these variable names, add or rename to "_TOP_CITIES_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
-		self.X_TOP_CITIES_LEFT_PANE = self.X_MARGIN
-		self.Y_TOP_CITIES_LEFT_PANE = self.Y_MARGIN
-		self.W_TOP_CITIES_LEFT_PANE = self.W_SCREEN - (2 * self.X_TOP_CITIES_LEFT_PANE) - self.W_WONDERS_INTER_PANE_GAP - self.W_WONDERS_RIGHT_PANE
-		self.H_TOP_CITIES_LEFT_PANE = 620
+		self.W_WONDERS_INTER_PANE_GAP = self.X_MARGIN
 
 		# <!-- custom: commented-out as they seem unused if i'm not mistaken. -->
 		# <!-- custom: note: deleted self.W_TC_TEXT variables and such and self.X_ROTATION_CITY_ANIMATION variables and such, and self.W_CITIES_WONDER and self.H_CITIES_WONDER as they seem unused if i'm not mistaken. -->
+		# <!-- custom: note 2: use multilist for wonder icons to allow multiple rows (same as in _sevopedia_helpers.py, and following AdvCiv-SAS's approach in SevoPediaReligion.py); added with claude opus 4.5's help thanks. -->
+
+		# <!-- custom: in many of these variable names, add or rename to "_TOP_CITIES_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
+		self.X_TOP_CITIES_LEFT_PANE = self.W_WONDERS_INTER_PANE_GAP
+		self.Y_TOP_CITIES_LEFT_PANE = self.Y_MARGIN
+		self.W_TOP_CITIES_LEFT_PANE = self.W_SCREEN - (2 * self.X_TOP_CITIES_LEFT_PANE) - self.W_WONDERS_INTER_PANE_GAP - self.W_WONDERS_RIGHT_PANE
+		# <!-- custom: mirror wonders panel height (H_SCREEN - 2 * Y_MARGIN), added with claude opus 4.5's help thanks. -->
+		self.H_TOP_CITIES_LEFT_PANE = self.H_SCREEN - 2 * self.Y_MARGIN
 
 		# Animated City thingies
 		self.X_CITY_ANIMATION = self.X_TOP_CITIES_LEFT_PANE + 20
@@ -332,26 +334,51 @@ class CvInfoScreen:
 		self.H_CITY_ANIMATION = 110
 		self.Y_CITY_ANIMATION_BUFFER = self.H_CITY_ANIMATION / 2
 
+		# <!-- custom: header height for "Top 5 Cities in the World" title, added with claude opus 4.5's help thanks. -->
+		self.iTopCitiesHeaderHeight = 35
+
+		# <!-- custom: city name/founded panel dimensions, added with claude opus 4.5's help thanks. -->
+		self.H_CITIES_DESC = 58  # increased a tiny bit
+		# <!-- custom: Y offset adjustment to align city desc panel with city animation, added with claude opus 4.5's help thanks. -->
+		self.Y_CITIES_DESC_BUFFER = -8  # was -4, move panel up a few pixels
+
+		# <!-- custom: multilist panel constants for top cities wonders, added with claude opus 4.5's help thanks. -->
+		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
+		self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER = 5
+		self.iTopCitiesWonderButtonSize = 46
+		self.iTopCitiesWonderNumRows = 2
+		self.iTopCitiesWonderPanelMargin = 8
+		# <!-- custom: height adjustment for wonder panel (negative to reduce), added with claude opus 4.5's help thanks. -->
+		iTopCitiesWonderPanelHeightAdjust = -3
+		# <!-- custom: calculate wonder panel height based on rows, added with claude opus 4.5's help thanks. -->
+		self.H_CITIES_WONDER_PANEL = (self.iTopCitiesWonderNumRows * self.iTopCitiesWonderButtonSize) + (2 * self.iTopCitiesWonderPanelMargin) + iTopCitiesWonderPanelHeightAdjust
+
+		# <!-- custom: gap between city desc panel and wonder panel, added with claude opus 4.5's help thanks. -->
+		self.iTopCitiesDescWonderGap = -2  # was 2, negative to bring wonder panel closer to city desc
+		# <!-- custom: margin between city components (bottom of one city to top of next), added with claude opus 4.5's help thanks. -->
+		self.iTopCitiesInterCityMargin = 6
+
+		# <!-- custom: dynamically compute Y_CITIES_BUFFER based on component heights, added with claude opus 4.5's help thanks. -->
+		# Total height per city = city desc panel + gap + wonder panel + inter-city margin
+		self.Y_CITIES_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap + self.H_CITIES_WONDER_PANEL + self.iTopCitiesInterCityMargin
+
 		# Placement of Cities
 		self.X_COL_1_CITIES = self.X_TOP_CITIES_LEFT_PANE + 20
-		self.Y_CITIES_BUFFER = 118
 
 		self.Y_ROWS_CITIES = []
-		self.Y_ROWS_CITIES.append(self.Y_TOP_CITIES_LEFT_PANE + 20)
-		for i in range(1,5):
+		# <!-- custom: add header height offset so cities start below the header, added with claude opus 4.5's help thanks. -->
+		self.Y_ROWS_CITIES.append(self.Y_TOP_CITIES_LEFT_PANE + 20 + self.iTopCitiesHeaderHeight)
+		for i in range(1, 5):
 			self.Y_ROWS_CITIES.append(self.Y_ROWS_CITIES[i-1] + self.Y_CITIES_BUFFER)
 
 		# <!-- custom: right part of the top cities panel if i'm not mistaken. -->
-		# <!-- custom: not sure why but the inter-spacing between the left and right part of the top cities panel is shorter than the side margins inside the top cities panel, so manually adjusting it if i'm not mistaken. -->
 		topCitiesInterLeftRightPartsGapAdjust = 2
 		self.X_COL_1_CITIES_DESC = self.X_TOP_CITIES_LEFT_PANE + self.W_CITY_ANIMATION + 30 + topCitiesInterLeftRightPartsGapAdjust
-		self.Y_CITIES_DESC_BUFFER = -4
-		# <!-- custom: not sure why but -30 -20 was too long and -30 -10 was too short, so manually adjusting if i'm not mistaken and understood correctly gemini 3 pro's overall explanation. -->
 		topcitiesRightPartWAdjust = -16
 		self.W_CITIES_DESC = self.W_TOP_CITIES_LEFT_PANE - self.W_CITY_ANIMATION - 30 + topcitiesRightPartWAdjust - topCitiesInterLeftRightPartsGapAdjust
-		self.H_CITIES_DESC = 60
 
-		self.Y_CITIES_WONDER_BUFFER = 57
+		# <!-- custom: wonder panel Y offset from city desc panel, added with claude opus 4.5's help thanks. -->
+		self.Y_CITIES_WONDER_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap
 
 ############################################### WONDERS ###############################################
 
@@ -2187,6 +2214,13 @@ class CvInfoScreen:
 		screen.addPanel( self.szLeftPaneWidget, "", "", true, true,
 			self.X_TOP_CITIES_LEFT_PANE, self.Y_TOP_CITIES_LEFT_PANE, self.W_TOP_CITIES_LEFT_PANE, self.H_TOP_CITIES_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
 
+		# <!-- custom: add "Top 5 Cities in the World" header (Civ3 vibe!), removed bold, added with claude opus 4.5's help thanks. -->
+		szHeaderText = u"<font=4>" + localText.getText("TXT_KEY_TOP_5_CITIES_IN_THE_WORLD", ()) + u"</font>"
+		screen.setLabel(self.getNextWidgetName(), "", szHeaderText, CvUtil.FONT_CENTER_JUSTIFY,
+			self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE / 2, 
+			self.Y_TOP_CITIES_LEFT_PANE + 12, 
+			0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
 		self.drawTopCities()
 		self.drawWondersTab()
 
@@ -2270,24 +2304,42 @@ class CvInfoScreen:
 
 				aaiTopCitiesWonders[iCityLoop] = aiTempWondersList
 
+		# <!-- custom: use multilist for wonder icons to allow multiple rows, added with claude opus 4.5's help thanks. -->
 		# Create Scrollable areas under each city
 		self.szCityWonderScrollArea = []
-		for iCityLoop in range (self.iNumCities):
+		for iCityLoop in range(self.iNumCities):
 
 			self.szCityWonderScrollArea.append(self.getNextWidgetName())
 
-			#iScollAreaY = (self.Y_CITIES_BUFFER * iCityLoop) + 90 + self.Y_CITIES_WONDER_BUFFER
-
 			szIconPanel = self.szCityWonderScrollArea[iCityLoop]
-			screen.addPanel( szIconPanel, "", "", false, true,
-				self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iCityLoop] + self.Y_CITIES_WONDER_BUFFER + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
+			
+			iMultiListX = self.X_COL_1_CITIES_DESC
+			iMultiListY = self.Y_ROWS_CITIES[iCityLoop] + self.Y_CITIES_WONDER_BUFFER + self.Y_CITIES_DESC_BUFFER
+			iMultiListW = self.W_CITIES_DESC
+			iMultiListH = self.H_CITIES_WONDER_PANEL
+			
+			# Create panel first
+			screen.addPanel(szIconPanel, "", "", False, True,
+				iMultiListX, iMultiListY, iMultiListW, iMultiListH, PanelStyles.PANEL_STYLE_DAWNTOP)
+			
+			# <!-- custom: use no-header offsets since wonder panel has no title text, added with claude opus 4.5's help thanks. -->
+			# Create multilist control for multiple rows of wonder buttons
+			szMultiListName = self.getNextWidgetName()
+			screen.addMultiListControlGFC(szMultiListName, "",
+				iMultiListX + self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER,
+				iMultiListY + self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER,
+				iMultiListW - (2 * self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER),
+				iMultiListH - (2 * self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER),
+				1,  # numLists (1 for auto-calculate buttons per row)
+				self.iTopCitiesWonderButtonSize,
+				self.iTopCitiesWonderButtonSize,
+				TableStyles.TABLE_STYLE_STANDARD)
 
 			# Now place the wonder buttons
 			for iWonderLoop in range(aiTopCitiesNumWonders[iCityLoop]):
-
 				iBuildingID = aaiTopCitiesWonders[iCityLoop][iWonderLoop]
-				screen.attachImageButton( szIconPanel, "", gc.getBuildingInfo(iBuildingID).getButton(),
-					GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False )
+				screen.appendMultiListButton(szMultiListName, gc.getBuildingInfo(iBuildingID).getButton(),
+					0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
 
 	def calculateTopCities(self):
 
