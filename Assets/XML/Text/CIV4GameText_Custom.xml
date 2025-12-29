@@ -292,6 +292,14 @@
 
 
 
+	<!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as aprt of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
+	<TEXT>
+		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
+		<English>Legendary cities</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>

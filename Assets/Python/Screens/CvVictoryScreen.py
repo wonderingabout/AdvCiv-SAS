@@ -91,12 +91,14 @@ class CvVictoryScreen:
 		self.W_AREA = 1010
 		self.H_AREA = 650
 
-		self.TABLE_WIDTH_0 = 350
+		# <!-- custom: adjusted column widths for percentage display (claude opus 4.5) -->
+		someWRoomForCulturePercentages = 27
+		self.TABLE_WIDTH_0 = 350 - (2 * someWRoomForCulturePercentages)
 		self.TABLE_WIDTH_1 = 80
 		self.TABLE_WIDTH_2 = 180
-		self.TABLE_WIDTH_3 = 100
+		self.TABLE_WIDTH_3 = 100 + someWRoomForCulturePercentages
 		self.TABLE_WIDTH_4 = 180
-		self.TABLE_WIDTH_5 = 100
+		self.TABLE_WIDTH_5 = 100 + someWRoomForCulturePercentages
 
 		self.TABLE2_WIDTH_0 = 740
 		self.TABLE2_WIDTH_1 = 265
@@ -150,6 +152,34 @@ class CvVictoryScreen:
 
 		# <!-- custom: leader icon size for inline display, based on AdvCiv-SAS's approach in the Info Screen (claude opus 4.5). -->
 		self.iLeaderIconSize = 24
+		self.iEmojiAsIconIconSize = 16
+
+		# <!-- custom: language tracking for initText, based on Info Screen pattern (claude opus 4.5) -->
+		self.iLanguageLoaded = -1
+
+	# <!-- custom: initialize text and image tags once for performance, based on Info Screen pattern (claude opus 4.5) -->
+	def initText(self):
+		# only execute this function once per language...
+		if self.iLanguageLoaded == CyGame().getCurrentLanguage() or not CyGame().isFinalInitialized():
+			return
+		self.iLanguageLoaded = CyGame().getCurrentLanguage()
+
+		# <!-- custom: precompute trophy icon for Highest Score row (claude opus 4.5) -->
+		szTrophyIconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))
+		self.szTrophyImgTag = u"<img=%s size=%d></img>" % (szTrophyIconPath, self.iEmojiAsIconIconSize)
+
+		# <!-- custom: thousand separator, based on Info Screen pattern (claude opus 4.5) -->
+		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
+
+	# <!-- custom: helper function to format numbers with thousand separators, based on Info Screen pattern (claude opus 4.5) -->
+	def separateThousands(self, iValue):
+		szSep = self.szSepBase
+		s = '%d' % iValue
+		groups = []
+		while s and s[-1].isdigit():
+			groups.append(s[-3:])
+			s = s[:-3]
+		return s + szSep.join(reversed(groups))
 
 	# <!-- custom: helper function to get leader icon image tag for a player (claude opus 4.5) -->
 	def getLeaderIconTag(self, iPlayer):
@@ -189,6 +219,9 @@ class CvVictoryScreen:
 		screen.hideScreen()
 
 	def interfaceScreen(self):
+
+		# <!-- custom: initialize text once for performance (claude opus 4.5) -->
+		self.initText()
 
 		# Create a new screen
 		screen = self.getScreen()
@@ -1455,10 +1488,12 @@ class CvVictoryScreen:
 
 					iRow = screen.appendTableRow(szTable)
 					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (gc.getGame().getTargetScore(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+					screen.setTableText(szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestScoreTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1468,7 +1503,8 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
 						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						screen.setTableText(szTable, 5, iRow, (u"%d" % bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+						screen.setTableText(szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1477,11 +1513,14 @@ class CvVictoryScreen:
 					szText1 = localText.getText("TXT_KEY_VICTORY_SCREEN_HIGHEST_SCORE", (CyGameTextMgr().getTimeStr(gc.getGame().getStartTurn() + gc.getGame().getMaxTurns(), False), ))
 
 					iRow = screen.appendTableRow(szTable)
-					screen.setTableText(szTable, 0, iRow, szText1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					# <!-- custom: add trophy icon to Highest Score row (claude opus 4.5) -->
+					szScoreText = u"%s %s" % (self.szTrophyImgTag, szText1)
+					screen.setTableText(szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+					screen.setTableText(szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestScoreTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1491,14 +1530,21 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
 						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						screen.setTableText(szTable, 5, iRow, (u"%d" % bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+						screen.setTableText(szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
 				if (victory.isConquest()):
 					iRow = screen.appendTableRow(szTable)
-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+					# <!-- custom: add strength icon to Conquest row (claude opus 4.5) -->
+					iStrengthIcon = CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
+					szConquestText = u"%c %s" % (iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
+					screen.setTableText(szTable, 0, iRow, szConquestText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText(szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_RIVALS_LEFT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
 					screen.setTableText(szTable, 3, iRow, unicode(nRivals), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					bEntriesFound = True
 # BUG Additions Start
@@ -1851,24 +1897,23 @@ class CvVictoryScreen:
 					# <advc.126>
 					eVictoryLevel = victory.getCityCulture()
 					iCultureThresh = gc.getGame().getCultureThreshold(eVictoryLevel)
-					szCultureVictoryText = localText.getText("TXT_KEY_VICTORY_SCREEN_CITY_CULTURE", (victory.getNumCultureCities(), gc.getCultureLevelInfo(eVictoryLevel).getTextKey(), iCultureThresh)) # </advc.126>
+					# <!-- custom: add culture icon before text and use thousand separator (claude opus 4.5) -->
+					# <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as aprt of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
+					# <!-- note: uses TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES instead of TXT_KEY_VICTORY_SCREEN_CITY_CULTURE for cleaner display -->
+					iCultureIcon = gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()
+					szCultureVictoryText = u"%c %d %s (%s)" % (iCultureIcon, victory.getNumCultureCities(), localText.getText("TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES", ()), self.separateThousands(iCultureThresh))
 					screen.setTableText(szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					for i in range(victory.getNumCultureCities()):
 						if (len(ourBestCities) > i):
 							screen.setTableText(szTable, 2, iRow, ourBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions Start
-							if AdvisorOpt.isVictories():
-								if ourBestCities[i][2] == -1:
-									sString = "%i (-)" % (ourBestCities[i][0])
-								elif ourBestCities[i][2] > 100:
-									sString = "%i (100+)" % (ourBestCities[i][0])
-								elif ourBestCities[i][2] < 1:
-									sString = "%i (L)" % (ourBestCities[i][0])
-								else:
-									sString = "%i (%i)" % (ourBestCities[i][0], ourBestCities[i][2])
-							else:
-								sString = "%i" % (ourBestCities[i][0])
+							# <!-- custom: add thousand separator and percentage to culture values (claude opus 4.5) -->
+							iCultureValue = ourBestCities[i][0]
+							fCulturePercent = 0.0
+							if iCultureThresh > 0:
+								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
+							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
 
 							screen.setTableText(szTable, 3, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions End
@@ -1877,17 +1922,16 @@ class CvVictoryScreen:
 							screen.setTableText(szTable, 4, iRow, theirBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 # BUG Additions Start
-							if AdvisorOpt.isVictories():
-								if theirBestCities[i][2] == -1:
-									sString = "%i (-)" % (theirBestCities[i][0])
-								elif theirBestCities[i][2] > 100:
-									sString = "%i (100+)" % (theirBestCities[i][0])
-								elif theirBestCities[i][2] < 1:
-									sString = "%i (L)" % (theirBestCities[i][0])
-								else:
-									sString = "%i (%i)" % (theirBestCities[i][0], theirBestCities[i][2])
-							else:
-								sString = "%i" % (theirBestCities[i][0])
+							# <!-- custom: add thousand separator and percentage to rival culture values (claude opus 4.5) -->
+							# Original BUG Code Explanation
+							# The original code used theirBestCities[i][2] which was a turns to legendary estimate. So the original showed: 26018 (15) meaning "26,018 culture, 15 turns to legendary".
+							# Our New Code
+							# We replaced it with a percentage of threshold instead. So now it shows: 26,018 (57.82%) meaning "26,018 culture, 57.82% of the 45,000 needed"
+							iCultureValue = theirBestCities[i][0]
+							fCulturePercent = 0.0
+							if iCultureThresh > 0:
+								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
+							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
 
 							screen.setTableText(szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions End
