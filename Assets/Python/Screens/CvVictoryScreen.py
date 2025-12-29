@@ -317,9 +317,13 @@ class CvVictoryScreen:
 				kVoteSource = gc.getVoteSourceInfo(i)
 				iRow = screen.appendTableRow(szTable)
 
-				screen.setTableText(szTable, 0, iRow, u"<font=4b>" + kVoteSource.getDescription().upper() + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
+				iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
+				szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
+				szHeaderText = u"<img=%s size=%d></img> <font=4b>%s</font>" % (szBuildingButton, self.iLeaderIconSize, kVoteSource.getDescription().upper())
+				screen.setTableText(szTable, 0, iRow, szHeaderText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				if (gc.getGame().getVoteSourceReligion(i) != -1):
-					# <!-- custom: add religion icon -->
+					# <!-- custom: add religion icon (claude opus 4.5) -->
 					iReligion = gc.getGame().getVoteSourceReligion(i)
 					szReligionButton = gc.getReligionInfo(iReligion).getButton()
 					szReligionName = u"<img=%s size=%d></img> %s" % (szReligionButton, self.iLeaderIconSize, gc.getReligionInfo(iReligion).getDescription())
@@ -329,7 +333,11 @@ class CvVictoryScreen:
 				#if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
 				if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i) and (gc.getGame().isDebugMode() or gc.getTeam(activePlayer.getTeam()).isHasMet(gc.getGame().getSecretaryGeneral(i)))):# K-Mod
 					iRow = screen.appendTableRow(szTable)
-					screen.setTableText(szTable, 0, iRow, gc.getVoteSourceInfo(i).getSecretaryGeneralText(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+					# <!-- custom: add star icon to Secretary General / AP Resident row (claude opus 4.5) -->
+					iStarIcon = CyGame().getSymbolID(FontSymbols.STAR_CHAR)
+					szSecGenText = u"%c %s" % (iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
+					screen.setTableText(szTable, 0, iRow, szSecGenText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add leader icon to secretary general name (claude opus 4.5) -->
 					iSecGenPlayer = self.getPlayerOnTeam(gc.getGame().getSecretaryGeneral(i))
 					szSecGenName = gc.getTeam(gc.getGame().getSecretaryGeneral(i)).getName()
@@ -360,7 +368,12 @@ class CvVictoryScreen:
 						# advc.178: Clauses for diplo victory added
 						if gc.getGame().isChooseElection(iLoop) and (gc.getGame().isDiploVictoryValid() or not info.isVictory()):
 							iRow = screen.appendTableRow(szTable)
-							screen.setTableText(szTable, 0, iRow, info.getDescription(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+							# <!-- custom: add bullet icon to resolution rows (claude opus 4.5) -->
+							iBulletIcon = CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
+							szResText = u"%c %s" % (iBulletIcon, info.getDescription())
+							screen.setTableText(szTable, 0, iRow, szResText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
 							if gc.getGame().isVotePassed(iLoop):
 								screen.setTableText(szTable, 1, iRow, localText.getText("TXT_KEY_POPUP_PASSED", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							else:
@@ -544,21 +557,26 @@ class CvVictoryScreen:
 				lPlayerName = pPlayer.getName()
 				lPlayerVotes = 10000 - pPlayer.getVotes(iVoteIdx, iActiveVote)   # so that it sorts from most votes to least
 
+				# <!-- custom: add icons to membership labels (claude opus 4.5) -->
+				iStarIcon = CyGame().getSymbolID(FontSymbols.STAR_CHAR)
+				iSilverStarIcon = CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR)
+				iBulletIcon = CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
+				
 				if (gc.getGame().canHaveSecretaryGeneral(iActiveVote)
 				and iAPUNTeam == pPlayer.getTeam()
 				and gc.getGame().getSecretaryGeneral(iActiveVote) == -1):
 					lPlayerStatus = 0
-					lPlayerLabel = gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText()
+					lPlayerLabel = u"%c %s" % (iStarIcon, gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText())
 				elif (gc.getGame().canHaveSecretaryGeneral(iActiveVote)
 				and gc.getGame().getSecretaryGeneral(iActiveVote) == pPlayer.getTeam()):
 					lPlayerStatus = 1
-					lPlayerLabel = gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText()
+					lPlayerLabel = u"%c %s" % (iStarIcon, gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText())
 				elif (pPlayer.isFullMember(iActiveVote)):
 					lPlayerStatus = 2
-					lPlayerLabel = localText.getText("TXT_KEY_VOTESOURCE_FULL_MEMBER", ())
+					lPlayerLabel = u"%c %s" % (iSilverStarIcon, localText.getText("TXT_KEY_VOTESOURCE_FULL_MEMBER", ()))
 				elif (pPlayer.isVotingMember(iActiveVote)):
 					lPlayerStatus = 3
-					lPlayerLabel = localText.getText("TXT_KEY_VOTESOURCE_VOTING_MEMBER", ())
+					lPlayerLabel = u"%c %s" % (iBulletIcon, localText.getText("TXT_KEY_VOTESOURCE_VOTING_MEMBER", ()))
 				else:
 					lPlayerStatus = 4
 					lPlayerLabel = localText.getText("TXT_KEY_VOTESOURCE_NON_VOTING_MEMBER", ())
@@ -725,9 +743,21 @@ class CvVictoryScreen:
 			if gc.getGame().isDiploVote(i):
 				kVoteSource = gc.getVoteSourceInfo(i)
 				iRow = screen.appendTableRow(szTable)
-				screen.setTableText(szTable, 0, iRow, u"<font=4b>" + kVoteSource.getDescription().upper() + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
+				szHeaderText = u"<font=4b>" + kVoteSource.getDescription().upper() + u"</font>"
+				for iBuilding in range(gc.getNumBuildingInfos()):
+					if gc.getBuildingInfo(iBuilding).getVoteSourceType() == i:
+						szBuildingButton = gc.getBuildingInfo(iBuilding).getButton()
+						szHeaderText = u"<img=%s size=%d></img> <font=4b>%s</font>" % (szBuildingButton, self.iLeaderIconSize, kVoteSource.getDescription().upper())
+						break
+				screen.setTableText(szTable, 0, iRow, szHeaderText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				if (gc.getGame().getVoteSourceReligion(i) != -1):
-					screen.setTableText(szTable, 1, iRow, gc.getReligionInfo(gc.getGame().getVoteSourceReligion(i)).getDescription(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					# <!-- custom: add religion icon (claude opus 4.5) -->
+					iReligion = gc.getGame().getVoteSourceReligion(i)
+					szReligionButton = gc.getReligionInfo(iReligion).getButton()
+					szReligionName = u"<img=%s size=%d></img> %s" % (szReligionButton, self.iLeaderIconSize, gc.getReligionInfo(iReligion).getDescription())
+					screen.setTableText(szTable, 1, iRow, szReligionName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				iSecretaryGeneralVote = -1
 				if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
@@ -748,18 +778,26 @@ class CvVictoryScreen:
 						if (-1 != iSecretaryGeneralVote):
 							szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (gc.getPlayer(j).getVotes(iSecretaryGeneralVote, i), ))
 
+						# <!-- custom: add icons to membership status (claude opus 4.5) -->
+						iStarIcon = CyGame().getSymbolID(FontSymbols.STAR_CHAR)
+						iSilverStarIcon = CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR)
+						iBulletIcon = CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
+						
 						if (gc.getGame().canHaveSecretaryGeneral(i) and gc.getGame().getSecretaryGeneral(i) == gc.getPlayer(j).getTeam()):
 							iRow = screen.appendTableRow(szTable)
 							screen.setTableText(szTable, 0, iRow, szPlayerText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							screen.setTableText(szTable, 1, iRow, gc.getVoteSourceInfo(i).getSecretaryGeneralText(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							szStatusText = u"%c %s" % (iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
+							screen.setTableText(szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						elif (gc.getPlayer(j).isFullMember(i)):
 							iRow = screen.appendTableRow(szTable)
 							screen.setTableText(szTable, 0, iRow, szPlayerText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							screen.setTableText(szTable, 1, iRow, localText.getText("TXT_KEY_VOTESOURCE_FULL_MEMBER", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							szStatusText = u"%c %s" % (iSilverStarIcon, localText.getText("TXT_KEY_VOTESOURCE_FULL_MEMBER", ()))
+							screen.setTableText(szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						elif (gc.getPlayer(j).isVotingMember(i)):
 							iRow = screen.appendTableRow(szTable)
 							screen.setTableText(szTable, 0, iRow, szPlayerText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							screen.setTableText(szTable, 1, iRow, localText.getText("TXT_KEY_VOTESOURCE_VOTING_MEMBER", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							szStatusText = u"%c %s" % (iBulletIcon, localText.getText("TXT_KEY_VOTESOURCE_VOTING_MEMBER", ()))
+							screen.setTableText(szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				iRow = screen.appendTableRow(szTable)
 		# Remove the final empty row (K-Mod)
@@ -1649,7 +1687,9 @@ class CvVictoryScreen:
 								else:
 									szNumber = unicode(gc.getProjectInfo(i).getVictoryMinThreshold(iLoopVC)) + u"-" + unicode(gc.getProjectInfo(i).getVictoryThreshold(iLoopVC))
 
-								sSSPart = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey()))
+								# <!-- custom: add project icon to space ship part (claude opus 4.5) -->
+								szProjectButton = gc.getProjectInfo(i).getButton()
+								sSSPart = u"<img=%s size=%d></img> %s" % (szProjectButton, self.iLeaderIconSize, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey())))
 								screen.setTableText(szTable, 0, iRow, sSSPart, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 								if self.isApolloBuiltbyTeam(activePlayer.getTeam()):
@@ -1714,9 +1754,13 @@ class CvVictoryScreen:
 							else:
 								szNumber = unicode(gc.getProjectInfo(i).getVictoryMinThreshold(iLoopVC)) + u"-" + unicode(gc.getProjectInfo(i).getVictoryThreshold(iLoopVC))
 
-							screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							# <!-- custom: add project icon to space ship part (claude opus 4.5) -->
+							szProjectButton = gc.getProjectInfo(i).getButton()
+							szProjectText = u"<img=%s size=%d></img> %s" % (szProjectButton, self.iLeaderIconSize, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey())))
+							screen.setTableText(szTable, 0, iRow, szProjectText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 							szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+
 							screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							screen.setTableText(szTable, 3, iRow, str(activePlayer.getTeam().getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							
