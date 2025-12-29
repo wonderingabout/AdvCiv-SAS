@@ -1,7 +1,6 @@
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
+import ScreenInput
 import CvScreenEnums
 import BugUtil
 import math

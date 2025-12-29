@@ -3491,10 +3491,9 @@
 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
 		<English>Augustus Caesar</English>
 	</TEXT>
-	<!-- custom: was Willem (in BtS Civ4GameTextObjects XML) -->
 	<TEXT> <!-- redefine -->
 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
-		<English>Willem van Oranje</English>
+		<English>Willem</English>
 	</TEXT>
 	<!-- custom: was Suryavarman. (in BtS Civ4GameTextObjects XML) -->
 	<TEXT>

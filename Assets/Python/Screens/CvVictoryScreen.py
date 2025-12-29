@@ -2,8 +2,7 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out seemingly unused imports -->
-#import ScreenInput
+import ScreenInput
 import PyHelpers
 import time
 
@@ -16,6 +15,10 @@ import ColorUtil
 import GameUtil
 import PlayerUtil
 import TechUtil
+# <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
+import TraitUtil
+
+AdvisorOpt = BugCore.game.Advisors
 
 AdvisorOpt = BugCore.game.Advisors
 # BUG - end
@@ -153,7 +156,8 @@ class CvVictoryScreen:
 		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
 			return u""
 		pPlayer = gc.getPlayer(iPlayer)
-		if not pPlayer.isAlive():
+		# <!-- custom: show icon even for dead players (for Settings tab) (claude opus 4.5) -->
+		if not pPlayer.isEverAlive():
 			return u""
 		szLeaderButton = gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton()
 		return u"<img=%s size=%d></img>" % (szLeaderButton, self.iLeaderIconSize)
@@ -165,6 +169,17 @@ class CvVictoryScreen:
 		pPlayer = gc.getPlayer(iPlayer)
 		szLeaderIcon = self.getLeaderIconTag(iPlayer)
 		return u"%s %s" % (szLeaderIcon, pPlayer.getName())
+
+	# <!-- custom: helper function to get trait icons string for a player (claude opus 4.5) -->
+	def getTraitIconsString(self, iPlayer):
+		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
+			return u""
+		pPlayer = gc.getPlayer(iPlayer)
+		szTraits = u""
+		for iTrait in range(gc.getNumTraitInfos()):
+			if pPlayer.hasTrait(iTrait):
+				szTraits += TraitUtil.getIcon(iTrait)
+		return szTraits
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
@@ -987,7 +1002,10 @@ class CvVictoryScreen:
 		# <!-- custom: add leader icon to active player name -->
 		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(self.iActivePlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
 		screen.appendListBoxStringNoUpdate(szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.appendListBoxStringNoUpdate(szSettingsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+		# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
+		szTraitIcons = self.getTraitIconsString(self.iActivePlayer)
+		screen.appendListBoxStringNoUpdate(szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		g = gc.getGame() # advc
 		m = gc.getMap() # advc
@@ -1202,7 +1220,10 @@ class CvVictoryScreen:
 			szPlayerName = u"%s %s" % (self.getLeaderIconTag(p.getID()), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())))
 			screen.appendListBoxStringNoUpdate(szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-			screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
+			szTraitIcons = self.getTraitIconsString(p.getID())
+			screen.appendListBoxStringNoUpdate(szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
 			screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190c>
 		for p in knownRivalsNotMet:
@@ -1227,7 +1248,10 @@ class CvVictoryScreen:
 				eCiv = CivilizationTypes.NO_CIVILIZATION
 				if not p.wasCivRandomlyChosen():
 					eCiv = p.getCivilizationType()
-				screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
+				szTraitIcons = self.getTraitIconsString(p.getID())
+				screen.appendListBoxStringNoUpdate(szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
 			screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # newline
 		if iUnknownRivals > 0:
 			szUnknown = localText.getText("TXT_KEY_UNKNOWN_RIVALS", (iUnknownRivals,))
@@ -1393,7 +1417,7 @@ class CvVictoryScreen:
 
 					iRow = screen.appendTableRow(szTable)
 					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (gc.getGame().getTargetScore(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					# <!-- custom: add leader icon to active player -->
+					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -1416,7 +1440,7 @@ class CvVictoryScreen:
 
 					iRow = screen.appendTableRow(szTable)
 					screen.setTableText(szTable, 0, iRow, szText1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					# <!-- custom: add leader icon to active player -->
+					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -1451,8 +1475,13 @@ class CvVictoryScreen:
 
 				if (gc.getGame().getAdjustedPopulationPercent(iLoopVC) > 0):
 					iRow = screen.appendTableRow(szTable)
-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					# <!-- custom: add leader icon to active player -->
+
+					# <!-- custom: add population icon (claude opus 4.5) -->
+					iPopIcon = CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
+					szPopText = u"%c %s" % (iPopIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )))
+					screen.setTableText(szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -1471,8 +1500,12 @@ class CvVictoryScreen:
 
 				if (gc.getGame().getAdjustedLandPercent(iLoopVC) > 0):
 					iRow = screen.appendTableRow(szTable)
-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					# <!-- custom: add leader icon to active player -->
+					# <!-- custom: add map icon (claude opus 4.5) -->
+					iMapIcon = CyGame().getSymbolID(FontSymbols.MAP_CHAR)
+					szLandText = u"%c %s" % (iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )))
+					screen.setTableText(szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -1680,8 +1713,11 @@ class CvVictoryScreen:
 								szNumber = unicode(gc.getProjectInfo(i).getVictoryThreshold(iLoopVC))
 							else:
 								szNumber = unicode(gc.getProjectInfo(i).getVictoryMinThreshold(iLoopVC)) + u"-" + unicode(gc.getProjectInfo(i).getVictoryThreshold(iLoopVC))
+
 							screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							screen.setTableText(szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+							szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+							screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							screen.setTableText(szTable, 3, iRow, str(activePlayer.getTeam().getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							
 							#check if spaceship
@@ -1716,7 +1752,11 @@ class CvVictoryScreen:
 				if (victory.isDiploVote()):
 					for (iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
 						iRow = screen.appendTableRow(szTable)
-						screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: add building icon for UN/AP (claude opus 4.5) -->
+						iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
+						szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
+						szElectionText = u"<img=%s size=%d></img> %s" % (szBuildingButton, self.iLeaderIconSize, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )))
+						screen.setTableText(szTable, 0, iRow, szElectionText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						if (iUNTeam != -1):
 							if bUnknown:

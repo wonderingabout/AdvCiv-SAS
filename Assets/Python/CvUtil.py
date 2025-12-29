@@ -388,6 +388,7 @@ def addIconToMap(infoChar, desc):
 	if (uc>=0):
 		FontIconMap[desc] = u"%c" %(uc,)
 # advc (note): Don't add to this list; it seems that BUG's FontUtil.py handles the values of the FontSymbols enum in the DLL (so long as they're exposed to Python). Adding to the IconMap in CvTranslator.py also seems moot.
+# <!-- custom: note: i didn't add anything, but it looks like some chars like FontSymbols.CITIZEN_CHAR are missing here, yet calling them for example from CvVictoryScreen.py works successfully ingame to display said char (for example as of now in the Victories tab, so maybe fine as such (i don't know too much about these, check if accurate). -->
 OtherFontIcons = { 'happy' : FontSymbols.HAPPY_CHAR,
 				'unhappy' : FontSymbols.UNHAPPY_CHAR,
 				'healthy' : FontSymbols.HEALTHY_CHAR,

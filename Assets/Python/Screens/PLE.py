@@ -1,13 +1,14 @@
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
-#import ScreenInput
+import ScreenInput
 import CvScreenEnums
 import CvEventInterface
 
 from AStarTools import *
 import MonkeyTools as mt
 import UnitUtil
+# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+#import string
 
 import PyHelpers 
 PyPlayer = PyHelpers.PyPlayer

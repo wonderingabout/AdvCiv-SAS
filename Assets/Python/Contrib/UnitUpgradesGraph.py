@@ -5,6 +5,8 @@
 ##
 
 # <!-- custom: remove or comment out seemingly unused imports -->
+#import string
+
 from CvPythonExtensions import *
 
 import CvUtil

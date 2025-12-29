@@ -7,8 +7,9 @@ from CvPythonExtensions import *
 
 import CvUtil
 # <!-- custom: remove or comment out seemingly unused imports -->
-#import sys
-#import math
+import sys
+import math
+#import string
 
 gc = CyGlobalContext()	
 
