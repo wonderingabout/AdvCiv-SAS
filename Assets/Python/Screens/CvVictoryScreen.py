@@ -171,6 +171,29 @@ class CvVictoryScreen:
 		# <!-- custom: thousand separator, based on Info Screen pattern (claude opus 4.5) -->
 		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
 
+		# <!-- custom: precompute commonly used icon chars (claude opus 4.5) -->
+		self.iStrengthIcon = CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
+		self.iCitizenIcon = CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
+		self.iMapIcon = CyGame().getSymbolID(FontSymbols.MAP_CHAR)
+		self.iBulletIcon = CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
+		self.iStarIcon = CyGame().getSymbolID(FontSymbols.STAR_CHAR)
+		self.iSilverStarIcon = CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR)
+		self.iCultureIcon = gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()
+
+		# <!-- custom: precompute commonly used text strings (claude opus 4.5) -->
+		self.TEXT_RIVALS_LEFT = localText.getText("TXT_KEY_VICTORY_SCREEN_RIVALS_LEFT", ())
+		self.TEXT_FULL_MEMBER = localText.getText("TXT_KEY_VOTESOURCE_FULL_MEMBER", ())
+		self.TEXT_VOTING_MEMBER = localText.getText("TXT_KEY_VOTESOURCE_VOTING_MEMBER", ())
+		self.TEXT_NON_VOTING_MEMBER = localText.getText("TXT_KEY_VOTESOURCE_NON_VOTING_MEMBER", ())
+		self.TEXT_LEGENDARY_CITIES = localText.getText("TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES", ())
+		self.TEXT_POPUP_PASSED = localText.getText("TXT_KEY_POPUP_PASSED", ())
+		self.TEXT_NOT_YET_BUILT = localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ())
+
+		# <!-- custom: precompute fully formatted strings that never change (claude opus 4.5) -->
+		self.szConquestText = u"%c %s" % (self.iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
+		self.szFullMemberText = u"%c %s" % (self.iSilverStarIcon, self.TEXT_FULL_MEMBER)
+		self.szVotingMemberText = u"%c %s" % (self.iBulletIcon, self.TEXT_VOTING_MEMBER)
+
 	# <!-- custom: helper function to format numbers with thousand separators, based on Info Screen pattern (claude opus 4.5) -->
 	def separateThousands(self, iValue):
 		szSep = self.szSepBase
@@ -368,8 +391,7 @@ class CvVictoryScreen:
 					iRow = screen.appendTableRow(szTable)
 
 					# <!-- custom: add star icon to Secretary General / AP Resident row (claude opus 4.5) -->
-					iStarIcon = CyGame().getSymbolID(FontSymbols.STAR_CHAR)
-					szSecGenText = u"%c %s" % (iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
+					szSecGenText = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
 					screen.setTableText(szTable, 0, iRow, szSecGenText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add leader icon to secretary general name (claude opus 4.5) -->
 					iSecGenPlayer = self.getPlayerOnTeam(gc.getGame().getSecretaryGeneral(i))
@@ -403,12 +425,11 @@ class CvVictoryScreen:
 							iRow = screen.appendTableRow(szTable)
 
 							# <!-- custom: add bullet icon to resolution rows (claude opus 4.5) -->
-							iBulletIcon = CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
-							szResText = u"%c %s" % (iBulletIcon, info.getDescription())
+							szResText = u"%c %s" % (self.iBulletIcon, info.getDescription())
 							screen.setTableText(szTable, 0, iRow, szResText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 							if gc.getGame().isVotePassed(iLoop):
-								screen.setTableText(szTable, 1, iRow, localText.getText("TXT_KEY_POPUP_PASSED", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								screen.setTableText(szTable, 1, iRow, self.TEXT_POPUP_PASSED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							else:
 								screen.setTableText(szTable, 1, iRow, localText.getText("TXT_KEY_POPUP_ELECTION_OPTION", (u"", gc.getGame().getVoteRequired(iLoop, i), gc.getGame().countPossibleVote(iLoop, i))), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				iRow = screen.appendTableRow(szTable) # empty row between vote sources. (K-Mod)
@@ -591,28 +612,24 @@ class CvVictoryScreen:
 				lPlayerVotes = 10000 - pPlayer.getVotes(iVoteIdx, iActiveVote)   # so that it sorts from most votes to least
 
 				# <!-- custom: add icons to membership labels (claude opus 4.5) -->
-				iStarIcon = CyGame().getSymbolID(FontSymbols.STAR_CHAR)
-				iSilverStarIcon = CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR)
-				iBulletIcon = CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
-				
 				if (gc.getGame().canHaveSecretaryGeneral(iActiveVote)
 				and iAPUNTeam == pPlayer.getTeam()
 				and gc.getGame().getSecretaryGeneral(iActiveVote) == -1):
 					lPlayerStatus = 0
-					lPlayerLabel = u"%c %s" % (iStarIcon, gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText())
+					lPlayerLabel = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText())
 				elif (gc.getGame().canHaveSecretaryGeneral(iActiveVote)
 				and gc.getGame().getSecretaryGeneral(iActiveVote) == pPlayer.getTeam()):
 					lPlayerStatus = 1
-					lPlayerLabel = u"%c %s" % (iStarIcon, gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText())
+					lPlayerLabel = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText())
 				elif (pPlayer.isFullMember(iActiveVote)):
 					lPlayerStatus = 2
-					lPlayerLabel = u"%c %s" % (iSilverStarIcon, localText.getText("TXT_KEY_VOTESOURCE_FULL_MEMBER", ()))
+					lPlayerLabel = self.szFullMemberText
 				elif (pPlayer.isVotingMember(iActiveVote)):
 					lPlayerStatus = 3
-					lPlayerLabel = u"%c %s" % (iBulletIcon, localText.getText("TXT_KEY_VOTESOURCE_VOTING_MEMBER", ()))
+					lPlayerLabel = self.szVotingMemberText
 				else:
 					lPlayerStatus = 4
-					lPlayerLabel = localText.getText("TXT_KEY_VOTESOURCE_NON_VOTING_MEMBER", ())
+					lPlayerLabel = self.TEXT_NON_VOTING_MEMBER
 
 				lMembers.append([lPlayerStatus, lPlayerVotes, iPlayer, lPlayerLabel])
 
@@ -812,25 +829,19 @@ class CvVictoryScreen:
 							szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (gc.getPlayer(j).getVotes(iSecretaryGeneralVote, i), ))
 
 						# <!-- custom: add icons to membership status (claude opus 4.5) -->
-						iStarIcon = CyGame().getSymbolID(FontSymbols.STAR_CHAR)
-						iSilverStarIcon = CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR)
-						iBulletIcon = CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
-						
 						if (gc.getGame().canHaveSecretaryGeneral(i) and gc.getGame().getSecretaryGeneral(i) == gc.getPlayer(j).getTeam()):
 							iRow = screen.appendTableRow(szTable)
 							screen.setTableText(szTable, 0, iRow, szPlayerText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							szStatusText = u"%c %s" % (iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
+							szStatusText = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
 							screen.setTableText(szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						elif (gc.getPlayer(j).isFullMember(i)):
 							iRow = screen.appendTableRow(szTable)
 							screen.setTableText(szTable, 0, iRow, szPlayerText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							szStatusText = u"%c %s" % (iSilverStarIcon, localText.getText("TXT_KEY_VOTESOURCE_FULL_MEMBER", ()))
-							screen.setTableText(szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							screen.setTableText(szTable, 1, iRow, self.szFullMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						elif (gc.getPlayer(j).isVotingMember(i)):
 							iRow = screen.appendTableRow(szTable)
 							screen.setTableText(szTable, 0, iRow, szPlayerText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							szStatusText = u"%c %s" % (iBulletIcon, localText.getText("TXT_KEY_VOTESOURCE_VOTING_MEMBER", ()))
-							screen.setTableText(szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							screen.setTableText(szTable, 1, iRow, self.szVotingMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				iRow = screen.appendTableRow(szTable)
 		# Remove the final empty row (K-Mod)
@@ -1540,10 +1551,8 @@ class CvVictoryScreen:
 					iRow = screen.appendTableRow(szTable)
 
 					# <!-- custom: add strength icon to Conquest row (claude opus 4.5) -->
-					iStrengthIcon = CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
-					szConquestText = u"%c %s" % (iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
-					screen.setTableText(szTable, 0, iRow, szConquestText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText(szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_RIVALS_LEFT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					screen.setTableText(szTable, 0, iRow, self.szConquestText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					screen.setTableText(szTable, 2, iRow, self.TEXT_RIVALS_LEFT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					screen.setTableText(szTable, 3, iRow, unicode(nRivals), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					bEntriesFound = True
@@ -1561,8 +1570,7 @@ class CvVictoryScreen:
 					iRow = screen.appendTableRow(szTable)
 
 					# <!-- custom: add population icon (claude opus 4.5) -->
-					iPopIcon = CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
-					szPopText = u"%c %s" % (iPopIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )))
+					szPopText = u"%c %s" % (self.iCitizenIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )))
 					screen.setTableText(szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
@@ -1585,8 +1593,7 @@ class CvVictoryScreen:
 				if (gc.getGame().getAdjustedLandPercent(iLoopVC) > 0):
 					iRow = screen.appendTableRow(szTable)
 					# <!-- custom: add map icon (claude opus 4.5) -->
-					iMapIcon = CyGame().getSymbolID(FontSymbols.MAP_CHAR)
-					szLandText = u"%c %s" % (iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )))
+					szLandText = u"%c %s" % (self.iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )))
 					screen.setTableText(szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
@@ -1900,8 +1907,7 @@ class CvVictoryScreen:
 					# <!-- custom: add culture icon before text and use thousand separator (claude opus 4.5) -->
 					# <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as aprt of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
 					# <!-- note: uses TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES instead of TXT_KEY_VICTORY_SCREEN_CITY_CULTURE for cleaner display -->
-					iCultureIcon = gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()
-					szCultureVictoryText = u"%c %d %s (%s)" % (iCultureIcon, victory.getNumCultureCities(), localText.getText("TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES", ()), self.separateThousands(iCultureThresh))
+					szCultureVictoryText = u"%c %d %s (%s)" % (self.iCultureIcon, victory.getNumCultureCities(), self.TEXT_LEGENDARY_CITIES, self.separateThousands(iCultureThresh))
 					screen.setTableText(szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					for i in range(victory.getNumCultureCities()):
