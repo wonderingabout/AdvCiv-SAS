@@ -327,20 +327,13 @@ class CvInfoScreen:
 		# <!-- custom: mirror wonders panel height (H_SCREEN - 2 * Y_MARGIN), added with claude opus 4.5's help thanks. -->
 		self.H_TOP_CITIES_LEFT_PANE = self.H_SCREEN - 2 * self.Y_MARGIN
 
-		# Animated City thingies
-		self.X_CITY_ANIMATION = self.X_TOP_CITIES_LEFT_PANE + 20
-		self.Z_CITY_ANIMATION = self.Z_BACKGROUND - 0.5
-		self.W_CITY_ANIMATION = 150
-		self.H_CITY_ANIMATION = 110
-		self.Y_CITY_ANIMATION_BUFFER = self.H_CITY_ANIMATION / 2
-
 		# <!-- custom: header height for "Top 5 Cities in the World" title, added with claude opus 4.5's help thanks. -->
 		self.iTopCitiesHeaderHeight = 35
 
 		# <!-- custom: city name/founded panel dimensions, added with claude opus 4.5's help thanks. -->
-		self.H_CITIES_DESC = 58  # increased a tiny bit
+		self.H_CITIES_DESC = 58
 		# <!-- custom: Y offset adjustment to align city desc panel with city animation, added with claude opus 4.5's help thanks. -->
-		self.Y_CITIES_DESC_BUFFER = -8  # was -4, move panel up a few pixels
+		self.Y_CITIES_DESC_BUFFER = -9
 
 		# <!-- custom: multilist panel constants for top cities wonders, added with claude opus 4.5's help thanks. -->
 		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
@@ -354,13 +347,25 @@ class CvInfoScreen:
 		self.H_CITIES_WONDER_PANEL = (self.iTopCitiesWonderNumRows * self.iTopCitiesWonderButtonSize) + (2 * self.iTopCitiesWonderPanelMargin) + iTopCitiesWonderPanelHeightAdjust
 
 		# <!-- custom: gap between city desc panel and wonder panel, added with claude opus 4.5's help thanks. -->
-		self.iTopCitiesDescWonderGap = -2  # was 2, negative to bring wonder panel closer to city desc
+		self.iTopCitiesDescWonderGap = -2
 		# <!-- custom: margin between city components (bottom of one city to top of next), added with claude opus 4.5's help thanks. -->
 		self.iTopCitiesInterCityMargin = 6
 
+		# <!-- custom: total height of right side (city desc + gap + wonder panel), added with claude opus 4.5's help thanks. -->
+		self.iTopCitiesRightSideHeight = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap + self.H_CITIES_WONDER_PANEL
+
+		# Animated City thingies
+		self.X_CITY_ANIMATION = self.X_TOP_CITIES_LEFT_PANE + 20
+		self.Z_CITY_ANIMATION = self.Z_BACKGROUND - 0.5
+		self.W_CITY_ANIMATION = 150
+		# <!-- custom: match city animation height with right side panels, adjusted by trial, added with claude opus 4.5's help thanks. -->
+		self.H_CITY_ANIMATION = self.iTopCitiesRightSideHeight - 10  # tweak this value: -4 to reduce height
+		# <!-- custom: Y buffer adjusted to align top of animation with top of city desc panel, added with claude opus 4.5's help thanks. -->
+		self.Y_CITY_ANIMATION_BUFFER = self.H_CITY_ANIMATION / 2 - 3  # tweak this value: -2 to move up
+
 		# <!-- custom: dynamically compute Y_CITIES_BUFFER based on component heights, added with claude opus 4.5's help thanks. -->
-		# Total height per city = city desc panel + gap + wonder panel + inter-city margin
-		self.Y_CITIES_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap + self.H_CITIES_WONDER_PANEL + self.iTopCitiesInterCityMargin
+		# Total height per city = right side height + inter-city margin
+		self.Y_CITIES_BUFFER = self.iTopCitiesRightSideHeight + self.iTopCitiesInterCityMargin
 
 		# Placement of Cities
 		self.X_COL_1_CITIES = self.X_TOP_CITIES_LEFT_PANE + 20
@@ -3324,49 +3329,50 @@ class CvInfoScreen:
 		# K-Mod.
 		iNumCitiesCurrent = gc.getPlayer(self.iActivePlayer).getNumCities()
 		# advc.004: No longer optional
-		if iNumCitiesCurrent != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
-			iRow += 1
-			screen.appendTableRow(szTopChart)
-			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, self.szCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		# <!-- custom: always show, we have the room; unindent previously wrapped by an if blocks as well; added with claude opus 4.5's help thanks. -->
+		# if iNumCitiesCurrent != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+		iRow += 1
+		screen.appendTableRow(szTopChart)
+		iCol = 0
+		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, self.szCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		iCol = 1
+		screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# K-Mod end
 		# advc.004:
-		if iNumCitiesBuilt != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
-			iRow += 1
-			screen.appendTableRow(szTopChart)
-			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, self.szFoundCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		# if iNumCitiesBuilt != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+		iRow += 1
+		screen.appendTableRow(szTopChart)
+		iCol = 0
+		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, self.szFoundCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		iCol = 1
+		screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# advc.004:
-		if iNumCitiesRazed != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
-			iRow += 1
-			screen.appendTableRow(szTopChart)
-			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, self.szRazeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesRazed), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		# if iNumCitiesRazed != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+		iRow += 1
+		screen.appendTableRow(szTopChart)
+		iCol = 0
+		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, self.szRazeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		iCol = 1
+		screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesRazed), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# advc.004:
-		if iNumReligionsFounded != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
-			iRow += 1
-			screen.appendTableRow(szTopChart)
-			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, self.szReligionIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumReligionsFounded), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		# if iNumReligionsFounded != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+		iRow += 1
+		screen.appendTableRow(szTopChart)
+		iCol = 0
+		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, self.szReligionIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		iCol = 1
+		screen.setTableText(szTopChart, iCol, iRow, str(iNumReligionsFounded), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 
 		# K-Mod.
 		iNumGoldenAges = CyStatistics().getPlayerNumGoldenAges(self.iActivePlayer)
 		# advc.004:
-		if iNumGoldenAges != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
-			iRow += 1
-			screen.appendTableRow(szTopChart)
-			iCol = 0
-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, self.szGoldenAgeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-			iCol = 1
-			screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		# if iNumGoldenAges != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+		iRow += 1
+		screen.appendTableRow(szTopChart)
+		iCol = 0
+		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, self.szGoldenAgeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+		iCol = 1
+		screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# K-Mod end
 
 ################################################### BOTTOM PANEL ###################################################
