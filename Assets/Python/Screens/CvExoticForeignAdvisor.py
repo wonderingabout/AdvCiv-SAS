@@ -567,7 +567,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		szFavoritesPreText = szSeparator + localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
 
 		# loop through all players and display leaderheads
-		# Their leaderheads		
+		# Their leaderheads
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 			# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
 			objLoopPlayer = gc.getPlayer(iLoopPlayer)
@@ -707,6 +707,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# loop through all other players and add their rows; show known first
 		lKnownPlayers = []
 		lUnknownPlayers = []
+		# <!-- custom: hoist for performance optimization. -->
+		bDebugMode = gc.getGame().isDebugMode()
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 			if (iLoopPlayer != self.iActiveLeader):
 				objLoopPlayer = gc.getPlayer(iLoopPlayer)

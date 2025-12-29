@@ -1480,6 +1480,9 @@ class CvVictoryScreen:
 		screen.setTableColumnHeader(szTable, 5, "", self.TABLE_WIDTH_5)
 		screen.appendTableRow(szTable)
 
+		# <!-- custom: cache active player name with icon once before loop (claude opus 4.5) -->
+		szActivePlayerNameWithColon = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+		
 		for iLoopVC in range(gc.getNumVictoryInfos()):
 			victory = gc.getVictoryInfo(iLoopVC)
 			if gc.getGame().isVictoryValid(iLoopVC):
@@ -1495,14 +1498,15 @@ class CvVictoryScreen:
 
 				bEntriesFound = False
 
-				if (victory.isTargetScore() and gc.getGame().getTargetScore() != 0):
+				# <!-- custom: cache target score to avoid duplicate call (claude opus 4.5) -->
+				iTargetScore = gc.getGame().getTargetScore()
+				if (victory.isTargetScore() and iTargetScore != 0):
 
 					iRow = screen.appendTableRow(szTable)
-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (gc.getGame().getTargetScore(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (iTargetScore, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
-					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					screen.setTableText(szTable, 2, iRow, szActivePlayerNameWithColon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
 					screen.setTableText(szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1528,8 +1532,7 @@ class CvVictoryScreen:
 					szScoreText = u"%s %s" % (self.szTrophyImgTag, szText1)
 					screen.setTableText(szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
-					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					screen.setTableText(szTable, 2, iRow, szActivePlayerNameWithColon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
 					screen.setTableText(szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1566,16 +1569,17 @@ class CvVictoryScreen:
 							screen.setTableText(szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions End
 
-				if (gc.getGame().getAdjustedPopulationPercent(iLoopVC) > 0):
+				# <!-- custom: cache adjusted population percent to avoid duplicate call (claude opus 4.5) -->
+				iAdjustedPopPercent = gc.getGame().getAdjustedPopulationPercent(iLoopVC)
+				if (iAdjustedPopPercent > 0):
 					iRow = screen.appendTableRow(szTable)
 
 					# <!-- custom: add population icon (claude opus 4.5) -->
-					szPopText = u"%c %s" % (self.iCitizenIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )))
+					szPopText = u"%c %s" % (self.iCitizenIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (iAdjustedPopPercent, )))
 					screen.setTableText(szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
-					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					screen.setTableText(szTable, 2, iRow, szActivePlayerNameWithColon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestPopTeam != -1):
@@ -1590,15 +1594,16 @@ class CvVictoryScreen:
 					bEntriesFound = True
 
 
-				if (gc.getGame().getAdjustedLandPercent(iLoopVC) > 0):
+				# <!-- custom: cache adjusted land percent to avoid duplicate call (claude opus 4.5) -->
+				iAdjustedLandPercent = gc.getGame().getAdjustedLandPercent(iLoopVC)
+				if (iAdjustedLandPercent > 0):
 					iRow = screen.appendTableRow(szTable)
 					# <!-- custom: add map icon (claude opus 4.5) -->
-					szLandText = u"%c %s" % (self.iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )))
+					szLandText = u"%c %s" % (self.iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (iAdjustedLandPercent, )))
 					screen.setTableText(szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
-					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					screen.setTableText(szTable, 2, iRow, szActivePlayerNameWithColon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestLandTeam != -1):
