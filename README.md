@@ -135,6 +135,10 @@ Some examples below:
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG" alt="0.517_victory_screen (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG" alt="0.517_victory_screen (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG" alt="0.517_victory_screen (4).JPG" width="250"></img>
 
 See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game).
 
