@@ -900,6 +900,38 @@ class CvMainInterface:
 		self.setPromoButtonRects()
 		# (BUG - unit plot draw method - advc.092: Moved into interfaceScreen method)
 
+		# <!-- custom: precompute commonly used icon chars, strings, and constants for performance (claude opus 4.5) -->
+		g = CyGame()
+		# Integer icon codes (needed for localText.getText() calls and offset calculations)
+		self.iDefenseIcon = g.getSymbolID(FontSymbols.DEFENSE_CHAR)
+		self.iGreatPeopleIcon = g.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)
+		self.iWorstAttitudeIcon = g.getSymbolID(FontSymbols.WORST_ATTITUDE_CHAR)
+		# Precomputed unicode icon strings (eliminates repeated u"%c" % formatting)
+		self.szStarIcon = u"%c" % g.getSymbolID(FontSymbols.STAR_CHAR)
+		self.szSilverStarIcon = u"%c" % g.getSymbolID(FontSymbols.SILVER_STAR_CHAR)
+		self.szPowerIcon = u"%c" % g.getSymbolID(FontSymbols.POWER_CHAR)
+		self.szOccupationIcon = u"%c" % g.getSymbolID(FontSymbols.OCCUPATION_CHAR)
+		self.szEatenFoodIcon = u"%c" % g.getSymbolID(FontSymbols.EATEN_FOOD_CHAR)
+		self.szAngryPopIcon = u"%c" % g.getSymbolID(FontSymbols.ANGRY_POP_CHAR)
+		self.szHappyIcon = u"%c" % g.getSymbolID(FontSymbols.HAPPY_CHAR)
+		self.szUnhappyIcon = u"%c" % g.getSymbolID(FontSymbols.UNHAPPY_CHAR)
+		self.szHealthyIcon = u"%c" % g.getSymbolID(FontSymbols.HEALTHY_CHAR)
+		self.szUnhealthyIcon = u"%c" % g.getSymbolID(FontSymbols.UNHEALTHY_CHAR)
+		self.szGreatPeopleIcon = u"%c" % self.iGreatPeopleIcon
+		self.szDefenseIcon = u"%c" % self.iDefenseIcon
+		self.szMapIcon = u"%c" % g.getSymbolID(FontSymbols.MAP_CHAR)
+		self.szCitizenIcon = u"%c" % g.getSymbolID(FontSymbols.CITIZEN_CHAR)
+		self.szMovesIcon = u"%c" % g.getSymbolID(FontSymbols.MOVES_CHAR)
+		self.szStrengthIcon = u"%c" % g.getSymbolID(FontSymbols.STRENGTH_CHAR)
+		self.szTradeIcon = u"%c" % g.getSymbolID(FontSymbols.TRADE_CHAR)
+		self.szOpenBordersIcon = u"%c" % g.getSymbolID(FontSymbols.OPEN_BORDERS_CHAR)
+		self.szDefensivePactIcon = u"%c" % g.getSymbolID(FontSymbols.DEFENSIVE_PACT_CHAR)
+		# Precomputed yield/commerce icon strings (frequently used in city screen)
+		self.szFoodIcon = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()
+		self.szProductionIcon = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
+		# Precomputed constants
+		self.iMoveDenominator = gc.getMOVE_DENOMINATOR()
+
 	def setMiniMapRects(self):
 		# <advc.137>
 		iMiniMapHeight = VLEN(128) # was 122
@@ -4748,17 +4780,17 @@ class CvMainInterface:
 		szBuffer = u"<font=4>"
 
 		if (pHeadSelectedCity.isCapital()):
-			szBuffer += u"%c" %(CyGame().getSymbolID(FontSymbols.STAR_CHAR))
+			szBuffer += self.szStarIcon
 		elif (pHeadSelectedCity.isGovernmentCenter()):
-			szBuffer += u"%c" %(CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
+			szBuffer += self.szSilverStarIcon
 
 		if (pHeadSelectedCity.isPower()):
-			szBuffer += u"%c" %(CyGame().getSymbolID(FontSymbols.POWER_CHAR))
+			szBuffer += self.szPowerIcon
 
 		szBuffer += u"%s: %d" %(pHeadSelectedCity.getName(), pHeadSelectedCity.getPopulation())
 
 		if (pHeadSelectedCity.isOccupation()):
-			szBuffer += u" (%c:%d)" %(CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR),
+			szBuffer += u" (%s:%d)" %(self.szOccupationIcon,
 					pHeadSelectedCity.getOccupationTimer())
 
 		szBuffer += u"</font>"
@@ -4822,17 +4854,17 @@ class CvMainInterface:
 					szBuffer = localText.getText("INTERFACE_CITY_FOOD_SHRINK",
 							(iFoodYield, iFoodEaten, iFoodYield - iFoodEaten))
 			else:
-				szBuffer = u"%d%c - %d%c" %(
+				szBuffer = u"%d%s - %d%s" %(
 						pHeadSelectedCity.getYieldRate(YieldTypes.YIELD_FOOD),
-						gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar(),
+						self.szFoodIcon,
 						pHeadSelectedCity.foodConsumption(False, 0),
-						CyGame().getSymbolID(FontSymbols.EATEN_FOOD_CHAR))
+						self.szEatenFoodIcon)
 # BUG - Food Assist - end
 # BUG - Food Rate Hover - start
 			# draw label below
 		else:
-			szBuffer = u"%d%c" %(iFoodDifference,
-					gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar())
+			szBuffer = u"%d%s" %(iFoodDifference,
+					self.szFoodIcon)
 			# draw label below
 		# advc.004: BULL widget help enabled
 		self.setLabel("PopulationInputText", "Background", szBuffer,
@@ -4989,18 +5021,18 @@ class CvMainInterface:
 			screen.setHitTest("ProductionText", HitTestTypes.HITTEST_NOHIT)
 			screen.show("ProductionText")
 		if (pHeadSelectedCity.isProductionProcess()):
-			szBuffer = u"%d%c" %(pHeadSelectedCity.getYieldRate(
+			szBuffer = u"%d%s" %(pHeadSelectedCity.getYieldRate(
 					YieldTypes.YIELD_PRODUCTION),
-					gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
+					self.szProductionIcon)
 		elif (pHeadSelectedCity.isFoodProduction() and
 				iProductionDiffJustFood > 0):
-			szBuffer = u"%d%c + %d%c" %(iProductionDiffJustFood,
-					gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar(),
+			szBuffer = u"%d%s + %d%s" %(iProductionDiffJustFood,
+					self.szFoodIcon,
 					iProductionDiffNoFood,
-					gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
+					self.szProductionIcon)
 		else:
-			szBuffer = u"%d%c" %(iProductionDiffNoFood,
-					gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
+			szBuffer = u"%d%s" %(iProductionDiffNoFood,
+					self.szProductionIcon)
 		self.setLabel("ProductionInputText", "Background", szBuffer,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 				WidgetTypes.WIDGET_PRODUCTION_MOD_HELP)
@@ -5008,8 +5040,8 @@ class CvMainInterface:
 		if (pHeadSelectedCity.happyLevel() >= 0 or
 				pHeadSelectedCity.unhappyLevel(0) > 0):
 			if (pHeadSelectedCity.isDisorder()):
-				szBuffer = u"%d%c" %(pHeadSelectedCity.angryPopulation(0),
-						CyGame().getSymbolID(FontSymbols.ANGRY_POP_CHAR))
+				szBuffer = u"%d%s" %(pHeadSelectedCity.angryPopulation(0),
+						self.szAngryPopIcon)
 			elif (pHeadSelectedCity.angryPopulation(0) > 0):
 				szBuffer = localText.getText(
 						"INTERFACE_CITY_UNHAPPY",
@@ -5103,11 +5135,11 @@ class CvMainInterface:
 				iHappiness = pHeadSelectedCity.getCommerceHappinessByType(eCommerce)
 				if (iHappiness != 0):
 					if (iHappiness > 0):
-						szTempBuffer = u", %d%c" %(iHappiness,
-								CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
+						szTempBuffer = u", %d%s" %(iHappiness,
+								self.szHappyIcon)
 					else:
-						szTempBuffer = u", %d%c" %(-iHappiness,
-								CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR))
+						szTempBuffer = u", %d%s" %(-iHappiness,
+								self.szUnhappyIcon)
 					szBuffer = szBuffer + szTempBuffer
 				szName = "CityPercentText" + str(iCount)
 				self.setLabel(szName, "Background", szBuffer,
@@ -5272,12 +5304,12 @@ class CvMainInterface:
 						else:
 							bFirst = False
 						if iHappiness > 0:
-							szTempBuffer = u"+%d%c" %(iHappiness,
-									CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
+							szTempBuffer = u"+%d%s" %(iHappiness,
+									self.szHappyIcon)
 							szRightBuffer = szRightBuffer + szTempBuffer
 						else:
-							szTempBuffer = u"+%d%c" %(-iHappiness,
-									CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR))
+							szTempBuffer = u"+%d%s" %(-iHappiness,
+									self.szUnhappyIcon)
 							szRightBuffer = szRightBuffer + szTempBuffer
 					iHealth = pHeadSelectedCity.getBuildingHealth(iBuilding)
 					if iHealth != 0:
@@ -5286,12 +5318,12 @@ class CvMainInterface:
 						else:
 							bFirst = False
 						if iHealth > 0:
-							szTempBuffer = u"+%d%c" %(iHealth,
-									CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR))
+							szTempBuffer = u"+%d%s" %(iHealth,
+									self.szHealthyIcon)
 							szRightBuffer = szRightBuffer + szTempBuffer
 						else:
-							szTempBuffer = u"+%d%c" %(-iHealth,
-									CyGame().getSymbolID(FontSymbols.UNHEALTHY_CHAR))
+							szTempBuffer = u"+%d%s" %(-iHealth,
+									self.szUnhealthyIcon)
 							szRightBuffer = szRightBuffer + szTempBuffer
 					# K-Mod end
 					for iYield in range(YieldTypes.NUM_YIELD_TYPES):
@@ -5325,7 +5357,7 @@ class CvMainInterface:
 							bFirst = False
 						
 						# Add "+2 [GP Icon]"
-						szRightBuffer = szRightBuffer + u"+%d%c" % (iGPRate, CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
+						szRightBuffer = szRightBuffer + u"+%d%s" % (iGPRate, self.szGreatPeopleIcon)
 					# --- End: Add Great Person Rate to Building List ---
 
 				# <advc.097> Gray out names of obsolete buildings
@@ -5485,14 +5517,14 @@ class CvMainInterface:
 			# of (bad) health and (un-)happiness
 			if iHappiness != 0:
 				if iHappiness > 0:
-					szTempBuffer = szFontStart + (u"%d%c</font>" %(iHappiness,
-							CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)))
+					szTempBuffer = szFontStart + (u"%d%s</font>" %(iHappiness,
+							self.szHappyIcon))
 				else:
-					szTempBuffer = szFontStart + (u"%d%c</font>" %(-iHappiness,
-							CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR)))
+					szTempBuffer = szFontStart + (u"%d%s</font>" %(-iHappiness,
+							self.szUnhappyIcon))
 				if iHealth > 0:
-					szTempBuffer += szFontStart + (u" %d%c</font>" %(iHealth,
-							CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)))
+					szTempBuffer += szFontStart + (u" %d%s</font>" %(iHealth,
+							self.szHealthyIcon))
 				# <advc.092>
 				if self.bCityBonusButtons:
 					self.fillCityBonusRow(2, iRightCount, iBonus, iAmount, szTempBuffer)
@@ -5514,11 +5546,11 @@ class CvMainInterface:
 				bHandled = True
 			if iHealth != 0 and (not bHandled):
 				if iHealth > 0:
-					szTempBuffer = szFontStart + (u"%d%c</font>" %(iHealth,
-							CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)))
+					szTempBuffer = szFontStart + (u"%d%s</font>" %(iHealth,
+							self.szHealthyIcon))
 				else:
-					szTempBuffer = szFontStart + (u"%d%c</font>" %(-iHealth,
-							CyGame().getSymbolID(FontSymbols.UNHEALTHY_CHAR)))
+					szTempBuffer = szFontStart + (u"%d%s</font>" %(-iHealth,
+							self.szUnhealthyIcon))
 				# <advc.092>
 				if self.bCityBonusButtons:
 					self.fillCityBonusRow(1, iCenterCount, iBonus, iAmount, szTempBuffer)
@@ -5862,7 +5894,7 @@ class CvMainInterface:
 		iDefenseModifier = pHeadSelectedCity.getDefenseModifier(False)
 		if (iDefenseModifier != 0):
 			szBuffer = localText.getText("TXT_KEY_MAIN_CITY_DEFENSE",
-					(CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR), iDefenseModifier))
+					(self.iDefenseIcon, iDefenseModifier))
 			if (pHeadSelectedCity.getDefenseDamage() > 0):
 				szTempBuffer = u" (%d%%)" %(
 						((gc.getMAX_CITY_DEFENSE_DAMAGE() - pHeadSelectedCity.getDefenseDamage()) * 100) /
@@ -5917,7 +5949,7 @@ class CvMainInterface:
 						230, MainOpt.isGPBarTypesNone(), MainOpt.isGPBarTypesOne(), False)
 			else:
 				szBuffer = localText.getText("INTERFACE_CITY_GREATPEOPLE_RATE",
-						(CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR),
+						(self.iGreatPeopleIcon,
 						pHeadSelectedCity.getGreatPeopleRate()))
 				if CityScreenOpt.isShowGreatPersonTurns() and iRate > 0:
 					iGPTurns = GPUtil.getCityTurns(pHeadSelectedCity)
@@ -6002,19 +6034,19 @@ class CvMainInterface:
 				szTurns = u"(-)"
 
 			# 3. Construct ROW 1 (Top Line): "(5 [Silver Star] 3 [Cit]) +25% [GP]"
-			szRow1 = u"<font=2>(%d%c %d%c)" % (
-				iBldgRaw, CyGame().getSymbolID(FontSymbols.MAP_CHAR),
-				iSpecRaw, CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
+			szRow1 = u"<font=2>(%d%s %d%s)" % (
+				iBldgRaw, self.szMapIcon,
+				iSpecRaw, self.szCitizenIcon
 			)
 			
 			if iModPercent > 0:
-				szRow1 += u" +%d%%%c" % (iModPercent, CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
+				szRow1 += u" +%d%%%s" % (iModPercent, self.szGreatPeopleIcon)
 			
 			szRow1 += u"</font>"
 
 			# 4. Construct ROW 2 (Bottom Line): "10 [GP]: 109/249 (14)"
-			szRow2 = u"<font=2>%d%c: %d/%d %s</font>" % (
-				iTotalRate, CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR),
+			szRow2 = u"<font=2>%d%s: %d/%d %s</font>" % (
+				iTotalRate, self.szGreatPeopleIcon,
 				iProgress, iThreshold, szTurns
 			)
 
@@ -6231,14 +6263,14 @@ class CvMainInterface:
 						if (iLoopMoves < iMinMoves):
 							iMinMoves = iLoopMoves
 				if (iMinMoves == iMaxMoves):
-					fMinMoves = float(iMinMoves) / gc.getMOVE_DENOMINATOR()
-					szBuffer += u" %.1f%c" % (fMinMoves,
-							CyGame().getSymbolID(FontSymbols.MOVES_CHAR))
+					fMinMoves = float(iMinMoves) / self.iMoveDenominator
+					szBuffer += u" %.1f%s" % (fMinMoves,
+							self.szMovesIcon)
 				else:
-					fMinMoves = float(iMinMoves) / gc.getMOVE_DENOMINATOR()
-					fMaxMoves = float(iMaxMoves) / gc.getMOVE_DENOMINATOR()
-					szBuffer += u" %.1f - %.1f%c" % (fMinMoves, fMaxMoves,
-							CyGame().getSymbolID(FontSymbols.MOVES_CHAR))
+					fMinMoves = float(iMinMoves) / self.iMoveDenominator
+					fMaxMoves = float(iMaxMoves) / self.iMoveDenominator
+					szBuffer += u" %.1f - %.1f%s" % (fMinMoves, fMaxMoves,
+							self.szMovesIcon)
 			self.setText("SelectedUnitLabel", "Background", szBuffer,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1,
 					WidgetTypes.WIDGET_UNIT_NAME)
@@ -6329,30 +6361,30 @@ class CvMainInterface:
 					if (pHeadSelectedUnit.airBaseCombatStr() > 0):
 						szLeftBuffer = localText.getText("INTERFACE_PANE_AIR_STRENGTH", ())
 						if (pHeadSelectedUnit.isFighting()):
-							szRightBuffer = u"?/%d%c" %(pHeadSelectedUnit.airBaseCombatStr(),
-									CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
+							szRightBuffer = u"?/%d%s" %(pHeadSelectedUnit.airBaseCombatStr(),
+									self.szStrengthIcon)
 						elif (pHeadSelectedUnit.isHurt()):
 							# <advc.004> Replacing Python implementation
 							szRightBuffer = u"%s" %(
 									CyGameTextMgr().getHurtUnitStrength(pHeadSelectedUnit))
 							# </advc.004>
 						else:
-							szRightBuffer = u"%d%c" %(pHeadSelectedUnit.airBaseCombatStr(),
-									CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
+							szRightBuffer = u"%d%s" %(pHeadSelectedUnit.airBaseCombatStr(),
+									self.szStrengthIcon)
 				else:
 					if (pHeadSelectedUnit.canFight()):
 						szLeftBuffer = localText.getText("INTERFACE_PANE_STRENGTH", ())
 						if (pHeadSelectedUnit.isFighting()):
-							szRightBuffer = u"?/%d%c" %(pHeadSelectedUnit.baseCombatStr(),
-									CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
+							szRightBuffer = u"?/%d%s" %(pHeadSelectedUnit.baseCombatStr(),
+									self.szStrengthIcon)
 						elif (pHeadSelectedUnit.isHurt()):
 							# <advc.004> Replacing Python implementation
 							szRightBuffer = u"%s" %(
 									CyGameTextMgr().getHurtUnitStrength(pHeadSelectedUnit))
 							# </advc.004>
 						else:
-							szRightBuffer = u"%d%c" %(pHeadSelectedUnit.baseCombatStr(),
-									CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
+							szRightBuffer = u"%d%s" %(pHeadSelectedUnit.baseCombatStr(),
+									self.szStrengthIcon)
 				szBuffer = szLeftBuffer + szRightBuffer
 				if (szBuffer):
 					screen.appendTableRow("SelectedUnitText")
@@ -6375,32 +6407,32 @@ class CvMainInterface:
 # BUG - Unit Movement Fraction - start
 					szLeftBuffer = localText.getText("INTERFACE_PANE_MOVEMENT", ())
 					if MainOpt.isShowUnitMovementPointsFraction():
-						szRightBuffer = u"%d%c" %(pHeadSelectedUnit.baseMoves(),
-								CyGame().getSymbolID(FontSymbols.MOVES_CHAR))
+						szRightBuffer = u"%d%s" %(pHeadSelectedUnit.baseMoves(),
+								self.szMovesIcon)
 						if (pHeadSelectedUnit.movesLeft() == 0):
 							szRightBuffer = u"0/" + szRightBuffer
 						elif (pHeadSelectedUnit.movesLeft() == pHeadSelectedUnit.baseMoves() *
-								gc.getMOVE_DENOMINATOR()):
+								self.iMoveDenominator):
 							pass
 						else:
 							fCurrMoves = float(pHeadSelectedUnit.movesLeft())
-							fCurrMoves /= gc.getMOVE_DENOMINATOR()
+							fCurrMoves /= self.iMoveDenominator
 							szRightBuffer = (u"%.1f/" % fCurrMoves) + szRightBuffer
 					else:
-						if ((pHeadSelectedUnit.movesLeft() % gc.getMOVE_DENOMINATOR()) > 0):
+						if ((pHeadSelectedUnit.movesLeft() % self.iMoveDenominator) > 0):
 							iDenom = 1
 						else:
 							iDenom = 0
 						iCurrMoves = ((pHeadSelectedUnit.movesLeft() /
-							gc.getMOVE_DENOMINATOR()) + iDenom)
+							self.iMoveDenominator) + iDenom)
 						if (pHeadSelectedUnit.baseMoves() == iCurrMoves or
 								eDomain == DomainTypes.DOMAIN_AIR):
-							szRightBuffer = u"%d%c" %(pHeadSelectedUnit.baseMoves(),
-									CyGame().getSymbolID(FontSymbols.MOVES_CHAR))
+							szRightBuffer = u"%d%s" %(pHeadSelectedUnit.baseMoves(),
+									self.szMovesIcon)
 						else:
-							szRightBuffer = u"%d/%d%c" %(iCurrMoves,
+							szRightBuffer = u"%d/%d%s" %(iCurrMoves,
 									pHeadSelectedUnit.baseMoves(),
-									CyGame().getSymbolID(FontSymbols.MOVES_CHAR))
+									self.szMovesIcon)
 # BUG - Unit Movement Fraction - end
 				szBuffer = szLeftBuffer + "  " + szRightBuffer
 				screen.appendTableRow("SelectedUnitText")
@@ -6795,18 +6827,15 @@ class CvMainInterface:
 							break
 				if (pPlayer.canTradeNetworkWith(eActivePlayer) and
 						ePlayer != eActivePlayer):
-					szTempBuffer = u"%c" %(g.getSymbolID(FontSymbols.TRADE_CHAR))
-					szBuffer = szBuffer + szTempBuffer
+					szBuffer = szBuffer + self.szTradeIcon
 					if bAlignIcons:
 						scores.setTrade()
 				if pTeam.isOpenBorders(eActiveTeam):
-					szTempBuffer = u"%c" %(g.getSymbolID(FontSymbols.OPEN_BORDERS_CHAR))
-					szBuffer = szBuffer + szTempBuffer
+					szBuffer = szBuffer + self.szOpenBordersIcon
 					if bAlignIcons:
 						scores.setBorders()
 				if pTeam.isDefensivePact(eActiveTeam):
-					szTempBuffer = u"%c" %(g.getSymbolID(FontSymbols.DEFENSIVE_PACT_CHAR))
-					szBuffer = szBuffer + szTempBuffer
+					szBuffer = szBuffer + self.szDefensivePactIcon
 					if bAlignIcons:
 						scores.setPact()
 				eStateReligion = pPlayer.getStateReligion()
@@ -6886,9 +6915,8 @@ class CvMainInterface:
 							fPowerRatio = 1.0 / fPowerRatio
 						else:
 							fPowerRatio = 999.0
-					cPower = g.getSymbolID(FontSymbols.STRENGTH_CHAR)
 					szTempBuffer = BugUtil.formatFloat(fPowerRatio, ScoreOpt.getPowerDecimals())
-					szTempBuffer += u"%c" % (cPower)
+					szTempBuffer += self.szStrengthIcon
 					# <advc.085> Don't color the power ratios of teammates
 					bAlly = (eTeam == eActiveTeam)
 					iColor = 0 # Want to pass that to widget help </advc.085>
@@ -6911,7 +6939,7 @@ class CvMainInterface:
 					iAtt = pPlayer.AI_getAttitude(eActivePlayer)
 					#cAtt = unichr(ord(unichr(g.getSymbolID(FontSymbols.POWER_CHAR) + 4)) + iAtt)
 					# advc.187: I've added the airport icon as a GameFont_75 symbol and that breaks the offset used above. No cells are left for further insertions, so, I guess, at this point, the offset from POWER_CHAR can't break again - but let's do it a bit more cleanly anyway by exposing the leftmost attitude char to Python.
-					cAtt = unichr(ord(unichr(g.getSymbolID(FontSymbols.WORST_ATTITUDE_CHAR) + iAtt)))
+					cAtt = unichr(ord(unichr(self.iWorstAttitudeIcon + iAtt)))
 					szBuffer += cAtt
 					if bAlignIcons:
 						scores.setAttitude(cAtt)
@@ -6926,8 +6954,7 @@ class CvMainInterface:
 # BUG - Worst Enemy - start
 			if ScoreOpt.isShowWorstEnemy():
 				if AttitudeUtil.isWorstEnemy(ePlayer, eActivePlayer):
-					cWorstEnemy = u"%c" %(g.getSymbolID(FontSymbols.ANGRY_POP_CHAR))
-					szBuffer += cWorstEnemy
+					szBuffer += self.szAngryPopIcon
 					if bAlignIcons:
 						scores.setWorstEnemy()
 # BUG - Worst Enemy - end
@@ -6936,8 +6963,7 @@ class CvMainInterface:
 			# advc.104: Enable iff UWAI is disabled. But the icon still won't show up unless it gets added to the scoreboard string.
 			if CyGame().useKModAI():
 				if PlayerUtil.isWHEOOH(ePlayer, PlayerUtil.getActivePlayerID()):
-					szTempBuffer = u"%c" %(g.getSymbolID(FontSymbols.OCCUPATION_CHAR))
-					szBuffer = szBuffer + szTempBuffer
+					szBuffer = szBuffer + self.szOccupationIcon
 					if bAlignIcons:
 						scores.setWHEOOH()
 # BUG - WHEOOH - end
