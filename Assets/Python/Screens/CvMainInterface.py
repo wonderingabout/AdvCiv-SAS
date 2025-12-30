@@ -931,6 +931,20 @@ class CvMainInterface:
 		self.szProductionIcon = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 		# Precomputed constants
 		self.iMoveDenominator = gc.getMOVE_DENOMINATOR()
+		# Precomputed localText strings (called with empty tuple - constant results)
+		# Unit pane labels
+		self.szTextStrength = localText.getText("INTERFACE_PANE_STRENGTH", ())
+		self.szTextAirStrength = localText.getText("INTERFACE_PANE_AIR_STRENGTH", ())
+		self.szTextMovement = localText.getText("INTERFACE_PANE_MOVEMENT", ())
+		self.szTextRange = localText.getText("INTERFACE_PANE_RANGE", ())
+		self.szTextLevel = localText.getText("INTERFACE_PANE_LEVEL", ())
+		self.szTextExperience = localText.getText("INTERFACE_PANE_EXPERIENCE", ())
+		# City screen labels
+		self.szTextStarving = localText.getText("INTERFACE_CITY_STARVING", ())
+		self.szTextStagnant = localText.getText("INTERFACE_CITY_STAGNANT", ())
+		self.szTextMaintenance = localText.getText("INTERFACE_CITY_MAINTENANCE", ())
+		# Scoreboard
+		self.szTextDeadCiv = localText.getText("TXT_KEY_BUG_DEAD_CIV", ())
 
 	def setMiniMapRects(self):
 		# <advc.137>
@@ -4826,12 +4840,12 @@ class CvMainInterface:
 						szBuffer = localText.getText("INTERFACE_CITY_SHRINKING",
 								(iTurnsToStarve,))
 					else:
-						szBuffer = localText.getText("INTERFACE_CITY_STARVING", ())
+						szBuffer = self.szTextStarving
 				else:
-					szBuffer = localText.getText("INTERFACE_CITY_STARVING", ())
+					szBuffer = self.szTextStarving
 # BUG - Food Assist - end
 			else:
-				szBuffer = localText.getText("INTERFACE_CITY_STAGNANT", ())
+				szBuffer = self.szTextStagnant
 
 			self.setLabel("PopulationText", "Background", szBuffer,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
@@ -5591,7 +5605,7 @@ class CvMainInterface:
 		iMaintenance *= 100 + gc.getPlayer(
 				pHeadSelectedCity.getOwner()).calculateInflationRate()
 		iMaintenance /= 100 # </K-Mod>
-		szBuffer = localText.getText("INTERFACE_CITY_MAINTENANCE", ())
+		szBuffer = self.szTextMaintenance
 		self.setLabel("MaintenanceText", "Background", szBuffer,
 				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.3, 
 				WidgetTypes.WIDGET_HELP_MAINTENANCE)
@@ -6359,7 +6373,7 @@ class CvMainInterface:
 				szRightBuffer = u""
 				if (pHeadSelectedUnit.getDomainType() == DomainTypes.DOMAIN_AIR):
 					if (pHeadSelectedUnit.airBaseCombatStr() > 0):
-						szLeftBuffer = localText.getText("INTERFACE_PANE_AIR_STRENGTH", ())
+						szLeftBuffer = self.szTextAirStrength
 						if (pHeadSelectedUnit.isFighting()):
 							szRightBuffer = u"?/%d%s" %(pHeadSelectedUnit.airBaseCombatStr(),
 									self.szStrengthIcon)
@@ -6373,7 +6387,7 @@ class CvMainInterface:
 									self.szStrengthIcon)
 				else:
 					if (pHeadSelectedUnit.canFight()):
-						szLeftBuffer = localText.getText("INTERFACE_PANE_STRENGTH", ())
+						szLeftBuffer = self.szTextStrength
 						if (pHeadSelectedUnit.isFighting()):
 							szRightBuffer = u"?/%d%s" %(pHeadSelectedUnit.baseCombatStr(),
 									self.szStrengthIcon)
@@ -6400,12 +6414,12 @@ class CvMainInterface:
 				# <advc.004w> Don't show "Movement" row if it can't move
 				eDomain = pHeadSelectedUnit.getDomainType()
 				if eDomain == DomainTypes.DOMAIN_AIR: # Show range instead for air units
-					szLeftBuffer = localText.getText("INTERFACE_PANE_RANGE", ())
+					szLeftBuffer = self.szTextRange
 					szRightBuffer = u"%d" %(pHeadSelectedUnit.airRange(),)
 				elif pHeadSelectedUnit.getDomainType() != DomainTypes.DOMAIN_IMMOBILE:
 				# </advc.004w>
 # BUG - Unit Movement Fraction - start
-					szLeftBuffer = localText.getText("INTERFACE_PANE_MOVEMENT", ())
+					szLeftBuffer = self.szTextMovement
 					if MainOpt.isShowUnitMovementPointsFraction():
 						szRightBuffer = u"%d%s" %(pHeadSelectedUnit.baseMoves(),
 								self.szMovesIcon)
@@ -6445,7 +6459,7 @@ class CvMainInterface:
 				iRow += 1
 				if (pHeadSelectedUnit.getLevel() > 0 and
 						pHeadSelectedUnit.getExperience() > 0): # advc.004w
-					szLeftBuffer = localText.getText("INTERFACE_PANE_LEVEL", ())
+					szLeftBuffer = self.szTextLevel
 					szRightBuffer = u"%d" %(pHeadSelectedUnit.getLevel())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
 					screen.appendTableRow("SelectedUnitText")
@@ -6458,7 +6472,7 @@ class CvMainInterface:
 					iRow += 1
 				if ((pHeadSelectedUnit.getExperience() > 0) and
 						not pHeadSelectedUnit.isFighting()):
-					szLeftBuffer = localText.getText("INTERFACE_PANE_EXPERIENCE", ())
+					szLeftBuffer = self.szTextExperience
 					szRightBuffer = u"(%d/%d)" %(pHeadSelectedUnit.getExperience(),
 							pHeadSelectedUnit.experienceNeeded())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
@@ -6692,7 +6706,7 @@ class CvMainInterface:
 				szCivName = pPlayer.getCivilizationDescription(0)
 				szPlayerName = szCivName
 		if not pPlayer.isAlive() and ScoreOpt.isShowDeadTag():
-			szPlayerScore = localText.getText("TXT_KEY_BUG_DEAD_CIV", ())
+			szPlayerScore = self.szTextDeadCiv
 			if bAlignIcons:
 				scores.setScore(szPlayerScore)
 		else:
