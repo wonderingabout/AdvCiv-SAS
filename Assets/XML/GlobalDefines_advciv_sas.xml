@@ -1111,6 +1111,122 @@
 
 
 
+	<!-- custom: i have noticed AI spends a lot of turns and gold to upgrade units, sometimes for little gain. This is problematic especially in the late game where there are many units to upgrade. Also, the upgrade is often not even worth it, like paying 100 gold per unit or such to gain 2 str, it is much more efficient not to upgrade units at all at such costs. But if it is cheap enough, it is a good move though. Add some minimal returns checks with the help of chatgpt 5.2, to decide if we should upgrade this unit (if valuable enough) or skip doing so (if not worth). Note: similarly to how canScrap controls all possible edge cases at lowest level, using canUpgrade allows to control all possible upgrade calls if i'm not mistaken rather than adding logic in many places or having weird unexpected edge cases. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- AI upgrade cost check: maximum gold per 10% strength gain.
+	     Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game).
+	     How to read this value: "gold per 10% strength gain".
+	     - If a unit gains +10% strength from an upgrade, this value is the max gold the AI is willing to pay.
+	     - If a unit gains +20% strength, the max gold is about double, etc.
+
+	     Example (value = 25 gold per 10% strength gain):
+	     - 50 -> 52 is about +4% strength gain.
+	       Max gold allowed for this strength gain is about:
+	       25 gold per 10% strength gain * (4% strength gain / 10%) = 10 gold.
+	       If the upgrade costs 20 gold: NO (20 > 10) -> skip.
+	     - 3 -> 5 is about +66% strength gain.
+	       Max gold allowed for this strength gain is about:
+	       25 gold per 10% strength gain * (66% strength gain / 10%) = 165 gold.
+	       If the upgrade costs 20 gold: YES (20 <= 165) -> upgrade. -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- Extra allowance based on unit EXP (experienced units keep valuable promotions, so upgrades for them can justify more gold).
+	     Unit: extra "gold per 10% strength gain" per 1 EXP.
+
+	     Examples (base = 25 gold per 10% strength gain, per EXP = 1 gold per 10% strength gain per 1 EXP):
+
+		 Example 1:
+	     - unit has 13 EXP
+	       extra gold allowance from EXP = 13 EXP * 1 gold per 10% strength gain per 1 EXP
+	                                     = 13 gold per 10% strength gain
+	       effective value = 25 gold per 10% strength gain + 13 gold per 10% strength gain
+	                       = 38 gold per 10% strength gain (then capped below)
+
+	     Example 2:
+	     - unit has 20 EXP
+	     - extra gold allowance from EXP = 20 EXP * 1 gold per 10% strength gain per 1 EXP
+	                                     = 20 gold per 10% strength gain
+	     - effective value = 25 gold per 10% strength gain + 20 gold per 10% strength gain
+	                       = 45 gold per 10% strength gain (then capped below) -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- Hard cap for the effective value (base + EXP). Purpose: even a very experienced unit should not justify extreme upgrade spending.
+	     Reason: if upgrades get too expensive, it is often better to build new units instead (early units are cheap to rebuild, late-game tiny gains are not worth big gold).
+	     Unit: max "gold per 10% strength gain" after adding the EXP allowance.
+
+	     Example (cap = 50 gold per 10% strength gain):
+	     - base + EXP would give 120 gold per 10% strength gain
+	     - cap is 50 gold per 10% strength gain
+	     - final effective value becomes 50 gold per 10% strength gain -->
+	<!-- custom: for very strong 50+ str units likethe robotic tnak that has 56 str, 50 gold for 5.6 str is decent i guess! (not too crazy though so about a hard limit i guess), adjust as you see fit -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- AI upgrade cost check: maximum gold per +1 flat strength gain (flat strength gain gate).
+	     Purpose: an extra safety gate so upgrades are not expensive even when percent strength gain is large (common for very weak units).
+	     How to read this value: "gold per +1 flat strength gain".
+	     - "flat strength gain" means raw strength points, e.g. 10 -> 13 is +3 flat strength gain.
+	     - If a unit gains +1 flat strength from an upgrade, this value is the max gold the AI is willing to pay.
+	     - If a unit gains +3 flat strength, the max gold is about triple, etc.
+
+	     Important: this gate is also influenced by the EXP allowance below (even at low EXP).
+	     Example (base = 15 gold per +1 flat strength gain, per EXP = 1 gold per +1 flat strength gain per 1 EXP):
+	     - unit has 1 EXP -> effective value is 15 + 1 = 16 gold per +1 flat strength gain
+	     - unit has 13 EXP -> effective value is 15 + 13 = 28 gold per +1 flat strength gain
+
+	     Example (value = 15 gold per +1 flat strength gain):
+	     - 10 -> 13 is +3 flat strength gain (example: Knight -> Cuirassier, strength numbers are only an example).
+	       If unit has 1 EXP:
+	       max gold allowed = 16 gold per +1 flat strength gain * 3 flat strength gain = 48 gold.
+	       If the upgrade costs 60 gold: NO (60 > 48) -> skip.
+	       If unit has 13 EXP:
+	       max gold allowed = 28 gold per +1 flat strength gain * 3 flat strength gain = 84 gold.
+	       If the upgrade costs 60 gold: YES (60 <= 84) -> upgrade. -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- Extra allowance based on unit EXP.
+	     Purpose: higher-EXP units keep valuable promotions, so the AI can pay more gold to upgrade them for the same flat strength gain.
+	     Unit: extra "gold per +1 flat strength gain" per 1 EXP.
+
+	     Example (per EXP value = 1 gold per +1 flat strength gain per 1 EXP):
+	     - unit has 1 EXP
+	       extra gold allowance from EXP = 1 EXP * 1 gold per +1 flat strength gain per 1 EXP
+	                                     = 1 gold per +1 flat strength gain
+	     - unit has 13 EXP
+	       extra gold allowance from EXP = 13 EXP * 1 gold per +1 flat strength gain per 1 EXP
+	                                     = 13 gold per +1 flat strength gain
+
+	     Effective value used by the flat strength gain gate:
+	     - effective value = base gold per +1 flat strength gain + extra gold allowance from EXP -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- Hard cap for the effective value (prevents absurd spending even with very high EXP).
+	     Unit: max "gold per +1 flat strength gain" after adding the EXP allowance.
+
+	     Example (cap = 30 gold per +1 flat strength gain):
+	     - effective value computed as 60 gold per +1 flat strength gain
+	     - cap is 30 gold per +1 flat strength gain
+	     - final effective value becomes 30 gold per +1 flat strength gain -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health, moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values anyways etc), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such but anyways etc). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled anyways etc. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable. See custom main changes guide for more details or code anyways etc. -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES</DefineName>
@@ -1272,7 +1388,7 @@
 	<!-- Yeah, that’s a really sensible enhancement for that situation – you basically want:
 			- Masters to value “vassal-known” techs less for self-research, and
 			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1301,7 +1417,7 @@
 
 	<!-- SAS techValuePowerDanger: bias research toward key military techs when we're clearly -->
 	<!-- custom: weaker anyways etc. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1329,7 +1445,7 @@
 	This is symmetric and “honest”: no hidden cheat, just a consistent “this is life or death, this tech is worth a lot to us” multiplier. -->
     <!-- SAS techTradePowerDanger: bias AI tech trade valuation toward key military techs when clearly weaker. -->
     <!-- Enable/disable the trade-stage danger bias. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
     <Define>
         <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
         <iDefineIntVal>1</iDefineIntVal>
@@ -1373,7 +1489,7 @@
 	// 	- The master picking techs the vassal doesn’t have, or at least heavily downweighting ones the vassal already holds.
 	// 	- The vassal not wasting time duplicating the master’s techs either.
 	// 	- More tech trades along that axis whenever there’s a reasonable deal. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1399,7 +1515,7 @@
 
 	<!-- custom: adjust tech trade contact frequency / willingness of contact depending on how strong/dangerous our rival is. -->
 	<!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them anyways etc. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
 		<DefineName>SAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1420,7 +1536,7 @@
 	<!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
 	<!-- Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
 	<!-- This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1430,7 +1546,7 @@
 
 	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro, check if accurate anyways etc. -->
 	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
 		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

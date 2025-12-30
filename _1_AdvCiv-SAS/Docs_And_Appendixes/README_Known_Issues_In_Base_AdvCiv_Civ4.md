@@ -121,6 +121,7 @@ hopefully helpful, thanks, anyways, thanks,
 [85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)  
 [86 - (Fixed) Base AdvCiv bug, in sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#86---fixed-base-advciv-bug-in-sevopedia-bonus-in-the-aluminium-bonus-entry-of-all-project-tooltips-showing-the-apostolic-palace-and-redirecting-to-it-instead-of-showing-the-projects-tooltip-and-redirecting-to-said-project-with-the-help-of-chatgpt-52-thanks-anyways-etc)  
 [87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)  
+[88 - (Tremendously Improved) AI always upgrading way too much units and not techning at all, sometimes for dozen turns](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-techning-at-all-sometimes-for-dozen-turns)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3211,3 +3212,11 @@ Now fixed with the help of chatgpt 5.2 thanks anyways etc.
 See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1vFB4Iae35EQlTOaobLDD7Cw4J4OuW_ta?usp=sharing) anyways etc.
 
 Issue and fixed described in [/README.md#external-file-access-in-civ4-ingame-on-windows](/README.md#external-file-access-in-civ4-ingame-on-windows).
+
+## 88 - (Tremendously Improved) AI always upgrading way too much units and not techning at all, sometimes for dozen turns
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1ahGT4Wdts_EywCgUFjSyOfEFzpDk3ows?usp=sharing) anyways etc.
+
+AI had a problem of spending too much time and gold to upgrade units that are often not worth ugprading at all (better let them die and build new ones than tech snail for dozens of turns sometimes). See rationale and details in code comments in `CvUnit::canUpgrade` or in the related XML SAS defines's code comments as well.
+
+Very good results in autoplay it seems, in short, especially in the later game, as tech pace is seemingly much faster for all AI players, which is especially nice since they had in AdvCiv-SAS a problem of snailing for dozens of turns (possibly in base AdvCiv too from what i remember, although i didn't check to be sure), which should be less of an occurence now (check to be sure, it seemed so at a glance but they still spend some time upgrading units, i'm guessing they are more efficient now or do it less when it is actually worth, but not sure as i didn't check more than that and in autoplay sample, so check if accurate although results do seem good).

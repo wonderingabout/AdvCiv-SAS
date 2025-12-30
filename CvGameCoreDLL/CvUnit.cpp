@@ -7104,8 +7104,70 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
 
 	if (!bTestVisible)
 	{
-		if (GET_PLAYER(getOwner()).getGold() < upgradePrice(eUnit))
+		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+		int const iPrice = upgradePrice(eUnit);
+
+		if (kOwner.getGold() < iPrice)
 			return false;
+
+		// <!-- custom: AI upgrade economic checks (gold vs strength gain) (chatgpt 5.2) -->
+		// <!-- custom: note: war gates not implemented as it is not always certain they would be beneficial: they are likely to be harmful depending on how they are implemented. For example, while it is generally good to upgrade units if invaded so our defenses are stronger, if the enemy force is overwhelming, it is better to evacuate (and in SAS as of now we always evacuate doomed cities). But upgrading a unit makes it end its turn if i'm not mistaken, so it will be just destroyed by the enemy forc which is worse than simply escaping. Plus, upgrading at end of move or checking enemy stack's strength is tedious and i don't want to check all sites (and tbh i don't know how to do all of these things or it's tedious xd). Also, upgrading units is not necessarily useful when we are stronger (better tech or gain some other advantage with gold: if we gain an extra tech, not only are we fast but we can also trade it or such for more benefits than doing no teching just to upgrade a unit for 1 turn). And if a war ends, even if we are weaker, it may still be wasted gold, or it won't save us from our doomed defeat, as generally people declare war when they are confident they can win, at least we should assume so. In short, the key point is in autoplay AI techs much faster which is seemingly due to being more efficient with its upgrades instead of a blind "upgrade all units even if we have 100 of them and they cost 1 000 000 gold per upgrade" kind of previous logic (i didn't check, but we keep more of our older units now it seems rather than tech snailing to upgrade them all (check if accurate as i didn't look in detail but it seems to be so in autoplay)). Scores of all AI players are significantly highers, and tech pace much faster especially at later eras, so this is what matters the most. War gates may still have some value, but i'm not sure it's worth the complicated and fragile/versatile implementation it would require (i think), and as it is tedious not done for these then as we are already (very) getting good results in autoplay if i'm not mistaken. See known issue as of now 88 for details. Tune in SAS defines as you see fit. -->
+		if (!isHuman())
+		{
+			static const int iSAS_CAN_UPGRADE_OPTIMIZE = GC.getDefineINT("SAS_CAN_UPGRADE_OPTIMIZE");
+			if (iSAS_CAN_UPGRADE_OPTIMIZE > 0)
+			{
+				CvUnitInfo const& kFromUnit = GC.getInfo(getUnitType());
+				CvUnitInfo const& kToUnit   = GC.getInfo(eUnit);
+
+				int const iFromStrength = std::max(kFromUnit.getCombat(), kFromUnit.getAirCombat());
+				int const iToStrength   = std::max(kToUnit.getCombat(),   kToUnit.getAirCombat());
+				int const iStrengthGain = (iToStrength - iFromStrength);
+
+				// If there is no strength gain, do not block the upgrade (upgrades can also be valuable for non-strength reasons).
+				if (iFromStrength > 0 && iStrengthGain > 0)
+				{
+					int const iExp = getExperience();
+
+					// Gate 1: gold per 10% strength gain.
+					{
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH");
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP");
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP");
+
+						int iMaxGoldPer10Pct = iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH + iExp * iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP;
+						if (iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP > 0)
+							iMaxGoldPer10Pct = std::min(iMaxGoldPer10Pct, iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP);
+
+						int const iPercentStrengthGain = (iStrengthGain * 100) / iFromStrength;
+						if (iPercentStrengthGain > 0)
+						{
+							// allowed gold = (gold per 10%) * (percent gain / 10%)
+							int const iAllowedGold = (iMaxGoldPer10Pct * iPercentStrengthGain + 5) / 10;
+							if (iPrice > iAllowedGold)
+								return false;
+						}
+					}
+
+					// Gate 2: gold per +1 flat strength gain.
+					{
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH");
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP");
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP");
+
+						int iMaxGoldPerFlatStr = iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH + iExp * iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP;
+						if (iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP > 0)
+							iMaxGoldPerFlatStr = std::min(iMaxGoldPerFlatStr, iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP);
+
+						// allowed gold = (gold per +1 flat strength) * (flat strength gain)
+						int const iAllowedGold = iMaxGoldPerFlatStr * iStrengthGain;
+						if (iPrice > iAllowedGold)
+							return false;
+					}
+				}
+			}
+		}
+		// <!-- custom: end AI upgrade economic checks (chatgpt 5.2) -->
 	}
 
 	if (hasUpgrade(eUnit))
