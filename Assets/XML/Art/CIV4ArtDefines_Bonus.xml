@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) -->
-<!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
 <!-- Bonus/Resource art path information -->
-<!-- custom: the file imported cleanly from: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art\CIV4ArtDefines_Bonus.xml"
-and then modified or not for AdvCiv-SAS anyways etc
--->
+<!-- custom: the file imported cleanly from "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art\CIV4ArtDefines_Bonus.xml" and then modified or not for AdvCiv-SAS -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
 	<BonusArtInfos>
 		<BonusArtInfo>
@@ -16,9 +15,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Aluminum.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,12</Button>
 			<FontButtonIndex>0</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: import coal button from HR mod, was in base advciv (/civ4 (too)? Anyways etc)('s(Anyways etc))) code:
-			<Button>,Art/Interface/Buttons/WorldBuilder/Coal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,12</Button>
-		-->
+		<!-- custom: import coal button from HR mod -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_COAL</Type>
 			<fScale>1.0</fScale>
@@ -111,9 +108,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Fur.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,13</Button>
 			<FontButtonIndex>21</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: import gemstones button from HR mod, was in base advciv (/civ4 (too)? Anyways etc)('s(Anyways etc))) code:
-			<Button>,Art/Interface/Buttons/WorldBuilder/Gems.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,13</Button>
-		-->
+		<!-- custom: import gemstones button from HR mod -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_GEMSTONES</Type>
 			<fScale>1.0</fScale>
@@ -151,9 +146,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Ivory.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,13</Button>
 			<FontButtonIndex>25</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: import silk button from HR mod, old default/base advciv one was:
-			<Button>,Art/Interface/Buttons/WorldBuilder/Silk.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,14</Button>
-		-->
+		<!-- custom: import silk button from HR mod -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_SILK</Type>
 			<fScale>1.0</fScale>
@@ -181,9 +174,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Spices.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,14</Button>
 			<FontButtonIndex>28</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: import sugar button from HR mod, old default/base advciv one was:
-		<Button>,Art/Interface/Buttons/WorldBuilder/Sugar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,14</Button>
-		-->
+		<!-- custom: import sugar button from HR mod -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_SUGAR</Type>
 			<fScale>0.5</fScale>
@@ -193,11 +184,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>Art/AdvCiv_SAS/Bonuses/Sugar/Sugar.dds</Button>
 			<FontButtonIndex>29</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: (wine now renamed to) grapes (anyways etc), imported from realism invictus mod in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface8.FPK" with dragon unpacker (only the .dds files for the button (since they seem to also put a higher resolution one than 64 x 64 anyways etc we/i anyways etc took it too just in case anyways etc))-->
-		<!-- custom: old base advciv button path was:
-		<Button>,Art/Interface/Buttons/WorldBuilder/Wine.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,16</Button>
-		Anyways etc
-		-->
+		<!-- custom: wine now replaced with grapes -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_GRAPES</Type>
 			<fScale>1.0</fScale>
@@ -342,7 +329,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Music.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,16</Button>
 			<FontButtonIndex>33</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, nif and button import from rfc doc mod's ART_DEF_BONUS_CAMEL and adjusted or not or yes or etc anyways etc for advciv-sas anyways etc -->
+		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, nif and button import from rfc doc mod's ART_DEF_BONUS_CAMEL and adjusted or not for advciv-sas -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_CAMEL</Type>
 			<fScale>1.2</fScale>

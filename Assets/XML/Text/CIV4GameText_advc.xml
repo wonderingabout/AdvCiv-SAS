@@ -3491,9 +3491,10 @@
 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
 		<English>Augustus Caesar</English>
 	</TEXT>
+	<!-- custom: was Willem -->
 	<TEXT> <!-- redefine -->
 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
-		<English>Willem</English>
+		<English>Willem van Oranje</English>
 	</TEXT>
 	<!-- custom: was Suryavarman. (in BtS Civ4GameTextObjects XML) -->
 	<TEXT>
@@ -6605,7 +6606,7 @@
 
 
 
-	<!-- custom: add (new anyways etc anyways etc...) the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial, see also buildBTradeString and related or similar anyways etc in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any there anyways etc anyways etc hopefully helpful or not or yes or etc anyways etc -->
+	<!-- custom: add (new anyways etc anyways etc...) the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial, see also buildBTradeString and related or similar anyways etc in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any. -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_TECH_CANNOT_BE_TRADED</Tag>
 		<English>[ICON_BULLET]Cannot be traded.</English>

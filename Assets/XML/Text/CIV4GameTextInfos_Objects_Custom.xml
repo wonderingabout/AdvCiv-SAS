@@ -85,7 +85,7 @@
 	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
 	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is derived from elephants, independent of whether they are alive or dead.
 	- 3) One could also maybe imagine that elephants the animal itself makes people happy, and not necessarily their ivory.
-	note: Since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version, anyways. -->
+	Note: since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version. -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_ELEPHANTS</Tag>
 		<English>Elephants</English>
@@ -101,7 +101,7 @@
 
 
 
-	<!-- custom: rename _CLAM to the more general _MOLLUSCS, see docs or/and code comments or/and other places if any (if there are (or not or yes or and other or and not anyways etc anyways etc anyways etc) for details -->
+	<!-- custom: rename _CLAM to the more general _MOLLUSCS, see docs or such for details -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_MOLLUSCS</Tag>
 		<English>Molluscs</English>
@@ -117,7 +117,7 @@
 		<Tag>TXT_KEY_BONUS_GRAPES</Tag>
 		<English>Grapes</English>
 	</TEXT>
-	<!-- custom: renamed _CORN to _MAIZE see pedia entry's code comment or/and docs for details if any more than this anyways etc -->
+	<!-- custom: renamed _CORN to _MAIZE see pedia entry's code comment or such for details -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_MAIZE</Tag>
 		<English>Maize</English>
@@ -262,7 +262,7 @@
 		<Tag>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT</Tag>
 		<English>War Chariot</English>
 	</TEXT>
-	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe or not or yes but anyways etc to hopefully less confusing or not or yes or and other or and not anyways etc SECURITY_BUREAU anyways etc -->
+	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken to a less confusing name of SECURITY_BUREAU -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>
 		<English>Security Bureau</English>
@@ -270,7 +270,7 @@
 
 
 
-	<!-- custom: rename GREAT_PALACE to FORBIDDEN_PALACE, hopefully clearer now too or maybe not or maybe yes or not or yes or and other or and not (but) but anyways etc anyways etc(...) -->
+	<!-- custom: rename GREAT_PALACE to FORBIDDEN_PALACE for clarity. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Tag>
 		<English>Forbidden Palace</English>
@@ -293,7 +293,7 @@
 
 
 
-	<!-- custom: rename to more accurate naming from "Chinese_Leader" (wtf??? but anyways etc) to "Mao Zedong" as he is accurately named in several (most in fact parts of the code), hopefully clearer now or/and more sensical or/and consistent or maybe not or yes or and other or and not, (but) anyways etc... -->
+	<!-- custom: rename to more accurate naming from "Chinese_Leader" to "Mao Zedong" as he is accurately named in several parts of the code if i'm not mistaken, for clarity and consistency. -->
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_MAO_ZEDONG</Tag>
 		<English>Mao Zedong</English>
@@ -835,7 +835,7 @@
 
 
 
-	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT anyways etc anyways etc anyways etc -->
+	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
 		<English>Mounted Combat</English>
@@ -850,72 +850,72 @@
 		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM</Tag>
 		<English>Later Abrahamism</English>
 	</TEXT>
-	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
+	<!-- custom: rename _UTOPIA to _COMMUNISM -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
 		<English>Communism</English>
 	</TEXT>
-	<!-- custom: rename _SAILING to _SEAFARING anyways etc anyways etc anyways etc -->
+	<!-- custom: rename _SAILING to _SEAFARING -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SEAFARING</Tag>
 		<English>Seafaring</English>
 	</TEXT>
-	<!-- custom: rename _OPTICS to _SAILING anyways etc anyways etc anyways etc -->
+	<!-- custom: rename _OPTICS to _SAILING -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SAILING</Tag>
 		<English>Sailing</English>
 	</TEXT>
-	<!-- custom: rename _COMPASS to _NAVIGATION anyways etc anyways etc anyways etc -->
+	<!-- custom: rename _COMPASS to _NAVIGATION -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_NAVIGATION</Tag>
 		<English>Navigation</English>
 	</TEXT>
-	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc anyways etc anyways etc -->
+	<!-- custom: replace _ALPHABET with _NATURALISM -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_NATURALISM</Tag>
 		<English>Naturalism</English>
 	</TEXT>
-	<!-- custom: rename _STEEL to _MARINE_TECHNOLOGY anyways etc anyways etc anyways etc -->
+	<!-- custom: rename _STEEL to _MARINE_TECHNOLOGY -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY</Tag>
 		<English>Marine Technology</English>
 	</TEXT>
-	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION anyways etc anyways etc anyways etc -->
+	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION</Tag>
 		<English>Theory of Evolution</English>
 	</TEXT>
-	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY anyways etc anyways etc anyways etc -->
+	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_GAME_THEORY</Tag>
 		<English>Game Theory</English>
 	</TEXT>
-	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc -->
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TERRAFORMING</Tag>
 		<English>Terraforming</English>
 	</TEXT>
-	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc -->
+	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TRANSHUMANISM</Tag>
 		<English>Transhumanism</English>
 	</TEXT>
-	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such anyways etc -->
+	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS</Tag>
 		<English>Quantum Mechanics</English>
 	</TEXT>
-	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such anyways etc -->
+	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_AI</Tag>
 		<English>AI</English>
 	</TEXT>
-	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such anyways etc -->
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS</Tag>
 		<English>Robot Rights</English>
 	</TEXT>
-	<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc -->
+	<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ALIEN_LIFE</Tag>
 		<English>Alien Life</English>

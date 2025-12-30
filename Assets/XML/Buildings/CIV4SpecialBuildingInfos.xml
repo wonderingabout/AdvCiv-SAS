@@ -21,7 +21,7 @@
 			<Button>Art/Interface/Buttons/Buildings/BombShelters.dds</Button>
 		</SpecialBuildingInfo>
 		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not? Anyways etc) so they can be built earlier anyways etc -->
-		<!-- custom: same as for the generic cathedral and monastery, use building atlas button instead (still same button, coordinates changed as is another .dds now anyways etc), button was: <Button>Art/Interface/Buttons/Buildings/Temple.dds</Button> -->
+		<!-- custom: same as for the generic cathedral and monastery, use building atlas button instead (still same button, coordinates changed as is another .dds now anyways etc) -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_TEMPLE</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_TEMPLE</Description>
@@ -37,9 +37,8 @@
 			</ProductionTraits>
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
 		</SpecialBuildingInfo>
-		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree anyways etc anyways etc anyways etc... Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner or/and other reasons or not or yes or and other or and not anyways etc, to also match the multiple pagan holy sites (/shrines ,in a general term way not civ4 building specific term way specifically,?) anyways etc throughout history anyways etc -->
-		<!-- custom: use button from the building atlas (still same image) for consistency with other generic special building buttons anyways etc, button was:
-		<Button>Art/Interface/Buttons/Buildings/Cathedral.dds</Button> -->
+		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree. Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner among other reasons if any, to also match the multiple pagan holy sites (/shrines, in a general term way not civ4 building specific term way specifically) throughout history -->
+		<!-- custom: use button from the building atlas (still same image) for consistency with other generic special building buttons -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>

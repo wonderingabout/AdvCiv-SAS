@@ -111,8 +111,8 @@ class SevoPediaTerrain:
 		screen.enableSelect(panel, False)
 		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# <!-- custom: add missing txt key "Terrain" not in RFC DOC mod if i am not mistaken (didn't recheck but i assume it was as such seeing it is as of now hardcoded but anyways etc), instead of hardcoded one, now moved to its own txt key as in the below call as of now if i am not mistaken anyways etc -->
-		# <!-- custom: also display some terrains as plot types / terrains, see xml txt key code comment for details if any hopefully helpful but or not but or yes but but anyways etc anyways etc anyways etc -->
+		# <!-- custom: add missing txt key "Terrain" not in RFC DOC mod if i am not mistaken (didn't recheck but i assume it was as such seeing it is as of now hardcoded), instead of hardcoded one, now moved to its own txt key -->
+		# <!-- custom: also display some terrains as plot types / terrains, see xml txt key code comment for details. -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
@@ -159,7 +159,7 @@ class SevoPediaTerrain:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
-			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun but anyways etc...) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe if i am not mistaken in my guess? That chatgpt seems to approve as well but could be mistaken too or maybe not but hopefully helpful or not or yes or etc, check if this info is accurate though (about line height not cleanly centered in this case but anyways etc...) to be sure anyways etc), so to solve this start a bit higher than the center instead anyways etc -->
+			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun but anyways etc.) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe if i am not mistaken in my guess, check if accurate, so to solve this start a bit higher than the center instead. -->
 			#yPanelCenter = yPanel + (hPanel / 2)
 			yPanelCenter = yPanel + int(0.42 * hPanel)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -235,7 +235,7 @@ class SevoPediaTerrain:
 					continue
 				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
 					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
-				# <!-- custom: the output is not reliable for hills improvements (missing forts, also cottages are conditionally dependent on terrain having enough food according to https://civilization.fandom.com/wiki/Hill_(Civ4) if i am not mistaken anyways etc, missing forest preserve too dependent on forest or jungle according to this link as well, so disabling the display entirely rather anyways etc)
+				# <!-- custom: the output is not reliable for hills improvements (missing forts, also cottages are conditionally dependent on terrain having enough food according to https://civilization.fandom.com/wiki/Hill_(Civ4) if i am not mistaken, missing forest preserve too dependent on forest or jungle according to this link as well, so disabling the display entirely rather)
 				# elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
 				# 	screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
 
@@ -250,7 +250,7 @@ class SevoPediaTerrain:
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		# <!-- custom: refactor/tweak/change anyways etc to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass anyways etc as is also done in several other parts of the sevopedia reworked/refactored code if i may say but anyways etc anyways etc anyways etc, and or such other tweaks to rfc doc mod's code for peak anyways etc anyways etc anyways etc -->
+		# <!-- custom: refactor/tweak/change to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass as is also done in several other parts of the sevopedia reworked/refactored code, and or such other tweaks to rfc doc mod's code for peak -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE"
@@ -375,7 +375,7 @@ class SevoPediaTerrain:
 				unitInfoDomain = unitInfo.getDomainType()
 				passTech = (unitInfo.getTerrainPassableTech(iPeak) != -1)
 
-				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc ; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too if i am not mistaken but anyways etc), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us anyways etc or anything else you'd want or i'd want too but i am fine with this if i may say (and i coded it xd but anyways etc...) hopefully helpful or not or yes or etc but anyways etc... -->
+				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too if i am not mistaken but anyways etc), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
 				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc but anyways etc -->
 				# Peak — Relevant Units (includes “boat with legs”; All-Terrain short-circuits)
 				can_walk_on_peak = (
@@ -426,7 +426,7 @@ class SevoPediaTerrain:
 					if (iHillsAttack != 0 or iHillsDefense != 0):
 						numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
 					else:
-						# <!-- custom: display first the modifier, and only if there are no modifiers, try to display the promotion(s) instead if there are any promotion(s), anyways etc ; also very efficient code if i may say at least computationally provided by chatgpt and at least efficient (very) (if not at least quite if not lot but anyways etc also wanted it to be quite clear but mostly performant but anyways etc anyways etc anyways etc) to me in this case at least but anyways etc thanks to my prompt too but or not but or yes but anyways etc -->
+						# <!-- custom: display first the modifier, and only if there are no modifiers, try to display the promotion(s) instead if there are any promotion(s); also efficient code computationally provided added with the help of chatgpt thanks. -->
 						s = ""
 						if isHasHM1:
 							s = "HM1"

@@ -125,7 +125,7 @@ Output files (.csv and optionally .md), for example in this case i chose the bas
 
 - [(base advciv) (click to view the table .csv on github (recommended))](/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
 - legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
-- note: table .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there if i may say but anyways etc anyways etc anyways etc...
+- note: table .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there.
 
 ## generate_leaders_data.py script and leaders_data.py module
 
@@ -216,7 +216,7 @@ First, below and all fields we parse in leaders_data.py use as much as possible,
 
 There are some exceptions, for example what we call "generic" fields (see list/tuple anyways etc in generate_leaders_data.py for details anyways etc) are parsed with a "get" prefix instead. This is to match, even though not required as leaders_data.py is an external to civ4 data module that does not interact at all with sevopedia leader, but is for consistency in key/field naming anyways etc.
 
-See generate_leaders_data.py and sevopedia leader py file 's codes or/and code comments for reasons why it is more convenient to use "get" prefix (in short to call the getter name from gc then use it as key for flat fields not as a method/funcitn anymore but only key name, for some fields that are flat and that we parse easily from gc in sevopedia leader, see sevopedia leader py file 's code and/or code comments for details anyways etc hopefully helpful or not or yes or etc or and other or and not or etc anyways etc)
+See generate_leaders_data.py and sevopedia leader py file 's codes or/and code comments for reasons why it is more convenient to use "get" prefix (in short to call the getter name from gc then use it as key for flat fields not as a method/funcitn anymore but only key name, for some fields that are flat and that we parse easily from gc in sevopedia leader, see sevopedia leader py file 's code and/or code comments for details)
 
 Below are some more details (non-exhaustive, refer to generate_leaders_data.py 's code or/and code comments for details or/and related files like ai_utils_shared_with_civ4.py as of now mainly (to a lesser extent as of now too sevopedia helpers py file in sevopedia folder as of now at least even though is civ4 specific, code comments may contain some info as well (didnt check though if such info there if any would be related to generate_leaders_data.py since it is independent code anyways etc)) too anyways etc)
 
@@ -236,7 +236,7 @@ We parse attitudes using this formula (see [generate_leaders_data.py](/generate_
 
 ```python
 ATTITUDE_MAP = {
-	# <!-- custom: according to https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e5%bf%85%e8%a6%81%e6%85%8b%e5%ba%a6 (translate (website) to english using your web browser or/and other etc) and my revised judgment, "none" attitude type is actually more permissive than furious, meaning even if (ai) leader is furious, as long as (ai) lader is at least furious (meaning effectively always), they will allow or maybe rather not refuse(?) such behaviour or maybe trade rather anyways etc, as for actual values, now that we have in sevopedia leader a parsing directly from xml field for all attitude threshold fields (see sevopedia_helpers or sevopedialeader py file code comments or and similar doc for details anyways etc), match closer DLL behaviour or rather numbers anyways etc by going from -1 (none) to 4 (friendly) (unlike what i had done from -3 to 2 which would work-function well too anyways etc but more consistent this way perhaps but anyways etc anyways etc anyways etc -->
+	# <!-- custom: according to https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e5%bf%85%e8%a6%81%e6%85%8b%e5%ba%a6 (translate (website) to english using your web browser or/and other etc) and my revised judgment, "none" attitude type is actually more permissive than furious, meaning even if (ai) leader is furious, as long as (ai) lader is at least furious (meaning effectively always), they will allow or maybe rather not refuse(?) such behaviour or maybe trade rather anyways etc, as for actual values, now that we have in sevopedia leader a parsing directly from xml field for all attitude threshold fields (see sevopedia_helpers or sevopedialeader py file code comments or and similar doc for details anyways etc), match closer DLL behaviour or rather numbers anyways etc by going from -1 (none) to 4 (friendly) (unlike what i had done from -3 to 2 which would work-function well too anyways etc but more consistent this way perhaps -->
 	"NONE": -1,
 	"ATTITUDE_FURIOUS": 0,
 	"ATTITUDE_ANNOYED": 1,
@@ -348,7 +348,7 @@ output example with libre office:
 <img src="../Images_In_General/scripts/csv_leaders_data_libre_office (2).PNG" alt="csv_leaders_data_libre_office (2).PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
-Then you can sort it, enhance it, adjust row length and such, but the base idea is here, hopefully helpful, anyways.
+Then you can sort it, enhance it, adjust row length and such, but the base idea is here.
 
 Regenerate the files yourself with the script to have latest data if the files (.csv and .md) provided or/and in advciv-sas mod folder are outdated or not updated anymore with latest XML changes in the mod.
 

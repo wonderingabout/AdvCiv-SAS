@@ -4199,10 +4199,8 @@
 					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so if i may say but anyways etc), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help too and my help too and its help too too and my help too too etc anyways etc anyways etc anyways etc -->
-				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
-				Same for forge, provide military only small (relatively anyways etc) production bonus instead
-				Test to not put the stable too for efficiency and maybe bit accuracy/realism maybe or not or yes or and other or and not but in all cases anyways etc -->
+				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help thanks -->
+				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this way so they can focus more on producing units. -->
 				<!-- custom: (Normal Buildings)-->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
@@ -4348,7 +4346,7 @@
 			advc.307: Allowed Musketman
 			Disallowed Frigate, Privateer, Paratrooper, Rifleman, Grenadier,
 			Spy (kekm.6). -->
-			<!-- custom: hopefully helps them (barbarians) catch up too the delay they unfortunately (or maybe not and is a fine mechanic that they spawn later especially if balanced ideally which i aim to do even if bit, and give the human player and other players too room to breathe in the early(ier) game anyways etc (,) but anwyays etc) have as of now in base AdvCiv at least and/or Civ4 and/or (or or/and?) other preexisting mods or not anyways etc -->
+			<!-- custom: hopefully helps barbarians catch up too the delay -->
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
@@ -4370,7 +4368,7 @@
 					<UnitClassType>UNITCLASS_EXPLORER</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
-				<!-- custom: do not allow missionaries (at least yet anwyays etc) as core purpose remains to invade and warmongering so make them focus on that still despite early boosts, at least as of now if not always or not or and other or and not anwyays etc -->
+				<!-- custom: do not allow missionaries as core purpose remains to invade and warmongering -->
 				<Unit>
 					<UnitClassType>UNITCLASS_JEWISH_MISSIONARY</UnitClassType>
 					<UnitType>NONE</UnitType>
@@ -4486,7 +4484,7 @@
 					<TechType>TECH_SEAFARING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: not putting mysticism here to reduce (if even slightly or lot anyways etc) the likeliness of barbarians having a holy city for religions such as paganism, judaism, hinduism or any other early one in particular, but if it were to happen, in that rare likeliness without them having free mysticism, then it should still be fine (i think anyways etc), as even if a barbarian city somehow becomes a holy city, it could be captured too, and it is also i think anyways etc not too far fetched that(/for? (anyways etc)) a barbarian city would be(come? Anyways etc) a holy city for paganism or another religion, but trying to prevent that even if a bit or hopefully lot, so that relgiion plays a key and more important part in diplomacy among players as i want to rperesent it for civ4, not as what i believe it should be ideally, but (is also maybe not (too?) bad design (this way maybe or not or and other or and not anyways etc) anyways etc anyways etc -->
+				<!-- custom: not putting mysticism here to reduce the likeliness of barbarians having a holy city for religions such as paganism, judaism, hinduism -->
 				<FreeTech>
 					<TechType>TECH_MASONRY</TechType>
 					<bFreeTech>1</bFreeTech>

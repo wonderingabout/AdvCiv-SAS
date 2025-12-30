@@ -328,7 +328,7 @@ class SevoPediaBonus:
 		screen.attachLabel(panelName, "", "  ")
 		# <!-- custom: placeAllows is now renamed to placeUnits -->
 		# advc.905b: Moved this loop from placeAllows, which only deals with units now.
-		# <!-- custom: i don't know why the bAnyFound approach (i) (but anyways etc) (tried) (anyways etc) in the other methods/functions anyways etc did not work/function for buildings and projects (was displaying "None" text even if we did have buttons anyways etc unlike what we wanted anyways etc anyways etc anyways etc... anyways etc...), so using a bAnyDisplayed slightly different approach than in the other methods/functions anyways etc that use instead bAnyFound, functionnal result is the same anyways etc that now indeed anyways etc we can display "None" if no building is displayed, else display buttons instead and not the "None" text as intended anyways etc anyways etc anyways etc... anyways etc... -->
+		# <!-- custom: i don't know why the bAnyFound approach i tried in the other methods did not work for buildings and projects (was displaying "None" text even if we did have buttons unlike what we wanted), so using a bAnyDisplayed slightly different approach than in the other methods that use instead bAnyFound, functionnal result is the same that now indeed we can display "None" if no building is displayed, else display buttons instead and not the "None" text as intended. -->
 		bAnyDisplayed = False
 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
 			bFound = False
@@ -376,7 +376,7 @@ class SevoPediaBonus:
 
 
 
-	# <!-- custom: add some terrains (as of now minus some plot types anyways etc), and features information anyways etc, code based on multilist code in sevopedia religion that we also use in several places in other sevopedia classes as well in advciv-sas but or not but or yes but but anyways etc anyways etc anyways etc -->
+	# <!-- custom: add some terrains (as of now minus some plot types), and features information, code based on multilist code in sevopedia religion that we also use in several places. -->
 	def placeTerrains(self):
 		xPanel = self.X_TERRAINS
 		yPanel = self.Y_TERRAINS
@@ -415,7 +415,7 @@ class SevoPediaBonus:
 		isButtonFound = False
 		#iButtonIndex = 0
 
-		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: core logic provided with the help of chatgpt thanks. -->
 		for iTerrain in xrange(gc.getNumTerrainInfos()):
 			# Check if bonus can appear on this terrain
 			if gc.getBonusInfo(self.iBonus).isTerrain(iTerrain):
@@ -473,9 +473,9 @@ class SevoPediaBonus:
 		isButtonFound = False
 		#iButtonIndex = 0
 
-		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: core logic provided with the help of chatgpt thanks. -->
 		for iFeature in xrange(gc.getNumFeatureInfos()):
-			# Check if bonus can appear on this <!-- custom: feature but anyways etc anyways etc anyways etc -->
+			# Check if bonus can appear on this feature
 			if gc.getBonusInfo(self.iBonus).isFeature(iFeature):
 				# Column index (always 0 when numLists=1)
 				columnIndex = 0
@@ -532,7 +532,7 @@ class SevoPediaBonus:
 		isButtonFound = False
 		#iButtonIndex = 0
 
-		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: core logic provided with the help of chatgpt thanks. -->
 		for iTerrain in xrange(gc.getNumTerrainInfos()):
 			if gc.getBonusInfo(self.iBonus).isFeatureTerrain(iTerrain):
 				# Column index (always 0 when numLists=1)

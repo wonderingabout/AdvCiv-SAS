@@ -14,7 +14,7 @@
 <!-- Good luck! -->
 <Civ4EraInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<EraInfos>
-		<EraInfo> <!-- custom: type: ERA_ANCIENT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<EraInfo> <!-- custom: type: ERA_ANCIENT (useful for VS Code upper tree view while scrolling) -->
 			<Type>ERA_ANCIENT</Type>
 			<Description>TXT_KEY_ERA_ANCIENT</Description>
 			<Strategy>TXT_KEY_ERA_ANCIENT_STRATEGY</Strategy>
@@ -78,7 +78,7 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_EARLY</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_EARLY</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo> <!-- custom: type: ERA_CLASSICAL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<EraInfo> <!-- custom: type: ERA_CLASSICAL (useful for VS Code upper tree view while scrolling) -->
 			<Type>ERA_CLASSICAL</Type>
 			<Description>TXT_KEY_ERA_CLASSICAL</Description>
 			<Strategy>TXT_KEY_ERA_CLASSICAL_STRATEGY</Strategy>
@@ -156,7 +156,7 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_EARLY</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_EARLY</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo> <!-- custom: type: ERA_MEDIEVAL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<EraInfo> <!-- custom: type: ERA_MEDIEVAL (useful for VS Code upper tree view while scrolling) -->
 			<Type>ERA_MEDIEVAL</Type>
 			<Description>TXT_KEY_ERA_MEDIEVAL</Description>
 			<Strategy>TXT_KEY_ERA_MEDIEVAL_STRATEGY</Strategy>
@@ -243,7 +243,7 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo> <!-- custom: type: ERA_RENAISSANCE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<EraInfo> <!-- custom: type: ERA_RENAISSANCE (useful for VS Code upper tree view while scrolling) -->
 			<Type>ERA_RENAISSANCE</Type>
 			<Description>TXT_KEY_ERA_RENAISSANCE</Description>
 			<Strategy>TXT_KEY_ERA_RENAISSANCE_STRATEGY</Strategy>
@@ -332,7 +332,7 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo> <!-- custom: type: ERA_INDUSTRIAL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<EraInfo> <!-- custom: type: ERA_INDUSTRIAL (useful for VS Code upper tree view while scrolling) -->
 			<Type>ERA_INDUSTRIAL</Type>
 			<Description>TXT_KEY_ERA_INDUSTRIAL</Description>
 			<Strategy>TXT_KEY_ERA_INDUSTRIAL_STRATEGY</Strategy>
@@ -419,7 +419,7 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo> <!-- custom: type: ERA_MODERN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<EraInfo> <!-- custom: type: ERA_MODERN (useful for VS Code upper tree view while scrolling) -->
 			<Type>ERA_MODERN</Type>
 			<Description>TXT_KEY_ERA_MODERN</Description>
 			<Strategy>TXT_KEY_ERA_MODERN_STRATEGY</Strategy>
@@ -501,7 +501,7 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_LATE</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_LATE</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo> <!-- custom: type: ERA_FUTURE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<EraInfo> <!-- custom: type: ERA_FUTURE (useful for VS Code upper tree view while scrolling) -->
 			<Type>ERA_FUTURE</Type>
 			<Description>TXT_KEY_ERA_FUTURE</Description>
 			<Strategy>TXT_KEY_ERA_FUTURE_STRATEGY</Strategy>

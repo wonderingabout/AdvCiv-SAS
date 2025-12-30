@@ -24,7 +24,7 @@ def get_positive_memory_indexes_to_types():
 
 
 def get_negative_memory_indexes_to_types():
-	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such hopefully helpful or not or yes or and other or and not anyways etc): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any -->
+	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any -->
 	#
 	# "You have rejected another civilization's technology."
 	# occurs to the civilization that has received a technology each time a contacted civilization acquires a technology through trade.
@@ -63,7 +63,7 @@ def get_negative_memory_indexes_to_types():
 	# There's no attitude hit attached, so your relationships don’t visibly worsen—but the memory can block or refuse future tech trades.
 	# "
 	#
-	# based on this, if the higher it is, the higher no tech trade can happen, then i would classify it as negative memory even though is not strictly a memory it seems but maybe is strictly a memory, hopefully helpful or and clear or and bit exhaustive in this case at least if not always or maybe not or yes or etc or other or etc but in all cases anyways etc
+	# based on this, if the higher it is, the higher no tech trade can happen, then i would classify it as negative memory even though is not strictly a memory it seems but maybe is strictly a memory
 	#
 	# <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
 	# <!-- custom: 26 entries total if i am not mistaken anyways etc -->
@@ -367,7 +367,7 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
 
 		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 anyway ---
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_rand_norm_score + SECONDARY_WEIGHT * adjusted_value_delay_norm_score
-		# <!-- custom: no reason to strictly round the raw values since they will be normalized later anyways which would/should be an int if i am not mistaken and as of now the raw aggregated contact prob is only stored before that at min max storage stage (before their normalization as said before in this sentence anyways etc anyways etc anyways etc), but no reason not to, since most if not indeed all fields are int, and it is an approximation (aggregation) to begin with, values close enough like 78.123456 vs 78.234567 could be considered to be the same 78 for example in my understanding anyways etc, so round them now even though makes data a bit more inaccurate, hopefully still very significant and reliable, perhaps even desirable but in all cases anyways etc anyways etc anyways etc ... -->
+		# <!-- custom: no reason to strictly round the raw values since they will be normalized later anyways which would/should be an int if i am not mistaken and as of now the raw aggregated contact prob is only stored before that at min max storage stage (before their normalization as said before in this sentence), but no reason not to, since most if not indeed all fields are int, and it is an approximation (aggregation) to begin with, values close enough like 78.123456 vs 78.234567 could be considered to be the same 78 for example in my understanding anyways etc, so round them now even though makes data a bit more inaccurate. -->
 		return int(round(raw_aggregated))
 
 
@@ -427,7 +427,7 @@ def get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score
 	if force_zero_adjusted_values:
 		return 0
 	else:
-		# <!-- custom: see the same/similar function but for contact types, 's code code comments for details anyways etc ; approximation of the ratios based on kujira's website (translate(d? Anyways etc) to english with chrome web browser or such similar or and other or and not anyways etc) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%9a%84%e5%87%ba%e6%9d%a5%e4%ba%8b%e3%81%ab%e3%82%88%e3%82%8b%e6%85%8b%e5%ba%a6%e8%a3%9c%e6%ad%a3 and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memoryattitudepercents and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memorydecays anyways etc quite similarly to contact code as said before if i may say but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: see the same/similar function but for contact types' code code comments for details; approximation of the ratios based on kujira's website (translate(d? Anyways etc) to english with chrome web browser or such) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%9a%84%e5%87%ba%e6%9d%a5%e4%ba%8b%e3%81%ab%e3%82%88%e3%82%8b%e6%85%8b%e5%ba%a6%e8%a3%9c%e6%ad%a3 and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memoryattitudepercents and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memorydecays quite similarly to contact code -->
 
 		# --- Weight configuration ---
 		# MAIN_WEIGHT represents the primary importance (e.g. randomness of contact)
@@ -440,7 +440,7 @@ def get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score
 		if not abs(weight_sum - 1.0) < 1e-6:
 			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
 
-		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 anyway ---
+		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 ---
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_attitude_percent_norm_score + SECONDARY_WEIGHT * adjusted_value_decay_norm_score
-		# <!-- custom: similarly round, see the aggregated contact prob equivalent/similar function of/to this anyways etc anyways etc anyways etc if i am not mistaken in saying similar to or and such but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: similarly round, see the aggregated contact prob similar function to this if i am not mistaken. -->
 		return int(round(raw_aggregated))

@@ -42,11 +42,11 @@
 			<iDeclareWarTradeRand>0</iDeclareWarTradeRand>
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
-			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal, hopefully more idela this way now and balancing their strength in an other place if need if they are too strong and thus raze too often cities, not here, i wouldn't want gameplay to be too forgiving but accurate, however i want it lenient in its balance whatever that means, that i want it fair and fun, but hard enough and not toned down, and accurate, maybe clear enough this way whatever that means or not or yes or and other or and not anyways etc), was 10 -->
+			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal. I want it fair and fun, but hard enough and not toned down, and accurate), was 10 -->
 			<iRazeCityProb>60</iRazeCityProb>
-			<!-- custom: The barbarians issue/bug of them building wonders and completing them before other players now that they are economically strong enough in this case but anyways etc is now fixed by a patch in the DLL in CvCityAI.cpp in advciv-sas, so no need to increase this too high, it also didn't always solve the issue even at 100, but increase it significantly in this case still at least if i may say but anyways etc, after all the barbarians 's main role, at least in advciv-sas if i may say but anyways etc, is to mostly build units and attack other players, not buildings or not too much, but allow them in some cases, in particular as of now the low hammer cost barbarian buildings that help them catch up with other players due to their later start but anyways etc, so not increasing this too high that they would never or much less considering building these, and so they keep focusing on units but not too much, anyways etc, but still mostly focus on units anyways etc, was 50 -->
+			<!-- custom: The barbarians issue of them building wonders and completing them before other players now that they are economically strong enough is now fixed by a patch in the DLL in CvCityAI.cpp in advciv-sas, so no need to increase this too high, and so they keep mostly focusing on units, was 50 -->
 			<iBuildUnitProb>70</iBuildUnitProb>
-			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
+			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but also to be generally more on the offensive when necessary. -->
 			<!-- advc.114d: was 0 -->
 			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
 			<!-- advc.114d: was 16 -->
@@ -111,9 +111,9 @@
 			<MemoryAttitudePercents/>
 			<NoWarAttitudeProbs/>
 			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, but anyways etc, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
-			Make sure to build enough workers and early enough to develop the land too, anyways etc.
+			Make sure to build enough workers and early enough to develop the land too.
 			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend.
-			It seems also 25 (for UNITAI_WORKER, anyways etc anyways etc...) is not enough to make enough workers and fast/soon enough, trying a higher number, anyways etc.
+			It seems also 25 (for UNITAI_WORKER) is not enough to make enough workers and fast/soon enough, trying a higher number.
 			-->
 			<UnitAIWeightModifiers>
 				<UnitAIWeightModifier>
@@ -240,7 +240,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc, was 0 -->
+			<!-- custom: additionally to iBuildUnitProb changes to some leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games, was 0 -->
 			<iBuildUnitProb>10</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
@@ -1108,7 +1108,7 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<iBuildUnitProb>30</iBuildUnitProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc similarly to other real civ4 leaders (i.e. excluding barbarians and defaults and or such if any more of these (types of non-real leaders i mean anyways etc anyways etc anyways etc) i mean anyways etc anyways etc anyways etc) if i may say anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game similarly to other real civ4 leaders (i.e. excluding barbarians and defaults and or such). -->
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
@@ -3735,7 +3735,7 @@
 			<iDogpileWarRand>125</iDogpileWarRand>
 			<iMakePeaceRand>20</iMakePeaceRand>
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
-			<!-- custom: seems especially vengeful, (which i like but anyways etc...), especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) from quite little in this case i know about him but anyways etc, was 0 in cyrus among other uncommented changes in ewuare's xml i mean too but anyways etc anyways etc anyways etc -->
+			<!-- custom: seems especially vengeful, especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) (check if accurate), was 0 in cyrus among other uncommented changes in ewuare's xml -->
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->

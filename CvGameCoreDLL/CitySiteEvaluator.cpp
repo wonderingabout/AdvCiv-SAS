@@ -877,7 +877,7 @@ short AIFoundValue::evaluate()
 				// // Improvement-specific penalty for lost yield potential
 				// if (eBonusImprovement != NO_IMPROVEMENT)
 				// {
-				// 	// <!-- custom: code comment below added by chatgpt, i don't know if accurate but maybe is, seems so from quick glance and reflection on it from me but i don't know too much about these overall still, still hopefully helpful or not or yes or etc but anyways etc; note: also some logic added as of now in AIFoundValue::AIFoundValue anyways etc -->
+				// 	// <!-- custom: code comment below added by chatgpt, i don't know if accurate but maybe is, seems so from quick glance and reflection on it from me but i don't know too much about these so check if accurate; note: also some logic added as of now in AIFoundValue::AIFoundValue -->
 				// 	// General yield penalty for lost improvement potential
 				// 	int const iImprovementYieldValue = evaluateYield(aiBonusImprovementYield);
 				// 	if (iImprovementYieldValue > 0) // Make sure not to exponentiate a negative value
@@ -1202,7 +1202,7 @@ short AIFoundValue::evaluate()
 			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 if i'm not mistaken anyways etc -->.
 			// “8 snow here” → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
 			// A truly good inland site just returns, e.g., iValue=1800 (>> <!-- custom:44 -->), so it wins.
-			// <!-- custom: update: i tried this code to enhance it for archipelago or such very rare land starts but then moscow (see known issue as of now 44 for details anyways etc) goes back to settling on its water location again, then just disabling it, dig it if you want to improve it, i believe our results are in most if not all cases much better and it was just an extra polish anyways etc, hopefully helpful/informative or not or yes or etc but anyways etc -->
+			// <!-- custom: update: i tried this code to enhance it for archipelago or such very rare land starts but then moscow (see known issue as of now 44 for details anyways etc) goes back to settling on its water location again, then just disabling it, dig it if you want to improve it, i believe our results are in most if not all cases much better and it was just an extra polish. -->
 			// const int iValueCompressed = (1 + iGoodBFCTiles + std::max(0, iValue / 50));
 			// return std::max<short>(1, truncIntCast<short>(iValueCompressed));
 			return 0;

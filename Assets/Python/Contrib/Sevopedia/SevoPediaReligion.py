@@ -35,7 +35,7 @@ class SevoPediaReligion:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: this (287 anyways etc) should be accurate according to my measurements if i am not mistaken for a 4 leaders panel but the screen.appendMultiListButton uses seemingly (approximately from my vision but anyways etc) a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty if i may say anyways etc, to solve this, reducing the width, while keeping in mind the correct value should be 287 if i am not mistaken for 4 leaders per row total width including margins (or keeping here as i may or in case i forget or not forget maybe or not or yes or and other or and not anyways etc) -->
+		# <!-- custom: this 287 should be accurate according to my measurements if i am not mistaken for a 4 leaders panel but the screen.appendMultiListButton uses seemingly a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty. To solve this, reducing the width, while keeping in mind the correct value should be 287 if i am not mistaken for 4 leaders per row total width including margins -->
 		#self.W_LEADERS = 287
 		self.W_LEADERS = 282
 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
@@ -54,8 +54,8 @@ class SevoPediaReligion:
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
-		# <!-- custom: icon at the center of the panel for its middle point (both middle point of the icon/button and of the religion_panel should and are wanted for us to coincide here anyways etc if we/i are/am not mistaken anyways etc anyways etc anyways etc...)
-		# Note: formula is approximative but seems to work quite well for a button size of 64px, may be improved indeed or not or yes or not or and other or and not or etc or not etc or yes or and other or and not anyways etc -->
+		# <!-- custom: icon at the center of the panel for its middle point.
+		# Note: formula is approximative but seems to work quite well for a button size of 64px -->
 		self.X_ICON = self.X_RELIGION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
 		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
 
@@ -109,8 +109,8 @@ class SevoPediaReligion:
 	#			lRect.x(), lRect.y(), lRect.width(), lRect.height(),
 	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
 	#			TableStyles.TABLE_STYLE_STANDARD)
-	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc -->
-	# <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from History Rewritten mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc. -->
+	# if it helps us adapt/use the addMultiListControlGFC method -->
+	# <!-- custom: part of the code here (placeLeaders in particular but possibly not only, is imported from History Rewritten mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py which may be modified or not for AdvCiv-SAS, with the help of claude AI thanks -->
 	def placeLeaders(self):
 		xPanel = self.X_LEADERS
 		yPanel = self.Y_LEADERS
@@ -182,7 +182,7 @@ class SevoPediaReligion:
 			#iPrereq4 = gc.getBuildingInfo(iBuilding).getGlobalReligionCommerce()
 			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
 				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
-			# <!-- custom: adjusted indentation of code comment so it is properly indented at same "level" of indentation than at this part of the code anyways etc anyways etc anyways etc -->
+			# <!-- custom: adjusted indentation of code comment so it is properly indented at same level of indentation than at this part of the code -->
 			#elif (iPrereq == self.iReligion and iPrereq4 > 0):
 			#	screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 

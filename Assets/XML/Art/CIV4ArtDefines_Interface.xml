@@ -142,7 +142,6 @@
 			<Type>CURSORS_SELECTION_UNIT</Type>
 			<Path>Art/Interface/Cursors/SelectionCursor.nif</Path>
 		</InterfaceArtInfo>
-		<!-- custom: add our own .tga file here, default/base advciv one was: <Path>res/Fonts/GameFont.tga</Path>, the base .tga of advciv as of before we modified it at all is also backed up if need in (update to your mod path if not using the Steam version of the game civ4 or/and another path anyways etc) "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\res\Fonts\GameFont_backup_base_advciv_original.tga" (path copied with copy as path anyways etc) -->
 		<InterfaceArtInfo>
 			<Type>FONTS_GAMEFONT</Type>
 			<!-- keep here and unpakked -->
@@ -158,7 +157,6 @@
 			<!-- keep here and unpakked -->
 			<Path>res/Fonts/NumberFont-Sylfaen64px.tga</Path>
 		</InterfaceArtInfo>
-		<!-- custom: similarly, for the _75.tga, backup in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Res\Fonts\GameFont_75_backup_base_advciv_original.tga" anyways etc -->
 		<InterfaceArtInfo>
 			<Type>FONTS_SMALLFONT</Type>
 			<!-- keep here and unpakked -->
@@ -781,7 +779,7 @@
 			<Type>MAINMENU_SLIDESHOW_LOAD_CLASSICAL</Type>
 			<Path>Art/Interface/Screens/Loading/LoadingScreenBGslideshowClassical.dds</Path>
 		</InterfaceArtInfo>
-		<!-- custom: using same load screen than our main menu background/wallpaper if i may say because why not and tedious to do another one for short load time and also more consistent and also again why not same if i may say in this case at least but anyways etc... -->
+		<!-- custom: using same load screen than our main menu wallpaper because why not and tedious to do another one for short load time and also more consistent -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_LOAD_CLASSICAL</Type>
 			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/duomo3.dds</Path>
@@ -830,7 +828,7 @@
 			<Type>MAINMENU_SCENE</Type>
 			<Path>Art/Interface/Main Menu/CIV4MainMenuBG.nif</Path>
 		</InterfaceArtInfo>
-		<!-- custom: replaced on what/how ri mod does it (took their files and just replaced their duomo3.dds with our own renamed to duomo3.dds as well .dds wallpaper), thanks a lot! Anyways etc anyways etc anyways etc... -->
+		<!-- custom: replaced based on how ri mod does it (took their files and just replaced their duomo3.dds with our own renamed to duomo3.dds as well .dds wallpaper) -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SCENE_CLASSICAL</Type>
 			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/CIV4MainMenuBG.nif</Path>

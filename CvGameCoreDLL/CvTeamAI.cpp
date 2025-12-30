@@ -5079,7 +5079,7 @@ void CvTeamAI::read(FDataStreamBase* pStream)
 	if ((getUWAI().isEnabled() || getUWAI().isEnabled(true)) && isAlive() && isMajorCiv())
 		uwai().init(getID()); // </advc.104>
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -5149,7 +5149,7 @@ void CvTeamAI::write(FDataStreamBase* pStream)
 
 	REPRO_TEST_BEGIN_WRITE(CvString::format("TeamAI(%d)", getID()).GetCString());
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 9; // advc.130r
 

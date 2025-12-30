@@ -274,7 +274,7 @@ void CvGame::setInitialItems()
 		regenerateMap(true); // </advc.tsl>
 }
 
-// <!-- custom: new helpers addition quite self explanatory xd if i may say but anyways etc, see also known issue as of now 42 for details too, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; hopefully helpful or not or yes or etc but anyways etc ; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure but anyways etc) during civ4 run time anyways etc, as advised by chatgpt 5 too but anyways etc -->
+// <!-- custom: new helpers addition quite self explanatory xd if i may say but anyways etc, see also known issue as of now 42 for details as well, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too. -->
 // CvGame.cpp — the “braindead” recompute (just ==)
 void CvGame::recomputeMapnameHeaviness()
 {
@@ -8928,7 +8928,7 @@ void CvGame::read(FDataStreamBase* pStream)
 {
 	reset(NO_HANDICAP);
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -9163,7 +9163,7 @@ void CvGame::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 27; // advc.130w: RivalVassalAttitude tweak
 

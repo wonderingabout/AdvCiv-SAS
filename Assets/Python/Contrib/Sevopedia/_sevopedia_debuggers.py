@@ -1,12 +1,12 @@
-# <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game if i may say anyways etc), especially the very nice i mean if i may say but anyways etc debug leaderheadinfo one but not only, (another) other functions(function) as well anyways etc, moving them here as it would be heavy and unclean in this case anyways etc and would also clutter needlessly the other helpers if i may say anyways etc anyways etc anyways etc -->
+# <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game if i may say anyways etc), especially the very nice i mean if i may say but anyways etc debug leaderheadinfo one but not only, (another) other functions(function) as well anyways etc, moving them here as it would be heavy and unclean in this case anyways etc and would also clutter needlessly the other helpers. -->
 
 
 
-# <!-- custom: modified from Claude AI's (kindly shared (to me or and all or not or and other or and not but anyways etc anyways etc anyways etc...)) or not for AdvCiv-SAS or/and my personal taste or feel or/and wish or thought or and other or and not anyways etc anyways etc anyways etc... -->
-# <!-- custom: be careful/make sure to launch this at interfaceScreen level or later, else at __init__ this/the output is still empty, so run this later to have the actual tech info output ; but also be careful to not launch/run/call this but anyways etc later than your error line if you have any, else the code execution would stop before you reach your debugger's call and you won't see any debug (e.g. if you have a code error at line 200, call debugger method at line 199 or sooner, not at line 201+ as it would never be reached before execution stops and you don't see debug content anyways etc), a good place may be the top of interfaceScreen generally i would say but check to be sure hopefully helpful or not or yes or etc but anyways etc -->
+# <!-- custom: modified from Claude AI's solution. -->
+# <!-- custom: be careful/make sure to launch this at interfaceScreen level or later, else at __init__ this/the output is still empty, so run this later to have the actual tech info output; but also be careful to not launch/run/call this later than your error line if you have any, else the code execution would stop before you reach your debugger's call and you won't see any debug (e.g. if you have a code error at line 200, call debugger method at line 199 or sooner, not at line 201+ as it would never be reached before execution stops and you don't see debug content anyways etc), a good place may be the top of interfaceScreen generally i would say but check to be sure -->
 # Get all attributes of the object
 def printObjAttrs(obj):
-	print ("[DEBUG] Beginning of show obj inner fields if i am not mistaken anyways etc.")
+	print ("[DEBUG] Beginning of show obj inner fields.")
 	
 	for attr in dir(obj):
 		try:
@@ -21,19 +21,19 @@ def printObjAttrs(obj):
 		except:
 			print(u"%s - Error accessing\n" % attr)
 	
-	print ("[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.")
+	print ("[DEBUG] End of show show obj inner fields.")
 
 
 
 def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
-	# <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel anyways etc anyways etc anyways etc for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive or not or yes or and other or and not or other or yes or other or etc or as i want or yes or not or yes or other or etc anyways etc:
+	# <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive:
 	#
 	#	<Type>LEADER_DEFAULTS</Type>
 	#	<Description></Description>
 	#	<Civilopedia></Civilopedia>
 	#	<ArtDefineTag></ArtDefineTag>
 	#
-	# then resume/start in this case or resume but in all cases anyways etc anyways etc anyways etc at these below anyways etc anyways etc anyways etc...: -->
+	# then: -->
 
 	print("\n\n[DEBUG] For iLeader=%d, leader head info debugged as such:" % iLeader)
 
@@ -110,9 +110,9 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 
 	# <!-- custom: there are "AttitudeThreshold" and "RefuseAttitudeThreshold", handle the most common case, they seem to all be about refusing something or not being able to do it if threshold is not met if i am not mistaken, handle them as such, anyways etc -->
 	print("\n\n==== ATTITUDE THRESHOLDS ====")
-	# <!-- custom: if i am not mistaken, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in(with? But anyways etc) leader_ragnar anyways etc), here is the table conversion map if i am not mistaken anyways etc of attitude to num if i am not mistaken anyways etc below but anyways etc anyways etc anyways etc: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
+	# <!-- custom: if i am not mistaken, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in leader_ragnar anyways etc), here is the table conversion map if i am not mistaken of attitude to num: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
 	#
-	# Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious) if i am not mistaken and as we successfully guessed in generate_leaders_data.py anyways etc, and friendly being the highest, so we can use this map of the dll directly without needing to parse atittude str to num for our compare/rank(ing? But anyways etc) of leaders in AI personality panel directly very nice else we could have done too but very nice they did too in base advciv +/- in civ 4 too or and other inbetween mods if was not already there or not thanks all or not and me too hehe or not or yes or not or all or and etc anyways etc thanks anyways etc, i am happy to use these and thankful too if i am may say even though i mostly thought intuitively thought happy but i am thankful too if i think of it maybe but happy inside if i may say anyways ec but anyways etc outside too maybe or not or yes in this case or and other or and not but anyways etc -->
+	# Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious) if i am not mistaken, and friendly being the highest, so we can use this map of the dll directly without needing to parse atittude str to num for our ranking of leaders in AI personality panel directly -->
 	#
 	# <!-- custom: Among all leaders, LEADER_ELIZABETH and LEADER_TOKUGAWA only have a value of 5 somehow, which triggers an error with our current map:
 	#
@@ -142,7 +142,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 		2: "ATTITUDE_CAUTIOUS",
 		3: "ATTITUDE_PLEASED",
 		4: "ATTITUDE_FRIENDLY",
-		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error anyways etc, added this value also as this seems like a purposeful valid DLL behaviour if i may say anyways etc, see above for explanation or/and of my understanding of it hopefully helpful or not or yes or etc or and other or and not anyways etc -->
+		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error, added this value also as this seems like a purposeful valid DLL behaviour, see above for explanation or/and of my understanding of it -->
 	}
 
 	for attr in dir(info):
@@ -155,16 +155,16 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	print("iVassalPowerModifier: %d" % info.getVassalPowerModifier())
 	print("iFreedomAppreciation: %d" % info.getFreedomAppreciation())
 
-	# <!-- custom: then we skip these (for example in/from LEADER_DEFAULTS anyways etc):
+	# <!-- custom: then we skip these (for example in/from LEADER_DEFAULTS):
 	#
 	# 		<FavoriteCivic>NONE</FavoriteCivic>
 	# 		<FavoriteReligion>NONE</FavoriteReligion>
 	# 		<Traits/>
 	#
-	# as we don't need them/display them in ai personality panel at least as of now if not always or maybe not or yes or etc but or not but or but but anyways etc anyways etc anyways etc ; then resume at fields below anyways etc: -->
+	# as we don't need them/display them in ai personality panel; then resume at fields below: -->
 
 	print("\n\n==== FLAVORS ====")
-	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name if i am not mistaken (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\__SevoPediaBuilding-gc-debug-content.txt anyways etc for details), so no need to specify a number of values to loop over as in below code if i am not mistaken, anyways etc -->
+	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name if i am not mistaken (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\__SevoPediaBuilding-gc-debug-content.txt anyways etc for details), so no need to specify a number of values to loop over as in below code if i am not mistaken -->
 	for i in range(gc.getNumFlavorTypes()):
 		name = gc.getFlavorTypes(i)
 		value = info.getFlavorValue(i)
@@ -184,7 +184,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	# AttributeError: 'NoneType' object has no attribute 'getType'
 	# ERR: Python function pediaJumpToLeader failed, module CvScreensInterface
 	# , so stop at this last one anyways etc -->
-	# <!-- custom: note: here no positive/negative different memory type or index handling, as we are simply debugging and directly displaying the XML as it is, no aggregation, no adjustment of any value, anyways etc, so we can use range and loop over all NUM_MEMORY_TYPES_ASSESSED instead of using positive_or_negative_memory_indexes specifically instead depending on if memory index is of a positive or of a negative memory in sevopedia leader, so here in debugging (i.e. sevopedia_helpers py file anyways etc) we can respect and be consistent with the contact approach more strictly/reliably or rather faitfully maybe but is as we intend in both cases if i may say but anyways etc anyways etc anyways etc... -->
+	# <!-- custom: note: here no positive/negative different memory type or index handling, as we are simply debugging and directly displaying the XML as it is, no aggregation, no adjustment of any value, anyways etc, so we can use range and loop over all NUM_MEMORY_TYPES_ASSESSED instead of using positive_or_negative_memory_indexes specifically instead depending on if memory index is of a positive or of a negative memory in sevopedia leader, so here in debugging (i.e. sevopedia_helpers py file anyways etc) we can respect and be consistent with the contact approach more strictly/reliably.. -->
 	NUM_MEMORY_TYPES_ASSESSED = 37
 	for i in range(NUM_MEMORY_TYPES_ASSESSED):
 		name = gc.getMemoryInfo(i).getType()
@@ -332,7 +332,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	# 			</DiploMusicWarEra>
 	# 		</DiplomacyMusicWar>
 	#
-	# and we have reached end of a leader info's xml if i am not mistaken, hopefully we parsed all we needed or maybe not hopefully or yes hopefully or not or yes or etc but anyways etc... hopefully we have all (we need) or not or yes or etc or and other or and not or yes or etc anyways etc -->
+	# and we have reached end of a leader info's xml if i am not mistaken, hopefully we parsed all we needed -->
 
 	# <!-- custom: example of output for example for leader gandhi anyways etc with lineskip/extra newlines removed anyways etc for concision anyways etc, for example for Gandhi anyways etc -->
 

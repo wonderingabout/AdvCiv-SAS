@@ -11,37 +11,7 @@
 
 
 
-		# <!-- custom: note about "Check for required buildings":
-		# For the example for Eiffel Tower (base advciv data):
-		# 	<PrereqBuildingClasses/>
-		# 	<BuildingClassNeededs>
-		# 		<BuildingClassNeeded>
-		# 			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
-		# 			<bNeededInCity>1</bNeededInCity>
-		# 		</BuildingClassNeeded>
-		# 	</BuildingClassNeededs>
-		#
-		# But for example (anyways etc) the Oxford University (base advciv data) has:
-		# 	<PrereqBuildingClasses>
-		# 		<PrereqBuildingClass>
-		# 			<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-		# 			<iNumBuildingNeeded>4</iNumBuildingNeeded>
-		# 		</PrereqBuildingClass>
-		# 	</PrereqBuildingClasses>
-		# 	<BuildingClassNeededs>
-		# 		<BuildingClassNeeded>
-		# 			<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-		# 			<bNeededInCity>1</bNeededInCity>
-		# 		</BuildingClassNeeded>
-		# 	</BuildingClassNeededs>
-		#
-		# So if i am not mistaken we need to account for both:
-		# - BuildingClassNeededs (buildingInfo.isBuildingClassNeededInCity(i) below if i am not mistaken indeed (but) anyways etc) (see also (translate to english with your web browser or/and such or not if you want/wish/please or not as you prefer or not or yes or and other or and not anyways etc: https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbuildingclasses)), and
-		# - PrereqBuildingClasses (buildingInfo.getPrereqNumOfBuildingClass(i) below if i am not mistaken, see also as well https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildingclassneededs -->
-
-
-
-			# <!-- custom: for freebonus, done according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
+			# <!-- custom: for freebonus, done according to kujira's website if i am not mistaken, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
 			#
 			# This determines the amount of resource this structure produces.
 			# If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
@@ -77,7 +47,7 @@
 
 
 
-	# <!-- custom: logic is as follows for the below placeFreeWith function/method anyways etc as prompted to Claude AI to me but anyways etc anyways etc anyways etc... (note: renamed terrace to qullqa to update this explanation with the new civ-specific incan building name, everything else being the same when it comes to this explanation if i may say and if i am not mistaken but anyways etc):
+	# <!-- custom: logic is as follows for the below placeFreeWith function/method with the help of Claude AI thanks (note: renamed terrace to qullqa to update this explanation with the new civ-specific incan building name, everything else being the same when it comes to this explanation if i am not mistaken):
 	# example: barbarian specific granary is free with barbarian palace (barbarians only), so:
 	#
 	# if currently selected building is:
@@ -87,7 +57,7 @@
 	#
 	# -
 	#
-	# Which Claude AI rephrased as such if helps too anyways etc:
+	# Which Claude AI rephrased as such if helps too:
 	# Now the logic correctly handles your examples:
 	# For your barbarian granary → barbarian palace example:
 	#
@@ -103,7 +73,7 @@
 	# New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
 	#
 	# This should now match your intended behavior exactly!
-	# It seems to work as intended so adding this since is quite/very technical, in case is helpful too, anyways etc anyways etc anyways etc... -->
+	# It seems to work as intended so adding this since is quite/very technical, in case it is helpful. -->
 
 
 
@@ -293,7 +263,7 @@ class SevoPediaBuilding:
 		numColumns = 3
 		columnWidth = self.W_STATS_PANE / numColumns
 
-		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented anyways etc), taken from claude AI's message and adjusted (formatted or not anyways etc) or not anyways etc thanks claude hehe anyways etc -->
+		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented anyways etc), taken from claude AI's message and adjusted (formatted) thanks. -->
 		# Here's what the method now does in sequence:
 		# - 1. Cost: Shows production cost
 		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Gold +x%) with power breakdown (, +y% w/ (power button))
@@ -302,7 +272,7 @@ class SevoPediaBuilding:
 		# - 5. Health/Unhealth: Shows health effects
 		# - 6. Great People: Shows great people rate changes with button and great people modifiers too anyways etc
 		# -->
-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc... -->
+		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
 
 		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be anyways etc useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY" if i am not mistaken anyways etc), anyways etc -->
 		self.setupStatsPanel(screen, panelName, placeStatsTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
@@ -416,12 +386,12 @@ class SevoPediaBuilding:
 				self.fillStatsCell(screen, szText2, x, y)
 				x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: also process the modifiers associated to the raw commerce changes just after the raw value (for example culture +1 then the next line is immediately culture +50 % and only then/after gold + 1 for example (and now not culture + 1 then gold + 1 and only then/after culture + 50% anyways etc), if i am not mistaken this is how it would work this code arragement or/and structure if i may say too indeed too too but anyways etc now if i may say, anyways etc) --> 
+			# <!-- custom: also process the modifiers associated to the raw commerce changes just after the raw value (for example culture +1 then the next line is immediately culture +50% and only then/after gold + 1 for example (and now not culture + 1 then gold + 1 and only then culture + 50%), if i am not mistaken this is how it would work this code) --> 
 			iCommerceModifier = buildingInfo.getCommerceModifier(k)
 			iCommerceDoubleTime = buildingInfo.getCommerceChangeDoubleTime(k)
 			iGlobalCommerceModifier = buildingInfo.getGlobalCommerceModifier(k)
 			
-			# <!-- custom: placeSpecial (already) handles the full info display (currently not double times though if not always or not anyways etc), so we can simply be concise maybe or not or other anyways etc and display the total of "local" (if any (too than in global that i wrote the if any of before but anyways etc anyways etc anyways etc...)) + global commerce modifier (if any) rather anyways etc -->
+			# <!-- custom: placeSpecial (already) handles the full info display (currently not double times though), so we can simply be concise maybe and display the total of "local" (if any (too than in global that i wrote the if any of before)) + global commerce modifier (if any) rather -->
 			# Total modifier (local + global)
 			iTotalModifier = iCommerceModifier + iGlobalCommerceModifier
 			
@@ -562,7 +532,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: additional info by chatgpt thanks to my prompt too but anyways etc: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also anyways etc "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for anyways etc to which chatgpt also replied anyways etc thanks but or not but or yes but but anyways etc "In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." hopefully helpful or not or yes thanks or not thanks or yes thanks anyways etc anyways etc anyways etc -->
+	# <!-- custom: additional info by chatgpt thanks: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for anyways etc to which chatgpt also replied thanks but or not but or yes but but anyways etc "In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." -->
 	def get_iDefaultBuilding_current_civ(self, i):
 		# Get the default building of this class for the current civilization
 		if self.top.iActivePlayer != -1:
@@ -686,8 +656,8 @@ class SevoPediaBuilding:
 					screen.appendMultiListButton(rowListName, projectInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
 
 					if not bFirst:
-						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad or not or yes or and other or and not anyways etc anyways etc anyways etc...), not having thus to rewrite our otherwise working/functionning(functionnal?) code, anyways etc anyways etc anyways etc... -->
-						# (Also) S(s)ince our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe if i may say, but anyways etc anyways etc anyways etc... -->
+						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad), not having thus to rewrite our otherwise working code. -->
+						# Also since our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe. -->
 						numTxt = localText.getText("TXT_KEY_OR", ())
 						# <!-- custom: "or" numTxt aligned between this button and the previous one anyways etc -->
 						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(BUTTON_SIZE)
@@ -891,7 +861,7 @@ class SevoPediaBuilding:
 		iObsoleteTech = buildingInfo.getObsoleteTech()
 	
 		# If no direct obsolete tech, check if it's a special building type
-		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method (now removed anyways etc) though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
+		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method (now removed) though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it)) -->
 		if iObsoleteTech == -1:
 			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
 			if iSpecialBuildingType != -1:
@@ -953,7 +923,7 @@ class SevoPediaBuilding:
 		# Get the building info
 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
 
-		# Check if the building grants a free promotion<!-- custom: , and attach(or /"display" maybe indeed too anyways etc anyways etc anyways etc as ClaudeAI said anyways etc its button if there is any/a (free promotion) -->
+		# Check if the building grants a free promotion, and attach it -->
 		iFreePromotion = buildingInfo.getFreePromotion()
 		if iFreePromotion != -1:
 			# Column index (always 0 when numLists=1)
@@ -1198,7 +1168,6 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: if i am not mistaken this handles several civs sharing a special building/unit, see screenshot 3068 in the drive for example where the building mall as a test anyways etc is shared between both civilization American empire and Mali empire for example or/and for details or/and other source or maybe rather too as well test it yourself or not if need(ed) or other or etc anyways etc ; we reduced width to 84px or some smaller width value because it is unlikely we use this feature in advciv-sas (simpler if one civ has one civ-specific unit and civ-specific building unique to them, but it is in theory possible like other mods do if i am not mistaken to share them across several civs, hence the name "civs" even though width is so small (i assume it would scroll if more than one button too so display is not lost or not or yes or other or etc anyways etc --> 
 	def placeCivilizations(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -1235,10 +1204,10 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: add iconquestprob thanks to claude ai and my prompt too and adjustments if any hopefullyhelpful but or not but or yes but anyways etc anyways etc anyways etc, quite similarly than for the getChopProductionText addition in sevopedia feature anyways etc ; note: also got the idea from looking ingame at the sevopedia of ri mod anyways etc even though our implementation is different (in placeStats, didn't look at code but anyways etc, their idea helped so thanks i mean anyways etc anyways etc anyways etc) -->
+	# <!-- custom: add iconquestprob with the help of claude ai, quite similarly than for the getChopProductionText addition in sevopedia feature) -->
 	def getIConquestProbText(self):
 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
-		# <!-- custom: return any value even 0 to display it as such anyways etc -->
+		# <!-- custom: return any value even 0 to display it as such -->
 		conquestProb = buildingInfo.getConquestProbability()
 
 		return (u"%siConquestProb: %d" % (localText.getText("[ICON_BULLET]", ()), conquestProb))

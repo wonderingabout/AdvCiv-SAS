@@ -14,7 +14,7 @@
 
 <Civ4BonusInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<BonusInfos>
-		<BonusInfo> <!-- custom: type: BONUS_ALUMINUM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_ALUMINUM (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_ALUMINUM</Type>
 			<Description>TXT_KEY_BONUS_ALUMINUM</Description>
 			<Civilopedia>TXT_KEY_BONUS_ALUMINUM_PEDIA</Civilopedia>
@@ -75,7 +75,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_COAL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_COAL (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_COAL</Type>
 			<Description>TXT_KEY_BONUS_COAL</Description>
 			<Civilopedia>TXT_KEY_BONUS_COAL_PEDIA</Civilopedia>
@@ -129,7 +129,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_COPPER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_COPPER (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_COPPER</Type>
 			<Description>TXT_KEY_BONUS_COPPER</Description>
 			<Civilopedia>TXT_KEY_BONUS_COPPER_PEDIA</Civilopedia>
@@ -196,7 +196,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_HORSE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_HORSE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_HORSE</Type>
 			<Description>TXT_KEY_BONUS_HORSE</Description>
 			<Civilopedia>TXT_KEY_BONUS_HORSE_PEDIA</Civilopedia>
@@ -261,7 +261,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_IRON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_IRON (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_IRON</Type>
 			<Description>TXT_KEY_BONUS_IRON</Description>
 			<Civilopedia>TXT_KEY_BONUS_IRON_PEDIA</Civilopedia>
@@ -331,7 +331,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MARBLE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_MARBLE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_MARBLE</Type>
 			<Description>TXT_KEY_BONUS_MARBLE</Description>
 			<Civilopedia>TXT_KEY_BONUS_MARBLE_PEDIA</Civilopedia>
@@ -360,7 +360,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: match closer the stone spawning formula or/and other strategic ressources or/and not anyways etc even if marble itself is not not directly strategic but more of a luxury strategic ressource/bonus at least in civ4 but hopefully applies well enough or is how i want to do it or not or yes or and other or and not anyways etc, was 30 / 128 -->
+			<!-- custom: match closer the stone spawning formula or other strategic bonuses even if marble itself is not not directly strategic but more of a luxury strategic bonus at least in civ4 but maybe fits well enough, was 30 / 128 -->
 			<!-- advc.129: was 50 -->
 			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 0 -->
@@ -391,7 +391,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_OIL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_OIL (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_OIL</Type>
 			<Description>TXT_KEY_BONUS_OIL</Description>
 			<Civilopedia>TXT_KEY_BONUS_OIL_PEDIA</Civilopedia>
@@ -466,7 +466,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_STONE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_STONE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_STONE</Type>
 			<Description>TXT_KEY_BONUS_STONE</Description>
 			<Civilopedia>TXT_KEY_BONUS_STONE_PEDIA</Civilopedia>
@@ -522,7 +522,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_URANIUM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_URANIUM (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_URANIUM</Type>
 			<Description>TXT_KEY_BONUS_URANIUM</Description>
 			<Civilopedia>TXT_KEY_BONUS_URANIUM_PEDIA</Civilopedia>
@@ -621,7 +621,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_BANANA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_BANANA (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_BANANA</Type>
 			<Description>TXT_KEY_BONUS_BANANA</Description>
 			<Civilopedia>TXT_KEY_BONUS_BANANA_PEDIA</Civilopedia>
@@ -643,7 +643,7 @@
 			<!-- advc.129: was 50 -->
 			<iConstAppearance>60</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: here seems more accurate or/and relevant at least to me or/and for advciv-sas but at least to me anyways etc anyways etc anyways etc to reduce banana spawn a bit anyways etc, was 0 / 90 -->
+			<!-- custom: here seems more accurate or relevant, was 0 / 90 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>70</iMaxLatitude>
 			<!-- advc.129: was 25, 25 -->
@@ -653,7 +653,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -684,7 +684,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MOLLUSCS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_MOLLUSCS (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_MOLLUSCS</Type>
 			<Description>TXT_KEY_BONUS_MOLLUSCS</Description>
 			<Civilopedia>TXT_KEY_BONUS_MOLLUSCS_PEDIA</Civilopedia>
@@ -735,7 +735,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MAIZE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_MAIZE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_MAIZE</Type>
 			<Description>TXT_KEY_BONUS_MAIZE</Description>
 			<Civilopedia>TXT_KEY_BONUS_MAIZE_PEDIA</Civilopedia>
@@ -764,7 +764,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -786,7 +786,7 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_CATTLE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_CATTLE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_CATTLE</Type>
 			<Description>TXT_KEY_BONUS_CATTLE</Description>
 			<Civilopedia>TXT_KEY_BONUS_CATTLE_PEDIA</Civilopedia>
@@ -817,7 +817,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
 			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say anyways etc, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
@@ -843,7 +843,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_CRAB (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_CRAB (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_CRAB</Type>
 			<Description>TXT_KEY_BONUS_CRAB</Description>
 			<Civilopedia>TXT_KEY_BONUS_CRAB_PEDIA</Civilopedia>
@@ -895,7 +895,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_DEER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_DEER (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_DEER</Type>
 			<Description>TXT_KEY_BONUS_DEER</Description>
 			<Civilopedia>TXT_KEY_BONUS_DEER_PEDIA</Civilopedia>
@@ -957,7 +957,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_FISH (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_FISH (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_FISH</Type>
 			<Description>TXT_KEY_BONUS_FISH</Description>
 			<Civilopedia>TXT_KEY_BONUS_FISH_PEDIA</Civilopedia>
@@ -1015,7 +1015,7 @@
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
 		<!-- custom: interesting read that summarizes quite well what i glanced through if i may say or/and if it's a word maybe rather in english anyways etc, https://www.january.ai/blog/pork-vs-beef , pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo and/or in improvementinfos too for details -->
-		<BonusInfo> <!-- custom: type: BONUS_PIG (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_PIG (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_PIG</Type>
 			<Description>TXT_KEY_BONUS_PIG</Description>
 			<Civilopedia>TXT_KEY_BONUS_PIG_PEDIA</Civilopedia>
@@ -1046,7 +1046,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
 			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say anyways etc, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
@@ -1079,7 +1079,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_RICE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_RICE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_RICE</Type>
 			<Description>TXT_KEY_BONUS_RICE</Description>
 			<Civilopedia>TXT_KEY_BONUS_RICE_PEDIA</Civilopedia>
@@ -1109,7 +1109,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1140,7 +1140,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SHEEP (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_SHEEP (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_SHEEP</Type>
 			<Description>TXT_KEY_BONUS_SHEEP</Description>
 			<Civilopedia>TXT_KEY_BONUS_SHEEP_PEDIA</Civilopedia>
@@ -1171,7 +1171,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
 			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say anyways etc, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
@@ -1194,7 +1194,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_WHEAT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_WHEAT (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_WHEAT</Type>
 			<Description>TXT_KEY_BONUS_WHEAT</Description>
 			<Civilopedia>TXT_KEY_BONUS_WHEAT_PEDIA</Civilopedia>
@@ -1223,7 +1223,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1245,7 +1245,7 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>0</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_DYE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_DYE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_DYE</Type>
 			<Description>TXT_KEY_BONUS_DYE</Description>
 			<Civilopedia>TXT_KEY_BONUS_DYE_PEDIA</Civilopedia>
@@ -1300,7 +1300,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_FUR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_FUR (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_FUR</Type>
 			<Description>TXT_KEY_BONUS_FUR</Description>
 			<Civilopedia>TXT_KEY_BONUS_FUR_PEDIA</Civilopedia>
@@ -1373,7 +1373,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_GEMSTONES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_GEMSTONES (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_GEMSTONES</Type>
 			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
 			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
@@ -1452,7 +1452,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_GOLD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_GOLD (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_GOLD</Type>
 			<Description>TXT_KEY_BONUS_GOLD</Description>
 			<Civilopedia>TXT_KEY_BONUS_GOLD_PEDIA</Civilopedia>
@@ -1517,7 +1517,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_INCENSE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_INCENSE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_INCENSE</Type>
 			<Description>TXT_KEY_BONUS_INCENSE</Description>
 			<Civilopedia>TXT_KEY_BONUS_INCENSE_PEDIA</Civilopedia>
@@ -1526,7 +1526,7 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: incense increases productivity, like sugar and coffee example maybe even though i don't drink much if at all of the latter but which may or not be good or not for me at least, but i did drink and enjoy it in the past, just i don't feel the need or likingness to now, but is maybe a cool beverage but i am not in a good as in accurate or relevant (or not? Or yes? Or but anyways etc) maybe to say so anymore about coffee anyways etc anyways etc anyways etc... -->
+			<!-- custom: incense increases productivity theme, helps with focus or such. -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
@@ -1568,7 +1568,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_ELEPHANTS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_ELEPHANTS (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_ELEPHANTS</Type>
 			<Description>TXT_KEY_BONUS_ELEPHANTS</Description>
 			<Civilopedia>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Civilopedia>
@@ -1639,7 +1639,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SILK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_SILK (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_SILK</Type>
 			<Description>TXT_KEY_BONUS_SILK</Description>
 			<Civilopedia>TXT_KEY_BONUS_SILK_PEDIA</Civilopedia>
@@ -1700,7 +1700,7 @@
 			</FeatureTerrainBooleans>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SILVER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_SILVER (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_SILVER</Type>
 			<Description>TXT_KEY_BONUS_SILVER</Description>
 			<Civilopedia>TXT_KEY_BONUS_SILVER_PEDIA</Civilopedia>
@@ -1768,7 +1768,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SPICES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_SPICES (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_SPICES</Type>
 			<Description>TXT_KEY_BONUS_SPICES</Description>
 			<Civilopedia>TXT_KEY_BONUS_SPICES_PEDIA</Civilopedia>
@@ -1834,7 +1834,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SUGAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_SUGAR (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_SUGAR</Type>
 			<Description>TXT_KEY_BONUS_SUGAR</Description>
 			<Civilopedia>TXT_KEY_BONUS_SUGAR_PEDIA</Civilopedia>
@@ -1895,7 +1895,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_GRAPES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_GRAPES (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_GRAPES</Type>
 			<Description>TXT_KEY_BONUS_GRAPES</Description>
 			<Civilopedia>TXT_KEY_BONUS_GRAPES_PEDIA</Civilopedia>
@@ -1927,7 +1927,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, also switch to food ressource like formula, was 100 / 0 -->
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, also switch to food ressource like formula, was 100 / 0 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1950,7 +1950,7 @@
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
 		<!-- custom: reworked and adjusted partly according to wikipedia or/and other source(s) or not or and what i wanted or not anyways etc or/a -->
-		<BonusInfo> <!-- custom: type: BONUS_WHALE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_WHALE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_WHALE</Type>
 			<Description>TXT_KEY_BONUS_WHALE</Description>
 			<Civilopedia>TXT_KEY_BONUS_WHALE_PEDIA</Civilopedia>
@@ -1960,7 +1960,7 @@
 			<TechCityTrade>TECH_SEAFARING</TechCityTrade>
 			<!-- custom: was TECH_COMBUSTION -->
 			<TechObsolete>TECH_ENVIRONMENTALISM</TechObsolete>
-			<!-- custom: not so easy to capture without proper installations, but attracts folks as in people perhaps and folks as in stories perhaps anyways etc anyways etc anyways etc -->
+			<!-- custom: not so easy to capture without proper installations, but attracts folks as in people perhaps and folks as in stories perhaps. -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
@@ -1968,7 +1968,7 @@
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
-			<!-- custom: capturing and defeating such a huge animal is impressive, source of awe and fold stories perhaps as per the/a lore and/or such and/or other and/or not anyways etc, replace with this instead of health base yield change, to not make it (i.e. whales op, anyways etc and also be consistent with other changes (1 ressource/bonus per yield or the opposite rather anyways etc anyways etc anyways etc...)) -->
+			<!-- custom: capturing and defeating such a huge animal is impressive, source of awe and fold stories perhaps as per the/a lore and/or such and/or other and/or not anyways etc, replace with this instead of health base yield change, to not make it (i.e. whales op, anyways etc and also be consistent with other changes (1 ressource/bonus per yield or the opposite rather)) -->
 			<iHealth>0</iHealth>
 			<iHappiness>1</iHappiness>
 			<iPlacementOrder>6</iPlacementOrder>
@@ -2009,7 +2009,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_DRAMA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_DRAMA (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_DRAMA</Type>
 			<Description>TXT_KEY_BONUS_DRAMA</Description>
 			<Civilopedia>TXT_KEY_BONUS_DRAMA_PEDIA</Civilopedia>
@@ -2052,7 +2052,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MUSIC (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_MUSIC (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_MUSIC</Type>
 			<Description>TXT_KEY_BONUS_MUSIC</Description>
 			<Civilopedia>TXT_KEY_BONUS_MUSIC_PEDIA</Civilopedia>
@@ -2096,7 +2096,7 @@
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
 		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL anyways etc, a bit if not lot at elast for/to me but anyways etc tedious to maintain/manage for small gains but anyways etc, as for camel(s? But anyways etc) it can be directly used to buff desert tiles or/and be an alternative mount to the horse and opens the door if i may say but anyways etc to having camel mounts multiple/many ones/units anyways etc anyways etc, may also have some interactions with wonders or such or not such or yes such but anyways etc  ; is based on BONUS_HORSE's xml and adjusted and such (for example only in desert to boost these tiles and as seems quite accurate anyways etc), was BONUS_MOVIES anyways etc -->
-		<BonusInfo> <!-- custom: type: BONUS_CAMEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BonusInfo> <!-- custom: type: BONUS_CAMEL (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_CAMEL</Type>
 			<Description>TXT_KEY_BONUS_CAMEL</Description>
 			<Civilopedia>TXT_KEY_BONUS_CAMEL_PEDIA</Civilopedia>
@@ -2112,7 +2112,7 @@
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: unlike horse, don't seek hard camel, but take it naturally if it's there maybe but anyways etc anyways etc anyways etc -->
+			<!-- custom: unlike horse, don't seek hard camel, but take it naturally if it's there maybe -->
 			<!-- custom: not as important as bonus_horse but really not far, we can't build chariots and cavalry as of now, but if all fails we can produce camel archers, horse knights, and camel knights, a very strong bonus to value especially if we don't have it, but even if we do we could trade it or keep as extra in case anyways etc so to simplify it value it just as much anyways etc. Note: this iAIObjective but anyways etc field is now used by workers to decide which plot to work first or which city to move to anyways etc, was 0 -->
 			<iAIObjective>8</iAIObjective>
 			<iHealth>0</iHealth>
@@ -2133,7 +2133,7 @@
 			</Rands>
 			<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well anyways etc, was 75 / 128 -->
 			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too anyways etc, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula anyways etc), was 50 / 128 -->
-			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not now but anyways etc are as of now anyways etc the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles if i am not mistaken but anyways etc) is/can be also used to buff specificially tundra tiles and relatively anyways etc, so apply or try to apply/balance quite bit if not lto or not but or not but but anyways etc for the bonus_camel anyways etc anyways etc anyways etc, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this or not or yes or other or etc anyways etc if i want too or do or not but anyways etc -->
+			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not now but anyways etc are as of now anyways etc the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles if i am not mistaken but anyways etc) is/can be also used to buff specificially tundra tiles and relatively anyways etc, so apply or try to apply/balance quite bit if not lto or not but or not but but anyways etc for the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
 			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now i mean anyways etc, try to reduce it a bit anyways etc ; after more testing, 50 / 27 seems quite good, try to reduce base camel if i am not mistaken and increase camel per tile i.e. more frequent per x tiles if i am not mistaken anyways etc ; after some bit of testing or not bit lot or both bit or lot or not anyways etc, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want if i am not mistaken too anyways etc which this formula achieves quite well or seems to do so if i may say but anyways etc, was 50 / 27 -->
 			<!-- advc.129: was 100 -->
 			<iPlayer>20</iPlayer>

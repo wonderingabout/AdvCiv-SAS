@@ -4,8 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- 3D Audio Scripts -->
-<!-- custom: BTS version (too 2) of the file imported cleanly from: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Audio\Audio3DScripts.xml" (full path manually re-copy pasted with copy as path context meny for windows 10 (see my implementation of it (i took it from another source) if interested or/and still relevant (to you or and other or and not anyways etc) in https://github.com/wonderingabout/copy_as_path_context_menu) anyways etc), and then modified for AdvCiv-SAS
--->
+<!-- custom: BTS version of the file imported cleanly from "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Audio\Audio3DScripts.xml" and then modified for AdvCiv-SAS. -->
 <Script3DSounds xmlns="x-schema:AudioScriptSchema.xml">
 	<Script3DSound>
 		<ScriptID>AS3D_ERROR</ScriptID>

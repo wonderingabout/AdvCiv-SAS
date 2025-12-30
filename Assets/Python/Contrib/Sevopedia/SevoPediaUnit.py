@@ -104,7 +104,7 @@ class SevoPediaUnit:
 		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
 		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS
 
-		# <!-- custom: adjust this based on your multilist button size ; note that i use i mean this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel i mean anyways etc, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt as of now at least if not always or not i mean but or not but or yes but anyways etc anyways etc anyways etc; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size -->
+		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; check if accurate as i don't know too much about these. -->
 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
 		self.X_OF_OTHER_UNITS_MODIFIERS = self.X_UNIT_PANE
@@ -429,7 +429,7 @@ class SevoPediaUnit:
 
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
+		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel -->
 		BUTTON_SIZE = 64 # Size of each button
 
 		# Create the MultiList control
@@ -521,7 +521,7 @@ class SevoPediaUnit:
 
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: note: since this is meant to have multiple lines, actually passing button size as a parameter here rather than hardcoded value of say 64, so that the size of other related panels is adjusted the bigger or smaller in this case i mean anyways etc the _MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE panel is, see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE for details if any are there i mean hopefully helpful anyways etc -->
+		# <!-- custom: note: since this is meant to have multiple lines, actually passing button size as a parameter here rather than hardcoded value of say 64, so that the size of other related panels is adjusted the bigger or smaller the _MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE panel is, see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE for details -->
 		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE # Size of each button
 
 		# Create the MultiList control
@@ -925,7 +925,7 @@ class SevoPediaUnit:
 			return
 
 		for k in range(gc.getNumPromotionInfos()):
-			# <!-- custom: disable isPromotionValid(k, self.iUnit, False) check as some promotions are missing such as collateral damage 1 and 2 and also leadership promotion in the generic swordsman panel for example, as advised by chatgpt, anyways etc (it said "In-game, a Swordsman may earn the promotion eventually (e.g. through experience), but if it doesn't yet satisfy all prereqs, isPromotionValid might return False" which i don't know if it is accurate but maybe is, hopefully helpful or not or yes or etc but anyways etc) -->
+			# <!-- custom: disable isPromotionValid(k, self.iUnit, False) check as some promotions are missing such as collateral damage 1 and 2 and also leadership promotion in the generic swordsman panel for example, as advised by chatgpt, (it said "In-game, a Swordsman may earn the promotion eventually (e.g. through experience), but if it doesn't yet satisfy all prereqs, isPromotionValid might return False" which i don't know if it is accurate; check if accurate.). -->
 			#if (isPromotionValid(k, self.iUnit, False) and not gc.getPromotionInfo(k).isGraphicalOnly()):
 			if gc.getPromotionInfo(k).getUnitCombat(eUnitCombat) > 0 and not gc.getPromotionInfo(k).isGraphicalOnly():
 				screen.appendMultiListButton(rowListName, gc.getPromotionInfo(k).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, k, -1, False)

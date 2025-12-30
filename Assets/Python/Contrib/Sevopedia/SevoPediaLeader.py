@@ -12,9 +12,9 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# Store in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc...)
-# Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe even though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
-# UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
+# Store in LEADERS_INFO_CACHED tuples of (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way, also from using tuples or such rather than dicts), normalized value for display, and scale precomputed to enhance performance as well)
+# Categories precomputing as well as tuples: the ai_category_header that handles also emoji buttons in header label too optionally displayed if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe, this x_offset is to accomodate these emoji buttons as text if needed; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature)
+# UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data.
 #
 # <!-- custom: note: some code comments may be outdated as they were written when we would compute once per civ4 game launch the LEADERS_INFO_CACHED for efficiency, however since then we as of now now switched to no compute at all (use precomputed SevoPediaLeaderCachePredumped.py) (see also toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))) as it is even cheaper and should scale better with mods that have more leaders or xml attributes (if i'm not mistaken). Plus the values rarely change and are only for UI so not worth spending so much on them even if was more efficient. -->
 
@@ -38,7 +38,7 @@ localText = CyTranslator()
 IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
 IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
 
-# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too -->
+# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a debug sample (non-exhaustive but hopefully quite plenty) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to work fine, available there if needed, for my own hard drive too. -->
 IS_DEBUG_LEADER = False
 
 # <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization anyways etc, so set B_WARN to false if i am not mistaken in my understanding anyways etc -->
@@ -177,10 +177,10 @@ def _compute_leader_cache_internal():
 
 
 	def check_required_newly_exposed_python_getters_gc_leader_exist():
-		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or not or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mean maybe this joke or something too or not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
+		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or modder aware of this if they are missing, see also sevopedia_helpers py file debug output code comments for details too; and raise an error if so. -->
 
 		REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
-			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
+			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt hehe, but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there -->
 			"getCultureVictoryWeight",
 			"getSpaceVictoryWeight",
 			"getConquestVictoryWeight",
@@ -198,7 +198,7 @@ def _compute_leader_cache_internal():
 					missing.append(getter)
 
 			if missing:
-				raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from iLeader=%d). Please expose them in .cpp files and build the DLL again (and replace old DLL with new one anyways etc) (or check if this getter matches an existing XML field in your mod and possibly adjust this code based on this if intended as such that this/these getter(s) triggering this error is/are missing anyways etc). See README.md or AdvCiv-SAS documentation for help if help is there too still (some info is there as of now with google drive link and screenshots on how to do it or ask in a forum or such hopefully helpful but anyways etc)." % (", ".join(missing), iLeader))
+				raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from iLeader=%d). Please expose them in .cpp files and build the DLL again (and replace old DLL with new one anyways etc) (or check if this getter matches an existing XML field in your mod and possibly adjust this code based on this if intended as such that this/these getter(s) triggering this error is/are missing). See README.md or AdvCiv-SAS documentation for help or such." % (", ".join(missing), iLeader))
 			
 			# success: only check first real leader
 			if IS_DEBUG_LEADER:
@@ -209,13 +209,13 @@ def _compute_leader_cache_internal():
 
 
 
-	# <!-- custom: modified from claude ai's code sample anyways etc, see sevopedia helpers py also for details about these anyways etc ; note: NUM_MEMORY_TYPES_ASSESSED are not here in sevopedia leader since/as anyways etc we use a different looping emthod as in methodology if i may say but anyways etc, see positive_or_negative_memory_indexes and its related code comments if any hopefully that would hopefully be helpful perhaps to understand if i may say or and such help in other ways perhaps yes or not or yes or and other or etc anyways etc but anyways etc anyways etc anyways etc -->
+	# <!-- custom: modified from claude ai's code sample, see sevopedia helpers py also for details; note: NUM_MEMORY_TYPES_ASSESSED are not here in sevopedia leader since we use a different looping emthod as in methodology, see positive_or_negative_memory_indexes and its related code comments -->
 	NUM_CONTACT_TYPES_ASSESSED = 14
 	NUM_ATTITUDE_TYPES_ASSESSED = 5
 
 
 
-	# <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it anyways etc so our code is reliable anyways etc anyways etc anyways etc in this case at least or always or not or etc but anyways etc anyways etc anyways etc -->
+	# <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it. -->
 	test_expected_shifting_pre_normalize_to_100()
 
 	if IS_DEBUG_LEADER:
@@ -244,7 +244,7 @@ def _compute_leader_cache_internal():
 
 
 
-	# <!-- custom: similar structure as leaders info for all leaders as in other functions/field than contact ones generally (but?) anyways etc anyways etc anyways etc (not like the temporary for calculations and such anyways etc leaders_temp_aggregated_contact_probs but like leaders_info) but only for raw contact aggregated probs anyways etc not for the final aggregated normalized values that we normalize later with all fileds's normalization stage and which is the value that we then display at UI level, i.e. the normalized one is the one we display, not this temporary raw aggregated prob to normalize later that we store here, hopefully clearer or and helpful, anyways etc ; same/similarly for positive/negative memory aggregated affections/resentments anyways etc -->
+	# <!-- custom: similar structure as leaders info for all leaders as in other fields than contact ones generally (not like the temporary for calculations and such leaders_temp_aggregated_contact_probs but like leaders_info) but only for raw contact aggregated probs not for the final aggregated normalized values that we normalize later with all fileds's normalization stage and which is the value that we then display at UI level, i.e. the normalized one is the one we display, not this temporary raw aggregated prob to normalize later that we store here, hopefully clearer; similarly for positive/negative memory aggregated affections/resentments -->
 	leaders_info_aggregated_raw_contact_probs = {}
 	leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments = {}
 
@@ -279,7 +279,7 @@ def _compute_leader_cache_internal():
 				contact_type_1 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix_1 = get_pascal_case_suffix(contact_type_1) # → "JoinWar"
 
-				# <!-- custom: this entire function is not where the real storage/parsing of these raw contact fields happens/is done (these raw fields storage/parsing is later in another function, at the same time of when we store/parse contact aggregated fields, if i am not mistaken, anyways etc anyways etc anyways etc) -->
+				# <!-- custom: this entire function is not where the real parsing of these raw contact fields is done (these raw fields parsing is later in another function, at the same time of when we store/parse contact aggregated fields, if i am not mistaken) -->
 				# <!-- custom: store raw_values for each leader first too anyways etc -->
 				parsed_name_1_rand = "iContactRand%s" % suffix_1 # → iContactRandJoinWar
 				parsed_name_1_delay = "iContactDelay%s" % suffix_1 # → iContactDelayJoinWar
@@ -297,14 +297,14 @@ def _compute_leader_cache_internal():
 		if IS_DEBUG_LEADER:
 			print("[DEBUG] First pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\n" % str(leaders_temp_aggregated_contact_probs))
 
-		# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders anyways etc -->
+		# Second pass: Precompute min/max from adjusted values only among all leaders
 		for iLeader in NON_EXCLUDED_LEADERS:
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				contact_type_2 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix_2 = get_pascal_case_suffix(contact_type_2) # → "JoinWar"
 				parsed_name_2_adjusted_rand = "iAdjustedContactRand%s" % suffix_2 # → iAdjustedContactRandJoinWar
 				parsed_name_2_adjusted_delay = "iAdjustedContactDelay%s" % suffix_2 # → iAdjustedContactDelayJoinWar
-				# <!-- custom: note: no need to compute nor store min max for force zero so it is not a field we compare (it is not numerical, but is rather anyways etc a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken, anyways etc anyways etc anyways etc) anyways etc, so also no need to parse name for it too at this min max step/pass anyways etc -->
+				# <!-- custom: note: no need to compute nor store min max for force zero so it is not a field we compare (it is not numerical, but is rather a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken), so also no need to parse name for it too at this min max step/pass -->
 				adjusted_value_2_rand = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_2_adjusted_rand]
 				adjusted_value_2_delay = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_2_adjusted_delay]
 
@@ -320,7 +320,7 @@ def _compute_leader_cache_internal():
 		for iLeader in NON_EXCLUDED_LEADERS:
 			# <!-- custom: even though this should not be needed for raw aggregated contact probs, unlike for positive or negative raw aggregated memory affections or resentments where we loop 4 times for each combination (see there for details anyways etc), as we don't loop again at/in compute_and_store_leaders_info_aggregated_raw_contact_probs after first call since all contact fields are handled/aggregated the same way (no positive/negative or affection/resentment or similar, only one call, anyways etc), do also same initialization and has key check for leaders_info_aggregated_raw_contact_probs than for raw aggregated memory fields anyways, for consistency etc, and also to make sure the raw aggregate calculation dict does not exist until we create it at this stage now and we didn't do a mistake somehow in creating it before that, so similarly to how raw aggregated memory fields computation is handled make sure the raw aggregated contact calculation dict does not have iLeader key already existing before we create it now. -->
 			if iLeader in leaders_info_aggregated_raw_contact_probs:
-				raise(KeyError("[FATAL] Unexpected key iLeader=%d in leaders_info_aggregated_raw_contact_probs already existing, even though we did not intialize contact aggregated calculation dict for each leader yet before we run/start it at this line. This should not exist until then, please make sure steps are executed in the correct order in your mod, or update this code if you aggregated contact fields in another way than in the original mod you based it on if reusing our/this code anyways etc hopefully helpful but anyways etc anyways etc, thanks, anyways etc."))
+				raise(KeyError("[FATAL] Unexpected key iLeader=%d in leaders_info_aggregated_raw_contact_probs already existing, even though we did not intialize contact aggregated calculation dict for each leader yet before we run/start it at this line. This should not exist until then, please make sure steps are executed in the correct order in your mod, or update this code if you aggregated contact fields in another way than in the original mod you based it on if reusing this code."))
 			leaders_info_aggregated_raw_contact_probs[iLeader] = {}
 
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
@@ -333,18 +333,18 @@ def _compute_leader_cache_internal():
 				adjusted_value_3_delay = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_3_adjusted_delay]
 				force_zero_adjusted_values = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_3_force_zero_adjusted_values]
 
-				# <!-- custom: fetch min and max among all leaders already stored at previous step anyways etc, of adjusted values anyways etc anyways etc anyways etc -->
+				# <!-- custom: fetch min and max among all leaders already stored at previous step, of adjusted values -->
 				adjusted_value_3_rand_min = leader_info_minimums_adjusted_values_only_contact_fields[parsed_name_3_adjusted_rand]
 				adjusted_value_3_rand_max = leader_info_maximums_adjusted_values_only_contact_fields[parsed_name_3_adjusted_rand]
 				adjusted_value_3_delay_min = leader_info_minimums_adjusted_values_only_contact_fields[parsed_name_3_adjusted_delay]
 				adjusted_value_3_delay_max = leader_info_maximums_adjusted_values_only_contact_fields[parsed_name_3_adjusted_delay]
-				# <!-- custom: no need to fetch force zero's min max (it also doesn't exist anyways etc) similarly as it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken, anyways etc anyways etc anyways etc) anyways etc -->
+				# <!-- custom: no need to fetch force zero's min max (it also doesn't exist) similarly as it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken) -->
 
 				adjusted_value_3_rand_norm_score = normalize_to_100(adjusted_value_3_rand, adjusted_value_3_rand_min, adjusted_value_3_rand_max, B_WARN, b_invert_contact_rands, parsed_name_3_adjusted_rand)
 				adjusted_value_3_delay_norm_score = normalize_to_100(adjusted_value_3_delay, adjusted_value_3_delay_min, adjusted_value_3_delay_max, B_WARN, b_invert_contact_delays, parsed_name_3_adjusted_delay)
 				aggregated_raw_contact_score_from_adjusted_values = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_3_rand_norm_score, adjusted_value_3_delay_norm_score, force_zero_adjusted_values)
 				
-				# <!-- custom: note: this is the the raw aggregated (i.e. the aggregated value before it is a normalized aggregated value, to not confound with raw values like raw attitude_percent and raw decay anyways etc) value that we then normalize and until after then store as part of the real leader info displayed later in the code (and then even more late(r? But anyways etc anyways etc...) in code anyways etc that we display at UI level anyways etc anyways etc anyways etc), this is a temporary value not the final one anyways etc anyways etc anyways etc... -->
+				# <!-- custom: note: this is the the raw aggregated (i.e. the aggregated value before it is a normalized aggregated value, to not confound with raw values like raw attitude_percent and raw decay) value that we then normalize and until after then store as part of the real leader info displayed later in the code that we display at UI level), this is a temporary value not the final one. -->
 				parsed_name_3_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix_3 # → iAggregatedRawContactProbJoinWar
 				leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_3_aggregated_raw_contact_prob] = aggregated_raw_contact_score_from_adjusted_values
 
@@ -416,7 +416,6 @@ def _compute_leader_cache_internal():
 				mem_type_1 = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
 				suffix_1 = get_pascal_case_suffix(mem_type_1) # → "DeclaredWar"
 				
-				# <!-- custom: this entire function is not where the real storage/parsing of these raw memory fields happens/is done (these raw fields storage/parsing is later in another function, at the same time of when we store/parse memory aggregated fields, if i am not mistaken, anyways etc anyways etc anyways etc) -->
 				# <!-- custom: store raw_values for each leader first too anyways etc -->
 				# <!-- custom: export raw attitude percents and decays only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment, anyways etc), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations anyways etc -->
 				parsed_name_1_attitude_percent = "iMemoryAttitudePercent%s" % suffix_1 # → iMemoryAttitudePercentDeclaredWar
@@ -427,7 +426,7 @@ def _compute_leader_cache_internal():
 				if parsed_name_1_decay not in leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader]:
 					leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_decay] = value_1_decay_raw
 
-				# <!-- custom: code comment from generate_leaders_data.py that is relevant here anyways etc so adding it anyways etc slightly modified (the code comment i mean anyways etc) for sevopedia leader anyways etc : adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only use affection and resentment versions of the adjusted temporary values to calculate the raw aggregated positive and negative memory affections and resentments if i am not mistaken indeed most likely maybe but maybe i am not (i.e. maybe i am not mistaken anyways etc) hopefully helpful or not too or yes too helpful i mean but anyways etc anyways etc anyways etc -->
+				# <!-- custom: code comment from generate_leaders_data.py that is relevant here so adding it slightly modified (the code comment i mean anyways etc) for sevopedia leader anyways etc : adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only use affection and resentment versions of the adjusted temporary values to calculate the raw aggregated positive and negative memory affections and resentments if i am not mistaken. -->
 				adjusted_value_1_attitude_percent_affection_or_resentment, adjusted_value_1_decay_affection_or_resentment, force_zero_adjusted_affection_or_resentment = get_adjusted_memory_values(value_1_attitude_percent_raw, value_1_decay_raw, is_affection, IS_DEBUG_LEADER, mem_type_1)
 				parsed_name_1_adjusted_attitude_percent_affection_or_resentment = "iAdjustedMemoryAttitudePercent%s%s" % (suffix_1, affection_resentment) # → iAdjustedMemoryAttitudePercentDeclaredWarAffection or iAdjustedMemoryAttitudePercentDeclaredWarResentment
 				parsed_name_1_adjusted_decay_affection_or_resentment = "iAdjustedMemoryDecay%s%s" % (suffix_1, affection_resentment) # → iAdjustedMemoryDecayDeclaredWarAffection or iAdjustedMemoryDecayDeclaredWarResentment
@@ -439,14 +438,14 @@ def _compute_leader_cache_internal():
 		if IS_DEBUG_LEADER:
 			print("[DEBUG] First pass (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\n" % (str(is_positive), str(is_affection), str(leaders_temp_positive_and_negative_memory_affections_and_resentments)))
 
-		# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders anyways etc -->
+		# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders -->
 		for iLeader in NON_EXCLUDED_LEADERS:
 			for i in positive_or_negative_memory_indexes:
 				mem_type_2 = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
 				suffix_2 = get_pascal_case_suffix(mem_type_2) # → "DeclaredWar"
 				parsed_name_2_adjusted_attitude_percent_affection_or_resentment = "iAdjustedMemoryAttitudePercent%s%s" % (suffix_2, affection_resentment) # → iAdjustedMemoryAttitudePercentDeclaredWarAffection or iAdjustedMemoryAttitudePercentDeclaredWarResentment
 				parsed_name_2_adjusted_decay_affection_or_resentment = "iAdjustedMemoryDecay%s%s" % (suffix_2, affection_resentment) # → iAdjustedMemoryDecayDeclaredWarAffection or iAdjustedMemoryDecayDeclaredWarResentment
-				# <!-- custom: no need to compute nor store min max for force zero so it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken, anyways etc anyways etc anyways etc) anyways etc, so also no need to parse name for it too at this min max step/pass anyways etc -->
+				# <!-- custom: no need to compute nor store min max for force zero so it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken), so also no need to parse name for it too at this min max step/pass -->
 				adjusted_value_2_attitude_percent_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_2_adjusted_attitude_percent_affection_or_resentment]
 				adjusted_value_2_decay_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_2_adjusted_decay_affection_or_resentment]
 
@@ -474,18 +473,17 @@ def _compute_leader_cache_internal():
 				adjusted_value_3_decay_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_adjusted_decay]
 				force_zero_adjusted_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_force_zero_adjusted_affection_or_resentment]
 
-				# <!-- custom: fetch min and max among all leaders already stored at previous step anyways etc, of adjusted values anyways etc anyways etc anyways etc -->
+				# <!-- custom: fetch min and max among all leaders already stored at previous step, of adjusted values -->
 				adjusted_value_3_attitude_percent_affection_or_resentment_min = leader_info_minimums_adjusted_values_only_memory_fields[parsed_name_3_adjusted_attitude_percent]
 				adjusted_value_3_attitude_percent_affection_or_resentment_max = leader_info_maximums_adjusted_values_only_memory_fields[parsed_name_3_adjusted_attitude_percent]
 				adjusted_value_3_decay_affection_or_resentment_min = leader_info_minimums_adjusted_values_only_memory_fields[parsed_name_3_adjusted_decay]
 				adjusted_value_3_decay_affection_or_resentment_max = leader_info_maximums_adjusted_values_only_memory_fields[parsed_name_3_adjusted_decay]
-				# <!-- custom: no need to fetch force zero's min max (it also doesn't exist anyways etc) similarly as it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken, anyways etc anyways etc anyways etc) anyways etc -->
+				# <!-- custom: no need to fetch force zero's min max (it also doesn't exist) similarly as it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken) -->
 
 				adjusted_value_3_attitude_percent_affection_or_resentment_norm_score = normalize_to_100(adjusted_value_3_attitude_percent_affection_or_resentment, adjusted_value_3_attitude_percent_affection_or_resentment_min, adjusted_value_3_attitude_percent_affection_or_resentment_max, B_WARN, b_invert_attitude_percent, parsed_name_3_adjusted_attitude_percent)
 				adjusted_value_3_decay_affection_or_resentment_norm_score = normalize_to_100(adjusted_value_3_decay_affection_or_resentment, adjusted_value_3_decay_affection_or_resentment_min, adjusted_value_3_decay_affection_or_resentment_max, B_WARN, b_invert_decay, parsed_name_3_adjusted_decay)
 				aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_value_3_attitude_percent_affection_or_resentment_norm_score, adjusted_value_3_decay_affection_or_resentment_norm_score, force_zero_adjusted_affection_or_resentment)
 				
-				# <!-- custom: note: this is the the raw aggregated (i.e. the aggregated value before it is a normalized aggregated value, to not confound with raw values like raw attitude_percent and raw decay anyways etc) value that we then normalize and until after then store as part of the real leader info displayed later in the code (and then even more late(r? But anyways etc anyways etc...) in code anyways etc that we display at UI level anyways etc anyways etc anyways etc), this is a temporary value not the final one anyways etc anyways etc anyways etc... -->
 				parsed_name_3_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix_3, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
 				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_aggregated_raw_positive_or_negative_memory_affection_or_resentment] = aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values
 
@@ -698,7 +696,7 @@ def _compute_leader_cache_internal():
 				computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_contact_prob, value_aggregated_raw_contact_prob, leader_info_minimums, leader_info_maximums)
 
 			# ==== MEMORY ====
-			# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now if i am not mistaken are only contact rands and contact delays anyways etc ; here we can loop over real DLL i index directly like in sevopedia_helpers py file debug code (see there for details if hopefully it is/can be/maybe is anyways etc helpful too but anyways etc anyways etc anyways etc), and unlike for raw aggregated memory fields that are separated in positive and negative memories, so here we can loop over real DLL i index directly anyways etc -->
+			# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now if i am not mistaken are only contact rands and contact delays; here we can loop over real DLL i index directly like in sevopedia_helpers py file debug code (see there for details), and unlike for raw aggregated memory fields that are separated in positive and negative memories, so here we can loop over real DLL i index directly -->
 			for is_positive in (True, False):
 				for is_affection in (True, False):
 					positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
@@ -710,8 +708,8 @@ def _compute_leader_cache_internal():
 						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
 
 						# <!-- custom: Step 1: Raw memory attitude percents and decays -->
-						# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed anyways etc) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment anyways etc) same as in XML fields structuration too for raw attitude percents and decays anyways etc anyways etc anyways etc, i.e. for example only for example iMemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc -->
-						# <!-- custom: similarly for min max of raw attitude percents and decays export anyways etc only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment, anyways etc), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations anyways etc -->
+						# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment) same as in XML fields structuration too for raw attitude percents and decays, i.e. for example only for example iMemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML -->
+						# <!-- custom: similarly for min max of raw attitude percents and decays export only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations -->
 						parsed_name_attitude_percent = "iMemoryAttitudePercent%s" % suffix # → iMemoryAttitudePercentDeclaredWar
 						if (parsed_name_attitude_percent not in leader_info_minimums) and (parsed_name_attitude_percent not in leader_info_maximums):
 							value_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
@@ -756,7 +754,7 @@ def _compute_leader_cache_internal():
 
 	leader_info_minimums, leader_info_maximums = get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
 
-	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not in this case i mean, anyways etc, we have enough sanity checks overall everywhere to not need to resanity check this xd if i may say even though may help maybe but anyways etc is bit tedious since dbug also helps if i may say but anyways etc (see SevopediaLead_derExamplesOfOutputs.txt or whichever file it is named if still in this mod Sevopedia folder for example of outputs anyways etc), so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums anywayse tc hopefully helpful or not or yes or etc or and other or and not or yes or etc anwyays etc but anyways etc anyways etc anyways etc -->
+	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not, we have enough sanity checks overall everywhere to not need to resanity check this xd even though may help maybe but is bit tedious since dbug also helps (see SevopediaLead_derExamplesOfOutputs.txt or whichever file it is named if still in this mod Sevopedia folder for example of outputs), so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums. -->
 
 
 
@@ -869,7 +867,7 @@ def _compute_leader_cache_internal():
 			"EQUAL_SCALE_SYMBOL": "=",
 		}
 
-		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now if i am not mistaken anyways etc see latest value or/and code comments or/and docs for updated value or and info hopefully helpful or not or yes or etc anyways etc) anyways etc) order anyways etc -->
+		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now if i am not mistaken see latest value or/and code comments or/and docs for updated value or and info)) order -->
 		contact_index_labels = {
 			0: "Relig. Press.",		# CONTACT_RELIGION_PRESSURE
 			1: "Civic Press.",		# CONTACT_CIVIC_PRESSURE
@@ -939,8 +937,6 @@ def _compute_leader_cache_internal():
 
 		for iLeader in NON_EXCLUDED_LEADERS:
 			leader_info_cached = {}
-
-			# <!-- custom: note: later in the code at UI stage or somewhere after the whole compute_and_store_leaders_info_cached caching function anyways etc, to access the tuple line to display in the table for non-agrgegated and perhaps some other ai attributes or not anyways etc, we may use for some attributes the getter name as a key but we don't call it, it is just more conveninent to store it this way as this is consistent with existing getter name and we didn't flatten field/attribute since it was not nested xml so no need to use another key name than one that starts with "get" for this field/attribute anyways etc, it is still a flat one, so do at load for example for iLeader = 5 dynamically while in the UI loop per attribute/key if i am not mistaken anyways etc LEADERS_INFO_CACHED[5]["getBaseAttitude"] to access the tuple to display, while for some other attributes/fields anyways etc we may use an "i" type of key name such as for some nested fields like flavors for example anyways etc LEADERS_INFO_CACHED[5]["iFlavorMilitary"] since we flatten them as such if i am not mistaken anyways etc, vs also for some other nested fields like aggregated attributes for example similarly (if other kind of fields exist, as of now not but is to be exhaustive or as it is or and other or and not but anyways etc) instead we may do for example anyways etc LEADERS_INFO_CACHED[5]["iAggregatedNegativeMemoryHiredTradeEmbargoResentment"] (not using a "get" getter name for the key here either, but these are all key names regardless of "i" or "get" or other name/prefix in key name to access in LEADERS_INFO_CACHED if i am not mistaken anyways etc that we don't call like getters even if there is a "get", but only use as key names anyways etc), hopefully clearer or/and helps maybe ideally or not or yes or etc understand or see how it works-functions but or not but or yes but but anyways etc anyways etc anyways etc, i find it quite plesant design this way, but anyways etc -->
 
 			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
@@ -1107,7 +1103,7 @@ def _compute_leader_cache_internal():
 
 						# <!-- custom: then back to aggregated positive and negative memory affection and resentment fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores
 						# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display anyways etc -->
-						# <!-- custom: note: unlike for min max exports (compute and store i mean anyways etc) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to relooping/having to anyways etc reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays if i am not mistaken in my understanding anyways etc, see also min max code of memory fields at step 1 step 2 or similar code comments for details if i am not mistaken too but anyways etc anyways etc anyways etc -->
+						# <!-- custom: note: unlike for min max exports (compute and store i mean anyways etc) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays if i am not mistaken, see also min max code of memory fields at step 1 step 2 or similar code comments for details -->
 						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
 
 						# <!-- custom: be careful/note anyways etc: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name anyways etc since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching anyways etc -->
@@ -1255,7 +1251,7 @@ def _compute_leader_cache_internal():
 			"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
-			# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough at least in this case if not always or not or yes or other or etc but anyways etc -->
+			# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough maybe. -->
 			# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
@@ -1419,7 +1415,7 @@ def _compute_leader_cache_internal():
 			"getDemandRebukedWarProb",
 			"getDogpileWarRand",
 			"getDeclareWarTradeRand",
-			# <!-- custom: not ideal but putting the getShareWarAttitudeChangeLimit here in war strategy attributes where i found some place, as it is one of the only 4 Attitude Changes +/- Limits +/- Changes that varies/"changes" if i mays ay anyways etc among all leaders in base AdvCiv XML and thus AdvCiv-SAS by extension (and its leaders_data too if i am not mistaken by extension too as it is directly derived from it (i.e. from said/such/the (AdvCiv-SAS's) XML anyways etc), ideally i would want to aggregate them (combining AC + ACL + AD to give a synthetic representation of these either aggregated like the previosu aggregated oens or maybe switch rather to a rela math computation formula (as i didn't know the exact formula and didn't want to make it too complicated as it was hard enough to just make it work xd but now i would love to, but anyways etc, for now most convenient is just to show the info about these 4 critically variying attributes and see later if or not if anyways etc i would aggregate or/and combine them or/and maybe the other aggregated attributes (some or all (of them) anyways etc) in a similar manner or not anyways etc, for now this is fast and hopefully representative enough (even though we don't see all raw vals or fields by doing it in such a way, hopefully better than nothig if i may say maybe or not but in all cases hopefully helpful maybe or not anyways etc ; ideally i would love (too) to represent (it this attitude changes +/- limits ++/- divisors system anyways etc) in an (for example for same religion Aggregated behaviour not yet named anyways etc) in an same religion such aggregated name behaviour affection and same religion such aggregated name behaviour resentment, meaning AI would be able to resent having same religion, or vice versa loving having a different religion, similarly to how the positive/negative memory with affection/resentment system works, this would be ideal and so loveable? lovely? so nice (but?) anyways etc going for most simple for now if not for always or not or/and other or/and not (or other? or not?) (and other? and not?) anyways etc, this information is useful so hopefuly helpful to display it or maybe not or yes or/and(?) other or/and(?) not anyways etc -->
+			# <!-- custom: not ideal but putting the getShareWarAttitudeChangeLimit here in war strategy attributes where i found some place, as it is one of the only 4 Attitude Changes +/- Limits +/- Changes that varies/"changes" if i mays ay anyways etc among all leaders in base AdvCiv XML and thus AdvCiv-SAS by extension (and its leaders_data too if i am not mistaken by extension too as it is directly derived from it (i.e. from said/such/the (AdvCiv-SAS's) XML anyways etc), ideally i would want to aggregate them (combining AC + ACL + AD to give a synthetic representation of these either aggregated like the previosu aggregated ones or maybe switch rather to a rela math computation formula (as i didn't know the exact formula and didn't want to make it too complicated as it was hard enough to just make it work xd but now i would love to, but anyways etc, for now most convenient is just to show the info about these 4 critically variying attributes and see later if or not if anyways etc i would aggregate or/and combine them or/and maybe the other aggregated attributes (some or all (of them) anyways etc) in a similar manner or not anyways etc, for now this is fast and hopefully representative enough (even though we don't see all raw vals or fields by doing it in such a way, hopefully better than nothig; ideally i would love to represent in an (for example for same religion Aggregated behaviour not yet named) in an same religion such aggregated name behaviour affection and same religion such aggregated name behaviour resentment, meaning AI would be able to resent having same religion, or vice versa loving having a different religion, similarly to how the positive/negative memory with affection/resentment system works, this would be ideal butgoing for most simple for now. -->
 			"getShareWarAttitudeChangeLimit",
 			"getVassalPowerModifier",
 			"getRefuseToTalkWarThreshold",
@@ -1435,10 +1431,10 @@ def _compute_leader_cache_internal():
 			"getMaxGoldPerTurnTradePercent",
 			"getTechTradeKnownPercent",
 			"getNoTechTradeThreshold",
-			# <!-- custom: move this one here (buildunitprob anyways etc) here too as table is otherwise full the war startegy one overfills in this case / about this i mean at least or not least or yes least or other or etc anyways etc but anyways etc anyways etc anyways etc, still buildunitprob should fit quite well as is linked to eocnomic behaviour as chatgpt said this word before economic behaviour i mean(,) but anyways etc economic preferences is cool too is the one i preferred ultimately in this case at least but anyways etc anyways etc anyways etc(,) if i may say how much units are built vs buildings and wonders so may be even desirable but or and in all cases anyways etc anyways etc anyways etc -->
+			# <!-- custom: move buildunitprob here too as table is otherwise full the war startegy one overfill, should fit quite well as is linked to eocnomic behaviour, may even fit better possibly. -->
 			"getBuildUnitProb",
 			"getWonderConstructRand",
-			# <!-- custom: move this one (espionage anyways etc) here, was in core personality, not ideal but maybe good enough perhaps even desirable as spy rate is linked to gold too in civ4 if i am not mistaken with the slider and such but anyways etc anyways etc anyways etc -->
+			# <!-- custom: move espionage here, was in core personality, not ideal not too bad as such. -->
 			"getEspionageWeight",
 		)
 		emoji_name_economic_preferences = "MoneyBag"
@@ -1455,7 +1451,7 @@ def _compute_leader_cache_internal():
 			"getHealthBonusRefuseAttitudeThreshold",
 			"getNoGiveHelpAttitudeThreshold",
 			"getDefensivePactRefuseAttitudeThreshold",
-			# <!-- custom: hide this getPermanentAllianceRefuseAttitudeThreshold as the table is otherwise full and can't display all data, this field is constant across all leaders at leaders as of now so hopefully the lesser harm even though not ideal to not display this one in this case i mean but anyways etc anyways etc anyways etc -->
+			# <!-- custom: hide this getPermanentAllianceRefuseAttitudeThreshold as the table is otherwise full and can't display all data, this field is constant across all leaders at leaders so maybe not too bad as such. -->
 			# "getPermanentAllianceRefuseAttitudeThreshold",
 		)
 		emoji_name_offer_refuse_attitude_thresholds = "NoEntry"
@@ -1482,7 +1478,7 @@ def _compute_leader_cache_internal():
 		# 📉 Attitude Changes +/- Limits +/- Divisors
 		# <!-- custom: see the code comment at getShareWarAttitudeChangeLimit in this file for details -->
 		ai_category_key_order_attitude_changes_plusminus_limits_plusminus_divisors = (
-			# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully helpful maybe or not anwyays etc, see the code comment at iShareWarAttitudeChangeLimit in this file for details -->
+			# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully not too bad as such, see the code comment at iShareWarAttitudeChangeLimit in this file for details. -->
 			"getSameReligionAttitudeChange",
 			"getSameReligionAttitudeDivisor",
 			#
@@ -1792,7 +1788,6 @@ class SevoPediaLeader:
 
 
 
-	# <!-- custom: move most helpers outside of their caller function if not a one time thing like the compute cache that is called only once so fine as a design to be done so i mean anyways etc if i may say anyways etc, may increase performance to move helpers outside caller as advised by chatgpt after asking it this question in my prompt anyways etc, so we don't redefine them during runtime each time instead of using them right away, gain may not be big but still nice i think and if i understood it correctly anyways etc, it's also a free gain so why not relatively, the cost in code being messier with not only place methods in the class is fine i think if it's for performance and cleanliness if i may say and clarity, so not free but fine in this case i mean about anyways etc anyways etc anyways etc ; also since the functions are entirely parametrized already and don't manipulate variables (even though could have done so if needed but anyways etc) or such i thought it's fine to do so in particular anyways etc after also asking/telling chatgpt about it which also agreed as often does despite its initial recommendation to overall leave as is but thanks for help chatgpt i mean really anyways etc thanks anyways etc but or not but or yes but anyways etc anyways etc anyways etc ; still even for those called only once like precomputing cache, may and did extract helpers from their caller function for consistency or/and reliability if i may say as i wanted in this case, i think but anyways etc anyways etc anyways etc, which allwoe also to fix a few bugs or/and other suboptimal things at least to me if not others or all or just as it is or not but anyways etc such as not properly parametrized functions not entirely and or such but anyways etc -->
 	def getXAIPanelCoordinate(self, tableId):
 		return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * self.MEDIUM_MARGIN
 
@@ -1853,7 +1848,7 @@ class SevoPediaLeader:
 		self.setupAIPanel(screen, self.AI_PANEL_MIDDLE_TXT_KEY, xPanelMiddle)
 		self.setupAIPanel(screen, self.AI_PANEL_LEFT_TXT_KEY, xPanelLeft)
 
-		# <!-- custom: performance optimization if i'm not mistaken anyways etc and after asking chatgpt to test it to be sure about my intuition i had but anyways etc anyways etc anyways etc... which seems to have turned out correct (at least chatgpt ran a real benchmark with the sample size of its choice anyways etc a diff of (3.366469383239746, 2.984344720840454) seconds for (Method 1 (repeated LEADERS_INFO_CACHED[i] lookup): ~3.37 seconds, Method 2 (store info = LEADERS_INFO_CACHED[i] once): ~2.98 seconds if i am not mistaken in my understanding of it too but anyways etc if not then all good else as is or not but in all cases or not or yes or etc or and other or yes or etc anyways etc) but anyways etc...: store the currently selected leader's LEADERS_INFO_CACHED[iLeader] pointer as the leader_info_cached variable so it is a bit faster to access it this was rather than rebrowsing through the giant or/and parent too but anyways etc pointer here, to indeed access it (i.e. this sub-pointer anyways etc relative to LEADERS_INFO_CACHED parent pointer to the dict anyways etc) rather than through LEADERS_INFO_CACHED at each attribute (we have +/-100 as for us if i may say anyways etc in AdvCiv-SAS) too or around it if i am not too mistaken but anyways etc -->
+		# <!-- custom: cache for performance optimization. -->
 		leader_info_cached = LEADERS_INFO_CACHED[iLeader]
 
 		self.renderAICategories(screen, AI_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)

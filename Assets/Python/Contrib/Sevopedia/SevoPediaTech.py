@@ -8,7 +8,7 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see modding ressources readme at /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md (or whichever path it may be anyways etc if changed path or modifications i did or may have done additionally or kept as is but anyways etc), hopefully helpful or not or yes or etc or and other or and not anyways etc. There is a google drive link and screenshots for steps (most anyways etc) of how i did it if you'd want to try it or do it and see how i did myself hopefully helpful or/and enjoyable or/and plesant or not or yes or and other or and not but or not but or yes but but anyways etc.
+# <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see modding ressources readme at /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md (or whichever path it may be anyways etc if changed path or modifications i did or may have done additionally or kept as is).
 #
 # Without the DLL modification, i assume it would still run fine if i am not mistaken, just you would not have the bullet point at the tech, for example Future tech, that it cannot be traded in placeSpecial, but only the summary at the end of the list of all non tradeable tech that uses the already existing in base advciv if i am not mistaken anyways etc gc.getTechInfo(iTech).isTrade() if i am not mistaken, but which info of (this tech is not tradeable) is in base advciv not displayed in the placeSpecial bullet of the currently selected tech unless you modify DLL as explained before anyways etc. -->
 
@@ -82,7 +82,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.top.R_PEDIA_PAGE - self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
 		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = 110
 
-		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code anyways etc, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas at least if i may say but or not but or yes but but anyways etc ; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments anyways etc anyways etc anyways etc -->
+		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code anyways etc, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments -->
 		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (3 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (3 * self.SMALL_MARGIN)
 
 		self.X_HISTORY = self.X_TECH_PANE
@@ -280,7 +280,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from chatgpt thanks to my prompt and adjustments or not or yes or and other or and etc too anyways etc anyways etc anyways etc -->
+	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken) tech list at the end of placeSpecial, addition with the help of chatgpt thanks. -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()

@@ -873,7 +873,7 @@
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
-			<!-- custom: only for MOUNTED_RANGED as MOUNTED_MELEE can't do anything offensively against fun units if i am not mistaken (even defensively at best they can only defend and not die if i am not mistaken anyways etc anyways etc anyways etc) -->
+			<!-- custom: only for MOUNTED_RANGED as MOUNTED_MELEE can't do anything offensively against fun units if i am not mistaken (even defensively at best they can only defend and not die if i am not mistaken) -->
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
@@ -1373,7 +1373,7 @@
 			<!-- advc.164: was PROMOTION_FIRST_STRIKE3 in K-Mod -->
 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
-			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it i mean  or longer in past or both or none or and other or and not or other anyways etc anyways etc anyways etc, was TECH_MILITARY_SCIENCE -->
+			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it, was TECH_MILITARY_SCIENCE -->
 			<TechPrereq>TECH_CONSTITUTION</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
@@ -4529,7 +4529,7 @@
 					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: weird that melee is not here, adding it as well if i am not mistaken in doing so and assessing i'd want to do so, but should be so still at least i want so in this case if i'm not mistaken, but anyways etc anyways etc anyways etc -->
+				<!-- custom: weird that melee is not here, adding it as well if i am not mistaken in my thinking. -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>

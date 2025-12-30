@@ -1076,7 +1076,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: kingdom of benin's disciplined crossbowman (civ-specific unit as of now anyways etc) 's button from HR mod's isikhulu (unique unit as per HR naming but anyways etc anyways etc anyways etc), nif from ri mod's ART_DEF_UNIT_CROSSBOWMAN_FILIPINO (crossbowman (tagalog)) anyways etc ; kfm is base civ4 one as often seems to be the case if i am not mistaken and if i am not mistaken too but anyways etc anyways etc anyways etc -->
+		<!-- custom: kingdom of benin's disciplined crossbowman's button from HR mod's isikhulu (unique unit as per HR naming), nif from ri mod's ART_DEF_UNIT_CROSSBOWMAN_FILIPINO (crossbowman (tagalog)); kfm is base civ4 one as often seems to be the case if i am not mistaken -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
 			<Button>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds</Button>
@@ -1866,7 +1866,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: button import from ri mod (quickly found thanks to pakbuild all unpacked in one folder anyways etc anyways etc anyways etc) -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ARABIA_HAJJAN</Type>
 			<Button>Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds</Button>
@@ -1942,7 +1941,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: new unit CAMEL_CUIRASSIER based on the cuirassier camel version of it anyways etc, art import similarly from the very nice FPK "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" of RFC DOC 's mod, of/from the art asset ART_DEF_UNIT_CAMEL_GUNNER too anyways etc and adjusted or not or yes or other or and other or etc or and etc anyways etc for advciv-sas anyways etc -->
+		<!-- custom: new unit CAMEL_CUIRASSIER based on the cuirassier camel version of it, art import similarly from the very nice FPK "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" of RFC DOC's mod, from the art asset ART_DEF_UNIT_CAMEL_GUNNER too and adjusted or not for advciv-sas. -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_CUIRASSIER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Camel_Cuirassier/camelgunner_btn.dds</Button>
@@ -3836,7 +3835,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: rename rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" ; and rename "_BESERKER" to "_VIKING ; art import of the button and nif from ri mod's anyways etc ART_DEF_UNIT_VIKING_BESERKER and ART_DEF_UNIT_LATE_SWORDSMAN_VIKING respectively if i may say but anyways etc anyways etc anyways etc, and adjusted or not for advciv-sas anyways etc -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SCANDINAVIA_VIKING</Type>
 			<Button>Art/AdvCiv_SAS/Units/Scandinavia_Viking/nu_viking_berserker.dds</Button>
@@ -4218,7 +4216,7 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: the ART_DEF_UNIT_ARCHER_EURASIAN seems to be unused in base advciv (+/- civ4 too?) remove it entirely and use the already existing and used in base advciv ART_DEF_UNIT_ARCHER_CHINESE now renamed to ART_DEF_UNIT_ARCHER_ASIAN for consistency and or such or not such or yes such or etc but anyways etc anyways etc anyways etc, see also known issue as of now 18; (not skipping line in case it breaks art assets code, see known issues as well for examples about such behaviours but anyways etc if i am not mistaken too but anyways etc anyways etc); also rename ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN anyways etc -->
+		<!-- custom: the ART_DEF_UNIT_ARCHER_EURASIAN seems to be unused in base advciv (and in civ4 too?) remove it entirely and use the already existing and used in base advciv ART_DEF_UNIT_ARCHER_CHINESE now renamed to ART_DEF_UNIT_ARCHER_ASIAN for consistency or such, see also known issue as of now 18; (not skipping line in case it breaks art assets code, see known issues as well for examples about such behaviours); also rename ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SPEARMAN_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Spearman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,6</Button>

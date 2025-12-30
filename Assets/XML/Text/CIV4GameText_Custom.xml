@@ -48,7 +48,7 @@
 
 
 
-	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker if i am not mistaken, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter if i may say anyways etc anyways etc anyways etc... See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details anyways etc) or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
+	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker if i am not mistaken, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details anyways etc) or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
 	<!-- advc.004c: Based on TXT_KEY_BUILDING_DEFENSE_MOD (see below).
 		 For the DefenseRaise XML tag. Use the defense icon and refer to
 		 non-gunpowder-based units as "pre-Renaissance". "Gunpowder-based" is
@@ -57,7 +57,7 @@
 		<Tag>TXT_KEY_BUILDING_DEFENSE_RAISE</Tag>
 		<English>[ICON_BULLET]Raises [ICON_DEFENSE] to %d1_Mod%% against All Units (using now bIgnoreBuildingDefense 0 (for all units? Not sure.))</English>
 	</TEXT>
-	<!-- custom: about the ones below ("_DEFENSE_MOD", "_BUILDING_BOMBARD_DEFENSE"), i am not sure it is covered by <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> but updating the text as well because it is how i would want it to be ideally, hopefully clearer this way despite my confusion, ideally it works as intended, else the issue is raised at least maybe or not, but anyways etc anyways etc anyways etc... todo investigate this more if need(ed(?)) anyways etc anyways etc anyways etc... -->
+	<!-- custom: about the ones below ("_DEFENSE_MOD", "_BUILDING_BOMBARD_DEFENSE"), i am not sure it is covered by <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> but updating the text as well because it is how i would want it to be ideally, hopefully clearer. Todo investigate this more if needed. -->
 	<!-- DEFENSE_MOD should be supplanted by DEFENSE_RAISE. But perhaps it
 		 won't be in a mod-mod. So let's update DEFENSE_MOD as well: Use the
 		 defense icon and state that it increases (only) building defense. -->
@@ -273,7 +273,7 @@
 		<Tag>TXT_KEY_CIV_AMERICA_SHORT_DESC</Tag>
 		<English>The USA</English>
 	</TEXT>
-	<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language but anyways etc, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it if i may say but anyways etc anyways etc anyways etc -->
+	<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language but anyways etc, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
 		<English>US American</English>

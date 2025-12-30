@@ -95,7 +95,7 @@ class SevoPediaUnitChart:
 
 		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 
-		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it: "screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround." + "Workaround: Pad the header label string manually" thanks for help chatgpt and advciv/hint if i may say that i adjusted too or not for advciv-sas but anyways etc anyways etc anyways etc... -->
+		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it: "screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround." + "Workaround: Pad the header label string manually" thanks, that i adjusted too or not for advciv-sas. -->
 		szNameText = u"<font=2>    " + szName + u"</font>"
 		szStrengthtext = u"<font=2>             " + szStrength + u"</font>"
 		szMoveText = u"<font=2>             " + szMove + u"</font>"

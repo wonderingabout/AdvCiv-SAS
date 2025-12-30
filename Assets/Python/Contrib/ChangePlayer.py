@@ -145,7 +145,6 @@ def changeCivHandler( playerID, netUserData, popupReturn ) :
 
 	if (LOG_DEBUG):
 		CvUtil.pyPrint( "   CP : You have selected player %d, the %s, on team %d"%(playerIdx, gc.getPlayer(playerIdx).getCivilizationDescription(0), gc.getPlayer(playerIdx).getTeam()) )
-	# <!-- custom: formatted even the comment out xd because why not and cleaner at least the one i spotted just here if not others or not or yes or not guarantetd my or may not or and other or and not or other or etc anyways etc -->
 	# advc.127c: Commented out
 	#if(LOG_DEBUG):
 	#	CvUtil.pyPrint( "   CP : New team idx is %d"%(teamIdx) )

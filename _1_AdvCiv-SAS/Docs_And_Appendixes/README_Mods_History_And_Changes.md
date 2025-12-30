@@ -24,7 +24,7 @@ I hope having a list of such changes may help players, and perhaps me while comp
 
 ## Changes from one mod to another sevopedia items/pages and mod history
 
-Note that i also added a K-Mod to (base) AdvCiv changes doc, but these are not exhaustive as well, hopefully helpful, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv_Base_Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual or/and more generally the [_0_Common_Docs/](/_0_Common_Docs/) folder that has some overlap with our mod in particular, please view [(base) AdvCiv's github](https://github.com/f1rpo/AdvCiv) in latest branch or whichever branch you find suitable. Note 2: i also added AdvCiv-SAS-specific docs at [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
+Note that i also added a K-Mod to (base) AdvCiv changes doc, but these are not exhaustive as well, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv_Base_Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual or/and more generally the [_0_Common_Docs/](/_0_Common_Docs/) folder that has some overlap with our mod in particular, please view [(base) AdvCiv's github](https://github.com/f1rpo/AdvCiv) in latest branch or whichever branch you find suitable. Note 2: i also added AdvCiv-SAS-specific docs at [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
 
 <img src="../Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>

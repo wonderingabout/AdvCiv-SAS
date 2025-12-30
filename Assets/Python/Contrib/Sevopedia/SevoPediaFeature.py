@@ -294,7 +294,7 @@ class SevoPediaFeature:
 
 		# <!-- custom: handle feature(s) that is (are) impassable (anyways etc...) such as of now only the ice cap feature anyways etc quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences anyways etc, see code comments at sevopedia feature's placeUnitsImpassable anyways etc -->
 		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
-		# <!-- custom: handle features with promotions or other specific effects if any if i may say anyways etc separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on but anyways etc anyways etc anyways etc -->
+		# <!-- custom: handle features with promotions or other specific effects separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on -->
 		iForest = getInfoTypeOrFail("FEATURE_FOREST", gc)
 		iJungle = getInfoTypeOrFail("FEATURE_JUNGLE", gc)
 
@@ -410,7 +410,7 @@ class SevoPediaFeature:
 
 		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE"
 
-		# <!-- custom: https://forums.civfanatics.com/threads/make-ice-workable.462809/?utm_source=chatgpt.com based on this provided nicely to me by chatgpt anyways etc, it seems the ice feature (called as of now "ice cap" feature in advciv-sas anyways etc is impassable but can be walked on if a unit has such a flag, so using a code similar to the terrain_peak handling in sevopedia terrain's as of now placeUnitsImpassable anyways etc anyways etc anyways etc -->
+		# <!-- custom: https://forums.civfanatics.com/threads/make-ice-workable.462809/?utm_source=chatgpt.com based on this provided to me by chatgpt thanks, it seems the ice feature (called as of now "ice cap" feature in advciv-sas anyways etc is impassable but can be walked on if a unit has such a flag, so using a code similar to the terrain_peak handling in sevopedia terrain's as of now placeUnitsImpassable -->
 		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
 
 		if self.iFeature == iIce:

@@ -12,7 +12,7 @@
 <!-- Building Infos -->
 <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<BuildingInfos>
-		<BuildingInfo> <!-- custom: class: palace, type: palace (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: palace, type: palace (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
 			<Type>BUILDING_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -183,7 +183,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: palace, type: BARBARIAN_PALACE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: palace, type: BARBARIAN_PALACE (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -312,13 +312,13 @@
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
-			<!-- custom: since they work tiles more with their workers (and have a bit more cities too), they don't need such a strong gold boost as before with original palace implementation (and bit more gold per city too due to number not only yields of worker(d) tiles worked (repetition) but anyways etc anyways etc), so reducing gold yield a bit if not more than bit and bit lot or more or not but anyways etc anyways etc -->
+			<!-- custom: since they work tiles more with their workers (and have a bit more cities too), they don't need such a strong gold boost as before with original palace implementation (and bit more gold per city too due to number not only yields of workerd tiles worked), so reducing gold yield vs the generic palace. -->
 			<YieldChanges>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
 				<iYield>4</iYield>
 			</YieldChanges>
-			<!-- custom: more culture for barbarian buildings or cities rather as only for palace, so they can avoid being culturally pressed by other civs without (a bit unrealistically) building too many barbarian specific culture buildings or and things or not anyways etc at least (as of)(?) now if not always or (maybe?) not but anyways etc anyways etc ; more spy for fun too also i mean.. but anyways etc hehe or not hehe or yes hehe or and other or and not or yes or not or etc anyways etc... -->
+			<!-- custom: more culture for barbarian buildings or cities rather as only for palace, so they can avoid being culturally pressed by other civs without (a bit unrealistically) building too many barbarian specific culture buildings; more spy for fun too. -->
 			<CommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -361,7 +361,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forbidden_palace, type: forbidden_palace (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: forbidden_palace, type: forbidden_palace (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_FORBIDDEN_PALACE</BuildingClass>
 			<Type>BUILDING_FORBIDDEN_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -552,7 +552,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: walls, type: walls (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: walls, type: walls (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
 			<Type>BUILDING_WALLS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -736,7 +736,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: walls, type: celtic_dun (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: walls, type: celtic_dun (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
 			<Type>BUILDING_CELTIC_DUN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -924,7 +924,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: walls, type: BARBARIAN_WALLS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: walls, type: BARBARIAN_WALLS (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
 			<Type>BUILDING_BARBARIAN_WALLS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1106,9 +1106,9 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: according to https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles castle should be relevant much later than economics, which also seems a weird tech to "correlate" it with (obsolescence of castles, i don't see a clear link if i may say i mean anyways etc...) if that is an accurate word here anyways etc anyways etc anyways etc...
-		It's also interesting (i think but anyways etc) from a gameplay standpoint i think to make them relevant longer and not too soon obsolete so they are not worth building, and stockpilers run then rampage with pre-made farming strategies, it would require to be more careful about the whole game and pace now and war plans and such or not such or and other or and not, hopefully an interesting change but if not at least one i would like so doing it and hopefully helpful or enjoyable or and not or yes or and other or and not or etc or not or yes or other or not anyways etc anyways etc anyways etc... -->
-		<BuildingInfo> <!-- custom: class: castle, type: castle (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<!-- custom: according to https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles castle should be relevant much later than economics, which also seems a weird tech to "correlate" it with (obsolescence of castles, i don't see a clear link).
+		It's also interesting from a gameplay standpoint i think to make them relevant longer and not too soon obsolete so they are not worth building, and stockpilers run then rampage with pre-made farming strategies, it would require to be more careful about the whole game and pace now and war plans and such or not, hopefully an interesting change. -->
+		<BuildingInfo> <!-- custom: class: castle, type: castle (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_CASTLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1311,7 +1311,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: castle, type: spanish_citadel (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: castle, type: spanish_citadel (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_SPANISH_CITADEL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1521,7 +1521,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: add the new BUILDING_RUSSIAN_GORD, civ-specific building for the russian empire (based on the castle), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, for a stronger early game impact and more military focus in this case but anyways etc, if i may say but anyways etc, see xml or and docs or and similar or and not anyways etc for details anyways etc -->
-		<BuildingInfo> <!-- custom: class: castle, type: russian_gord (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: castle, type: russian_gord (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_RUSSIAN_GORD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1723,7 +1723,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: castle, type: BARBARIAN_CASTLE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: castle, type: BARBARIAN_CASTLE (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_CASTLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1924,7 +1924,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: barracks (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: barracks, type: barracks (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_BARRACKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2100,7 +2100,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: zulu_ikhanda (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: barracks, type: zulu_ikhanda (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_ZULU_IKHANDA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2166,7 +2166,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, was 0 -->
+			<!-- custom: see code comment at BUILDING_BARRACKS for details, was 0 -->
 			<iAIWeight>75</iAIWeight>
 			<!-- custom: was 60 -->
 			<iCost>65</iCost>
@@ -2281,7 +2281,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: BARBARIAN_BARRACKS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: barracks, type: BARBARIAN_BARRACKS (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_BARBARIAN_BARRACKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2319,7 +2319,7 @@
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe rather but anyways etc), not sure it is needed or has a real influence or not, but better be safe here maybe, and is also if i am not mistaken or not or and other or and not but in all cases anyways etc anyways etc -->
+			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe), not sure it is needed or has a real influence or not, but better be safe here maybe -->
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
@@ -2455,7 +2455,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stable, type: stable (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: stable, type: stable (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
 			<Type>BUILDING_STABLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2517,7 +2517,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: note: told AIs to never build this if i'm not mistaken in the DLL in as of now CvCityAI::AI_buildingValue if we don't have any of the required bonuses to produce units with it, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details anyways etc, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit but anyways etc) to build this but anyways etc -->
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, was 0 -->
+			<!-- custom: see code comment at BUILDING_BARRACKS for details, was 0 -->
 			<iAIWeight>75</iAIWeight>
 			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2618,7 +2618,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, was flavor military 10 -->
+			<!-- custom: see code comment at BUILDING_BARRACKS, was flavor military 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -2631,7 +2631,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stable, type: mongol_ger (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: stable, type: mongol_ger (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
 			<Type>BUILDING_MONGOL_GER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2692,7 +2692,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, was 0 -->
+			<!-- custom: see code comment at BUILDING_BARRACKS for details, was 0 -->
 			<iAIWeight>80</iAIWeight>
 			<iCost>75</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2776,7 +2776,7 @@
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
-			<!-- custom: reduce it/this, give instead military production bonus to buff the building and make it more versatile, kind of like how the zulu barracks (ikhanda) are at least in base civ4 (if i am not mistaken) (but anyways etc anyways etc anyways etc...) if i am not mistaken anyways etc, was 4 -->
+			<!-- custom: reduce this, give instead military production bonus to buff the building and make it more versatile, kind of like how the zulu barracks are at least in base civ4 if i am not mistaken, was 4 -->
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -2795,7 +2795,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: see code comment at BUILDING_BARRACKS for details anyways etc anyways etc anyways etc, value unchanged as of now anyways etc -->
+			<!-- custom: see code comment at BUILDING_BARRACKS, value unchanged as of now anyways etc -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -2808,7 +2808,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bunker, type: bunker (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: bunker, type: bunker (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BUNKER</BuildingClass>
 			<Type>BUILDING_BUNKER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2977,7 +2977,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bomb_shelter, type: bomb_shelter (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: bomb_shelter, type: bomb_shelter (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BOMB_SHELTER</BuildingClass>
 			<Type>BUILDING_BOMB_SHELTER</Type>
 			<SpecialBuildingType>SPECIALBUILDING_BOMB_SHELTER</SpecialBuildingType>
@@ -3144,7 +3144,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: granary (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: granary, type: granary (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_GRANARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3206,9 +3206,9 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: the granary should be valuable to all players and war profiles (peaceful or warmonger alike could make great use of it, but do not overincrease it in case alternate strategies are better, trying this value then anyways etc), was 0 -->
+			<!-- custom: the granary should be valuable to all players and war profiles (peaceful or warmonger alike could make great use of it, but do not overly increase it in case alternate strategies are better, trying this value then), was 0 -->
 			<iAIWeight>25</iAIWeight>
-			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4HurryInfo.xml for details, anyways etc, also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, may be adjusted or not more or less or none or and other or and not or etc later anyways etc, was 60 -->
+			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak see (adjust to your mod path) CIV4HurryInfo.xml for details, also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, was 60 -->
 			<iCost>45</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -3229,7 +3229,7 @@
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
-			<!-- custom: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific costly in terms of investment if i may say that it is their only civ-specific building so it better be strong and worth it else rework it, but anyways etc anyways etc anyways etc..., was 50 -->
+			<!-- custom: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific building, was 50 -->
 			<iFoodKept>40</iFoodKept>
 			<iAirlift>0</iAirlift>
 			<iAirModifier>0</iAirModifier>
@@ -3333,7 +3333,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: BARBARIAN_GRANARY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: granary, type: BARBARIAN_GRANARY (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_BARBARIAN_GRANARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3521,7 +3521,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_INCAN_QULLQA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_INCAN_QULLQA (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_INCAN_QULLQA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3718,8 +3718,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: new german civ-specific building, replaces the old assembly_plant now removed, for stronger early game anyways etc, rework based on this https://en.wikipedia.org/wiki/History_of_Germany#Prehistory and this https://en.wikipedia.org/wiki/Linear_Pottery_culture#Economy or/and other wikis or and not anyways (for example the introduction/generic wiki part of these or and other or and not but anyways etc...) and https://en.wikipedia.org/wiki/Neolithic_long_house or and other or and not anyways etc... etc anyways etc -->
-		<BuildingInfo> <!-- custom: class: granary, type: german_longhouse (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: granary, type: german_longhouse (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_GERMAN_LONGHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3781,9 +3780,9 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: the granary should be valuable to all players and war profiles (peaceful or warmonger alike could make great use of it, but do not overincrease it in case alternate strategies are better, trying this value then anyways etc), was 0 -->
+			<!-- custom: see code comment at the generic granary, was 0 -->
 			<iAIWeight>25</iAIWeight>
-			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4HurryInfo.xml for details, anyways etc, also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, may be adjusted or not more or less or none or and other or and not or etc later anyways etc, was 60 -->
+			<!-- custom: see code comment at the generic granary, was 60 -->
 			<iCost>55</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -3913,7 +3912,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: aqueduct (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: aqueduct, type: aqueduct (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_AQUEDUCT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4091,7 +4090,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: ottoman_hammam (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: aqueduct, type: ottoman_hammam (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_OTTOMAN_HAMMAM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4264,7 +4263,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things anyways etc https://en.wikipedia.org/wiki/Baray -->
-		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KHMER_BARAY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4445,7 +4444,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: kingdom_of_benin_impluvium (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: aqueduct, type: kingdom_of_benin_impluvium (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4579,7 +4578,7 @@
 				<iYield>0</iYield>
 				<iYield>0</iYield>
 			</YieldChanges>
-			<!-- custom: also add production modifiers to make it a production type of building (rain water reuse or such maybe anyways etc or and other or and not anyways etc...), anyways etc -->
+			<!-- custom: also add production modifiers to make it a production type of building (rain water reuse theme or such maybe) -->
 			<YieldModifiers>
 				<iYield>0</iYield>
 				<iYield>10</iYield>
@@ -4630,7 +4629,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hospital, type: hospital (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hospital, type: hospital (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HOSPITAL</BuildingClass>
 			<Type>BUILDING_HOSPITAL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4802,7 +4801,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: recycling_center, type: recycling_center (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: recycling_center, type: recycling_center (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_RECYCLING_CENTER</BuildingClass>
 			<Type>BUILDING_RECYCLING_CENTER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4968,7 +4967,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: harbor reworked, now is a building before the lighthouse and buffed too if i am not mistaken anyways etc anyways etc, relatively to how old lighthouse was anyways etc ; oldest harbor should be much sooner than tech compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now anyways etc -->
-		<BuildingInfo> <!-- custom: class: harbor, type: harbor (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: harbor, type: harbor (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
 			<Type>BUILDING_HARBOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5145,7 +5144,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth (wording that i thought of independently without reading the one below too interestingly or not or yes or etc or and other or and not, but anyways etc) if i may say relatively i mean but anyways etc ; also give 2 gold flavor as/to give the reworked lighthouse that depends on the harbor now a prebuilt condition faster (so we can build the lighthouse, now a gold based building (see there for details or and updated values anyways etc) anyways etc), was gold 8 and growth 3 anyways etc -->
+			<!-- custom: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth; also give gold flavor to give the reworked lighthouse that as of now now depends on the harbor a prebuilt condition faster (so we can build the lighthouse, now a gold based building (see there for details)), was gold 8 and growth 3 -->
 			<!-- advc.020: was 10 Gold; should have a little Growth too
 				 (and Cothon should perhaps have a bit more Gold flavor than
 				 the normal Harbor) -->
@@ -5165,7 +5164,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HARBOR, type: BUILDING_BARBARIAN_HARBOR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HARBOR, type: BUILDING_BARBARIAN_HARBOR (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
 			<Type>BUILDING_BARBARIAN_HARBOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5343,7 +5342,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth (wording that i thought of independently without reading the one below too interestingly or not or yes or etc or and other or and not, but anyways etc) if i may say relatively i mean but anyways etc ; also give 2 gold flavor as/to give the reworked lighthouse that depends on the harbor now a prebuilt condition faster (so we can build the lighthouse, now a gold based building (see there for details or and updated values anyways etc) anyways etc), was gold 8 and growth 3 anyways etc -->
+			<!-- custom: see code comment at the generic harbor, was gold 8 and growth 3 anyways etc -->
 			<!-- advc.020: was 10 Gold; should have a little Growth too
 				 (and Cothon should perhaps have a bit more Gold flavor than
 				 the normal Harbor) -->
@@ -5363,7 +5362,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5529,7 +5528,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: just like how the reworked harbor is now the food/health building, the reworked lighthouse is now the gold building anyways etc, adjust flavors as such anyways etc ; also add production flavor quite small or not but anyways etc as this building is a prereq for the new port building that gives quite a lot of production on water tiles anyways etc, and also is quite similar to how the harbor normal building also has a quite small or not but anyways etc gold flavor hopefully makes sense this way too even though not obligated, but is as it is or not or yes or etc or and other or and not or yes or etc anyways etc anyways etc... , was growth 10 -->
+			<!-- custom: just like how the reworked harbor is now the food/health building, the reworked lighthouse is now the gold building anyways etc, adjust flavors as such; also add production flavor as this building is a prereq for the new port building that as of now gives quite a lot of production on water tiles, and also is quite similar to how the harbor normal building also has a gold flavor, was growth 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -5546,7 +5545,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BARBARIAN_LIGHTHOUSE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BARBARIAN_LIGHTHOUSE (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5731,7 +5730,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: new production, water building, based on old moai_statues 's effect but as a normal building now anyways etc -->
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_PORT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_PORT (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
 			<Type>BUILDING_PORT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5916,7 +5915,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: new production, water building, based on old moai_statues 's effect but as a normal building now anyways etc -->
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_CARTHAGE_COTHON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_CARTHAGE_COTHON (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
 			<Type>BUILDING_CARTHAGE_COTHON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6113,7 +6112,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_SCANDINAVIA_TRADING_POST (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_SCANDINAVIA_TRADING_POST (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
 			<Type>BUILDING_SCANDINAVIA_TRADING_POST</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6302,7 +6301,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: custom_house, type: custom_house (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: custom_house, type: custom_house (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
 			<Type>BUILDING_CUSTOM_HOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6484,7 +6483,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: custom_house, type: feitoria (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: custom_house, type: feitoria (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
 			<Type>BUILDING_PORTUGAL_FEITORIA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6660,7 +6659,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: drydock, type: drydock (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: drydock, type: drydock (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_DRYDOCK</BuildingClass>
 			<Type>BUILDING_DRYDOCK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6855,7 +6854,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: airport, type: airport (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: airport, type: airport (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_AIRPORT</BuildingClass>
 			<Type>BUILDING_AIRPORT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7029,7 +7028,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forge, type: forge (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: forge, type: forge (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
 			<Type>BUILDING_FORGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7222,7 +7221,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forge, type: mali_mint (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: forge, type: mali_mint (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
 			<Type>BUILDING_MALI_MINT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7421,7 +7420,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: factory, type: factory (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: factory, type: factory (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
 			<Type>BUILDING_FACTORY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7615,7 +7614,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: coal_plant, type: coal_plant (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: coal_plant, type: coal_plant (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_COAL_PLANT</BuildingClass>
 			<Type>BUILDING_COAL_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7784,7 +7783,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hydro_plant, type: hydro_plant (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hydro_plant, type: hydro_plant (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HYDRO_PLANT</BuildingClass>
 			<Type>BUILDING_HYDRO_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7807,7 +7806,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: they were relevant sooner in tech/history if i am not mistaken from quite quick in this case anyways etc glances/searches on wikipedia or and such anyways etc anyways etc anyways etc, plus to make them buildable sooner too anyways etc anyways etc anyways etc, was the now removed anyways etc TECH_PLASTICS -->
+			<!-- custom: they were relevant sooner in tech if i am not mistaken from quick wikipedia lookup, plus to make them buildable sooner too, was the now removed TECH_PLASTICS -->
 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -7958,7 +7957,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: nuclear_plant, type: nuclear_plant (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: nuclear_plant, type: nuclear_plant (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_NUCLEAR_PLANT</BuildingClass>
 			<Type>BUILDING_NUCLEAR_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8126,7 +8125,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: industrial_park, type: industrial_park (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: industrial_park, type: industrial_park (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_INDUSTRIAL_PARK</BuildingClass>
 			<Type>BUILDING_INDUSTRIAL_PARK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8317,7 +8316,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: monument (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: monument, type: monument (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_MONUMENT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8492,7 +8491,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: egyptian_obelisk (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: monument, type: egyptian_obelisk (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_EGYPTIAN_OBELISK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8678,7 +8677,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: ethiopian_stele (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: monument, type: ethiopian_stele (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_ETHIOPIAN_STELE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8854,7 +8853,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: native_america_totem (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: monument, type: native_america_totem (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_NATIVE_AMERICA_TOTEM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9042,7 +9041,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked based on https://en.wikipedia.org/wiki/Aztecs#Religion and https://en.wikipedia.org/wiki/Human_sacrifice#Pre-Columbian_Americas -->
-		<BuildingInfo> <!-- custom: class: monument, type: aztec_sacrificial_altar (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: monument, type: aztec_sacrificial_altar (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9228,7 +9227,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked based on: https://en.wikipedia.org/wiki/Ziggurat -->
-		<BuildingInfo> <!-- custom: class: monument, type: ziggurat (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: monument, type: ziggurat (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_SUMERIAN_ZIGGURAT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9425,7 +9424,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: public_transportation, type: public_transportation (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: public_transportation, type: public_transportation (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingClass>
 			<Type>BUILDING_PUBLIC_TRANSPORTATION</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9595,7 +9594,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: academy, type: academy (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: academy, type: academy (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ACADEMY</BuildingClass>
 			<Type>BUILDING_ACADEMY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9771,7 +9770,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: library, type: library (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: library, type: library (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
 			<Type>BUILDING_LIBRARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9968,7 +9967,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: university (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: university, type: university (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_UNIVERSITY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10154,7 +10153,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: basing it (madrassa anyways etc) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or/and from memory that they are religous, thus islamic buildings mostly if not only, anyways etc), this is also good because now anyways etc i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it but anyways etc...) -->
-		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_ARABIAN_MADRASSA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10222,7 +10221,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
+			<!-- custom: see code comment at as of now the korean civ-specific university. -->
 			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -10353,7 +10352,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: korean_seowon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: university, type: korean_seowon (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_KOREAN_SEOWON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10419,7 +10418,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
+			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at leas cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones, nerf them rather than in increase their cost if have to, maybe not too bad as such -->
 			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -10538,7 +10537,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: french_salon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: university, type: french_salon (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_FRENCH_SALON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10604,7 +10603,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
+			<!-- custom: see code comment at as of now the korean civ-specific university. -->
 			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -10729,7 +10728,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: laboratory, type: laboratory (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: laboratory, type: laboratory (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_LABORATORY</BuildingClass>
 			<Type>BUILDING_LABORATORY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10918,7 +10917,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: theatre, type: theatre (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: theatre, type: theatre (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
 			<Type>BUILDING_THEATRE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11111,7 +11110,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: theatre, type: chinese_pavillon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: theatre, type: chinese_pavillon (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
 			<Type>BUILDING_CHINESE_PAVILLION</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11308,7 +11307,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: theatre, type: byzantine_hippodrome (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: theatre, type: byzantine_hippodrome (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
 			<Type>BUILDING_BYZANTINE_HIPPODROME</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11508,7 +11507,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: colosseum (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: colosseum, type: colosseum (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_COLOSSEUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11701,7 +11700,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: greek_odeon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: colosseum, type: greek_odeon (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_GREEK_ODEON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11908,7 +11907,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: maya_ball_court (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: colosseum, type: maya_ball_court (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_MAYA_BALL_COURT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12121,7 +12120,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: babylon_garden (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: colosseum, type: babylon_garden (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_BABYLON_GARDEN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12319,7 +12318,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: broadcast_tower, type: broadcast_tower (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: broadcast_tower, type: broadcast_tower (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BROADCAST_TOWER</BuildingClass>
 			<Type>BUILDING_BROADCAST_TOWER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12521,7 +12520,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: market, type: market (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: market, type: market (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_MARKET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12713,7 +12712,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things anyways etc https://en.wikipedia.org/wiki/Forum_(Roman) -->
-		<BuildingInfo> <!-- custom: class: market, type: roman_forum (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: market, type: roman_forum (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_ROMAN_FORUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12905,7 +12904,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: grocer, type: grocer (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: grocer, type: grocer (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
 			<Type>BUILDING_GROCER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13069,7 +13068,7 @@
 				</BonusHealthChange>
 			</BonusHealthChanges>
 			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types anyways etc) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
-			<!-- custom: similarly, sugar is not (too) good for health (but is also not too bad either quite good even necessary if i am not mistaken (but anyways etc anyways etc anyways etc) depending on dosage if i may say and it is the accurate english word anyways etc anyways etc anyways etc...), but sure makes happy if i may say i mean anyways... so making it (i.e. sugar anyways etc) give happiness instead, buffing sugar at the same time which i think is cool/desirable if i may say at least in advciv-sas anyways etc as sugar is a bit weak otherwise anyways etc unlike its quite strong influence on population (how to live without sugar, but anyways etc.. not too much or not i am not responsible, only trying to represent the game as accurately and as i enjoy it to do hopefully enjoyable for others or and not anyways is what i want(ed) and want to do for sugar so anyways etc anyways etc anyways etc) -->
+			<!-- custom: similarly, sugar is not too good for health (but is also not too bad either quite good even necessary if i am not mistaken depending on dosage maybe), but sure makes happy i'd say so making it give happiness instead, buffing sugar at the same time which i think is fine especially as sugar is a bit weak otherwise, not matching its quite strong influence on population -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
 					<BonusType>BONUS_GRAPES</BonusType>
@@ -13107,7 +13106,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: grocer, type: persian_apothecary (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: grocer, type: persian_apothecary (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
 			<Type>BUILDING_PERSIAN_APOTHECARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13270,7 +13269,7 @@
 				</BonusHealthChange>
 			</BonusHealthChanges>
 			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types anyways etc) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
-			<!-- custom: similarly, sugar is not (too) good for health (but is also not too bad either quite good even necessary if i am not mistaken (but anyways etc anyways etc anyways etc) depending on dosage if i may say and it is the accurate english word anyways etc anyways etc anyways etc...), but sure makes happy if i may say i mean anyways... so making it (i.e. sugar anyways etc) give happiness instead, buffing sugar at the same time which i think is cool/desirable if i may say at least in advciv-sas anyways etc as sugar is a bit weak otherwise anyways etc unlike its quite strong influence on population (how to live without sugar, but anyways etc.. not too much or not i am not responsible, only trying to represent the game as accurately and as i enjoy it to do hopefully enjoyable for others or and not anyways is what i want(ed) and want to do for sugar so anyways etc anyways etc anyways etc) -->
+			<!-- custom: see code comment at as of now the generic grocer. -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
 					<BonusType>BONUS_GRAPES</BonusType>
@@ -13309,7 +13308,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bank, type: bank (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: bank, type: bank (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BANK</BuildingClass>
 			<Type>BUILDING_BANK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13473,7 +13472,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bank, type: english_stock_exchange (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: bank, type: english_stock_exchange (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BANK</BuildingClass>
 			<Type>BUILDING_ENGLISH_STOCK_EXCHANGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13637,7 +13636,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: supermarket, type: supermarket (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: supermarket, type: supermarket (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
 			<Type>BUILDING_SUPERMARKET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13834,7 +13833,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: supermarket, type: american_mall (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: supermarket, type: american_mall (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
 			<Type>BUILDING_AMERICAN_MALL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14032,7 +14031,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: courthouse, type: courthouse (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: courthouse, type: courthouse (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
 			<Type>BUILDING_COURTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14219,7 +14218,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: courthouse, type: holy_roman_rathaus (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: courthouse, type: holy_roman_rathaus (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
 			<Type>BUILDING_HOLY_ROMAN_RATHAUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14407,7 +14406,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jail, type: jail (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: jail, type: jail (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
 			<Type>BUILDING_JAIL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14607,7 +14606,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jail, type: indian_mausoleum (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: jail, type: indian_mausoleum (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
 			<Type>BUILDING_INDIAN_MAUSOLEUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14813,7 +14812,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_JAPAN_DOUJOU (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_JAPAN_DOUJOU (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
 			<Type>BUILDING_JAPAN_DOUJOU</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15025,7 +15024,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: levee, type: levee (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: levee, type: levee (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_LEVEE</BuildingClass>
 			<Type>BUILDING_LEVEE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15192,7 +15191,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: levee, type: netherlands_levee (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: levee, type: netherlands_levee (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_LEVEE</BuildingClass>
 			<Type>BUILDING_NETHERLANDS_DIKE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15361,7 +15360,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: intelligence_agency, type: intelligence_agency (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: intelligence_agency, type: intelligence_agency (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClass>
 			<Type>BUILDING_INTELLIGENCE_AGENCY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15538,7 +15537,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: security_bureau, type: security_bureau (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: security_bureau, type: security_bureau (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_SECURITY_BUREAU</BuildingClass>
 			<Type>BUILDING_SECURITY_BUREAU</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15711,7 +15710,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_temple, type: pagan_temple (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: pagan_temple, type: pagan_temple (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClass>
 			<Type>BUILDING_PAGAN_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -15897,7 +15896,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_cathedral, type: pagan_cathedral (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: pagan_cathedral, type: pagan_cathedral (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_PAGAN_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -16091,7 +16090,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_monastery, type: pagan_monastery (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: pagan_monastery, type: pagan_monastery (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
 			<Type>BUILDING_PAGAN_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -16255,7 +16254,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role, also the military effect is not too strong so maybe fine to have a reduced military flavor, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -16280,7 +16279,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_shrine, type: pagan_shrine (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: pagan_shrine, type: pagan_shrine (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_SHRINE</BuildingClass>
 			<Type>BUILDING_PAGAN_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -16304,7 +16303,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine or possibly a better fit even maybe, was NONE -->
 			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -16473,7 +16472,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_temple, type: hindu_temple (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hindu_temple, type: hindu_temple (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HINDU_TEMPLE</BuildingClass>
 			<Type>BUILDING_HINDU_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -16659,7 +16658,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_cathedral, type: hindu_cathedral (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hindu_cathedral, type: hindu_cathedral (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_HINDU_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -16853,7 +16852,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_monastery, type: hindu_monastery (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hindu_monastery, type: hindu_monastery (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 			<Type>BUILDING_HINDU_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -17017,7 +17016,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: see code comment at as of now the pagan_monastery, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -17042,7 +17041,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_shrine, type: hindu_shrine (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hindu_shrine, type: hindu_shrine (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HINDU_SHRINE</BuildingClass>
 			<Type>BUILDING_HINDU_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -17065,7 +17064,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: see code comment at the pagan_shrine, was NONE -->
 			<PrereqTech>TECH_MONARCHY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -17234,7 +17233,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_temple, type: jewish_temple (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: jewish_temple, type: jewish_temple (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClass>
 			<Type>BUILDING_JEWISH_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -17420,7 +17419,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_cathedral, type: jewish_cathedral (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: jewish_cathedral, type: jewish_cathedral (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_JEWISH_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -17614,7 +17613,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_monastery, type: jewish_monastery (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: jewish_monastery, type: jewish_monastery (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
 			<Type>BUILDING_JEWISH_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -17778,7 +17777,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: see code comment at as of now the pagan_monastery, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -17803,7 +17802,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_shrine, type: jewish_shrine (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: jewish_shrine, type: jewish_shrine (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_SHRINE</BuildingClass>
 			<Type>BUILDING_JEWISH_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -17826,7 +17825,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: see code comment at the pagan_shrine, was NONE -->
 			<PrereqTech>TECH_MONOTHEISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -17995,7 +17994,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_temple, type: daoist_temple (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: daoist_temple, type: daoist_temple (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
 			<Type>BUILDING_DAOIST_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -18182,7 +18181,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_cathedral, type: daoist_cathedral (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: daoist_cathedral, type: daoist_cathedral (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_DAOIST_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -18376,7 +18375,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_monastery, type: daoist_monastery (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: daoist_monastery, type: daoist_monastery (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
 			<Type>BUILDING_DAOIST_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -18540,7 +18539,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: see code comment at as of now the pagan_monastery, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -18565,7 +18564,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_shrine, type: daoist_shrine (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: daoist_shrine, type: daoist_shrine (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_SHRINE</BuildingClass>
 			<Type>BUILDING_DAOIST_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -18588,7 +18587,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: see code comment at the pagan_shrine, was NONE -->
 			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -18757,7 +18756,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_temple, type: buddhist_temple (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: buddhist_temple, type: buddhist_temple (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_TEMPLE</BuildingClass>
 			<Type>BUILDING_BUDDHIST_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -18943,7 +18942,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_cathedral, type: buddhist_cathedral (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: buddhist_cathedral, type: buddhist_cathedral (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_BUDDHIST_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -19137,7 +19136,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_monastery, type: buddhist_monastery (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: buddhist_monastery, type: buddhist_monastery (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClass>
 			<Type>BUILDING_BUDDHIST_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -19301,7 +19300,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: see code comment at as of now the pagan_monastery, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -19326,7 +19325,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_shrine, type: buddhist_shrine (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: buddhist_shrine, type: buddhist_shrine (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_SHRINE</BuildingClass>
 			<Type>BUILDING_BUDDHIST_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -19349,7 +19348,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: see code comment at the pagan_shrine, was NONE -->
 			<PrereqTech>TECH_MEDITATION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -19518,7 +19517,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_temple, type: christian_temple (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: christian_temple, type: christian_temple (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -19704,7 +19703,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_cathedral, type: christian_cathedral (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: christian_cathedral, type: christian_cathedral (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -19898,7 +19897,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_monastery, type: christian_monastery (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: christian_monastery, type: christian_monastery (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -20062,7 +20061,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: see code comment at as of now the pagan_monastery, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -20087,7 +20086,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_shrine, type: christian_shrine (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: christian_shrine, type: christian_shrine (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_SHRINE</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -20110,7 +20109,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: see code comment at the pagan_shrine, was NONE -->
 			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -20279,7 +20278,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_temple, type: islamic_temple (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: islamic_temple, type: islamic_temple (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClass>
 			<Type>BUILDING_ISLAMIC_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -20465,7 +20464,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_cathedral, type: islamic_cathedral (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: islamic_cathedral, type: islamic_cathedral (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_ISLAMIC_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -20659,7 +20658,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_monastery, type: islamic_monastery (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: islamic_monastery, type: islamic_monastery (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 			<Type>BUILDING_ISLAMIC_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -20823,7 +20822,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
+			<!-- custom: see code comment at as of now the pagan_monastery, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -20848,7 +20847,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_shrine, type: islamic_shrine (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: islamic_shrine, type: islamic_shrine (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_SHRINE</BuildingClass>
 			<Type>BUILDING_ISLAMIC_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -20871,7 +20870,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+			<!-- custom: see code comment at the pagan_shrine, was NONE -->
 			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -21040,7 +21039,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: heroic_epic, type: heroic_epic (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: heroic_epic, type: heroic_epic (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HEROIC_EPIC</BuildingClass>
 			<Type>BUILDING_HEROIC_EPIC</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21223,7 +21222,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: national_epic, type: national_epic (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: national_epic, type: national_epic (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_NATIONAL_EPIC</BuildingClass>
 			<Type>BUILDING_NATIONAL_EPIC</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21409,7 +21408,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: globe_theatre, type: globe_theatre (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: globe_theatre, type: globe_theatre (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GLOBE_THEATRE</BuildingClass>
 			<Type>BUILDING_GLOBE_THEATRE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21582,7 +21581,7 @@
 			</BuildingClassNeededs>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
-			<!-- custom: effect imported from kujira website (translate to english with web browser or and such anyways etc): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist thanks to my idea of searching it too but anyways etc anyways etc anyways etc ; seems to fit quite well the theme of the building's history i mean of burning down and such from little of it i googled online and some drawings of it showing quite a lot of forest around it from very quick glances anyways etc, hopefully both balanced, varied, and gradual not op effect but strong enough anyways etc, was empty -->
+			<!-- custom: effect imported from kujira website (translate to english with web browser or and such): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist; seems to fit quite well the theme of the building's history i mean of burning down and such from a quick web lookup, maybe now both balanced, varied, and gradual not op effect but strong enough, was empty -->
 			<ImprovementFreeSpecialists>
 				<ImprovementFreeSpecialist>
 					<ImprovementType>IMPROVEMENT_FOREST_PRESERVE</ImprovementType>
@@ -21612,7 +21611,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: national_park, type: national_park (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: national_park, type: national_park (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_NATIONAL_PARK</BuildingClass>
 			<Type>BUILDING_NATIONAL_PARK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21781,7 +21780,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hermitage, type: hermitage (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hermitage, type: hermitage (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HERMITAGE</BuildingClass>
 			<Type>BUILDING_HERMITAGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21962,7 +21961,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: wall_street, type: wall_street (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: wall_street, type: wall_street (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_WALL_STREET</BuildingClass>
 			<Type>BUILDING_WALL_STREET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22143,7 +22142,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: iron_works, type: iron_works (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: iron_works, type: iron_works (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_IRON_WORKS</BuildingClass>
 			<Type>BUILDING_IRON_WORKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22344,7 +22343,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: mt_rushmore, type: mt_rushmore (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: mt_rushmore, type: mt_rushmore (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MT_RUSHMORE</BuildingClass>
 			<Type>BUILDING_MT_RUSHMORE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22534,7 +22533,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: red_cross, type: red_cross (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: red_cross, type: red_cross (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_RED_CROSS</BuildingClass>
 			<Type>BUILDING_RED_CROSS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22726,7 +22725,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: scotland_yard, type: scotland_yard (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: scotland_yard, type: scotland_yard (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_SCOTLAND_YARD</BuildingClass>
 			<Type>BUILDING_SCOTLAND_YARD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22896,7 +22895,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pyramid, type: pyramid (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: pyramid, type: pyramid (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PYRAMID</BuildingClass>
 			<Type>BUILDING_PYRAMID</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23095,7 +23094,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stonehendge, type: stonehenge (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: stonehendge, type: stonehenge (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_STONEHENGE</BuildingClass>
 			<Type>BUILDING_STONEHENGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23279,7 +23278,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_library, type: great_library (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: great_library, type: great_library (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GREAT_LIBRARY</BuildingClass>
 			<Type>BUILDING_GREAT_LIBRARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23473,7 +23472,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_lighthouse, type: great_lighthouse (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: great_lighthouse, type: great_lighthouse (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_GREAT_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23676,7 +23675,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hanging_garden, type: hanging_garden (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hanging_garden, type: hanging_garden (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HANGING_GARDEN</BuildingClass>
 			<Type>BUILDING_HANGING_GARDEN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23868,7 +23867,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colossus, type: colossus (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: colossus, type: colossus (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_COLOSSUS</BuildingClass>
 			<Type>BUILDING_COLOSSUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24086,7 +24085,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: oracle, type: oracle (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: oracle, type: oracle (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ORACLE</BuildingClass>
 			<Type>BUILDING_ORACLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24269,7 +24268,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: parthenon, type: parthenon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: parthenon, type: parthenon (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PARTHENON</BuildingClass>
 			<Type>BUILDING_PARTHENON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24464,7 +24463,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: angkor_wat, type: angkor_wat (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: angkor_wat, type: angkor_wat (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ANGKOR_WAT</BuildingClass>
 			<Type>BUILDING_ANGKOR_WAT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24672,7 +24671,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked hagia_sophia, now a growth / religious building that never obsoletes at least as of now anyways etc -->
-		<BuildingInfo> <!-- custom: class: hagia_sophia, type: hagia_sophia (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hagia_sophia, type: hagia_sophia (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HAGIA_SOPHIA</BuildingClass>
 			<Type>BUILDING_HAGIA_SOPHIA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24867,7 +24866,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: TEMPLE_OF_KUKULCAN, type: TEMPLE_OF_KUKULCAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: TEMPLE_OF_KUKULCAN, type: TEMPLE_OF_KUKULCAN (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_TEMPLE_OF_KUKULCAN</BuildingClass>
 			<Type>BUILDING_TEMPLE_OF_KUKULCAN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25072,7 +25071,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATYA_SHASTRA, type: BUILDING_NATYA_SHASTRA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATYA_SHASTRA, type: BUILDING_NATYA_SHASTRA (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_NATYA_SHASTRA</BuildingClass>
 			<Type>BUILDING_NATYA_SHASTRA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25276,7 +25275,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: spiral_minaret, type: spiral_minaret (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: spiral_minaret, type: spiral_minaret (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_SPIRAL_MINARET</BuildingClass>
 			<Type>BUILDING_SPIRAL_MINARET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25461,7 +25460,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: oxford_university, type: oxford_university (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: oxford_university, type: oxford_university (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_OXFORD_UNIVERSITY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25664,7 +25663,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: notre_dame, type: notre_dame (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: notre_dame, type: notre_dame (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_NOTRE_DAME</BuildingClass>
 			<Type>BUILDING_NOTRE_DAME</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25871,7 +25870,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: taj_mahal, type: taj_mahal (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: taj_mahal, type: taj_mahal (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_TAJ_MAHAL</BuildingClass>
 			<Type>BUILDING_TAJ_MAHAL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26068,7 +26067,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: kremlin, type: kremlin (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: kremlin, type: kremlin (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_KREMLIN</BuildingClass>
 			<Type>BUILDING_KREMLIN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26255,7 +26254,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: eiffel_tower, type: eiffel_tower (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: eiffel_tower, type: eiffel_tower (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_EIFFEL_TOWER</BuildingClass>
 			<Type>BUILDING_EIFFEL_TOWER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26454,7 +26453,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: statue_of_liberty, type: statue_of_liberty (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: statue_of_liberty, type: statue_of_liberty (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_STATUE_OF_LIBERTY</BuildingClass>
 			<Type>BUILDING_STATUE_OF_LIBERTY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26653,7 +26652,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: broadway, type: broadway (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: broadway, type: broadway (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_BROADWAY</BuildingClass>
 			<Type>BUILDING_BROADWAY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26809,7 +26808,7 @@
 			<UnitCombatFreeExperiences/>
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
-			<!-- custom: effect imported from kujira website (translate to english using web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildinghappinesschanges and thanks to my idea of searching it too i mean but anyways etc, and also i mean adjusted or not for advciv-sas but anyways etc, was empty -->
+			<!-- custom: effect based on kujira website (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildinghappinesschanges, was empty -->
 			<BuildingHappinessChanges>
 				<BuildingHappinessChange>
 					<BuildingType>BUILDINGCLASS_THEATRE</BuildingType>
@@ -26854,7 +26853,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: rocknroll, type: rocknroll (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: rocknroll, type: rocknroll (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ROCKNROLL</BuildingClass>
 			<Type>BUILDING_ROCKNROLL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27038,7 +27037,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hollywood, type: hollywood (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: hollywood, type: hollywood (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_HOLLYWOOD</BuildingClass>
 			<Type>BUILDING_HOLLYWOOD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27214,7 +27213,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: three_gorges_dam, type: three_gorges_dam (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: three_gorges_dam, type: three_gorges_dam (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_THREE_GORGES_DAM</BuildingClass>
 			<Type>BUILDING_THREE_GORGES_DAM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27396,7 +27395,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pentagon, type: pentagon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: pentagon, type: pentagon (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PENTAGON</BuildingClass>
 			<Type>BUILDING_PENTAGON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27568,7 +27567,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: united_nations, type: united_nations (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: united_nations, type: united_nations (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_UNITED_NATIONS</BuildingClass>
 			<Type>BUILDING_UNITED_NATIONS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27735,7 +27734,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: military_academy, type: military_academy (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: military_academy, type: military_academy (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClass>
 			<Type>BUILDING_MILITARY_ACADEMY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27908,7 +27907,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: artemis, type: artemis (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: artemis, type: artemis (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_ARTEMIS</BuildingClass>
 			<Type>BUILDING_ARTEMIS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28117,7 +28116,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: sankore, type: sankore (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: sankore, type: sankore (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_SANKORE</BuildingClass>
 			<Type>BUILDING_SANKORE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28321,7 +28320,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_wall, type: great_wall (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: great_wall, type: great_wall (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_GREAT_WALL</BuildingClass>
 			<Type>BUILDING_GREAT_WALL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28535,7 +28534,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: statue_of_zeus, type: statue_of_zeus (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: statue_of_zeus, type: statue_of_zeus (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClass>
 			<Type>BUILDING_STATUE_OF_ZEUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28727,7 +28726,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: mausolleum_of_mausollos, type: mausolleum_of_mausollos (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: mausolleum_of_mausollos, type: mausolleum_of_mausollos (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MAUSOLEUM_OF_MAUSSOLLOS</BuildingClass>
 			<Type>BUILDING_MAUSOLEUM_OF_MAUSSOLLOS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28917,7 +28916,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: cristo_redentor, type: cristo_redentor (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: cristo_redentor, type: cristo_redentor (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CRISTO_REDENTOR</BuildingClass>
 			<Type>BUILDING_CRISTO_REDENTOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28940,7 +28939,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: move it sooner so it can be built sooner, seems to fit the theme well and tech_liberalism doesn't have a wonder as well anyways etc so we can maybe use it i mean in this case anyways etc anyways etc anyways etc, was TECH_RADIO -->
+			<!-- custom: move it sooner so it can be built sooner, seems to fit the theme well and tech_liberalism doesn't have a wonder as well so we can maybe use it, was TECH_RADIO -->
 			<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -29132,7 +29131,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: shwedagon_paya, type: shwedagon_paya (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: shwedagon_paya, type: shwedagon_paya (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClass>
 			<Type>BUILDING_SHWEDAGON_PAYA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29335,7 +29334,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities anyways etc, hopefully historically accurate as they were built much later if i am not mistaken too anyways and after checking more seems really an accurate time around pre-(age of (anyways etc))exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History anyways etc -->
-		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MOAI_STATUES</BuildingClass>
 			<Type>BUILDING_MOAI_STATUES</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29527,7 +29526,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: versailles, type: versailles (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: versailles, type: versailles (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_VERSAILLES</BuildingClass>
 			<Type>BUILDING_VERSAILLES</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29736,7 +29735,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_1, type: corporation_1 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: corporation_1, type: corporation_1 (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_1</BuildingClass>
 			<Type>BUILDING_CORPORATION_1</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29914,7 +29913,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_2, type: corporation_2 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: corporation_2, type: corporation_2 (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_2</BuildingClass>
 			<Type>BUILDING_CORPORATION_2</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30093,7 +30092,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_3, type: corporation_3 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: corporation_3, type: corporation_3 (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_3</BuildingClass>
 			<Type>BUILDING_CORPORATION_3</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30271,7 +30270,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_4, type: corporation_4 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: corporation_4, type: corporation_4 (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_4</BuildingClass>
 			<Type>BUILDING_CORPORATION_4</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30451,7 +30450,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_5, type: corporation_5 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: corporation_5, type: corporation_5 (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_5</BuildingClass>
 			<Type>BUILDING_CORPORATION_5</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30629,7 +30628,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_6, type: corporation_6 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: corporation_6, type: corporation_6 (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_6</BuildingClass>
 			<Type>BUILDING_CORPORATION_6</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30808,7 +30807,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_7, type: corporation_7 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: corporation_7, type: corporation_7 (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_7</BuildingClass>
 			<Type>BUILDING_CORPORATION_7</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30983,7 +30982,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_APOSTOLIC_PALACE, type: BUILDING_APOSTOLIC_PALACE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_APOSTOLIC_PALACE, type: BUILDING_APOSTOLIC_PALACE (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClass>
 			<Type>BUILDING_APOSTOLIC_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>

@@ -40,7 +40,7 @@ def restartPopup(bForceShowing = False):
 		popup.launch()
 
 def isNumber(s):
-	# <!-- custom: fix ruff warning E741, "l" is an ambiguous warning, doesn't seem to be used anywhere else if i am not mistaken from quite quick glance of ctrl+f in this file anyways etc, after asking chatgpt also going for "char" instead of this ambiguous "l" as it advised among other suggestions of new clearer variable names as it said anyways etc anyways etc anyways etc; check if accurate and to be sure; anyways etc. -->
+	# <!-- custom: fix ruff warning E741, "l" is an ambiguous warning, doesn't seem to be used anywhere else if i am not mistaken from a quick ctrl+f in this file, after asking chatgpt also going for "char" instead of this ambiguous "l" as it advised among other suggestions of new clearer variable names as it said; check if accurate and to be sure. -->
 	for char in s:
 		# <!-- custom: use native code instead of string.digits, remove string module entirely too similarly as in other parts of the code when relevant and if i am not mistaken and as per chatgpt's explanation first too i mean and my understanding of it too i mean anyways etc; check if accurate and to be sure; anyways etc. -->
 		if char not in "0123456789":

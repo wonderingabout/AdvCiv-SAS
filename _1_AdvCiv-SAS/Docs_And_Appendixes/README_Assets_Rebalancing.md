@@ -12,7 +12,7 @@ Some of the asset rebalancing is shown here (not exhaustive)
 
 ## How to
 
-A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod-anyways-etc) anyways etc.) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table. There may be easier ways to do it, but this one is quite effective and worked for me, hopefully helpful but anyways etc.
+A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod-anyways-etc) anyways etc.) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table. There may be easier ways to do it, but this one is quite effective and worked for me.
 
 ## Starting techs rework
 
@@ -118,15 +118,15 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 
 ## Leaders' traits rework
 
-While doing/considering in this case i mean but anyways etc the holy roman empire civ-specific unit's rework or replacement, i have noticed charlemagne's traits were not in accord with his historical profile (i asked chatgpt 5 thanks since i don't know too much if at all about his history and leader profile or/and such and to be sure and have its advice as well thanks but anyways etc).
+While doing/considering the holy roman empire civ-specific unit's rework or replacement, i have noticed charlemagne's traits were not in accord with his historical profile (i asked chatgpt 5 thanks since i don't know too much if at all about his history and leader profile or/and such and to be sure and have its advice as well thanks but anyways etc).
 
 It is also limiting when we want as now to assign a new unit e.g. to the holy roman empire or possibly building, so i thought this was a good time to rework leader traits for balance, accuracy, and overall synergy with the civ's profile, as well as its civ-specific units and buildings, and also to match ingame behaviour +/- more(/most? But anyways etc) importantly xml or and such if / as much as possible or relevant i mean if i may say but anyways etc.
 
-Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too and/or adjustments and/or thoughts in this case i mean but anyways etc and/or formatting and/or such but anyways etc, check if accurate in this case i mean but anyways etc.
+Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too and/or adjustments and/or thoughts or formatting or such, check if accurate.
 
 ### previous state
 
-This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather but anyways etc, as we had issues importing it from our custom leaders_data_to_csv or/and it took too much time, due to data being too big or/and such i guess maybe if i'm not mistaken i mean in this case but anyways etc.
+This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather, as we had issues importing it from our custom leaders_data_to_csv or/and it took too much time, due to data being too big or i guess maybe if i'm not mistaken.
 
 #### main table before changes to traits anyways etc
 
@@ -240,7 +240,7 @@ See below in the main table after changes as it includes the before values as we
 | Lincoln | Philosophical, Charismatic | **Keep** | Moral/philosophical leadership + national unity. |
 | Louis XIV | Industrious, Creative | **Keep** | Palace/works + arts and culture. |
 | Mansa Musa | Spiritual, Financial | **Keep** | Pilgrimage/religion + trans-Saharan wealth. He was devout (Hajj, mosques), *and* a patron of learning (Timbuktu/Sankore). |
-| Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more “Aggressive” than “cheap administration.” Protective still captures internal security/defense posture. `<!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him i mean in this case i mean if i may say but anyways etc -->` |
+| Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more “Aggressive” than “cheap administration.” Protective still captures internal security/defense posture. `<!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him -->` |
 | Mehmed | Expansive, Organized | **Imperialist, Aggressive** | Siege monster and serial conqueror (Constantinople, Balkans, Anatolia); “The Conqueror” leans warlike more than “efficient administration.” |
 | Moctezuma | Aggressive, Spiritual | **Keep** | Militarism + ritual/faith. |
 | Napoleon | Organized, Charismatic | **Imperialist, Charismatic** | Signature is conquest + continental empire (client states, annexations). He *did* codify/administer, but his core identity isn’t “low-upkeep governance”—it’s expansion + leadership aura. |

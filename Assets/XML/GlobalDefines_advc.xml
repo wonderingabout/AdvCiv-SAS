@@ -1205,7 +1205,7 @@
 		 tech costs are taken times 100% - 23% = 77%. This multiplier gets
 		 further adjusted to the tech era and map size. Use 0 for BtS
 		 behavior (tech costs unaffected by the "No Tech Trading" option). -->
-	<!-- custom: try a slightly slower game pace at no tech trading, may make sense / fit well or not too bad hopefully or not or yes or etc anyways etc with the other tech changes in tech tree, tech costs, research percents in handicap etc, or is as i want it too or and or and etc, but anyways etc anyways etc anyways etc..., was -23 -->
+	<!-- custom: try a slightly slower game pace at no tech trading, may make sense / fit well or not too bad with the other tech changes in tech tree, tech costs, research percents in handicap etc, was -23 -->
 	<Define>
 		<DefineName>TECH_COST_NOTRADE_MODIFIER</DefineName>
 		<iDefineIntVal>-20</iDefineIntVal>
@@ -1470,7 +1470,7 @@
 	<!-- Same as above, but applies to scenarios instead of map scripts.
 		 Note that the True Starts option doesn't apply at all to
 		 scenarios with pre-placed cities. -->
-	<!-- custom: same too anyways etc hehe but or not but or yes but but anyways etc anyways etc anyways etc, was 1 -->
+	<!-- custom: same, was 1 -->
 	<Define>
 		<DefineName>TRUE_STARTS_SANITIZE_SCENARIOS</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1527,7 +1527,7 @@
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
-	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say and/or if accurate but anyways etc, see also (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4GameSpeedInfo.xml for details, anyways etc -->
+	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say and/or if accurate but anyways etc, see also (adjust to your mod path anyways etc) CIV4GameSpeedInfo.xml for details, anyways etc -->
 	<Define>
 		<DefineName>START_YEAR</DefineName>
 		<iDefineIntVal>-50000</iDefineIntVal>

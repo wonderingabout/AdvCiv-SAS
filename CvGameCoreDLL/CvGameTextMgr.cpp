@@ -711,7 +711,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 			}
 		}
 
-		// <!-- custom: add impassable info ingame in unit effects bullet points in map view if i am not mistaken anyways etc, with 2 separate bullet points for terrain(s) and feature(s) impassables anyways etc, code provided by chatgpt with my prompts and inputs and code sample i sent or and other or and not or yes or etc anyways etc -->
+		// <!-- custom: add impassable info ingame in unit effects bullet points in map view if i am not mistaken, with 2 separate bullet points for terrain and feature impassables, with the help of chatgpt thanks. -->
 		if (pUnit->isAnyTerrainImpassable())
 		{
 			szString.append(NEWLINE);
@@ -985,7 +985,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 	}
 
 	// <!-- custom: also show collateral damage info (with defenders too but anyways etc) if collateral damage limit > 0 as well, may be useful to know, anyways etc -->
-	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit if i am not mistaken so it (also) appears in sevopedia unit, not in this seemingly ingame panel, but anyways etc), still, is maybe cleaner (but i don't know again as i don't know a lot about these but anyways etc) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine at least to me but again check to be sure, hopefully helpful or not or yes or etc, anyways etc -->
+	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit if i am not mistaken so it (also) appears in sevopedia unit, not in this seemingly ingame panel), still, is maybe cleaner (but i don't know again as i don't know a lot about these) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine. -->
 	if (pUnit->collateralDamage() > 0 || pUnit->collateralDamageLimit() > 0)
 	{
 		szString.append(NEWLINE);
@@ -9347,7 +9347,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				(100 * u.getCombatLimit()) / GC.getMAX_HIT_POINTS()));
 	}
 
-	// <!-- custom: also display the collateral limit info even for units that have a base collateral damage of 0, but now applying this to sevopedia unit placeSpecial panel here in this code block if i am not mistaken anyways etc, with chatgpt's help too, hopefully helpful or not or yes or etc anyways etc -->
+	// <!-- custom: also display the collateral limit info even for units that have a base collateral damage of 0, but now applying this to sevopedia unit placeSpecial panel here in this code block if i am not mistaken, with chatgpt's help too thanks. -->
 	int const iCollateralDamageLimit = 100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS();
 	if (u.getCollateralDamage() > 0 || u.getCollateralDamageLimit() > 0)
 	{
@@ -9681,7 +9681,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			szBuffer.append(szTempBuffer);
 		}
 	} // </advc.905b>
-	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar i mean anyways etc), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken, anyways etc anyways etc anyways etc... -->
+	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar i mean anyways etc), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken. -->
 	if (!bCivilopediaText)
 	{
 		bool bFirst = true;
@@ -10765,16 +10765,16 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 	{
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
-		// <!-- custom: also add the K-Mod code block nice info if i may say but anyways etc anyways etc anyways etc for area clean power to not misleadingly assume but anyways etc anyways etc anyways etc that (areacleanpower) power has no unhealthy effect or be ignorant or confused about it anyways etc
-		// But since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one anyways etc) and part of this K-Mod code if i may say anyways etc anyways etc anyways etc...
-		// But since i am not sure that dirty power is cancelled in this city if both areacleanpower and dirtypower are specified, added a "(?)" as well anyways etc -->
-		// <!-- custom: split the message info between/to cover anyways etc clean and dirty cases anyways etc -->
+		// <!-- custom: also add the K-Mod code block nice info for area clean power to not misleadingly assume that areacleanpower power has no unhealthy effect.
+		// But since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one anyways etc) and part of this K-Mod code.
+		// But since i am not sure that dirty power is cancelled in this city if both areacleanpower and dirtypower are specified, added a "(?)" as well. -->
+		// <!-- custom: split the message info between/to cover clean and dirty cases. -->
 		// K-Mod. Also include base health change from power.
-		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case anyways etc -->
+		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case. -->
 
 		// K-Mod end
-		// <!-- custom: then add info about the effect and its value (number anyways etc anyways etc anyways etc...) in all cities as well, since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one anyways etc) anyways etc -->
-		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case anyways etc -->
+		// <!-- custom: then add info about the effect and its value in all cities as well, since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) -->
+		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case -->
 		szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES"));
 		int iPowerHealthChangeAll = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
 		if (iPowerHealthChangeAll)
@@ -11605,9 +11605,9 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 	}
 	if (kBuilding.getPowerBonus() != NO_BONUS)
 	{
-		// <!-- custom: add info about whether power is clean or dirty for bonus as well, and add the power icon, similarly to how was done in the other TXT_KEY_BUILDING_PROVIDES_POWER similar/apparented reworks of the placeSpecial messages anyways etc, see this DLL code or/and XML txt key changes or/and sevopediabuilding if any change is there too about this or not in all cases anyways etc anyways etc anyways etc... -->
+		// <!-- custom: add info about whether power is clean or dirty for bonus as well, and add the power icon, similarly to how was done in the other TXT_KEY_BUILDING_PROVIDES_POWER similar/apparented reworks of the placeSpecial messages anyways etc, see this DLL code or/and XML txt key changes or/and sevopediabuilding. -->
 		szBuffer.append(NEWLINE);
-		// <!-- custom: common message at the start anyways etc anyways etc anyways etc -->
+		// <!-- custom: common message at the start -->
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_WITH",
 				GC.getInfo((BonusTypes)kBuilding.getPowerBonus()).getTextKeyWide()));
 

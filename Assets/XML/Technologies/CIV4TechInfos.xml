@@ -8,7 +8,7 @@
 <!-- Tech Infos -->
 <Civ4TechInfos xmlns="x-schema:CIV4TechnologiesSchema.xml">
 	<TechInfos>
-		<TechInfo> <!-- custom: type: TECH_MYSTICISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MYSTICISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MYSTICISM</Type>
 			<Description>TXT_KEY_TECH_MYSTICISM</Description>
 			<Civilopedia>TXT_KEY_TECH_MYSTICISM_PEDIA</Civilopedia>
@@ -79,7 +79,7 @@
 			<SoundMP>AS2D_TECH_MP_MYSTICISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Mysticism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,11</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MEDITATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MEDITATION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MEDITATION</Type>
 			<Description>TXT_KEY_TECH_MEDITATION</Description>
 			<Civilopedia>TXT_KEY_TECH_MEDITATION_PEDIA</Civilopedia>
@@ -151,7 +151,7 @@
 			<SoundMP>AS2D_TECH_MP_MEDITATION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Meditation.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_POLYTHEISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_POLYTHEISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_POLYTHEISM</Type>
 			<Description>TXT_KEY_TECH_POLYTHEISM</Description>
 			<Civilopedia>TXT_KEY_TECH_POLYTHEISM_PEDIA</Civilopedia>
@@ -218,7 +218,7 @@
 			<SoundMP>AS2D_TECH_MP_POLYTHEISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Polytheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,6</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_BIOENGINEERING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_BIOENGINEERING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_BIOENGINEERING</Type>
 			<Description>TXT_KEY_TECH_BIOENGINEERING</Description>
 			<Civilopedia>TXT_KEY_TECH_BIOENGINEERING_PEDIA</Civilopedia>
@@ -290,7 +290,7 @@
 			<!-- custom: button import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MONOTHEISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MONOTHEISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MONOTHEISM</Type>
 			<Description>TXT_KEY_TECH_MONOTHEISM</Description>
 			<Civilopedia>TXT_KEY_TECH_MONOTHEISM_PEDIA</Civilopedia>
@@ -362,7 +362,7 @@
 			<SoundMP>AS2D_TECH_MP_MONOTHEISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Monotheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,11</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MONARCHY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MONARCHY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MONARCHY</Type>
 			<Description>TXT_KEY_TECH_MONARCHY</Description>
 			<Civilopedia>TXT_KEY_TECH_MONARCHY_PEDIA</Civilopedia>
@@ -457,7 +457,7 @@
 			<SoundMP>AS2D_TECH_MP_MONARCHY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Monarchy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,11</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_LITERATURE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_LITERATURE (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_LITERATURE</Type>
 			<Description>TXT_KEY_TECH_LITERATURE</Description>
 			<Civilopedia>TXT_KEY_TECH_LITERATURE_PEDIA</Civilopedia>
@@ -539,7 +539,7 @@
 			<SoundMP>AS2D_TECH_MP_LITERATURE</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Literature.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CODE_OF_LAWS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CODE_OF_LAWS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CODE_OF_LAWS</Type>
 			<Description>TXT_KEY_TECH_CODE_OF_LAWS</Description>
 			<Civilopedia>TXT_KEY_TECH_CODE_OF_LAWS_PEDIA</Civilopedia>
@@ -616,7 +616,7 @@
 			<SoundMP>AS2D_TECH_MP_CODE_OF_LAWS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Code of Laws.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,2</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_DRAMA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_DRAMA (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_DRAMA</Type>
 			<Description>TXT_KEY_TECH_DRAMA</Description>
 			<Civilopedia>TXT_KEY_TECH_DRAMA_PEDIA</Civilopedia>
@@ -687,7 +687,7 @@
 			<SoundMP>AS2D_TECH_MP_DRAMA</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Drama.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,3</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_FEUDALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_FEUDALISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_FEUDALISM</Type>
 			<Description>TXT_KEY_TECH_FEUDALISM</Description>
 			<Civilopedia>TXT_KEY_TECH_FEUDALISM_PEDIA</Civilopedia>
@@ -764,7 +764,7 @@
 			<SoundMP>AS2D_TECH_MP_FEUDALISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Feudalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_POSTAXIAL_RELIGION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_POSTAXIAL_RELIGION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_POSTAXIAL_RELIGION</Type>
 			<Description>TXT_KEY_TECH_POSTAXIAL_RELIGION</Description>
 			<Civilopedia>TXT_KEY_TECH_POSTAXIAL_RELIGION_PEDIA</Civilopedia>
@@ -837,7 +837,7 @@
 			<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thanks a lot chatgpt if i may say but anyways etc. -->
 			<Button>Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ROMANTICISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ROMANTICISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ROMANTICISM</Type>
 			<Description>TXT_KEY_TECH_ROMANTICISM</Description>
 			<Civilopedia>TXT_KEY_TECH_ROMANTICISM_PEDIA</Civilopedia>
@@ -907,7 +907,7 @@
 			<!-- custom: button import from m-e mod's TECH_POETRY anyways etc. -->
 			<Button>Art/AdvCiv_SAS/Techs/Romanticism/Poetry.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CIVIL_SERVICE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CIVIL_SERVICE (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CIVIL_SERVICE</Type>
 			<Description>TXT_KEY_TECH_CIVIL_SERVICE</Description>
 			<Civilopedia>TXT_KEY_TECH_CIVIL_SERVICE_PEDIA</Civilopedia>
@@ -999,7 +999,7 @@
 			<SoundMP>AS2D_TECH_MP_CIVIL_SERVICE</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Civil Service.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,2</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CHIVALRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CHIVALRY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CHIVALRY</Type>
 			<Description>TXT_KEY_TECH_CHIVALRY</Description>
 			<Civilopedia>TXT_KEY_TECH_CHIVALRY_PEDIA</Civilopedia>
@@ -1068,7 +1068,7 @@
 			<!-- custom: button import from m-e mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_LATER_ABRAHAMISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_LATER_ABRAHAMISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_LATER_ABRAHAMISM</Type>
 			<Description>TXT_KEY_TECH_LATER_ABRAHAMISM</Description>
 			<Civilopedia>TXT_KEY_TECH_LATER_ABRAHAMISM_PEDIA</Civilopedia>
@@ -1146,7 +1146,7 @@
 			<!-- custom: art button import anyways etc from ffh2 mod's tech_fanaticism anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_NATIONALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_NATIONALISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_NATIONALISM</Type>
 			<Description>TXT_KEY_TECH_NATIONALISM</Description>
 			<Civilopedia>TXT_KEY_TECH_NATIONALISM_PEDIA</Civilopedia>
@@ -1233,7 +1233,7 @@
 			<SoundMP>AS2D_TECH_MP_NATIONALISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Nationalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,6</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MILITARY_TRADITION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MILITARY_TRADITION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MILITARY_TRADITION</Type>
 			<Description>TXT_KEY_TECH_MILITARY_TRADITION</Description>
 			<Civilopedia>TXT_KEY_TECH_MILITARY_TRADITION_PEDIA</Civilopedia>
@@ -1308,7 +1308,7 @@
 			<SoundMP>AS2D_TECH_MP_MILITARY_TRADITION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,16</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CONSTITUTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CONSTITUTION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CONSTITUTION</Type>
 			<Description>TXT_KEY_TECH_CONSTITUTION</Description>
 			<Civilopedia>TXT_KEY_TECH_CONSTITUTION_PEDIA</Civilopedia>
@@ -1385,7 +1385,7 @@
 			<SoundMP>AS2D_TECH_MP_CONSTITUTION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Constitution.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,2</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_LIBERALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_LIBERALISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_LIBERALISM</Type>
 			<Description>TXT_KEY_TECH_LIBERALISM</Description>
 			<Civilopedia>TXT_KEY_TECH_LIBERALISM_PEDIA</Civilopedia>
@@ -1460,7 +1460,7 @@
 			<SoundMP>AS2D_TECH_MP_LIBERALISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Liberalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_DEMOCRACY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_DEMOCRACY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_DEMOCRACY</Type>
 			<Description>TXT_KEY_TECH_DEMOCRACY</Description>
 			<Civilopedia>TXT_KEY_TECH_DEMOCRACY_PEDIA</Civilopedia>
@@ -1526,7 +1526,7 @@
 			<SoundMP>AS2D_TECH_MP_DEMOCRACY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Democracy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CORPORATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CORPORATION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CORPORATION</Type>
 			<Description>TXT_KEY_TECH_CORPORATION</Description>
 			<Civilopedia>TXT_KEY_TECH_CORPORATION_PEDIA</Civilopedia>
@@ -1597,7 +1597,7 @@
 			<SoundMP>AS2D_TECH_MP_CORPORATION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_FASCISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_FASCISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_FASCISM</Type>
 			<Description>TXT_KEY_TECH_FASCISM</Description>
 			<Civilopedia>TXT_KEY_TECH_FASCISM_PEDIA</Civilopedia>
@@ -1683,7 +1683,7 @@
 			<Button>,Art/Interface/Buttons/TechTree/Fascism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,3</Button>
 		</TechInfo>
 		<!-- custom: rename _UTOPIA to _COMMUNISM -->
-		<TechInfo> <!-- custom: type: TECH_COMMUNISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_COMMUNISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_COMMUNISM</Type>
 			<Description>TXT_KEY_TECH_COMMUNISM</Description>
 			<Civilopedia>TXT_KEY_TECH_COMMUNISM_PEDIA</Civilopedia>
@@ -1760,7 +1760,7 @@
 			<SoundMP>AS2D_TECH_MPTECH_COMMUNISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Communism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,2</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MASS_MEDIA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MASS_MEDIA (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MASS_MEDIA</Type>
 			<Description>TXT_KEY_TECH_MASS_MEDIA</Description>
 			<Civilopedia>TXT_KEY_TECH_MASS_MEDIA_PEDIA</Civilopedia>
@@ -1836,7 +1836,7 @@
 			<SoundMP>AS2D_TECH_MP_MASS_MEDIA</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/MassMedia.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ECOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ECOLOGY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ECOLOGY</Type>
 			<Description>TXT_KEY_TECH_ECOLOGY</Description>
 			<Civilopedia>TXT_KEY_TECH_ECOLOGY_PEDIA</Civilopedia>
@@ -1909,7 +1909,7 @@
 			<SoundMP>AS2D_TECH_MP_ECOLOGY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Ecology.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,3</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_FISHING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_FISHING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_FISHING</Type>
 			<Description>TXT_KEY_TECH_FISHING</Description>
 			<Civilopedia>TXT_KEY_TECH_FISHING_PEDIA</Civilopedia>
@@ -1980,7 +1980,7 @@
 			<SoundMP>AS2D_TECH_MP_FISHING</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Fishing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_THE_WHEEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_THE_WHEEL (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_THE_WHEEL</Type>
 			<Description>TXT_KEY_TECH_THE_WHEEL</Description>
 			<Civilopedia>TXT_KEY_TECH_THE_WHEEL_PEDIA</Civilopedia>
@@ -2061,7 +2061,7 @@
 			<SoundMP>AS2D_TECH_MP_THE_WHEEL</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/The Wheel.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,12</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_AGRICULTURE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_AGRICULTURE (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_AGRICULTURE</Type>
 			<Description>TXT_KEY_TECH_AGRICULTURE</Description>
 			<Civilopedia>TXT_KEY_TECH_AGRICULTURE_PEDIA</Civilopedia>
@@ -2137,7 +2137,7 @@
 			<SoundMP>AS2D_TECH_MP_AGRICULTURE</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Agriculture.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,1</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_POTTERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_POTTERY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_POTTERY</Type>
 			<Description>TXT_KEY_TECH_POTTERY</Description>
 			<Civilopedia>TXT_KEY_TECH_POTTERY_PEDIA</Civilopedia>
@@ -2210,7 +2210,7 @@
 			<SoundMP>AS2D_TECH_MP_POTTERY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Pottery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,6</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_AESTHETICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_AESTHETICS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_AESTHETICS</Type>
 			<Description>TXT_KEY_TECH_AESTHETICS</Description>
 			<Civilopedia>TXT_KEY_TECH_AESTHETICS_PEDIA</Civilopedia>
@@ -2289,7 +2289,7 @@
 			<!-- custom: button import from c2c mod's TECH_CLASSICAL_LIFESTYLE, should be more historically at least quite accurate anyways etc even though still a bit greek-roman centric but hopefully representative enough of that time-era anyways etc. -->
 			<Button>Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_SEAFARING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_SEAFARING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_SEAFARING</Type>
 			<Description>TXT_KEY_TECH_SEAFARING</Description>
 			<Civilopedia>TXT_KEY_TECH_SEAFARING_PEDIA</Civilopedia>
@@ -2375,7 +2375,7 @@
 			<!-- custom: button import from c2c mod's TECH_BOAT_BUILDING in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos\Assets\C2C2.FPK anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Seafaring/boatbuilding.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_WRITING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_WRITING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_WRITING</Type>
 			<Description>TXT_KEY_TECH_WRITING</Description>
 			<Civilopedia>TXT_KEY_TECH_WRITING_PEDIA</Civilopedia>
@@ -2451,7 +2451,7 @@
 			<SoundMP>AS2D_TECH_MP_WRITING</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Writing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,12</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MATHEMATICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MATHEMATICS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MATHEMATICS</Type>
 			<Description>TXT_KEY_TECH_MATHEMATICS</Description>
 			<Civilopedia>TXT_KEY_TECH_MATHEMATICS_PEDIA</Civilopedia>
@@ -2523,7 +2523,7 @@
 			<SoundMP>AS2D_TECH_MP_MATHEMATICS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Mathematics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_NATURALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_NATURALISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_NATURALISM</Type>
 			<Description>TXT_KEY_TECH_NATURALISM</Description>
 			<Civilopedia>TXT_KEY_TECH_NATURALISM_PEDIA</Civilopedia>
@@ -2610,7 +2610,7 @@
 			<!-- custom: new naturalism button now that it replaces old tech alphabet anyways etc, based on a base civ4 atlas if i am not mistaken anyways etc -->
 			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CALENDAR</Type>
 			<Description>TXT_KEY_TECH_CALENDAR</Description>
 			<Civilopedia>TXT_KEY_TECH_CALENDAR_PEDIA</Civilopedia>
@@ -2694,7 +2694,7 @@
 			<SoundMP>AS2D_TECH_MP_CALENDAR</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Calendar.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CURRENCY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CURRENCY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CURRENCY</Type>
 			<Description>TXT_KEY_TECH_CURRENCY</Description>
 			<Civilopedia>TXT_KEY_TECH_CURRENCY_PEDIA</Civilopedia>
@@ -2770,7 +2770,7 @@
 			<SoundMP>AS2D_TECH_MP_CURRENCY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Currency.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_PHILOSOPHY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_PHILOSOPHY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_PHILOSOPHY</Type>
 			<Description>TXT_KEY_TECH_PHILOSOPHY</Description>
 			<Civilopedia>TXT_KEY_TECH_PHILOSOPHY_PEDIA</Civilopedia>
@@ -2846,7 +2846,7 @@
 			<SoundMP>AS2D_TECH_MP_PHILOSOPHY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Philosophy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,6</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_THEORY_OF_EVOLUTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_THEORY_OF_EVOLUTION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_THEORY_OF_EVOLUTION</Type>
 			<Description>TXT_KEY_TECH_THEORY_OF_EVOLUTION</Description>
 			<Civilopedia>TXT_KEY_TECH_THEORY_OF_EVOLUTION_PEDIA</Civilopedia>
@@ -2919,7 +2919,7 @@
 			<!-- custom: button from ai-generated images by chatgpt thanks to my prompt too as (i.e. that anyways etc) was done in the past i mean anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_BANKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_BANKING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_BANKING</Type>
 			<Description>TXT_KEY_TECH_BANKING</Description>
 			<Civilopedia>TXT_KEY_TECH_BANKING_PEDIA</Civilopedia>
@@ -2987,7 +2987,7 @@
 			<SoundMP>AS2D_TECH_MP_BANKING</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Banking.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,1</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_BROADER_EDUCATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_BROADER_EDUCATION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_BROADER_EDUCATION</Type>
 			<Description>TXT_KEY_TECH_BROADER_EDUCATION</Description>
 			<Civilopedia>TXT_KEY_TECH_BROADER_EDUCATION_PEDIA</Civilopedia>
@@ -3059,7 +3059,7 @@
 			<SoundMP>AS2D_TECH_MP_BROADER_EDUCATION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Education.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,3</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_PRINTING_PRESS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_PRINTING_PRESS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_PRINTING_PRESS</Type>
 			<Description>TXT_KEY_TECH_PRINTING_PRESS</Description>
 			<Civilopedia>TXT_KEY_TECH_PRINTING_PRESS_PEDIA</Civilopedia>
@@ -3135,7 +3135,7 @@
 			<SoundMP>AS2D_TECH_MP_PRINTPRESS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Printing Press.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,11</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ECONOMICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ECONOMICS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ECONOMICS</Type>
 			<Description>TXT_KEY_TECH_ECONOMICS</Description>
 			<Civilopedia>TXT_KEY_TECH_ECONOMICS_PEDIA</Civilopedia>
@@ -3210,7 +3210,7 @@
 			<SoundMP>AS2D_TECH_MP_ECONOMICS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Economics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,3</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ASTRONOMY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ASTRONOMY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ASTRONOMY</Type>
 			<Description>TXT_KEY_TECH_ASTRONOMY</Description>
 			<Civilopedia>TXT_KEY_TECH_ASTRONOMY_PEDIA</Civilopedia>
@@ -3288,7 +3288,7 @@
 			<SoundMP>AS2D_TECH_MP_ASTRONOMY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Astronomy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,1</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CHEMISTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CHEMISTRY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CHEMISTRY</Type>
 			<Description>TXT_KEY_TECH_CHEMISTRY</Description>
 			<Civilopedia>TXT_KEY_TECH_CHEMISTRY_PEDIA</Civilopedia>
@@ -3356,7 +3356,7 @@
 			<SoundMP>AS2D_TECH_MP_CHEMISTRY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Chemistry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_WATER_WHEEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_WATER_WHEEL (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_WATER_WHEEL</Type>
 			<Description>TXT_KEY_TECH_WATER_WHEEL</Description>
 			<Civilopedia>TXT_KEY_TECH_WATER_WHEEL_PEDIA</Civilopedia>
@@ -3449,7 +3449,7 @@
 			<!-- custom: button import from c2c mod anyways etc, also tech name idea i got from them as i was hestiating between a few other variants and didn't know this one thanks if i may say but anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_PHYSICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_PHYSICS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_PHYSICS</Type>
 			<Description>TXT_KEY_TECH_PHYSICS</Description>
 			<Civilopedia>TXT_KEY_TECH_PHYSICS_PEDIA</Civilopedia>
@@ -3522,7 +3522,7 @@
 			<!-- custom: button changed as physics is earlier now, import from warlords's atlas anyways etc -->
 			<Button>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_BIOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_BIOLOGY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_BIOLOGY</Type>
 			<Description>TXT_KEY_TECH_BIOLOGY</Description>
 			<Civilopedia>TXT_KEY_TECH_BIOLOGY_PEDIA</Civilopedia>
@@ -3595,7 +3595,7 @@
 			<SoundMP>AS2D_TECH_MP_BIOLOGY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Biology.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MEDICINE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MEDICINE (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MEDICINE</Type>
 			<Description>TXT_KEY_TECH_MEDICINE</Description>
 			<Civilopedia>TXT_KEY_TECH_MEDICINE_PEDIA</Civilopedia>
@@ -3672,7 +3672,7 @@
 			<SoundMP>AS2D_TECH_MP_MEDICINE</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Medicine.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ELECTRICITY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ELECTRICITY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ELECTRICITY</Type>
 			<Description>TXT_KEY_TECH_ELECTRICITY</Description>
 			<Civilopedia>TXT_KEY_TECH_ELECTRICITY_PEDIA</Civilopedia>
@@ -3744,7 +3744,7 @@
 			<SoundMP>AS2D_TECH_MP_ELECTRICITY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Electricity.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,3</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_COMBUSTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_COMBUSTION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_COMBUSTION</Type>
 			<Description>TXT_KEY_TECH_COMBUSTION</Description>
 			<Civilopedia>TXT_KEY_TECH_COMBUSTION_PEDIA</Civilopedia>
@@ -3815,7 +3815,7 @@
 			<SoundMP>AS2D_TECH_MP_COMBUSTION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Combustion.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,2</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_FISSION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_FISSION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_FISSION</Type>
 			<Description>TXT_KEY_TECH_FISSION</Description>
 			<Civilopedia>TXT_KEY_TECH_FISSION_PEDIA</Civilopedia>
@@ -3888,7 +3888,7 @@
 			<SoundMP>AS2D_TECH_MP_FISSION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Fission.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_FLIGHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_FLIGHT (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_FLIGHT</Type>
 			<Description>TXT_KEY_TECH_FLIGHT</Description>
 			<Civilopedia>TXT_KEY_TECH_FLIGHT_PEDIA</Civilopedia>
@@ -3968,7 +3968,7 @@
 			<SoundMP>AS2D_TECH_MP_FLIGHT</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Flight.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ADVANCED_FLIGHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ADVANCED_FLIGHT (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ADVANCED_FLIGHT</Type>
 			<Description>TXT_KEY_TECH_ADVANCED_FLIGHT</Description>
 			<Civilopedia>TXT_KEY_TECH_ADVANCED_FLIGHT_PEDIA</Civilopedia>
@@ -4038,7 +4038,7 @@
 			<SoundMP>AS2D_TECH_MP_ADVANCED_FLIGHT</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,16</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_DEPOPULATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_DEPOPULATION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_DEPOPULATION</Type>
 			<Description>TXT_KEY_TECH_DEPOPULATION</Description>
 			<Civilopedia>TXT_KEY_TECH_DEPOPULATION_PEDIA</Civilopedia>
@@ -4105,7 +4105,7 @@
 			<!-- custom: button art import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Depopulation/astroecology.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_COMPOSITES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_COMPOSITES (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_COMPOSITES</Type>
 			<Description>TXT_KEY_TECH_COMPOSITES</Description>
 			<Civilopedia>TXT_KEY_TECH_COMPOSITES_PEDIA</Civilopedia>
@@ -4174,7 +4174,7 @@
 			<SoundMP>AS2D_TECH_MP_COMPOSITES</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Composites.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,2</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ALIEN_LIFE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ALIEN_LIFE (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ALIEN_LIFE</Type>
 			<Description>TXT_KEY_TECH_ALIEN_LIFE</Description>
 			<Civilopedia>TXT_KEY_TECH_ALIEN_LIFE_PEDIA</Civilopedia>
@@ -4243,7 +4243,7 @@
 			<!-- custom: button art import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Alien_Life/galactic_ecology.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_GENETICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_GENETICS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_GENETICS</Type>
 			<Description>TXT_KEY_TECH_GENETICS</Description>
 			<Civilopedia>TXT_KEY_TECH_GENETICS_PEDIA</Civilopedia>
@@ -4319,7 +4319,7 @@
 			<SoundMP>AS2D_TECH_MP_GENETICS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Genetics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,4</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_AI (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_AI (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_AI</Type>
 			<Description>TXT_KEY_TECH_AI</Description>
 			<Civilopedia>TXT_KEY_TECH_AI_PEDIA</Civilopedia>
@@ -4400,7 +4400,7 @@
 			<!-- custom: button art import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/AI/neural_network.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_FUSION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_FUSION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_FUSION</Type>
 			<Description>TXT_KEY_TECH_FUSION</Description>
 			<Civilopedia>TXT_KEY_TECH_FUSION_PEDIA</Civilopedia>
@@ -4473,7 +4473,7 @@
 			<SoundMP>AS2D_TECH_MP_FUSION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Fusion.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,4</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_HUNTING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_HUNTING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_HUNTING</Type>
 			<Description>TXT_KEY_TECH_HUNTING</Description>
 			<Civilopedia>TXT_KEY_TECH_HUNTING_PEDIA</Civilopedia>
@@ -4548,7 +4548,7 @@
 			<SoundMP>AS2D_TECH_MP_HUNTING</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Hunting.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,4</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MINING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MINING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MINING</Type>
 			<Description>TXT_KEY_TECH_MINING</Description>
 			<Civilopedia>TXT_KEY_TECH_MINING_PEDIA</Civilopedia>
@@ -4615,7 +4615,7 @@
 			<SoundMP>AS2D_TECH_MP_MINING</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Mining.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_SPACE_EXPLORATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_SPACE_EXPLORATION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_SPACE_EXPLORATION</Type>
 			<Description>TXT_KEY_TECH_SPACE_EXPLORATION</Description>
 			<Civilopedia>TXT_KEY_TECH_SPACE_EXPLORATION_PEDIA</Civilopedia>
@@ -4685,7 +4685,7 @@
 			<!-- custom: button import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MASONRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MASONRY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MASONRY</Type>
 			<Description>TXT_KEY_TECH_MASONRY</Description>
 			<Civilopedia>TXT_KEY_TECH_MASONRY_PEDIA</Civilopedia>
@@ -4762,7 +4762,7 @@
 			<SoundMP>AS2D_TECH_MP_MASONRY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Masonry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ANIMAL_HUSBANDRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ANIMAL_HUSBANDRY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ANIMAL_HUSBANDRY</Type>
 			<Description>TXT_KEY_TECH_ANIMAL_HUSBANDRY</Description>
 			<Civilopedia>TXT_KEY_TECH_ANIMAL_HUSBANDRY_PEDIA</Civilopedia>
@@ -4846,7 +4846,7 @@
 			<SoundMP>AS2D_TECH_MP_ANIMALHUSB</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Animal Husbandry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,1</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_BRONZE_WORKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_BRONZE_WORKING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_BRONZE_WORKING</Type>
 			<Description>TXT_KEY_TECH_BRONZE_WORKING</Description>
 			<Civilopedia>TXT_KEY_TECH_BRONZE_WORKING_PEDIA</Civilopedia>
@@ -4922,8 +4922,8 @@
 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Bronze Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,9</Button>
 		</TechInfo>
-		<!-- custom: button was/is ai generated by chatgpt thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
-		<TechInfo> <!-- custom: type: TECH_MOUNTED_COMBAT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<!-- custom: button is ai-generated (see docs for details) -->
+		<TechInfo> <!-- custom: type: TECH_MOUNTED_COMBAT (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MOUNTED_COMBAT</Type>
 			<Description>TXT_KEY_TECH_MOUNTED_COMBAT</Description>
 			<Civilopedia>TXT_KEY_TECH_MOUNTED_COMBAT_PEDIA</Civilopedia>
@@ -4993,7 +4993,7 @@
 			<SoundMP>AS2D_TECH_MP_MOUNTED_COMBAT</SoundMP>
 			<Button>Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_IRON_WORKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_IRON_WORKING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_IRON_WORKING</Type>
 			<Description>TXT_KEY_TECH_IRON_WORKING</Description>
 			<Civilopedia>TXT_KEY_TECH_IRON_WORKING_PEDIA</Civilopedia>
@@ -5073,7 +5073,7 @@
 			<SoundMP>AS2D_TECH_MP_IRONWORK</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Iron Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_METAL_CASTING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_METAL_CASTING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_METAL_CASTING</Type>
 			<Description>TXT_KEY_TECH_METAL_CASTING</Description>
 			<Civilopedia>TXT_KEY_TECH_METAL_CASTING_PEDIA</Civilopedia>
@@ -5155,7 +5155,7 @@
 			<SoundMP>AS2D_TECH_MP_METALCAST</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Metal Casting.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_NAVIGATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_NAVIGATION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_NAVIGATION</Type>
 			<Description>TXT_KEY_TECH_NAVIGATION</Description>
 			<Civilopedia>TXT_KEY_TECH_NAVIGATION_PEDIA</Civilopedia>
@@ -5232,7 +5232,7 @@
 			<!-- custom: button import from FFH2 mod's TECH_CARTOGRAPHY in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_CONSTRUCTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_CONSTRUCTION (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_CONSTRUCTION</Type>
 			<Description>TXT_KEY_TECH_CONSTRUCTION</Description>
 			<Civilopedia>TXT_KEY_TECH_CONSTRUCTION_PEDIA</Civilopedia>
@@ -5317,7 +5317,7 @@
 			<SoundMP>AS2D_TECH_MP_CONSTRUCTION</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Construction.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MACHINERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MACHINERY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MACHINERY</Type>
 			<Description>TXT_KEY_TECH_MACHINERY</Description>
 			<Civilopedia>TXT_KEY_TECH_MACHINERY_PEDIA</Civilopedia>
@@ -5388,7 +5388,7 @@
 			<SoundMP>AS2D_TECH_MP_MACHINERY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Machinery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ENGINEERING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ENGINEERING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ENGINEERING</Type>
 			<Description>TXT_KEY_TECH_ENGINEERING</Description>
 			<Civilopedia>TXT_KEY_TECH_ENGINEERING_PEDIA</Civilopedia>
@@ -5467,7 +5467,7 @@
 			<SoundMP>AS2D_TECH_MP_ENGINEERING</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Engineering.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,3</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_SAILING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_SAILING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_SAILING</Type>
 			<Description>TXT_KEY_TECH_SAILING</Description>
 			<Civilopedia>TXT_KEY_TECH_SAILING_PEDIA</Civilopedia>
@@ -5550,7 +5550,7 @@
 			<!-- custom: button import from HR mod's TECH_SEAFARING anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Sailing/Sailing.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_GUNPOWDER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_GUNPOWDER (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_GUNPOWDER</Type>
 			<Description>TXT_KEY_TECH_GUNPOWDER</Description>
 			<Civilopedia>TXT_KEY_TECH_GUNPOWDER_PEDIA</Civilopedia>
@@ -5625,7 +5625,7 @@
 			<SoundMP>AS2D_TECH_MP_GUNPOWDER</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Gunpowder.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,4</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_GAME_THEORY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_GAME_THEORY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_GAME_THEORY</Type>
 			<Description>TXT_KEY_TECH_GAME_THEORY</Description>
 			<Civilopedia>TXT_KEY_TECH_GAME_THEORY_PEDIA</Civilopedia>
@@ -5660,7 +5660,7 @@
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
-			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc, was 0 -->
+			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too, maybe it is more balanced or/and startegically interesting as such, was 0 -->
 			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
@@ -5701,7 +5701,7 @@
 			<!-- custom: art button import from c2c mod's TECH_BINARY_SUBCONSCIOUSNESS anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Game_Theory/binarysubconsciousness.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MILITARY_SCIENCE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MILITARY_SCIENCE (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MILITARY_SCIENCE</Type>
 			<Description>TXT_KEY_TECH_MILITARY_SCIENCE</Description>
 			<Civilopedia>TXT_KEY_TECH_MILITARY_SCIENCE_PEDIA</Civilopedia>
@@ -5772,7 +5772,7 @@
 			<SoundMP>AS2D_TECH_MP_MILITARY_SCIENCE</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Military Tradition.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_FIREARMS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_FIREARMS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_FIREARMS</Type>
 			<Description>TXT_KEY_TECH_FIREARMS</Description>
 			<Civilopedia>TXT_KEY_TECH_FIREARMS_PEDIA</Civilopedia>
@@ -5845,7 +5845,7 @@
 			<SoundMP>AS2D_TECH_MP_FIREARMS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Rifling.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,7</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_STEAM_POWER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_STEAM_POWER (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_STEAM_POWER</Type>
 			<Description>TXT_KEY_TECH_STEAM_POWER</Description>
 			<Civilopedia>TXT_KEY_TECH_STEAM_POWER_PEDIA</Civilopedia>
@@ -5922,7 +5922,7 @@
 			<SoundMP>AS2D_TECH_MP_STEAMPOWER</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Steam Power.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,12</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_MARINE_TECHNOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_MARINE_TECHNOLOGY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_MARINE_TECHNOLOGY</Type>
 			<Description>TXT_KEY_TECH_MARINE_TECHNOLOGY</Description>
 			<Civilopedia>TXT_KEY_TECH_MARINE_TECHNOLOGY_PEDIA</Civilopedia>
@@ -5998,7 +5998,7 @@
 			<!-- custom: button import from NW mod's very very nice one in all or all in one rather but anyways etc. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker anyways etc, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting fine (folder name has the advciv-sas asset name or closest or close to it anyways etc, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if needed but anyways etc)), is based on NW mod's TECH_HEAVY_WATER button anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ASSEMBLY_LINE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ASSEMBLY_LINE (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ASSEMBLY_LINE</Type>
 			<Description>TXT_KEY_TECH_ASSEMBLY_LINE</Description>
 			<Civilopedia>TXT_KEY_TECH_ASSEMBLY_LINE_PEDIA</Civilopedia>
@@ -6071,7 +6071,7 @@
 			<SoundMP>AS2D_TECH_MP_ASSEMBLINE</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Assembly Line.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,1</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_QUANTUM_MECHANICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_QUANTUM_MECHANICS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_QUANTUM_MECHANICS</Type>
 			<Description>TXT_KEY_TECH_QUANTUM_MECHANICS</Description>
 			<Civilopedia>TXT_KEY_TECH_QUANTUM_MECHANICS_PEDIA</Civilopedia>
@@ -6156,7 +6156,7 @@
 			<!-- custom: button art import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Quantum_Mechanics/quantumphysics.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ARTILLERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ARTILLERY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ARTILLERY</Type>
 			<Description>TXT_KEY_TECH_ARTILLERY</Description>
 			<Civilopedia>TXT_KEY_TECH_ARTILLERY_PEDIA</Civilopedia>
@@ -6223,7 +6223,7 @@
 			<SoundMP>AS2D_TECH_MP_ARTILLERY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Artillery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,1</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_INDUSTRIALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_INDUSTRIALISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_INDUSTRIALISM</Type>
 			<Description>TXT_KEY_TECH_INDUSTRIALISM</Description>
 			<Civilopedia>TXT_KEY_TECH_INDUSTRIALISM_PEDIA</Civilopedia>
@@ -6303,7 +6303,7 @@
 			<SoundMP>AS2D_TECH_MP_INDUSTRIALISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Industrialism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,4</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_RADIO (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_RADIO (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_RADIO</Type>
 			<Description>TXT_KEY_TECH_RADIO</Description>
 			<Civilopedia>TXT_KEY_TECH_RADIO_PEDIA</Civilopedia>
@@ -6370,7 +6370,7 @@
 			<SoundMP>AS2D_TECH_MP_RADIO</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Radio.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,11</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ENVIRONMENTALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ENVIRONMENTALISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ENVIRONMENTALISM</Type>
 			<Description>TXT_KEY_TECH_ENVIRONMENTALISM</Description>
 			<Civilopedia>TXT_KEY_TECH_ENVIRONMENTALISM_PEDIA</Civilopedia>
@@ -6434,7 +6434,7 @@
 			<SoundMP>AS2D_TECH_MP_ENVIRONMENTALISM</SoundMP>
 			<Button>,Art/Interface/Buttons/Civics/Environmentalism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,1</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_SUPERCONDUCTORS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_SUPERCONDUCTORS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_SUPERCONDUCTORS</Type>
 			<Description>TXT_KEY_TECH_SUPERCONDUCTORS</Description>
 			<Civilopedia>TXT_KEY_TECH_SUPERCONDUCTORS_PEDIA</Civilopedia>
@@ -6499,7 +6499,7 @@
 			<SoundMP>AS2D_TECH_MP_SUPERCONDUCTOR</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Superconductor.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,12</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_COMPUTERS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_COMPUTERS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_COMPUTERS</Type>
 			<Description>TXT_KEY_TECH_COMPUTERS</Description>
 			<Civilopedia>TXT_KEY_TECH_COMPUTERS_PEDIA</Civilopedia>
@@ -6573,7 +6573,7 @@
 			<SoundMP>AS2D_TECH_MP_COMPUTERS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Computers.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,2</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_TERRAFORMING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_TERRAFORMING (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_TERRAFORMING</Type>
 			<Description>TXT_KEY_TECH_TERRAFORMING</Description>
 			<Civilopedia>TXT_KEY_TECH_TERRAFORMING_PEDIA</Civilopedia>
@@ -6597,7 +6597,7 @@
 			<iPower>10</iPower>
 			<!-- custom: similarly to changes now displaying bTrade info, we now also display bRepeat info in tech advisor and sevopedia tech if i am not mistaken anyways etc, see also similarly buildBRepeatString if i am not mistaken anyways etc -->
 			<bRepeat>0</bRepeat>
-			<!-- custom: note: bTrade fields are now visible from the c++ code if i may say anyways etc through buildBTradeString, see there for details orand in our mod's docs or and such other relevant place, hopefully helpful but or not but or yes but anyways etc -->
+			<!-- custom: note: bTrade fields are now visible from the c++ code through buildBTradeString, see there for details or in our mod's docs or and such other relevant place -->
 			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
@@ -6647,7 +6647,7 @@
 			<!-- custom: button art import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Terraforming/jovian_terraforming.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ROCKETRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ROCKETRY (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ROCKETRY</Type>
 			<Description>TXT_KEY_TECH_ROCKETRY</Description>
 			<Civilopedia>TXT_KEY_TECH_ROCKETRY_PEDIA</Civilopedia>
@@ -6716,7 +6716,7 @@
 			<SoundMP>AS2D_TECH_MP_ROCKETRY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Rocketry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,7</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_SATELLITES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_SATELLITES (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_SATELLITES</Type>
 			<Description>TXT_KEY_TECH_SATELLITES</Description>
 			<Civilopedia>TXT_KEY_TECH_SATELLITES_PEDIA</Civilopedia>
@@ -6789,7 +6789,7 @@
 			<SoundMP>AS2D_TECH_MP_SATELLITES</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Satellites.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,7</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ROBOT_RIGHTS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_ROBOT_RIGHTS (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_ROBOT_RIGHTS</Type>
 			<Description>TXT_KEY_TECH_ROBOT_RIGHTS</Description>
 			<Civilopedia>TXT_KEY_TECH_ROBOT_RIGHTS_PEDIA</Civilopedia>
@@ -6863,7 +6863,7 @@
 			<!-- custom: button art import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Robot_Rights/astroimperialism.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_TRANSHUMANISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<TechInfo> <!-- custom: type: TECH_TRANSHUMANISM (useful for VS Code upper tree view while scrolling) -->
 			<Type>TECH_TRANSHUMANISM</Type>
 			<Description>TXT_KEY_TECH_TRANSHUMANISM</Description>
 			<Civilopedia>TXT_KEY_TECH_TRANSHUMANISM_PEDIA</Civilopedia>

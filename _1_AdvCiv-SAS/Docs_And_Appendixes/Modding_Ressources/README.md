@@ -1,15 +1,15 @@
 # README (Modding Ressources)
 
-This is a non-exhaustive page containing some ressources i found helpful and general help on how i modded advciv-sas, hopefully helpful, but anyways etc.
+This is a non-exhaustive page containing some ressources i found helpful and general help on how i modded AdvCiv-SAS.
 
 ## Menu
 
-Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc ; i simplified the latest level of nesting (as of now map links such as pangea, continents etc) from the menu as it was needlessly cluttering and not too informative or fast to browse (the main map link is enough i think and these entries are short) but i d as i want too heheif i may say hopefully helpful or not or yes or etc but anyways etc
+Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them). If you want to know how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing)'s screenshots for details; i simplified the latest level of nesting (as of now map links such as pangea, continents etc) from the menu as it was needlessly cluttering and not too informative or fast to browse (the main map link is enough i think and these entries are short).
 
-Note: do not remove the 2 spaces at the end of the links in the menu, or do so at your own risk xd (is as you want though i mean if i may say in this case i mean but anyways etc) i have warned you xd if i may say but anyways etc.
+Note: do not remove the 2 spaces at the end of the links in the menu, or do so at your own risk xd (the difference is shown in the spoiler arrow below).
 
 <details>
-<summary>Spoiler: if you want to know why xd click here but anyways etc</summary>
+<summary>Spoiler: if you want to know why click here</summary>
 
 Nothing bad or dramatic would happen, but text will become like this
 [myLink1](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)
@@ -79,13 +79,13 @@ Else or additionally, you may find more help asking your question(s) directly on
 
 Was not easy to find how, but [this stackoverflow answer](https://stackoverflow.com/a/52067077) shows how to do it successfully, ai-generated images as of now in our advciv-sas mod anyways etc use this successfully as well anyways etc, see also an implementation example of this in the [README_AI_Generated_Images.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md) .md file's `<img>` links for example anyways etc.
 
-To get the id from the url, what i did and that works as of now anyways etc is to click on the image in the drive folder containing the image, then the sandwich menu whatever they call it xd anyways etc, then "open in new window", then the following url such (for example in `https://drive.google.com/file/d/1_CcxxS36yJmp779-oxuQD3QSWI0eBubC/view`) has the id `1_CcxxS36yJmp779-oxuQD3QSWI0eBubC` that i can insert in the src field following the stackoverflow answer instructions/example linked and that as of now seems to work-function fine for all the images we inserted in the git readme as such anyways etc. (note: i didn't add too many images as it would be tedious to manage in the drive vs git, but for non-essential ones and especially heavy ones atleast in advciv-sas i mean anwyays etc anyways etc, moved them to the drive or fetched them for there directly if already there anwyays etc)
+To get the id from the url, what i did and that works as of now anyways etc is to click on the image in the drive folder containing the image, then the sandwich menu whatever they call it xd anyways etc, then "open in new window", then the following url such (for example in `https://drive.google.com/file/d/1_CcxxS36yJmp779-oxuQD3QSWI0eBubC/view`) has the id `1_CcxxS36yJmp779-oxuQD3QSWI0eBubC` that i can insert in the src field following the stackoverflow answer instructions/example linked and that as of now seems to work-function fine for all the images we inserted in the git readme as such anyways etc. (note: i didn't add too many images as it would be tedious to manage in the drive vs git, but for non-essential ones and especially heavy ones atleast in advciv-sas, moved them to the drive or fetched them for there directly if already there)
 
-Was not easy to find how at least to me anyways etc so i am glad i found how anyways etc and so i mean anyways etc i hope these instructions help i mean at least as of now, anyways etc anyways etc anyways etc.
+Was not easy to find how so i am glad i found how so hopefully these instructions help maybe.
 
 ### Download media assets for example on youtube
 
-Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefully helpful but i have to cover myself xd too i mean if i may say but anyways etc.
+Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions: i have to cover myself xd.
 
 Disclaimer 2: Specifically about downloading from youtube, it seems from chatgpt's explanation and what i understand of it that even if a media file is public domain, downloading it from youtube may violate a license for example if the recording is not public domain, it is your responsibility to verify and make sure you use a copyright-compliant media file for the general instructions below that i provide in hope they help and without any warranty, in addition to any disclaimers in main readme's copyright section and and in this modding_ressources section as well if i am not mistaken too anyways etc
 
@@ -111,7 +111,7 @@ yt-dlp -x https://www.youtube.com/watch?v=MM2-z8inpY8 --audio-format mp3 --add-m
 
 Please note that it is also possible to set a start time and end time, like i mean you don't have to have the whole file but say from 00:30 to 00:55 section/part of the media file if you want, see the first reddit link in this readme.md section (but anyways etc...) for details if i'm not mistaken and still available, but anyways etc...
 
-Here is an example of how to download same video/media file anyways etc but from seconds 15 to seconds 45 (i.e. from 00:15 to 00:45 of the video/media file if i am not mistaken anyways etc), not sure is best way to do it, may or not be, but at least seems to work/function anyways etc, hopefully helpful or not or yes or other or etc or yes or not or other or etc anyways etc ; but since i couldn't find how exactly to download not best audio AND if i may say anyways etc only a part of the video, then i asked chatgpt who told me how to do it so hopefully helpful or not or yes or etc but anyways etc:
+Here is an example of how to download same video/media file anyways etc but from seconds 15 to seconds 45 (i.e. from 00:15 to 00:45 of the video/media file if i am not mistaken anyways etc), not sure is best way to do it, may or not be, but at least seems to work; but since i couldn't find how exactly to download not best audio AND only a part of the video, then i asked chatgpt who told me how to do it so:
 
 ```bash
 yt-dlp -x --audio-format mp3 --postprocessor-args "-ss 00:00:15.000 -to 00:00:45.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
@@ -129,21 +129,21 @@ Then untested but to download from beginning to an end time, use similarly as ad
 yt-dlp -x --audio-format mp3 --postprocessor-args "-to 00:00:45.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
 ```
 
-Note: if you don't know where/when exactly to cut, see note about Audacity in [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) hopefully helpful or not or yes or etc but anyways etc
+Note: if you don't know where/when exactly to cut, see note about Audacity in [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this).
 
-Note 2: there are other websites than youtube to download or find music, including royalty-free one ideally or free for use or such, see [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) for example of an example of tool(s) i mention there to not redundantly repeat myself here and in case it changes too and slightly bit tedious but anyways etc hopefully helpful or not or yes or etc or other but anyways etc...
+Note 2: there are other websites than youtube to download or find music, including royalty-free one ideally or free for use or such, see [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) for example of an example of tool(s) i mention there to not redundantly repeat myself here and in case it changes too and slightly bit tedious.
 
 ### add media assets
 
-Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefully helpful but i have to cover myself xd too i mean if i may say but anyways etc.
+Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions; i have to cover myself xd.
 
-To add music to a leader in advciv-sas for example (i assume would be the same or very similar in an advciv or civ4 based mod too if i am not mistaken and if i may say too but anyways etc anyways etc anyways etc), do a vs code global search for example of "ewuare_" (new leader we added in advciv-sas for the kingdom of benin anyways etc) and see in audio xml files (and also a bit in leaderhead too if you track where the corresponding assets such as for example "DIPLO_EWUARE_EARLY" lead to in the leader head info xml file too but anyways etc for an example of how we added his music anyways etc.
+To add music to a leader in advciv-sas for example (i assume would be the same or very similar in an advciv or civ4 based mod too if i am not mistaken), do a vs code global search for example of "ewuare_" (new leader we added in advciv-sas for the kingdom of benin anyways etc) and see in audio xml files (and also a bit in leaderhead too if you track where the corresponding assets such as for example "DIPLO_EWUARE_EARLY" lead to in the leader head info xml file too) for an example of how we added his music.
 
-Note: be very careful!(!!! but anyways etc anyways etc anyways etc) Need to remove the `.mp3` in filename else file is unreadable anyways etc!!!
+Note: be very careful! Need to remove the `.mp3` in filename else file is unreadable.
 
 ### trick to capture fast actions in same turn: press print screen super fast many times if you don't want to bother recording a video
 
-If you have an issue that happens only for split seconds or even shorter in this case i mean but anyways etc and hard to view in one screenshot, and if recording a video is too much trouble, you can try pressing print screen many times super fast while the behaviour you want to capture in screenshot happens.
+If you have an issue that happens only for split seconds or even shorter and hard to view in one screenshot, and if recording a video is too much trouble, you can try pressing print screen many times super fast while the behaviour you want to capture in screenshot happens.
 
 I noticed this accidentally or rather unconsciously xd, and it helped me identify an issue that we can only for like 0.2 seconds or such, but that can be captured in a screenshot this way.
 
@@ -329,7 +329,7 @@ Please read these docs (highly recommended) if you want to know more about AI at
 
 - many links in the main README.md first for example maybe indeed or not or yes or and other or and not etc anyways etc... in the [main README.md 's page link](/README.md)
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not be needed if you only modify XML files if i am not mistaken)
-- [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now anyways etc) right panel version of leaders panel, telling [claude AI (see Claude AI's section of the Authors part of the readme.md for details)](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not anyways etc) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what we/i i mean use anyways etc  thanks to thosete person(s) who taught me about it anyways etc) if need or and other uses or and not maybe anyways etc.
+- [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now anyways etc) right panel version of leaders panel, telling [claude AI (see Claude AI's section of the Authors part of the readme.md for details)](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not anyways etc) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what i use thanks to the person(s) who taught me about it) or other uses or such.
 - inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe anyways etc, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Claude AI's part of the authors section of this README.md below for details](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method anyways etc, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv anyways etc, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo anyways etc as linked just above in same bulelt point if i am not mistaken indeed if i may say anyways etc with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr or not or yes or and other or and not anyways etc anyways etc anyways etc) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o anyways etc, thanks a lot Claude AI and thanks to me too or and other or and not anyways etc , hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc
 - todo add links if i have/want(/do) more to add
 
@@ -419,7 +419,7 @@ Default Map Scripts – Civilization IV: Beyond the Sword
 
 ### Map type summary
 
-Done by chatgpt 5 (so/but check to be sure it is accurate, anyways etc) and formatted by me too i mean if i may say (check if my formatting is accurate or not xd maybe too or not or yes or other or etc but anyways etc)
+Done by chatgpt 5 (so/but check to be sure it is accurate, anyways etc) and i formatted it.
 
 Below is a quick-reference summary of all default map scripts in *Beyond the Sword*, with short descriptions of their typical gameplay impact.
 
@@ -898,7 +898,7 @@ note 3.2 / update: i have found that as of now for ri mod in particular, downloa
 
 Old information from my notes, now we use leader portraits (nif) with an animation, but an earlier version used static images if i may say and am not mistaken in saying so but anyways etc. But these instructions may be helpful to me or others maybe so adding them for reference anyways etc.
 
-Note: if you want to add leaders or other kinds of button art assets or such, below instructions aim to help at that even though they may not be 100% accurate or best practive, but may be maybe or not anyways etc ; however it should also be noted if i may say i mean anyways that it may be easier to rather import existing art assets from many mods, but if you want to import your own manual art asset, perhaps as static images .dds files, this is how i do it, not guaranteed is best way to do it, may or may not be, but it worked and hopefully helpful enough if you want to do so, otherwise i would recommend in general or all cases to maybe import directy already refined art assets from other mods, but as you prefer and wish and is below as i did too if i may say but anyways etc anyways etc anyways etc and as you are free to do or wis to do or not anyways etc...
+Note: if you want to add leaders or other kinds of button art assets or such, below instructions aim to help at that even though they may not be 100% accurate or best practive, but may be maybe or not anyways etc ; however it should also be noted if i may say i mean anyways that it may be easier to rather import existing art assets from many mods, but if you want to import your own manual art asset, perhaps as static images .dds files, this is how i do it, not guaranteed is best way to do it, may or may not be, but it worked and hopefully helpful enough if you want to do so, otherwise i would recommend in general or all cases to maybe import directy already refined art assets from other mods, adjust as you see fit.
 
 Leader dimensions obtained using Paint.NET manual selection (approximately but should be quite precise but not guaranteed may or not anyways) on a 4K screen windowed mode.
 
@@ -1063,7 +1063,7 @@ Important note: For some behaviours to reliably show ingame by the autoplay AI y
 
 ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia tech 's placeSpecial and in tech tree view (technology advisor) anyways etc
 
-See screenshots of how this was implemented (not fully exhaustive but hopefully quite a bit exhaustive enough if i may say but anyways etc anyways etc anyways etc) in this [google drive folder](https://drive.google.com/drive/folders/176fGLxIWwOTRYAjafi2OGhe8VuVBZLMT?usp=sharing)
+See screenshots of how this was implemented (not fully exhaustive but hopefully quite a bit exhaustive enough) in this [google drive folder](https://drive.google.com/drive/folders/176fGLxIWwOTRYAjafi2OGhe8VuVBZLMT?usp=sharing)
 
 Small sample below /example too but anyways etc:
 
@@ -1084,7 +1084,7 @@ Then i could search which TXT_KEY uses this, and it is only once and specificall
 
 So by mirroring the functionning of it, but with the new `<bTrade>` (see [kujira's website bTrade info for details anyways etc](https://gforestshade.github.io/kujira/post/civ4techinfos/#btrade) (translate to english with google chrome or your web browser or such or similar but anyways etc) or and some similar or not website or not or yes tat has the info or not or yes or etc but anyways etc for details or and other examples or not but anyways etc)
 
-For example kujira's website says this (translated as such as explained before in previous paragraph/sentence just above if i am not mistaken too as of now in case paragraph(s)'s/sentence(s)'s order changed or maybe it didnt but anyways etc anyways etc anyways etc) provided for convenience too if doesn't bother too maybe but anyways etc... hopefully maybe helps too but maybe doesn't or does or not or yes or other or and etc but anyways etc:
+For example kujira's website says this (translated as such as explained before in previous paragraph/sentence just above if i am not mistaken too as of now in case paragraph(s)'s/sentence(s)'s order changed) provided for convenience:
 
 ```text
 Sets whether this technology is tradable.
@@ -1119,7 +1119,7 @@ See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-gett
 
 ## Example of performance optimization of python loading time (as in when we load the code) and loading times if i may say anyways etc (as in code performance due to how it is optimized from what little or not little i know or and did of it but anyways etc)
 
-The AI Personality feature in/of sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or/and others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or/and pleasant/enjoyable maybe too or not or yes or other or etc anyways etc, see this doc section for details with google drive link with (= that has anyways etc) screenshots and such anyways etc: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+The AI Personality feature in/of sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or/and others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or/and pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has anyways etc) screenshots and such anyways etc: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
 ## Files
 

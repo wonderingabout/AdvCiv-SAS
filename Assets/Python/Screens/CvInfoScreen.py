@@ -2688,7 +2688,7 @@ class CvInfoScreen:
 				screen.enableSelect(listName, False)
 
 				szSpecialText = CyGameTextMgr().getProjectHelp(self.iWonderID, True, None)
-				# <!-- custom: use native code instead similarly, no need to import string module to split a string anyways etc anyways etc anyways etc... similarly anyways etc anyways etc anyways etc... -->
+				# <!-- custom: use native code instead similarly, no need to import string module to split a string similarly -->
 				splitText = szSpecialText.split("\n")
 				for special in splitText:
 					if len( special ) != 0:
