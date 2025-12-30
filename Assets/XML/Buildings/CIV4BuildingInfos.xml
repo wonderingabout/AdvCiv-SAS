@@ -21804,7 +21804,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: TECH_NATURALISM (if we rework it indeed as such anyways etc) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era anyways etc at least in terms of civ4 gameplay in our mod advciv-sas or and other or and not, also boosting culture path and wonders by building them sooner indirectly but anyways etc anyways etc, was TECH_NATIONALISM -->
+			<!-- custom: TECH_NATURALISM (if we rework it indeed as such anyways etc) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era, also boosting culture path and wonders by building them sooner indirectly; was TECH_NATIONALISM -->
 			<PrereqTech>TECH_NATURALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>

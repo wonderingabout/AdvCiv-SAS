@@ -196,8 +196,8 @@ class SevoPediaBonus:
 
 
 
-	# <!-- custom: switch to an horizontal panel version provided by claude ai at my request it kindly did so for me and as a consequence all who would play this mod advciv-sas i am making or/and others kindly too or not or both or not or and other or and not anyways etc using it too, anyways etc, thanks claude ai and all or not all or yes all or not or other or etc anyways etc anyways etc anyways etc and me too perhaps or not or yes anyways etc anyways etc anyways etc, and then also modified by me or and not for advciv-sas or and not or and other or and not anyways etc anyways etc anyways etc -->
-	# <!-- custom: note: this needs to be debugged (simplify code, add left side padding before first button, anyways etc, but hopefully works well enough for now anyways etc -->
+	# <!-- custom: switch to an horizontal panel version provided by claude ai at my request thanks. -->
+	# <!-- custom: note: this needs to be debugged (simplify code, add left side padding before first button) -->
 	def placeImprovements(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()

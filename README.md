@@ -44,6 +44,7 @@ As for the future, i have some more content prepared for the future era (no pun 
 [Assets Rebalancing](/README.md#assets-rebalancing)  
 [48 Civs DLL](/README.md#48-civs-dll)  
 [Long Comments Archive](/README.md#long-comments-archive)  
+[External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
 [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
 ["Temporary" crashes](/README.md#temporary-crashes)  
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
@@ -448,6 +449,18 @@ Note 2: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Q
 
 Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see [update notes](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for [that version](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)). To keep files readable, we consolidated long comments into [Long_Comments/](/Long_Comments/). See details in [commit 940d04c](/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](/pull/17).
 Note: we try to balance comment cleanup with keeping concise technical explanations in code when they help maintainers.
+
+## External file access in Civ4 ingame (on Windows)
+
+With the help of chatgpt 5.2, while trying to debug why the "BUG Mod Help" button in the BUG Menu ingame caused a path error in AdvCiv-SAS but not in base AdvCiv, even though path was the same, i have discovered it is possible to access external files ingame in Civ4 (e.g. [BUG Mod Help-ENG.chm](/_0_Common_Docs/BUG_Doc/BUG%20Mod%20Help-ENG.chm)), and it works successfully.
+
+The path is something like this for example in [BugPath.py](/Assets/Python/BUG/BugPath.py), if i'm not mistaken, for `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG_Doc\BUG Mod Help-ENG.chm`
+
+```py
+os.path.join(cwd, "Mods", "AdvCiv-SAS", "_0_Common_Docs", "BUG_Doc", name)
+```
+
+This possibly theoretically could be used to open other external files in Civ4 maybe (check if accurate, as i don't know too much about these). See also [KI#87](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
 
 ## Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc
 

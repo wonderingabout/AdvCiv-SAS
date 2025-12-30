@@ -120,6 +120,7 @@ hopefully helpful, thanks, anyways, thanks,
 [84 - (Added missing feature) Rivals of the active/human player that are willing to become the active/human player's vassal not showing an icon to quickly indicate that at a glance, in the Foreign advisor's glance tab (no pun but anyways etc.)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc)  
 [85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)  
 [86 - (Fixed) Base AdvCiv bug, in sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#86---fixed-base-advciv-bug-in-sevopedia-bonus-in-the-aluminium-bonus-entry-of-all-project-tooltips-showing-the-apostolic-palace-and-redirecting-to-it-instead-of-showing-the-projects-tooltip-and-redirecting-to-said-project-with-the-help-of-chatgpt-52-thanks-anyways-etc)  
+[87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3204,3 +3205,9 @@ Update: somehow sometimes they appear at turn 0 and sometimes not, what matters 
 See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1I71aSFVOj4GZIhgBde0niJwJIFmx_exC?usp=sharing) anyways etc.
 
 Now fixed with the help of chatgpt 5.2 thanks anyways etc.
+
+## 87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same
+
+See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1vFB4Iae35EQlTOaobLDD7Cw4J4OuW_ta?usp=sharing) anyways etc.
+
+Issue and fixed described in [/README.md#external-file-access-in-civ4-ingame-on-windows](/README.md#external-file-access-in-civ4-ingame-on-windows).

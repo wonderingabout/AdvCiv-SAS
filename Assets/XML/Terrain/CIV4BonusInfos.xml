@@ -874,7 +874,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), was 0 / 32 -->
+			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and molluscs are for example, was 0 / 32 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>30</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1983,8 +1983,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too if i am not mistaken and flat, always constant spanwing, anyways etc, was 67 -->
-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used anyways etc, see docs for details anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0 ; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often anyways etc, reduce it a bit now from 0 / 26 anyways etc to value(s) below anyways etc anyways etc anyways etc -->
+			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too if i am not mistaken and flat, always constant spanwing, was 67 -->
+			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and molluscs are for example), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used, see docs for details) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often, reduce it a bit now from 0 / 26 to value(s) below that. -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>29</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>

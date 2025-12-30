@@ -1662,7 +1662,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI but anyways etc -->
 						else if (canBuild(kPlot, eBuildCottage))
 						{
-							// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce in our mod advciv-sas if i may say but anyways etc, but still not ultimate best if i may say but anyways etc, delay if all higher potential food tiles especially unimproved ones have been improved already -->
+							// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce, delay if all higher potential food tiles especially unimproved ones have been improved already. -->
 							eBestSupposedBuild = eBuildCottage;
 
 							iValue += 550;

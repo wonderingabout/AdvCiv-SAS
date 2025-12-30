@@ -4335,8 +4335,6 @@
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless, anyways etc)-->
-
-				<!-- custom: also allow barbarians (even though i am not sure these lines make any difference seemingly since it was an old code comment but as for logic yes i(/we((?)?)) would not mind barbarians having holy cities if they discover a religion but they seem to do it on their own just fine regardless, i saw them have the mahadhobi thing if i am not mistaken too good for them anyways moving on as in focusing on civ4 again anyways etc this mod advciv-sas i mean anyways etc anyways etc) would not holy cities in case they are first to found a religion and get a great prophet for it, (and (anyways etc)) also allow them to build all religious buildings in case a religion reaches them no reason why they couldn't, and otherwise still remain warmongerers i tihnk, (but) anyways etc (it also declutters the xml a bit (xd.. (i am free indeed(!...)if i may say (yes) but anwyays etc....))-->
 			</Buildings>
 
 

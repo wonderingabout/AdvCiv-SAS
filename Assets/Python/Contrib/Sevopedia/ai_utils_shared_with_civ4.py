@@ -404,7 +404,7 @@ def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection
 		if is_affection:
 			# <!-- custom: higher attitude score (ex: + 350 > + 200) means more intense positive feeling (affection), closer to 0 means AI cares less (0 should be		- minimum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI cares the least)), so we don't invert.
 			# -->
-			# As for decay it should remain the same as it seems to just be some time unit or span (always positive if i'm not mistaken? At least after checking seems so in advciv data and in our mod AdvCiv-SAS at least so far, anyways) if i am not mistaken but this is just an assumption that could be accurate or not but that i think is (accurate), anyways -->
+			# As for decay it should remain the same as it seems to just be some time unit or span (always positive if i'm not mistaken? At least after checking seems so in advciv data and in AdvCiv-SAS at least so far), check if accurate. -->
 			return False, False
 		else:
 			# <!-- custom: lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI even for (presumably) good deeds), closer to 0 means AI cares less (0 should be		- maximum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI also, as in positive affection, for this value 0 (after adjustment) attitude, cares the least (at least we model it a such))), so we should invert indeed.
