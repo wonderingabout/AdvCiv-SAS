@@ -11,10 +11,10 @@
 # - Wrap risky operations in try/except blocks - Civ4 Python can be fragile
 #
 # Map script discovery:
-# - Searches PrivateMaps and PublicMaps directories relative to mod root
-# - Uses sys.path to find mod directory since CvUtil.getModDir() may not be reliable
-# - Falls back to checking multiple possible paths if primary method fails
+# - Uses os.getcwd() approach proven in BugHelp.py (chatgpt 5.2 solution for known issue #87 - BUG menu help not showing)
+# - Searches both mod directories (PrivateMaps/PublicMaps) AND base BTS directories for map scripts
 # - Filters out files starting with underscore (helper modules)
+# - Note: This approach relies on CWD being the "Beyond the Sword" directory, which works for Steam users but may need adjustment for non-Steam installations
 
 from CvPythonExtensions import *
 import GenericDecoratedScreen
@@ -141,17 +141,18 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		self.mapScripts = []
 		currentMapScript = gc.getInitCore().getMapScriptName()
 
-		# Get mod directory using os.getcwd() approach (thanks to chatgpt 5.2 solution in BugHelp.py)
-		# cwd returns "Beyond the Sword" directory, so we build path from there
+		# Get directories using os.getcwd() approach (known issue #87 solution from BugHelp.py)
+		# cwd returns "Beyond the Sword" directory, so we build paths from there
 		try:
 			cwd = os.getcwd()
 			modDir = os.path.join(cwd, "Mods", "AdvCiv-SAS")
 		except:
+			cwd = None
 			modDir = None
 
-		# Try to find map scripts in mod directory
+		# Scan mod directories (PrivateMaps/PublicMaps)
 		if modDir is not None:
-			# Check PrivateMaps directory
+			# Check mod's PrivateMaps directory
 			try:
 				privateMapsPath = os.path.join(modDir, "PrivateMaps")
 				if os.path.exists(privateMapsPath):
@@ -162,11 +163,37 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 			except:
 				pass
 
-			# Check PublicMaps directory
+			# Check mod's PublicMaps directory
 			try:
 				publicMapsPath = os.path.join(modDir, "PublicMaps")
 				if os.path.exists(publicMapsPath):
 					for filename in os.listdir(publicMapsPath):
+						if filename.endswith(".py") and not filename.startswith("_"):
+							scriptName = filename[:-3]
+							if scriptName not in self.mapScripts:
+								self.mapScripts.append(scriptName)
+			except:
+				pass
+
+		# Also scan base BTS directories (contains many additional maps like Arboria, Donut, etc.)
+		if cwd is not None:
+			# Check BTS PublicMaps directory
+			try:
+				btsPublicMapsPath = os.path.join(cwd, "PublicMaps")
+				if os.path.exists(btsPublicMapsPath):
+					for filename in os.listdir(btsPublicMapsPath):
+						if filename.endswith(".py") and not filename.startswith("_"):
+							scriptName = filename[:-3]
+							if scriptName not in self.mapScripts:
+								self.mapScripts.append(scriptName)
+			except:
+				pass
+
+			# Check BTS PrivateMaps directory
+			try:
+				btsPrivateMapsPath = os.path.join(cwd, "PrivateMaps")
+				if os.path.exists(btsPrivateMapsPath):
+					for filename in os.listdir(btsPrivateMapsPath):
 						if filename.endswith(".py") and not filename.startswith("_"):
 							scriptName = filename[:-3]
 							if scriptName not in self.mapScripts:
