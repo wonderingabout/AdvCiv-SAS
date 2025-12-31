@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- custom: TXT KEYS that are used for the CuCuGs implementation in AdvCiv-SAS.
+CuCuGs uses @f1rpo's proof of concept implementation here:
+
+- https://forums.civfanatics.com/threads/replacing-the-custom-game-screen-proof-of-concept.670307/?utm_source=chatgpt.com
+- https://github.com/f1rpo/CuCuGS-PoC/compare/6ef8c443795c8566442b1b66ebd1703ac7ff4e24...main (with my file not containing all the rubbish DLL diff that clutters the diff)
+
+Then expanded on it to implement an actual Custom Custom game screen, with the heavy help of claude code (VS Code extension) 2025-12-31 thanks a lot.
+-->
+<Civ4GameText xmlns="http://www.firaxis.com">
+	<TEXT>
+		<Tag>TXT_KEY_MAP_WORLD_SIZE</Tag>
+		<English>World Size:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAP_CLIMATE</Tag>
+		<English>Climate:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAP_SEA_LEVEL</Tag>
+		<English>Sea Level:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MENU_ERA</Tag>
+		<English>Era:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MENU_SPEED</Tag>
+		<English>Speed:</English>
+	</TEXT>
+</Civ4GameText>

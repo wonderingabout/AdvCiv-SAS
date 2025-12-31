@@ -37,45 +37,76 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 
 		centerX = mainPanelWidth / 2
 		centerY = mainPanelHeight / 2
-		GAMESPEED_LABEL_ID = "GameSpeedLabel"
-		# Three ways for showing a tooltip. We should settle on one.
-		# 1. DLL widget help attached to the label
-		'''
-		screen.setLabel(GAMESPEED_LABEL_ID, self.BACKGR,
-				u"<font=3>" + localText.getText("TXT_KEY_MENU_SPEED", ()) + "</font>",
-				CvUtil.FONT_RIGHT_JUSTIFY, centerX - 10, centerY + 5, 0, FontTypes.TITLE_FONT,
-				WidgetTypes.WIDGET_HELP_GAME_SPEED, GameSpeedTypes.NO_GAMESPEED, 1)
-		'''
-		# 2. Python help label attached to the label (only works for labels)
-		szGameSpeedHelp = ""
-		bFirst = True
-		for i in reversed(range(gc.getNumGameSpeedInfos())):
-			gameSpeed = gc.getGameSpeedInfo(i);
-			szLoopHelp = gameSpeed.getDescription()
-			szLoopHelp = localText.changeTextColor(szLoopHelp, gc.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"))
-			szLoopHelp += " - "
-			szLoopHelp += gameSpeed.getHelp()
-			if not bFirst:
-				szGameSpeedHelp += "\n"
-			bFirst = False
-			szGameSpeedHelp += szLoopHelp
-		screen.setHelpLabel(GAMESPEED_LABEL_ID, self.BACKGR,
-				u"<font=3>" + localText.getText("TXT_KEY_MENU_SPEED", ()) + "</font>",
-				CvUtil.FONT_RIGHT_JUSTIFY, centerX - 10, centerY + 5, 0, FontTypes.TITLE_FONT,
-				szGameSpeedHelp)
+
+		# Grid layout for dropdowns - 2 columns, 3 rows
+		dropdownWidth = 200
+		labelWidth = 100
+		rowHeight = 40
+		columnSpacing = 350  # Space between columns
+		col1X = centerX - 330  # Left column
+		col2X = col1X + columnSpacing  # Right column
+		startY = centerY - 60  # Start position
+
+		# Row 0 - Left: World Size, Right: Climate
+		self.WORLDSIZE_DROPDOWN_ID = "WorldSizeDropDown"
+		x = col1X
+		y = startY + 0 * rowHeight
+		screen.setLabel("WorldSizeLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_MAP_WORLD_SIZE", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.WORLDSIZE_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+		for i in reversed(range(gc.getNumWorldInfos())):
+			screen.addPullDownString(self.WORLDSIZE_DROPDOWN_ID, gc.getWorldInfo(i).getDescription(), i, i, i == gc.getInitCore().getWorldSize())
+
+		self.CLIMATE_DROPDOWN_ID = "ClimateDropDown"
+		x = col2X
+		screen.setLabel("ClimateLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_MAP_CLIMATE", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.CLIMATE_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+		for i in reversed(range(gc.getNumClimateInfos())):
+			screen.addPullDownString(self.CLIMATE_DROPDOWN_ID, gc.getClimateInfo(i).getDescription(), i, i, i == gc.getInitCore().getClimate())
+
+		# Row 1 - Left: Sea Level, Right: Era
+		self.SEALEVEL_DROPDOWN_ID = "SeaLevelDropDown"
+		x = col1X
+		y = startY + 1 * rowHeight
+		screen.setLabel("SeaLevelLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_MAP_SEA_LEVEL", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.SEALEVEL_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+		for i in reversed(range(gc.getNumSeaLevelInfos())):
+			screen.addPullDownString(self.SEALEVEL_DROPDOWN_ID, gc.getSeaLevelInfo(i).getDescription(), i, i, i == gc.getInitCore().getSeaLevel())
+
+		self.ERA_DROPDOWN_ID = "EraDropDown"
+		x = col2X
+		screen.setLabel("EraLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_MENU_ERA", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.ERA_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+		for i in reversed(range(gc.getNumEraInfos())):
+			screen.addPullDownString(self.ERA_DROPDOWN_ID, gc.getEraInfo(i).getDescription(), i, i, i == gc.getInitCore().getEra())
+
+		# Row 2 - Game Speed (left column, matching grid style)
 		self.GAMESPEED_DROPDOWN_ID = "GameSpeedDropDown"
-		# 3. DLL widget help attached to the dropdown menu
-		screen.addDropDownBoxGFC(self.GAMESPEED_DROPDOWN_ID, centerX, centerY, 200,
-				# NO_GAMESPEED: List help for all speed types; 1: reverse the order.
+		x = col1X
+		y = startY + 2 * rowHeight
+		screen.setLabel("GameSpeedLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_MENU_SPEED", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.GAMESPEED_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
 				WidgetTypes.WIDGET_HELP_GAME_SPEED, GameSpeedTypes.NO_GAMESPEED, 1, FontTypes.GAME_FONT)
-		# For DLL widget help, we can exert some control over the placement.
 		screen.setToolTipAlignment(self.GAMESPEED_DROPDOWN_ID, ToolTipAlignTypes.TOOLTIP_BOTTOM_RIGHT)
-		# This, however, does not seem to accomplish anything. Perhaps only works when the main interface is present. Or somehow in conjuction with setHelpTextString (STRING szString).
-		#screen.setHelpTextArea(350, FontTypes.SMALL_FONT, 0, 0, -1, True,
-		#		CyArtFileMgr().getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath(),
-		#		True, True, CvUtil.FONT_LEFT_JUSTIFY, 0)
 		for i in reversed(range(gc.getNumGameSpeedInfos())):
-			# Not going to add a "Random" selection for the moment. The original screen doesn't have one for speed either.
 			screen.addPullDownString(self.GAMESPEED_DROPDOWN_ID, gc.getGameSpeedInfo(i).getDescription(), i, i, i == gc.getInitCore().getGameSpeed())
 
 		screen.setText(self.EXIT_ID, self.BACKGR,
@@ -123,11 +154,34 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 
 	def handleInput(self, inputClass):
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED:
-			if inputClass.getFunctionName() == self.GAMESPEED_DROPDOWN_ID:
-				screen = self.getScreen()
+			screen = self.getScreen()
+			funcName = inputClass.getFunctionName()
+
+			if funcName == self.GAMESPEED_DROPDOWN_ID:
 				iIndex = screen.getSelectedPullDownID(self.GAMESPEED_DROPDOWN_ID)
 				iGameSpeed = screen.getPullDownData(self.GAMESPEED_DROPDOWN_ID, iIndex)
 				gc.getInitCore().setGameSpeed(iGameSpeed)
+
+			elif funcName == self.WORLDSIZE_DROPDOWN_ID:
+				iIndex = screen.getSelectedPullDownID(self.WORLDSIZE_DROPDOWN_ID)
+				iWorldSize = screen.getPullDownData(self.WORLDSIZE_DROPDOWN_ID, iIndex)
+				gc.getInitCore().setWorldSize(iWorldSize)
+
+			elif funcName == self.CLIMATE_DROPDOWN_ID:
+				iIndex = screen.getSelectedPullDownID(self.CLIMATE_DROPDOWN_ID)
+				iClimate = screen.getPullDownData(self.CLIMATE_DROPDOWN_ID, iIndex)
+				gc.getInitCore().setClimate(iClimate)
+
+			elif funcName == self.SEALEVEL_DROPDOWN_ID:
+				iIndex = screen.getSelectedPullDownID(self.SEALEVEL_DROPDOWN_ID)
+				iSeaLevel = screen.getPullDownData(self.SEALEVEL_DROPDOWN_ID, iIndex)
+				gc.getInitCore().setSeaLevel(iSeaLevel)
+
+			elif funcName == self.ERA_DROPDOWN_ID:
+				iIndex = screen.getSelectedPullDownID(self.ERA_DROPDOWN_ID)
+				iEra = screen.getPullDownData(self.ERA_DROPDOWN_ID, iIndex)
+				gc.getInitCore().setEra(iEra)
+
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
 			if inputClass.getButtonType() == WidgetTypes.WIDGET_CLOSE_SCREEN:
 				# In the unlikely case that the player has TAB'ed onto the original Custom Game screen. We want the new screen to have focus when it closes so that the original Launch button receives focus (by default, apparently). This doesn't work reliably, but it's better than failing everytime.

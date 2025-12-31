@@ -13,6 +13,18 @@ public:
 	int getGameSpeed();
 	void setGameSpeed(int iGameSpeed);
 
+	int getClimate();
+	void setClimate(int iClimate);
+
+	int getSeaLevel();
+	void setSeaLevel(int iSeaLevel);
+
+	int getEra();
+	void setEra(int iEra);
+
+	int getWorldSize();
+	void setWorldSize(int iWorldSize);
+
 private:
 	CvInitCore& m_kInitCore;
 };
