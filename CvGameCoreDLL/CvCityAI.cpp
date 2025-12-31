@@ -4584,7 +4584,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 {
 	PROFILE_FUNC();
 
-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: cache as eOwner as per chatgpt 5.2's recommendation to avoid reuse (not applied to things like ->getOwner() though as they look like method calls and not variables if i'm not mistaken (check if accurate as i don't know too much about these)). -->
+	PlayerTypes const eOwner = getOwner();
+	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	CvGame const& kGame = GC.getGame();
 
@@ -4702,6 +4704,27 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	// Only apply "hammer/turns/top-hammer-city" viability gates to normal, buildable buildings.
 	if ((iXMLCost > 0) && !bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
 	{
+		// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks. In autoplay, leads to exact same outcome vs before (win at 341, same scores at all savepoints i looked at) so looks good to merge if i'm not mistaken thanks. -->
+		// <!-- custom: note: as of now we only use it inside the bSAS_AI_BUILDING_VALUE_OPTIMIZE, so if this option is disabled, we don't need the cache so no reason to make it at highest scope of our function, but if you reuse this somewhere else for efficiency, remember to also move the scope of the cache. -->
+		// Is this “safe enough”?
+		// 	- For Civ4’s normal single-threaded AI: yes.
+		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode” should not mutate caches anyway, so the pattern above is aligned with that.
+		// --- SAS: per-player, per-turn cache for empire-wide "top city" scans used in some gates.
+		// Updated only when !bConstCache (async/const-eval stays side-effect free).
+		static bool s_abTopHptValid[MAX_PLAYERS];
+		static int  s_aiTopHptTurn[MAX_PLAYERS];
+		static int  s_aiTopHptNumCities[MAX_PLAYERS];
+		static int  s_aiBestHpt[MAX_PLAYERS];
+		static int  s_aiSecondBestHpt[MAX_PLAYERS];
+		static int  s_aiThirdBestHpt[MAX_PLAYERS];
+
+		static bool s_abTopM100Valid[MAX_PLAYERS];
+		static int  s_aiTopM100Turn[MAX_PLAYERS];
+		static int  s_aiTopM100NumCities[MAX_PLAYERS];
+		static int  s_aiBestM100[MAX_PLAYERS];
+		static int  s_aiSecondBestM100[MAX_PLAYERS];
+		static int  s_aiNumCitiesHighM100[MAX_PLAYERS];
+
 		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
 		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
@@ -5786,25 +5809,43 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			const bool bTop2Hammer = (iProductionRank <= 2);
 			// const bool bTop3Hammer = (iProductionRank <= 3);
 
+			// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
+			const int iCurrentTurn = kGame.getGameTurn();
+
 			int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0;
-			FOR_EACH_CITY(pLoopCity, kOwner)
+
+			const bool bHammerCacheValid =
+				s_abTopHptValid[eOwner] &&
+				s_aiTopHptTurn[eOwner] == iCurrentTurn &&
+				s_aiTopHptNumCities[eOwner] == iNumCities;
+
+			if (bHammerCacheValid)
 			{
-				// --- top-3 base hammers -----------------------------------------------
-				const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
-				if (h > iBestHpt)
+				iBestHpt = s_aiBestHpt[eOwner];
+				iSecondBestHpt = s_aiSecondBestHpt[eOwner];
+				iThirdBestHpt = s_aiThirdBestHpt[eOwner];
+			}
+			else
+			{
+				int b1 = 0, b2 = 0, b3 = 0;
+				FOR_EACH_CITY(pLoopCity, kOwner)
 				{
-					iThirdBestHpt = iSecondBestHpt;
-					iSecondBestHpt = iBestHpt;
-					iBestHpt = h;
+					const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
+					if (h > b1) { b3 = b2; b2 = b1; b1 = h; }
+					else if (h > b2) { b3 = b2; b2 = h; }
+					else if (h > b3) { b3 = h; }
 				}
-				else if (h > iSecondBestHpt)
+
+				iBestHpt = b1; iSecondBestHpt = b2; iThirdBestHpt = b3;
+
+				if (!bConstCache)
 				{
-					iThirdBestHpt = iSecondBestHpt;
-					iSecondBestHpt = h;
-				}
-				else if (h > iThirdBestHpt)
-				{
-					iThirdBestHpt = h;
+					s_abTopHptValid[eOwner] = true;
+					s_aiTopHptTurn[eOwner] = iCurrentTurn;
+					s_aiTopHptNumCities[eOwner] = iNumCities;
+					s_aiBestHpt[eOwner] = b1;
+					s_aiSecondBestHpt[eOwner] = b2;
+					s_aiThirdBestHpt[eOwner] = b3;
 				}
 			}
 			// const bool bTop2Hammer = (iBaseHammersPerTurn >= iSecondBestHpt);
@@ -5948,27 +5989,47 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							// <!-- custom: save computation by computing this only when/where we need it, as of now only in this block, anyways etc -->
 							// Yep—smartest path is to compute heavy stuff only when a candidate actually needs it, and only for the duration of the single AI_buildingValue call (no cross-call cache).
 							// Minimal patch sketch (lazy, per-call only)
+							// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
 							int iBestM100 = 0, iSecondBestM100 = 0;
 							int iNumCitiesHighM100 = 0;
-							FOR_EACH_CITY(pLoopCity, kOwner)
+
+							const bool bM100CacheValid =
+								s_abTopM100Valid[eOwner] &&
+								s_aiTopM100Turn[eOwner] == iCurrentTurn &&
+								s_aiTopM100NumCities[eOwner] == iNumCities;
+
+							if (bM100CacheValid)
 							{
-								// --- maintenance×100 (global + same landmass) --------------------------
-								// global top-2
-								const int m100 = pLoopCity->getMaintenanceTimes100();
-								if (m100 > iBestM100)
+								iBestM100 = s_aiBestM100[eOwner];
+								iSecondBestM100 = s_aiSecondBestM100[eOwner];
+								iNumCitiesHighM100 = s_aiNumCitiesHighM100[eOwner];
+							}
+							else
+							{
+								int b1 = 0, b2 = 0, nHigh = 0;
+								FOR_EACH_CITY(pLoopCity, kOwner)
 								{
-									iSecondBestM100 = iBestM100;
-									iBestM100 = m100;
+									const int m100 = pLoopCity->getMaintenanceTimes100();
+									if (m100 > b1) { b2 = b1; b1 = m100; }
+									else if (m100 > b2) { b2 = m100; }
+
+									if (m100 >= iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS)
+										++nHigh;
 								}
-								else if (m100 > iSecondBestM100)
+
+								iBestM100 = b1; iSecondBestM100 = b2; iNumCitiesHighM100 = nHigh;
+
+								if (!bConstCache)
 								{
-									iSecondBestM100 = m100;
-								}
-								if (m100 >= iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS)
-								{
-									++iNumCitiesHighM100;
+									s_abTopM100Valid[eOwner] = true;
+									s_aiTopM100Turn[eOwner] = iCurrentTurn;
+									s_aiTopM100NumCities[eOwner] = iNumCities;
+									s_aiBestM100[eOwner] = b1;
+									s_aiSecondBestM100[eOwner] = b2;
+									s_aiNumCitiesHighM100[eOwner] = nHigh;
 								}
 							}
+
 							if (iNumCitiesHighM100 > iMinNumCitiesHighM100)
 							{
 								// <!-- custom: don't build in highest hammer cities, they may already be low maintenance so no need especially if capital, build instead in highest maintenance city anyways etc -->
@@ -6068,7 +6129,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			kBuilding.isAreaCleanPower());
 	int const iTotalPopulation = kOwner.getTotalPopulation();
 
-	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
+	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(eOwner);
 	// <K-Mod>
 	int const iCitiesTarget = GC.getInfo(GC.getMap().getWorldSize()).
 			getTargetNumCities(); // </K-Mod>
@@ -6138,7 +6199,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		return 0;
 	
 	// <advc.014>
-	if(GET_TEAM(getOwner()).isCapitulated() && bWorldWonder &&
+	if(GET_TEAM(eOwner).isCapitulated() && bWorldWonder &&
 		kBuilding.getHolyCity() == NO_RELIGION)
 	{
 		return 0;
@@ -7163,7 +7224,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					int iOtherPlayers = 0;
 					for(PlayerIter<MAJOR_CIV> itOther; itOther.hasNext(); ++itOther)
 					{
-						if (itOther->getID() == getOwner())
+						if (itOther->getID() == eOwner)
 							continue;
 						iOtherPlayers++;
 						if (kOwner.getStateReligion() == itOther->getStateReligion())
@@ -7801,7 +7862,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						// increase priority if we need culture oppressed city
 						/*	K-Mod: moved this to outside of the current "if".
 							It should still apply even when going for a cultural victory! */
-						//iCommerceMultiplierValue *= (100 - calculateCulturePercent(getOwner()));
+						//iCommerceMultiplierValue *= (100 - calculateCulturePercent(eOwner));
 					}
 				}
 				else
@@ -7846,7 +7907,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						BuildingTypes eLoopBuilding = kCiv.buildingAt(i);
 						if (GC.getInfo(eLoopBuilding).getReligionType() == eStateReligion &&
-							!GET_TEAM(kOwner.getTeam()).isObsoleteBuilding(eLoopBuilding))
+						// <!-- custom: cache as the existing kTeam if i am not mistaken (check if accurate as i don't know too much about these) -->
+							!kTeam.isObsoleteBuilding(eLoopBuilding))
 						{
 							iCount += kOwner.getBuildingClassCountPlusMaking(
 									kCiv.buildingClassAt(i));
