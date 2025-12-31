@@ -231,14 +231,6 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 				bSelected = scriptName == currentMapScript
 				screen.addPullDownString(self.MAPSCRIPT_DROPDOWN_ID, scriptName, i, i, bSelected)
 
-		# Store grid layout parameters for custom map options refresh
-		self.col1X = col1X
-		self.col2X = col2X
-		self.startY = startY
-		self.rowHeight = rowHeight
-		self.labelWidth = labelWidth
-		self.dropdownWidth = dropdownWidth
-
 		# Custom Map Options (Resources, Shoreline, World Wrap) - dynamically added based on map script
 		self.customMapOptionIDs = []
 		self.loadCustomMapOptions()
@@ -247,6 +239,16 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		# This table starts on the right side with enough spacing to avoid overlap
 		table2StartX = col2X + labelWidth + dropdownWidth + 50  # Position after the first table's right column
 		table2StartY = centerY - 60  # Same vertical start as first table
+
+		# Store grid layout parameters for custom map options refresh and leader dropdown refresh
+		self.col1X = col1X
+		self.col2X = col2X
+		self.startY = startY
+		self.rowHeight = rowHeight
+		self.labelWidth = labelWidth
+		self.dropdownWidth = dropdownWidth
+		self.table2StartX = table2StartX
+		self.table2StartY = table2StartY
 
 		# Human Player Difficulty dropdown
 		# Note: In Civ4, only the human player's difficulty is adjustable
@@ -264,6 +266,40 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		currentDifficulty = gc.getInitCore().getHandicap(0)
 		for i in reversed(range(gc.getNumHandicapInfos())):
 			screen.addPullDownString(self.DIFFICULTY_DROPDOWN_ID, gc.getHandicapInfo(i).getDescription(), i, i, i == currentDifficulty)
+
+		# Civilization dropdown
+		self.CIVILIZATION_DROPDOWN_ID = "CivilizationDropDown"
+		x = table2StartX
+		y = table2StartY + 1 * rowHeight
+		screen.setLabel("CivilizationLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_GAME_CIVILIZATION", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.CIVILIZATION_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+		# Get current civilization for human player (player 0)
+		currentCiv = gc.getInitCore().getCiv(0)
+		# Add Random option first
+		screen.addPullDownString(self.CIVILIZATION_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_RANDOM", ()), gc.getNumCivilizationInfos(), gc.getNumCivilizationInfos(), currentCiv == gc.getNumCivilizationInfos())
+		# Add all civilizations
+		for i in range(gc.getNumCivilizationInfos()):
+			civInfo = gc.getCivilizationInfo(i)
+			if not civInfo.isPlayable():
+				continue
+			screen.addPullDownString(self.CIVILIZATION_DROPDOWN_ID, civInfo.getDescription(), i, i, i == currentCiv)
+
+		# Leader dropdown (will be populated based on civilization selection)
+		self.LEADER_DROPDOWN_ID = "LeaderDropDown"
+		x = table2StartX
+		y = table2StartY + 2 * rowHeight
+		screen.setLabel("LeaderLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_GAME_LEADER", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.LEADER_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+		# Populate leader dropdown based on current civilization
+		self.refreshLeaderDropdown()
 
 		screen.setText(self.EXIT_ID, self.BACKGR,
 				u"<font=4>" + localText.getText("TXT_KEY_MAIN_MENU_LAUNCH", ()).upper() + "</font>",
@@ -378,6 +414,42 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		self.loadCustomMapOptions()
 
 
+	def refreshLeaderDropdown(self):
+		# Refresh the leader dropdown based on the currently selected civilization
+		screen = self.getScreen()
+
+		# Clear the leader dropdown
+		screen.deleteWidget(self.LEADER_DROPDOWN_ID)
+		screen.addDropDownBoxGFC(self.LEADER_DROPDOWN_ID, self.table2StartX + self.labelWidth, self.table2StartY + 2 * self.rowHeight, self.dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+
+		# Get current civilization and leader
+		currentCiv = gc.getInitCore().getCiv(0)
+		currentLeader = gc.getInitCore().getLeader(0)
+
+		# If Random civilization is selected, show Random leader only
+		if currentCiv >= gc.getNumCivilizationInfos() or currentCiv < 0:
+			screen.addPullDownString(self.LEADER_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_RANDOM", ()), gc.getNumLeaderHeadInfos(), gc.getNumLeaderHeadInfos(), True)
+		else:
+			# Get the civilization info
+			civInfo = gc.getCivilizationInfo(currentCiv)
+
+			# Check if we got a valid civInfo (should always be true if currentCiv is in valid range)
+			if civInfo is not None:
+				# Add Random option first
+				screen.addPullDownString(self.LEADER_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_RANDOM", ()), gc.getNumLeaderHeadInfos(), gc.getNumLeaderHeadInfos(), currentLeader == gc.getNumLeaderHeadInfos())
+
+				# Add leaders for this civilization
+				for i in range(gc.getNumLeaderHeadInfos()):
+					leaderInfo = gc.getLeaderHeadInfo(i)
+					# Check if this leader is available for this civilization
+					if civInfo.isLeaders(i):
+						screen.addPullDownString(self.LEADER_DROPDOWN_ID, leaderInfo.getDescription(), i, i, i == currentLeader)
+			else:
+				# Fallback: if civInfo is None, just show Random
+				screen.addPullDownString(self.LEADER_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_RANDOM", ()), gc.getNumLeaderHeadInfos(), gc.getNumLeaderHeadInfos(), True)
+
+
 	def update(self, fDelta): # called after handleInput
 		pass
 
@@ -429,6 +501,20 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 				# Also set all AI players to Noble (standard Civ4 behavior)
 				# This ensures the game can start properly
 				gc.getInitCore().setAIHandicap(gc.getInfoTypeForString("HANDICAP_NOBLE"))
+
+			elif funcName == self.CIVILIZATION_DROPDOWN_ID:
+				iIndex = screen.getSelectedPullDownID(self.CIVILIZATION_DROPDOWN_ID)
+				iCiv = screen.getPullDownData(self.CIVILIZATION_DROPDOWN_ID, iIndex)
+				# Set civilization for human player (player 0)
+				gc.getInitCore().setCiv(0, iCiv)
+				# Refresh leader dropdown to show leaders for this civilization
+				self.refreshLeaderDropdown()
+
+			elif funcName == self.LEADER_DROPDOWN_ID:
+				iIndex = screen.getSelectedPullDownID(self.LEADER_DROPDOWN_ID)
+				iLeader = screen.getPullDownData(self.LEADER_DROPDOWN_ID, iIndex)
+				# Set leader for human player (player 0)
+				gc.getInitCore().setLeader(0, iLeader)
 
 			else:
 				# Handle custom map options

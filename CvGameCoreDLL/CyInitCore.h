@@ -36,6 +36,11 @@ public:
 	void setHandicap(int ePlayerID, int eHandicap);
 	void setAIHandicap(int eHandicap);
 
+	int getCiv(int ePlayerID);
+	void setCiv(int ePlayerID, int eCiv);
+	int getLeader(int ePlayerID);
+	void setLeader(int ePlayerID, int eLeader);
+
 private:
 	CvInitCore& m_kInitCore;
 };

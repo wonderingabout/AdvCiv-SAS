@@ -22,5 +22,9 @@ void CyInitCoreInterface()
 		.def("getHandicap", &CyInitCore::getHandicap, "int (int ePlayerID)")
 		.def("setHandicap", &CyInitCore::setHandicap, "void (int ePlayerID, int eHandicap)")
 		.def("setAIHandicap", &CyInitCore::setAIHandicap, "void (int eHandicap)")
+		.def("getCiv", &CyInitCore::getCiv, "int (int ePlayerID)")
+		.def("setCiv", &CyInitCore::setCiv, "void (int ePlayerID, int eCiv)")
+		.def("getLeader", &CyInitCore::getLeader, "int (int ePlayerID)")
+		.def("setLeader", &CyInitCore::setLeader, "void (int ePlayerID, int eLeader)")
 	;
 }

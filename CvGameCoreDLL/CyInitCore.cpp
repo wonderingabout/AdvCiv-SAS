@@ -158,3 +158,53 @@ void CyInitCore::setAIHandicap(int eHandicap)
 		}
 	}
 }
+
+int CyInitCore::getCiv(int ePlayerID)
+{
+	if (ePlayerID < 0 || ePlayerID >= MAX_CIV_PLAYERS)
+	{
+		FAssertMsg(false, "index out of bounds");
+		return NO_CIVILIZATION;
+	}
+	return m_kInitCore.getCiv((PlayerTypes)ePlayerID);
+}
+
+void CyInitCore::setCiv(int ePlayerID, int eCiv)
+{
+	if (ePlayerID < 0 || ePlayerID >= MAX_CIV_PLAYERS)
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	if (eCiv < 0 || eCiv >= GC.getNumCivilizationInfos())
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	m_kInitCore.setCiv((PlayerTypes)ePlayerID, (CivilizationTypes)eCiv);
+}
+
+int CyInitCore::getLeader(int ePlayerID)
+{
+	if (ePlayerID < 0 || ePlayerID >= MAX_CIV_PLAYERS)
+	{
+		FAssertMsg(false, "index out of bounds");
+		return NO_LEADER;
+	}
+	return m_kInitCore.getLeader((PlayerTypes)ePlayerID);
+}
+
+void CyInitCore::setLeader(int ePlayerID, int eLeader)
+{
+	if (ePlayerID < 0 || ePlayerID >= MAX_CIV_PLAYERS)
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	if (eLeader < 0 || eLeader >= GC.getNumLeaderHeadInfos())
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	m_kInitCore.setLeader((PlayerTypes)ePlayerID, (LeaderHeadTypes)eLeader);
+}
