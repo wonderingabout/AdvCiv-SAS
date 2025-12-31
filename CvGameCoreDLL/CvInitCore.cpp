@@ -2,6 +2,7 @@
 #include "CvInitCore.h"
 #include "CvPlayer.h"
 #include "CvInfo_GameOption.h"
+#include "CvDLLPythonIFaceBase.h" // ccgs: for callFunction
 
 
 CvInitCore::CvInitCore()
@@ -73,6 +74,7 @@ void CvInitCore::reset(GameMode eMode)
 	setMode(eMode);
 	if (getMode() != NO_GAMEMODE)
 		setDefaults();
+	m_bOnCustomGameScreen = false; // ccgs
 }
 
 void CvInitCore::setDefaults()
@@ -861,6 +863,12 @@ const CvWString& CvInitCore::getEraKey(CvWString& szBuffer) const
 	return szBuffer;
 }
 
+// ccgs: Definition moved out of header for easier debugging
+void CvInitCore::setGameSpeed(GameSpeedTypes eGameSpeed)
+{
+	m_eGameSpeed = eGameSpeed;
+}
+
 void CvInitCore::setGameSpeed(CvWString const& szGameSpeed)
 {
 	FOR_EACH_ENUM(GameSpeed)
@@ -1006,7 +1014,23 @@ void CvInitCore::setCustomMapOption(int iOptionID, CustomMapOptionTypes eCustomM
 		m_aeCustomMapOptions[iOptionID] = eCustomMapOption;
 }
 
+// <ccgs>
 void CvInitCore::setVictories(int iVictories, bool const* abVictories)
+{
+	/*	Forward to a new function to prevent DLL-internal calls
+		from disrupting my Custom Game vs. Play Now detection. */
+	setVictoriesInternal(iVictories, abVictories);
+	if (iVictories > 0 && getType() == GAME_SP_NEW)
+	{
+		/*	The Custom Game screen calls setVictories before and after setActivePlayer,
+			the Play Now screen (leader selection) calls setVictories once:
+			after setActivePlayer. */
+		m_bOnCustomGameScreen = !m_bOnCustomGameScreen;
+	}
+}
+
+void CvInitCore::setVictoriesInternal( // </ccgs>
+	int iVictories, bool const* abVictories)
 {
 	SAFE_DELETE_ARRAY(m_abVictories);
 	m_iNumVictories = 0;
@@ -1075,6 +1099,14 @@ void CvInitCore::setActivePlayer(PlayerTypes eActivePlayer)
 	if (m_eActivePlayer != NO_PLAYER)
 	{	// Automatically claim this slot
 		setSlotClaim(m_eActivePlayer, SLOTCLAIM_ASSIGNED);
+		// <ccgs>
+		if (getType() == GAME_SP_NEW && m_bOnCustomGameScreen)
+		{
+			bool bSuccess = gDLL->getPythonIFace()->callFunction(
+					PYScreensModule, "showCustomGameScreen");
+			FAssert(bSuccess);
+			(void)bSuccess; // Suppress unused variable warning in Release builds
+		} // </ccgs>
 	}
 	else m_eActiveTeam = NO_TEAM; // advc.opt
 }

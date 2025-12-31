@@ -37,6 +37,7 @@ import CvWorldBuilderDiplomacyScreen
 import CvDebugTools
 import CvDebugInfoScreen
 import GameFontDisplay # advc.gfd
+import CustomGameScreen # ccgs
 #import CvDiplomacy
 
 import CvUtil
@@ -115,6 +116,12 @@ def showCorporationScreen():
 optionsScreen = CvOptionsScreen.CvOptionsScreen()
 def showOptionsScreen():
 	optionsScreen.interfaceScreen()
+
+# ccgs - Custom Game Screen
+customGameScreen = CustomGameScreen.CustomGameScreen()
+def showCustomGameScreen():
+	customGameScreen.interfaceScreen()
+# ccgs end
 
 #foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
 foreignAdvisor = CvExoticForeignAdvisor.CvExoticForeignAdvisor()
@@ -1185,6 +1192,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					SPACE_SHIP_SCREEN : spaceShip,
 					INTRO_MOVIE_SCREEN : introMovie,
 					OPTIONS_SCREEN : optionsScreen,
+					CUSTOM_GAME_SCREEN : customGameScreen, # ccgs
 					INFO_SCREEN : infoScreen,
 					REPLAY_SCREEN : replayScreen,
 					VICTORY_SCREEN : victoryScreen,
@@ -1198,7 +1206,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					DEBUG_INFO_SCREEN : debugInfoScreen,
 					# advc.gfd:
 					GAMEFONT_DISPLAY_SCREEN : GameFontDisplay.GameFontDisplay(),
-				
+
 				# add new screens here
 				}
 

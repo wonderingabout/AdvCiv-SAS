@@ -8,6 +8,7 @@
 #include "CyMap.h"
 #include "CyPlayer.h"
 #include "CyGame.h"
+#include "CyInitCore.h" // ccgs
 #include "CyTeam.h"
 
 
@@ -17,6 +18,8 @@ void CyGlobalContextPythonInterface1(python::class_<CyGlobalContext>& x)
 
 	x
 		.def("isDebugBuild", &CyGlobalContext::isDebugBuild, "() - returns true if running a debug build")
+		// ccgs:
+		.def("getInitCore", &CyGlobalContext::getCyInitCore, python::return_value_policy<python::reference_existing_object>(), "() - CyInitCore()")
 		.def("getGame", &CyGlobalContext::getCyGame, python::return_value_policy<python::reference_existing_object>(), "() - CyGame()")
 		.def("getMap", &CyGlobalContext::getCyMap, python::return_value_policy<python::reference_existing_object>(), "() - CyMap()")
 		.def("getPlayer", &CyGlobalContext::getCyPlayer, python::return_value_policy<python::reference_existing_object>(), "(iPlayer) - iPlayer instance")

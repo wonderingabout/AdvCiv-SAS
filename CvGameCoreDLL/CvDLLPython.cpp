@@ -30,6 +30,7 @@ void CyGameTextMgrInterface();
 void CyHallOfFameInterface();
 void CyGameCoreUtilsPythonInterface();
 void CyMessageControlInterface();
+void CyInitCoreInterface(); // ccgs
 
 //
 //
@@ -53,6 +54,7 @@ DllExport void DLLPublishToPython()
 	CyHallOfFameInterface();
 	CyGameCoreUtilsPythonInterface();
 	CyMessageControlInterface();
+	CyInitCoreInterface(); // ccgs
 
 	//
 	// large interfaces which can be split across files if need be

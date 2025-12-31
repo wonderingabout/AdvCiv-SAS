@@ -22310,3 +22310,26 @@ void CvGameTextMgr::setCorporationLink(CvWString& szBuffer, CorporationTypes eCo
 	szBuffer.append(CvWString::format(L"<link=%s>%s</link>",
 			szCorpType.c_str(), GC.getInfo(eCorp).getDescription()));
 }
+
+// ccgs:
+void CvGameTextMgr::setGameSpeedHelp(CvWStringBuffer &szBuffer, GameSpeedTypes eGameSpeed, bool bReverse)
+{
+	if (eGameSpeed != NO_GAMESPEED)
+	{	// (unused so far)
+		szBuffer.append(GC.getInfo(eGameSpeed).getHelp());
+		return;
+	}
+	bool bFirst = true;
+	for (int i = bReverse ? GC.getNumGameSpeedInfos() - 1 : 0;
+		bReverse ? (i >= 0) : (i < GC.getNumGameSpeedInfos()); bReverse ? (i--) : (i++))
+	{
+		CvGameSpeedInfo const& kGameSpeed = GC.getInfo((GameSpeedTypes)i);
+		CvWString szTempBuffer;
+		szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+				kGameSpeed.getDescription());
+		szTempBuffer.append(L" - ");
+		szTempBuffer.append(kGameSpeed.getHelp());
+		setListHelp(szBuffer, L"", szTempBuffer, NEWLINE, bFirst);
+		bFirst = false;
+	}
+}

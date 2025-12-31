@@ -107,8 +107,8 @@ public:
 	DllExport void setEra(const CvWString& szEra);
 	DllExport const CvWString& getEraKey(CvWString& szBuffer) const;
 
-	GameSpeedTypes getGameSpeed() const { return m_eGameSpeed; }
-	void setGameSpeed(GameSpeedTypes eGameSpeed) { m_eGameSpeed = eGameSpeed; }
+	DllExport GameSpeedTypes getGameSpeed() const { return m_eGameSpeed; } // ccgs: Exposed to Python
+	DllExport void setGameSpeed(GameSpeedTypes eGameSpeed); // ccgs: Exposed to Python
 	DllExport void setGameSpeed(const CvWString& szGameSpeed);
 	DllExport const CvWString& getGameSpeedKey(CvWString& szBuffer) const;
 
@@ -343,6 +343,9 @@ protected:
 	unsigned int m_uiMapRandSeed;
 	PlayerTypes m_eActivePlayer;
 	GameMode m_eMode;
+	/*	ccgs: (Caveat: Changing the memory layout of this class above this line
+		can lead to memory corruptions) */
+	bool m_bOnCustomGameScreen;
 
 	// advc (note): From here on, it seems to be OK to change the memory layout.
 
@@ -406,13 +409,16 @@ protected:
 
 	/*void clearVictories();
 	void refreshVictories();*/ // advc: Easier to understand w/o these
+	// ccgs:
+	void setVictoriesInternal(int iNumVictories, const bool* abVictories);
 };
 
 /*  advc.003k: OK to increase the size of CvInitCore (and to update or remove this
 	assertion). Just make sure that new data members are added in the right place.
 	And think about whether they need to by synchronized in network games. */
+// ccgs: Updated from 448/424 to account for m_bOnCustomGameScreen (bool, client-side only)
 BOOST_STATIC_ASSERT(sizeof(CvInitCore) ==
-		(sizeof(ArrayEnumMap<PlayerTypes,bool>) > 4 ? 448 : 424));
+		(sizeof(ArrayEnumMap<PlayerTypes,bool>) > 4 ? 452 : 428));
 // <advc>
 BOOST_STATIC_ASSERT(
 		// Custom Game screen probably relies on these

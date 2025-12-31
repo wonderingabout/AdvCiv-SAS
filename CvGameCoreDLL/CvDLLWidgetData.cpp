@@ -13,6 +13,7 @@
 #include "CvBugOptions.h"
 #include "WarEvaluator.h" // advc.104l
 #include "RiseFall.h" // advc.706
+#include "InputSim.h" // ccgs
 
 
 CvDLLWidgetData* CvDLLWidgetData::m_pInst = NULL;
@@ -786,6 +787,10 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		parseGoldenAgeAnarchyHelp((PlayerTypes)widgetDataStruct.m_iData1,
 				widgetDataStruct.m_iData2, true, szBuffer);
 		break;
+	// <ccgs>
+	case WIDGET_HELP_GAME_SPEED:
+		GAMETEXT.setGameSpeedHelp(szBuffer, (GameSpeedTypes)widgetDataStruct.m_iData1, widgetDataStruct.m_iData2 == 1);
+		break; // </ccgs>
 	}
 	if (getActivePlayer() == NO_PLAYER)
 		return;
@@ -1098,6 +1103,27 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 				(iData1 == 1 ? CONTROL_CYCLEWORKER : CONTROL_CYCLEUNIT_ALT));
 		break;
 	} // </advc.154>
+	// <ccgs>
+	case WIDGET_CLOSE_SCREEN:
+		// Check for ID of CustomGameScreen.py
+		if (widgetDataStruct.m_iData1 == 33)
+		{
+			switch(widgetDataStruct.m_iData2)
+			{
+			case 0: input_sim::keyPressed(VK_RETURN); break;
+			case 1:
+			{
+				std::vector<byte> aucKeySeq;
+				aucKeySeq.push_back(VK_TAB);
+				aucKeySeq.push_back(VK_RETURN);
+				input_sim::keySequence(aucKeySeq);
+				break;
+			}
+			case 2: input_sim::mouseClicked(); break;
+			}
+		}
+		break;
+	// </ccgs>
 	}
 
 	return bHandled;
