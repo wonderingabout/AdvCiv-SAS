@@ -231,8 +231,96 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# K-Mod end
 
 		self.iDefaultScreen = self.SCREEN_DICT["RELATIONS"]
-						
+
+	# <!-- custom: initialize text and icon caches once for performance, based on Info Screen and Victory Screen pattern (claude code sonnet 4.5) -->
+	def initText(self):
+		# only execute this function once per language...
+		if self.iLanguageLoaded == CyGame().getCurrentLanguage() or not CyGame().isFinalInitialized():
+			return
+		self.iLanguageLoaded = CyGame().getCurrentLanguage()
+
+		# <!-- custom: precompute commonly used text strings to avoid repeated lookups (claude code sonnet 4.5) -->
+		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
+		self.SCREEN_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + u"</font>"
+
+		# <!-- custom: precompute tab/column header texts (claude code sonnet 4.5) -->
+		self.TEXT_LEADER = localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ())
+		self.TEXT_WILL_IMPORT = localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_IMPORT", ())
+		self.TEXT_WILL_EXPORT = localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_EXPORT", ())
+		self.TEXT_WILL_NOT_EXPORT = localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_EXPORT", ())
+		self.TEXT_NO_NEED = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_NEED", ())
+		self.TEXT_IMPORTING = localText.getText("TXT_KEY_FOREIGN_ADVISOR_IMPORTING", ())
+		self.TEXT_EXPORTING = localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORTING", ())
+
+		# <!-- custom: tech table headers (claude code sonnet 4.5) -->
+		self.TEXT_WANTS = localText.getText("TXT_KEY_FOREIGN_ADVISOR_WANTS", ())
+		self.TEXT_CANT_RECEIVE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_RECEIVE", ())
+		self.TEXT_CAN_RESEARCH = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CAN_RESEARCH", ())
+		self.TEXT_FOR_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2", ())
+		self.TEXT_NOT_FOR_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2", ())
+		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
+
+		# <!-- custom: city table headers (claude code sonnet 4.5) -->
+		self.TEXT_WILL_CEDE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_CEDE", ())
+
+		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
+		self.TEXT_REJECTS = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)
+		self.TEXT_WONT_CEDE = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor)
+		# <!-- custom: messages (claude code sonnet 4.5) -->
+		self.TEXT_NOT_CONNECTED = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_CONNECTED", ())
+		self.TEXT_NO_TECH_TRADING = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING", ())
+		self.TEXT_MORE_CITIES = localText.getText("TXT_KEY_FOREIGN_ADVISOR_MORE_CITIES", (0,))  # format later with actual count
+		self.TEXT_FAVORITES = localText.getText("TXT_KEY_PEDIA_FAVORITES", ())
+
+		# <!-- custom: precompute commonly used icon symbols (claude code sonnet 4.5) -->
+		self.iReligionIcon = CyGame().getSymbolID(FontSymbols.RELIGION_CHAR)
+		self.iTradeIcon = CyGame().getSymbolID(FontSymbols.TRADE_CHAR)
+		self.iCitizenIcon = CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
+		self.iOccupationIcon = CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)
+
+		# <!-- custom: precompute formatted icon strings (claude code sonnet 4.5) -->
+		self.szReligionIconStr = u"%c" % self.iReligionIcon
+		self.szTradeIconStr = u"%c" % self.iTradeIcon
+		self.szTradeCommerceIconStr = u"%c%c" % (self.iTradeIcon, gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
+
+		# <!-- custom: i don't know what this is for, but since we renamed it to as of now just "Favorites:" to include favorite religions as well, may as well remove this alternative one anyways etc. -->
+		# if FavoriteCivicDetector.isDetectionNecessary():
+		# 	fcHeaderText = BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_POSSIBLE_FAV_CIVICS")
+		# else:
+		# 	fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAV_CIVIC")
+		#fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
+
+		# <!-- custom: perf opt: looks like this can be moved to init entirely if i'm not mistaken. -->
+		self.headerTexts = (
+			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"),
+			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE"),
+			# <!-- custom: use cached icon values for performance (claude code sonnet 4.5) -->
+			self.szReligionIconStr, 
+			self.szTradeIconStr,
+			self.szTradeCommerceIconStr,
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT"),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LEGAL"),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LABOR"),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_ECONOMY"),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_RELIGION"),
+			"",
+			BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
+		)
+
+		# <!-- custom: calculate tab widths (claude code sonnet 4.5) -->
+		self.LABEL_WIDTH_LIST[:] = []
+		width_list = []
+		for i in self.ORDER_LIST:
+			width_list.append(CyInterface().determineWidth(localText.getText(self.TXT_KEY_DICT[i], ()).upper()) + 20)
+		total_width = sum(width_list) + CyInterface().determineWidth(self.EXIT_TEXT) + 20
+
+		for i in width_list:
+			self.LABEL_WIDTH_LIST.append((self.X_EXIT * i + total_width/2) / total_width)
+
 	def interfaceScreen (self, iScreen):
+
+		# <!-- custom: initialize text once for performance (claude code sonnet 4.5) -->
+		self.initText()
 
 		# self.ATTITUDE_DICT = {
 		# 	"COLOR_YELLOW": re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_FRIENDLY", ())),
@@ -254,9 +342,6 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				iScreen = self.iDefaultScreen
 			else:
 				iScreen = self.iScreen
-		
-		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
-		self.SCREEN_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + u"</font>"
 
 		if (self.iScreen != iScreen):	
 			self.killScreen()
@@ -370,18 +455,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		#xLink = self.DX_LINK / 2;
 		# K-Mod
 		xLink = 0
-		if self.iLanguageLoaded != CyGame().getCurrentLanguage():
-			self.LABEL_WIDTH_LIST[:] = []
-			width_list = []
-			for i in self.ORDER_LIST:
-				width_list.append(CyInterface().determineWidth(localText.getText(self.TXT_KEY_DICT[i], ()).upper()) + 20)
-			total_width = sum(width_list) + CyInterface().determineWidth(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()) + 20
-
-			for i in width_list:
-				self.LABEL_WIDTH_LIST.append((self.X_EXIT * i + total_width/2) / total_width)
-
-			self.iLanguageLoaded = CyGame().getCurrentLanguage()
-		# K-Mod end (except that I've used LABEL_WIDTH_DICT below) 
+		# <!-- custom: LABEL_WIDTH_LIST calculation moved to initText() for performance (claude code sonnet 4.5) -->
 
 		for i in range (len (self.ORDER_LIST)):
 			szScreen = self.ORDER_LIST[i]
@@ -563,8 +637,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# szCivicsPreText = szSeparator + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()) + ":"
 		szCivicsPreText = szSeparator
 		# <!-- custom: add spacing so the Favorites part of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
-		# szFavoritesPreText = localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
-		szFavoritesPreText = szSeparator + localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
+		# szFavoritesPreText = self.TEXT_FAVORITES + ":"
+		szFavoritesPreText = szSeparator + self.TEXT_FAVORITES + ":"
 
 		# loop through all players and display leaderheads
 		# Their leaderheads
@@ -657,28 +731,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		screen.addPanel(headerPanelName, "", "", False, True, iLeft, iTop, iWidth, iHeight, PanelStyles.PANEL_STYLE_EMPTY)
 
 		iOffset = 0
-
-		# <!-- custom: i don't know what this is for, but since we renamed it to as of now just "Favorites:" to include favorite religions as well, may as well remove this alternative one anyways etc. -->
-		# if FavoriteCivicDetector.isDetectionNecessary():
-		# 	fcHeaderText = BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_POSSIBLE_FAV_CIVICS")
-		# else:
-		# 	fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAV_CIVIC")
-		fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
 		
-		for headerText in (
-			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"),
-			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE"),
-			u"%c" %(CyGame().getSymbolID(FontSymbols.RELIGION_CHAR)), 
-			u"%c" %(CyGame().getSymbolID(FontSymbols.TRADE_CHAR)),
-			u"%c%c" %(CyGame().getSymbolID(FontSymbols.TRADE_CHAR),gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT"),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LEGAL"),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LABOR"),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_ECONOMY"),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_RELIGION"),
-			"",
-			fcHeaderText
-		):
+		for headerText in self.headerTexts:
 			itemName = self.getNextWidgetName()
 			screen.attachTextGFC(headerPanelName, itemName, headerText, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
@@ -1131,29 +1185,30 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.activeImportCol = 7
 		self.payingCol = 8
 		
-		self.resIconGrid.setHeader( self.leaderCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ()) )
+		# <!-- custom: use cached text values for performance (claude code sonnet 4.5) -->
+		self.resIconGrid.setHeader( self.leaderCol, self.TEXT_LEADER )
 		# <advc.073>
 		# txt keys were TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2
 		# was surplusCol
-		self.resIconGrid.setHeader( self.willImportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_IMPORT", ()) )
+		self.resIconGrid.setHeader( self.willImportCol, self.TEXT_WILL_IMPORT )
 		# Moved up
 		self.resIconGrid.setHeader( self.canPayCol, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
 		self.resIconGrid.setTextColWidth(self.canPayCol, self.RES_GOLD_COL_WIDTH)
 		# Replaced with noNeedCol below
 		#self.resIconGrid.setHeader( self.usedCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_IMPORT", ()) )
 		# was willTradeCol
-		self.resIconGrid.setHeader( self.willExportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_EXPORT", ()) )
+		self.resIconGrid.setHeader( self.willExportCol, self.TEXT_WILL_EXPORT )
 		# was wontTradeCol
-		self.resIconGrid.setHeader( self.wontExportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_EXPORT", ()) )
+		self.resIconGrid.setHeader( self.wontExportCol, self.TEXT_WILL_NOT_EXPORT )
 		# New column that takes over most of the wontTradeCol resources
-		self.resIconGrid.setHeader( self.noNeedCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_NEED", ()) )
+		self.resIconGrid.setHeader( self.noNeedCol, self.TEXT_NO_NEED )
 		# </advc.073>
 		
 		if (self.RES_SHOW_ACTIVE_TRADE):
 			# advc.073: was TXT_KEY_FOREIGN_ADVISOR_EXPORT. Now all the headings take the perspective of the foreign leader (except noNeed)
-			self.resIconGrid.setHeader( self.activeExportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_IMPORTING", ()) )
+			self.resIconGrid.setHeader( self.activeExportCol, self.TEXT_IMPORTING )
 			# advc.073: was TXT_KEY_FOREIGN_ADVISOR_IMPORT
-			self.resIconGrid.setHeader( self.activeImportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORTING", ()) )
+			self.resIconGrid.setHeader( self.activeImportCol, self.TEXT_EXPORTING )
 			self.resIconGrid.setHeader( self.payingCol, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
 			self.resIconGrid.setTextColWidth(self.payingCol, self.RES_GOLD_COL_WIDTH)
 
@@ -1314,7 +1369,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			if ( currentPlayer.isAlive() and not currentPlayer.isBarbarian() and not currentPlayer.isMinorCiv() and gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam()) and iLoopPlayer != self.iActiveLeader ):
 				message = ""
 				if ( not activePlayer.canTradeNetworkWith(iLoopPlayer) ):
-					message = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_CONNECTED", ())
+					message = self.TEXT_NOT_CONNECTED
 				
 				self.resIconGrid.appendRow(currentPlayer.getName(), message)
 				self.resIconGrid.addIcon( currentRow, self.leaderCol
@@ -1477,7 +1532,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				#if ( not gc.getTeam(activePlayer.getTeam()).isTechTrading() and not gc.getTeam(currentPlayer.getTeam()).isTechTrading() ):
 				# advc.120d: Make sure that Tech tab is consistent with Espionage screen
 				if not activePlayer.canSeeTech(iLoopPlayer):
-					message = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING", ())
+					message = self.TEXT_NO_TECH_TRADING
 				self.techIconGrid.appendRow(currentPlayer.getName(), message)
 				self.techIconGrid.addIcon( currentRow, iTechColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
 
@@ -1574,23 +1629,24 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# 3. Set widths for the specific text columns (Status, Gold)
 		# Note: IconGrid_BUG does NOT allow setting widths for Icon columns (Wants, Can Research, etc). 
 		# It calculates them automatically by dividing the remaining space evenly.
-		# self.techIconGrid.setHeader( iTechColLeader, localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ()) )
+		# self.techIconGrid.setHeader( iTechColLeader, self.TEXT_LEADER )
 		# self.techIconGrid.setHeader( iTechColStatus, "" )
 		self.techIconGrid.setTextColWidth( iTechColStatus, self.TECH_STATUS_COL_WIDTH )
-		self.techIconGrid.setHeader( iTechColWants, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WANTS", ()) )
+		# <!-- custom: use cached text values for performance (claude code sonnet 4.5) -->
+		self.techIconGrid.setHeader( iTechColWants, self.TEXT_WANTS )
 		# advc.004g: was TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE
-		self.techIconGrid.setHeader( iTechColCantYou, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_RECEIVE", ()) )
-		self.techIconGrid.setHeader( iTechColResearch, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CAN_RESEARCH", ()) )
+		self.techIconGrid.setHeader( iTechColCantYou, self.TEXT_CANT_RECEIVE )
+		self.techIconGrid.setHeader( iTechColResearch, self.TEXT_CAN_RESEARCH )
 		self.techIconGrid.setHeader( iTechColGold, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
 		self.techIconGrid.setTextColWidth( iTechColGold, self.TECH_GOLD_COL_WIDTH )
 
-		self.techIconGrid.setHeader( iTechColWill, localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2", ()) )
+		self.techIconGrid.setHeader( iTechColWill, self.TEXT_FOR_TRADE )
 		# <advc.550i>
 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
 			self.techIconGrid.setTextColWidth(iTechColWill, 2 * self.TECH_GOLD_COL_WIDTH) # </advc.550i>
 
-		self.techIconGrid.setHeader( iTechColWont, localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2", ()) )
-		self.techIconGrid.setHeader( iTechColCantThem, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ()) )
+		self.techIconGrid.setHeader( iTechColWont, self.TEXT_NOT_FOR_TRADE )
+		self.techIconGrid.setHeader( iTechColCantThem, self.TEXT_CANT_TRADE )
 
 		# <!-- custom: fit more information in each row so we don't have to scroll to see extra techs. Change with the help of gemini 3 pro anyways etc. -->
 		# Based on your screenshots (specifically Civ4ScreenShot0084.jpg) and the code provided, the issue is not the column width variables (TECH_STATUS_COL_WIDTH).
@@ -1638,11 +1694,10 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		iconGrid.setTextColWidth(iCityColWillCede, iCityColWidth)
 		iconGrid.setTextColWidth(iCityColWontCede, iCityColWidth)
 
-		iconGrid.setHeader(iCityColWants, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WANTS", ()))
-		# Don't want to color the denial headings after all
+		iconGrid.setHeader(iCityColWants, self.TEXT_WANTS)
 		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
 		iconGrid.setHeader(iCityColRejects, localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor))
-		iconGrid.setHeader(iCityColWillCede, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_CEDE", ()))
+		iconGrid.setHeader(iCityColWillCede, self.TEXT_WILL_CEDE)
 		iconGrid.setHeader(iCityColWontCede, localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor))
 
 		gridWidth = iconGrid.getPrefferedWidth()
@@ -1787,9 +1842,10 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# With a citizen icon, the population counts look even worse.
 		#if not bShort:
 		#	r += " " + (u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
+			# <!-- custom: use cached icon value for performance (claude code sonnet 4.5) -->
 		#	r += str(city.getPopulation())
 		if bLiberate:
-			r += " " + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR))
+			r += " " + (u"%c" % self.iOccupationIcon)
 		return r
 	# </advc.ctr>
 		

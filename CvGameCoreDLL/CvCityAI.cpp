@@ -500,7 +500,10 @@ void CvCityAI::AI_chooseProduction()
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	// <advc>
-	CvTeamAI const& kTeam = GET_TEAM(getTeam());
+
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam()); // kekm.16
+
 	CvGame const& kGame = GC.getGame();
 	CvArea const& kArea = getArea();
 	CvCityAI const* pCapital = kPlayer.AI_getCapital();
@@ -561,8 +564,8 @@ void CvCityAI::AI_chooseProduction()
 				// Situation read
 				bool const bWarPlan = kPlayer.AI_isFocusWar();
 				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
-				const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
-				const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+				const bool bAtWar = (kTeam.getNumWars() > 0);
+				const int iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 				static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 				const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 				// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
@@ -729,7 +732,7 @@ void CvCityAI::AI_chooseProduction()
 	bool const bDagger = kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER);
 	bool const bAggressiveAI = kGame.isOption(GAMEOPTION_AGGRESSIVE_AI);
 	bool const bAlwaysPeace = //kGame.isOption(GAMEOPTION_ALWAYS_PEACE);
-			!GET_TEAM(getTeam()).AI_isWarPossible(); // advc.001j
+			!kTeam.AI_isWarPossible(); // advc.001j
 
 	/* bts code
 	int iUnitCostPercentage = (kPlayer.calculateUnitCost() * 100) / std::max(1, kPlayer.calculatePreInflatedCosts()); */
@@ -1817,7 +1820,7 @@ void CvCityAI::AI_chooseProduction()
 
 		// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
 		bool const bWarPlan = GET_PLAYER(getOwner()).AI_isFocusWar(); // advc.105
-				//(GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+				//(kTeam.getAnyWarPlanCount(true) > 0);
 		bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
 		bLandWar = (bDefense || (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getArea().getAreaAIType(getTeam()) == AREAAI_MASSING));
 		// bool const bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
@@ -1827,11 +1830,11 @@ void CvCityAI::AI_chooseProduction()
 		// bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
 		// bool const bFinancialTrouble = kOwner.AI_isFinancialTrouble();
 		// <!-- custom: be careful, do not use this bWarPossible, this is always true at last for the 100 turns where i tested it, using this for settler build control logic resulted in no settler at all in 100 turns (probably true longer but didn't test anyways etc) -->
-		// bool const bWarPossible = GET_TEAM(getTeam()).AI_isWarPossible();
+		// bool const bWarPossible = kTeam.AI_isWarPossible();
 		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
 		// //bool const bDanger = AI_isDanger();
 
-		// int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+		// int const iHasMetCount = kTeam.getHasMetCivCount(true);
 		// int const iMilitaryWeight = kOwner.AI_militaryWeight(area());
 		// int const iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
 
@@ -1903,7 +1906,7 @@ void CvCityAI::AI_chooseProduction()
 					bNoSettler = true;
 				}
 				// <!-- custom: now we don't have a settler at all even at turn 100 (i.e. only one city for all AIs, but it shows our code is working as intended at least anyways etc), as for now, trying to fix it by making it more lax as advised by chatgpt 5 but check to be sure anyways etc -->
-				// else if (GET_TEAM(getTeam()).AI_isWarPossible())
+				// else if (kTeam.AI_isWarPossible())
 				// {
 				// 	bNoSettler = true;
 				// }
@@ -2305,7 +2308,7 @@ void CvCityAI::AI_chooseProduction()
 				if (!bAssaultTargetFound)
 					pAssaultWaterArea = NULL;
 				if (bAssaultTargetFound && // </advc.030b>
-					!GET_TEAM(getTeam()).AI_isHasPathToEnemyCity(kPlot))
+					!kTeam.AI_isHasPathToEnemyCity(kPlot))
 				{
 					bBuildAssault = true;
 				}
@@ -2862,7 +2865,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (pWaterArea != NULL && !bLandWar && !bAssault &&
 			!bFinancialTrouble && !bUnitExempt &&
-			!GET_TEAM(getTeam()).isCapitulated()) // advc.033
+			!kTeam.isCapitulated()) // advc.033
 		{
 			int iPirateCount = kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_PIRATE_SEA);
 			int iNeededPirates = 1 + (pWaterArea->getNumTiles() /
@@ -3241,6 +3244,9 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	// <!-- custom: performance optimizations -->
 	CvGame const& kGame = GC.getGame();
 
@@ -3248,8 +3254,8 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	CvArea* pWaterArea = waterArea(true);
 
 	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
-	bool const bWarPlan = GET_PLAYER(getOwner()).AI_isFocusWar(); // advc.105
-			//(GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+	bool const bWarPlan = kOwner.AI_isFocusWar(); // advc.105
+			//(kTeam.getAnyWarPlanCount(true) > 0);
 	bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
 	//bLandWar = (bDefense || (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getArea().getAreaAIType(getTeam()) == AREAAI_MASSING));
 	bool const bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
@@ -3258,10 +3264,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
 	bool const bFinancialTrouble = kOwner.AI_isFinancialTrouble();
 	// <!-- custom: be careful, do not use this bWarPossible, this is always true at last for the 100 turns where i tested it, using this for settler build control logic resulted in no settler at all in 100 turns (probably true longer but didn't test anyways etc) -->
-	//bool const bWarPossible = GET_TEAM(getTeam()).AI_isWarPossible();
+	//bool const bWarPossible = kTeam.AI_isWarPossible();
 	bool const bDanger = AI_isDanger();
 
-	int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+	int const iHasMetCount = kTeam.getHasMetCivCount(true);
 	int const iMilitaryWeight = kOwner.AI_militaryWeight(area());
 	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
 
@@ -3488,10 +3494,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			}
 			// K-Mod
 			if (bLandWar && !bDefense && !isHuman() &&
-				GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) > 0)
+				kTeam.AI_getNumWarPlans(WARPLAN_TOTAL) > 0)
 			{
 				// if we're winning, then focus on capturing cities.
-				int iSuccessRatio = GET_TEAM(getTeam()).AI_getWarSuccessRating();
+				int iSuccessRatio = kTeam.AI_getWarSuccessRating();
 				if (iSuccessRatio > 0)
 				{
 					aiUnitAIVal[UNITAI_ATTACK] += iSuccessRatio * iMilitaryWeight / 800;
@@ -3585,14 +3591,14 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	aiUnitAIVal[UNITAI_MISSILE_AIR] *= 15;
 
 	// K-Mod
-	if (GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
+	if (kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH))
 	{
 		aiUnitAIVal[UNITAI_ATTACK_CITY] *= 2;
 		aiUnitAIVal[UNITAI_ATTACK] *= 2;
 		aiUnitAIVal[UNITAI_ATTACK_AIR] *= 3;
 	}
-	if (GET_TEAM(getTeam()).AI_getRivalAirPower() <=
-		8 * GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_DEFENSE_AIR))
+	if (kTeam.AI_getRivalAirPower() <=
+		8 * kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_DEFENSE_AIR))
 	{
 		/*	unfortunately, I don't have an easy way to get the approximate power
 			of our air defence units. So I'm just going to assume the power of
@@ -3616,10 +3622,8 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		aiUnitAIVal[UNITAI_ICBM] = 0; // advc.143b
 	} // </advc.033>
 
-	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
-	const bool bMinor = kPlayer.isMinorCiv();
-	const bool bBarbarian = kPlayer.isBarbarian();
+	const bool bMinor = kOwner.isMinorCiv();
+	const bool bBarbarian = kOwner.isBarbarian();
 
 	if (!bMinor && !bBarbarian)
 	{
@@ -4587,6 +4591,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	// <!-- custom: cache as eOwner as per chatgpt 5.2's recommendation to avoid reuse (not applied to things like ->getOwner() though as they look like method calls and not variables if i'm not mistaken (check if accurate as i don't know too much about these)). -->
 	PlayerTypes const eOwner = getOwner();
 	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
+	// <!-- custom: use this pattern i found somewhere in the code, in case it is safer, and cache repetitive calls for performance optimization. Note: also cache GET_TEAM(getTeam()) to kTeam. Note 2: we had issues in the past in AdvCiv-SAS when caching these to a CvTeam cast (i don't know too much about these, check if accurate), that were solved using a CvTeamAI cast rather, so preferring this whenever it seems safe enough (check if accurate). I applied this to all GET_TEAM calls i spotted in this file +/- additional kOwner or kPlayer extra caching when needed, and after specifically testing this in autoplay, we get the exact same outcome vs before (t341 win, exact same score at scores it seems as well, so this also looks good to merge) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	CvGame const& kGame = GC.getGame();
 
@@ -4615,7 +4620,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
 	// bool const bWarPlan = kOwner.AI_isFocusWar(area()); // advc.105
 	bool const bWarPlan = kOwner.AI_isFocusWar();
-			//GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0; // K-Mod
+			//kTeam.getAnyWarPlanCount(true) > 0; // K-Mod
 
 	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
 	// <!-- custom: update: but after all as per chatgpt 5's review, may be inaccurate due to doubling count of food difference, use something else instead in an attempt to not over or understimate our expected growth anyways etc ; note: not changing previously defined iEstGrowth to keep old code working as intended, but as for us using this new var rather for our purpose as advised by chatgpt 5 (from another thread xd but thanks lot still but anyways etc, also check if accurate anyways etc) -->
@@ -4738,11 +4743,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 		// Quick threat read
 		bool const bDanger = AI_isDanger();
-		bool const bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+		bool const bAtWar = (kTeam.getNumWars() > 0);
 
 		// Enemy power percent: sum of enemy power as % of ours.
 		// < 100  => we’re stronger; e.g., 80 means we’re ~125% of them.
-		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+		const int iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 
 		// Tunables
 		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
@@ -4905,11 +4910,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// - Internally this is essentially city.plot().getOwnerPlotGroup()->getNumBonuses(eBonus) > 0 (null-safe).
 				// - Use this to gate a building in this city (e.g., Stable in this city).
 				//
-				// kPlayer.hasBonus(eBonus)
+				// kOwner.hasBonus(eBonus)
 				// - Any connected city: loops all cities and returns true if any city’s plot-group has the bonus.
 				// - Good for empire-level boolean (“can we build mounted somewhere?”), but not for a specific city gate.
 				//
-				// kPlayer.getNumAvailableBonuses(eBonus)
+				// kOwner.getNumAvailableBonuses(eBonus)
 				// - Capital plot-group only: counts copies on the capital’s network.
 				// - Fast O(1), but misses disconnected networks (overseas before Sailing, blockades, pillaged roads, etc.).
 				// - Don’t use this to decide if “the empire has it somewhere”; it will false-negative when a non-capital network has the resource.
@@ -6208,7 +6213,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		getReligionChange(), Religion, int)
 	{
 		if (perReligionVal.second > 0 &&
-			!GET_TEAM(getTeam()).hasHolyCity(perReligionVal.first))
+			!kTeam.hasHolyCity(perReligionVal.first))
 		{
 			return 0;
 		}
@@ -6226,7 +6231,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	ReligionTypes const eStateReligion = kOwner.getStateReligion();
 
 	bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
-	int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+	int const iHasMetCount = kTeam.getHasMetCivCount(true);
 	// <!-- custom: end of moved block anyways etc -->
 
 	// Reduce reaction to temporary happy/health problems
@@ -6992,7 +6997,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				{
 					if (kOwner.canResearch(eLoopTech, false, true)) // advc
 					{
-						int iTechValue = GET_TEAM(getTeam()).getResearchCost(eLoopTech);
+						int iTechValue = kTeam.getResearchCost(eLoopTech);
 						iTotalTechValue += iTechValue;
 						iTechCount++;
 						iMaxTechValue = std::max(iMaxTechValue, iTechValue);
@@ -7320,7 +7325,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							if (!isHuman())
 							{
 								eTowardThem = kOwner.AI_getAttitude(kBrother.getID());
-								if(GET_TEAM(getTeam()).AI_getWarPlan(
+								if(kTeam.AI_getWarPlan(
 									kBrother.getTeam()) != NO_WARPLAN)
 								{
 									eTowardThem = std::min(eTowardThem, ATTITUDE_ANNOYED);
@@ -8094,7 +8099,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				ReligionTypes const eLoopReligion = perReligionVal.first;
 				int iReligionChange = perReligionVal.second;
 				if (iReligionChange > 0 &&
-					GET_TEAM(getTeam()).hasHolyCity(eLoopReligion))
+					kTeam.hasHolyCity(eLoopReligion))
 				{
 					if (eStateReligion == eLoopReligion)
 						iReligionChange *= 10;
@@ -8373,6 +8378,10 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
 	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
 	CvGame const& kGame = GC.getGame();
 	
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	int r = 0;
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 	if (!bAreaAlone && (kGame.getBestLandUnit() == NO_UNIT ||
@@ -8384,14 +8393,14 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
 		int const iDefRaise = kBuilding.get(CvBuildingInfo::RaiseDefense);
 		if (iDefMod != 0 || iBombardMod != 0 || iDefRaise > 0)
 		{
-			int const iOwnerDefMod = GET_PLAYER(getOwner()).getCityDefenseModifier();
+			int const iOwnerDefMod = kOwner.getCityDefenseModifier();
 			/*  Defense abilities don't go obsolete. Looks like K-Mod had gotten that wrong.
 				Tagging advc.001 (bugfix). */
 			bool bRemoveDef = (bRemove && !bObsolete);
 			if (bRemoveDef)
 			{
 				// Spy attack; don't know by whom. They don't know our preparations.
-				bWarPlan = (GET_TEAM(getTeam()).getNumWars() > 0);
+				bWarPlan = (kTeam.getNumWars() > 0);
 			} // </advc.004c>
 			// defence bonus
 			/*r += std::max(0, std::min(kBuilding.getDefenseModifier(),
@@ -8444,8 +8453,8 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
 	if (iAirDefense > 0)
 	{
 		int iTemp = iAirDefense;
-		iTemp *= std::min(200, 100 * GET_TEAM(getTeam()).AI_getRivalAirPower() /
-				std::max(1, GET_TEAM(getTeam()).AI_getAirPower() + 4 * iNumCities));
+		iTemp *= std::min(200, 100 * kTeam.AI_getRivalAirPower() /
+				std::max(1, kTeam.AI_getAirPower() + 4 * iNumCities));
 		iTemp /= 200;
 		r += iTemp;
 	}
@@ -8481,10 +8490,10 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
 		iStackValue /= 20;
 		int iTempValue = iNukeDefense * (iStackValue + iTargetValue);
 		iTempValue /= 100;
-		iTempValue *= 10000 - GET_TEAM(getTeam()).getNukeInterception() *
+		iTempValue *= 10000 - kTeam.getNukeInterception() *
 				(100 - iNukeEvasionProbability);
 		iTempValue /= 10000;
-		iTempValue /= GET_PLAYER(getOwner()).AI_nukeDangerDivisor();
+		iTempValue /= kOwner.AI_nukeDangerDivisor();
 		r += iTempValue;
 	} // </kekm.16>
 	return r;
@@ -8493,6 +8502,10 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
 // This function has been significantly modified for K-Mod
 ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bAsync) /* advc: */ const
 {
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	// <advc.014>
 	if(GET_TEAM(getOwner()).isCapitulated())
 		return NO_PROJECT;
@@ -8517,13 +8530,13 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 		int iRelativeTurns = (100 * iTurnsLeft + 50) /
 				GC.getInfo(kGame.getGameSpeedType()).getCreatePercent();
 		if (iRelativeTurns > 10 && kProject.getMaxTeamInstances() > 0 &&
-			GET_TEAM(getTeam()).isHuman())
+			kTeam.isHuman())
 		{
 			// not fast enough to risk blocking our human allies from building it.
 			continue;
 		}
 		if (iRelativeTurns > 20 &&
-			iProductionRank > std::max(3, GET_PLAYER(getOwner()).getNumCities() / 2))
+			iProductionRank > std::max(3, kOwner.getNumCities() / 2))
 		{
 			// not fast enough to risk blocking our more productive cities from building it.
 			continue;
@@ -8551,7 +8564,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 		bool bVictory = false;
 		bool bGoodFit = false;
 
-		if (GET_PLAYER(getOwner()).AI_atVictoryStage(AI_VICTORY_SPACE3))
+		if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE3))
 		{
 			FOR_EACH_ENUM2(Victory, eProjVictory)
 			{
@@ -8568,9 +8581,9 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 				{
 					iNeededPieces += std::max(0,
 							GC.getInfo(eAnyProject).getVictoryThreshold(eProjVictory)
-							- GET_TEAM(getTeam()).getProjectCount(eAnyProject));
+							- kTeam.getProjectCount(eAnyProject));
 				}
-				if (GET_TEAM(getTeam()).getProjectCount(eProject) <
+				if (kTeam.getProjectCount(eProject) <
 					kProject.getVictoryThreshold(eProjVictory))
 				{
 					// we need more of this project. ie. it is a high priority.
@@ -8593,15 +8606,15 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 			{
 				int iRemaining = std::max(0, kProject.getMaxGlobalInstances()
 						- kGame.getProjectCreatedCount(eProject)
-						- GET_TEAM(getTeam()).getProjectMaking(eProject));
+						- kTeam.getProjectMaking(eProject));
 				if (iLimit < 0 || iRemaining < iLimit)
 					iLimit = iRemaining;
 			}
 			if (kProject.getMaxTeamInstances() >= 0) // team limit
 			{
 				int iRemaining = std::max(0, kProject.getMaxTeamInstances()
-						- GET_TEAM(getTeam()).getProjectCount(eProject)
-						- GET_TEAM(getTeam()).getProjectMaking(eProject));
+						- kTeam.getProjectCount(eProject)
+						- kTeam.getProjectMaking(eProject));
 				if (iLimit < 0 || iRemaining < iLimit)
 					iLimit = iRemaining;
 			}
@@ -8645,6 +8658,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam());
 	CvProjectInfo const& kProject = GC.getInfo(eProject);
 	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
@@ -8857,7 +8871,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 					more like the other project values. But first, I want to make
 					a few more situational adjustments to the value. */
 				iNukeValue *= (2 + //kTeam.getAnyWarPlanCount(true));
-						//(GET_PLAYER(getOwner()).AI_isFocusWar() ? 1 : 0) // advc.105
+						//(kOwner.AI_isFocusWar() ? 1 : 0) // advc.105
 						/*	<advc.650> All other war plans need faster action or
 							aren't serious enough */
 						kTeam.AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL) +
@@ -8883,7 +8897,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 	{
 		iSpaceValue += 8 * std::max(0, // was *10
 				GC.getInfo(eLoopProject).getProjectsNeeded(eProject)
-				- GET_TEAM(getTeam()).getProjectCount(eProject)); 
+				- kTeam.getProjectCount(eProject)); 
 	}
 	if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE1))
 	{
@@ -8899,11 +8913,11 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 		if (!kGame.isVictoryValid(eLoopVictory))
 			continue;
 		/*iSpaceValue += 20;
-		iSpaceValue += std::max(0, kProject.getVictoryThreshold(eLoopVictory) - GET_TEAM(getTeam()).getProjectCount(eProject)) * 20;*/
+		iSpaceValue += std::max(0, kProject.getVictoryThreshold(eLoopVictory) - kTeam.getProjectCount(eProject)) * 20;*/
 		iSpaceValue += 15;
 		iSpaceValue += std::max(0,
 				kProject.getVictoryMinThreshold(eLoopVictory)
-				- GET_TEAM(getTeam()).getProjectCount(eProject)) *
+				- kTeam.getProjectCount(eProject)) *
 				(kOwner.AI_atVictoryStage(AI_VICTORY_SPACE4) ? 60 : 30);
 		iSpaceValue += kProject.getSuccessRate();
 		iSpaceValue += kProject.getVictoryDelayPercent() /
@@ -9179,6 +9193,10 @@ int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac,
 	bool const bDefenseWar = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
 	CvGameAI const& kGame = GC.AI_getGame();
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	int iDefenders = 1;
 	if (isBarbarian())
 	{
@@ -9192,7 +9210,7 @@ int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac,
 				0 : 1)); // </advc.300>
 		return iDefenders;
 	} // advc.003n: Switched the order of these two branches
-	if (!GET_TEAM(getTeam()).AI_isWarPossible())
+	if (!kTeam.AI_isWarPossible())
 		return iDefenders;
 
 	if (hasActiveWorldWonder() || isCapital() || isHolyCity())
@@ -9517,6 +9535,10 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	if(kOwner.getNumCities() <= 1)
 		return;
+
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	/*  iRange = 1 b/c I want to be sure that an attack is imminent. Won't work
 		against fast attackers, but usually dangerous attack stacks involve some
 		slow units. More important not to declare cities lost that still
@@ -9544,7 +9566,7 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 		}
 		bSafe = (iAttStrength * 2 < iDefStrength);
 		// Potentially expensive
-		if(bSafe && GET_TEAM(getTeam()).getNumWars(false, true) > 0)
+		if(bSafe && kTeam.getNumWars(false, true) > 0)
 		{
 			int iAttStrengthWiderRange = kOwner.AI_localAttackStrength(
 					plot(), NO_TEAM, DOMAIN_LAND, 3);
@@ -9814,6 +9836,11 @@ int CvCityAI::AI_clearFeatureValue(CityPlotTypes ePlot) const
 
 	CvPlot const& kPlot = *plotCity(getX(), getY(), ePlot);
 	CvFeatureInfo const& kFeature = GC.getInfo(kPlot.getFeatureType());
+
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	/*int iValue = 0;
 	iValue += kFeature.getYieldChange(YIELD_FOOD) * 100;
 	iValue += kFeature.getYieldChange(YIELD_PRODUCTION) * 60;
@@ -9838,7 +9865,7 @@ int CvCityAI::AI_clearFeatureValue(CityPlotTypes ePlot) const
 	{
 		BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(getTeam());
 		if (eBonus != NO_BONUS &&
-			!GET_TEAM(getTeam()).isHasTech(GC.getInfo(eBonus).getTechCityTrade()))
+			!kTeam.isHasTech(GC.getInfo(eBonus).getTechCityTrade()))
 		{
 			iValue += kFeature.getYieldChange(YIELD_FOOD) * 100;
 			iValue += kFeature.getYieldChange(YIELD_PRODUCTION) * 80; // was 60
@@ -9876,7 +9903,7 @@ int CvCityAI::AI_clearFeatureValue(CityPlotTypes ePlot) const
 	if (kGame.getGwEventTally() >= 0) // if GW Threshold has been reached
 	{
 		iValue += kFeature.getWarmingDefense() *
-				(150 + 5 * GET_PLAYER(getOwner()).getGwPercentAnger()) / 100;
+				(150 + 5 * kOwner.getGwPercentAnger()) / 100;
 	} // K-Mod end
 	if (iValue > 0)
 	{
@@ -9885,7 +9912,7 @@ int CvCityAI::AI_clearFeatureValue(CityPlotTypes ePlot) const
 		{
 			iValue += 500;
 		}
-		if (GET_PLAYER(getOwner()).getAdvancedStartPoints() >= 0)
+		if (kOwner.getAdvancedStartPoints() >= 0)
 			iValue += 400;
 	}
 	return -iValue;
@@ -10321,6 +10348,10 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
 	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
 	CvGame const& kGame = GC.getGame();
 
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	// <!-- custom: add this as a conditional early exit check for land plots only rather anyways etc, this also saves computing power by not using it for land plots which are most if i am not mistaken while not removing it for water units that use/need it it seems but anyways etc -->
 	if (!kPlot.isWater())
 	{
@@ -10334,7 +10365,6 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
 		return 0;
 	}
 
-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 	BonusTypes eBonus = kPlot.getBonusType(getTeam());
 	BonusTypes eNonObsoleteBonus = kPlot.getNonObsoleteBonusType(getTeam());
 
@@ -10467,9 +10497,9 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
 		// advc.001: was AI_isDoVictoryStrategy
 		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS))
 			iTimeScale += 50;
-		if (GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) +
+		if (kTeam.AI_getNumWarPlans(WARPLAN_TOTAL) +
 			// advc.001: Surely(?) preparations should count here as well
-			GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL) > 0)
+			kTeam.AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL) > 0)
 		{
 			iTimeScale -= 20;
 		}
@@ -11233,7 +11263,7 @@ void CvCityAI::AI_doDraft(bool bForce)
 		return;
 	}
 
-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	//bool bLandWar = (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE || getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE || getArea().getAreaAIType(getTeam()) == AREAAI_MASSING);
 	bool bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
 	bool bDanger = (!AI_isDefended() && AI_isDanger());
@@ -11296,11 +11326,14 @@ void CvCityAI::AI_doDraft(bool bForce)
 			bWait = false;
 	}
 
+	// // <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	if (bWait && bDanger)
 	{
 		// If city might be captured, don't hold back
 		/* BBAI code
-		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+		int iOurDefense = kTeam.AI_getOurPlotStrength(plot(),0,true,false,true);
 		int iEnemyOffense = GET_PLAYER(getOwner()).AI_getEnemyPlotStrength(plot(),2,false,false);
 		if (iOurDefense == 0 || 3 * iEnemyOffense > 2 * iOurDefense)*/
 		// K-Mod
@@ -11335,7 +11368,7 @@ void CvCityAI::AI_doHurry(bool bForce)
 
 	FAssert(!isHuman() || isProductionAutomated());
 
-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
 	if (kOwner.isBarbarian())
 		return;
@@ -11776,9 +11809,6 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		UnitTypes   eChangedUnit   = eUnit;
 		UnitAITypes eChangedUnitAI = eUnitAI;
 
-		// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
-		CvGame const& kGame = GC.getGame();
-
 		static const bool bSAS_AI_CHOOSE_UNIT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_OPTIMIZE");
 
 		if (bSAS_AI_CHOOSE_UNIT_OPTIMIZE)
@@ -11794,6 +11824,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 			// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well but anyways etc))) but just in case anyways etc -->
 			CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
+			// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+			CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam()); // kekm.16
+
+			// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+			CvGame const& kGame = GC.getGame();
+
 			const bool bBarbarian = kPlayer.isBarbarian();
 
 			// <!-- custom: note: all values here are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
@@ -11829,8 +11865,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				bool const bWarPlan = kPlayer.AI_isFocusWar();
 				bool const bDanger = AI_isDanger();
 				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
-				const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
-				const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+				const bool bAtWar = (kTeam.getNumWars() > 0);
+				const int iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 				static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 				const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 				// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
@@ -13087,7 +13123,7 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 	{
 		// <!-- custom: try to prevent barbarians from building world wonders, their purpose is to fight not to compete for wonders no matter how well they are developped, at least in advciv-sas, increasing iBuildUnitProb to 100 and using NONE in civilizations info xml file seem to be no good or not always reliable/consistent as they still build world wonders in some cases and quite often, so patching the DLL rather hopefully helps reliably solve this, with chatgpt's help thanks. -->
 		// Check if Barbarian is trying to build a world wonder and skip it
-		const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 		if (kOwner.isBarbarian())
 		{
 			CvBuildingInfo const& kBuilding = GC.getInfo(eBestBuilding);
@@ -13565,7 +13601,7 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
 {
 	PROFILE_FUNC();
 
-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
 	iCitLoss = std::min(getPopulation()-1, iCitLoss);
 	if (iCitLoss < 1)
@@ -13856,7 +13892,12 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 	bool bIgnoreFood, bool bIgnoreStarvation, bool bWorkerOptimization, int iGrowthValue) const
 {
 	PROFILE_FUNC();
-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	//const int iBaseProductionValue = 9; // (K-Mod: was 7 before I removed the averageCommerceExchange factor from the commerce values.)
 	/*  advc.121b: So I guess the K-Mod line above sets the priority as in BtS.
 		Let's set a lower priority then, in part to even out the use of Slavery. */
@@ -13865,7 +13906,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 
 	bool const bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
 	bool const bFoodIsProduction = isFoodProduction();
-	//bool bCanPopRush = GET_PLAYER(getOwner()).canPopRush();
+	//bool bCanPopRush = kOwner.canPopRush();
 
 	// a kludge to handle the NULL yields easily.
 	int aiZeroYields[NUM_YIELD_TYPES] = {};
@@ -13924,7 +13965,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 			}
 
 			iCommerceValue += iCommerceWeight * iCommerceTimes100 * iBaseCommerceValue
-					//* GET_PLAYER(getOwner()).AI_averageCommerceExchange((CommerceTypes)iI) / 1000000;
+					//* kOwner.AI_averageCommerceExchange((CommerceTypes)iI) / 1000000;
 					/*	K-Mod. (averageCommerceExchange should be part of commerceWeight
 						if we want it, and we probably don't want it anyway.) */
 					/ 10000;
@@ -14086,7 +14127,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 					if (getMilitaryHappinessUnits() == 0 && kOwner.getNumCities() > 2)
 					{
 						iHappinessLevel += (//GC.getDefineINT(CvGlobals::NO_MILITARY_PERCENT_ANGER)
-								GET_TEAM(getTeam()).getNoMilitaryAnger() * // advc.500c
+								kTeam.getNoMilitaryAnger() * // advc.500c
 								(iPopulation + 1)) / GC.getPERCENT_ANGER_DIVISOR();
 					}
 
@@ -14491,7 +14532,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 	FAssert(new_job.second < 0 || (new_job.first ? new_job.second < GC.getNumSpecialistInfos() : getCityIndexPlot((CityPlotTypes)new_job.second)));
 	FAssert(old_job.second < 0 || (old_job.first ? old_job.second < GC.getNumSpecialistInfos() : getCityIndexPlot((CityPlotTypes)old_job.second)));
 
-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
 	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
@@ -15052,6 +15093,11 @@ int CvCityAI::AI_specialPlotImprovementValue(CvPlot const& kPlot) const
 	ImprovementTypes const eImprovement = kPlot.getImprovementType();
 	if (eImprovement == NO_IMPROVEMENT)
 		return 0;
+
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	int iValue = 0;
 	if (GC.getInfo(eImprovement).getImprovementUpgrade() != NO_IMPROVEMENT)
 	{
@@ -15066,7 +15112,7 @@ int CvCityAI::AI_specialPlotImprovementValue(CvPlot const& kPlot) const
 	{
 		FOR_EACH_ENUM(Bonus)
 		{
-			if (GET_TEAM(getTeam()).canDiscoverBonus(eLoopBonus) &&
+			if (kTeam.canDiscoverBonus(eLoopBonus) &&
 				GC.getInfo(eImprovement).getImprovementBonusDiscoverRand(eLoopBonus) > 0)
 			{
 				iValue += 20;
@@ -15109,7 +15155,7 @@ int CvCityAI::AI_growthValuePerFood() const
 		else unworked_jobs.push_back(iValue);
 	}
 
-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
 	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
@@ -15187,13 +15233,16 @@ int CvCityAI::AI_experienceWeight()
 // BBAI / K-Mod // <advc.017> Draft param added; count XP weight only half then.
 int CvCityAI::AI_buildUnitProb(bool bDraft)
 {
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	scaled r = per100(GC.getInfo(getPersonalityType()).getBuildUnitProb());
 	int iXPWeight = AI_experienceWeight();
 	if (bDraft)
 		iXPWeight /= 2;
 	r += per100(iXPWeight);
 	// </advc.017>
-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	// <advc.253>
 	if (kOwner.AI_getCurrEraFactor() >= 1)
 		r *= kOwner.AI_trainUnitSpeedAdustment(); // <advc.253>
@@ -15204,7 +15253,7 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 		r /= 2;
 		bGreatlyReduced = true; // advc.017
 	}
-	//else if (GET_TEAM(getTeam()).getHasMetCivCount(false) == 0)
+	//else if (kTeam.getHasMetCivCount(false) == 0)
 	/*	<advc.109> Replacing the BBAI code above. The ECONOMY_FOCUS check is from K-Mod;
 		moved from AI_chooseProduction. */
 	else if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS) ||
@@ -15232,7 +15281,7 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 		int const iCities = kOwner.getNumCities();
 		if (iCities > 1)
 		{
-			CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+			CvTeamAI const& kOurTeam = kTeam;
 			int iHighestRivalPow = 0;
 			for (TeamAIIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> it(getTeam());
 				it.hasNext(); ++it)
@@ -15676,7 +15725,7 @@ int CvCityAI::AI_splitEmpireValue() const
 	iValue += 100 * getYieldRate(YIELD_PRODUCTION);
 	iValue -= 3 * calculateColonyMaintenanceTimes100();*/ // BtS
 	// K-Mod. The original code fails for civs using high espionage or high culture.
-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	iValue += getCommerceRateTimes100(COMMERCE_RESEARCH) *
 			kOwner.AI_commerceWeight(COMMERCE_RESEARCH);
 	iValue += getCommerceRateTimes100(COMMERCE_ESPIONAGE) *
@@ -15993,6 +16042,9 @@ void CvCityAI::AI_barbChooseProduction()
 
 	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam()); // kekm.16
+
 	// <!-- custom: performance optimizations -->
 	CvPlot const& kPlot = getPlot();
 	
@@ -16002,7 +16054,7 @@ void CvCityAI::AI_barbChooseProduction()
 	if (pWaterArea != NULL)
 	{
 		bMaybeWaterArea = true;
-		if (!GET_TEAM(getTeam()).AI_isWaterAreaRelevant(*pWaterArea))
+		if (!kTeam.AI_isWaterAreaRelevant(*pWaterArea))
 			pWaterArea = NULL;
 
 		bWaterDanger = kPlayer.AI_isAnyWaterDanger(kPlot, 4);
@@ -16608,6 +16660,10 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
 	// non-human production value increase
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	AreaAITypes const eAreaAIType = getArea().getAreaAIType(getTeam());
 
 	// K-Mod. special strategy / personality adjustments
@@ -16653,7 +16709,7 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
 			for (TeamIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itEnemy(getTeam());
 				!bSeriousWar && itEnemy.hasNext(); ++itEnemy)
 			{
-				WarPlanTypes eWarPlan = GET_TEAM(getTeam()).AI_getWarPlan(itEnemy->getID());
+				WarPlanTypes eWarPlan = kTeam.AI_getWarPlan(itEnemy->getID());
 				bSeriousWar = (eWarPlan == WARPLAN_PREPARING_TOTAL || eWarPlan == WARPLAN_TOTAL);
 			}
 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= (bSeriousWar ? 35 : 10);
@@ -16981,9 +17037,11 @@ int CvCityAI::AI_cityThreat(/*bool bDangerPercent*/) const // advc: param unused
 
 	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
 	CvGame const& kGame = GC.getGame();
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	int iTotalThreat = 0; // was (iValue)
-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 	bool const bCrushStrategy = kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH);
 
 	// advc.001: Exclude unmet players (bugfix?), vassals; K-Mod had only excluded the master.
@@ -17016,7 +17074,7 @@ int CvCityAI::AI_cityThreat(/*bool bDangerPercent*/) const // advc: param unused
 			/*	This evaluation may be expensive (when I finish writing it),
 				so only do it if there is reason to be concerned. */
 			if (kOwner.AI_atVictoryStage4() ||
-				GET_TEAM(getTeam()).AI_getWarPlan(kRival.getTeam()) != NO_WARPLAN ||
+				kTeam.AI_getWarPlan(kRival.getTeam()) != NO_WARPLAN ||
 				(!kOwner.AI_isLandWar(getArea()) &&
 				//kLoopPlayer.AI_getAttitude(getOwner()) < ATTITUDE_PLEASED))
 				/*  <advc.109> Don't presume human attitude. Using PLEASED as the
@@ -17050,13 +17108,13 @@ int CvCityAI::AI_cityThreat(/*bool bDangerPercent*/) const // advc: param unused
 				more protective of our cities. The
 				if(bCrushStrategy) iCivFactor/=2 a bit farther down seems to be
 				the better approach. */
-			/*if (bCrushStrategy && GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
+			/*if (bCrushStrategy && kTeam.AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
 				iCivFactor = 400;
 			else*/
-			if (GET_TEAM(getTeam()).isAtWar(kRival.getTeam()))
+			if (kTeam.isAtWar(kRival.getTeam()))
 				iCivFactor = 300;
 			// Beef up border security before starting war, but not too much (bbai)
-			else if (GET_TEAM(getTeam()).AI_getWarPlan(kRival.getTeam()) != NO_WARPLAN)
+			else if (kTeam.AI_getWarPlan(kRival.getTeam()) != NO_WARPLAN)
 				iCivFactor = 180;
 			else
 			{	// <advc.022>
@@ -17213,13 +17271,18 @@ int CvCityAI::AI_calculateSettlerPriority(int iAreaSites, int iBestAreaFoundValu
 	if(iAreaSites <= 0)
 		return 60; // Don't really want to pace AI colonization
 	int iPriority = 20;
+
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// CvTeam const& kTeam = GET_TEAM(getTeam());
+	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+
 	int iMinFoundValue = std::max(1, kOwner.AI_getMinFoundValue());
 	iPriority += (10 * std::max(iBestAreaFoundValue, iBestWaterAreaFoundValue)) / iMinFoundValue;
-	CvTeam const& kTeam = GET_TEAM(getTeam());
+
 	if(kTeam.isAlwaysWar())
 		iPriority -= 10;
-	else if(!GET_TEAM(getTeam()).AI_isWarPossible() || // Can't expand through war
+	else if(!kTeam.AI_isWarPossible() || // Can't expand through war
 		(kTeam.isAVassal() && !kTeam.isCapitulated()) ||
 		(getUWAI().isEnabled() && kOwner.uwai().getCache().hasDefensiveTrait()))
 	{
