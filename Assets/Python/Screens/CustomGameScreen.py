@@ -15,6 +15,12 @@
 # - Searches both mod directories (PrivateMaps/PublicMaps) AND base BTS directories for map scripts
 # - Filters out files starting with underscore (helper modules)
 # - Note: This approach relies on CWD being the "Beyond the Sword" directory, which works for Steam users but may need adjustment for non-Steam installations
+#
+# Dynamic custom map options:
+# - Custom map options (Resources, Shoreline, World Wrap, etc.) are defined in each map script's Python file
+# - When the user changes the map dropdown selection, the screen automatically refreshes the custom options
+# - This allows instant preview of map-specific settings without needing to launch and exit a game
+# - Uses deleteWidget to clear old options and dynamically imports the new map script to load its options
 
 from CvPythonExtensions import *
 import GenericDecoratedScreen
@@ -217,57 +223,17 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 				bSelected = scriptName == currentMapScript
 				screen.addPullDownString(self.MAPSCRIPT_DROPDOWN_ID, scriptName, i, i, bSelected)
 
+		# Store grid layout parameters for custom map options refresh
+		self.col1X = col1X
+		self.col2X = col2X
+		self.startY = startY
+		self.rowHeight = rowHeight
+		self.labelWidth = labelWidth
+		self.dropdownWidth = dropdownWidth
+
 		# Custom Map Options (Resources, Shoreline, World Wrap) - dynamically added based on map script
 		self.customMapOptionIDs = []
-		iNumCustomOptions = gc.getInitCore().getNumCustomMapOptions()
-		if iNumCustomOptions > 0:
-			# Load the current map script to access its custom option functions
-			mapScriptName = gc.getInitCore().getMapScriptName()
-			if mapScriptName and len(mapScriptName) > 0:
-				try:
-					# Import the map script module
-					mapScript = __import__(mapScriptName)
-
-					currentRow = 3
-					for iOptionID in range(iNumCustomOptions):
-						dropdownID = "CustomMapOption" + str(iOptionID)
-						self.customMapOptionIDs.append(dropdownID)
-
-						# Alternate between left and right columns
-						if iOptionID % 2 == 0:
-							x = col1X
-						else:
-							x = col2X
-
-						if iOptionID % 2 == 0:
-							y = startY + currentRow * rowHeight
-
-						# Get option name from map script
-						optionName = mapScript.getCustomMapOptionName([iOptionID])
-
-						# Add label
-						screen.setLabel(dropdownID + "Label", self.BACKGR,
-								u"<font=3>" + optionName + ":</font>",
-								CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
-								WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-						# Add dropdown
-						screen.addDropDownBoxGFC(dropdownID, x + labelWidth, y, dropdownWidth,
-								WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
-
-						# Populate dropdown options
-						iNumValues = mapScript.getNumCustomMapOptionValues([iOptionID])
-						for i in range(iNumValues):
-							valueDesc = mapScript.getCustomMapOptionDescAt([iOptionID, i])
-							bSelected = i == gc.getInitCore().getCustomMapOption(iOptionID)
-							screen.addPullDownString(dropdownID, valueDesc, i, i, bSelected)
-
-						# Move to next row after every 2 options
-						if iOptionID % 2 == 1:
-							currentRow = currentRow + 1
-				except:
-					# If we can't load the map script, just skip custom options
-					pass
+		self.loadCustomMapOptions()
 
 		screen.setText(self.EXIT_ID, self.BACKGR,
 				u"<font=4>" + localText.getText("TXT_KEY_MAIN_MENU_LAUNCH", ()).upper() + "</font>",
@@ -306,6 +272,80 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		#screen.setMainInterface(True)
 		# Should we use bPassInput=True? The Advisor screens use False, the main screen True.
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+
+
+	def loadCustomMapOptions(self):
+		# Load and display custom map options for the currently selected map script
+		screen = self.getScreen()
+		iNumCustomOptions = gc.getInitCore().getNumCustomMapOptions()
+
+		if iNumCustomOptions > 0:
+			# Load the current map script to access its custom option functions
+			mapScriptName = gc.getInitCore().getMapScriptName()
+			if mapScriptName and len(mapScriptName) > 0:
+				try:
+					# Import the map script module
+					mapScript = __import__(mapScriptName)
+
+					currentRow = 3
+					for iOptionID in range(iNumCustomOptions):
+						dropdownID = "CustomMapOption" + str(iOptionID)
+						self.customMapOptionIDs.append(dropdownID)
+
+						# Alternate between left and right columns
+						if iOptionID % 2 == 0:
+							x = self.col1X
+						else:
+							x = self.col2X
+
+						if iOptionID % 2 == 0:
+							y = self.startY + currentRow * self.rowHeight
+
+						# Get option name from map script
+						optionName = mapScript.getCustomMapOptionName([iOptionID])
+
+						# Add label
+						screen.setLabel(dropdownID + "Label", self.BACKGR,
+								u"<font=3>" + optionName + ":</font>",
+								CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+								WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+						# Add dropdown
+						screen.addDropDownBoxGFC(dropdownID, x + self.labelWidth, y, self.dropdownWidth,
+								WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+
+						# Populate dropdown options
+						iNumValues = mapScript.getNumCustomMapOptionValues([iOptionID])
+						for i in range(iNumValues):
+							valueDesc = mapScript.getCustomMapOptionDescAt([iOptionID, i])
+							bSelected = i == gc.getInitCore().getCustomMapOption(iOptionID)
+							screen.addPullDownString(dropdownID, valueDesc, i, i, bSelected)
+
+						# Move to next row after every 2 options
+						if iOptionID % 2 == 1:
+							currentRow = currentRow + 1
+				except:
+					# If we can't load the map script, just skip custom options
+					pass
+
+
+	def refreshCustomMapOptions(self):
+		# Clear existing custom map options and reload them for the new map script
+		screen = self.getScreen()
+
+		# Delete all existing custom map option widgets (labels and dropdowns)
+		for dropdownID in self.customMapOptionIDs:
+			try:
+				screen.deleteWidget(dropdownID)
+				screen.deleteWidget(dropdownID + "Label")
+			except:
+				pass
+
+		# Clear the list
+		self.customMapOptionIDs = []
+
+		# Reload custom map options for the new map script
+		self.loadCustomMapOptions()
 
 
 	def update(self, fDelta): # called after handleInput
@@ -348,6 +388,8 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 				if iMapScript >= 0 and iMapScript < len(self.mapScripts):
 					scriptName = self.mapScripts[iMapScript]
 					gc.getInitCore().setMapScriptName(scriptName)
+					# Refresh custom map options to show the new map's options
+					self.refreshCustomMapOptions()
 
 			else:
 				# Handle custom map options
