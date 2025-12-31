@@ -32,6 +32,10 @@ public:
 	int getCustomMapOption(int iOptionID);
 	void setCustomMapOption(int iOptionID, int iOptionValue);
 
+	int getHandicap(int ePlayerID);
+	void setHandicap(int ePlayerID, int eHandicap);
+	void setAIHandicap(int eHandicap);
+
 private:
 	CvInitCore& m_kInitCore;
 };

@@ -115,3 +115,46 @@ void CyInitCore::setCustomMapOption(int iOptionID, int iOptionValue)
 	}
 	m_kInitCore.setCustomMapOption(iOptionID, (CustomMapOptionTypes)iOptionValue);
 }
+
+int CyInitCore::getHandicap(int ePlayerID)
+{
+	if (ePlayerID < 0 || ePlayerID >= MAX_CIV_PLAYERS)
+	{
+		FAssertMsg(false, "index out of bounds");
+		return 0;
+	}
+	return m_kInitCore.getHandicap((PlayerTypes)ePlayerID);
+}
+
+void CyInitCore::setHandicap(int ePlayerID, int eHandicap)
+{
+	if (ePlayerID < 0 || ePlayerID >= MAX_CIV_PLAYERS)
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	if (eHandicap < 0 || eHandicap >= GC.getNumHandicapInfos())
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	m_kInitCore.setHandicap((PlayerTypes)ePlayerID, (HandicapTypes)eHandicap);
+}
+
+void CyInitCore::setAIHandicap(int eHandicap)
+{
+	if (eHandicap < 0 || eHandicap >= GC.getNumHandicapInfos())
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	// Set difficulty for all AI players (only slots with SS_COMPUTER status)
+	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+	{
+		SlotStatus eStatus = m_kInitCore.getSlotStatus((PlayerTypes)i);
+		if (eStatus == SS_COMPUTER)
+		{
+			m_kInitCore.setHandicap((PlayerTypes)i, (HandicapTypes)eHandicap);
+		}
+	}
+}

@@ -1,6 +1,9 @@
 # ccgs - Custom Custom Game Screen for AdvCiv-SAS
 # Based on @f1rpo's CuCuGS proof of concept: https://forums.civfanatics.com/threads/replacing-the-custom-game-screen-proof-of-concept.670307/
 #
+# This script is part of the AdvCiv-SAS mod project.
+# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+#
 # Python 2.4 compatibility requirements:
 # - No nested functions with closures - Python 2.4 doesn't support closures properly
 # - No ternary operators (x if condition else y) - Not available in Python 2.4
@@ -21,6 +24,11 @@
 # - When the user changes the map dropdown selection, the screen automatically refreshes the custom options
 # - This allows instant preview of map-specific settings without needing to launch and exit a game
 # - Uses deleteWidget to clear old options and dynamically imports the new map script to load its options
+#
+# Screen layout:
+# - First table (left side): World settings - World Size, Climate, Sea Level, Era, Game Speed, Map Script
+# - Second table (right side): Game settings - Difficulty (human player difficulty; AI players are locked at Noble per Civ4 standard)
+# - Custom map options appear below the first table, dynamically based on selected map
 
 from CvPythonExtensions import *
 import GenericDecoratedScreen
@@ -235,6 +243,28 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		self.customMapOptionIDs = []
 		self.loadCustomMapOptions()
 
+		# Second table: Game Settings (positioned to the right of the first table)
+		# This table starts on the right side with enough spacing to avoid overlap
+		table2StartX = col2X + labelWidth + dropdownWidth + 50  # Position after the first table's right column
+		table2StartY = centerY - 60  # Same vertical start as first table
+
+		# Human Player Difficulty dropdown
+		# Note: In Civ4, only the human player's difficulty is adjustable
+		# AI players are locked at Noble difficulty (this is standard Civ4 behavior)
+		self.DIFFICULTY_DROPDOWN_ID = "DifficultyDropDown"
+		x = table2StartX
+		y = table2StartY + 0 * rowHeight
+		screen.setLabel("DifficultyLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_GAME_DIFFICULTY", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.DIFFICULTY_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+		# Get current human player difficulty (player 0 is always the human player)
+		currentDifficulty = gc.getInitCore().getHandicap(0)
+		for i in reversed(range(gc.getNumHandicapInfos())):
+			screen.addPullDownString(self.DIFFICULTY_DROPDOWN_ID, gc.getHandicapInfo(i).getDescription(), i, i, i == currentDifficulty)
+
 		screen.setText(self.EXIT_ID, self.BACKGR,
 				u"<font=4>" + localText.getText("TXT_KEY_MAIN_MENU_LAUNCH", ()).upper() + "</font>",
 				CvUtil.FONT_RIGHT_JUSTIFY, self.xExitButton, self.yExitButton, 0,
@@ -390,6 +420,15 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 					gc.getInitCore().setMapScriptName(scriptName)
 					# Refresh custom map options to show the new map's options
 					self.refreshCustomMapOptions()
+
+			elif funcName == self.DIFFICULTY_DROPDOWN_ID:
+				iIndex = screen.getSelectedPullDownID(self.DIFFICULTY_DROPDOWN_ID)
+				iDifficulty = screen.getPullDownData(self.DIFFICULTY_DROPDOWN_ID, iIndex)
+				# Set difficulty for human player (player 0)
+				gc.getInitCore().setHandicap(0, iDifficulty)
+				# Also set all AI players to Noble (standard Civ4 behavior)
+				# This ensures the game can start properly
+				gc.getInitCore().setAIHandicap(gc.getInfoTypeForString("HANDICAP_NOBLE"))
 
 			else:
 				# Handle custom map options

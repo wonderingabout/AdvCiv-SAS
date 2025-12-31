@@ -19,5 +19,8 @@ void CyInitCoreInterface()
 		.def("getNumCustomMapOptions", &CyInitCore::getNumCustomMapOptions, "int ()")
 		.def("getCustomMapOption", &CyInitCore::getCustomMapOption, "int (int iOptionID)")
 		.def("setCustomMapOption", &CyInitCore::setCustomMapOption, "void (int iOptionID, int iOptionValue)")
+		.def("getHandicap", &CyInitCore::getHandicap, "int (int ePlayerID)")
+		.def("setHandicap", &CyInitCore::setHandicap, "void (int ePlayerID, int eHandicap)")
+		.def("setAIHandicap", &CyInitCore::setAIHandicap, "void (int eHandicap)")
 	;
 }
