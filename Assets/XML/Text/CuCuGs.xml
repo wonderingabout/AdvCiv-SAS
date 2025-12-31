@@ -28,4 +28,8 @@ Then expanded on it to implement an actual Custom Custom game screen, with the h
 		<Tag>TXT_KEY_MENU_SPEED</Tag>
 		<English>Speed:</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAP_SCRIPT</Tag>
+		<English>Map:</English>
+	</TEXT>
 </Civ4GameText>

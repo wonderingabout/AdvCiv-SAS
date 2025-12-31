@@ -25,6 +25,13 @@ public:
 	int getWorldSize();
 	void setWorldSize(int iWorldSize);
 
+	std::wstring getMapScriptName();
+	void setMapScriptName(std::wstring szMapScriptName);
+
+	int getNumCustomMapOptions();
+	int getCustomMapOption(int iOptionID);
+	void setCustomMapOption(int iOptionID, int iOptionValue);
+
 private:
 	CvInitCore& m_kInitCore;
 };

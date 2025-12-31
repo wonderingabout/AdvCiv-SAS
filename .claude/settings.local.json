@@ -5,7 +5,11 @@
       "Bash(find:*)",
       "Bash(wc:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(python -c:*)"
     ]
   }
 }

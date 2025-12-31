@@ -14,5 +14,10 @@ void CyInitCoreInterface()
 		.def("setEra", &CyInitCore::setEra, "void (int iEra)")
 		.def("getWorldSize", &CyInitCore::getWorldSize, "int ()")
 		.def("setWorldSize", &CyInitCore::setWorldSize, "void (int iWorldSize)")
+		.def("getMapScriptName", &CyInitCore::getMapScriptName, "wstring ()")
+		.def("setMapScriptName", &CyInitCore::setMapScriptName, "void (wstring szMapScriptName)")
+		.def("getNumCustomMapOptions", &CyInitCore::getNumCustomMapOptions, "int ()")
+		.def("getCustomMapOption", &CyInitCore::getCustomMapOption, "int (int iOptionID)")
+		.def("setCustomMapOption", &CyInitCore::setCustomMapOption, "void (int iOptionID, int iOptionValue)")
 	;
 }

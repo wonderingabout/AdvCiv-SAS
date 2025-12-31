@@ -80,3 +80,38 @@ void CyInitCore::setWorldSize(int iWorldSize)
 	}
 	m_kInitCore.setWorldSize((WorldSizeTypes)iWorldSize);
 }
+
+std::wstring CyInitCore::getMapScriptName()
+{
+	return m_kInitCore.getMapScriptName();
+}
+
+void CyInitCore::setMapScriptName(std::wstring szMapScriptName)
+{
+	m_kInitCore.setMapScriptName(szMapScriptName);
+}
+
+int CyInitCore::getNumCustomMapOptions()
+{
+	return m_kInitCore.getNumCustomMapOptions();
+}
+
+int CyInitCore::getCustomMapOption(int iOptionID)
+{
+	if (iOptionID < 0 || iOptionID >= m_kInitCore.getNumCustomMapOptions())
+	{
+		FAssertMsg(false, "index out of bounds");
+		return 0;
+	}
+	return m_kInitCore.getCustomMapOption(iOptionID);
+}
+
+void CyInitCore::setCustomMapOption(int iOptionID, int iOptionValue)
+{
+	if (iOptionID < 0 || iOptionID >= m_kInitCore.getNumCustomMapOptions())
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	m_kInitCore.setCustomMapOption(iOptionID, (CustomMapOptionTypes)iOptionValue);
+}
