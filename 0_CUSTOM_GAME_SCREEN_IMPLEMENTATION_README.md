@@ -24,7 +24,7 @@ This implementation adds a custom popup screen that appears when you click "Cust
 ## Implementation Summary
 
 ### Part 1: DLL Changes (C++)
-**Document:** [IMPLEMENTATION_PART1_DLL_CHANGES_COMPLETE.md](IMPLEMENTATION_PART1_DLL_CHANGES_COMPLETE.md)
+**Document:** [1_IMPLEMENTATION_PART1_DLL_CHANGES_COMPLETE.md](1_IMPLEMENTATION_PART1_DLL_CHANGES_COMPLETE.md)
 
 **Files Created (2):**
 - `CvGameCoreDLL/InputSim.h` - Keyboard/mouse input simulation header
@@ -41,7 +41,7 @@ This implementation adds a custom popup screen that appears when you click "Cust
 **Total:** 8 files
 
 ### Part 2: Python Integration
-**Document:** [IMPLEMENTATION_PART2_PYTHON_INTEGRATION_COMPLETE.md](IMPLEMENTATION_PART2_PYTHON_INTEGRATION_COMPLETE.md)
+**Document:** [2_IMPLEMENTATION_PART2_PYTHON_INTEGRATION_COMPLETE.md](2_IMPLEMENTATION_PART2_PYTHON_INTEGRATION_COMPLETE.md)
 
 **Files Created (2):**
 - `Assets/Python/Screens/GenericDecoratedScreen.py` - Base class for decorated screens
@@ -156,7 +156,7 @@ Game launches or returns to menu
 
 ## Code Tagging Convention
 
-All custom code is tagged with `// ccgs` (C++) or `# ccgs` (Python) comments for easy identification. Search for "ccgs" to find all modifications.
+All custom code is tagged with `// AdvCiv-SAS - CuCuGS` (C++) or `# AdvCiv-SAS - CuCuGS` (Python) comments for easy identification. Search for "AdvCiv-SAS - CuCuGS" to find all modifications.
 
 ## Future Enhancements
 
@@ -202,7 +202,7 @@ The current implementation is a proof-of-concept with just game speed selection.
 - Make sure you're using Visual Studio 2010 Express (not newer versions)
 - Verify all #include statements are correct
 - Check that InputSim namespace is properly defined
-- Ensure all `// ccgs` tagged code was added correctly
+- Ensure all `// AdvCiv-SAS - CuCuGS` tagged code was added correctly
 
 ## File Locations Quick Reference
 
@@ -251,5 +251,5 @@ This implementation follows the same license as the AdvCiv mod and is compatible
 ---
 
 **For detailed technical information, see:**
-- [Part 1: DLL Changes](IMPLEMENTATION_PART1_DLL_CHANGES_COMPLETE.md)
-- [Part 2: Python Integration](IMPLEMENTATION_PART2_PYTHON_INTEGRATION_COMPLETE.md)
+- [Part 1: DLL Changes](1_IMPLEMENTATION_PART1_DLL_CHANGES_COMPLETE.md)
+- [Part 2: Python Integration](2_IMPLEMENTATION_PART2_PYTHON_INTEGRATION_COMPLETE.md)

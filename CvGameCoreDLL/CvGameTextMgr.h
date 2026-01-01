@@ -205,7 +205,7 @@ public:
 	// advc.059:
 	void setHealthHappyBuildActionHelp(CvWStringBuffer& szBuffer, CvPlot const& kPlot, BuildTypes eBuild) const;
 
-	// ccgs:
+	// AdvCiv-SAS - CuCuGS:
 	void setGameSpeedHelp(CvWStringBuffer &szBuffer, GameSpeedTypes eGameSpeed = NO_GAMESPEED, bool bReverse = false);
 
 	void buildObsoleteString(CvWStringBuffer& szBuffer, int iItem, bool bList = false, bool bPlayerContext = false);

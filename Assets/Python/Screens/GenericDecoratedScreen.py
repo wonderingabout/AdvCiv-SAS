@@ -1,4 +1,4 @@
-# ccgs: Stripped-down version of MNAI's InterfaceUtils.py
+# AdvCiv-SAS - CuCuGS: Stripped-down version of MNAI's InterfaceUtils.py
 # lfgr 09/2019: Full-screen Advisors
 from CvPythonExtensions import *
 
@@ -24,7 +24,7 @@ class GenericDecoratedScreen( object ) :
 			screen.setDimensions( 0, 0, self.wScreen, self.hScreen )
 
 		self.xExitButton = self.wScreen - 30
-		# ccgs: Was -42. Want it to be closer to the center of the footer.
+		# AdvCiv-SAS - CuCuGS: Was -42. Want it to be closer to the center of the footer.
 		self.yExitButton = self.hScreen - 37
 
 		return self.wScreen, self.hScreen # For convenience

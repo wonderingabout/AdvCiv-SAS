@@ -3,7 +3,7 @@
 #ifndef CY_INIT_CORE_H
 #define CY_INIT_CORE_H
 
-// ccgs: Adapter class for exposing CvInitCore functions to Python
+// AdvCiv-SAS - CuCuGS: Adapter class for exposing CvInitCore functions to Python
 
 class CyInitCore
 {

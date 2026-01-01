@@ -3,7 +3,7 @@
 #ifndef INPUT_SIM_H
 #define INPUT_SIM_H
 
-/*	ccgs: Wrappers for win functions that emulate keyboard and mouse inputs
+/*	AdvCiv-SAS - CuCuGS: Wrappers for win functions that emulate keyboard and mouse inputs
 	(I guess "emulate" really is the more appropriate term here - although
 	"simulate" seems to be more commonly used and is easier to abbreviate.) */
 

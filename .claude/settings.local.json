@@ -10,8 +10,7 @@
       "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(python -c:*)",
-      "Bash(git checkout:*)",
-      "Bash(\"C:\\\\Program Files \\(x86\\)\\\\Microsoft Visual Studio 10.0\\\\Common7\\\\IDE\\\\devenv.com\" AdvCiv.sln /Build \"Release|Win32\" /Project AdvCiv)"
+      "Bash(git checkout:*)"
     ]
   }
 }

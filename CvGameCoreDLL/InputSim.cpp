@@ -1,7 +1,7 @@
 #include "CvGameCoreDLL.h"
 #include "InputSim.h"
 
-// ccgs
+// AdvCiv-SAS - CuCuGS
 
 void input_sim::keySequence(std::vector<byte> aucVK, bool bContinueSeq)
 {

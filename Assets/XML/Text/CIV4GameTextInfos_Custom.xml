@@ -230,7 +230,7 @@
 		<English>No UnitCombat</English>
 	</TEXT>
 
-	<!-- ccgs - Custom Game Screen text key -->
+	<!-- AdvCiv-SAS - CuCuGS - Custom Game Screen text key -->
 	<TEXT>
 		<Tag>TXT_KEY_CUCUGS_CLOSE</Tag>
 		<English>Use Original Screen</English>

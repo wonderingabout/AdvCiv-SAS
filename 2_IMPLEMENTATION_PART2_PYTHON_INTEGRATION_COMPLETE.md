@@ -43,7 +43,7 @@ This document summarizes all Python and XML changes that have been implemented t
 **Location:** `Assets/Python/Screens/CvScreenEnums.py`
 
 **Changes:**
-- Added line 39: `CUSTOM_GAME_SCREEN = 33 # ccgs`
+- Added line 39: `CUSTOM_GAME_SCREEN = 33 # AdvCiv-SAS - CuCuGS`
 
 **What it does:**
 - Defines the screen ID constant used by CustomGameScreen.py
@@ -54,21 +54,21 @@ This document summarizes all Python and XML changes that have been implemented t
 **Changes:**
 1. Added import at line 40:
    ```python
-   import CustomGameScreen # ccgs
+   import CustomGameScreen # AdvCiv-SAS - CuCuGS
    ```
 
 2. Added screen instance and show function at lines 120-124:
    ```python
-   # ccgs - Custom Game Screen
+   # AdvCiv-SAS - CuCuGS - Custom Game Screen
    customGameScreen = CustomGameScreen.CustomGameScreen()
    def showCustomGameScreen():
        customGameScreen.interfaceScreen()
-   # ccgs end
+   # AdvCiv-SAS - CuCuGS end
    ```
 
 3. Added to HandleInputMap at line 1195:
    ```python
-   CUSTOM_GAME_SCREEN : customGameScreen, # ccgs
+   CUSTOM_GAME_SCREEN : customGameScreen, # AdvCiv-SAS - CuCuGS
    ```
 
 **What it does:**
@@ -83,7 +83,7 @@ This document summarizes all Python and XML changes that have been implemented t
 **Changes:**
 - Added text key at lines 233-237:
   ```xml
-  <!-- ccgs - Custom Game Screen text key -->
+  <!-- AdvCiv-SAS - CuCuGS - Custom Game Screen text key -->
   <TEXT>
       <Tag>TXT_KEY_CUCUGS_CLOSE</Tag>
       <English>Use Original Screen</English>
@@ -191,7 +191,7 @@ The popup works because:
 
 **Total: 5 files**
 
-All changes are tagged with `# ccgs` comments for easy identification.
+All changes are tagged with `# AdvCiv-SAS - CuCuGS` comments for easy identification.
 
 ## Next Steps
 

@@ -22311,7 +22311,7 @@ void CvGameTextMgr::setCorporationLink(CvWString& szBuffer, CorporationTypes eCo
 			szCorpType.c_str(), GC.getInfo(eCorp).getDescription()));
 }
 
-// ccgs:
+// AdvCiv-SAS - CuCuGS:
 void CvGameTextMgr::setGameSpeedHelp(CvWStringBuffer &szBuffer, GameSpeedTypes eGameSpeed, bool bReverse)
 {
 	if (eGameSpeed != NO_GAMESPEED)

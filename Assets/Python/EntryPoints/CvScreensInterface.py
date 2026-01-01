@@ -37,7 +37,7 @@ import CvWorldBuilderDiplomacyScreen
 import CvDebugTools
 import CvDebugInfoScreen
 import GameFontDisplay # advc.gfd
-import CustomGameScreen # ccgs
+import CustomGameScreen # AdvCiv-SAS - CuCuGS
 #import CvDiplomacy
 
 import CvUtil
@@ -117,11 +117,11 @@ optionsScreen = CvOptionsScreen.CvOptionsScreen()
 def showOptionsScreen():
 	optionsScreen.interfaceScreen()
 
-# ccgs - Custom Game Screen
+# AdvCiv-SAS - CuCuGS - Custom Game Screen
 customGameScreen = CustomGameScreen.CustomGameScreen()
 def showCustomGameScreen():
 	customGameScreen.interfaceScreen()
-# ccgs end
+# AdvCiv-SAS - CuCuGS end
 
 #foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
 foreignAdvisor = CvExoticForeignAdvisor.CvExoticForeignAdvisor()
@@ -1192,7 +1192,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					SPACE_SHIP_SCREEN : spaceShip,
 					INTRO_MOVIE_SCREEN : introMovie,
 					OPTIONS_SCREEN : optionsScreen,
-					CUSTOM_GAME_SCREEN : customGameScreen, # ccgs
+					CUSTOM_GAME_SCREEN : customGameScreen, # AdvCiv-SAS - CuCuGS
 					INFO_SCREEN : infoScreen,
 					REPLAY_SCREEN : replayScreen,
 					VICTORY_SCREEN : victoryScreen,

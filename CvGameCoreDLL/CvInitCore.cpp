@@ -2,7 +2,7 @@
 #include "CvInitCore.h"
 #include "CvPlayer.h"
 #include "CvInfo_GameOption.h"
-#include "CvDLLPythonIFaceBase.h" // ccgs: for callFunction
+#include "CvDLLPythonIFaceBase.h" // AdvCiv-SAS - CuCuGS: for callFunction
 
 
 CvInitCore::CvInitCore()
@@ -74,7 +74,7 @@ void CvInitCore::reset(GameMode eMode)
 	setMode(eMode);
 	if (getMode() != NO_GAMEMODE)
 		setDefaults();
-	m_bOnCustomGameScreen = false; // ccgs
+	m_bOnCustomGameScreen = false; // AdvCiv-SAS - CuCuGS
 }
 
 void CvInitCore::setDefaults()
@@ -883,7 +883,7 @@ const CvWString& CvInitCore::getEraKey(CvWString& szBuffer) const
 	return szBuffer;
 }
 
-// ccgs: Definition moved out of header for easier debugging
+// AdvCiv-SAS - CuCuGS: Definition moved out of header for easier debugging
 void CvInitCore::setGameSpeed(GameSpeedTypes eGameSpeed)
 {
 	m_eGameSpeed = eGameSpeed;
@@ -1034,7 +1034,7 @@ void CvInitCore::setCustomMapOption(int iOptionID, CustomMapOptionTypes eCustomM
 		m_aeCustomMapOptions[iOptionID] = eCustomMapOption;
 }
 
-// <ccgs>
+// <AdvCiv-SAS - CuCuGS>
 void CvInitCore::setVictories(int iVictories, bool const* abVictories)
 {
 	/*	Forward to a new function to prevent DLL-internal calls
@@ -1049,7 +1049,7 @@ void CvInitCore::setVictories(int iVictories, bool const* abVictories)
 	}
 }
 
-void CvInitCore::setVictoriesInternal( // </ccgs>
+void CvInitCore::setVictoriesInternal( // </AdvCiv-SAS - CuCuGS>
 	int iVictories, bool const* abVictories)
 {
 	SAFE_DELETE_ARRAY(m_abVictories);
@@ -1119,14 +1119,14 @@ void CvInitCore::setActivePlayer(PlayerTypes eActivePlayer)
 	if (m_eActivePlayer != NO_PLAYER)
 	{	// Automatically claim this slot
 		setSlotClaim(m_eActivePlayer, SLOTCLAIM_ASSIGNED);
-		// <ccgs>
+		// <AdvCiv-SAS - CuCuGS>
 		if (getType() == GAME_SP_NEW && m_bOnCustomGameScreen)
 		{
 			bool bSuccess = gDLL->getPythonIFace()->callFunction(
 					PYScreensModule, "showCustomGameScreen");
 			FAssert(bSuccess);
 			(void)bSuccess; // Suppress unused variable warning in Release builds
-		} // </ccgs>
+		} // </AdvCiv-SAS - CuCuGS>
 	}
 	else m_eActiveTeam = NO_TEAM; // advc.opt
 }

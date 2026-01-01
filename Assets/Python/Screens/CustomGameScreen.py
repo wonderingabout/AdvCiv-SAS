@@ -1,4 +1,4 @@
-# ccgs - Custom Custom Game Screen for AdvCiv-SAS
+# AdvCiv-SAS - CuCuGS: Custom Custom Game Screen for AdvCiv-SAS
 # Based on @f1rpo's CuCuGS proof of concept: https://forums.civfanatics.com/threads/replacing-the-custom-game-screen-proof-of-concept.670307/
 #
 # This script is part of the AdvCiv-SAS mod project.
@@ -9,7 +9,7 @@
 # - No ternary operators (x if condition else y) - Not available in Python 2.4
 # - All variables must be defined before use - Python 2.4 is strict about scoping
 # - Use tabs for indentation (not spaces) - Civ4 codebase standard
-# - Text keys defined in Assets/XML/Text/CuCuGs.xml - Localization support
+# - Text keys defined in Assets/XML/Text/AdvCiv-SAS_CuCuGs.xml - Localization support
 # - Use os.path operations for cross-platform compatibility
 # - Wrap risky operations in try/except blocks - Civ4 Python can be fragile
 #
@@ -68,6 +68,7 @@ import GenericDecoratedScreen
 import CvUtil
 import ScreenInput
 import CvScreenEnums
+import random
 
 
 gc = CyGlobalContext()
@@ -90,6 +91,10 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		screen = self.getScreen()
 		self.initDimensions()
 		self.addBackgroundHeaderFooter(localText.getText("TXT_KEY_CUSTOM_GAME_TITLE", ()))
+
+		# Debug: Check initial leader value
+		initialLeader = gc.getInitCore().getLeader(0)
+		print("[CustomGameScreen] interfaceScreen - Initial leader value: %d" % initialLeader)
 
 		self.MAIN_PANEL_ID = "MainPanel"
 		mainPanelMargin = 10
@@ -278,9 +283,10 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		for i in reversed(range(gc.getNumEraInfos())):
 			screen.addPullDownString(self.ERA_DROPDOWN_ID, gc.getEraInfo(i).getDescription(), i, i, i == gc.getInitCore().getEra())
 
-		# Store grid layout parameters for custom map options refresh and leader dropdown refresh
+		# Store grid layout parameters for custom map options refresh, leader dropdown refresh, and leader info panel
 		self.col1X = col1X
 		self.col2X = col2X
+		self.col3X = col3X
 		self.startY = startY
 		self.rowHeight = rowHeight
 		self.labelWidth = labelWidth
@@ -443,6 +449,9 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 
 			gameOptionY += gameOptionSpacing
 
+		# Leader Info Panel (positioned to the right of Game Options in Column 4)
+		self.refreshLeaderInfoPanel()
+
 		screen.setText(self.EXIT_ID, self.BACKGR,
 				u"<font=4>" + localText.getText("TXT_KEY_MAIN_MENU_LAUNCH", ()).upper() + "</font>",
 				CvUtil.FONT_RIGHT_JUSTIFY, self.xExitButton, self.yExitButton, 0,
@@ -552,21 +561,33 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		self.loadCustomMapOptions()
 
 
-	def refreshLeaderDropdown(self):
+	def refreshLeaderDropdown(self, forceCiv=None, forceLeader=None):
 		# Refresh the leader dropdown based on the currently selected civilization
+		# forceCiv: if provided, use this civ value instead of reading from InitCore
+		# forceLeader: if provided, use this leader value for selection instead of reading from InitCore
 		screen = self.getScreen()
+
+		# Get current civilization and leader
+		if forceCiv is not None:
+			currentCiv = forceCiv
+		else:
+			currentCiv = gc.getInitCore().getCiv(0)
+		if forceLeader is not None:
+			currentLeader = forceLeader
+		else:
+			currentLeader = gc.getInitCore().getLeader(0)
+		print("[CustomGameScreen] refreshLeaderDropdown - forceCiv: %s, forceLeader: %s, currentCiv: %d, currentLeader: %d, numLeaders: %d" % (str(forceCiv), str(forceLeader), currentCiv, currentLeader, gc.getNumLeaderHeadInfos()))
 
 		# Clear the leader dropdown
 		screen.deleteWidget(self.LEADER_DROPDOWN_ID)
 		screen.addDropDownBoxGFC(self.LEADER_DROPDOWN_ID, self.table2StartX + self.labelWidth, self.table2StartY + 3 * self.rowHeight, self.dropdownWidth,
 				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
 
-		# Get current civilization and leader
-		currentCiv = gc.getInitCore().getCiv(0)
-		currentLeader = gc.getInitCore().getLeader(0)
-
 		# If Random civilization is selected, show Random leader only
 		if currentCiv >= gc.getNumCivilizationInfos() or currentCiv < 0:
+			# Random civ: only show Random leader option
+			# DON'T set InitCore here - let WIDGET_CLOSE_SCREEN handler do it when game launches
+			print("[CustomGameScreen] Random civ - showing Random leader only")
 			screen.addPullDownString(self.LEADER_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_RANDOM", ()), gc.getNumLeaderHeadInfos(), gc.getNumLeaderHeadInfos(), True)
 		else:
 			# Get the civilization info
@@ -586,6 +607,214 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 			else:
 				# Fallback: if civInfo is None, just show Random
 				screen.addPullDownString(self.LEADER_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_RANDOM", ()), gc.getNumLeaderHeadInfos(), gc.getNumLeaderHeadInfos(), True)
+
+
+	def refreshLeaderInfoPanel(self, forceCiv=None, forceLeader=None):
+		# Display leader portrait, name, civ button, traits, unique units/buildings
+		# forceCiv: if provided, use this civ value instead of reading from InitCore
+		# forceLeader: if provided, use this leader value instead of reading from InitCore
+		screen = self.getScreen()
+
+		# Get current leader and civ
+		if forceLeader is not None:
+			currentLeader = forceLeader
+		else:
+			currentLeader = gc.getInitCore().getLeader(0)  # Player 0 is human player
+
+		if forceCiv is not None:
+			currentCiv = forceCiv
+		else:
+			currentCiv = gc.getInitCore().getCiv(0)
+
+		print("[CustomGameScreen] refreshLeaderInfoPanel - forceCiv: %s, forceLeader: %s, currentCiv: %d, currentLeader: %d, numLeaders: %d, numCivs: %d" % (str(forceCiv), str(forceLeader), currentCiv, currentLeader, gc.getNumLeaderHeadInfos(), gc.getNumCivilizationInfos()))
+
+		# Check if random leader or civ
+		bRandomLeader = (currentLeader >= gc.getNumLeaderHeadInfos() or currentLeader < 0)
+		bRandomCiv = (currentCiv >= gc.getNumCivilizationInfos() or currentCiv < 0)
+		print("[CustomGameScreen] bRandomLeader: %s, bRandomCiv: %s" % (str(bRandomLeader), str(bRandomCiv)))
+
+		# Get a fallback leader for displaying traits when leader is random but civ is selected
+		# Find the first leader available for this civilization
+		fallbackLeader = -1
+		if bRandomLeader and not bRandomCiv:
+			try:
+				civInfoTemp = gc.getCivilizationInfo(currentCiv)
+				for iLeader in range(gc.getNumLeaderHeadInfos()):
+					if civInfoTemp.isLeaders(iLeader):
+						fallbackLeader = iLeader
+						print("[CustomGameScreen] Found fallback leader: %d for civ %d" % (fallbackLeader, currentCiv))
+						break
+			except:
+				# Safety: if we can't get civ info or find a leader, just skip
+				fallbackLeader = -1
+		print("[CustomGameScreen] fallbackLeader: %d" % fallbackLeader)
+
+		# Leader info panel positioning (Column 4, to the right of Game Options)
+		panelX = self.col3X + self.labelWidth + self.dropdownWidth + 30
+		panelY = self.startY
+		panelWidth = 300
+		panelHeight = 600
+
+		# Delete existing widgets if they exist
+		try:
+			screen.deleteWidget("LeaderInfoPanel")
+			screen.deleteWidget("LeaderPortrait")
+			screen.deleteWidget("LeaderName")
+			screen.deleteWidget("LeaderCivButton")
+			for i in range(10):  # Clear up to 10 possible trait labels, unit/building buttons
+				screen.deleteWidget("LeaderTrait" + str(i))
+				screen.deleteWidget("DefaultUnit" + str(i))
+				screen.deleteWidget("UniqueUnit" + str(i))
+				screen.deleteWidget("DefaultBuilding" + str(i))
+				screen.deleteWidget("UniqueBuilding" + str(i))
+		except:
+			pass
+
+		# Add main panel
+		screen.addPanel("LeaderInfoPanel", "", "", True, False, panelX, panelY, panelWidth, panelHeight, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Portrait positioning
+		portraitY = panelY + 10
+		portraitWidth = 200
+		portraitHeight = 250
+		portraitX = panelX + (panelWidth - portraitWidth) / 2
+
+		# If civ or leader is Random, show Random portrait
+		if bRandomLeader or bRandomCiv:
+			# Random leader/civ - show placeholder
+			print("[CustomGameScreen] Showing Random portrait (bRandomLeader=%s, bRandomCiv=%s)" % (str(bRandomLeader), str(bRandomCiv)))
+			screen.addDDSGFC("LeaderPortrait", "Art/Interface/Buttons/General/button_alert_new.dds",
+					portraitX, portraitY, portraitWidth, portraitHeight, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+			# Random text
+			textY = portraitY + portraitHeight + 10
+			screen.setLabel("LeaderName", "Background",
+					u"<font=3b>" + localText.getText("TXT_KEY_MAIN_MENU_RANDOM", ()) + "</font>",
+					CvUtil.FONT_CENTER_JUSTIFY, panelX + panelWidth / 2, textY, 0,
+					FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		else:
+			# Show actual leader portrait
+			print("[CustomGameScreen] Showing leader portrait for leader %d" % currentLeader)
+			screen.addLeaderheadGFC("LeaderPortrait", currentLeader, AttitudeTypes.ATTITUDE_PLEASED,
+					portraitX, portraitY, portraitWidth, portraitHeight, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+			# Leader full name (portrait has hover info, but name is still useful)
+			leaderInfo = gc.getLeaderHeadInfo(currentLeader)
+			textY = portraitY + portraitHeight + 10
+			screen.setLabel("LeaderName", "Background",
+					u"<font=3b>" + leaderInfo.getDescription() + "</font>",
+					CvUtil.FONT_CENTER_JUSTIFY, panelX + panelWidth / 2, textY, 0,
+					FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		# Content below portrait (shown if civ is selected, even if leader is random)
+		textY = portraitY + portraitHeight + 35
+
+		if not bRandomCiv:
+			try:
+				civInfo = gc.getCivilizationInfo(currentCiv)
+			except:
+				# Safety: if we can't get civ info, treat as random
+				return
+
+			# Civilization button (with hover tooltip instead of text)
+			civButtonSize = 64
+			civButtonX = panelX + (panelWidth - civButtonSize) / 2
+			screen.addDDSGFC("LeaderCivButton", civInfo.getButton(),
+					civButtonX, textY, civButtonSize, civButtonSize,
+					WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, currentCiv, 1)
+			textY += civButtonSize + 15
+
+			# Traits (individual labels to avoid wrapping issues)
+			# Use actual leader if selected, or fallback leader if random
+			if not bRandomLeader:
+				displayLeader = currentLeader
+			else:
+				displayLeader = fallbackLeader
+			print("[CustomGameScreen] displayLeader: %d (bRandomLeader=%s)" % (displayLeader, str(bRandomLeader)))
+
+			# Only show traits if we have a valid leader to display
+			if displayLeader >= 0 and displayLeader < gc.getNumLeaderHeadInfos():
+				try:
+					# Count how many leaders this civ has
+					leaderCount = 0
+					for iLeader in range(gc.getNumLeaderHeadInfos()):
+						if civInfo.isLeaders(iLeader):
+							leaderCount += 1
+					print("[CustomGameScreen] leaderCount for civ %d: %d" % (currentCiv, leaderCount))
+
+					# If leader is Random, ALWAYS show "Random Trait" placeholders for consistency
+					# Even if the civ has only 1 leader, we show Random until the game actually starts
+					if bRandomLeader:
+						# Show generic "Random Trait" text
+						print("[CustomGameScreen] Showing 'Random Trait 1' and 'Random Trait 2' (bRandomLeader=%s, leaderCount=%d)" % (str(bRandomLeader), leaderCount))
+						screen.setLabel("LeaderTrait0", "Background",
+								u"<font=2>" + localText.getText("TXT_KEY_CUCUGS_RANDOM_TRAIT", ()) + " 1</font>",
+								CvUtil.FONT_CENTER_JUSTIFY, panelX + panelWidth / 2, textY, 0,
+								FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						textY += 20
+						screen.setLabel("LeaderTrait1", "Background",
+								u"<font=2>" + localText.getText("TXT_KEY_CUCUGS_RANDOM_TRAIT", ()) + " 2</font>",
+								CvUtil.FONT_CENTER_JUSTIFY, panelX + panelWidth / 2, textY, 0,
+								FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						textY += 30
+					else:
+						# Show actual traits for the selected leader
+						print("[CustomGameScreen] Showing actual traits for leader %d" % displayLeader)
+						leaderInfoForTraits = gc.getLeaderHeadInfo(displayLeader)
+						traitCount = 0
+						for iTrait in range(gc.getNumTraitInfos()):
+							if leaderInfoForTraits.hasTrait(iTrait):
+								traitInfo = gc.getTraitInfo(iTrait)
+								screen.setLabel("LeaderTrait" + str(traitCount), "Background",
+										u"<font=2>" + traitInfo.getDescription() + "</font>",
+										CvUtil.FONT_CENTER_JUSTIFY, panelX + panelWidth / 2, textY, 0,
+										FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+								textY += 20
+								traitCount += 1
+						textY += 10
+				except:
+					# Safety: if we can't get leader info or count leaders, just skip traits
+					pass
+
+			# Unique Units (show unique -> default, e.g., Minuteman -> Rifleman)
+			unitCount = 0
+			for iUnitClass in range(gc.getNumUnitClassInfos()):
+				iUniqueUnit = civInfo.getCivilizationUnits(iUnitClass)
+				iDefaultUnit = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
+				if iUniqueUnit > -1 and iDefaultUnit != iUniqueUnit and iDefaultUnit > -1:
+					# Show unique unit -> default unit (2 buttons side by side per row)
+					buttonX = panelX + (panelWidth - 140) / 2  # Center pair of buttons
+					buttonY = textY
+
+					# Unique unit (left)
+					screen.addDDSGFC("UniqueUnit" + str(unitCount), gc.getUnitInfo(iUniqueUnit).getButton(),
+							buttonX, buttonY, 64, 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUniqueUnit, 1)
+					# Default unit (right)
+					screen.addDDSGFC("DefaultUnit" + str(unitCount), gc.getUnitInfo(iDefaultUnit).getButton(),
+							buttonX + 76, buttonY, 64, 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iDefaultUnit, 1)
+
+					textY += 70
+					unitCount += 1
+
+			# Unique Buildings (show unique -> default, e.g., Mall -> Supermarket)
+			buildingCount = 0
+			for iBuildingClass in range(gc.getNumBuildingClassInfos()):
+				iUniqueBuilding = civInfo.getCivilizationBuildings(iBuildingClass)
+				iDefaultBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
+				if iUniqueBuilding > -1 and iDefaultBuilding != iUniqueBuilding and iDefaultBuilding > -1:
+					# Show unique building -> default building
+					buttonX = panelX + (panelWidth - 140) / 2
+					buttonY = textY
+
+					# Unique building (left)
+					screen.addDDSGFC("UniqueBuilding" + str(buildingCount), gc.getBuildingInfo(iUniqueBuilding).getButton(),
+							buttonX, buttonY, 64, 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iUniqueBuilding, 1)
+					# Default building (right)
+					screen.addDDSGFC("DefaultBuilding" + str(buildingCount), gc.getBuildingInfo(iDefaultBuilding).getButton(),
+							buttonX + 76, buttonY, 64, 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1)
+
+					textY += 70
+					buildingCount += 1
 
 
 	def update(self, fDelta): # called after handleInput
@@ -646,16 +875,49 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 			elif funcName == self.CIVILIZATION_DROPDOWN_ID:
 				iIndex = screen.getSelectedPullDownID(self.CIVILIZATION_DROPDOWN_ID)
 				iCiv = screen.getPullDownData(self.CIVILIZATION_DROPDOWN_ID, iIndex)
+				print("[CustomGameScreen] Civ dropdown changed - iCiv: %d, numCivs: %d" % (iCiv, gc.getNumCivilizationInfos()))
 				# Set civilization for human player (player 0)
 				gc.getInitCore().setCiv(0, iCiv)
-				# Refresh leader dropdown to show leaders for this civilization
-				self.refreshLeaderDropdown()
+
+				# When civ changes, reset leader to Random (-1 in InitCore)
+				# This prevents keeping an incompatible leader from a different civ (e.g., Hammurabi of Celtic Empire)
+				# The dropdown will show "Random" and the portrait will show Random
+				# The actual leader selection/randomization happens when:
+				# 1. User clicks leader dropdown and selects a specific leader -> sets that leader in InitCore
+				# 2. User clicks LAUNCH with Random still selected -> we randomize before game starts (see onClose or launch handler)
+				gc.getInitCore().setLeader(0, -1)
+				print("[CustomGameScreen] Reset leader to -1 (Random) after civ change")
+
+				# Refresh leader dropdown to show available leaders for this civ, with Random selected
+				randomLeaderValue = gc.getNumLeaderHeadInfos()
+				self.refreshLeaderDropdown(forceCiv=iCiv, forceLeader=randomLeaderValue)
+
+				# Refresh leader info panel to show Random portrait and Random traits
+				# Pass the Random leader value so it displays "Random Leader" and "Random Trait"
+				self.refreshLeaderInfoPanel(forceCiv=iCiv, forceLeader=randomLeaderValue)
+				print("[CustomGameScreen] Done with civ dropdown handler")
 
 			elif funcName == self.LEADER_DROPDOWN_ID:
 				iIndex = screen.getSelectedPullDownID(self.LEADER_DROPDOWN_ID)
 				iLeader = screen.getPullDownData(self.LEADER_DROPDOWN_ID, iIndex)
-				# Set leader for human player (player 0)
-				gc.getInitCore().setLeader(0, iLeader)
+
+				# Leader dropdown changed - update InitCore and UI
+				# Design philosophy: Custom game screen is just a UI layer
+				# We DON'T randomize here - we just store the user's selection
+				# Actual randomization happens in onClose() when user clicks LAUNCH
+				if iLeader >= gc.getNumLeaderHeadInfos():
+					# User selected "Random" from dropdown
+					# Set InitCore to -1 (Random) and show Random portrait
+					gc.getInitCore().setLeader(0, -1)
+					print("[CustomGameScreen] Leader dropdown: Random selected, set InitCore to -1")
+					# Pass the Random value (54) to UI so it shows Random portrait and Random traits
+					self.refreshLeaderInfoPanel(forceLeader=iLeader)
+				else:
+					# User selected a specific leader
+					# Set InitCore to that leader and show that leader's portrait
+					gc.getInitCore().setLeader(0, iLeader)
+					print("[CustomGameScreen] Leader dropdown: Specific leader %d selected" % iLeader)
+					self.refreshLeaderInfoPanel(forceLeader=iLeader)
 
 			# Check if this is a victory dropdown by looking up in our dictionary
 			elif funcName in self.victoryDropdownData:
@@ -689,9 +951,122 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
 			if inputClass.getButtonType() == WidgetTypes.WIDGET_CLOSE_SCREEN:
+				# Screen is closing (user clicked LAUNCH or GO BACK)
+				# This is our last chance to randomize any Random leader selection before game starts
+				print("[CustomGameScreen] WIDGET_CLOSE_SCREEN - checking for Random leader")
+
+				# CRITICAL: Read from the DROPDOWN UI, not from InitCore
+				# InitCore gets corrupted by various game engine calls and refreshLeaderDropdown()
+				# The dropdown UI is the source of truth for what the user actually selected
+				screen = self.getScreen()
+				iLeaderIndex = screen.getSelectedPullDownID(self.LEADER_DROPDOWN_ID)
+				selectedLeader = screen.getPullDownData(self.LEADER_DROPDOWN_ID, iLeaderIndex)
+				currentCiv = gc.getInitCore().getCiv(0)
+
+				print("[CustomGameScreen] CLOSE: Dropdown shows leader=%d, civ=%d" % (selectedLeader, currentCiv))
+
+				# If dropdown shows Random (value >= numLeaders), we need to randomize it now
+				if selectedLeader >= gc.getNumLeaderHeadInfos():
+					print("[CustomGameScreen] Dropdown shows Random, randomizing now before game starts")
+
+					# Check if civilization is also Random
+					isRandomCiv = currentCiv >= gc.getNumCivilizationInfos() or currentCiv < 0
+
+					# If civ is Random, first randomize the civ itself
+					if isRandomCiv:
+						# Collect all valid civs
+						validCivs = []
+						for iCivLoop in range(gc.getNumCivilizationInfos()):
+							validCivs.append(iCivLoop)
+
+						# Randomly choose a civ
+						chosenCiv = random.choice(validCivs)
+						print("[CustomGameScreen] CLOSE: Random civ - randomly chose civ %d from %d civs" % (chosenCiv, len(validCivs)))
+						gc.getInitCore().setCiv(0, chosenCiv)
+						currentCiv = chosenCiv
+
+					# Now randomize the leader for the chosen/selected civ
+					civInfo = gc.getCivilizationInfo(currentCiv)
+					validLeaders = []
+					for iLeaderLoop in range(gc.getNumLeaderHeadInfos()):
+						if civInfo.isLeaders(iLeaderLoop):
+							validLeaders.append(iLeaderLoop)
+					print("[CustomGameScreen] CLOSE: Civ %d has %d valid leaders" % (currentCiv, len(validLeaders)))
+
+					# Randomly choose a leader (simple random.choice, not voting)
+					if len(validLeaders) > 0:
+						chosenLeader = random.choice(validLeaders)
+						print("[CustomGameScreen] CLOSE: Randomly chose leader %d from %d valid leaders" % (chosenLeader, len(validLeaders)))
+						gc.getInitCore().setLeader(0, chosenLeader)
+					else:
+						print("[CustomGameScreen] CLOSE: ERROR - No valid leaders found! Using first leader as fallback")
+						gc.getInitCore().setLeader(0, 0)
+				else:
+					# Dropdown shows a specific leader - set it in InitCore
+					print("[CustomGameScreen] CLOSE: Dropdown shows specific leader %d, setting in InitCore" % selectedLeader)
+					gc.getInitCore().setLeader(0, selectedLeader)
+
 				# In the unlikely case that the player has TAB'ed onto the original Custom Game screen. We want the new screen to have focus when it closes so that the original Launch button receives focus (by default, apparently). This doesn't work reliably, but it's better than failing everytime.
 				self.getScreen().setFocus(self.MAIN_PANEL_ID)
 		return 1 # Consume all inputs
 
-	#def onClose(self):
+	def onClose(self):
+		# Called when the screen is about to close (e.g., when user clicks LAUNCH button)
+		# This is our last chance to fix up any Random selections before the game starts
+		print("[CustomGameScreen] onClose called - checking for Random leader")
+
+		currentLeader = gc.getInitCore().getLeader(0)
+		currentCiv = gc.getInitCore().getCiv(0)
+
+		# If leader is still -1 (Random), we need to randomize it now
+		# The game's built-in randomization doesn't work, so we do it manually
+		if currentLeader == -1:
+			print("[CustomGameScreen] Leader is still Random (-1), randomizing now before game starts")
+
+			# Check if civilization is also Random
+			isRandomCiv = currentCiv >= gc.getNumCivilizationInfos()
+
+			# Collect valid leaders
+			validLeaders = []
+			if isRandomCiv:
+				# Random civ: all leaders are valid
+				for iLeaderLoop in range(gc.getNumLeaderHeadInfos()):
+					validLeaders.append(iLeaderLoop)
+				print("[CustomGameScreen] onClose: Random civ - all %d leaders are valid" % len(validLeaders))
+			else:
+				# Specific civ: only leaders for this civ are valid
+				civInfo = gc.getCivilizationInfo(currentCiv)
+				for iLeaderLoop in range(gc.getNumLeaderHeadInfos()):
+					if civInfo.isLeaders(iLeaderLoop):
+						validLeaders.append(iLeaderLoop)
+				print("[CustomGameScreen] onClose: Specific civ %d - found %d valid leaders" % (currentCiv, len(validLeaders)))
+
+			# Do weighted random selection (N rolls where N = number of valid leaders)
+			if len(validLeaders) > 0:
+				numRolls = len(validLeaders)
+				leaderVotes = {}
+				for iLeaderID in validLeaders:
+					leaderVotes[iLeaderID] = 0
+
+				for roll in range(numRolls):
+					randomChoice = random.choice(validLeaders)
+					leaderVotes[randomChoice] = leaderVotes[randomChoice] + 1
+
+				# Find the leader with most votes
+				chosenLeader = validLeaders[0]
+				maxVotes = 0
+				for iLeaderID in validLeaders:
+					if leaderVotes[iLeaderID] > maxVotes:
+						maxVotes = leaderVotes[iLeaderID]
+						chosenLeader = iLeaderID
+
+				print("[CustomGameScreen] onClose: After %d rolls, chosen leader: %d (votes: %d)" % (numRolls, chosenLeader, maxVotes))
+				gc.getInitCore().setLeader(0, chosenLeader)
+			else:
+				print("[CustomGameScreen] onClose: ERROR - No valid leaders found! Using first leader as fallback")
+				gc.getInitCore().setLeader(0, 0)
+		else:
+			print("[CustomGameScreen] onClose: Leader already set to %d, no randomization needed" % currentLeader)
+
+	#def onClose_original(self):
 	# Could perhaps also handle the emulated key presses here. Would have to remember in which way the screen was closed, and the InputSim functions would have to be exposed to Python for specific keys. (Because figuring out the Windows key codes in Python would require some contortions I think. We might then as well try to trigger the key presses directly from Python via the ctypes module.)

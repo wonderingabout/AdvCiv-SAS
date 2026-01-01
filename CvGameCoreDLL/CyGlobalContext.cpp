@@ -8,7 +8,7 @@
 #include "CvInfo_Misc.h"
 #include "CvGamePlay.h"
 #include "CyGame.h"
-#include "CyInitCore.h" // ccgs
+#include "CyInitCore.h" // AdvCiv-SAS - CuCuGS
 #include "CyPlayer.h"
 #include "CyMap.h"
 #include "CyTeam.h"
@@ -36,7 +36,7 @@ bool CyGlobalContext::isDebugBuild() const
 #endif
 }
 
-// ccgs:
+// AdvCiv-SAS - CuCuGS:
 CyInitCore& CyGlobalContext::getCyInitCore() const
 {
 	static CyInitCore cyInitCore;

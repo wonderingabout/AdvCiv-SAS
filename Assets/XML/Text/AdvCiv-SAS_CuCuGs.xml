@@ -48,4 +48,12 @@ Then expanded on it to implement an actual Custom Custom game screen, with the h
 		<Tag>TXT_KEY_GAME_VICTORIES</Tag>
 		<English>Victories:</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CUCUGS_RANDOM_LEADER</Tag>
+		<English>Random Leader</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CUCUGS_RANDOM_TRAIT</Tag>
+		<English>Random Trait</English>
+	</TEXT>
 </Civ4GameText>

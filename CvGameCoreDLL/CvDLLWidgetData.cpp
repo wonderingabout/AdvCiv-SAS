@@ -13,7 +13,7 @@
 #include "CvBugOptions.h"
 #include "WarEvaluator.h" // advc.104l
 #include "RiseFall.h" // advc.706
-#include "InputSim.h" // ccgs
+#include "InputSim.h" // AdvCiv-SAS - CuCuGS
 
 
 CvDLLWidgetData* CvDLLWidgetData::m_pInst = NULL;
@@ -787,10 +787,10 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		parseGoldenAgeAnarchyHelp((PlayerTypes)widgetDataStruct.m_iData1,
 				widgetDataStruct.m_iData2, true, szBuffer);
 		break;
-	// <ccgs>
+	// <AdvCiv-SAS - CuCuGS>
 	case WIDGET_HELP_GAME_SPEED:
 		GAMETEXT.setGameSpeedHelp(szBuffer, (GameSpeedTypes)widgetDataStruct.m_iData1, widgetDataStruct.m_iData2 == 1);
-		break; // </ccgs>
+		break; // </AdvCiv-SAS - CuCuGS>
 	}
 	if (getActivePlayer() == NO_PLAYER)
 		return;
@@ -1103,7 +1103,7 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 				(iData1 == 1 ? CONTROL_CYCLEWORKER : CONTROL_CYCLEUNIT_ALT));
 		break;
 	} // </advc.154>
-	// <ccgs>
+	// <AdvCiv-SAS - CuCuGS>
 	case WIDGET_CLOSE_SCREEN:
 		// Check for ID of CustomGameScreen.py
 		if (widgetDataStruct.m_iData1 == 33)
@@ -1123,7 +1123,7 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 			}
 		}
 		break;
-	// </ccgs>
+	// </AdvCiv-SAS - CuCuGS>
 	}
 
 	return bHandled;

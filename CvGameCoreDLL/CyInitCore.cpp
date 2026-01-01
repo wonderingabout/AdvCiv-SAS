@@ -1,4 +1,4 @@
-// ccgs
+// AdvCiv-SAS - CuCuGS
 #include "CvGameCoreDLL.h"
 #include "CyInitCore.h"
 #include "CvInitCore.h"
@@ -229,7 +229,7 @@ void CyInitCore::setVictory(int eVictory, bool bVictory)
 	m_kInitCore.setVictory((VictoryTypes)eVictory, bVictory);
 }
 
-// ccgs - Game options wrapper functions
+// AdvCiv-SAS - CuCuGS - Game options wrapper functions
 bool CyInitCore::getGameOption(int eGameOption)
 {
 	if (eGameOption < 0 || eGameOption >= NUM_GAMEOPTION_TYPES)

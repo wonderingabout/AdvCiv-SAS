@@ -139,7 +139,7 @@ All DLL modifications are complete. To proceed:
 
 **Total: 8 files**
 
-All changes are conservative, well-commented with `// ccgs` tags, and follow the existing code style in AdvCiv.
+All changes are conservative, well-commented with `// AdvCiv-SAS - CuCuGS` tags, and follow the existing code style in AdvCiv.
 
 ---
 
