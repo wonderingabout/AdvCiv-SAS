@@ -41,6 +41,9 @@ public:
 	int getLeader(int ePlayerID);
 	void setLeader(int ePlayerID, int eLeader);
 
+	bool getVictory(int eVictory);
+	void setVictory(int eVictory, bool bVictory);
+
 private:
 	CvInitCore& m_kInitCore;
 };

@@ -474,6 +474,16 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 	//refreshVictories();
 	/*	<advc> Unrolling that function should make it easier to use an EnumMap instead
 		-- if I ever take another stab at that, which probably I should not. */
+	// <advc.003w> Save current victory settings before reset
+	bool* abPrevVictories = NULL;
+	if (m_abVictories != NULL && m_iNumVictories > 0)
+	{
+		abPrevVictories = new bool[m_iNumVictories];
+		for (int i = 0; i < m_iNumVictories; i++)
+			abPrevVictories[i] = m_abVictories[i];
+	}
+	// </advc.003w>
+
 	SAFE_DELETE_ARRAY(m_abVictories);
 	if (!bBeforeRead) // advc.enum
 	{
@@ -482,9 +492,19 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 		{
 			m_abVictories = new bool[m_iNumVictories];
 			for (int i = 0; i < m_iNumVictories; i++)
-				m_abVictories[i] = true;
+			{
+				// <advc.003w> Restore previous settings if they existed, otherwise default to true
+				if (abPrevVictories != NULL)
+					m_abVictories[i] = abPrevVictories[i];
+				else
+					m_abVictories[i] = true;
+				// </advc.003w>
+			}
 		} // </advc>
 	}
+	// <advc.003w> Clean up temporary array
+	SAFE_DELETE_ARRAY(abPrevVictories);
+	// </advc.003w>
 	// Standard game options
 	m_abOptions.reset();
 	m_abMPOptions.reset();

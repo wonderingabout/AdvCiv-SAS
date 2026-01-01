@@ -26,5 +26,7 @@ void CyInitCoreInterface()
 		.def("setCiv", &CyInitCore::setCiv, "void (int ePlayerID, int eCiv)")
 		.def("getLeader", &CyInitCore::getLeader, "int (int ePlayerID)")
 		.def("setLeader", &CyInitCore::setLeader, "void (int ePlayerID, int eLeader)")
+		.def("getVictory", &CyInitCore::getVictory, "bool (int eVictory)")
+		.def("setVictory", &CyInitCore::setVictory, "void (int eVictory, bool bVictory)")
 	;
 }

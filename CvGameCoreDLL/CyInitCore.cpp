@@ -208,3 +208,23 @@ void CyInitCore::setLeader(int ePlayerID, int eLeader)
 	}
 	m_kInitCore.setLeader((PlayerTypes)ePlayerID, (LeaderHeadTypes)eLeader);
 }
+
+bool CyInitCore::getVictory(int eVictory)
+{
+	if (eVictory < 0 || eVictory >= GC.getNumVictoryInfos())
+	{
+		FAssertMsg(false, "index out of bounds");
+		return false;
+	}
+	return m_kInitCore.getVictory((VictoryTypes)eVictory);
+}
+
+void CyInitCore::setVictory(int eVictory, bool bVictory)
+{
+	if (eVictory < 0 || eVictory >= GC.getNumVictoryInfos())
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	m_kInitCore.setVictory((VictoryTypes)eVictory, bVictory);
+}

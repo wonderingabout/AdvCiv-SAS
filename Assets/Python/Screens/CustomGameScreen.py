@@ -13,6 +13,22 @@
 # - Use os.path operations for cross-platform compatibility
 # - Wrap risky operations in try/except blocks - Civ4 Python can be fragile
 #
+# NOTE: Don't always trust the linter! In Civ4 Python code:
+# - ScreenInput being "unused" is common - it's often loaded from files without direct module calls
+# - Print statements may show as errors in Python 3 linters but are valid in Python 2.4
+# - Many Civ4-specific imports appear unused but are required for the game engine
+#
+# Widget naming quirks (learned from debugging with Middle-earth mod's Platypedia):
+# - Civ4 strips NUMBERS from widget names! "VictoryDropdown1" becomes "VictoryDropdown" in events
+# - Solution: Use descriptive names with text suffixes (e.g., "Victory_VICTORY_TIME", "Victory_VICTORY_CONQUEST")
+# - Cannot have multiple widgets with the same ID - they will overwrite each other
+# - This wrapper/mapping approach is inspired by patterns in CvExoticForeignAdvisor and Sevopedia screens
+#   where dictionaries map widget IDs to data for event handling
+#
+# Code comments policy:
+# - Feel free to expand header comments with valuable insights and tricky edge cases discovered during development
+# - Keep comments reasonably concise but prioritize clarity over brevity when documenting non-obvious behavior
+#
 # Map script discovery:
 # - Uses os.getcwd() approach proven in BugHelp.py (chatgpt 5.2 solution for known issue #87 - BUG menu help not showing)
 # - Searches both mod directories (PrivateMaps/PublicMaps) AND base BTS directories for map scripts
@@ -301,6 +317,61 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		# Populate leader dropdown based on current civilization
 		self.refreshLeaderDropdown()
 
+		# Third table: Victory Conditions (positioned below the second table)
+		table3StartX = table2StartX
+		table3StartY = table2StartY + 4 * rowHeight
+
+		# Victories header label
+		screen.setLabel("VictoriesLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_GAME_VICTORIES", ()) + u":</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, table3StartX, table3StartY + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		# Add dropdown for each victory condition (skipping VICTORY_SCORE which is always enabled)
+		# Note: All victory dropdowns share the same widget name "VictoryDropdown"
+		# We use iData1 parameter to identify which victory each dropdown represents
+		victoryY = table3StartY + rowHeight
+		victorySpacing = 30
+
+		# Store victory dropdown info for event handling
+		self.victoryDropdownData = {}
+
+		for i in range(gc.getNumVictoryInfos()):
+			victoryInfo = gc.getVictoryInfo(i)
+			# Skip VICTORY_SCORE (it's always enabled and not shown in UI)
+			if i == gc.getInfoTypeForString("VICTORY_SCORE"):
+				continue
+
+			# Create unique dropdown ID using victory type name (e.g., "Victory_TIME", "Victory_CONQUEST")
+			# This avoids the number-stripping issue
+			victoryType = gc.getVictoryInfo(i).getType()  # Returns "VICTORY_TIME", "VICTORY_CONQUEST", etc.
+			dropdownID = "Victory_" + victoryType
+
+			# Store mapping from dropdown ID to victory index for event handling
+			self.victoryDropdownData[dropdownID] = i
+
+			# DEBUG: Print what we're creating
+			print "[CustomGameScreen] Creating victory dropdown %s for victory index %d (%s)" % (dropdownID, i, victoryInfo.getDescription())
+
+			# Add label for the victory type
+			screen.setLabel(dropdownID + "_Label", self.BACKGR,
+					u"<font=3>" + victoryInfo.getDescription() + u":</font>",
+					CvUtil.FONT_LEFT_JUSTIFY, table3StartX, victoryY + 5, 0, FontTypes.GAME_FONT,
+					WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+			# Create dropdown with ON/OFF options
+			screen.addDropDownBoxGFC(dropdownID, table3StartX + labelWidth, victoryY, dropdownWidth,
+					WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+
+			# Get current victory state from DLL
+			bCurrentlyEnabled = gc.getInitCore().getVictory(i)
+
+			# Add ON and OFF options with current state selected
+			screen.addPullDownString(dropdownID, localText.getText("TXT_KEY_POPUP_YES", ()), 1, 1, bCurrentlyEnabled)   # ON
+			screen.addPullDownString(dropdownID, localText.getText("TXT_KEY_POPUP_NO", ()), 0, 0, not bCurrentlyEnabled) # OFF
+
+			victoryY += victorySpacing
+
 		screen.setText(self.EXIT_ID, self.BACKGR,
 				u"<font=4>" + localText.getText("TXT_KEY_MAIN_MENU_LAUNCH", ()).upper() + "</font>",
 				CvUtil.FONT_RIGHT_JUSTIFY, self.xExitButton, self.yExitButton, 0,
@@ -455,10 +526,13 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 
 
 	def handleInput(self, inputClass):
-		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED:
-			screen = self.getScreen()
-			funcName = inputClass.getFunctionName()
+		screen = self.getScreen()
+		funcName = inputClass.getFunctionName()
 
+		# DEBUG: Log all events to PythonDbg.log
+		print "[CustomGameScreen] Event: %s, Notify: %d" % (funcName, inputClass.getNotifyCode())
+
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED:
 			if funcName == self.GAMESPEED_DROPDOWN_ID:
 				iIndex = screen.getSelectedPullDownID(self.GAMESPEED_DROPDOWN_ID)
 				iGameSpeed = screen.getPullDownData(self.GAMESPEED_DROPDOWN_ID, iIndex)
@@ -515,6 +589,16 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 				iLeader = screen.getPullDownData(self.LEADER_DROPDOWN_ID, iIndex)
 				# Set leader for human player (player 0)
 				gc.getInitCore().setLeader(0, iLeader)
+
+			# Check if this is a victory dropdown by looking up in our dictionary
+			elif funcName in self.victoryDropdownData:
+				victoryIndex = self.victoryDropdownData[funcName]
+				print "[CustomGameScreen] Victory dropdown event: %s (index %d)" % (funcName, victoryIndex)
+				iIndex = screen.getSelectedPullDownID(funcName)
+				iEnabled = screen.getPullDownData(funcName, iIndex)
+				bEnabled = (iEnabled == 1)
+				print "[CustomGameScreen] Setting victory %d to %s (data value: %d)" % (victoryIndex, bEnabled, iEnabled)
+				gc.getInitCore().setVictory(victoryIndex, bEnabled)
 
 			else:
 				# Handle custom map options

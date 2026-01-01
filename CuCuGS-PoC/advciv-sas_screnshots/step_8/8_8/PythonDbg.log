@@ -1,0 +1,987 @@
+Initializing Python
+1. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\email
+2. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\encodings
+3. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx
+4. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\build
+5. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\lib
+6. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale
+7. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\py
+8. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\tools
+9. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\lib\colourchooser
+10. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\lib\editor
+11. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\lib\floatcanvas
+12. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\lib\masked
+13. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\lib\mixins
+14. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\lib\ogl
+15. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\af
+16. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\ca
+17. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\cs
+18. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\da
+19. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\de
+20. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\el
+21. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\es
+22. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\eu
+23. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\fi
+24. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\fr
+25. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\hi
+26. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\hu
+27. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\id
+28. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\it
+29. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\ja
+30. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\lv
+31. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\nb
+32. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\nl
+33. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\pl
+34. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\pt_BR
+35. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\ru
+36. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\sl
+37. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\sv
+38. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\tr
+39. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\uk
+40. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\zh_CN
+41. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\zh_TW
+42. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\af\LC_MESSAGES
+43. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\ca\LC_MESSAGES
+44. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\cs\LC_MESSAGES
+45. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\da\LC_MESSAGES
+46. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\de\LC_MESSAGES
+47. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\el\LC_MESSAGES
+48. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\es\LC_MESSAGES
+49. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\eu\LC_MESSAGES
+50. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\fi\LC_MESSAGES
+51. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\fr\LC_MESSAGES
+52. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\hi\LC_MESSAGES
+53. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\hu\LC_MESSAGES
+54. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\id\LC_MESSAGES
+55. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\it\LC_MESSAGES
+56. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\ja\LC_MESSAGES
+57. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\lv\LC_MESSAGES
+58. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\nb\LC_MESSAGES
+59. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\nl\LC_MESSAGES
+60. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\pl\LC_MESSAGES
+61. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\pt_BR\LC_MESSAGES
+62. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\ru\LC_MESSAGES
+63. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\sl\LC_MESSAGES
+64. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\sv\LC_MESSAGES
+65. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\tr\LC_MESSAGES
+66. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\uk\LC_MESSAGES
+67. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\zh_CN\LC_MESSAGES
+68. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\locale\zh_TW\LC_MESSAGES
+69. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\py\tests
+70. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\tools\XRCed
+71. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM\wx\tools\XRCed\src-images
+72. Using Python sys path: ..\WARLORDS\ASSETS\PYTHON\SYSTEM
+sys.path =
+ 
+['..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\email', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\encodings', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\build', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\lib', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\py', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\tools', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\lib\\colourchooser', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\lib\\editor', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\lib\\floatcanvas', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\lib\\masked', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\lib\\mixins', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\lib\\ogl', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\af', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\ca', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\cs', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\da', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\de', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\el', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\es', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\eu', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\fi', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\fr', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\hi', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\hu', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\id', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\it', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\ja', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\lv', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\nb', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\nl', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\pl', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\pt_BR', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\ru', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\sl', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\sv', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\tr', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\uk', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\zh_CN', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\zh_TW', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\af\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\ca\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\cs\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\da\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\de\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\el\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\es\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\eu\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\fi\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\fr\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\hi\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\hu\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\id\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\it\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\ja\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\lv\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\nb\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\nl\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\pl\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\pt_BR\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\ru\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\sl\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\sv\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\tr\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\uk\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\zh_CN\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\locale\\zh_TW\\LC_MESSAGES', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\py\\tests', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\tools\\XRCed', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM\\wx\\tools\\XRCed\\src-images', '..\\WARLORDS\\ASSETS\\PYTHON\\SYSTEM']
+
+
+sys.modules =
+ 
+{'zipimport': <module 'zipimport' (built-in)>, 'signal': <module 'signal' (built-in)>, '__builtin__': <module '__builtin__' (built-in)>, 'sys': <module 'sys' (built-in)>, '__main__': <module '__main__' (built-in)>, 'exceptions': <module 'exceptions' (built-in)>, 'CvPythonExtensions': <module 'CvPythonExtensions' (built-in)>}
+
+
+sys.builtin_module_names =
+ 
+('CvPythonExtensions', '__builtin__', '__main__', '_bisect', '_codecs', '_codecs_cn', '_codecs_hk', '_codecs_iso2022', '_codecs_jp', '_codecs_kr', '_codecs_tw', '_csv', '_heapq', '_hotshot', '_locale', '_multibytecodec', '_random', '_sre', '_subprocess', '_symtable', '_weakref', '_winreg', 'array', 'audioop', 'binascii', 'cPickle', 'cStringIO', 'cmath', 'collections', 'datetime', 'errno', 'exceptions', 'gc', 'imageop', 'imp', 'itertools', 'marshal', 'math', 'md5', 'mmap', 'msvcrt', 'nt', 'operator', 'parser', 'regex', 'rgbimg', 'sha', 'signal', 'strop', 'struct', 'sys', 'thread', 'time', 'xxsubtype', 'zipimport')
+
+1. Using moduleSearchDirs: python\contrib\
+2. Using moduleSearchDirs: python\bug\
+3. Using moduleSearchDirs: python\screens\
+4. Using moduleSearchDirs: python\entrypoints\
+5. Using moduleSearchDirs: python\contrib\sevopedia\
+6. Using moduleSearchDirs: python\bug\tabs\
+7. Using moduleSearchDirs: python\
+8. Using moduleSearchDirs: python\pywb\
+9. Using moduleSearchDirs: python\pyhelper\
+10. Using moduleSearchDirs: python\pitboss\
+11. Using moduleSearchDirs: python\pyunit\
+12. Using moduleSearchDirs: python\_debugtools\
+13. Using moduleSearchDirs: 
+EntryPoint module:cvrandomeventinterface
+EntryPoint module:cvscreensinterface
+EntryPoint module:cvgameinterface
+EntryPoint module:cvscreenutilsinterface
+EntryPoint module:cvgameinterfacefile
+EntryPoint module:cveventinterface
+EntryPoint module:cvoptionsscreencallbackinterface
+EntryPoint module:terra
+EntryPoint module:tectonics
+EntryPoint module:perfectmongoose
+EntryPoint module:mixed_continents
+EntryPoint module:fractal
+EntryPoint module:pangaea
+EntryPoint module:not_too_big_or_small
+EntryPoint module:hemispheres
+EntryPoint module:cvwbinterface
+EntryPoint module:pbmain
+EntryPoint module:cvappinterface
+EntryPoint module:cvtranslator
+EntryPoint module:arboria
+EntryPoint module:highlands
+EntryPoint module:rainforest
+EntryPoint module:donut
+EntryPoint module:randomscriptmap
+EntryPoint module:big_and_small
+EntryPoint module:boreal
+EntryPoint module:earth2
+EntryPoint module:medium_and_small
+EntryPoint module:team_battleground
+EntryPoint module:global_highlands
+EntryPoint module:cvmapscriptinterface
+EntryPoint module:islands
+EntryPoint module:great_plains
+EntryPoint module:continents
+EntryPoint module:fantasy_realm
+EntryPoint module:archipelago
+EntryPoint module:wheel
+EntryPoint module:lakes
+EntryPoint module:tilted_axis
+EntryPoint module:inland_sea
+EntryPoint module:mirror
+EntryPoint module:oasis
+EntryPoint module:hub
+EntryPoint module:balanced
+EntryPoint module:maze
+EntryPoint module:custom_continents
+EntryPoint module:shuffle
+EntryPoint module:ring
+EntryPoint module:cvunitcontrolinterface
+EntryPoint module:cvdiplomacyinterface
+EntryPoint module:cvdebuginterface
+EntryPoint module:cvpopupinterface
+EntryPoint module:adebugmap
+EntryPoint module:ice_age
+load_module CvEventInterface
+
+load_module BugEventManager
+
+load_module CvEventManager
+
+load_module CvUtil
+
+load_module traceback
+
+load_module CvScreensInterface
+
+load_module CvMainInterface
+
+load_module RectLayout
+
+load_module LayoutDict
+
+load_module math
+
+load_module ScreenInput
+
+load_module CvScreenEnums
+
+load_module time
+
+load_module BugDll
+
+load_module BugOptions
+
+load_module BugConfig
+
+load_module BugCore
+
+load_module BugUtil
+
+load_module ColorUtil
+
+load_module BugInit
+
+load_module BugPath
+
+load_module BugConfigTracker
+
+load_module shutil
+
+load_module BugTypes
+
+load_module xmllib
+
+..\WARLORDS\ASSETS\PYTHON\SYSTEM\xmllib.py:9: DeprecationWarning: The xmllib module is obsolete.  Use xml.sax instead.
+load_module configobj
+
+load_module __future__
+
+load_module codecs
+
+load_module validate
+
+validate
+ 
+import failed
+
+load_module BugOptionsScreen
+
+load_module BugErrorOptionsTab
+
+load_module BugOptionsTab
+
+load_module BugHelp
+
+load_module Popup
+
+load_module CityUtil
+
+load_module ReligionUtil
+
+load_module FontUtil
+
+load_module Scoreboard
+
+load_module DealUtil
+
+load_module PlayerUtil
+
+load_module TradeUtil
+
+load_module DiplomacyUtil
+
+load_module AttitudeUtil
+
+load_module GameUtil
+
+load_module MonkeyTools
+
+load_module PyHelpers
+
+load_module ReminderEventManager
+
+load_module SdToolKit
+
+load_module BugData
+
+load_module cPickle
+
+load_module autolog
+
+load_module CvModName
+
+load_module CvAppInterface
+
+load_module GGUtil
+
+load_module GPUtil
+
+load_module ProgressBarUtil
+
+load_module PLE
+
+load_module AStarTools
+
+load_module UnitUtil
+
+load_module MinimapOptions
+
+load_module RawYields
+
+load_module CvTechChooser
+
+load_module TechPrefs
+
+load_module CvForeignAdvisor
+
+load_module CvExoticForeignAdvisor
+
+load_module IconGrid_BUG
+
+load_module DomPyHelpers
+
+load_module TechTree
+
+load_module FavoriteCivicDetector
+
+load_module CvReligionScreen
+
+load_module CvCorporationScreen
+
+load_module CvCivicsScreen
+
+load_module CvVictoryScreen
+
+load_module TechUtil
+
+load_module TraitUtil
+
+load_module CvEspionageAdvisor
+
+load_module CvOptionsScreen
+
+load_module CvReplayScreen
+
+load_module CvHallOfFameScreen
+
+load_module CvDanQuayle
+
+load_module CvGameUtils
+
+load_module CvUnVictoryScreen
+
+load_module CvDawnOfMan
+
+load_module CvTechSplashScreen
+
+load_module CvTopCivs
+
+load_module random
+
+load_module CvInfoScreen
+
+load_module copy
+
+load_module CvIntroMovieScreen
+
+load_module CvVictoryMovieScreen
+
+load_module CvWonderMovieScreen
+
+load_module CvEraMovieScreen
+
+load_module CvSpaceShipScreen
+
+load_module SevoScreenEnums
+
+load_module CvWorldBuilderScreen
+
+load_module CvWorldBuilderDiplomacyScreen
+
+load_module CvDebugTools
+
+load_module CvDebugInfoScreen
+
+load_module CvMapGeneratorUtil
+
+load_module CvGFCScreen
+
+load_module GameFontDisplay
+
+load_module CustomGameScreen
+
+load_module GenericDecoratedScreen
+
+load_module CvPopupInterface
+
+load_module CvScreenUtilsInterface
+
+load_module CvOverlayScreenUtils
+
+load_module CvDotMapOverlayScreen
+
+load_module CvStrategyOverlay
+
+init-ing world builder screen
+
+load_module CvWBPopups
+
+load_module CvCameraControls
+
+load_module CvAdvisorUtils
+
+load_module InputUtil
+
+load_module AIAutoPlay
+
+load_module ChangePlayer
+
+load_module Tester
+
+load_module encodings.utf_8
+
+PY:OnInit
+load_module aDebugMap
+
+load_module Archipelago
+
+load_module Balanced
+
+load_module Continents
+
+load_module Custom_Continents
+
+load_module Fantasy_Realm
+
+load_module Fractal
+
+load_module Great_Plains
+
+load_module Highlands
+
+load_module Hub
+
+load_module Ice_Age
+
+load_module Inland_Sea
+
+load_module Islands
+
+load_module Lakes
+
+load_module Maze
+
+load_module Mirror
+
+load_module Oasis
+
+load_module Pangaea
+
+load_module Ring
+
+load_module Shuffle
+
+load_module Team_Battleground
+
+load_module Terra
+
+load_module Tilted_Axis
+
+load_module Wheel
+
+load_module Arboria
+
+load_module Big_and_Small
+
+load_module Boreal
+
+load_module Donut
+
+load_module Earth2
+
+load_module Global_Highlands
+
+load_module Hemispheres
+
+load_module Medium_and_Small
+
+load_module Rainforest
+
+load_module RandomScriptMap
+
+load_module Tectonics
+
+load_module Mixed_Continents
+
+load_module not_too_Big_or_Small
+
+load_module PerfectMongoose
+
+load_module array
+
+33 SCREEN TURNED ON
+
+load_module CvGameInterface
+
+load_module CvGameInterfaceFile
+
+load_module BugGameUtils
+
+[CustomGameScreen] Event: VictoryDropdown_, Notify: 11
+
+[CustomGameScreen] Event: VictoryDropdown_, Notify: 11
+
+[CustomGameScreen] Event: VictoryDropdown_, Notify: 11
+
+[CustomGameScreen] Event: Exit, Notify: 0
+
+SCREEN OFF
+
+[CustomGameScreen] Event: Exit, Notify: 0
+
+SCREEN OFF
+
+PY:Player 0's alive status set to: 1
+PY:Player 1's alive status set to: 1
+PY:Player 2's alive status set to: 1
+PY:Player 3's alive status set to: 1
+PY:Player 4's alive status set to: 1
+PY:Player 5's alive status set to: 1
+PY:Player 6's alive status set to: 1
+PY:Player 7's alive status set to: 1
+PY:Player 18's alive status set to: 1
+CvMapGeneratorUtil: Essential TerrainGenerator method overridden by map script: __init__. AdvCiv customizations disabled.
+
+===
+
+Number of players:
+ 
+8
+
+===
+
+-+-+-
+
+Player
+
+3
+
+First player assigned.
+
+-+-+-
+
+-+-+-
+
+Player
+
+6
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+2
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+5
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+7
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+1
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+4
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+0
+
+Open Path, no problems.
+
+-+-+-
+
+**********
+
+All start plots assigned!
+
+**********
+
+load_module CvAltRoot
+
+CvAltRoot
+ 
+import failed
+
+load_module _winreg
+
+load_module WidgetUtil
+
+load_module BugUpdateChecker
+
+load_module SvnUtil
+
+load_module threading
+
+load_module urllib
+
+Initializing AIAutoPlay Mod
+
+Removing some event handlers
+
+Initializing ChangePlayer Mod
+
+Initializing Tester
+
+load_module CvOptionsScreenCallbackInterface
+
+load_module CvDiplomacyInterface
+
+load_module CvDiplomacy
+
+load_module BugScreenInit
+
+load_module CvCustomizableDomesticAdvisor
+
+load_module pickle
+
+load_module SpyUtil
+
+load_module CvAllErasDawnOfManScreenEventManager
+
+load_module PlotListEnhancements
+
+load_module autologEventManager
+
+load_module Civ4lerts
+
+load_module MoreCiv4lerts
+
+load_module UnitNameEventManager
+
+load_module Roman
+
+load_module RandomNameUtils
+
+load_module EventSigns
+
+load_module CvRandomEventInterface
+
+load_module operator
+
+load_module StatusDumpEventManager
+
+load_module BugFile
+
+load_module TriggerEvent
+
+load_module OOSLogger
+
+load_module BugGeneralOptionsTab
+
+load_module BugMapOptionsTab
+
+load_module BugCityScreenOptionsTab
+
+load_module BugAdvisorOptionsTab
+
+load_module BugAlertsOptionsTab
+
+load_module BugScoreOptionsTab
+
+load_module BugNJAGCOptionsTab
+
+load_module BugPleOptionsTab
+
+load_module BugACOOptionsTab
+
+load_module BugUnitNameOptionsTab
+
+load_module BugAutologOptionsTab
+
+load_module BugSystemOptionsTab
+
+load_module CvDomesticAdvisor
+
+load_module EconomicsAdvisor
+
+load_module CvMilitaryAdvisor
+
+load_module SevoPediaUtil
+
+load_module SevoPediaMain
+
+load_module CvPediaScreen
+
+load_module CvScreen
+
+load_module SevoPediaTech
+
+load_module SevoPediaUnit
+
+load_module _sevopedia_helpers
+
+load_module SevoPediaBuilding
+
+load_module SevoPediaPromotion
+
+load_module SevoPediaUnitChart
+
+load_module SevoPediaBonus
+
+load_module SevoPediaTerrain
+
+load_module SevoPediaFeature
+
+load_module SevoPediaImprovement
+
+load_module SevoPediaCivic
+
+load_module SevoPediaCivilization
+
+load_module SevoPediaLeader
+
+load_module ai_utils_shared_with_civ4
+
+load_module SevoPediaTrait
+
+load_module SevoPediaSpecialist
+
+load_module SevoPediaHistory
+
+load_module SevoPediaProject
+
+load_module SevoPediaReligion
+
+load_module SevoPediaCorporation
+
+load_module SevoPediaIndex
+
+load_module UnitUpgradesGraph
+
+200 SCREEN TURNED ON
+
+load_module encodings.latin_1
+
+275 - gold
+
+276 - research
+
+277 - culture
+
+278 - espionage
+
+256 - food
+
+257 - production
+
+258 - commerce
+
+325 - paganism
+
+326 - paganism
+
+327 - hinduism
+
+328 - hinduism
+
+329 - judaism
+
+330 - judaism
+
+331 - daoism
+
+332 - daoism
+
+333 - buddhism
+
+334 - buddhism
+
+335 - christianity
+
+336 - christianity
+
+337 - islam
+
+338 - islam
+
+3 SCREEN TURNED ON
+
+99 SCREEN TURNED ON
+
+load_module BugUnitPlot
+
+load_module CvWBInterface
+
+load_module CvWBDesc
+
+PY:saveDesc:C:\Users\PC\Documents\My Games\Beyond the Sword\Saves\WorldBuilder\WBQuickSave, curDir:C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword
+WBSave done
+
+load_module encodings.ascii
+
+2 SCREEN TURNED ON
+
+SCREEN OFF
+
+15 SCREEN TURNED ON
+
+SCREEN OFF
+
+33 SCREEN TURNED ON
+
+[CustomGameScreen] Event: CloseButton, Notify: 0
+
+SCREEN OFF
+
+PY:Player 0's alive status set to: 1
+PY:Player 1's alive status set to: 1
+PY:Player 2's alive status set to: 1
+PY:Player 3's alive status set to: 1
+PY:Player 4's alive status set to: 1
+PY:Player 5's alive status set to: 1
+PY:Player 6's alive status set to: 1
+PY:Player 7's alive status set to: 1
+PY:Player 18's alive status set to: 1
+CvMapGeneratorUtil: Essential TerrainGenerator method overridden by map script: __init__. AdvCiv customizations disabled.
+
+===
+
+Number of players:
+ 
+8
+
+===
+
+-+-+-
+
+Player
+
+2
+
+First player assigned.
+
+-+-+-
+
+-+-+-
+
+Player
+
+3
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+1
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+0
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+7
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+6
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+5
+
+Open Path, no problems.
+
+-+-+-
+
+-+-+-
+
+Player
+
+4
+
+Open Path, no problems.
+
+-+-+-
+
+**********
+
+All start plots assigned!
+
+**********
+
+275 - gold
+
+276 - research
+
+277 - culture
+
+278 - espionage
+
+256 - food
+
+257 - production
+
+258 - commerce
+
+325 - paganism
+
+326 - paganism
+
+327 - hinduism
+
+328 - hinduism
+
+329 - judaism
+
+330 - judaism
+
+331 - daoism
+
+332 - daoism
+
+333 - buddhism
+
+334 - buddhism
+
+335 - christianity
+
+336 - christianity
+
+337 - islam
+
+338 - islam
+
+3 SCREEN TURNED ON
+
+99 SCREEN TURNED ON
+
+2 SCREEN TURNED ON
+
+SCREEN OFF
+
+15 SCREEN TURNED ON
+
+SCREEN OFF
+
+33 SCREEN TURNED ON
+
