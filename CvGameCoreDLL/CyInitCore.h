@@ -44,6 +44,9 @@ public:
 	bool getVictory(int eVictory);
 	void setVictory(int eVictory, bool bVictory);
 
+	bool getGameOption(int eGameOption);
+	void setGameOption(int eGameOption, bool bOption);
+
 private:
 	CvInitCore& m_kInitCore;
 };

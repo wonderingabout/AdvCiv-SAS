@@ -17,6 +17,16 @@
 # - ScreenInput being "unused" is common - it's often loaded from files without direct module calls
 # - Print statements may show as errors in Python 3 linters but are valid in Python 2.4
 # - Many Civ4-specific imports appear unused but are required for the game engine
+# - Ruff is a Python 3 linter, so some warnings don't apply to Python 2.4
+#
+# Python 2.4/3 compatible print trick:
+# - Python 2.4: print is a statement, not a function
+# - Python 3: print is a function requiring parentheses
+# - Trick: print("single string") works in BOTH! (looks like function call but isn't in Python 2.4)
+# - Example: print("[Debug] Message: %s" % value) <- works in both Python 2.4 and 3
+# - IMPORTANT: Only works with a SINGLE string parameter, no comma-separated args
+# - Why it works: In Python 2.4, parentheses around single expression are just grouping (not function call)
+# - In Python 3, it's an actual function call - same result, different mechanism
 #
 # Widget naming quirks (learned from debugging with Middle-earth mod's Platypedia):
 # - Civ4 strips NUMBERS from widget names! "VictoryDropdown1" becomes "VictoryDropdown" in events
@@ -28,6 +38,10 @@
 # Code comments policy:
 # - Feel free to expand header comments with valuable insights and tricky edge cases discovered during development
 # - Keep comments reasonably concise but prioritize clarity over brevity when documenting non-obvious behavior
+#
+# DLL compilation note:
+# - User prefers to compile DLL manually using AdvCiv project settings for safety and reliability
+# - After making DLL changes, let user compile before testing Python code that depends on new DLL functions
 #
 # Map script discovery:
 # - Uses os.getcwd() approach proven in BugHelp.py (chatgpt 5.2 solution for known issue #87 - BUG menu help not showing)
@@ -43,8 +57,11 @@
 #
 # Screen layout:
 # - First table (left side): World settings - World Size, Climate, Sea Level, Era, Game Speed, Map Script
-# - Second table (right side): Game settings - Difficulty (human player difficulty; AI players are locked at Noble per Civ4 standard)
+# - Second table (right side): Game settings - Difficulty (human player difficulty; AI players are locked at Noble per Civ4 standard), Civilization, Leader
+# - Third table (below second): Victory Conditions - Yes/No dropdowns for each victory type
+# - Fourth table (right of third): Game Options - Yes/No dropdowns for game options like Raging Barbarians, etc.
 # - Custom map options appear below the first table, dynamically based on selected map
+# - TODO: Future layout improvement - stack Climate under World settings to make room for more columns
 
 from CvPythonExtensions import *
 import GenericDecoratedScreen
@@ -85,16 +102,17 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		centerX = mainPanelWidth / 2
 		centerY = mainPanelHeight / 2
 
-		# Grid layout for dropdowns - 2 columns, 3 rows
+		# Grid layout for dropdowns - reorganized for better space usage
 		dropdownWidth = 200
-		labelWidth = 100
+		labelWidth = 240  # Increased from 100 to fix text truncation (e.g., "No Technology Brokering:", "No City Flipping From Conquest:")
 		rowHeight = 40
-		columnSpacing = 350  # Space between columns
-		col1X = centerX - 330  # Left column
-		col2X = col1X + columnSpacing  # Right column
-		startY = centerY - 60  # Start position
+		columnSpacing = 320  # Tighter spacing between columns
+		col1X = 50  # Column 1: World/Climate/Sea/Speed, then Map and map-specific options below
+		col2X = col1X + labelWidth + dropdownWidth + 30  # Column 2: Era, Difficulty/Civ/Leader, then Victories below
+		col3X = col2X + labelWidth + dropdownWidth + 30  # Column 3: Game Options
+		startY = centerY - 300  # Start higher to fit all options on screen
 
-		# Row 0 - Left: World Size, Right: Climate
+		# Column 1, Row 0: World Size
 		self.WORLDSIZE_DROPDOWN_ID = "WorldSizeDropDown"
 		x = col1X
 		y = startY + 0 * rowHeight
@@ -107,8 +125,10 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		for i in reversed(range(gc.getNumWorldInfos())):
 			screen.addPullDownString(self.WORLDSIZE_DROPDOWN_ID, gc.getWorldInfo(i).getDescription(), i, i, i == gc.getInitCore().getWorldSize())
 
+		# Column 1, Row 1: Climate
 		self.CLIMATE_DROPDOWN_ID = "ClimateDropDown"
-		x = col2X
+		x = col1X
+		y = startY + 1 * rowHeight
 		screen.setLabel("ClimateLabel", self.BACKGR,
 				u"<font=3>" + localText.getText("TXT_KEY_MAP_CLIMATE", ()) + "</font>",
 				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
@@ -118,10 +138,10 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		for i in reversed(range(gc.getNumClimateInfos())):
 			screen.addPullDownString(self.CLIMATE_DROPDOWN_ID, gc.getClimateInfo(i).getDescription(), i, i, i == gc.getInitCore().getClimate())
 
-		# Row 1 - Left: Sea Level, Right: Era
+		# Column 1, Row 2: Sea Level
 		self.SEALEVEL_DROPDOWN_ID = "SeaLevelDropDown"
 		x = col1X
-		y = startY + 1 * rowHeight
+		y = startY + 2 * rowHeight
 		screen.setLabel("SeaLevelLabel", self.BACKGR,
 				u"<font=3>" + localText.getText("TXT_KEY_MAP_SEA_LEVEL", ()) + "</font>",
 				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
@@ -131,21 +151,10 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		for i in reversed(range(gc.getNumSeaLevelInfos())):
 			screen.addPullDownString(self.SEALEVEL_DROPDOWN_ID, gc.getSeaLevelInfo(i).getDescription(), i, i, i == gc.getInitCore().getSeaLevel())
 
-		self.ERA_DROPDOWN_ID = "EraDropDown"
-		x = col2X
-		screen.setLabel("EraLabel", self.BACKGR,
-				u"<font=3>" + localText.getText("TXT_KEY_MENU_ERA", ()) + "</font>",
-				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
-				WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.addDropDownBoxGFC(self.ERA_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
-				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
-		for i in reversed(range(gc.getNumEraInfos())):
-			screen.addPullDownString(self.ERA_DROPDOWN_ID, gc.getEraInfo(i).getDescription(), i, i, i == gc.getInitCore().getEra())
-
-		# Row 2 - Left: Game Speed, Right: Map Script
+		# Column 1, Row 3: Game Speed
 		self.GAMESPEED_DROPDOWN_ID = "GameSpeedDropDown"
 		x = col1X
-		y = startY + 2 * rowHeight
+		y = startY + 3 * rowHeight
 		screen.setLabel("GameSpeedLabel", self.BACKGR,
 				u"<font=3>" + localText.getText("TXT_KEY_MENU_SPEED", ()) + "</font>",
 				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
@@ -156,9 +165,10 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		for i in reversed(range(gc.getNumGameSpeedInfos())):
 			screen.addPullDownString(self.GAMESPEED_DROPDOWN_ID, gc.getGameSpeedInfo(i).getDescription(), i, i, i == gc.getInitCore().getGameSpeed())
 
-		# Map Script dropdown (right column, row 2)
+		# Column 1, Row 4: Map Script (below Game Speed)
 		self.MAPSCRIPT_DROPDOWN_ID = "MapScriptDropDown"
-		x = col2X
+		x = col1X
+		y = startY + 4 * rowHeight
 		screen.setLabel("MapScriptLabel", self.BACKGR,
 				u"<font=3>" + localText.getText("TXT_KEY_MAP_SCRIPT", ()) + "</font>",
 				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
@@ -251,10 +261,22 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		self.customMapOptionIDs = []
 		self.loadCustomMapOptions()
 
-		# Second table: Game Settings (positioned to the right of the first table)
-		# This table starts on the right side with enough spacing to avoid overlap
-		table2StartX = col2X + labelWidth + dropdownWidth + 50  # Position after the first table's right column
-		table2StartY = centerY - 60  # Same vertical start as first table
+		# Era/Difficulty/Civ/Leader section (Column 2)
+		table2StartX = col2X
+		table2StartY = startY  # Align with the top
+
+		# Column 2, Row 0: Era (thematically fits with gameplay settings)
+		self.ERA_DROPDOWN_ID = "EraDropDown"
+		x = table2StartX
+		y = table2StartY + 0 * rowHeight
+		screen.setLabel("EraLabel", self.BACKGR,
+				u"<font=3>" + localText.getText("TXT_KEY_MENU_ERA", ()) + "</font>",
+				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDropDownBoxGFC(self.ERA_DROPDOWN_ID, x + labelWidth, y, dropdownWidth,
+				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+		for i in reversed(range(gc.getNumEraInfos())):
+			screen.addPullDownString(self.ERA_DROPDOWN_ID, gc.getEraInfo(i).getDescription(), i, i, i == gc.getInitCore().getEra())
 
 		# Store grid layout parameters for custom map options refresh and leader dropdown refresh
 		self.col1X = col1X
@@ -266,12 +288,12 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		self.table2StartX = table2StartX
 		self.table2StartY = table2StartY
 
-		# Human Player Difficulty dropdown
+		# Column 2, Row 1: Human Player Difficulty (after Era)
 		# Note: In Civ4, only the human player's difficulty is adjustable
 		# AI players are locked at Noble difficulty (this is standard Civ4 behavior)
 		self.DIFFICULTY_DROPDOWN_ID = "DifficultyDropDown"
 		x = table2StartX
-		y = table2StartY + 0 * rowHeight
+		y = table2StartY + 1 * rowHeight
 		screen.setLabel("DifficultyLabel", self.BACKGR,
 				u"<font=3>" + localText.getText("TXT_KEY_GAME_DIFFICULTY", ()) + "</font>",
 				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
@@ -283,10 +305,10 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		for i in reversed(range(gc.getNumHandicapInfos())):
 			screen.addPullDownString(self.DIFFICULTY_DROPDOWN_ID, gc.getHandicapInfo(i).getDescription(), i, i, i == currentDifficulty)
 
-		# Civilization dropdown
+		# Column 2, Row 2: Civilization dropdown
 		self.CIVILIZATION_DROPDOWN_ID = "CivilizationDropDown"
 		x = table2StartX
-		y = table2StartY + 1 * rowHeight
+		y = table2StartY + 2 * rowHeight
 		screen.setLabel("CivilizationLabel", self.BACKGR,
 				u"<font=3>" + localText.getText("TXT_KEY_GAME_CIVILIZATION", ()) + "</font>",
 				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
@@ -304,10 +326,10 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 				continue
 			screen.addPullDownString(self.CIVILIZATION_DROPDOWN_ID, civInfo.getDescription(), i, i, i == currentCiv)
 
-		# Leader dropdown (will be populated based on civilization selection)
+		# Column 2, Row 3: Leader dropdown (will be populated based on civilization selection)
 		self.LEADER_DROPDOWN_ID = "LeaderDropDown"
 		x = table2StartX
-		y = table2StartY + 2 * rowHeight
+		y = table2StartY + 3 * rowHeight
 		screen.setLabel("LeaderLabel", self.BACKGR,
 				u"<font=3>" + localText.getText("TXT_KEY_GAME_LEADER", ()) + "</font>",
 				CvUtil.FONT_LEFT_JUSTIFY, x, y + 5, 0, FontTypes.TITLE_FONT,
@@ -317,9 +339,11 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		# Populate leader dropdown based on current civilization
 		self.refreshLeaderDropdown()
 
-		# Third table: Victory Conditions (positioned below the second table)
-		table3StartX = table2StartX
-		table3StartY = table2StartY + 4 * rowHeight
+		# Victory Conditions (positioned below Era/Difficulty/Civ/Leader in Column 2)
+		# Column 2 has 4 rows (Era, Difficulty, Civilization, Leader)
+		# Add 20px margin below it
+		table3StartX = col2X
+		table3StartY = startY + (4 * rowHeight) + 20
 
 		# Victories header label
 		screen.setLabel("VictoriesLabel", self.BACKGR,
@@ -351,7 +375,7 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 			self.victoryDropdownData[dropdownID] = i
 
 			# DEBUG: Print what we're creating
-			print "[CustomGameScreen] Creating victory dropdown %s for victory index %d (%s)" % (dropdownID, i, victoryInfo.getDescription())
+			print("[CustomGameScreen] Creating victory dropdown %s for victory index %d (%s)" % (dropdownID, i, victoryInfo.getDescription()))
 
 			# Add label for the victory type
 			screen.setLabel(dropdownID + "_Label", self.BACKGR,
@@ -371,6 +395,53 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 			screen.addPullDownString(dropdownID, localText.getText("TXT_KEY_POPUP_NO", ()), 0, 0, not bCurrentlyEnabled) # OFF
 
 			victoryY += victorySpacing
+
+		# Game Options (Column 3, aligned with top, no header to save space)
+		table4StartX = col3X
+		table4StartY = startY
+
+		# Store game option dropdown info for event handling
+		self.gameOptionDropdownData = {}
+
+		# Add dropdown for each visible game option (no header, start directly)
+		gameOptionY = table4StartY
+		gameOptionSpacing = 30
+
+		for i in range(gc.getNumGameOptionInfos()):
+			gameOptionInfo = gc.getGameOptionInfo(i)
+
+			# Skip options that aren't visible in single player
+			if not gameOptionInfo.getVisible():
+				continue
+
+			# Create unique dropdown ID using game option type (e.g., "GameOption_GAMEOPTION_ADVANCED_START")
+			gameOptionType = gameOptionInfo.getType()
+			dropdownID = "GameOption_" + gameOptionType
+
+			# Store mapping from dropdown ID to game option index for event handling
+			self.gameOptionDropdownData[dropdownID] = i
+
+			# DEBUG: Print what we're creating
+			print("[CustomGameScreen] Creating game option dropdown %s for option index %d (%s)" % (dropdownID, i, gameOptionInfo.getDescription()))
+
+			# Add label for the game option
+			screen.setLabel(dropdownID + "_Label", self.BACKGR,
+					u"<font=3>" + gameOptionInfo.getDescription() + u":</font>",
+					CvUtil.FONT_LEFT_JUSTIFY, table4StartX, gameOptionY + 5, 0, FontTypes.GAME_FONT,
+					WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+			# Create dropdown with ON/OFF options
+			screen.addDropDownBoxGFC(dropdownID, table4StartX + labelWidth, gameOptionY, dropdownWidth,
+					WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+
+			# Get current game option state from DLL
+			bCurrentlyEnabled = gc.getInitCore().getGameOption(i)
+
+			# Add ON and OFF options with current state selected
+			screen.addPullDownString(dropdownID, localText.getText("TXT_KEY_POPUP_YES", ()), 1, 1, bCurrentlyEnabled)   # ON
+			screen.addPullDownString(dropdownID, localText.getText("TXT_KEY_POPUP_NO", ()), 0, 0, not bCurrentlyEnabled) # OFF
+
+			gameOptionY += gameOptionSpacing
 
 		screen.setText(self.EXIT_ID, self.BACKGR,
 				u"<font=4>" + localText.getText("TXT_KEY_MAIN_MENU_LAUNCH", ()).upper() + "</font>",
@@ -424,19 +495,16 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 					# Import the map script module
 					mapScript = __import__(mapScriptName)
 
-					currentRow = 3
+					# Start after World/Climate/Sea/Speed/Map in Column 1
+					# Map Script is at row 4, so start at row 5
+					currentRow = 5
 					for iOptionID in range(iNumCustomOptions):
 						dropdownID = "CustomMapOption" + str(iOptionID)
 						self.customMapOptionIDs.append(dropdownID)
 
-						# Alternate between left and right columns
-						if iOptionID % 2 == 0:
-							x = self.col1X
-						else:
-							x = self.col2X
-
-						if iOptionID % 2 == 0:
-							y = self.startY + currentRow * self.rowHeight
+						# All map options stay in Column 1 (under Map Script)
+						x = self.col1X
+						y = self.startY + currentRow * self.rowHeight
 
 						# Get option name from map script
 						optionName = mapScript.getCustomMapOptionName([iOptionID])
@@ -458,9 +526,8 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 							bSelected = i == gc.getInitCore().getCustomMapOption(iOptionID)
 							screen.addPullDownString(dropdownID, valueDesc, i, i, bSelected)
 
-						# Move to next row after every 2 options
-						if iOptionID % 2 == 1:
-							currentRow = currentRow + 1
+						# Move to next row for each option (stack vertically in Column 2)
+						currentRow = currentRow + 1
 				except:
 					# If we can't load the map script, just skip custom options
 					pass
@@ -491,7 +558,7 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 
 		# Clear the leader dropdown
 		screen.deleteWidget(self.LEADER_DROPDOWN_ID)
-		screen.addDropDownBoxGFC(self.LEADER_DROPDOWN_ID, self.table2StartX + self.labelWidth, self.table2StartY + 2 * self.rowHeight, self.dropdownWidth,
+		screen.addDropDownBoxGFC(self.LEADER_DROPDOWN_ID, self.table2StartX + self.labelWidth, self.table2StartY + 3 * self.rowHeight, self.dropdownWidth,
 				WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
 
 		# Get current civilization and leader
@@ -530,7 +597,7 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 		funcName = inputClass.getFunctionName()
 
 		# DEBUG: Log all events to PythonDbg.log
-		print "[CustomGameScreen] Event: %s, Notify: %d" % (funcName, inputClass.getNotifyCode())
+		print("[CustomGameScreen] Event: %s, Notify: %d" % (funcName, inputClass.getNotifyCode()))
 
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED:
 			if funcName == self.GAMESPEED_DROPDOWN_ID:
@@ -593,12 +660,22 @@ class CustomGameScreen(GenericDecoratedScreen.GenericDecoratedScreen):
 			# Check if this is a victory dropdown by looking up in our dictionary
 			elif funcName in self.victoryDropdownData:
 				victoryIndex = self.victoryDropdownData[funcName]
-				print "[CustomGameScreen] Victory dropdown event: %s (index %d)" % (funcName, victoryIndex)
+				print("[CustomGameScreen] Victory dropdown event: %s (index %d)" % (funcName, victoryIndex))
 				iIndex = screen.getSelectedPullDownID(funcName)
 				iEnabled = screen.getPullDownData(funcName, iIndex)
 				bEnabled = (iEnabled == 1)
-				print "[CustomGameScreen] Setting victory %d to %s (data value: %d)" % (victoryIndex, bEnabled, iEnabled)
+				print("[CustomGameScreen] Setting victory %d to %s (data value: %d)" % (victoryIndex, bEnabled, iEnabled))
 				gc.getInitCore().setVictory(victoryIndex, bEnabled)
+
+			# Check if this is a game option dropdown by looking up in our dictionary
+			elif funcName in self.gameOptionDropdownData:
+				gameOptionIndex = self.gameOptionDropdownData[funcName]
+				print("[CustomGameScreen] Game option dropdown event: %s (index %d)" % (funcName, gameOptionIndex))
+				iIndex = screen.getSelectedPullDownID(funcName)
+				iEnabled = screen.getPullDownData(funcName, iIndex)
+				bEnabled = (iEnabled == 1)
+				print("[CustomGameScreen] Setting game option %d to %s (data value: %d)" % (gameOptionIndex, bEnabled, iEnabled))
+				gc.getInitCore().setGameOption(gameOptionIndex, bEnabled)
 
 			else:
 				# Handle custom map options

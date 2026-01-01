@@ -228,3 +228,24 @@ void CyInitCore::setVictory(int eVictory, bool bVictory)
 	}
 	m_kInitCore.setVictory((VictoryTypes)eVictory, bVictory);
 }
+
+// ccgs - Game options wrapper functions
+bool CyInitCore::getGameOption(int eGameOption)
+{
+	if (eGameOption < 0 || eGameOption >= NUM_GAMEOPTION_TYPES)
+	{
+		FAssertMsg(false, "index out of bounds");
+		return false;
+	}
+	return m_kInitCore.getOption((GameOptionTypes)eGameOption);
+}
+
+void CyInitCore::setGameOption(int eGameOption, bool bOption)
+{
+	if (eGameOption < 0 || eGameOption >= NUM_GAMEOPTION_TYPES)
+	{
+		FAssertMsg(false, "index out of bounds");
+		return;
+	}
+	m_kInitCore.setOption((GameOptionTypes)eGameOption, bOption);
+}
