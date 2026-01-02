@@ -711,7 +711,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 			}
 		}
 
-		// <!-- custom: add impassable info ingame in unit effects bullet points in map view if i am not mistaken, with 2 separate bullet points for terrain and feature impassables, with the help of chatgpt thanks. -->
+		// <!-- custom: add impassable info in-game in unit effects bullet points (map view), with 2 separate bullet points for terrain and feature impassables. Credit: ChatGPT. (Claude code Sonnet 4.5 (summarized)) -->
 		if (pUnit->isAnyTerrainImpassable())
 		{
 			szString.append(NEWLINE);
@@ -7652,7 +7652,7 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
 		// 	szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_FREEDOM_ANGER",
 		// 			kCivic.getTextKeyWide()));
 		// }
-		// <!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot but anyways etc, check if accurate anyways etc -->
+		// <!-- custom: show the getCivicPercentAnger numeric value info as well. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 		const int iPct = kCivic.getCivicPercentAnger();
 
 		CvWString szFirstBuffer;
@@ -9347,7 +9347,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				(100 * u.getCombatLimit()) / GC.getMAX_HIT_POINTS()));
 	}
 
-	// <!-- custom: also display the collateral limit info even for units that have a base collateral damage of 0, but now applying this to sevopedia unit placeSpecial panel here in this code block if i am not mistaken, with chatgpt's help too thanks. -->
+	// <!-- custom: display collateral limit info in Sevopedia unit placeSpecial panel even for units with base collateral damage of 0. Credit: ChatGPT. (Claude code Sonnet 4.5 (summarized)) -->
 	int const iCollateralDamageLimit = 100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS();
 	if (u.getCollateralDamage() > 0 || u.getCollateralDamageLimit() > 0)
 	{

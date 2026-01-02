@@ -384,9 +384,9 @@ short AIFoundValue::evaluate()
 	int const iNumCities = kPlayer.getNumCities();
 	bool const bStartPhase = (iNumCities == 0);
 
-	// <!-- custom: use tile count rather than water plots, as we may be skipping them due to isUsablePlot as claude ai noticed/noted if i may say but anyways etc, and with chatgpt 5's and other ai's help anyways etc -->
+	// <!-- custom: use tile count rather than water plots, as we may be skipping them due to isUsablePlot. Credit: Claude AI; ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	int iTileCountWaterWithBonus = 0;
-	// <!-- custom: as of now unused so commented-out anyways etc (kept in case maybe useful someday but commented out as unneeded as of now), as recommended by chatgpt 5 thansk i mean anyways etc -->
+	// <!-- custom: unused; commented out (kept for potential future use). Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// int iTileCountWaterNoBonus = 0;
 	int iTileCountNoPeakLand = 0;
 	int iTileCountPeak = 0;
@@ -1171,7 +1171,7 @@ short AIFoundValue::evaluate()
 
 		if (iLowFoodLocationCount > iMaxToleratedNotCoastalLowFoodTiles)
 		{
-			// <!-- custom: sometimes with old value it was still ignored, although it shows to have helped in some cities already and at first, increase penalty quite a bit more if i may say anyways etc, which solved on testing successfully the issue, see known issue for details -->
+			// <!-- custom: old value was sometimes still insufficient even though it helped in some cities; increase low food location penalty more, which successfully solved the issue on testing. See known issue for details. (Claude code Sonnet 4.5 (summarized)) -->
 			// iValue += (-50) * iLowFoodLocationCount;
 			iValue += iBaseValueNotCoastalLowFood * iLowFoodLocationCount;
 		}

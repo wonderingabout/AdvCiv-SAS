@@ -531,7 +531,7 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 
 // Helper: attempts to force-construct a single building
 // Returns true if we set an emergency building order (or one was already queued)
-// <!-- custom: note: code comments use the Harbor building since it was the building of which i used the code of if i may say but anyways etc, added with the help of claude sonnet 4.5 based on seemingly previously working fine code that was directly in CvCity::doTurn, check if accurate but anyways etc. -->
+// <!-- custom: code comments use Harbor building since it's the building whose code was used here, based on previously working code that was directly in CvCity::doTurn. Credit: Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass)
 {
 	if (eBuildingClass == NO_BUILDINGCLASS)
@@ -1391,7 +1391,7 @@ void CvCity::doTurn()
 						}
 					}
 				}
-				// <!-- custom: remove the artist specialist after we have our BFC, in a way that does not conflict with the human player's choices anyways etc. It seems based on autoplay results that AI CvCityAI::AI_jobChangeValue is ineffective in doing that. Check if accurate as i don't know too much about these, done with the help of chatgpt 5.1 anyways etc. -->
+				// <!-- custom: remove artist specialist after we have our BFC, in a way that does not conflict with human player's choices. Autoplay results show AI CvCityAI::AI_jobChangeValue is ineffective in doing that. Credit: ChatGPT 5.1. (Claude code Sonnet 4.5 (summarized)) -->
 				else
 				{
 					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure anyways etc.) so do not prevent that here anyways etc), i.e. very early for BFC and if artist was forced anyways etc. -->

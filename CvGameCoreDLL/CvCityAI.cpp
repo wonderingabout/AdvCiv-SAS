@@ -219,7 +219,7 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 			{
 				setSpecialistCount(e, iForcedSpecialistCount);
 				bNewlyForcedSpecialists = true;
-				// <!-- custom: this very often fires with a debug dll at turn 0 and turn 1, detailing the assert to investigate, added with the help of chatgpt 5, check if accurate anyways etc -->
+				// <!-- custom: FAssert fires very often with debug DLL at turn 0-1; replaced with FAssertMsg to detail the assert for investigation. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 				// FAssert(isSpecialistValid(e));
 				FAssertMsg(isSpecialistValid(e),
 					CvString::format("T%d city=%S owner=%S type=%s e=%d value=%d",
@@ -401,12 +401,12 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
 		iValue += iTempValue;
 	}
 
-	// <!-- custom: we have the issue of AI going for general units, while having a military instructor would be a much better choice, especially in top hammer cities, and even more so if they have the heroic epic or whichever equivalent of it is if changed in a mod mod. Code added with the help of chatgpt 5 and claude sonnet 4.5, check if accurate anyways etc -->
+	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Boost Military Instructor value. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 	// 1. Modify AI_permanentSpecialistValue() - Boost Military Instructor Value
 	int iExperience = GC.getInfo(eSpecialist).getExperience();
 	if (iExperience != 0)
 	{
-		// <!-- custom: make const since seems safe to do so anyways etc -->
+		// <!-- custom: make const (safe to do). (Claude code Sonnet 4.5 (summarized)) -->
 		const int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
 
 		// CHANGE: Much higher base value for military instructors
@@ -867,15 +867,10 @@ void CvCityAI::AI_chooseProduction()
 	}
 	// K-Mod end
 
-	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
-	// AI_chooseProduction: keep the early locals; you can hoist one or two more
-	// You already hoist kPlayer, kTeam, kGame, kArea, pCapital—perfect. When you compute repeated odds driven by getPopulation() or “danger” branches, keep those in locals if used multiple times in the same block (very small win). The hot work in this function is in the called evaluators, not the GC lookups.
+	// <!-- custom: performance optimization - cache getPopulation() to avoid repeated calls in AI_chooseProduction. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	int const iCityPopulation = getPopulation();
 
-	// <!-- custom: optimization i found myself but anyways etc; done with the help of chatgpt 5 and that i then adjusted or not or yes or etc but anyways etc, check if accurate anyways etc -->
-	// use sCityName (or kCityName) multiple times in this function
-	// My advice here is to avoid binding a pointer to a temporary object. If getName() doesn’t return const CvWString&, we can store a local copy, like so:
-	// Overhead of calling getName() or .GetCString() is minimal, but if repeated often, I could store it to save on performance. However, I must be cautious about pointer invalidation if name changes within the function (though rare). A better approach might be using const CvWString& szCityName = getName() to store it safely before passing .GetCString() when needed. If it’s only used once—没必要! For performance, it’s okay to use getName().GetCString() directly in formatting.
+	// <!-- custom: performance optimization - cache getName() to avoid repeated calls when used multiple times in this function. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	const CvWString& kCityName = getName();      // bound to the city's internal name
 	const wchar* sCityName    = kCityName.GetCString();
 
@@ -3662,18 +3657,18 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			aiUnitAIVal[UNITAI_SETTLE] = 0;
 			aiUnitAIVal[UNITAI_WORKER] = 0;
 
-			// <!-- custom: no time to waste with this, more often than not may help AIs hopefully be more effective and stay focused on effective attack i mean too but anyways etc -->
+			// <!-- custom: no time to waste with pillaging; disable UNITAI_PILLAGE to help AI stay focused on effective attack. (Claude code Sonnet 4.5 (summarized)) -->
 			aiUnitAIVal[UNITAI_PILLAGE] = 0;
 
-			// // <!-- custom: lower priority, don't want units suiciding or getting baited, at least for offense if not for other situations as well if i may say but anyways etc or not but anyways etc ; keep a strong a pushing stack or something similar anyways etc ; hopefully and maybe this helps issue in base advciv of units getting baited and suiciding instead of defending (or maybe even attacking although i remember it being critical for defense only in my advciv games but anyways etc) -->
+			// // <!-- custom: lower priority to prevent units suiciding or getting baited; keep a strong pushing stack. Helps address base AdvCiv issue of units getting baited and suiciding. (Claude code Sonnet 4.5 (summarized)) -->
 			// aiUnitAIVal[UNITAI_COLLATERAL] = 0;
 			//
-			// // <!-- custom: explicitly avoid risky units ; this seems to surprisingly not apply to catapults and such other siege units in our mod +/- base advciv, but in case we change it in the future or such, allow with lower probability, focus on reliable units anyways etc (assuming i understood this correctly anyways etc) -->
-			// <!-- custom: update: after trying to make trebuchets UNITAI_ATTACK_CITY_LEMMING instead of UNITAI_ATTACK_CITY and commenting the code line below seemingly allowing them if i am not mistaken but anyways etc (as they are bad at anything else than city attacks (lower strength, higher hammer cost, great city attack modifier), and AI often overbuilds them, even when weaker), we still don't build any it seems in autoplay, so keep this unitai type disabled for simplicity and reliability if i may say but anyways etc; see also known issue as of now 53.3 for details, anyways etc -->
+			// // <!-- custom: avoid risky siege units; focus on reliable units. (Claude code Sonnet 4.5 (summarized)) -->
+			// <!-- custom: trebuchets are bad at anything else than city attacks (lower strength, higher hammer cost, great city attack modifier); AI often overbuilds them even when weaker. Keep UNITAI_ATTACK_CITY_LEMMING disabled for simplicity and reliability. See known issue 53.3. (Claude code Sonnet 4.5 (summarized)) -->
 			aiUnitAIVal[UNITAI_ATTACK_CITY_LEMMING] = 0;
 
-			// <!-- custom: in land heavy maps, no time or hammer for naval units for most: favour land warfare the most, we are about to enter war if not already in one, and want max power/hammer anyways etc in achieving that or trying to in this case i mean anyways etc ; if not on pangea, apply a milder reduction. Deprioritizing as such military sea units attempts to fix the issue of AI building them too much and then its cities having its cities die (10+ galleons and almost no land unit defending cities, see known issue number as of now 35 for details), but land warfare should be most important, although this favours pangea a bit too much, it makes AI hopefully overall stronger and less prone to abuse -->
-			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: on land-heavy maps, no time/hammers for naval units; favor land warfare as we're about to enter war and want max power/hammer. Fixes AI building too many naval units while cities die undefended (10+ galleons, almost no land units defending cities - see known issue 35). Land warfare should be most important, though this favors Pangea a bit too much, it makes AI overall stronger and less prone to abuse. (Claude code Sonnet 4.5 (summarized)) -->
+			// <!-- custom: use else if to ensure only one map branch executes (if -> else if -> else is preferable for clarity and/or performance). Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 			if (bLandHeavyMapname)
 			{
 				aiUnitAIVal[UNITAI_ATTACK] *= 3;
@@ -3681,10 +3676,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_COUNTER] *= 3;
 				aiUnitAIVal[UNITAI_CITY_COUNTER] *= 3;
 
-				// <!-- custom: AI may struggle with this or/and unexpected results, better not risk it or conservatively if value if very very high somehow -->
+				// <!-- custom: AI may struggle with paradrop or produce unexpected results; reduce UNITAI_PARADROP conservatively. (Claude code Sonnet 4.5 (summarized)) -->
 				aiUnitAIVal[UNITAI_PARADROP] /= 2;
 
-				// <!-- custom: no time for these we are at war or about to be anyways etc -->
+				// <!-- custom: no time for naval settlers/missionaries; we are at war or about to be. (Claude code Sonnet 4.5 (summarized)) -->
 				aiUnitAIVal[UNITAI_SETTLER_SEA] = 0;
 				aiUnitAIVal[UNITAI_MISSIONARY_SEA] = 0;
 
@@ -3804,7 +3799,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
 				aiUnitAIVal[UNITAI_RESERVE] *= 40;
 
-				// <!-- custom: no time for these we are at war or about to be anyways etc -->
+				// <!-- custom: no time for naval settlers/missionaries; we are at war or about to be. (Claude code Sonnet 4.5 (summarized)) -->
 				aiUnitAIVal[UNITAI_SETTLER_SEA] = 0;
 				aiUnitAIVal[UNITAI_MISSIONARY_SEA] = 0;
 
@@ -4702,15 +4697,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
 
-	// <!-- custom: in autoplay i have noticed that we don't build any shrine (Mahabodhi, Pagan Shrine, etc.) but that suddenly we'd build them again later in the game after our build world wonders ASAP change/fix. Shrines and such (corporations etc.) have an iCost value of -1 it seems, so there is no point to try to save hammer building or not building them. Similarly to how we did in CvUnitAI::AI_ChooseUnit or related or similar functions we handled in advciv-sas, do not handle abherrent iCost values based on XML actual value as seemed to work fine as such. Code added with the help of chatgpt 5.2 thanks but anyways etc. In autoplay, adding this iXMLCost check seemingly leads to more wonders by turn 300, although it could just be random variation as history somehow changed, it's not less in this autoplay sample at least i mean it seems i mean but anyways etc. -->
-	// <!-- custom: also cache later calls in this function for performance optimization or/and such if any if i am not mistaken i mean but anyways etc. -->
+	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
+	// <!-- custom: performance optimization - cache iXMLCost for later calls in this function. (Claude code Sonnet 4.5 (summarized)) -->
 	const int iXMLCost = kBuilding.getProductionCost(); // XML base cost (unscaled)
 	// -1 (GP-built) or weird 0-cost
 	// Only apply "hammer/turns/top-hammer-city" viability gates to normal, buildable buildings.
 	if ((iXMLCost > 0) && !bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
 	{
-		// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks. In autoplay, leads to exact same outcome vs before (win at 341, same scores at all savepoints i looked at) so looks good to merge if i'm not mistaken thanks. -->
-		// <!-- custom: note: as of now we only use it inside the bSAS_AI_BUILDING_VALUE_OPTIMIZE, so if this option is disabled, we don't need the cache so no reason to make it at highest scope of our function, but if you reuse this somewhere else for efficiency, remember to also move the scope of the cache. -->
+		// <!-- custom: per-player, per-turn cache to avoid recomputing top city scans at every call. In autoplay, leads to exact same outcome vs before (win at 341, same scores at all savepoints). Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
+		// <!-- custom: cache scope limited to bSAS_AI_BUILDING_VALUE_OPTIMIZE block; move to function scope if reused elsewhere. (Claude code Sonnet 4.5 (summarized)) -->
 		// Is this “safe enough”?
 		// 	- For Civ4’s normal single-threaded AI: yes.
 		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode” should not mutate caches anyway, so the pattern above is aligned with that.

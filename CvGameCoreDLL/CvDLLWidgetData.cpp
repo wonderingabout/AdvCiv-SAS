@@ -655,7 +655,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		parseLeaderheadHelp(widgetDataStruct, szBuffer);
 
 		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
-		// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 		// Vassal Check for Leaderhead Widget (Column Headers / General)
 		// eRival = m_iData1 (The face we are hovering), ePlayer = Us
 		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, getActivePlayer());
@@ -671,7 +671,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer); // BULL - Leaderhead Relations
 
 		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
-		// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 		// Vassal Check for Glance Screen
 		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
 		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
@@ -685,7 +685,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer);
 
 		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
-		// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 		// The issue is that the Glance screen uses two different widget types depending on your BUG Mod settings ("Show War Trades").
 		// 	1. WIDGET_LH_GLANCE: Used when "Show War Trades" is ON.
 		// 	2. WIDGET_LEADERHEAD_RELATIONS: Used when "Show War Trades" is OFF (or default).
@@ -5825,7 +5825,7 @@ void CvDLLWidgetData::parseLeaderheadRelationsHelp(CvWidgetDataStruct &widgetDat
 } // BULL - Leaderhead Relations - end
 
 // <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
-// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 // Helper for Vassal Willingness Tooltip
 // eRival  = The Foreign Leader we are hovering over (Potential Vassal)
 // ePlayer = The Active Player / Viewer (Potential Master)

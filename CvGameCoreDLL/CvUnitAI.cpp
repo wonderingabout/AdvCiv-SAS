@@ -833,7 +833,7 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 // - std::vector lookup: O(1) direct index, very cache-friendly.
 // - Init time: vector also wins (no per-node allocations), but you only init once, so the big win is lookup.
 // Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry” can be represented by NO_BUILD. That makes a vector the ideal structure.
-// <!-- custom: update: since each build cleanly pairs only to one and only one bonus on land builds in our mod (exception being oil to offshore platform (water) and well (land), but here we're only handling land so effectively only 1), then we can prefetch this data and cache it to avoid reuse, added with the help of chatgpt 5.2 anyways etc. -->
+// <!-- custom: each land build cleanly pairs to only one bonus in our mod (exception: oil has offshore platform (water) and well (land), but here we're only handling land so effectively only 1). Prefetch and cache this data to avoid reuse. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 // I checked your uploaded CIV4ImprovementInfos.xml: there are exactly 29 land bonuses that have bBonusTrade=1 on a land improvement, and they match your manual list one-for-one (Oil is Well on land; Offshore Platform is water-only so it gets filtered out automatically).
 // So you can keep the static-vector caching, but populate it dynamically by scanning:
 //	- BuildInfo -> ImprovementType
@@ -922,7 +922,7 @@ struct CandidatePlot
 
 // Returns true if the unit found a build for this city...
 // <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details anyways etc), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further if i am not mistaken and is thanks to chatgpt and co or such like claude ai and such if i may say too (and thanks to me too if i may say but anyways etc) but anyways etc -->
-// <!-- custom: also add after our rewrite in advciv-sas code to handle/optimize terrain improvement choice, generally and in short in this case but anyways etc do not build a cottage flatland plains if there are flatland grass tiles that are much better candidate plots, as for bonuses simplify logic for efficiency and no-tediousness xd if i may say but anyways etc to always improve them regardless of terrain anyways etc (high-food bonuses first though as below if i am not mistaken anyways etc); code provided by gemini ai the original version of the code and then heavily polished with the help of chatgpt in particular as of now chatgpt 5 if i remember it correctly but anyways etc, and that i adjusted as well in/for advciv-sas in this case anyways etc, similarly as below anyways etc; see also new code we added n advciv-sas but anyways etc that handles settling priorities based on terrains or/and features and hills anyways etc in as of now CitySiteEvaluator.cpp which this code is partially based on as well if i may say and if i am not mistaken anyways etc -->
+// <!-- custom: rewrite to handle/optimize terrain improvement choice - don't build cottage on flatland plains if flatland grass tiles (much better candidates) are available. For bonuses, simplify logic to always improve them regardless of terrain (high-food bonuses first). Partially based on settling priorities code in CitySiteEvaluator.cpp. Credit: Gemini AI (original); ChatGPT 5 (polishing). (Claude code Sonnet 4.5 (summarized)) -->
 // This function determines the value of a specific improvement on a plot,
 // which is the core logic that guides AI worker actions.
 // This version is a rewrite to prioritize improvements based on terrain,
@@ -1021,7 +1021,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 	// <!-- custom: rewrite / refactor this heavily by gemini ai and other AIs to fix fatal flaw of not returning any best plot if our selected best plot happens to be unpathable, plus other seemingly bugs as well (see code comments below in this function for details anyways etc) -->
 	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast if i am not mistaken anyways etc (see screenshot and doc at known issues readme as of now number 30 for details anyways etc).
-	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate plot to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of me maybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
+	// <!-- custom: rewrite addresses suboptimal behavior - old code pathfinding-recomputed best plot even after pass 1 computation. More efficient to compute decrementally from best candidate to worse until one is found, then early return, rather than compute all plots including ones that won't be best. New code is cleaner and easier to customize. Credit: Gemini AI. (Claude code Sonnet 4.5 (summarized)) -->
 
 	std::vector<CandidatePlot> candidatePlots;
 
@@ -1042,7 +1042,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// 		std::max(0, (kCity.getYieldRate(YIELD_FOOD) -
 	// 		kCity.foodConsumption(true))) : 0);
 	// <!-- custom: update 3: even with this change and some other changes as well, we still build farms on flood plains and on bonuses (although rarer for bonuses), i even tried to comment out the farm building code entirely but it still happens, so i assume there is another code outside of this function and/or of what we wrote that interferes with our logic but anyways etc -->
-	// <!-- custom: update 4: in rare cases we get crazy oscillation between flatland grass farm and cottage. City is not even starved, but it runs a very useless specialist hindering its growth and so is stagnant. Or some other times, there is an angry citizen so city thinks it needs food, but seen if we increase food we'll just have more angry citizens, fix happiness rather, on the former case don't assign needless specialists here if we need the food to grow. For our part here, we'll assume specialists are assigned correctly and manage it there. We should restrict farms (or other food giving builds on non-bonus plots too i mean but anyways etc) only when we really need the food. Let's count our ideal food need to account for these specialist or angry citizens rather. Code provided with the help of chatgpt 5 and that i adjusted as i saw fit or/and such but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: in rare cases get crazy oscillation between flatland grass farm and cottage. City not starved but runs useless specialist hindering growth (stagnant), or has angry citizen so thinks it needs food, but more food = more angry citizens (fix happiness instead). Restrict farms/food builds on non-bonus plots only when we really need food. Count ideal food need to account for specialists/angry citizens. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(false);
 
 	// <!-- custom: note: see also a slightly different implementation of this at variable iEffectiveFoodAfterBuiltHappy in as of now buildingvalue function in cvcityai.cpp file if i am not mistaken anyways etc -->
@@ -1072,7 +1072,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
 			continue;
 
-		// <!-- custom: trick to start from scratch and ignore all previous rules and do our own thing if i may say anyways etc, perhaps save computation while doing so if i may say maybe but anyways etc ; so now we use iValue to choose which tiles to improve first, while independently from that, the bestBuild is separately as of now now anyways etc handled with our own helpers depending on terrain, feature, bonuses or not, tech indirect condition (canBuild) and other or not conditions, in the plot anyways etc ; but what i mean is logic is cleanly separated between which is best ideal supposed build, vs independently, which tile do we improve now and first i mean but anyways etc -->
+		// <!-- custom: start from scratch with own logic (saves computation). Now iValue chooses which tiles to improve first, while bestBuild is independently handled by own helpers based on terrain, feature, bonuses, tech (canBuild), etc. Logic cleanly separated: which is best ideal build vs which tile to improve first. (Claude code Sonnet 4.5 (summarized)) -->
 		// int iValue = kCity.AI_getBestBuildValue(ePlot);
 		// <!-- custom: also to override seemingly higher `iValue <= 1` expected conditions in other functions, not sure they call this and use it, but just in cast start with higher values in case other functions expect them (check to be sure), start with a higher minimal value than this threshold, although ours should be so much higher than 1 for most good plots, but just in case to not be rejected there if we somehow have a good plot or not too bad one with negative value if i am not mistaken. -->
 		int iValue = 10;
@@ -1273,7 +1273,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
         // Logic to prioritize farms on high-food terrains like grassland and plains.
 		else
 		{
-			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones ; this maybe (/might or not anyways etc if/in case other parts of the DLL interfere with this/our code anyways etc) helps avoid oscillation (i.e. workers changing their mind and overwriting again and again a tile based on fleeting meh xd if i may say, which is maybe valid in this case at least if i may say but anyways etc but is very inefficient, so for AI may help a lot to make it focus its mind on one statistical improvement and stick to it anyways etc)
+			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones. Helps avoid oscillation (workers changing their mind and overwriting a tile repeatedly based on fleeting conditions, which is very inefficient). Helps AI focus on one improvement and stick to it. (Claude code Sonnet 4.5 (summarized))
 			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect if i am not mistaken too anyways etc -->
 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 			// <!-- custom: first the absolutely holy improvements to never improve -->
@@ -1396,7 +1396,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							eBestSupposedBuild = eBuildMine;
 
 							// <!-- custom: improve these first before cottages to not neglect our production as well, generally they are few in cities anyway but we tend to neglect them quite a bit for grass cottages, attempt to address that as well as valuing them in general anyways etc. But also make sure we grow first, so give first populations to cottages or such rather, then say from pop 3+ or such focus more on mines on hill grass instead for example anyways etc -->
-							// <!-- custom: some data by chatgpt 5 of my idea too with its help too later i mean if i may say in this case i mean but anyways etc, check if accurate anyways etc -->
+							// <!-- custom: data analysis. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 							// That yields:
 							// pop 1 → 1540
 							// pop 2 → 1590
@@ -1939,7 +1939,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			}
 
 			// else: no special feature handling; KEEP the eBestSupposedBuild chosen above
-			// <!-- custom: note: modify this if you implement new terrains or features or/and builds in your mod and you want your AI workers to support and improve them, with the priorities you want anyways etc, as for us in advciv-sas this is not supported for efficiency and laziness or rather most improtantly no gain too but anyways etc; this means unknown as in not set up here builds would still be NO_BUILD at this stage, and so rejected later on in the plot loop if i am not mistaken but anyways etc, so add here (i.e. in this function wherever it is relevant, most likely in phase 1 i assume but anyways etc) any modification to terrain/feature and/or builds you wish your AI workers to work in city tiles i mean if i'm not mistaken but anyways etc, hopefully this information is still helpful but anyways etc -->
+			// <!-- custom: modify this if you implement new terrains/features/builds in your mod and want AI workers to support them with custom priorities. Unknown builds (not set up here) would be NO_BUILD and rejected later in plot loop. Add modifications wherever relevant (likely phase 1) for AI workers to use them in city tiles. (Claude code Sonnet 4.5 (summarized)) -->
 			// <!-- custom: note: in theory this new system should handle oscillation tremendously better, considering "sacred" higher level improvements, while being responsive to food or health or such conditions to overwrite or/and adjust future builds if needed anyways etc -->
 		}
 
@@ -2781,7 +2781,7 @@ bool CvUnitAI::AI_foundFirstCity()
 	// int iGameSpeedPercent = (2 * kSpeed.getTrainPercent()
 	// 		+ kSpeed.getConstructPercent() + kSpeed.getResearchPercent()) / 4;
 
-	// <!-- custom: give AIs more time to pick best spot ; sometimes they start in really bad spot, sometimes they could get a much better one, no hurry to settle right away, give it a few turns safely, also same on all maps to simplify and because no reason no to, as capital city is important even at fastest speed if i am not mistaken but anyways etc. Lower quality starts may be fine for a 3rd city or such but not for capital that is key to wining, definitely spend sometime to find a better spot ; also did some minor refactor and cleanup but anyways etc ; code with the help of chatgpt 5 and claude ai and my adjustments or such, check if accurate, anyways etc -->
+	// <!-- custom: give AIs more time to pick best capital spot. Sometimes they start in bad spots when much better ones are available; no hurry to settle immediately. Lower quality starts may be fine for 3rd city but not for capital, which is key to winning. Same on all maps (capital is important even at fastest speed). Credit: ChatGPT 5; Claude AI. (Claude code Sonnet 4.5 (summarized)) -->
 	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
 	int const iMaxTurnsToFound = 5;
 
@@ -2984,7 +2984,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// <!-- custom: cache this since we seem to check it many times, if i'm not mistaken in my thinking but anyways etc -->
 	const bool bWeOwnThisPlot = (getPlot().getOwner() == getOwner());
 
-	// <!-- custom: in rare cases, workers still get parked in cities, seeming with MISSIONAI_RETREAT + ACTIVITY_HOLD, as also noticed by chatgpt 5 in the screenshot i showed it about it. Trying to fix that with the help of chatgpt 5 now, check if accurate anyways etc, and see for details known issue as of now 50 with screenshots and such but anyways etc -->
+	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD. Fix to unstick these "retreaters" at start of turn. See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// two small patches that fix it
 	// 2) Unstick “retreaters” at the start of the turn
 	// Right at the top of AI_workerMove (after you build kOwner), add:
@@ -3006,7 +3006,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// fall through to normal worker logic
 	}
 
-	// <!-- custom: disable this as this may cause unintended retreats or interfere with our own logic, chatgpt 5 recommends removing or narrowing it, i'll comment it out then as i got the idea to do myself as well if i may say but thanks a lot for help and confirmation / expertise if i may say thanks a lot anyways etc -->
+	// <!-- custom: this may cause unintended retreats or interfere with our own logic; commented out to prevent issues. Credit: ChatGPT 5 recommendation. (Claude code Sonnet 4.5 (summarized)) -->
 	// // XXX could be trouble...
 	// if (!bWeOwnThisPlot)
 	// {
@@ -3178,7 +3178,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// <!-- custom: exclude barbarians as their cities can be very far apart and no point connecting them for barbarian player i mean anyways etc -->
 	if (pCity != NULL && !isBarbarian())
 	{
-		// <!-- custom: we need to move to city B sooner if city A is improved enough already, now our AI workers are much more efficient, but the core cities are overly improved, while edge cities are quite a bit underdevelopped (see known issue as of now 39 for details with screenshots anyways etc, a 10+ city in particular won't grow or hardly grow in the example mentionned, but workers keep improving it, although we'll never allocate all these 15+ tiles, and city B needs help fast anyways etc, earlier in the game may help too but anyways etc) maybe if i'm not mistaken and ideally but anyways etc ; see known issue as of now 39 for details -->
+		// <!-- custom: move to city B sooner if city A is improved enough. AI workers now more efficient, but core cities get overly improved while edge cities underdeveloped. Workers keep improving city A even though we'll never allocate all 15+ tiles, while city B needs help urgently. See known issue 39 for details and screenshots. (Claude code Sonnet 4.5 (summarized)) -->
 		/*  BEFORE the iNeed/iHave block, short-circuit if city A is already fine  */
 		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBufferForAllCities 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken but anyways etc is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather but anyways etc. -->
 		// <!-- custom: accounting for specialists and the need to develop other cities soon and sooner, which we still don't do soon enough as of now, reduce buffer from 1 to 0 as a test to see what happens anyways etc -->
@@ -3488,7 +3488,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		}
 	}
 
-	// <!-- custom: in rare cases, workers still get parked in cities, seeming with MISSIONAI_RETREAT + ACTIVITY_HOLD, as also noticed by chatgpt 5 in the screenshot i showed it about it. Trying to fix that with the help of chatgpt 5 now, check if accurate anyways etc, and see for details known issue as of now 50 with screenshots and such but anyways etc -->
+	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD. Fix to unstick these "retreaters" at start of turn. See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// yep — the screenshot tells the story:
 
 	// left debug list shows several Workers with MISSIONAI_RETREAT, HOLD.
@@ -5065,7 +5065,7 @@ void CvUnitAI::AI_attackCityMove()
 						return;
 					}
 				}
-				// <!-- custom: this is code i added with the help of chatgpt 5 xd (check if accurate anyways etc) to attempt to fix the weird back and forth i observed after fixing known issue as of now 62 but anyways etc (not evacuating all units from a doomed city but anyways etc), but that also existed in base advciv if i'm not mistaken but anyways etc, that the stack after nicely evacuating, tried to attack again a much stronger stack, only to retreat without attacking after seeing the enemy stack is too strong, which is very inefficient but also very risky (i name(d but anyways etc) the "weird back and forth" or very "inefficient back and forth" issue but anyways etc). It does not appear if i play at least 2 autoplay turns in a row to now's position (not 1 autoplay turn else we do get baited as explained in known issue 62 anyways etc) even with the 62 dll, so while this change may no longer be necessary, maybe it helps, and it seems like a harmless and very nice to have sanity check if it helps, as i saw plenty such cases of very inefficient back and forth, so kept still. See known issue as of now 63 for details anyways etc -->
+				// <!-- custom: fixes "weird back and forth" issue after fixing known issue 62 (not evacuating all units from doomed city). Stack evacuates nicely then tries to attack much stronger enemy stack, only to retreat without attacking after seeing enemy is too strong - very inefficient and risky. Doesn't appear if playing 2+ autoplay turns in a row (but does with 1 autoplay turn). While maybe no longer necessary, kept as harmless sanity check since saw plenty such cases. See known issue 63 for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 				// Gate the “walk toward target city” step
 				// In CvUnitAI::AI_attackCityMove() there’s a late “We have to walk.” block that always tries to move closer, even if we’ve already computed that the target is too strong
 				// That’s the whole change. When the city is “too strong,” the stack won’t step into the 1–2 tile danger ring; it will fall through to the rest of the logic (merge, bombard if possible, pillage/choke, retreat or stage), rather than yo-yoing and bleeding units.
@@ -6448,7 +6448,7 @@ void CvUnitAI::AI_generalMove()
 {
 	PROFILE_FUNC();
 
-	// <!-- custom: we have the issue of AI going for general units, while having a military instructor would be a much better choice, especially in top hammer cities, and even more so if they have the heroic epic or whichever equivalent of it is if changed in a mod mod. Code added with the help of chatgpt 5 and claude sonnet 4.5, check if accurate anyways etc -->
+	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: after we have our acamedy anyways etc -->
 	// “Try to construct a Military Academy if our empire currently has fewer than X academies.”
 	if (AI_construct(1))
@@ -7510,7 +7510,7 @@ void CvUnitAI::AI_workerSeaMove()
 			}
 		}
 	}
-	// <!-- custom: this seems to be where the never ending one turn workboat for like 50 turns in many cities issue happens/is caused by (see known issue as of now 23 for details anyways etc), attempt a patch/fix with chatgpt 5's help as it really really ruins the game for these AI (seemingly only AI and never human cities at least i don't remember having such an issue in my games in base advciv at time i had played it if i may say but anyways etc) stuck in perpetual never ending unit loop -->
+	// <!-- custom: fixes never-ending one-turn workboat loop lasting 50+ turns in many cities (see known issue 23). This really ruins the game for AI (seemingly only affects AI, not human cities). AI stuck in perpetual never-ending unit loop. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: update: actually, as discussed with chatgpt 5, i think it's really maybe better to not scrap, we waste hammers doing so, but instead telling the AI not to produce these workboats if it judges it has enough but anyways etc -->
 	// <!-- custom: it seems the needed vs existing workboats (sea workers but anyways etc) logic is (seemingly but looks fine although i didn't check but anyways etc) handled fine already in CvCityAI::AI_chooseProduction so no change needed there, don't worry about scrapping, and so just let AIs produce the unit as they want i mean but anyways etc, and then when produced but anyways etc, they would assess if they want one again, don't scrap a yet to be produced unit that tries to be produced again next turn endlessly or almost (few dozen turns oftentimes or such), if i understood enough of this bug correctly anyways etc -->
 	// <!-- custom: update 3: there is still some issue is still a bit present/persistent, but it is tremendously better, as the workboat now completes its production in 2-3 turns in autoplay, incredibly better than 30-40 turns, but it seems there is something else preventing the production at turn 1 of completion but check to be sure anyways etc -->
@@ -10545,7 +10545,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (bSAS_AI_PROMOTION_VALUE_OPTIMIZE && (ePromotion != NO_PROMOTION))
 	{
-		// <!-- custom: similarly to what we did for AI specialists in CvCityAI::AI_jobChangeValue, also do not allow some promotions for AI players, as these promotions are either too weak most times (e.g. woodsman promotions ineffective in cities etc, even with the buff in our mod anyways etc) or/and too situational to be reliably good for AI players, hopefully helps AI better pick promotions without killing versatility. Better promotion choice is especially important in the early game where any small advantage may give an edge for successfuly invasion or defense, but nice if kept during the whole game as well to do good promotion choices that are in most cases effective for AI players but anyways etc. Done with the help of chatgpt 5 and that i adjusted too and such if i may say but anyways etc, check if accurate, anyways etc -->
+		// <!-- custom: similarly to AI specialists in CvCityAI::AI_jobChangeValue, block some promotions for AI as they're too weak (e.g. Woodsman ineffective in cities even with mod buff) or too situational to be reliably good. Helps AI pick better promotions without killing versatility. Better promotion choice especially important early game where any small advantage may give edge for successful invasion/defense. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 		// <!-- custom: note: as of now this mostly, except for some strict unitais where it seems beneficial to do so, doesn't incentivize anything, only forbids some promotions, otherwise mostly (minus these exceptions) keeping AI choices the same ; hopefully this leads to saner and more effective AI promotion choices, while patching the core issues of flawed to sometimes very flawed AI promotion choices while keeping at least as of now otherwise most of the base advciv behaviour that we attempt to enhance with these rules but anyways etc -->
 		// === HARD BLOCK: promos that can’t possibly help this unit right now ===
 		// decisively low, far from overflow/underflow
@@ -10698,7 +10698,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 				{
 					return AI_PROMOTION_ALWAYS_PICK_FIRST + 3000;
 				}
-				// <!-- custom: consider retreat promotions as a versatile offensive or defensive promotion for city attacker unitais, with a bit more caution in case city raider is maybe better anyways etc, based on a similar/related idea chatgpt 5 gave me thanks etc i mean thanks but anyways etc; and which also helped em enhance it thanks but anyways etc -->
+				// <!-- custom: consider Retreat promotions as versatile offensive/defensive promotion for city attacker UNITAIs, with caution in case City Raider is better. Credit: ChatGPT 5 (idea and enhancement). (Claude code Sonnet 4.5 (summarized)) -->
 				// If you want retreat only when losing a real war, gate it like this:
 				if (bAtWar && bEnemyStrong)
 				{
@@ -12134,7 +12134,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 			}
 			// K-Mod end
 
-			// <!-- custom: currently we have an issue as i assume is in base advciv +/- civ4 as well and originally but anyways etc that barbarians capture cities too much early, however AI has plenty/enough units, but 4 are in capital, while 1 only is in city B, so if AI is not lucky with barbarians avoiding city B, its city would be captured, and capital is needlessly overly defended which is inefficient as well. Production seems fine, but movement of units should be fixed ideally. Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xd but anyways etc or refine based on each other's output anyways etc, check if accurate, i also adjusted it a tiny bit or such and helped formatting code comments too if i may say but anyways etc ; see known issue as of now 49 for details anyways etc -->
+			// <!-- custom: barbarians capture cities too early in base AdvCiv +/- Civ4. AI has plenty units but concentrates them poorly (4 in capital, 1 in city B), so city B gets captured while capital is overly defended. Production is fine but unit movement needs fixing. See known issue 49 for details. Credit: ChatGPT 5; Gemini 2.5 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 			// int iDefendersNeed = pLoopCity->AI_minDefenders();
 			// 1) Make the search ask for what the city really needs
 			// That one-liner lets the existing “pull” logic target cities that are under their true need (incl. barb/danger effects), not just under the bare min.
@@ -14084,7 +14084,7 @@ bool CvUnitAI::AI_join(int iMaxCount)
 		// BETTER_BTS_AI_MOD: END
 		FOR_EACH_ENUM(Specialist)
 		{
-			// <!-- custom: we have the issue of AI going for general units, while having a military instructor would be a much better choice, especially in top hammer cities, and even more so if they have the heroic epic or whichever equivalent of it is if changed in a mod mod. Code added with the help of chatgpt 5 and claude sonnet 4.5, check if accurate anyways etc -->
+			// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 			// 3. Optional: Remove the stacking check in AI_join()
 			// <!-- custom: but since we pass now an extremely high for this purpose value of iMaxCount in as of now SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, then it's fine to allow this gating for flexibility and in case players want to customize it as they prefer in sas defines. As of now, value of 999 is so high this will never be reached during a game and so effectively it will be always ignored and allowed to stack military instructors in same city, so no change is needed here it seems if i'm not mistaken anyways etc. -->
 			bool bDoesJoin = false;
@@ -17248,7 +17248,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 	int iBestFoundValue = 0;
 	bool const bRandomize = (!isHuman() && kGame.isScenario()); // advc.052
 
-	// <!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate anyways etc -->
+	// <!-- custom: AI has settler parked in capital at turn ~45 (normal speed), still only 1 city at turn 100 in autoplay. Candidate city sites were safe enough; relaxing restrictions. Credit: Claude Sonnet 4.5; ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// Looking at your issue, the AI settler is getting stuck in the capital because the safety check is too strict.
 	// Solution 1: Time-Based Override (Easiest)
 	// Add a grace period where safety is ignored early game
@@ -19375,7 +19375,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	//bool const bMoveAllTerrain = getGroup()->canMoveAllTerrain(); // advc
 
-	// <!-- custom: with our code changes and AI worker move optimization as of now in CvUnitAI::AI_workerMove of going to city B or city C sooner instead of overimproving city A, we now have our workers going back to city A since thye consider they have improved city A enough for now. This is a strong indication for us (i.e. me and with chatgpt 5's helpa ndmy prompt to it too hehe but anyways etc) that something else is preventing them from going to city C, that is unimproved at turn 105 and even 155 to 175. Making this a lot more lax, as i don't care if there's a lot of back and forth, we already handle that in our own way to prevent worker move oscillation while being flexible, see there for details anyways etc ; also don't care about distance, simply go to our chosen best anyways etc, this code is a big load of horse shit from what i can tell but of cours eif i may say i don't know too much about these, but AI behaves so bad, stays forever in city A, never goes to city C.. what a mess, clean all that logic if i may say and if i am not mistaken in thinking so with chatgpt 5's help anyways etc ; results after writing this but anyways etc: this is beyond tremendous improvement but anyways etc, city C is now fully improved and grew to size 2 with fast growth at turn 105, and 5+ tiles chopped and improved at a glance (plus chopping jungle gives production in our mod), instead of now staying parked in city A due/thanks to our efficiency don't overimprove a city optimizaiton move to next, minus this old shitty code beyond shitty that was preventing it stupidly, but anyways etc, of course i make mistakes too and don't kow a lot about this code or in general, but i am learning or seeing bit by bit, and in autoplay this resulted in very shitty behaviour, now other jungle farther cities get their first improvements earlier too, thanks a lot chatgpt 5 and me too if i may say but anyways etc, see known issue 41 with screenshots for details, anyways etc -->
+	// <!-- custom: with AI worker move optimization (going to city B/C sooner instead of overimproving city A), workers now go back to city A since they consider it improved enough. Strong indication something else prevents going to city C (unimproved at turn 105-175). Making this much more lax since we handle worker oscillation in our own way. Old code prevented workers from ever going to city C - AI behaved badly, staying forever in city A. Results after fix: tremendous improvement - city C now fully improved and size 2 at turn 105, with 5+ tiles chopped/improved (jungle chopping gives production in our mod), instead of staying parked in city A. Jungle cities get first improvements much earlier. See known issue 41 with screenshots for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// FOR_EACH_CITYAI(pLoopCity, kOwner)
 	// {
 	// 	if (pLoopCity == pCity)
@@ -19555,7 +19555,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 
 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
 
-	// <!-- custom: turn 156 rare crash proper guard now below, after commenting our this guard of bestplot from old code too anyways etc anyways etc, with the help of chatgpt 5, check if accurate anyways etc -->
+	// <!-- custom: turn 156 rare crash; proper guard added below. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// if (pBestPlot == NULL)
 	// 	return false;
 	// FAssertEnumBounds(eBestBuild);
