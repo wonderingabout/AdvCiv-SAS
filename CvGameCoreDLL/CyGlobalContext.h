@@ -12,6 +12,7 @@
 #include "CvArtFileMgr.h"
 
 class CyGame;
+class CyInitCore; // AdvCiv-SAS - CuCuGS
 class CyMap;
 class CyPlayer;
 class CvRandom;
@@ -30,6 +31,7 @@ public:
 	static CyGlobalContext& getInstance();		// singleton accessor
 
 	bool isDebugBuild() const;
+	CyInitCore& getCyInitCore() const; // AdvCiv-SAS - CuCuGS
 	CyGame* getCyGame() const;
 	CyMap* getCyMap() const;
 	CyPlayer* getCyPlayer(int idx);

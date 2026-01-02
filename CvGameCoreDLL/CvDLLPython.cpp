@@ -30,6 +30,7 @@ void CyGameTextMgrInterface();
 void CyHallOfFameInterface();
 void CyGameCoreUtilsPythonInterface();
 void CyMessageControlInterface();
+void CyInitCoreInterface(); // AdvCiv-SAS - CuCuGS
 
 //
 //
@@ -53,6 +54,7 @@ DllExport void DLLPublishToPython()
 	CyHallOfFameInterface();
 	CyGameCoreUtilsPythonInterface();
 	CyMessageControlInterface();
+	CyInitCoreInterface(); // AdvCiv-SAS - CuCuGS
 
 	//
 	// large interfaces which can be split across files if need be

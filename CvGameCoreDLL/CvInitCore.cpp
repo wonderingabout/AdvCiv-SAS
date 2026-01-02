@@ -2,6 +2,7 @@
 #include "CvInitCore.h"
 #include "CvPlayer.h"
 #include "CvInfo_GameOption.h"
+#include "CvDLLPythonIFaceBase.h" // AdvCiv-SAS - CuCuGS: for callFunction
 
 
 CvInitCore::CvInitCore()
@@ -73,6 +74,7 @@ void CvInitCore::reset(GameMode eMode)
 	setMode(eMode);
 	if (getMode() != NO_GAMEMODE)
 		setDefaults();
+	m_bOnCustomGameScreen = false; // AdvCiv-SAS - CuCuGS
 }
 
 void CvInitCore::setDefaults()
@@ -472,6 +474,16 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 	//refreshVictories();
 	/*	<advc> Unrolling that function should make it easier to use an EnumMap instead
 		-- if I ever take another stab at that, which probably I should not. */
+	// <advc.003w> Save current victory settings before reset
+	bool* abPrevVictories = NULL;
+	if (m_abVictories != NULL && m_iNumVictories > 0)
+	{
+		abPrevVictories = new bool[m_iNumVictories];
+		for (int i = 0; i < m_iNumVictories; i++)
+			abPrevVictories[i] = m_abVictories[i];
+	}
+	// </advc.003w>
+
 	SAFE_DELETE_ARRAY(m_abVictories);
 	if (!bBeforeRead) // advc.enum
 	{
@@ -480,9 +492,19 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 		{
 			m_abVictories = new bool[m_iNumVictories];
 			for (int i = 0; i < m_iNumVictories; i++)
-				m_abVictories[i] = true;
+			{
+				// <advc.003w> Restore previous settings if they existed, otherwise default to true
+				if (abPrevVictories != NULL)
+					m_abVictories[i] = abPrevVictories[i];
+				else
+					m_abVictories[i] = true;
+				// </advc.003w>
+			}
 		} // </advc>
 	}
+	// <advc.003w> Clean up temporary array
+	SAFE_DELETE_ARRAY(abPrevVictories);
+	// </advc.003w>
 	// Standard game options
 	m_abOptions.reset();
 	m_abMPOptions.reset();
@@ -861,6 +883,12 @@ const CvWString& CvInitCore::getEraKey(CvWString& szBuffer) const
 	return szBuffer;
 }
 
+// AdvCiv-SAS - CuCuGS: Definition moved out of header for easier debugging
+void CvInitCore::setGameSpeed(GameSpeedTypes eGameSpeed)
+{
+	m_eGameSpeed = eGameSpeed;
+}
+
 void CvInitCore::setGameSpeed(CvWString const& szGameSpeed)
 {
 	FOR_EACH_ENUM(GameSpeed)
@@ -1006,7 +1034,23 @@ void CvInitCore::setCustomMapOption(int iOptionID, CustomMapOptionTypes eCustomM
 		m_aeCustomMapOptions[iOptionID] = eCustomMapOption;
 }
 
+// <AdvCiv-SAS - CuCuGS>
 void CvInitCore::setVictories(int iVictories, bool const* abVictories)
+{
+	/*	Forward to a new function to prevent DLL-internal calls
+		from disrupting my Custom Game vs. Play Now detection. */
+	setVictoriesInternal(iVictories, abVictories);
+	if (iVictories > 0 && getType() == GAME_SP_NEW)
+	{
+		/*	The Custom Game screen calls setVictories before and after setActivePlayer,
+			the Play Now screen (leader selection) calls setVictories once:
+			after setActivePlayer. */
+		m_bOnCustomGameScreen = !m_bOnCustomGameScreen;
+	}
+}
+
+void CvInitCore::setVictoriesInternal( // </AdvCiv-SAS - CuCuGS>
+	int iVictories, bool const* abVictories)
 {
 	SAFE_DELETE_ARRAY(m_abVictories);
 	m_iNumVictories = 0;
@@ -1075,6 +1119,14 @@ void CvInitCore::setActivePlayer(PlayerTypes eActivePlayer)
 	if (m_eActivePlayer != NO_PLAYER)
 	{	// Automatically claim this slot
 		setSlotClaim(m_eActivePlayer, SLOTCLAIM_ASSIGNED);
+		// <AdvCiv-SAS - CuCuGS>
+		if (getType() == GAME_SP_NEW && m_bOnCustomGameScreen)
+		{
+			bool bSuccess = gDLL->getPythonIFace()->callFunction(
+					PYScreensModule, "showCustomGameScreen");
+			FAssert(bSuccess);
+			(void)bSuccess; // Suppress unused variable warning in Release builds
+		} // </AdvCiv-SAS - CuCuGS>
 	}
 	else m_eActiveTeam = NO_TEAM; // advc.opt
 }

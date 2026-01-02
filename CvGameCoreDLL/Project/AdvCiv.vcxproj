@@ -140,6 +140,8 @@
     <ClCompile Include="..\CyGameTextMgrInterface.cpp" />
     <ClCompile Include="..\CyGlobalContext.cpp" />
     <ClCompile Include="..\CyGlobalContextInterface1.cpp" />
+    <ClCompile Include="..\CyInitCore.cpp" />
+    <ClCompile Include="..\CyInitCoreInterface.cpp" />
     <ClCompile Include="..\CyGlobalContextInterface2.cpp" />
     <ClCompile Include="..\CyGlobalContextInterface3.cpp" />
     <ClCompile Include="..\CyGlobalContextInterface4.cpp" />
@@ -179,6 +181,7 @@
     <ClCompile Include="..\FFreeListTrashArray.cpp" />
     <ClCompile Include="..\FProfiler.cpp" />
     <ClCompile Include="..\InvasionGraph.cpp" />
+    <ClCompile Include="..\InputSim.cpp" />
     <ClCompile Include="..\FAssert.cpp" />
     <ClCompile Include="..\MilitaryAnalyst.cpp" />
     <ClCompile Include="..\MilitaryBranch.cpp" />
@@ -318,6 +321,7 @@
     <ClInclude Include="..\CyGameCoreUtils.h" />
     <ClInclude Include="..\CyGameTextMgr.h" />
     <ClInclude Include="..\CyGlobalContext.h" />
+    <ClInclude Include="..\CyInitCore.h" />
     <ClInclude Include="..\CyHallOfFameInfo.h" />
     <ClInclude Include="..\CyInfoWrapper.h" />
     <ClInclude Include="..\CyMap.h" />
@@ -356,6 +360,7 @@
     <ClInclude Include="..\FreeListTraversal.h" />
     <ClInclude Include="..\FVariableSystem.h" />
     <ClInclude Include="..\InvasionGraph.h" />
+    <ClInclude Include="..\InputSim.h" />
     <ClInclude Include="..\LinkedList.h" />
     <ClInclude Include="..\MilitaryAnalyst.h" />
     <ClInclude Include="..\MilitaryBranch.h" />
