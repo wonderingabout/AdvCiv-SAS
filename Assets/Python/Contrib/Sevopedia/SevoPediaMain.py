@@ -2087,6 +2087,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# - We also build SAS_listIdxToRow so pediaJump can select the correct displayed row.
 		setShowListIdx = None
 		self.SAS_listIdxToRow = None
+
+		# <!-- custom: rebuild arrow-navigation selectable caches every time we rebuild the list (fixes stale indices / out-of-range) (chatgpt 5.2) -->
+		self.SAS_selectableListIdx = []
+		self.SAS_itemToSelectablePos = {}
+
 		if bFiltering:
 			setShowListIdx = set()
 

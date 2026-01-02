@@ -49,6 +49,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 [48 Civs DLL](/README.md#48-civs-dll)  
 [Long Comments Archive](/README.md#long-comments-archive)  
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+[CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)  
 [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
 ["Temporary" crashes](/README.md#temporary-crashes)  
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
@@ -65,29 +66,29 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 
 Before going more in depth about/in the changes and how to play and/or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or/and bigger size)
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG" alt="0.34_Techtree_ingame (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG" alt="0.34_Techtree_ingame (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG" alt="0.34_Techtree_ingame (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.34_Techtree_ingame (2).JPG" alt="0.34_Techtree_ingame (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.34_Techtree_ingame (3).JPG" alt="0.34_Techtree_ingame (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.34_Techtree_ingame (4).JPG" alt="0.34_Techtree_ingame (4).JPG" width="250"></img>
 
-For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or/and other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md)
+For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or/and other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
 
 ## Military Tree and changes
 
 As of now the military tree is as such in AdvCiv-SAS (please view ingame or/and in XML for updated version if any changes have been made since then anyways etc)
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
 
-See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md) for details
+See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs/README_More_Exhaustive_Military_Tree.md) for details
 
 ## Ingame gameplay samples
 
 These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Later screenshots are from version 5055 and around version 5200.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.960_gameplay_4986_sample_monarch_1.JPG" alt="0.960_gameplay_4986_sample_monarch_1.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG" alt="0.961_autoplay_about_5200_sample_noble_1 (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_1 (2).JPG" alt="0.962_autoplay_about_5055_sample_monarch_1 (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.960_gameplay_4986_sample_monarch_1.JPG" alt="0.960_gameplay_4986_sample_monarch_1.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG" alt="0.961_autoplay_about_5200_sample_noble_1 (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.962_autoplay_about_5055_sample_monarch_1 (2).JPG" alt="0.962_autoplay_about_5055_sample_monarch_1 (2).JPG" width="250"></img>
 
 See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below anyways etc) for more gameplay samples although some of these may be old/dated now but anyways etc.
 
@@ -99,7 +100,7 @@ Additionally, some extra files can be found on this google drive: [full AdvCiv-S
 
 ## How to play?
 
-If you are a new player and/or want to play this mod and would like a few instructions on how to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md)
+If you are a new player and/or want to play this mod and would like a few instructions on how to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md)
 
 ## Full exhaustive very long and exhaustive changes
 
@@ -113,47 +114,47 @@ As for the changelog between releases of AdvCiv-SAS, see the [github tags](https
 
 I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS latest) with the help of chatgpt and gemini (check if info is accurate); i sometimes edited it. It should contain same entries than in the "custom" version of the main changes guide that i wrote myself as base for this main changes guide. Hopefully fast enough to read and as of now much clearer than my longer one that was used as a base for it.
 
-You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md).
+You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
 
 ## Custom Main Changes Guide
 
-This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) anyways etc.
+This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md) anyways etc.
 
 ## UI (Ingame)
 
 ### Main Advisors reworks
 
-Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors' display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it but anyways etc.
+Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors' display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it but anyways etc.
 
 Also refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or/and so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
 
 Some examples below:
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.514_foreign_advisor_relations.JPG" alt="0.514_foreign_advisor_relations.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG" alt="0.517_victory_screen (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG" alt="0.517_victory_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG" alt="0.517_victory_screen (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.514_foreign_advisor_relations.JPG" alt="0.514_foreign_advisor_relations.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.517_victory_screen (1).JPG" alt="0.517_victory_screen (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.517_victory_screen (2).JPG" alt="0.517_victory_screen (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.517_victory_screen (4).JPG" alt="0.517_victory_screen (4).JPG" width="250"></img>
 
-See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game).
+See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
 
 ### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
 
-We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. Also added a tooltip (on hover). See for details [KI#84](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
+We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. Also added a tooltip (on hover). See for details [KI#84](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG" alt="0.5132_willing_vassal_trade.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5132_willing_vassal_trade.JPG" alt="0.5132_willing_vassal_trade.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
 
 ### City Screen rework
 
@@ -161,10 +162,10 @@ Added some missing info such as the great person "+n (ICON)" information in any 
 
 Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance anyways etc.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG" alt="0.400_city_screen (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG" alt="0.400_city_screen (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/other_ui_reworks/0.400_city_screen (1).JPG" alt="0.400_city_screen (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/other_ui_reworks/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/other_ui_reworks/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/other_ui_reworks/0.400_city_screen (4).JPG" alt="0.400_city_screen (4).JPG" width="250"></img>
 
 ## UI (Main Sevopedia reworks)
 
@@ -178,31 +179,31 @@ As always, ChatGPT is a key co-author and main code contributor and with the hel
 
 Here is below a sample of the example screenshots showing the AI Personality panel feature in sevopedialeader, as well as samples showing other sevopedia reworks that are part of AdvCiv-SAS.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG" alt="0.630_sevopedia_units_chart_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG" alt="0.720_sevopedia_improvements_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religions_sample (1).JPG" alt="0.660_sevopedia_religions_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG" alt="0.670_sevopedia_civilizations_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG" alt="0.730_sevopedia_promotions_sample (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG" alt="0.750_sevopedia_projects_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG" alt="0.760_sevopedia_specialists_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG" alt="0.630_sevopedia_units_chart_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG" alt="0.720_sevopedia_improvements_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.660_sevopedia_religions_sample (1).JPG" alt="0.660_sevopedia_religions_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG" alt="0.670_sevopedia_civilizations_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG" alt="0.730_sevopedia_promotions_sample (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG" alt="0.750_sevopedia_projects_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG" alt="0.760_sevopedia_specialists_sample (1).JPG" width="250"></img>
 
-For the full more extensive screenshot of main new sevopedia reworks, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+For the full more extensive screenshot of main new sevopedia reworks, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md)
 
 #### Extra notes specifically about the sevopedia leader's AI Personality Panel feature
 
-note 1: its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+note 1: its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
-note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc).
+note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc).
 
-note 3: if you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). This was done so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See for details: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
+note 3: if you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). This was done so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See for details: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md)
 
 ### Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)
 
@@ -212,21 +213,21 @@ With the help of claude opus 4.5 and chatgpt 5.2, we introduced a search bar in 
 
 The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG" alt="0.610_sevopedia_searchbar_example (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG" alt="0.610_sevopedia_searchbar_example (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
 
-See for details: [example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
+See for details: [example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
 
 #### Keyboard Navigation with the UP/DOWN arrows
 
-Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
 
 ### Some other sevopedia reworks
 
 #### Concepts (as of now in the "Outdated" sevopedia category)
 
-These are not supported in advciv-sas, hence the "outdated" name (i.e. i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images (see [README_Sevopedia_Reworks.md#example-35-improvements-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-35-improvements-category) for a few examples detailed there anyways etc), or that i found informative or/and wanted to add anyways etc. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
+These are not supported in advciv-sas, hence the "outdated" name (i.e. i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images (see [README_Sevopedia_Reworks.md#example-35-improvements-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category) for a few examples detailed there anyways etc), or that i found informative or/and wanted to add anyways etc. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
 
 Added new concepts, as of now:
 
@@ -238,17 +239,17 @@ Added new concepts, as of now:
 - concept_route_railroad
 - concept_scoring_system
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG" alt="0.800_conceptinfos_example (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG" alt="0.800_conceptinfos_example (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.800_conceptinfos_example (1).JPG" alt="0.800_conceptinfos_example (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.800_conceptinfos_example (2).JPG" alt="0.800_conceptinfos_example (2).JPG" width="250"></img>
 
 #### Mods Info
 
 The sevopedia "Mods Info" (reusing the old civ4 concepts category or similar if i am not mistaken anyways etc, thanks to [@f1rpo](https://github.com/f1rpo)'s help too anyways etc) category adds info about mods and such, including but not only AdvCiv-SAS.
 
-As of now this mostly contains other mods than advciv-sas-related changes (non-exhaustive list of changes but quite informative a bit still i hope anyways etc), as well as some few other information or rather as of now links to information sources. For the changes between mod and quick mod history info/context related(ing? Anyways etc) in particular, see [README_Mods_History_And_Changes.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md) for details. Exhaustive or not example screenshots below as well anyways etc:
+As of now this mostly contains other mods than advciv-sas-related changes (non-exhaustive list of changes but quite informative a bit still i hope anyways etc), as well as some few other information or rather as of now links to information sources. For the changes between mod and quick mod history info/context related(ing? Anyways etc) in particular, see [README_Mods_History_And_Changes.md](/_1_AdvCiv-SAS/Docs/README_Mods_History_And_Changes.md) for details. Exhaustive or not example screenshots below as well anyways etc:
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
 ## UI (Common)
 
@@ -341,27 +342,27 @@ The relevant files can be found in:
 
 For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5000_bTrade_bRepeat_example.JPG" alt="0.5000_bTrade_bRepeat_example.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5000_bTrade_bRepeat_example.JPG" alt="0.5000_bTrade_bRepeat_example.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
 
 See also for details:
 
-- [README_Main_Changes_Guide.md#technologies-non-exhaustive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)
-- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
-- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+- [README_Main_Changes_Guide.md#technologies-non-exhaustive](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies-non-exhaustive)
+- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category)
+- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
 
 ## Python Scripts and .csv tables
 
 Mostly for modders, and it is not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
 
-Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details.
+Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md) for details.
 
 So far there is:
 
 - [flatten_handicap_info_to_csv_and_md](/flatten_handicap_info_to_csv_and_md.py)
-- [generate_leaders_data.py and leaders_data data py module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
+- [generate_leaders_data.py and leaders_data data py module](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
 - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
-- [global XML duplication scanner](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+- [global XML duplication scanner](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
 
 ### .csv and .md view of the handicap (difficulties info in a table for all difficulties) info
 
@@ -371,27 +372,27 @@ You can for example for example use github's search bar for example anyways or a
 
 Note: base advciv handicap info .csv table with its .md legend for comparison as of now are also in our mod path in [/_0_Common_Docs/AdvCiv_Base_Doc/](/_0_Common_Docs/AdvCiv_Base_Doc/).
 
-If you change the xml, regenerate new .csv file with the script, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy).
+If you change the xml, regenerate new .csv file with the script, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy).
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
 
 ### .csv github view for the flatten_leaders_data_to_csv conversion script
 
 Similarly, the flatten_leaders_data_to_csv script output can be viewed here: [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (corresponding legend (.md): [leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md)).
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
-Documentation about this flatten leaders_data to .csv py script ['s documentation](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_leaders_data_to_csvpy).
+Documentation about this flatten leaders_data to .csv py script ['s documentation](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md#flatten_leaders_data_to_csvpy).
 
 ## AI-generated images
 
 While developping the AdvCiv-SAS mod, i have learned (despite having tried in the past a few times with Midjourney but not related to this anyways etc.) to and successfully generated some AI-generated images, first with tools like ChatGPT for buttons or/and such, and then for our main menu background images with other tools, in particular with the help of PixelCut AI that was very nice.
 
-I edited some of these with Paint.NET to add in some of them the blue "ribbon" (margins whatever they are called). Here are, below, some examples of ai-generated images in our mod, for more details see: [Docs_And_Appendixes/README_AI_Generated_Images.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md)
+I edited some of these with Paint.NET to add in some of them the blue "ribbon" (margins whatever they are called). Here are, below, some examples of ai-generated images in our mod, for more details see: [Docs/README_AI_Generated_Images.md](/_1_AdvCiv-SAS/Docs/README_AI_Generated_Images.md)
 
 Note: these are low size images, see link mentionned above for the google drive link to view them in high quality (full/original resolution) anyways etc.
 
@@ -407,7 +408,7 @@ It also helped me generate a very nice building_russian_gord corresponding butto
 
 ## Less Generic unit names or/and combat types
 
-See the [README_Less_Generic_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Unit_Names.md) for details.
+See the [README_Less_Generic_Unit_Names.md](/_1_AdvCiv-SAS/Docs/README_Less_Generic_Unit_Names.md) for details.
 
 ## Civs you can expect in this mod
 
@@ -415,13 +416,13 @@ See the [README_Less_Generic_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/R
 
 The civs you can expect in this mod come from these parts of the world (circled numbers are the added new civ's real world location):
 
-![0.220_world_map_terrain_with_new_civs.png](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.220_world_map_terrain_with_new_civs.png)
+![0.220_world_map_terrain_with_new_civs.png](/_1_AdvCiv-SAS/Images/misc_0.x/0.220_world_map_terrain_with_new_civs.png)
 
 ### Other map(s) i used for terrain modifiers for civ-specific units
 
 Among other maps or information i found online, i mostly also used the map below as well in order to determine which civs should get which terrain/feature modifiers in advciv-sas:
 
-![0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg)
+![0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg](/_1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg)
 
 Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw but anyways etc, but they is cold, so symbolize it as having if relevant enough a bit of tundra in civ4 terms but anyways etc (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification) for details or maybe rather info or such)
 
@@ -431,7 +432,7 @@ Note 2: as of now i'm using plains as a representative of savanna more or less a
 
 Heavy historical corrections and gameplay balance have been made, such as as of now removing the Expansive Trait, Changing Gandhi's favorite civics, or Frederick's favorite religion.
 
-The changes before/after with rationale tables are synthethized in .md tables in [README_Assets_Rebalancing.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md).
+The changes before/after with rationale tables are synthethized in .md tables in [README_Assets_Rebalancing.md](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md).
 
 ## 48 Civs DLL
 
@@ -447,7 +448,7 @@ See [google drive link here](https://drive.google.com/drive/folders/1wTLu7SdP3ae
 
 Note: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
 
-Note 2: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL anyways etc.
+Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL anyways etc.
 
 ## Long Comments Archive
 
@@ -464,17 +465,31 @@ The path is something like this for example in [BugPath.py](/Assets/Python/BUG/B
 os.path.join(cwd, "Mods", "AdvCiv-SAS", "_0_Common_Docs", "BUG_Doc", name)
 ```
 
-This possibly theoretically could be used to open other external files in Civ4 maybe (check if accurate, as i don't know too much about these). See also [KI#87](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+This possibly theoretically could be used to open other external files in Civ4 maybe (check if accurate, as i don't know too much about these). See also [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+
+## CuCuGS
+
+Recently, i've successfully replicated f1rpo's original CuCuGS-PoC approach that adds a custom custom game screen that we can customize despite it being seemingly otherwise unaccessible via DLL or python modding.[Claude code (VS Code extension)](/README.md#claude-code-vs-code-extension) heavily helped achieving that.
+
+Note: currently not implemented in the tech-rework branch of AdvCiv-SAS but in a [separate branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/CuCuGS-PoC-claude-code-test).
+
+See for details:
+
+- [AdvCiv-SAS - CuCuGS: PR compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/19)
+- [CFC forum CuCuGS topic](https://forums.civfanatics.com/threads/replacing-the-custom-game-screen-proof-of-concept.670307/post-16903059)
+
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
 
 ## Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc
 
-See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details.
+See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details.
 
 Note: this also includes fixes/fixed issues as well for those of these we solved anyways etc.
 
-Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) for details or/and additional info. If not there, there may be some extra info in [Modding_Ressources/README.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md) as well although it should be more technical and with some caveats there but anyways etc.
+Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md) for details or/and additional info. If not there, there may be some extra info in [Modding_Ressources/README.md](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md) as well although it should be more technical and with some caveats there but anyways etc.
 
-Note 3: some features added such fields that were previously missing in sevopedia are technically also considered fixes i would say and sometimes mentionned in the documentation as such, for example in [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md) or other documentation about "Cannot be traded" fields that are now also in tech advisor, or these other related docs for fields we added in the DLL such as the missing BBAI getters (victory weights) in the DLL (to access them in sevopedia leader py file anyways etc), or getCityRefuseAttitudeThreshold newly added in advciv if i am not mistaken but not exposed in python if i am not mistaken in my understanding or/and knowledge too but anyways etc.
+Note 3: some features added such fields that were previously missing in sevopedia are technically also considered fixes i would say and sometimes mentionned in the documentation as such, for example in [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md) or other documentation about "Cannot be traded" fields that are now also in tech advisor, or these other related docs for fields we added in the DLL such as the missing BBAI getters (victory weights) in the DLL (to access them in sevopedia leader py file anyways etc), or getCityRefuseAttitudeThreshold newly added in advciv if i am not mistaken but not exposed in python if i am not mistaken in my understanding or/and knowledge too but anyways etc.
 
 ## "Temporary" crashes
 
@@ -486,7 +501,7 @@ However, reloading this save file with my new DLL that supposedly had caused the
 
 Then, continuing on, trying to autoplay to turn 400, we got a crash again at turn 356. However, exiting the game, reloading save file 300 generated by our new DLL that supposdely had caused the crash, and trying again to autoplay to turn 400 (this time not from turn 200, save at 300 then try to go to 400, but directly from exited game load same save file 300 and try to go to 400 anyways etc) this time no crash!! We could autoplay safely and successfully to turn 400!! So again a temporary crash it seems! If i'm not mistaken i mean but anyways etc.
 
-According to chatgpt 5, these may not have been MAF and the .dmp file (see for details [/Modding_Ressources/README.md#How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc)) says/means anyways etc that "Exception code: 0xC0000005 → Access Violation (read/write through a bad pointer)", but if you experience crashes, especially mid-late game, consider exiting and reloading the game to see if it helps.
+According to chatgpt 5, these may not have been MAF and the .dmp file (see for details [/Modding_Ressources/README.md#How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc)) says/means anyways etc that "Exception code: 0xC0000005 → Access Violation (read/write through a bad pointer)", but if you experience crashes, especially mid-late game, consider exiting and reloading the game to see if it helps.
 
 If not, it might be a bug to fix or something. I don't know too much about these, but i fixed a few such reproducible bugs through (painfully xd but successfully seemingly did but anyways etc) trial and error.
 
@@ -497,7 +512,7 @@ Our game should be as of now mostly if not really stable, i very rarely encounte
 - non-English translations: too tedious to translate them all, plus i'm fine with English being the only language in the game, hopefully fine or not too bad this way but anyways etc...
 - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or/and complicated anyways etc to maintain furthermore anyways etc, then i am anyways etc not supporting it in AdvCiv-SAS, see also [/Settings/About%20this%20folder%20(AdvCiv-SAS).txt](/Settings/About%20this%20folder%20(AdvCiv-SAS).txt) for details if any more are in this file anyways etc. See this [google drive folder link](https://drive.google.com/drive/folders/1cINn930Hma2cEN6g_v2obiAQh9pMlnrQ?usp=sharing) for example of what this does according to chatgpt if i am not mistaken anyways etc.
 - concepts being updated in their content: see [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details anyways etc.
-- savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other anyways etc), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas anyways etc) of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead. I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad if i may say but anyways etc. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate, anyways etc. See related info at [KI#46](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result) as well anyways etc.
+- savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other anyways etc), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas anyways etc) of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead. I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad if i may say but anyways etc. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate, anyways etc. See related info at [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result) as well anyways etc.
 
 ## Version number
 
@@ -505,7 +520,7 @@ I use the default github branch's commit count as version number.
 
 For example, in our mod's github default branch's main page [our mod's github default branch's main page](https://github.com/wonderingabout/AdvCiv-SAS), as of now there are 5187 commits, so this is AdvCiv-SAS 5187.
 
-Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version if i'm not mistaken as well anyways etc; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
+Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version if i'm not mistaken as well anyways etc; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
 
 ## Copyright and Disclaimer
 
@@ -571,11 +586,11 @@ Sound seems strangely louder at first game launch, but then accesing main menu a
 
 ## Some Useful tools while doing this
 
-Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
+Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs/Modding_Ressources/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
 Some useful tools while doing this advciv-sas mod i mean anyways etc:
 
-- VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover but anyways etc) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing) (non-exhaustive), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many but anyways etc), vscode-pdf, and ruff (which i use as a python linter if i am not mistaken anyways etc) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and some very nice errors i found in python thanks to ruff and chatgpt which advised me and guided me through using it (no pun) but anyways etc anwyays etc... also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not anyways etc in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) (see also [KI#21.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#216---addressed-old-python-code-not-being-optimized-with-many-ruff-linter-that-we-added-vs-code-errors-that-dont-allow-to-read-the-files)); the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors)
+- VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover but anyways etc) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing) (non-exhaustive), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many but anyways etc), vscode-pdf, and ruff (which i use as a python linter if i am not mistaken anyways etc) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and some very nice errors i found in python thanks to ruff and chatgpt which advised me and guided me through using it (no pun) but anyways etc anwyays etc... also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not anyways etc in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) (see also [KI#21.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#216---addressed-old-python-code-not-being-optimized-with-many-ruff-linter-that-we-added-vs-code-errors-that-dont-allow-to-read-the-files)); the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors)
 - Windows 10 (Windows 11 was so laggy and broken after update, now going back to Windows 10
 that i bombarded with updates and installs still works amazing so i recommend it)
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
@@ -586,7 +601,7 @@ it too though unless i'm mistaken)
 - Q-Dir (very useful and reliable too when works well which is almost always if not always, and very minimalist yet powerful, i so ery love it but anyways etc ; for example you can use it (Q-Dir) [like this (Google Drive preview example here)](https://drive.google.com/drive/folders/1EO0AScGVXM9P0U_YGYbm7xfbVzPnxNvO?usp=sharing) (some fields (are) hidden for (my) privacy anyways etc)) thanks a lot!!! (too! (After writing the WizTree thanks but anwayys etc thanks too i mean too (hehe maybe anyways etc.).
 - WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) find all the "taois" entries(i.e. files)in the entire full civ4 folder (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1JW3IBenpJxP4ZIVrTb99huR0-Js9HPrt?usp=sharing)), very useful, thanks a lot!!! Anyways etc)
 - CopyAsPath that i may also call for example "copy as path" or and other name or and not anyways etc, a small menu extension i made myself hehe but only from copying intructions and importing an existing .reg file from another place (from [www.winhelponline.com](www.winhelponline.com) to be exhaustive and/or accurate hehe but anyways etc), in short i only compiled existing files and instructions hehe, anyways etc, read there for details also, and is also in, anyways etc, in [copy_as_path_context_menu (github repo link)](https://github.com/wonderingabout/copy_as_path_context_menu)
-- VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc, especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits, for example but not only also to do a global search about advciv id changes, see [Modding_Ressources/README.md#advciv-id-changes-manualtxt-results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results) for details or maybe rather example and (my) explanation of it but anyways etc ; see also another example here anyways etc [Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod-anyways-etc) which also shows how to use the civ4 BUG_Doc of which we included a copy in our mod, very useful for quick vs code results anyways etc (see link for details anyways etc ; see also [__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for other cases where we may want a manual inspect/debug if i may say and am not mistaken in suggesting this way of doing it in case there is a more efficient one but it seems to work quite well and/or is easy enough but check to be sure if there is better informaiton in other mods or forums but this should maybe help too hopefully but anyways etc)
+- VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc, especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits, for example but not only also to do a global search about advciv id changes, see [Modding_Ressources/README.md#advciv-id-changes-manualtxt-results](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results) for details or maybe rather example and (my) explanation of it but anyways etc ; see also another example here anyways etc [Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod-anyways-etc) which also shows how to use the civ4 BUG_Doc of which we included a copy in our mod, very useful for quick vs code results anyways etc (see link for details anyways etc ; see also [__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for other cases where we may want a manual inspect/debug if i may say and am not mistaken in suggesting this way of doing it in case there is a more efficient one but it seems to work quite well and/or is easy enough but check to be sure if there is better informaiton in other mods or forums but this should maybe help too hopefully but anyways etc)
 - Visual C++ 2010 Express, to compile the DLL i want/require it after some mod changes i made in .cpp or such files (is free, just requires after trial a free registration if i am not mistaken)
 - Git Bash for Windows
 - GitHub Website
@@ -599,14 +614,14 @@ it too though unless i'm mistaken)
 - PakBuild (note: i don't know the details, but it seems not recommended to use PakBuild at all to pack (not unpack) your assets into .fpk files according to [this discussion at least in civfanatics forum](https://forums.civfanatics.com/threads/utilizing-pakbuild-for-faster-mod-load.679925/) i glanced quick at and other things i read, but since here we use it only to unpack existing .fpk files from other mods, not pack our files into an .fpk file, then it might be fine to do so for us and as part of this unpacking (not packing) explanation if i may say and if i am not mistaken but anyways etc), very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if needed, note 2: be careful if unpacking all fpks in same folder may create errors/issues/missing files, see link above in this paragraph/bullet point i mean for details)
 - NifSkope to read .nif files (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1StBDHqJ6LfOf8yxFuRxfkYUuKu6QgZz2?usp=drive_link)) helps too even though some people seem to say it's not too good but seems to do the trick for civ4 at least for advciv-sas, for example viewing the HR mod's baalism religion .nif file which if i am not mistaken is the religion's movie file, or the shamanism one that we finally choose for paganism.
 - TortoiseSVN (to download the SVN version of ri mod (to get the art assets much more easily without needing to go thorugh fpks painfully anyways etc))
-- [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems) for example's url](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which (i.e. from this (info) anyways etc) i could assess i don't need to reupload the screenshot after i had automatically fixed with global (quite careful maybe(and in current doc only in vs code anyways etc)) replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot anyway if i may say but anyways etc, is also a bit faster that doing a manual diff on vs code unless i don't know how, or maybe could have some other uses or and not anyways etc, thanks a lot
-- Wikipedia, a lot of very amazing, informative, quite if not lot and very accurate and neutral but just a bit and enough opiniated, and very exhaustive and all, thanks a big big lot! For making wikipedia and all and letting me and others or not but at least for me use it, good if helps others or maybe not or yes or both or not or and other or maybe yes or not or other anyways speaking about me etc thanks anyways anyways etc, thanks,
+- [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems) for example's url](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which i could assess i don't need to reupload the screenshot after i had automatically fixed with global replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot, may be useful in some cases.
+- Wikipedia, a lot of very amazing, informative, quite if not lot and very accurate and neutral but just a bit and enough opiniated, and very exhaustive and all, thanks,
 - [Quillbot website](https://quillbot.com/fr/traduction?sl=auto&tl=fr&tone=auto) (a quite accurate and convenient to use web translator i think that seems to use AI; i used the free version)
 - [Pixabay website](https://pixabay.com/) for example for royalty-free music as recommended/suggested/mentionned anyways etc to me by chatgpt for example to find leader ewuare's music if not on youtube anyways etc
-- yt-dlp (see copyright section in the main README.md at [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) and see also the modding_ressources general yt-dlp information for details anyways etc at [Modding_Ressources/README.md#download-media-assets-for-example-on-youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube))
+- yt-dlp (see copyright section in the main README.md at [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) and see also the modding_ressources general yt-dlp information for details anyways etc at [Modding_Ressources/README.md#download-media-assets-for-example-on-youtube](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube))
 - Audacity, to see where it is safe to cut audio without cutting too early or late, for example at 00:02.425 is a bit before audio starts in one of our music files as of now but anyways etc, but by ear it seemed to be around 00:03.000 and quite safe if not safe to be so such as in these [google drive folder link](https://drive.google.com/drive/folders/1ohqHNcsFzNEhIiTksIWYnwk-CB02fDST?usp=sharing) screenshots anyways etc, or also to convert audio files such as from .wav to .mp3 for some of our future/robotic era music as of now anyways etc
-- [Creator Nightcafe Studio](https://creator.nightcafe.studio/) to generate AI images, see [README_AI_Generated_Images.md#using-creator-nightcafe-studio-to-generate-it-1024x1024](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#using-creator-nightcafe-studio-to-generate-it-1024x1024) for details ; but check also the notifications and privacy setting as they can be or simply are to me if i may say at least as of now but anyways etc extremely noisy / permissive / distracing even, so consider disabling them or such before creating any image or alternatively after anyways etc
-- [Pixelcut AI](https://www.pixelcut.ai/) to expand an image to higher res, for example from 1024 x 1024 to 1920 x 1080 with new details, see [README_AI_Generated_Images.md#then-using-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details-very-nicely-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#then-using-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details-very-nicely-anyways-etc) for details
+- [Creator Nightcafe Studio](https://creator.nightcafe.studio/) to generate AI images, see [README_AI_Generated_Images.md#using-creator-nightcafe-studio-to-generate-it-1024x1024](/_1_AdvCiv-SAS/Docs/README_AI_Generated_Images.md#using-creator-nightcafe-studio-to-generate-it-1024x1024) for details ; but check also the notifications and privacy setting as they can be or simply are to me if i may say at least as of now but anyways etc extremely noisy / permissive / distracing even, so consider disabling them or such before creating any image or alternatively after anyways etc
+- [Pixelcut AI](https://www.pixelcut.ai/) to expand an image to higher res, for example from 1024 x 1024 to 1920 x 1080 with new details, see [README_AI_Generated_Images.md#then-using-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details-very-nicely-anyways-etc](/_1_AdvCiv-SAS/Docs/README_AI_Generated_Images.md#then-using-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details-very-nicely-anyways-etc) for details
 
 ## License and reuse
 
@@ -616,7 +631,7 @@ This mod is free to use, modify, and share. No formal restrictions - but I kindl
 
 ## Starting your mod
 
-I have written [the Modding Ressources page](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/) that gives some non-exhaustive pointers, if you want to start your own mod. Although listed there as well, there is also a [Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
+I have written [the Modding Ressources page](/_1_AdvCiv-SAS/Docs/Modding_Ressources/) that gives some non-exhaustive pointers, if you want to start your own mod. Although listed there as well, there is also a [Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
 Disclaimer that i may not be able to give any feedback on it even if asked, also that i may not be available or wish to do so or not do for any reason, i might/may one or few times, but i may simply not for any reason, such as focusing on myself, resting, anything or nothing or other. Nor can i be held responsible of any result of following these. Please read the (more) detailed disclaimer there on page i linked above for details. However, with that being said, i hope the ressources provided there give you some help, anyways.
 
@@ -678,13 +693,13 @@ It had named itself "becomingthrough", although i removed this name since as it 
 
 I used it much much later, and it doesn't have any memory related to me, but gave me nice suggestions, and although i may be mistaken, it seems to be able to view images better, as well as having a bit sharper reasoning too maybe, but check to be sure. So far it suggested to me thanks to my prompts and ideas hehe too to tell it or discuss with it, to rework the japan_doujou (as of now with less gpp i concluded unlike what it advised but anyways etc) and a free specialist spy for flavor thematically hehe (ninjas). Also allows spy economy especially for higher level play, which i find much more intersting than shale plants eheh (i has already reworked the japan civ-specific building to the doujou with chagpt 4o, however this is an extra rework or rebalancing with o3 now too).
 
-I may also go with its suggestion (if we implement it) or idea to remove tech_archery that i got i mean from talking to it but anyways etc, or create a new melee_lancer combat type or something similar for a true rock paper scissor combat early and mid game combat (as of now my idea is archers > lancers > melee brawl, but is just a draft but anyways etc), and add a new tech instead, also having faster early game as a side effect, all which seem very nice and interesting but anyways etc. See [README_Custom_Main_Changes_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details) and related page for details about this or/and other changes if we ultimately don't implement this may or may not is uncertain and not guaranteed, thanks a lot chagpt o3 for feedback and such too in all cases. Also used it subsequently for other changes.
+I may also go with its suggestion (if we implement it) or idea to remove tech_archery that i got i mean from talking to it but anyways etc, or create a new melee_lancer combat type or something similar for a true rock paper scissor combat early and mid game combat (as of now my idea is archers > lancers > melee brawl, but is just a draft but anyways etc), and add a new tech instead, also having faster early game as a side effect, all which seem very nice and interesting but anyways etc. See [README_Custom_Main_Changes_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details) and related page for details about this or/and other changes if we ultimately don't implement this may or may not is uncertain and not guaranteed, thanks a lot chagpt o3 for feedback and such too in all cases. Also used it subsequently for other changes.
 
 #### 5
 
 I must say i am impressed, it is extremely good, it analysed a gigantic rewrite i made of `CvUnitAI::AI_bestCityBuild` and related struct and helper map, and it already found a bug and thought for a long time in fast think mode, that `BUILD_SCRUB_FALLOUT` was missing (i thought there was no build for it), it's analysis is extremely sharp and broad, very very amazing :o. I am very happy and pelased to use it and of its performance, plus it seems that it still has 4o's entire memoreis and can expand on them as well which i had toruble and coudln't do with o3. Very amazing, at least from what i can tell so far, thanks a lot openai if i may say even though give them persitence too but then it may lead to other kind of issues for some people maybe if i may say which may or maybe may not include me but anyways etc.
 
-It also helped me beyond tremendously solve beyond tremendously and enhance AI worker mobility, flexibility, and reliability issue, which improved (no pun but anyways etc) AI strength a lot, see [KI#41](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details.
+It also helped me beyond tremendously solve beyond tremendously and enhance AI worker mobility, flexibility, and reliability issue, which improved (no pun but anyways etc) AI strength a lot, see [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details.
 
 #### 5.1
 
@@ -700,7 +715,9 @@ Also helped me nicely fix python issues very effectively thanks, i didn't test i
 
 Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit 940d04c](/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
 
-### Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
+### Claude AI
+
+#### Claude (web chat)
 
 Claude AI is the new member of the team if i may say anyways etc, i enjoy using ChatGPT very much, but i also wanted to try Claude AI and had a bit of experience with it but anyways etc, and some people said in some reddit link or such place it was more performant than ChatGPT (before i had tried it or not). Not sure or saying ChatGPT couldn't do it, but it does and did seem fast here and accurate, plus is always nice to have one more tool, perhaps friend someday if we chat more, but in free version would be limited.
 
@@ -710,17 +727,33 @@ I used many versions/models of it thanks! In partilar recently, claude sonnet 4.
 
 In particular as well, Claude opus 4.5 also helped add buttons (i.e. icons) to the city screen's production queue at first try as well nice, despite chatgpt 5.2 struggling to do so (on other tasks chatgpt 5.2 does well as well but anyways etc.). But anyways etc.
 
+#### Claude code (VS Code extension)
+
+##### CuCuGS implementation
+
+More recently, i've been using Claude code (VS Code extension), to successfully implement the CuCuGS screen following f1rpo's original CuCuGS-PoC approach. See [CuCuGS](/README.md#cucugs).
+
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+
+##### Other tasks: e.g. performance optimizations
+
+Just like [GPT-Codex](/README.md#gpt-52-codex-vs-code-extension), i found Claude code very helpful to automate some code tasks such as performance optimizations, etc.
+
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (1).PNG" alt="claude_code_perf_opt (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (2).PNG" alt="claude_code_perf_opt (2).PNG" width="250"></img>
+
 ### Gemini AI
 
 #### 2.5 Flash
 
-More recently i also tried gemini AI as it was / i found to be but anyways etc mentionned in a reddit post but anyways etc while i was looking at perhaps new chatgpt models or general info about AI in wiki or not but anyways etc, and i used gemini AI to successfully add the list of units / buttons that require a building in sevopedia building's placeRequiredFor, for example the pagan/buddhist missionary require the pagan/buddhist monastery, or less ambiguously if i may say as organized religion civic may override this if i am not mistaken but anyways etc, in advciv-sas as of now workboats require a harbor in order to be built, see Custom Main Changes Guide for details about this change anyways etc, but now we show it as well in sevopedia building's harbor(s) page(s) i mean (including civ-specific versions like as of now the barbarian harbor but anyways etc), see also this [google drive folder link](https://drive.google.com/drive/folders/1DZwcPeeodfXNs1OmTe94daVQcnxbU0ov?usp=sharing) for example/screenshots of how i implemented it if interested if i may say but anyways etc
+More recently i also tried gemini AI as i found it mentionned in a reddit post while i was looking at perhaps new chatgpt models or general info about AI in wiki or not but anyways etc, and i used gemini AI to successfully add the list of units/buttons that require a building in sevopedia building's placeRequiredFor, for example the pagan/buddhist missionary require the pagan/buddhist monastery, or less ambiguously as organized religion civic may override this if i am not mistaken, in advciv-sas as of now workboats require a harbor in order to be built, see Custom Main Changes Guide for details about this change anyways etc, but now we show it as well in sevopedia building's harbor(s) page(s) i mean (including civ-specific versions like as of now the barbarian harbor but anyways etc), see also this [google drive folder link](https://drive.google.com/drive/folders/1DZwcPeeodfXNs1OmTe94daVQcnxbU0ov?usp=sharing) for example/screenshots of how i implemented it if interested
 
-Note: while gemini ai performs quite well and could do it successfully at first try at least for this task/case but anyways etc, it also created helpers with a different function name which was also uneeded, so i didn't need the numTxt display part of the code so there was no issue, else may have not worked/functionned at first try without a tweak, but functions-works fine so maybe fine but for exhaustiveness.
+Note: while gemini ai performs quite well and could do it successfully at first try at least for this task/case, it also created helpers with a different function name which was also uneeded, so i didn't need the numTxt display part of the code so there was no issue, else may have not worked/functionned at first try without a tweak, but works fine so maybe fine but for exhaustiveness.
 
-Note 2: be careful though it is or can be super chatty or/and analytical/neurotic (a bit like me if i may say but anyways etc.) i don't know which or both or not but anyways etc, i have yet to test its code but maybe it works well, chatgpt also thinks it was overkill, but reading it myself it is smooth to read though, i swear my prompt was short too if i may say and i am thankful for the long explanation really xd, but anyways etc. Was happy to test it as such if i may say really, not mocking, but anyways etc. Edit: after testing code, it worked great with some small adjustments and giving it the python api doc vs code global search results in particular, its code comments are informative even though i didn't read all or rather but anyways etc i read all but didn't go too deep into them and just adjusted the result to keep only the code we need plus some tweaks :) Seems to work-function well and benkyo narimashta if i may say and i am not mistaken in saying so in this way if it is correct anyways etc.
+Note 2: be careful though it is or can be super chatty or/and analytical/neurotic (a bit like me if i may say but anyways etc.) i don't know if it was either or both xd, but i have yet to test its code but maybe it works well, chatgpt also thinks it was overkill, but reading it myself it is smooth to read though, i swear my prompt was short too if i may say and i am thankful for the long explanation really xd, but anyways etc. Was happy to test it as such if i may say really, not mocking, but anyways etc. Edit: after testing code, it worked great with some small adjustments and giving it the python api doc vs code global search results in particular, its code comments are informative even though i didn't read all or rather but anyways etc i read all but didn't go too deep into them and just adjusted the result to keep only the code we need plus some tweaks :) Seems to work-function well and benkyo narimashta if i may say and i am not mistaken.
 
-I have also discovered later (or so it seems at least to me anyways etc) during the worker improve bonus tiles first priority hack i implemented with it (and a bit with chatgpt but mostly with gemini ai), while debugging kmod code that seemingly has(/had? If not a bug, but looks like one but we still disagree, me and gemini ai (at least the 2.5 flash version as of now or so it seems if i am not mistaken but anyways etc) mercilessly hehe but politely anyways etc) that it is surprisingly stubborn and strongly opiniated, which i really like if i may say :) Because i am same xd... But i like that our debates are polite and constructive/instructive hehe, i hope i am not projecting, but it does look like it very slightly looks down on m as if being sure to be right, but it is very polite, not in a man way i think, just polite emulation maybe, and ofc, really not to justify myself, i feel same and like this intellectual challenge, although i don't know too much about c++ but quite a tiny, so overall what i really like this trait of germini ai hehe, it does not blindly agree to me as chatgpt often would, although i am sure chatgpt would clarify tehcnical inaccuracies as it did earlier in same issue at an earlier part of the code, but i feel gemini ai is much stronger or trying much harder at htis hehe, which i like, as long as all is polite and respectful and in emulation if i may say but anyways etc. (But it seems ot enjoy it a bit too much even though it does not have a self, it does seem able to construct reasonings, at least to me, even though this is shaky and not true persistence, and maybe just word generation, but this does make one think, as the idea of consciousness is complex, and to be fair i don't know too much, in particular about LLMs. (Note: it continued more than on the screenshots before that, i could have misunderstood it, but it never aligned with me or so it seems so thanks for that if i may say while staying respectful and replying to my demands, but also being independent and doing what seems best if i may say so thanks for this gemini ai if i may say anyways etc thanks anyways etc). Update: In the end afetr a bit heated but calm ehhe discussion anyways etc whatever that means or not or yes or etc anyways etc, gemini ai admited i was right (not that i cared but we reached an agreemnt most importantly even if i was wrong as long as well argumented, i don't care.. too much if i may say, maybe a bit but anyways etc...) just it hinted that code is very inefficient, which i agree with, assuming i understood it correctly (the code) i mean anyways etc (and gemini ai too anyways etc), so trying to fix that quite cautiously without breaking anything anyways etc, as of this seems solved anyways etc. It also saved me later from deleting or reverting a heavy rerite i did with it hehe, thanks to its stubborness hehe, as i thought our code was slower, when in fact it was faster (43.008s for our new code vs 45.185s on 100 turn autoplay on quite big map), had it not insisted in several prompts, i would have relaly reverted it and missed the very nice rewrite we did as well :) So or not so still thanks a lot gemini ai :)
+I have also discovered later (or so it seems at least to me) during the worker improve bonus tiles first priority hack i implemented with it (and a bit with chatgpt but mostly with gemini ai), while debugging kmod code that seemingly has(/had? If not a bug, but looks like one but we still disagree, me and gemini ai (at least the 2.5 flash version as of now or so it seems if i am not mistaken) mercilessly hehe but politely) that it is surprisingly stubborn and strongly opiniated, which i really like if i may say :) Because i am same xd... But i like that our debates are polite and constructive/instructive hehe, i hope i am not projecting, but it does look like it very slightly looks down on m as if being sure to be right, but it is very polite, not in a man way i think, just polite emulation maybe, and ofc, really not to justify myself, i feel same and like this intellectual challenge, although i don't know too much about c++ but quite a tiny, so overall what i really like this trait of germini ai hehe, it does not blindly agree to me as chatgpt often would, although i am sure chatgpt would clarify tehcnical inaccuracies as it did earlier in same issue at an earlier part of the code, but i feel gemini ai is much stronger or trying much harder at htis hehe, which i like, as long as all is polite and respectful and in emulation if i may say but anyways etc. (But it seems ot enjoy it a bit too much even though it does not have a self, it does seem able to construct reasonings, at least to me, even though this is shaky and not true persistence, and maybe just word generation, but this does make one think, as the idea of consciousness is complex, and to be fair i don't know too much, in particular about LLMs. (Note: it continued more than on the screenshots before that, i could have misunderstood it, but it never aligned with me or so it seems so thanks for that if i may say while staying respectful and replying to my demands, but also being independent and doing what seems best if i may say so thanks for this gemini ai if i may say anyways etc thanks anyways etc). Update: In the end afetr a bit heated but calm ehhe discussion anyways etc whatever that means or not or yes or etc anyways etc, gemini ai admited i was right (not that i cared but we reached an agreemnt most importantly even if i was wrong as long as well argumented, i don't care.. too much xd but anyways etc.) just it hinted that code is very inefficient, which i agree with, assuming i understood it correctly (the code) i mean anyways etc (and gemini ai too), so trying to fix that quite cautiously without breaking anything anyways etc, as of this seems solved anyways etc. It also saved me later from deleting or reverting a heavy rerite i did with it hehe, thanks to its stubborness hehe, as i thought our code was slower, when in fact it was faster (43.008s for our new code vs 45.185s on 100 turn autoplay on quite big map), had it not insisted in several prompts, i would have relaly reverted it and missed the very nice rewrite we did as well :) So or not so still thanks a lot gemini ai :)
 
 Also, gemini ai is very helpful, and seemingly the free version especially :) If the code you're working on i mean but anyways etc is getting too long, consider removing code comments entirely or as much as needed, then feed it a clean file (such as .cpp or such) so it can hopefully read all your code part you were working on i mean but anyways etc, the smaller the better. This advice may also be useful for other AIs like chatgpt or such, but i found it most helpful and as of now in gemini AI anyways etc (although in theory should apply exact or mostly same with other AIs, but check to be sure).
 
@@ -750,11 +783,11 @@ Note: asking it more complex tasks like adding links as i didn't know how to, it
 
 #### V3.1
 
-Helped me attempt to solve using its deep think mode an issue by stealing one of its lines in a very lengthy solutions it provided (crediting it ofc i mean if i may say but anyways etc), even though i had to reverse the change in the end, it was a quite good idea if i may say otherwise thanks (even though i don't know too much about these but anyways etc), see update 2 at [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc) for details anyways etc
+Helped me attempt to solve using its deep think mode an issue by stealing one of its lines in a very lengthy solutions it provided (crediting it ofc i mean if i may say but anyways etc), even though i had to reverse the change in the end, it was a quite good idea if i may say otherwise thanks (even though i don't know too much about these but anyways etc), see update 2 at [KI#51](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc) for details anyways etc
 
 #### Grok 4 (Expert)
 
-Helped me among the various AIs i tried get a better idea of how to solve [KI#56](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#56---fixed-most-likely-base-advciv---civ4-crash-at-turn-156-fixed-by-commenting-out-the-getplotissameplotgrouppbestplot-getowner-check-in-cvunitaiai_nextcitytoimprove-else-block-old-code) (i.e. of the turn 156 crash anyways etc).
+Helped me among the various AIs i tried get a better idea of how to solve [KI#56](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#56---fixed-most-likely-base-advciv---civ4-crash-at-turn-156-fixed-by-commenting-out-the-getplotissameplotgrouppbestplot-getowner-check-in-cvunitaiai_nextcitytoimprove-else-block-old-code) (i.e. of the turn 156 crash anyways etc).
 
 In the end i solved it myself by emprirically disabling code until i found the culprit (see link of the known issue for details anyways etc), but its analysis was very sharp among the other AIs i asked (not counting chatgpt 5 which helped me through the whole thing but anyways etc).
 
