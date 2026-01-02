@@ -439,22 +439,22 @@ class CvMainInterface:
 		self.iFoVPos_Prev = -1 # advc.090
 # BUG - field of view slider - end
 
-		# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks but anyways etc. -->
-		# <!-- custom: enlarge beyond the current inner edge of the bottom panels so we can display the bonus panels entirely (currently with even column display there is some text overlapping onto another which is not ideal anyways etc. Ideally would increase said panel's width as well, but not sure how easy it is, starting from first place needing the change anyways etc.)
+				# <!-- custom: use more side space for side panels rather than city plots we do not need to show beyond BFC. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: extend past the current inner edge of the bottom panels so the bonus panels fit; even columns were overlapping text. Ideally also widen that panel, but start here. (GPT-5.2-Codex (summarized)) -->
 		# self.SIDE_PANELS_WIDTH = 297
 		self.SIDE_PANELS_WIDTH = 341
 
-		# <!-- custom: fetch the define once may be computaitonally cheaper (i think but not sure anyways etc.) -->
+		# <!-- custom: fetching the define once may be cheaper (not sure). (GPT-5.2-Codex (summarized)) -->
 		# <!-- custom: initialize cheaply once. -->
-		# <!-- custom: note: for some reason, unlike what we could do in other files, it seems setting this as a global variable and fetching from gc in the global scope there does not seem to work (regardless of our value in sas defines the extra rows of the city screen's production chooser bar are always disabled ingame), so doing it as such is maybe fine and cheaper than fetching gc at each call maybe (check if accurate as just a guess of mine but i guess so (but i don't know too much about these to tell precisely i mean if i may say but anyways etc.)) -->
+		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here; might also be cheaper than fetching gc each call (not sure). (GPT-5.2-Codex (summarized)) -->
 		self.iBarExtraRows = None
 		self.iBarExtraRowsExtraManualAdjust = None
-		# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
+		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
 		# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
 		# 1) Add a pinned-row member (once)
 		self.iCityBuildBarPinnedRow = None
-		# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 anyways etc. -->
+		# <!-- custom: add buttons in the city screen production queue elements. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
 		
 

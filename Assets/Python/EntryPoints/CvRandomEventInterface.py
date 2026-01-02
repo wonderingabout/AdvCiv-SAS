@@ -70,7 +70,7 @@ def canTriggerBlessedSea(argsList):
 
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 	if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEY')) == 0:
-		# <!-- custom: caravel removed, comment-out this line and unindent following block anyways etc -->
+		# <!-- custom: caravel removed; comment out this line and unindent the block. (GPT-5.2-Codex (summarized)) -->
 		#if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')) == 0:
 		#	if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEON')) == 0:
 		#		return false
@@ -1386,11 +1386,11 @@ def getHelpWiningMonks2(argsList):
 
 ######## INDEPENDENTFILMS ###########
 
-# <!-- custom: similarly remove old bonus_movies related canTriggerIndependentFilms entirely if i am not mistaken too anyways etc -->
+# <!-- custom: remove old bonus_movies canTriggerIndependentFilms code. (GPT-5.2-Codex (summarized)) -->
 
-# <!-- custom: similarly remove old bonus_movies related doIndependentFilms entirely if i am not mistaken too anyways etc -->
+# <!-- custom: remove old bonus_movies doIndependentFilms code. (GPT-5.2-Codex (summarized)) -->
 
-# <!-- custom: BONUS_MOVIES removed and replaced with BONUS_CAMEL, so removing old getHelpIndependentFilms movies related code entirely anyways etc -->
+# <!-- custom: BONUS_MOVIES replaced with BONUS_CAMEL; remove old movies help code. (GPT-5.2-Codex (summarized)) -->
 
 ######## ANCIENT OLYMPICS ###########
 
@@ -1526,7 +1526,7 @@ def canApplyEarthDay2(argsList):
 	
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 	
-	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC anyways etc -->
+	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC. (GPT-5.2-Codex (summarized)) -->
 	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
 	
 	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):			
@@ -1548,7 +1548,7 @@ def applyEarthDay2(argsList):
 	kTriggeredData = argsList[1]
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 	
-	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC anyways etc -->
+	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC. (GPT-5.2-Codex (summarized)) -->
 	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
 	iCivicOption = CvUtil.findInfoTypeNum(gc.getCivicOptionInfo,gc.getNumCivicOptionInfos(),'CIVICOPTION_ECONOMY')
 	
@@ -2089,7 +2089,7 @@ def applyThePhilistines1(argsList):
 ######## THE_VEDIC_ARYANS ###########
 
 def canTriggerTheVedicAryans(argsList):
-	# <-- custom: TECH_PRIESTHOOD removed, replaced this entry with TECH_POLYTHEISM anyways etc, also TECH_ARCHERY is now removed as well but anyways etc so replaced with TECH_MASONRY, hopefully walls help defend against that as well maybe if i may say but anyways etc -->
+	# <-- custom: TECH_PRIESTHOOD removed -> TECH_POLYTHEISM; TECH_ARCHERY removed -> TECH_MASONRY (walls help defend). (GPT-5.2-Codex (summarized)) -->
 	# advc.311: Moved into new function; replace Polytheism with Priesthood (from BUFFY 3.19.003).
 	return canTriggerUprising(argsList[0].ePlayer, 'TECH_POLYTHEISM', 'TECH_MASONRY', 'UNITCLASS_ARCHER')
 
@@ -2151,7 +2151,7 @@ def canTriggerTea(argsList):
 	kTriggeredData = argsList[0]
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 	
-	# <!-- custom: replace the old CIVIC_MERCANTILISM with CIVIC_PROTECTIONISM anyways etc -->
+	# <!-- custom: replace the old CIVIC_MERCANTILISM with CIVIC_PROTECTIONISM. (GPT-5.2-Codex (summarized)) -->
 	if player.isCivic(CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_PROTECTIONISM')):
 		return false
 
@@ -2231,7 +2231,7 @@ def getHelpHarbormaster1(argsList):
 	kTriggeredData = argsList[1]
 		
 	iHarborsRequired = worldSizeTarget()
-	# <!-- custom: caravel removed, put a dummy value instead just so the code works-functions hopefully not too bad this way but anyways etc... -->
+	# <!-- custom: caravel removed; use a dummy value so the code still runs. (GPT-5.2-Codex (summarized)) -->
 	#iCaravelsRequired = iHarborsRequired / 2 + 1
 	iCaravelsRequired = 0
 
@@ -2273,7 +2273,7 @@ def canTriggerHarbormasterDone(argsList):
 	if iHarborsRequired > player.getBuildingClassCount(iHarbor):
 		return false
 
-	# <!-- custom: caravel removed, comment-out this block anyways etc -->
+	# <!-- custom: caravel removed; comment out this block. (GPT-5.2-Codex (summarized)) -->
 	#iCaravel = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')
 	#iCaravelsRequired = iHarborsRequired / 2 + 1
 	#if iCaravelsRequired > player.getUnitClassCount(iCaravel):
@@ -3337,7 +3337,7 @@ def canTriggerNobleKnightsDone(argsList):
 	iUnitHorseClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_HORSE_KNIGHT')
 	iUnitCamelClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CAMEL_KNIGHT')
 
-	# <!-- custom: add camel knight units to this event anyways etc -->
+	# <!-- custom: include camel knight units in this event. (GPT-5.2-Codex (summarized)) -->
 	#if player.getUnitClassCount(iUnitHorseClassType) < iNumUnits:
 	if (player.getUnitClassCount(iUnitHorseClassType) < iNumUnits) and (player.getUnitClassCount(iUnitCamelClassType) < iNumUnits):
 		return false

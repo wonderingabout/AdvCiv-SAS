@@ -814,7 +814,7 @@ def onSwitchHotSeatPlayer(argsList):
 def isNoEspionage():
 	# Returns True if using at least 3.17 and the 'No Espionage' option is enabled.
 	#
-	# Depre<!-- custom: c anyways etc... -->ated: Use GameUtil.isEspionage() instead.
+	# Deprecated: Use GameUtil.isEspionage() instead. (GPT-5.2-Codex (summarized)) -->
 	#
 	try:
 		return gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE)

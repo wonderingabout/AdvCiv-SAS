@@ -134,7 +134,7 @@ def getAttitudeIcon (nPlayer, nTarget):
 def getAttitudeCount (nPlayer, nTarget):
 	# Returns the total attitude modifiers nPlayer has toward nTarget.
 	sAttStr = getAttitudeString(nPlayer, nTarget)
-	# <!-- custom: use "is" not "==" when checking none as per ruff rule and chatgpt's answer and my idea too anyways etc -->
+	# <!-- custom: use "is" not "==" when checking None (ruff). Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 	if sAttStr is None:
 		#return
 		return 0 # advc.001 (from Inthegrave's mod, fixed by Toffer)

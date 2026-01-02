@@ -79,7 +79,7 @@ import shutil
 
 DATA_FOLDER = "Data"
 SETTINGS_FOLDER = "Settings"
-# <!-- custom: not sure this refers to same folder where i moved the info to, but renamed BUG Doc to BUG_Doc for easy linking as nicely recommended by chatgpt 5.1 thanks and also for consistency anyways etc. -->
+# <!-- custom: renamed BUG Doc to BUG_Doc for consistent naming/easy linking; verify it matches the folder. Credit: ChatGPT 5.1. (GPT-5.2-Codex (summarized)) -->
 INFO_FOLDER = "BUG_Doc" # advc.009: was "Info", but it's only about BUG
 
 MODS_FOLDER = "Mods"

@@ -30,7 +30,7 @@ class SevoPediaUnitChart:
 		self.MARGIN = 20
 		self.N_COLUMNS = 0
 		self.W_NAME = 270
-		# <!-- custom: 129 is enough but just in case some numerical chars are longer, add a bit extra margin if i may say (i don't know if accurate, may or may not be so, but if it is, this avoids the display from being truncated due to too short row width although maybe a bit less pretty even if a tiny bit as a result if i may due to display being larger in this case if i may say but anyways etc) -->
+		# <!-- custom: 129 is enough, but add a bit more margin to avoid truncation if digits are wider. (GPT-5.2-Codex (summarized)) -->
 		self.W_NUM = 130
 		
 		self.W_TABLE = ((self.N_COLUMNS - 2 - 1) * self.W_NUM) + (2 * self.MARGIN)
@@ -47,7 +47,7 @@ class SevoPediaUnitChart:
 	# <!-- custom: i did not know about this ChatGPT told me about this or made me understand it and solve it, so adding this explanation in case it helps others or/and me:
 	# in python, here for placeUnitTable function, when we call it using self.placeUnitTable(), self is passed automatically as an argument so no need to write it (else there would be 2 arguments) at function.
 	# However, in function definition, self is not known, so it needs to be defined as a parameter. This is why there is an apparent mismatch in the number of parameters vs arguments in placeUnitTable(self) vs self.placeUnitTable(), but this is how it should be done else it does not work.
-	# Thanks to ChatGPT for pointing me quite strongly to the right direction until i could solve it myself after tries and such and understand ChatGPT's explanation too now, and thanks to me for doing it too, anyways, adding this here in case it helps me or/and others. -->
+	# Thanks to ChatGPT for the guidance; adding this in case it helps others. (GPT-5.2-Codex (summarized)) -->
 	def placeUnitTable(self):
 		screen = self.top.getScreen()
 		table = self.top.getNextWidgetName()
@@ -199,7 +199,7 @@ class SevoPediaUnitChart:
 		# First Strikes
 		if UnitInfo.getFirstStrikes() > 0:
 			szFirstStrikesNum = u"%d" % UnitInfo.getFirstStrikes()
-		# <!-- custom: keeping this beautification as it is a lot more useful/readable than having tons of 0s, anyways -->
+		# <!-- custom: keep this beautification; it's more readable than many 0s. (GPT-5.2-Codex (summarized)) -->
 		else:
 			szFirstStrikesNum = u""
 

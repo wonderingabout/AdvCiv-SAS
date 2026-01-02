@@ -508,7 +508,7 @@ class Scoreboard:
 			if k == '-':
 				spacing = 0
 				continue
-			# <!-- custom: no need to import string just to have the string of numbers, as explained to me by chatgpt, use a string directly instead anyways etc, was as below anyways etc -->
+			# <!-- custom: avoid importing string just for digits; use a literal instead (was string.digits). Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 			#if k[0] in string.digits or k[0] == '-':
 			if k[0] in "0123456789" or k[0] == '-':
 				spacing = int(k)

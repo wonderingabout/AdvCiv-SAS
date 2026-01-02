@@ -25,7 +25,7 @@ class BugUnitNameOptionsTab(BugOptionsTab.BugOptionsTab):
 		#self.addCheckbox(screen, center, "MiscHover__UpdateUnitNameOnUpgrade")
 		self.addCheckbox(screen, right, "UnitNaming__UseAdvanced")
 
-		# <!-- custom: add new unit combat types or/and modify existing ones anyways etc -->
+		# <!-- custom: add or modify unit combat types. (GPT-5.2-Codex (summarized)) -->
 		columnL, columnR = self.addTwoColumnLayout(screen, column, "UnitNaming")
 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Default")
 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_AIR_BOMBER")

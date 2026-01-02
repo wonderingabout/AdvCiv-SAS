@@ -1,6 +1,6 @@
 #CvModName.py
 
-# <!-- custom: change mod name displayed ingame from "AdvCiv Mod" to as of now "AdvCiv-SAS Mod", so that it now also appears as such in the "Settings" ingame menu (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc) -->
+# <!-- custom: change the in-game mod name from "AdvCiv Mod" to "AdvCiv-SAS Mod" so it shows up in the Settings panel too. (GPT-5.2-Codex (summarized)) -->
 modName = "AdvCiv-SAS" # advc.009
 displayName = "AdvCiv-SAS" #advc.009
 modVersion = ""

@@ -10,7 +10,8 @@ import BugCore
 import BugUtil
 import CvModName
 import TradeUtil
-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+# <!-- custom: remove/comment unused or duplicated imports. (GPT-5.2-Codex (summarized)) -->
+#import string
 import BugFile
 
 gc = CyGlobalContext()

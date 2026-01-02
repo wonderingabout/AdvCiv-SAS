@@ -237,7 +237,7 @@ class CvTechSplashScreen:
 		for j in range(CyGlobalContext().getNumTechInfos()):
 			for k in range(CyGlobalContext().getDefineINT("NUM_OR_TECH_PREREQS")):
 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqOrTechs(k)
-				# <!-- custom: weird extra indentation, plus inconsistent use of tabs and spaces pylance or/and ruff errors/warnings in several places in this file as well, fixing these anyways etc -->
+				# <!-- custom: fix weird indentation and tabs/spaces issues that trigger Pylance/Ruff warnings. (GPT-5.2-Codex (summarized)) -->
 				if (iPrereq == self.iTech):
 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
 			for k in range(CyGlobalContext().getDefineINT("NUM_AND_TECH_PREREQS")):

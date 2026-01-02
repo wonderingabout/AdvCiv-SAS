@@ -195,7 +195,7 @@ class CvPediaBonus:
 		
 		# original code
 		#szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
-		# <!-- custom: note, if you want to uncomment this code that was commented out before this current comment anyways etc, use native code no need to use string module just to split a string similarly as in other parts of the code where i made the change as per chatgpt's advice. -->
+		# <!-- custom: if you uncomment this code, use native code (no string module) as in other parts; per ChatGPT. (GPT-5.2-Codex (summarized)) -->
 		#splitText = string.split( szSpecialText, "\n" )
 		#for special in splitText:
 		#	if len( special ) != 0:

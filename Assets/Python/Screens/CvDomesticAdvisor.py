@@ -34,13 +34,13 @@ class CvDomesticAdvisor:
 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 
-		# <!-- custom: further beautify: expand to all width (remove the - 30) with the help of gemini 3 pro thanks anyways etc. -->
-		# <!-- custom: update: for some reason there are still empty edges even at full resolution, on the left and right sides, which is distracting, so expand it a bit beyond that anyways etc. -->
+		# <!-- custom: further beautify: expand to all width (remove the - 30). Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: update: empty left/right edges remain at full resolution and are distracting, so expand a bit beyond. (GPT-5.2-Codex (summarized)) -->
 		# self.iExtraWidth = 0
 		self.iExtraWidth = 4
 		self.nScreenWidth = screen.getXResolution() + (2 * self.iExtraWidth)
 		# advc.120c: Was -250. Need a little more space for the HUD.
-		# <!-- custom: further beautify: after our changes, reduce height a bit so we can see more of the selected unit row(s) and of the HUD (should be fine i think but anyways etc. as we don't have that many cities that it would critically change things if i'm not mistaken in my thinking but anyways etc.) (was - 255) with the help of gemini 3 pro thanks anyways etc. -->
+		# <!-- custom: further beautify: reduce height so more selected unit rows/HUD show (was - 255). Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		self.nScreenHeight = screen.getYResolution() - 305
 		self.nTableWidth = self.nScreenWidth - 35
 		self.nTableHeight = self.nScreenHeight - 85
@@ -64,9 +64,9 @@ class CvDomesticAdvisor:
 
 		screen.setRenderInterfaceOnly(True)
 		# advc.120c: y position changed from 100 to 85 so that the unit icons aren't obscured. The espionage slider isn't normally visible anyway.
-		# <!-- custom: further beautify: expand to all width (and so remove the extra X starting position anyways etc.), and also move the screen lower so we can see the espionage slider as well (before that change only the first 2 sliders were visible) with the help of gemini 3 pro thanks anyways etc. -->
+		# <!-- custom: further beautify: expand to full width by removing the extra X starting position; also move the screen lower so the espionage slider shows. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		# screen.setDimensions(15, 85, self.nScreenWidth, self.nScreenHeight)
-		# <!-- custom: update: for some reason there are still empty edges even at full resolution, on the left and right sides, which is distracting, so expand it a bit beyond that anyways etc. -->
+		# <!-- custom: update: empty left/right edges remain and are distracting, so expand a bit beyond. (GPT-5.2-Codex (summarized)) -->
 		screen.setDimensions(-self.iExtraWidth, 105, self.nScreenWidth, self.nScreenHeight)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 	
@@ -326,7 +326,7 @@ class CvDomesticAdvisor:
 		if iProductionTurns > 0: # advc.004x
 			szProducing += " (" + str(iProductionTurns) + ")"
 
-		# <!-- custom: also show the button of the current thing we are building. Done with the help of gemini 3 pro thanks anyways etc. -->
+		# <!-- custom: also show the button of the current thing we are building. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		# add the button (icon) to the "Producing" column.
 		# Get the button art for the current item
 		szButton = ""

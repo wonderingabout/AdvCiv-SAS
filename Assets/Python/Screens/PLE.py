@@ -7,7 +7,7 @@ import CvEventInterface
 from AStarTools import *
 import MonkeyTools as mt
 import UnitUtil
-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+# <!-- custom: remove/comment unused or duplicated imports. (GPT-5.2-Codex (summarized)) -->
 #import string
 
 import PyHelpers 
@@ -1031,7 +1031,7 @@ class PLE:
 		# hides all promotion and upgrade button objects
 		for nCol in range(self.getMaxCol()+1):
 			for nRow in range(self.getMaxRow()+1):
-				# <!-- custom: note replace string module with native code, as advised by chatgpt (as it said/explained by it anyways etc: "Yes, you can safely remove the string module again here — even in Python 2.4 — by replacing: string.zfill(str(nRow), 2) with: str(nRow).zfill(2) ✅ str.zfill(width) has been available since Python 2.2, so it's fully compatible with Python 2.4."), for example string.zfill(str(nRow), 2) is now str(nRow).zfill(2) then we don't need the python import anyways etc -->
+				# <!-- custom: replace string.zfill(...) with str(...).zfill(...); compatible with Python 2.4 (str.zfill since 2.2), so string import isn't needed. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 				# 
 				szStringUnitPromo = self.PLOT_LIST_PROMO_NAME + str(nRow).zfill(2) + str(nCol).zfill(2)
 				screen.hide( szStringUnitPromo )
@@ -1712,7 +1712,7 @@ class PLE:
 			else:
 				iP = nRow
 			iPromo = lPromos[i]
-			# <!-- custom: similarly here remove old string.zfill(str(iU), 2) in favour of str(iU).zfill(2) anyways etc -->
+			# <!-- custom: replace string.zfill(str(iU), 2) with str(iU).zfill(2). (GPT-5.2-Codex (summarized)) -->
 			sID = str(iU).zfill(2) + str(iP).zfill(2)
 			szStringUnitPromo = self.PLOT_LIST_PROMO_NAME + sID
 			szFileNamePromo = gc.getPromotionInfo(iPromo).getButton()
@@ -1762,7 +1762,7 @@ class PLE:
 				iP = nRow
 			iUnitIndex = lUpgrades[i]
 			lUnits.append(iUnitIndex)
-			# <!-- custom: similarly here remove old string.zfill(str(iU), 2) in favour of str(iU).zfill(2) anyways etc -->
+			# <!-- custom: replace string.zfill(str(iU), 2) with str(iU).zfill(2). (GPT-5.2-Codex (summarized)) -->
 			sID = str(iU).zfill(2) + str(iP).zfill(2)
 			szStringUnitUpgrade = self.PLOT_LIST_UPGRADE_NAME + sID
 			szFileNameUpgrade = gc.getUnitInfo(iUnitIndex).getButton()

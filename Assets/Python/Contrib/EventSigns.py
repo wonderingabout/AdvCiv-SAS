@@ -278,7 +278,7 @@ class MapSigns:
 		if not thisKey:
 			BugUtil.warn("MapSigns.storeSign() could not determine valid keyname for Plot %s." % (str(pPlot)))
 			return False
-		# <!-- custom: fix ruff rule as per chatgpt's recommendation/answer and my prompt too anyways etc and own idea of it and how to solve it based on ruff warning message E713 in this case i mean anyways etc, do not use "if not key in x", use instead "if key not in x" anyways etc -->
+		# <!-- custom: ruff E713: use "key not in x" instead of "not key in x". Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 		if thisKey not in self.plotDict:
 			self.plotDict[thisKey] = PlotSigns(pPlot)
 		self.plotDict[thisKey].setSign(ePlayer, szCaption)
@@ -304,7 +304,7 @@ class MapSigns:
 			BugUtil.debug("MapSigns.displaySign() could not show sign; no caption found for player %d on plot %s" % (ePlayer, str(thisKey)))
 			return False
 		if ePlayer == -1:
-			# <!-- custom: fixing ruff rule F507 (2 placeholders but 3 subsitutions by adding full debug instead to be safe as i don't know for sure or easily +/- reliably which are which so putting full debug just in case in this case anyways etc -->
+			# <!-- custom: ruff F507: 2 placeholders vs 3 substitutions; log full args to match. (GPT-5.2-Codex (summarized)) -->
 			BugUtil.debug("MapSigns.displaySign() landmark shown on plot. (szCaption=%s, ePlayer=%d, str(thisKey)=%s)" % (szCaption, ePlayer, str(thisKey)))
 			engine.addLandmark(pPlot, szCaption.encode('latin_1'))
 		else:
@@ -513,7 +513,7 @@ class EventSignsEventHandler:
 		g_bForceUpdate = True
 
 	def onPreSave(self, argsList):
-		# <!-- custom: keep the docstring here else function is empty and we get the expected indented block error at next function if i am not mistaken which causes multiple errors ingame anyways etc -->
+		# <!-- custom: keep the docstring so the function isn't empty and doesn't raise an indented-block error. (GPT-5.2-Codex (summarized)) -->
 		""" Called before a game is actually saved """
 		#BugUtil.debug("EventSignsEventHandler.onPreSave()")
 		#if (gSavedSigns and (not gSavedSigns.isEmpty())):

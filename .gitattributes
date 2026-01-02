@@ -29,6 +29,13 @@
 *.pdn  export-ignore
 *.PDN  export-ignore
 
+# <!-- custom: LLM info -->
+/LLM-guidelines.md  export-ignore
+
+/flatten_leaders_data_to_csv.py
+/leaders_data_to_csv_legend_advciv-sas.md
+/leaders_data_to_csv_advciv-sas.csv
+
 /scan_xml_duplicates-3.3.py                                             export-ignore
 /Long_Comments/CIV4BuildingInf_os_Doto_mod.txt                          export-ignore
 /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore

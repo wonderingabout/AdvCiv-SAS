@@ -59,7 +59,7 @@ from datetime import datetime
 import ast
 from collections import defaultdict
 
-# <!-- custom: this flatten_leaders_data_to_csv.py script requires leaders_data.py to be in same folder than this flatten_leaders_data_to_csv.py script anyways etc -->
+# <!-- custom: requires leaders_data.py in the same folder. (GPT-5.2-Codex (summarized)) -->
 from leaders_data import *
 
 # --- Step 1: Setup timestamped output ---
@@ -130,7 +130,7 @@ numerical_attitude_threshold = []
 numerical_no_war_attitude_prob = []
 numerical_contact_rand_raw = []
 numerical_contact_delay_raw = []
-# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed anyways etc) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment) same as in XML fields structuration too for raw attitude percents and decays, i.e. for example only for example imemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc -->
+# <!-- custom: raw attitude %/decay are displayed the same for pos/neg and affection/resentment, so store one set (e.g., iMemoryAttitudePercentDeclaredWar) like the XML structure. (GPT-5.2-Codex (summarized)) -->
 numerical_memory_attitude_percent_raw = []
 numerical_memory_decay_raw = []
 numerical_aggregated_contact_prob = []
@@ -141,8 +141,8 @@ numerical_aggregated_negative_memory_resentment = []
 non_numeric = []
 
 for field in numeric_fields:
-	# <!-- custom: some fields such as "MaxWarRand" in leaders_data.py are parsed (in generate_leaders_data.py) with a "get" prefix (for example "getMaxWarRand") instead of an "i" (not "iMaxWarRand" like the XML but as said before is "getMaxWarRand") prefix in leaders_data.py for consistency with the not interacting with but using same key names independently anyways etc sevopedia leader AI personality panel code), see generate_leaders_data.py generic and attitude threshold for example (at least as of now these are the only fields we parse with a "get" prefix anyways etc) field parsing code or/and code comments for details anyways etc ; here we want to display attitude thresholds in columns one next to the other too/as well i mean so separate them from generic getter fields anyways etc) -->
-	# <!-- custom: if i am not mistaken we should indeed first filter by startswith then only among remaining results filter by ends with to avoid overlap as chatgpt did indeed and is should be as this if i am not mistaken indeed after consideration/reflection or not or etc or yes in this case but anyways etc -->
+	# <!-- custom: fields like MaxWarRand are stored with a "get" prefix for consistency with Sevopedia leader keys; keep attitude thresholds separate so they can be grouped. (GPT-5.2-Codex (summarized)) -->
+	# <!-- custom: filter by startswith first, then endswith, to avoid overlaps. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 	if field.startswith("get") and (not field.endswith("AttitudeThreshold")):
 		numerical_generic.append(field)
 	elif field.startswith("iFlavor"):
@@ -174,7 +174,7 @@ for field in numeric_fields:
 		else:
 			raise KeyError(f"[KEY ERROR] Unknown or missing aggregated negative memory suffix, or/and unknown negative memory field format in field={field}, please update your XML field formats or this code to accomodate them.")
 
-	# <!-- custom: if i am not mistaken only after the startswith fields (except startswith fields (for example "iAggregatedPositiveMemory") that can be subfiltered with another inner startswith or endswith (for example subfiltered with an endswith("Affection") anyways etc) or anything else too if i am not mistaken anyways etc) do we do the endswith fields anyways etc -->
+	# <!-- custom: handle endswith cases after startswith cases (including subfilters) to avoid misclassification. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 	elif field.endswith("AttitudeChange"):
 		numerical_attitude_change.append(field)
 	elif field.endswith("AttitudeDivisor"):
@@ -192,7 +192,7 @@ for field in all_columns:
 	if field not in leader_column + numeric_fields:
 		non_numeric.append(field)
 
-# <!-- custom: here is where we actually order the columns if i am not mistaken anyways etc -->
+# <!-- custom: column order is assembled here. (GPT-5.2-Codex (summarized)) -->
 columns = (
 	leader_column +
 	numerical_generic +
@@ -216,7 +216,7 @@ columns = (
 	non_numeric
 )
 
-# --- <!-- custom: Step 4.3: anyways etc --> Abbreviate headers ---
+# --- <!-- custom: Step 4.3: abbreviate headers. (GPT-5.2-Codex (summarized)) -->
 abbrev_map = {"Leader": "Leader"}
 abbrev_count = defaultdict(int)
 abbrev_usage = defaultdict(list)
@@ -241,7 +241,7 @@ for field in columns:
 # Step 4.3.2: Assign abbreviations with forced 0 suffix if needed
 for base_abbr, fields in abbrev_usage.items():
 	if len(fields) == 1:
-		# No duplicates — use plain base abbreviation <!-- custom: for example FC if i am not mistaken, anyways etc -->
+		# No duplicates — use the base abbreviation (e.g., FC). (GPT-5.2-Codex (summarized)) -->
 		abbrev_map[fields[0]] = base_abbr
 	else:
 		# Multiple fields — assign FC0, FC1, ..., FCa, FCb, ...
@@ -250,7 +250,7 @@ for base_abbr, fields in abbrev_usage.items():
 				abbr = f"{base_abbr}{i}"
 			else:
 				# After 10, switch to letters: a = 10, b = 11, ..., z = 35
-				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say anyways etc.) -->
+				# <!-- custom: use lowercase letters (e.g., 'a') to distinguish from real uppercase abbreviations (e.g., 'A'). (GPT-5.2-Codex (summarized)) -->
 				abbr = f"{base_abbr}{chr(ord('a') + (i - 10))}"
 			abbrev_map[field] = abbr
 

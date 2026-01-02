@@ -38,7 +38,7 @@ class SevoPediaTrait:
 		self.X_SPECIAL = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
 		self.Y_SPECIAL = self.Y_LEADERS + self.H_LEADERS + 10
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
-		# <!-- custom: add more room as not all fits in this case i mean but anyways etc, was 150 anyways etc -->
+		# <!-- custom: add more room so content fits; was 150. (GPT-5.2-Codex (summarized)) -->
 		self.H_SPECIAL = 300
 
 		self.H_MAIN_PANE = self.Y_SPECIAL + self.H_SPECIAL - self.Y_MAIN_PANE
@@ -136,7 +136,7 @@ class SevoPediaTrait:
 							szSpecial += "\n"
 						szSpecial += line[2:]  # strip first two spaces
 			if bFound:
-				# <!-- custom: leave some room on top, based on placeSpecial in sevopedia terrain anyways etc -->
+				# <!-- custom: leave top padding, based on Sevopedia terrain placeSpecial. (GPT-5.2-Codex (summarized)) -->
 				#screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+27, self.W_SPECIAL-10, self.H_SPECIAL-32, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+32, self.W_SPECIAL-10, self.H_SPECIAL-32, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

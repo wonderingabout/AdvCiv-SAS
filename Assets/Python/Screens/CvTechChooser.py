@@ -32,7 +32,7 @@ import BugUtil
 PREF_ICON_SIZE = 24
 #PREF_ICON_TOP = 168
 # <advc.004a>
-# <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height as found gemini pro 3 found nicely thanks but anyways etc. -->
+# <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 # PREF_ICON_BOTTOM = 738
 PREF_ICON_BOTTOM = 926
 PREF_ICON_LEFT = 40 # was a bit farther left (10)
@@ -158,12 +158,12 @@ class CvTechChooser:
 
 		self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = None
 		self.W_RIGHT_SPACE_FOR_SCOREBOARD = None
-		# <!-- custom: parametrize properly the X starting position of the first column thanks to gemini 3 pro's help anyways etc (value was hardcoded repeatedly without a variable previously anyways etc.). -->
+		# <!-- custom: parametrize properly the X starting position of the first column; value was hardcoded repeatedly. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
 		self.iX_LEFT_START = 30
 		# For OR Prerequisites: Note: This one is currently 24 (30 minus 6). If you increase your main offset by 10, increase this by 10 as well.
 		self.iX_LEFT_START_OR_PREREQS = 24
-		# <!-- custom: adjust tech bulbing left starting position depending on our setting so we align vertically with where first tech button starts anyways etc. -->
+		# <!-- custom: adjust tech bulbing left starting position so we align vertically with the first tech button. (GPT-5.2-Codex (summarized)) -->
 		self.PREF_ICON_LEFT = PREF_ICON_LEFT
 
 	def getScreen(self):
@@ -187,28 +187,28 @@ class CvTechChooser:
 		# Create a new screen, called TechChooser, using the file CvTechChooser.py for input
 		screen = self.getScreen()
 
-		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper but anyways etc. -->
+		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)) -->
 		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH is None:
 			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH")
 		
 		# <!-- custom: since various players may like a different visual design, give several tech tree dimensions -->
 		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH <= 0:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 206
-			# <!-- custom: move bulbing indicators more to the left anyways etc. -->
+			# <!-- custom: move bulbing indicators more to the left. (GPT-5.2-Codex (summarized)) -->
 			self.PREF_ICON_LEFT = 10
-			# <!-- custom: unlike bulbing indicators, the main tech grid's X starting position is still a bit too much to the right as compared to the tech bulbing position ingame, if they use the same value; plus, we need the space on the right edge to display last column properly ideally since it is almost so. So reduce this value a bit more to accomodate for that but anyways etc. -->
+			# <!-- custom: unlike bulbing indicators, the main tech grid's X starting position is still too far right vs bulbing in-game; reduce to fit the last column. (GPT-5.2-Codex (summarized)) -->
 			extraXAdjust = -5
 			self.iX_LEFT_START = 10 + extraXAdjust
 			self.iX_LEFT_START_OR_PREREQS = 4 + extraXAdjust
 		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 1:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
-			# <!-- custom: other variables unchanged anyways etc. -->
+			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
 		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 2:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 1
-			# <!-- custom: other variables unchanged anyways etc. -->
+			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
 		else:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 0
-			# <!-- custom: other variables unchanged anyways etc. -->
+			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
 		
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
@@ -261,23 +261,23 @@ class CvTechChooser:
 
 # BUG - Tech Screen Resolution - start
 		#BugOpt.isWideTechScreen() and # advc.004: No longer optional
-		# <!-- custom: simplify but also rework this as well anyways etc. -->
+		# <!-- custom: simplify and rework the old wide-screen sizing logic. (GPT-5.2-Codex (summarized)) -->
 		# if screen.getXResolution() > 1024:
 		# 	xPanelWidth = screen.getXResolution() - 60 - 500
 		# else:
 		# 	xPanelWidth = 1024
 		# yPanelHeight = 768
-		# <!-- custom: preserve key display (commerce sliders, scoreboard if we do as well, or/and other things or not but anyways etc.) and otherwise maximize game window usage anyways etc. -->
+		# <!-- custom: preserve key display (commerce sliders, scoreboard, etc.) while maximizing game window usage. (GPT-5.2-Codex (summarized)) -->
 		
-		# <!-- custom: since in this file unlike in the foreign advisor or similar files, the screen x y w and h (i.e. self.X_SCREEN and co anyways etc.) are initialized in interfaceScreen and not in init, we can use the real game windows's resolution so it fully dynamic. I tried making it so in the foreign advisor and such other files but it lead to issues and all, so left as is there with hard coded values of as of now 1920x1080 minutes gaps we want to leave unused by the panel, however in this file as of now CvTechChooser we can use the available screen variable to make it fully dynamic seemingly (check if accurate as i don't know too much about these but it seems ot be as such empirically and it is also as gemini 3 pro advised while debugging the related errors in particular but anyways etc.). -->
+		# <!-- custom: unlike in the foreign advisor and similar files, self.X_SCREEN/self.Y_SCREEN/etc. are initialized in interfaceScreen, so we can use the real screen resolution here. In those files, screen wasn't available in init and trying it caused crashes, so they keep hardcoded 1920x1080 minus gaps. This uses the available screen var to stay fully dynamic; per Gemini 3 Pro advice and empirical checks. (GPT-5.2-Codex (summarized)) -->
 
 		wLeftSpace = 0
 		self.X_SCREEN = wLeftSpace
-		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
+		# <!-- custom: wide enough to preserve the right panel (scoreboard, map, etc.); less conservative on the left so it is not centered and sits closer to the left. (GPT-5.2-Codex (summarized)) -->
 		wRightSpaceForScoreBoard = self.W_RIGHT_SPACE_FOR_SCOREBOARD
 		self.W_SCREEN = screen.getXResolution() - wRightSpaceForScoreBoard - wLeftSpace
 
-		# <!-- custom: note: 115 or higher as of now add an annoying and not useful verticall scrolling arrow on right side of this screen, while 114 is low enough to still see our commerce sliders fine, so using this value rather but anyways etc. -->
+		# <!-- custom: 115 or higher adds an annoying vertical scrolling arrow on the right; 114 still shows the commerce sliders, so use 114. (GPT-5.2-Codex (summarized)) -->
 		hTopSpaceForCommerceSliders = 114
 		self.Y_SCREEN = hTopSpaceForCommerceSliders
 		hBottomSpace = 0
@@ -289,7 +289,7 @@ class CvTechChooser:
 
 		screen.showWindowBackground( False )
 	
-		# <!-- custom: no longer center it and adjust dimensions similarly to how we did for the military advisor and other related reworks anyways etc. -->
+		# <!-- custom: no longer center it; adjust dimensions like the military advisor and related reworks. (GPT-5.2-Codex (summarized)) -->
 		# screen.setDimensions((screen.getXResolution() - xPanelWidth) / 2, screen.centerY(0), xPanelWidth, yPanelHeight)
 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, xPanelWidth, yPanelHeight)
 # BUG - Tech Screen Resolution - end
@@ -306,7 +306,7 @@ class CvTechChooser:
 		szText = szText + u"</font>"
 		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, 8, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
-		# <!-- custom: simplify code since this was disabled anyway anyways etc. -->
+		# <!-- custom: simplify code since this was disabled anyway. (GPT-5.2-Codex (summarized)) -->
 		# # Make the scrollable area for the city list...
 		# # advc.004a: What cities? Anyway, no scrollable area needed.
 		# if False and BugOpt.isShowGPTechPrefs():
@@ -404,8 +404,8 @@ class CvTechChooser:
 		self.drawArrows(screen, sPanel, bANDPreReq, bORPreReq)
 
 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
-		# <!-- custom: note: trying to comment out the turn > 0 check below but anyways etc. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
-		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was anyways etc. -->
+		# <!-- custom: tried removing the turn > 0 guard to show indicators at turn 0, but it does error. The base AdvCiv comment seems slightly mistaken: I reproduced the issue on a new game (Noble, Pangaea, Normal, Standard). Gemini 3 Pro confirmed the cause, so we keep base AdvCiv behavior. I wanted the BUG bulbing indicators noted for players; see known issue 85. (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: keeping this feature disabled is safer; turn 0 bulbing indicators are not critical, so revert to base AdvCiv behavior. (GPT-5.2-Codex (summarized)) -->
 		if CyGame().getElapsedGameTurns() > 0:
 			self.updateTechPrefs()
 
