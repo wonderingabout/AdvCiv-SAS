@@ -37,10 +37,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 [UI (Common)](/README.md#ui-common)  
 &emsp;[Images as buttons](/README.md#images-as-buttons)  
 &emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
-[Python Scripts and .csv tables](/README.md#python-scripts-and-csv-tables)  
-&emsp;[.csv and .md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
-&emsp;[.csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
-[AI-generated images](/README.md#ai-generated-images)  
+[.csv and .md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
 [Less Generic unit names or/and combat types](/README.md#less-generic-unit-names-orand-combat-types)  
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
 &emsp;[World map with civs](/README.md#world-map-with-civs)  
@@ -351,42 +348,24 @@ See also for details:
 - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category)
 - [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
 
-## Python Scripts and .csv tables
+## .csv and .md view of the handicap (difficulties info in a table for all difficulties) info
 
 Mostly for modders, and it is not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
 
-Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md) for details.
+Generated with the [flatten_handicap_info_to_csv_and_md.py](/flatten_handicap_info_to_csv_and_md.py) script. If you change the xml, regenerate new .csv file with the script.
 
-So far there is:
+- view it here: [(github web viewer)](/handicap_info_to_csv_advciv-sas.csv)
+- legend md: [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md)
 
-- [flatten_handicap_info_to_csv_and_md](/flatten_handicap_info_to_csv_and_md.py)
-- [generate_leaders_data.py and leaders_data data py module](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
-- [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
-- [global XML duplication scanner](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+You can use github's search bar for example, or view it with libreoffice for example.
 
-### .csv and .md view of the handicap (difficulties info in a table for all difficulties) info
-
-Generated with the flatten_handicap_info_to_csv_and_md.py script, you can regenerate it if you mod/change the handicap info, else just view it here: [(click here to view it on on github web viewer too (recommended))](/handicap_info_to_csv_advciv-sas.csv) (the corresponding legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md))
-
-You can for example for example use github's search bar for example anyways or and other features or and not anyways etc, or alternatively view it for example with libreoffice for example or a similar software/solution.
-
-Note: base advciv handicap info .csv table with its .md legend for comparison as of now are also in our mod path in [/_0_Common_Docs/AdvCiv_Base_Doc/](/_0_Common_Docs/AdvCiv_Base_Doc/).
-
-If you change the xml, regenerate new .csv file with the script, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy).
+Note: base advciv handicap info in [/_0_Common_Docs/AdvCiv_Base_Doc/](/_0_Common_Docs/AdvCiv_Base_Doc/).
 
 <img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
 
-### .csv github view for the flatten_leaders_data_to_csv conversion script
-
-Similarly, the flatten_leaders_data_to_csv script output can be viewed here: [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (corresponding legend (.md): [leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md)).
-
-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
-
-Documentation about this flatten leaders_data to .csv py script ['s documentation](/_1_AdvCiv-SAS/Docs/README_Python_Scripts.md#flatten_leaders_data_to_csvpy).
+For other scripts, see [python-scripts](https://github.com/wonderingabout/AdvCiv-SAS/tree/python-scripts).
 
 ## AI-generated images
 

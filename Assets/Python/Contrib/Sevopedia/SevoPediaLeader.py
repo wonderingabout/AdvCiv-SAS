@@ -261,7 +261,7 @@ def _compute_leader_cache_internal():
 		leader_info_minimums_adjusted_values_only_contact_fields = {}
 		leader_info_maximums_adjusted_values_only_contact_fields = {}
 
-		# <!-- custom: for steps below, see also or/and for details generate_leaders_data.py code/way of handling it/aggregating/synthesizing contact probs anyways etc -->
+		# <!-- custom: for steps below, see also generate_leaders_data.py's way of handling contact probs. -->
 
 		# First pass: extract raw values and compute adjusted values (for scoring + min/max)
 		for iLeader in NON_EXCLUDED_LEADERS:
@@ -367,8 +367,8 @@ def _compute_leader_cache_internal():
 
 
 	def get_positive_or_negative_memory_indexes(is_positive):
-		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs, see generate_leaders_data.py code or/and code comments for details anyways etc -->
-		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them if i am not mistaken in my understanding anyways etc -->
+		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs (see the related python docs for details). -->
+		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them if i am not mistaken in my understanding. -->
 		positive_or_negative_memory_indexes = None
 
 		if is_positive:
@@ -490,7 +490,7 @@ def _compute_leader_cache_internal():
 		if IS_DEBUG_LEADER:
 			print("[DEBUG] Third pass of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\nleader_info_minimums_adjusted_values_only_memory_fields=%s\n\nleader_info_maximums_adjusted_values_only_memory_fields=%s\n\nleaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments=%s\n\n" % (str(leaders_temp_positive_and_negative_memory_affections_and_resentments), str(leader_info_minimums_adjusted_values_only_memory_fields), str(leader_info_maximums_adjusted_values_only_memory_fields), str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)))
 
-		# Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores <!-- custom: is done later in the code anyways etc -->
+		# Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores <!-- custom: is done later in the code anyways etc -->
 
 		# <!-- custom: cleanup anyways etc -->
 		del leaders_temp_positive_and_negative_memory_affections_and_resentments
@@ -1019,7 +1019,7 @@ def _compute_leader_cache_internal():
 				# 	label_with_raw_value_delay = "%s %s" % (label_contact, label_raw_delay)
 				# compute_and_store_leader_info_cached_tuple(raw_value_delay, min_value_delay, max_value_delay, b_invert_contact_delays, symbol_contact_rands_delays, all_symbols, parsed_name_delay, label_with_raw_value_delay, iLeader, leader_info_cached)
 
-				# <!-- custom: then back to aggregated contact fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores
+				# <!-- custom: then back to aggregated contact fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores
 				# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display anyways etc -->
 				parsed_name_4_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix # → iAggregatedRawContactProbJoinWar
 
@@ -1101,7 +1101,7 @@ def _compute_leader_cache_internal():
 						# 	max_value_decay = leader_info_maximums[parsed_name_decay]
 						# 	compute_and_store_leader_info_cached_tuple(raw_value_decay, min_value_decay, max_value_decay, b_invert_memory_decays, symbol_memory_attitude_percents_decays, all_symbols, parsed_name_decay, label_with_raw_value_decay, iLeader, leader_info_cached)
 
-						# <!-- custom: then back to aggregated positive and negative memory affection and resentment fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores
+						# <!-- custom: then back to aggregated positive and negative memory affection and resentment fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores
 						# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display anyways etc -->
 						# <!-- custom: note: unlike for min max exports (compute and store i mean anyways etc) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays if i am not mistaken, see also min max code of memory fields at step 1 step 2 or similar code comments for details -->
 						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
@@ -1283,7 +1283,7 @@ def _compute_leader_cache_internal():
 		ai_category_header_contact_offer_probs = "Contact Offer Probabilities"
 		ai_category_contact_offer_probs = get_ai_category(emoji_name_contact_offer_probs, emoji_name_to_button_path_txt_keys, ai_category_header_contact_offer_probs, ai_category_key_order_contact_offer_probs, localText)
 
-		# <!-- custom: unlike in/for positive and negative memories where there is a functionnal difference (memory atitude is either positive (value) or negative (value), here for contact probabilities, for both contact offer and contact demand, the contact delay is always positive (and the contact rand too if i am not mistaken, therefore they are not separated as 2 different positive/negative contacts in generate_leaders_data.py (easier also this way to implement, cleaner perhaps too implementation or/and other things anyways etc)), but they are displayed differently in 2 separate categories, hopefully for a clearer read too and easier read too perhaps anyways etc) -->
+		# <!-- custom: unlike in/for positive and negative memories where there is a functionnal difference (memory atitude is either positive (value) or negative (value), here for contact probabilities, for both contact offer and contact demand, the contact delay is always positive (and the contact rand too if i am not mistaken, therefore they are not separated as 2 different positive/negative contacts in generate_leaders_data.py (easier also this way to implement, cleaner perhaps too implementation or/and other things)), but they are displayed differently in 2 separate categories, hopefully for a clearer read too and easier read too perhaps) -->
 		# 📣 <!-- custom: Contact Demand Probabilities (0-100) anyways etc -->
 		ai_category_key_order_contact_demand_probs = (
 			"iAggregatedContactProbReligionPressure",

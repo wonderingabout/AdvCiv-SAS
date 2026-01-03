@@ -22,5 +22,4 @@ temp_files/
 /__pycache__/
 /tests/__pycache__/
 /Assets/Python/Contrib/Sevopedia/__pycache__/
-/leaders_data.py
 /Assets/CvGameCoreDLL_d.dll
