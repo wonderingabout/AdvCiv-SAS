@@ -1,13 +1,16 @@
-﻿# GPT-Codex Guidelines
+﻿# AGENTS
 
-These rules apply to me now and later (future me too). Append the following instructions as we agree on them. You can expand this freely as you see fit.
+These rules apply to me GPT-Codex Guidelines or other agents now and later (future me too). Append the following instructions as we agree on them. You can expand this freely as you see fit.
 
 ## Comment Editing Rules (for me, now and later)
 
+- **ALWAYS preserve the `<!-- custom` prefix** - never remove it when summarizing comments.
 - Simplify verbose comments without changing meaning or technical details.
+- **Focus on rewording/rephrasing** - the goal is to remove prose and conversational filler while preserving all technical information. Don't over-summarize to the point of losing important technical context.
 - Do not requalify subjective wording (e.g., keep "nicer display" instead of rephrasing as "tighter look") to avoid misinterpreting meaning.
 - Keep credits (e.g., "with help of Gemini 3 Pro/Claude/ChatGPT") and preserve them when rewriting.
 - Preserve important technical specifics verbatim (e.g., "0 / 0 / 0 / 0 / 100", "2 placeholders vs 3 substitutions", "remove the extra X starting position").
+- **Preserve ALL technical qualifiers** - e.g., "debug DLL" not just "DLL", "tech advisor screen height" not just "screen height", etc. These distinctions matter.
 - Preserve specific scope qualifiers in technical details; avoid vague rewrites that drop precise context (e.g., keep "tech advisor screen height" rather than just "screen height").
 - Keep exact technical phrasing; avoid substituting terms like "starting position" -> "start" or dropping modifiers like "vertically".
 - Preserve exact spacing/formatting in technical details (e.g., "- 30" vs "-30").
@@ -18,6 +21,7 @@ These rules apply to me now and later (future me too). Append the following inst
 - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
 - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
 - Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` depending on which model is doing the summarization.
+- **Do NOT commit changes without explicit user approval** - wait for review at the end.
 - When user feedback adds a new rule, update this file proactively.
 
 ## Current Scope (2026-01-02)
@@ -63,14 +67,21 @@ These rules apply to me now and later (future me too). Append the following inst
 
 ### Claude Sonnet 4.5
 
-- 2026-01-02: Summarized C++ comments across multiple files (in progress, not yet committed)
-  - Files completed: CvCityAI.cpp (~15 comments), CvGameTextMgr.cpp (3), CvDLLWidgetData.cpp (4), CvCity.cpp (2), CitySiteEvaluator.cpp (3), CvUnitAI.cpp (~20 comments)
+- 2026-01-03: Summarized **ALL** C++ comments across entire CvGameCoreDLL directory (commit TBD)
+  - **Session 1 (manual)**: 11 files with "with help" pattern (~55 comments)
+    - CvCityAI.cpp (~15), CvUnitAI.cpp (~20), CvGameTextMgr.cpp (3), CvDLLWidgetData.cpp (4), CvCity.cpp (2), CitySiteEvaluator.cpp (3), CvPlayerAI.cpp (4), CvInfo_Unit.cpp (4), CvInitCore.cpp (2), CvSelectionGroupAI.cpp (1), CvTeamAI.cpp (1)
+  - **Session 2 (batch + agent)**: All remaining files (~600+ comments)
+    - Batch processed common patterns (static const, cache calls, hoist, etc.) across 26 files
+    - Agent processed unique verbose comments in CvCityAI.cpp (235), CvUnitAI.cpp (122), CitySiteEvaluator.cpp (44), CvCity.cpp (38), CvPlayerAI.cpp (27), CvUnit.cpp (24), CvGameTextMgr.cpp (17), and 340+ other files
+  - **Total**: 650+ comments summarized across 348 C++ source and header files
+  - **Verification**: 0 "anyways etc" remaining in CvGameCoreDLL directory
   - Applied all comment editing rules consistently, with emphasis on preserving rationales and "why" behind changes
-  - Preserved all credits (ChatGPT, ChatGPT 5, ChatGPT 5.1, ChatGPT 5.2, Gemini AI, Gemini 2.5 Pro, Gemini 3 Pro, Claude Sonnet 4.5, Claude AI)
-  - Focused on lengthy verbose comments in CvGameCoreDLL directory
+  - Preserved all credits (ChatGPT, ChatGPT 5, ChatGPT 5.1, ChatGPT 5.2, ChatGPT o3, Gemini AI, Gemini 2.5 Pro, Gemini 3 Pro, Claude Sonnet 4.5, Claude AI)
   - Uses suffix: `(Claude code Sonnet 4.5 (summarized)) -->`
-  - Key improvements: Preserved problem descriptions, observed behaviors, empirical results, and intended fixes more fully than other commentary
-  - Remaining work: CvPlayerAI.cpp (7 comments), CvInfo_Unit.cpp (4 comments), and a few other files
+  - Removed conversational filler: "anyways etc", "check if accurate", "if i may say", "xd", "hehe", redundant phrases
+  - Key improvements: Preserved problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
+  - Pattern: Keep technical details and "why" verbose, remove conversational filler
+  - **Status**: Complete - all C++ files in CvGameCoreDLL now have concise, professional comments
 
 ## AI Enhancement Preferences
 

@@ -5711,7 +5711,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if coastal leaning if i understand it correctly but anyways etc -->
 				if (bCoastalScalingWonder && !bLandUnitsBuilding)
 				{
-					// Flat rule: need at least 3 coastal cities empire-wide <-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefully overlaps fine or fine enough with this but anyways etc ; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later anyways etc -->.
+					// Flat rule: need at least 3 coastal cities empire-wide <!-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefully overlaps fine or fine enough with this but anyways etc ; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later anyways etc -->.
 					const int iCoastalCities = kOwner.countNumCoastalCities();
 					const int iMinCoastalCitiesCoastalWonder = 3;
 					if (iCoastalCities < iMinCoastalCitiesCoastalWonder)

@@ -2089,7 +2089,7 @@ def applyThePhilistines1(argsList):
 ######## THE_VEDIC_ARYANS ###########
 
 def canTriggerTheVedicAryans(argsList):
-	# <-- custom: TECH_PRIESTHOOD removed -> TECH_POLYTHEISM; TECH_ARCHERY removed -> TECH_MASONRY (walls help defend). (GPT-5.2-Codex (summarized)) -->
+	# <!-- custom: TECH_PRIESTHOOD removed -> TECH_POLYTHEISM; TECH_ARCHERY removed -> TECH_MASONRY (walls help defend). (GPT-5.2-Codex (summarized)) -->
 	# advc.311: Moved into new function; replace Polytheism with Priesthood (from BUFFY 3.19.003).
 	return canTriggerUprising(argsList[0].ePlayer, 'TECH_POLYTHEISM', 'TECH_MASONRY', 'UNITCLASS_ARCHER')
 

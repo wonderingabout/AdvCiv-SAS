@@ -183,7 +183,7 @@ def get_citiesResolvedButtonPath(localText):
 
 
 def get_concept_id(concept_type, gc):
-	# Find the concept ID<-- custom: for example for (but anyways etc) concept_type "CONCEPT_CITIES" anyways etc -->
+	# <!-- custom: Find the concept ID, for example for (but anyways etc) concept_type "CONCEPT_CITIES" (LLM) -->
 	for i in range(gc.getNumConceptInfos()):
 		if gc.getConceptInfo(i).getType() == concept_type:
 			return i

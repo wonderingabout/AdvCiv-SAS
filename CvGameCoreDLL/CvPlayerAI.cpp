@@ -17469,7 +17469,7 @@ CivicTypes CvPlayerAI::AI_bestCivic(CivicOptionTypes eCivicOption, int* piBestVa
 	return eBestCivic;
 }
 
-// <-- custom: helpers provided by chatgpt 5, they may be useful if we reuse this yield and commerce valuing logic elsewhere so fine to keep as helpers thanks, check if accurate anyways etc. -->
+// <!-- custom: helpers provided by chatgpt 5, they may be useful if we reuse this yield and commerce valuing logic elsewhere so fine to keep as helpers thanks -->
 // Specialist weighting helpers (file-scope in CvPlayerAI.cpp)
 // 100 = neutral weight. Weights can be any positive ints.
 static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers)

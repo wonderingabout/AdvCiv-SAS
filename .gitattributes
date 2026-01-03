@@ -30,11 +30,12 @@
 *.PDN  export-ignore
 
 # <!-- custom: config and LLM info -->
-/.vscode             export-ignore
-.markdownlint.jsonc  export-ignore
-/ruff.toml           export-ignore
-/.claude/            export-ignore
-/AGENTS.md           export-ignore
+/.vscode/             export-ignore
+/.markdownlint.jsonc  export-ignore
+/ruff.toml            export-ignore
+/.claude/             export-ignore
+/AGENTS.md            export-ignore
+/analyze_comments.py  export-ignore
 
 /Long_Comments/CIV4BuildingInf_os_Doto_mod.txt                          export-ignore
 /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore
