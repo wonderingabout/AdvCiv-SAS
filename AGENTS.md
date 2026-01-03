@@ -1,4 +1,4 @@
-﻿# AGENTS
+# AGENTS
 
 These rules apply to me GPT-Codex Guidelines or other agents now and later (future me too). Append the following instructions as we agree on them. You can expand this freely as you see fit.
 
@@ -22,6 +22,7 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
 - Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` depending on which model is doing the summarization.
 - **Do NOT commit changes without explicit user approval** - wait for review at the end.
+- When committing, add a `Co-authored-by:` trailer with the model identifier unless the user requests otherwise.
 - When user feedback adds a new rule, update this file proactively.
 
 ## Current Scope (2026-01-02)
@@ -83,7 +84,20 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
   - Pattern: Keep technical details and "why" verbose, remove conversational filler
   - **Status**: Complete - all C++ files in CvGameCoreDLL now have concise, professional comments
 
-## AI Enhancement Preferences
+## Coding Preferences
+
+### Python (Civ4)
+
+- Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+- Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
+- Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
+- Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+- In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
+- When adding guidance, include at least one simple code example so other agents can copy the pattern.
+
+### Docs
+
+- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user (AGENTS.md currently has markdownlint issues).
 
 ## Comment Style Example
 
