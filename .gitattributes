@@ -29,20 +29,24 @@
 *.pdn  export-ignore
 *.PDN  export-ignore
 
-# <!-- custom: LLM info -->
-/LLM-guidelines.md  export-ignore
+# <!-- custom: config and LLM info -->
+/.vscode             export-ignore
+.markdownlint.jsonc  export-ignore
+/ruff.toml           export-ignore
+/.claude/            export-ignore
+/AGENTS.md           export-ignore
 
-/flatten_leaders_data_to_csv.py
-/leaders_data_to_csv_legend_advciv-sas.md
-/leaders_data_to_csv_advciv-sas.csv
+/flatten_leaders_data_to_csv.py            export-ignore
+/leaders_data_to_csv_legend_advciv-sas.md  export-ignore
+/leaders_data_to_csv_advciv-sas.csv        export-ignore
+/scan_xml_duplicates-3.3.py                export-ignore
 
-/scan_xml_duplicates-3.3.py                                             export-ignore
 /Long_Comments/CIV4BuildingInf_os_Doto_mod.txt                          export-ignore
 /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore
 /_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                              export-ignore
 /_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/                export-ignore
 /_0_Common_Docs/git_logs/                                               export-ignore
 /_1_AdvCiv-SAS/git_logs/                                                export-ignore
-/_1_AdvCiv-SAS/Docs/Modding_Ressources/                  export-ignore
+/_1_AdvCiv-SAS/Docs/Modding_Ressources/                                 export-ignore
 /Assets/Res/Fonts/other_mods/                                           export-ignore
 /Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt export-ignore

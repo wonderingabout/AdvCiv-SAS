@@ -2721,7 +2721,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
 		{
 			pBestAttackUnit = AI().AI_getBestGroupAttacker(pDestPlot, false,
 					iAttackOdds, false, /* advc.164: */ !bBlitz,
-					!bMaxSurvival, bMaxSurvival); // advc.048
+					!bMaxSurvival, bMaxSurvival, true); // advc.048
 			if (pBestAttackUnit == NULL)
 				break;
 

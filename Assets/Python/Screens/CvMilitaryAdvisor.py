@@ -500,10 +500,15 @@ class CvMilitaryAdvisor:
 								iFlashColor = iColorWhite
 						screen.minimapFlashPlot(loopUnit.getX(), loopUnit.getY(), iFlashColor, -1)
 
-		# <!-- custom: overlay icon buttons on listbox rows with indent - claude opus 4.5 -->
+		# <!-- custom: below patch by claude opus 4.5 thanks to fix issue of buttons being shown beyond the last row. Pending issue: on scroll, the buttons do not scroll, only textual part does, but this allows to preserve the click to show position on map feature that i could not replicate with claude opus 4.5 or chatgpt 5.2's help. As this happens rarely and generally only in the late game, i believe it is a minor inconvenience vs the advantage of seeing buttons, so left as such as does not work too bad otherwise and is functional. -->
+		# <!-- custom: overlay icon buttons on VISIBLE listbox rows only - claude opus 4.5 -->
+		# Only render icons for rows that fit in the visible list area to avoid scroll mismatch
 		if bReload:
 			iIconBaseX = iListX + 3
-			for iRow in range(len(iconList)):
+			# <!-- custom: add + 1 to show the incomplete last row without changing the rest of the code claude opus 4.5 provided. Seemignly works as intended ingame, check if accurate. -->
+			iMaxVisibleRows = (iListH / iRowHeight) + 1  # calculate how many rows fit in visible area
+			iNumIconsToRender = min(len(iconList), iMaxVisibleRows)
+			for iRow in range(iNumIconsToRender):
 				szButton, iData1, iData2, iIndentLevel = iconList[iRow]
 				iIconY = iListY + (iRow * iRowHeight)
 				# Apply indent based on level: 0=category, 1=unit type, 2=individual unit

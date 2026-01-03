@@ -709,9 +709,11 @@ Helped me nicely fix or enhance things, although i didn't test it too much yet b
 
 Also helped me nicely fix python issues very effectively thanks, i didn't test it yet as well to have a more elaborate opinion or such but it helped me lot thanks but anyways etc.
 
+After some more time using it, what i like the most is how really accurate and and precise it is in its solutions. It checks and double-checks stuff it seems, and i often get a very accurate and targeted surgical fix or solution after a long thinking time which is very nice. Check if this comment is accurate.
+
 ### GPT-Codex (VS Code extension)
 
-Note: see also [LLM-guidelines.md](/LLM-guidelines.md).
+Note: see also [AGENTS.md](/AGENTS.md).
 
 GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
 
@@ -739,7 +741,7 @@ In particular as well, Claude opus 4.5 also helped add buttons (i.e. icons) to t
 
 #### Claude code (VS Code extension)
 
-Note: see also [LLM-guidelines.md](/LLM-guidelines.md).
+Note: see also [AGENTS.md](/AGENTS.md).
 
 ##### CuCuGS implementation
 

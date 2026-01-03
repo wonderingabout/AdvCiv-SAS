@@ -34,7 +34,8 @@ public:
 	// advc.003u: These two had returned CvUnit*
 	CvUnitAI* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy,
 			int& iUnitOdds, bool bForce = false, bool bNoBlitz = false,
-			bool bSacrifice = false, bool bMaxSurvival = false) const; // advc.048
+			bool bSacrifice = false, bool bMaxSurvival = false,
+			bool bPreferLowPower = false) const; // advc.048
 	CvUnitAI* AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy,
 			bool bForce = false, bool bNoBlitz = false) const;
 	// K-Mod has removed bCheckCanMove param from these two and bPotentialEnemy from AI_compareStacks

@@ -798,7 +798,7 @@
 		<DefineName>SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS</DefineName>
 		<iDefineIntVal>600</iDefineIntVal>
 	</Define>
-	<!-- custom: e.g. as of now in advciv-sas, "stable" class buildings (including civ-specific variants) to give exp to mounted untis such as horse knights, chariots, camel cuirassiers, war elephants, etc.). Adjust as per your xml. -->
+	<!-- custom: e.g. as of now in advciv-sas, "stable" class buildings (including civ-specific variants) to give XP to mounted untis such as horse knights, chariots, camel cuirassiers, war elephants, etc.). Adjust as per your xml. -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_STABLE</DefineTextVal>
@@ -1136,21 +1136,21 @@
 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
-	<!-- Extra allowance based on unit EXP (experienced units keep valuable promotions, so upgrades for them can justify more gold).
+	<!-- Extra allowance based on unit XP (experienced units keep valuable promotions, so upgrades for them can justify more gold).
 	     Unit: extra "gold per 10% strength gain" per 1 EXP.
 
-	     Examples (base = 25 gold per 10% strength gain, per EXP = 1 gold per 10% strength gain per 1 EXP):
+	     Examples (base = 25 gold per 10% strength gain, per XP = 1 gold per 10% strength gain per 1 EXP):
 
 		 Example 1:
 	     - unit has 13 EXP
-	       extra gold allowance from EXP = 13 EXP * 1 gold per 10% strength gain per 1 EXP
+	       extra gold allowance from XP = 13 XP * 1 gold per 10% strength gain per 1 EXP
 	                                     = 13 gold per 10% strength gain
 	       effective value = 25 gold per 10% strength gain + 13 gold per 10% strength gain
 	                       = 38 gold per 10% strength gain (then capped below)
 
 	     Example 2:
 	     - unit has 20 EXP
-	     - extra gold allowance from EXP = 20 EXP * 1 gold per 10% strength gain per 1 EXP
+	     - extra gold allowance from XP = 20 XP * 1 gold per 10% strength gain per 1 EXP
 	                                     = 20 gold per 10% strength gain
 	     - effective value = 25 gold per 10% strength gain + 20 gold per 10% strength gain
 	                       = 45 gold per 10% strength gain (then capped below) -->
@@ -1160,10 +1160,10 @@
 	</Define>
 	<!-- Hard cap for the effective value (base + EXP). Purpose: even a very experienced unit should not justify extreme upgrade spending.
 	     Reason: if upgrades get too expensive, it is often better to build new units instead (early units are cheap to rebuild, late-game tiny gains are not worth big gold).
-	     Unit: max "gold per 10% strength gain" after adding the EXP allowance.
+	     Unit: max "gold per 10% strength gain" after adding the XP allowance.
 
 	     Example (cap = 50 gold per 10% strength gain):
-	     - base + EXP would give 120 gold per 10% strength gain
+	     - base + XP would give 120 gold per 10% strength gain
 	     - cap is 50 gold per 10% strength gain
 	     - final effective value becomes 50 gold per 10% strength gain -->
 	<!-- custom: for very strong 50+ str units likethe robotic tnak that has 56 str, 50 gold for 5.6 str is decent i guess! (not too crazy though so about a hard limit i guess), adjust as you see fit -->
@@ -1178,10 +1178,10 @@
 	     - If a unit gains +1 flat strength from an upgrade, this value is the max gold the AI is willing to pay.
 	     - If a unit gains +3 flat strength, the max gold is about triple, etc.
 
-	     Important: this gate is also influenced by the EXP allowance below (even at low EXP).
-	     Example (base = 15 gold per +1 flat strength gain, per EXP = 1 gold per +1 flat strength gain per 1 EXP):
-	     - unit has 1 EXP -> effective value is 15 + 1 = 16 gold per +1 flat strength gain
-	     - unit has 13 EXP -> effective value is 15 + 13 = 28 gold per +1 flat strength gain
+	     Important: this gate is also influenced by the XP allowance below (even at low EXP).
+	     Example (base = 15 gold per +1 flat strength gain, per XP = 1 gold per +1 flat strength gain per 1 EXP):
+	     - unit has 1 XP -> effective value is 15 + 1 = 16 gold per +1 flat strength gain
+	     - unit has 13 XP -> effective value is 15 + 13 = 28 gold per +1 flat strength gain
 
 	     Example (value = 15 gold per +1 flat strength gain):
 	     - 10 -> 13 is +3 flat strength gain (example: Knight -> Cuirassier, strength numbers are only an example).
@@ -1199,22 +1199,22 @@
 	     Purpose: higher-EXP units keep valuable promotions, so the AI can pay more gold to upgrade them for the same flat strength gain.
 	     Unit: extra "gold per +1 flat strength gain" per 1 EXP.
 
-	     Example (per EXP value = 1 gold per +1 flat strength gain per 1 EXP):
+	     Example (per XP value = 1 gold per +1 flat strength gain per 1 EXP):
 	     - unit has 1 EXP
-	       extra gold allowance from EXP = 1 EXP * 1 gold per +1 flat strength gain per 1 EXP
+	       extra gold allowance from XP = 1 XP * 1 gold per +1 flat strength gain per 1 EXP
 	                                     = 1 gold per +1 flat strength gain
 	     - unit has 13 EXP
-	       extra gold allowance from EXP = 13 EXP * 1 gold per +1 flat strength gain per 1 EXP
+	       extra gold allowance from XP = 13 XP * 1 gold per +1 flat strength gain per 1 EXP
 	                                     = 13 gold per +1 flat strength gain
 
 	     Effective value used by the flat strength gain gate:
-	     - effective value = base gold per +1 flat strength gain + extra gold allowance from EXP -->
+	     - effective value = base gold per +1 flat strength gain + extra gold allowance from XP -->
 	<Define>
 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- Hard cap for the effective value (prevents absurd spending even with very high EXP).
-	     Unit: max "gold per +1 flat strength gain" after adding the EXP allowance.
+	     Unit: max "gold per +1 flat strength gain" after adding the XP allowance.
 
 	     Example (cap = 30 gold per +1 flat strength gain):
 	     - effective value computed as 60 gold per +1 flat strength gain
@@ -1223,6 +1223,19 @@
 	<Define>
 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP</DefineName>
 		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable AI stack attack order that spends low-power/low-XP units first in AI_getBestGroupAttacker (1 on, 0 off). (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: minimum health percent to break ties by lower health when attack-ordering low-power units (e.g. 60). (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT</DefineName>
+		<iDefineIntVal>60</iDefineIntVal>
 	</Define>
 
 

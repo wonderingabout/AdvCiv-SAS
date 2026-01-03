@@ -33,7 +33,7 @@ Some other units also have a more problematic name, as they are very inaccurate.
 
 - Cavalry (update note: since then reframed as dragoon units anyways etc.): Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
 
-Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by exp system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
+Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by XP system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
 
 - Camel Lancer
 - Horse Swordsfighter

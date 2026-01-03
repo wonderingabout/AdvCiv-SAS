@@ -122,6 +122,7 @@ hopefully helpful, thanks, anyways, thanks,
 [86 - (Fixed) Base AdvCiv bug, in sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks anyways etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#86---fixed-base-advciv-bug-in-sevopedia-bonus-in-the-aluminium-bonus-entry-of-all-project-tooltips-showing-the-apostolic-palace-and-redirecting-to-it-instead-of-showing-the-projects-tooltip-and-redirecting-to-said-project-with-the-help-of-chatgpt-52-thanks-anyways-etc)  
 [87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)  
 [88 - (Tremendously Improved) AI always upgrading way too much units and not teching at all, sometimes for dozen turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-teching-at-all-sometimes-for-dozen-turns)  
+[89 - (Improved) In an attack stack, attack with lower value (effective strength, XP, health) units first](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -330,7 +331,7 @@ On windows 10 at least if not in other systems as well, at least in my machine b
 
 ## 8 - Do not edit python files while running the game, even modifying unused/unreached code may cause weird errors
 
-For example as in [these screenshots (google drive folder link anyways etc)](https://drive.google.com/drive/folders/1gyaLERKrDAUbiQeVWl4S7T7tPJB0soR3?usp=sharing), or to copy the err log (path from Notepad++, adjust with your windows username or/and equivalent configuration/version of this that fits/suits your system username or/and other settings anyways etc (C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log) anyways etc.
+For example as in [these screenshots (google drive folder link anyways etc)](https://drive.google.com/drive/folders/1gyaLERKrDAUbiQeVWl4S7T7tPJB0soR3?usp=sharing), or to copy the err log (path from Notepad++, adjust with your windows username or/and equivalent configuration/version of this that fits/suits your system username or/and other settings anyways etc (C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log).
 
 If such issues happen, maybe restart the game and hopefully all fixed, ideally modify python files before game is launched to prevent that, unless you know what or/and why you are doing (it) or/and other (reason) or and not as you prefer or not or yes or and other or and not anyways etc anyways etc anyways etc
 
@@ -738,7 +739,7 @@ I don't know what the influence of the negative sign is, as otherwise 2 vs 0 sho
 
 ## 21 - (Now fixed) missing "Cannot enter" terrain or/and feature info in map view of unit effects, unlike in sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads if i am not mistaken anyways etc, now added this info as well anyways etc))
 
-Screenshots about this issue are in this [google drive folder link](https://drive.google.com/drive/folders/1Felp-YagsHPYY3wtVqbV4eSRpwYl6BSb?usp=sharing) anyways etc.
+Screenshots about this issue are in this [google drive folder link](https://drive.google.com/drive/folders/1Felp-YagsHPYY3wtVqbV4eSRpwYl6BSb?usp=sharing).
 
 Now solved. As part of adding terrain or/and feature restrictions to some units like chariot units and some siege units anyways etc (catapults and trebuchets i.e. early siege units as of now only at least anyways etc), i noticed the info is not displayed clearly in sevopedia unit's place Special (it doesn't mention this effect applies only in cultural borders, and that for all tiles regardless of whether tile is roaded or not, has no impact on the effect (i.e. roaded or unroaded in cultural borders is walkable but unroaded or roaded outside of cultural borders is not walkable regardless of road status if i may say anyways etc, and unlike in some games like civ3 where adding a road fixed or unlocked the limitation anyways etc))
 
@@ -1955,7 +1956,7 @@ Update: added siege units to excluded fallback units as they are not versatile e
 
 Update 2: updated since then to prefer civ-specific units and other tweaks if any, see [53.2.2 (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory anyways etc) in CvCityAI::AI_chooseUnit anyways etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-anyways-etc-in-cvcityaiai_chooseunit-anyways-etc) for details anyways etc
 
-Update 3: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit` if i'm not mistaken but anyways etc, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc.
+Update 3: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit` if i'm not mistaken but anyways etc, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
 ## 52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc
 
@@ -2317,7 +2318,7 @@ note: was before german hussars were moved to a later mounted unit anyways etc.
 
 Also, german AI seems to benefit more from these changes, as in the mid-late game he produces hussars instead (of cannons or whatever he produced then i guess but anyways etc), and secures a conquest win 50 turns sooner!! (around turn 280 instead of turn 330 before the changes), with a very impressive production and unit count with our current balance settings (that don't give per era freebies or exponential reduction to cost or such anymore if i'm not mistaken but anyways etc), with a very impressive composition at turn 285 where he wins but anyways etc of 54 hussars, 26 camel cuirassiers, 26 pikemen, 5 cannons, 25 musketmen, 26 pikemen, and a bunch of / few other units in small count anyways etc. (Another difference is also julius caesar ai was much stronger this run, securing several/many cities instead of shriking if i am not mistaken but anyways etc).
 
-Downside is we seem to underproduce siege units a bit, but this is fine, especially early, where they shouldn't be too efficient to use if not for attacking cities, so as long as we have a bit of enough should be hopefully fine, else we can tone it down (or up (in this case i mean but anyways etc)) anyways etc. Left as such for now anyways etc.
+Downside is we seem to underproduce siege units a bit, but this is fine, especially early, where they shouldn't be too efficient to use if not for attacking cities, so as long as we have a bit of enough should be hopefully fine, else we can tone it down (or up (in this case i mean but anyways etc)). Left as such for now anyways etc.
 
 Note: among experimental changes, i tried changing trebuchets to unitai_attack_city_lemming to help reduce their production when not relevant, but it seems they were not produced at all anymore (or if they were (much less if at all produced), it was not with this unitai but with unitai_attack_city in debug view ingame it seems but anyways etc), so i'd say unitai_attack_city_lemming is not a reliable unitai to use so i don't use it in our code as we were not doing more or less guessedly if i may say but anyways etc, but check if accurate as this is just a guess from me and i don't know how it works in this case i mean but anyways etc
 
@@ -2339,7 +2340,7 @@ Update: now generalized the no excess very cheap units code/formula to a few lat
 
 I don't know if it's for sure a result of these, but we seem to have really good results, with japan ai reducing its longbow output from +/- 75 longbows at turn 200 (way too much) to something more like 50-60 longbows but 10-15 camel archers or/and 20-27 samurais depending on runs and settings somehow it seems, but composition does seem quite a bit better if no just fluctuaiton, check to be sure anyways etc.
 
-Update 2: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc.
+Update 2: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc).
 
 ## 54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anyways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
 
@@ -2362,7 +2363,7 @@ Testing ingame is extremely good, as can be seen in existing screenshots between
 
 Thanks to this, i believe AI is stronger and settles better, but check if accurate anyways etc.
 
-Note: i also adjusted distance to civs, as well as culture pressure settling choices, to reject too far (vs penalizing far distance only which would not strictly forbid site if not penalized hard enough if i'm not mistaken) or too culturally pressing sites entirely (didn't test but maybe same at least now we reject too culturally pressing sites at least in theory (didn't test it too much but seems to work as such at a quick glance)) anyways etc.
+Note: i also adjusted distance to civs, as well as culture pressure settling choices, to reject too far (vs penalizing far distance only which would not strictly forbid site if not penalized hard enough if i'm not mistaken) or too culturally pressing sites entirely (didn't test but maybe same at least now we reject too culturally pressing sites at least in theory (didn't test it too much but seems to work as such at a quick glance)).
 
 ## 55 to 60 -
 
@@ -2796,11 +2797,11 @@ Also, code added with the help of chatgpt 5, check if accurate and thanks a lot 
 
 ## 67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1JkBWnedqChDH-PSqIle-eQYwHV6tume1?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1JkBWnedqChDH-PSqIle-eQYwHV6tume1?usp=sharing).
 
 It was very very annoying, thankfully i mean now fixed/corrected in advciv-sas if i may say but anyways etc.
 
-Now all players, be it human or AI, have a 1 hammer rounded production (units, buildings, projects (all in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc)) cost, or tech, great people, or such other costs too or not or etc it seems (`CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost`) anyways etc.
+Now all players, be it human or AI, have a 1 hammer rounded production (units, buildings, projects (all in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc)) cost, or tech, great people, or such other costs too or not or etc it seems (`CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost`).
 
 Example of code if i may say but anyways etc:
 
@@ -2822,13 +2823,13 @@ Hopefully clearer/saner less frustration generating/inducing xd if i may say, al
 
 ## 68 - (Tremendously Improved) AI having a settler parked from turn +/- 45 to turn 100 and still didn't found any city, fixed/addressed in CvUnitAI::AI_found
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1Eip4H2dji_1fxmw2HmShhoa_1I4JnISF?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Eip4H2dji_1fxmw2HmShhoa_1I4JnISF?usp=sharing).
 
 For some reason we were very slow to produce our first settler after the change, but after we had our first settler, 2nd spain AI city was founded soon after which is nice and addresses this issue: we now have 3 cities at turn 100, and so do other ais more or less as well, which seems like a nice and quite safe enhancement since cities seem guarded more than enough (2 units per city it seems) but check to be sure as i only glanced through autoplay i mean anyways etc.
 
 ## 69 - (Tremendously Improved) AI going for great general leaders, while military instructors are much better (with added logic to favour top hammer cities, remove military instructor per city limit, favour it further if have or building heroic epic effect building, etc.)
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1k42nIibXMMDUeJOedCEnrwUMGBFWem9J?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1k42nIibXMMDUeJOedCEnrwUMGBFWem9J?usp=sharing).
 
 Changes thanks to claude sonnet 4.5 and chatgpt 5, in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`.
 
@@ -2868,7 +2869,7 @@ It thought for almost 13 minutes with the relevant .cpp files so i'd tend to thi
 
 ## 71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1grZBqkHYUqtXAhdqRxpSqqa759_Q7gsI?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1grZBqkHYUqtXAhdqRxpSqqa759_Q7gsI?usp=sharing).
 
 WinDbg !analyze -v result viewable in .txt as of now at above link for reference i mean but anyways etc (full dmp with a debug dll anyways etc (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too i mean but anyways etc)).
 
@@ -2876,7 +2877,7 @@ See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details anywa
 
 ## 72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1oWBp58ADUKAHAAUnXGIARciHF47ncuW8?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1oWBp58ADUKAHAAUnXGIARciHF47ncuW8?usp=sharing).
 
 I patched 3 locations in `CvCityAI::AI_chooseProduction` and 1 location in `CvCityAI::AI_bestBuildingThreshold` that caused the assert to fire i mean, but i may have missed some, so i hope the general extra assert (if iNum is negative if i understand it correctly i mean but anyways etc) we added in `getInt` with chatgpt 5 i mean thanks i mean but anyways etc will be helpful to spot other similar issues.
 
@@ -2886,7 +2887,7 @@ See code comments there i.e. in `getInt` in for details anyways etc.
 
 ## 73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1wkIJ-7KouMqDezmXmY_hlpmyk2vajrye?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wkIJ-7KouMqDezmXmY_hlpmyk2vajrye?usp=sharing).
 
 WinDbg !analyze -v result viewable in .txt as of now at above link.
 
@@ -2898,7 +2899,7 @@ See code comments there i.e. in parent callers in `CvCityAI::AI_chooseProduction
 
 ## 75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/16vQkp1ow6sy2Bi99M02HbHMPpFDU9Q1h?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/16vQkp1ow6sy2Bi99M02HbHMPpFDU9Q1h?usp=sharing).
 
 AI had an issue of seemingly tremendously favouring the former civic_emancipation i guess because of the `iCivicPercentAnger` as chatgpt 5 assessed as per its review (check if accurate anyways etc) i mean but anyways etc, but the problem is that the civic itself was really bad. Just because we'd have some rivals run the civic is no reason to urgently switch to it. Only do so if our cities are unhappy because of this effect rather. Else, keep other civics like as of now civic_caste_system or anything else, unless the civic_emancipation is by itself better (e.g. due to other effects if reworked, etc).
 
@@ -2908,7 +2909,7 @@ To be good, the civic would need to be reworked, and not just picked because oth
 
 ## 76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1GLf_a49yosoDPFnFeO9Gh3qFOvBm83_V?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GLf_a49yosoDPFnFeO9Gh3qFOvBm83_V?usp=sharing).
 
 AI had an issue of seemingly tremendously favouring civic_caste_system, and then sticking to it no matter what almost always.
 
@@ -2926,7 +2927,7 @@ Ideally i'd find ways to prevent oscillation or excessive oscillation at least m
 
 ## 77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1oy_TaNgXpqxxCU5rYUxbqRCL6V_4VkNa?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1oy_TaNgXpqxxCU5rYUxbqRCL6V_4VkNa?usp=sharing).
 
 We have an issue of AI researching techs its vassal already knows which is very inefficient. In this save file Hammurabi (vassal of Ewuare) is way ahead in tech; it seems at a quick glance Ewuare re-researches many techs Hammurabi already owns, which is very inefficient and suboptimal.
 
@@ -2942,7 +2943,7 @@ Update: after [KI#78](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ
 
 ## 78 - (Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + add a second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) to have a more dynamic tech trading not only based on personality according to chatgpt 5.1 and then corrected by claude sonnet 4.5's review (check if accurate) anyways etc
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1a1eEd0iAaTXNsBSrz_NF6NRFZOgP12kP?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1a1eEd0iAaTXNsBSrz_NF6NRFZOgP12kP?usp=sharing).
 
 Following [KI#77](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc), also added logic so that master<->vassals are much more inclined to trade with each other, not just for techs they don't have, but for any tech. This synergises and expands on this previous change, in `CvPlayerAI::AI_doDiplo`.
 
@@ -3023,7 +3024,7 @@ Update 2: with more autoplay testing, tech pace seems mostly overall same (not m
 
 ## 79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1mv377xdPwZFVtOqVZdMAzEqIBdFCktHC?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1mv377xdPwZFVtOqVZdMAzEqIBdFCktHC?usp=sharing).
 
 After [KI#78](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate-anyways-etc)'s update change, it still seems we are slow to trade military science (for dragoons) to our master, even though rameses vassal has it long ago.
 
@@ -3058,7 +3059,7 @@ So all in all it does seem like a suitable change in most cases to bet on i mean
 
 ## 80 - (Tremendously Improved) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1XY87DcUJtJJIHqit_6qwNl09eWnqosso?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1XY87DcUJtJJIHqit_6qwNl09eWnqosso?usp=sharing).
 
 AI seemingly had no restriction on who it preferentially initiated contact with. However a stronger rival is more likely to be an enemy later, while a weaker one is more likely to be harmless and someone we can (more safely at least but anyways etc.) rely on or/and use for our advantage but anyways etc.
 
@@ -3072,7 +3073,7 @@ So this seems to help a lot, although it could just be noise, but it does not se
 
 ## 81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1d_UFDfZ76O1nY8FEZFa-Yh1NCBMN3dfa?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1d_UFDfZ76O1nY8FEZFa-Yh1NCBMN3dfa?usp=sharing).
 
 AI seemingly was often too slow or straight up not valuing for research key military techs (with a high enough FLAVOR_MILITARY, see sas defines for details anyways etc.) at all, even when it was weaker and at risk of dying (economy or such techs would be useless to it at best, and at worst they would be researching them for their ennemies when they conquer them (kind of like how AI used to do/be for wonders before our changes i mean if i may say but anyways etc.)).
 
@@ -3082,7 +3083,7 @@ This seems like a good AI improvement at least based on this autoplay comparison
 
 ## 82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1nqXsaX5ZFq550fHe7r6NwPfY2ZhQpIHE?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1nqXsaX5ZFq550fHe7r6NwPfY2ZhQpIHE?usp=sharing).
 
 This is a long standing issue i had noticed in base advciv when i was still playing it if i may say but anyways etc. (that i had named example example 110), see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made but anyways etc.
 
@@ -3116,7 +3117,7 @@ Note added by chatgpt 5.1 about the scope of this change as i asked it about it 
 
 ## 83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1h3puw0vWwDHkhgydMGN6PXcl3BXkFeoH?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1h3puw0vWwDHkhgydMGN6PXcl3BXkFeoH?usp=sharing).
 
 This is one of the key issues the AI had in base advciv as well, of not trading oppornutistically way more cheaply when other rivals also discover the tech and could beat us to the sale. Even if the tech was worth say 200 gold, it's better to have 20-30 gold off (or of? Or something else? Anyways etc.) it rather than 0 (no advantage in keeping the tech since other rivals can profit, better sell it then).
 
@@ -3133,7 +3134,7 @@ iAIResearchPercent,118,112,106,100 (noble),94,88,82,76,70
 
 ## 84 - (Added missing feature) Rivals of the active/human player that are willing to become the active/human player's vassal not showing an icon to quickly indicate that at a glance, in the Foreign advisor's glance tab (no pun but anyways etc.)
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1Oy-oD3VUPzOXwFCGXL_EqZlPF3D8m5Q5?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Oy-oD3VUPzOXwFCGXL_EqZlPF3D8m5Q5?usp=sharing).
 
 This is another very nice feature that was missing in base advciv 1.12 and very tedious to check or making sure to not having missed it but anyways etc., which is if rivals are willing to become rival to us, the human player.
 
@@ -3151,7 +3152,7 @@ Update 2: now added to a helper (`CvDLLWidgetData::parseVassalWillingnessHelp`) 
 
 ## 85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1cg05BVD4Jrs4hnbaaniNpitdgRIrfSHL?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1cg05BVD4Jrs4hnbaaniNpitdgRIrfSHL?usp=sharing).
 
 In [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py), base advciv disables the BUG's tech bulbing indicators (that come from RFC DOC's mod btw according to base advciv comments as well if i understood it correctly, and if there weren't, i was going to take them from RFC DOC as well as they look nice there as well thanks! I mean if i may say but anyways etc.) at turn 0 with the following rationale:
 
@@ -3201,19 +3202,19 @@ Update: somehow sometimes they appear at turn 0 and sometimes not, what matters 
 
 ## 86 - (Fixed) Base AdvCiv bug, in sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks anyways etc
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1I71aSFVOj4GZIhgBde0niJwJIFmx_exC?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1I71aSFVOj4GZIhgBde0niJwJIFmx_exC?usp=sharing).
 
 Now fixed with the help of chatgpt 5.2 thanks anyways etc.
 
 ## 87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1vFB4Iae35EQlTOaobLDD7Cw4J4OuW_ta?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1vFB4Iae35EQlTOaobLDD7Cw4J4OuW_ta?usp=sharing).
 
 Issue and fixed described in [/README.md#external-file-access-in-civ4-ingame-on-windows](/README.md#external-file-access-in-civ4-ingame-on-windows).
 
 ## 88 - (Tremendously Improved) AI always upgrading way too much units and not teching at all, sometimes for dozen turns
 
-See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1ahGT4Wdts_EywCgUFjSyOfEFzpDk3ows?usp=sharing) anyways etc.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ahGT4Wdts_EywCgUFjSyOfEFzpDk3ows?usp=sharing).
 
 AI had a problem of spending too much time and gold to upgrade units that are often not worth ugprading at all (better let them die and build new ones than tech snail for dozens of turns sometimes).
 
@@ -3226,3 +3227,701 @@ Here are some extra details i moved away from the cpp file as chatgpt 5.2 nicely
 Otherwise, see rationale and details in code comments in `CvUnit::canUpgrade` or in the related XML SAS defines's code comments as well.
 
 Very good results in autoplay it seems, in short, especially in the later game, as tech pace is seemingly much faster for all AI players, which is especially nice since they had in AdvCiv-SAS a problem of snailing for dozens of turns (possibly in base AdvCiv too from what i remember, although i didn't check to be sure), which should be less of an occurence now (check to be sure, it seemed so at a glance but they still spend some time upgrading units, i'm guessing they are more efficient now or do it less when it is actually worth, but not sure as i didn't check more than that and in autoplay sample, so check if accurate although results do seem good).
+
+## 89 - (Improved) In an attack stack, attack with lower value (effective strength, XP, health) units first
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pIXiY183a1NpEBSxr5zFUtcg56rwAXwV?usp=sharing).
+
+Data exatracted from the screenshots mostly thanks to ChatGPT 5.2 as it was very accurate (Note: i also tried to do this with Gemini 3 pro but it had many mistakes which is already way too many).
+
+The samples start from same save file turn 295 and are autoplayed 10 turns to turn 305 with each DLL.
+
+### Turn 305 before
+
+#### Scoreboard
+
+| Military Ratio | Score | Leader Name |
+| :--- | :--- | :--- |
+| **2.4** | 2928 | Tokugawa Ieyasu |
+| **0.8** | 1224 | Suryavarman II |
+| **3.3** | 2928 | Ewuare |
+| **1.7** | 1730 | Moctezuma II |
+| **0.6** | 749 | Julius Caesar |
+| **1.3** | 1435 | Qin Shi Huang |
+| - | 1399 | PC |
+| **0.4** | 679 | Saladin |
+| **0.2** | 750 | Gilgamesh |
+| **0.1** | 571 | Alexander III |
+
+Here is the text extracted from the Event Log panel in the screenshots:
+
+#### Civ4ScreenShot2029 - Event Log
+
+- AD 1910: The enemy has been spotted near Sippar!
+- AD 1910: The enemy has been spotted near Dur-Kurigalzu!
+- AD 1904: Ewuare has made peace with Moctezuma II and Julius Caesar.
+- AD 1904: Moctezuma II converts to Judaism! (Renounces Christianity.)
+- AD 1904: Isin (Ewuare) has been captured by the Aztec Empire!!
+- AD 1902: Khuraan (Moctezuma II) has been captured by the Kingdom Of Benin!!
+- AD 1900: Akkad (PC) has been captured by the Japanese Empire!!
+- AD 1898: Suryavarman II adopts Free Religion! (Renounces Christianity.)
+- AD 1898: Qin Shi Huang has made peace with Tokugawa Ieyasu and Suryavarman II in exchange for Assembly Line.
+- AD 1898: Ewuare has declared war on Moctezuma II and Julius Caesar!
+- AD 1896: Tokugawa Ieyasu and Suryavarman II have made peace with Moctezuma II and Julius Caesar.
+- AD 1896: Ewuare has declared war on Tokugawa Ieyasu and Suryavarman II!
+- AD 1896: You and Saladin have declared war on Tokugawa Ieyasu and Suryavarman II!
+- AD 1892: You and Saladin have made peace with Qin Shi Huang
+- AD 1890: Guangzhou (Qin Shi Huang) has been captured by the Japanese Empire!!
+- AD 1888: You and Saladin have declared war on Qin Shi Huang!
+- AD 1884: Saladin has agreed to become a vassal state of PC
+- AD 1880: Moctezuma II converts to Christianity! (Renounces Judaism.)
+- AD 1871: Moctezuma II and Julius Caesar have made peace with Ewuare.
+- AD 1871: Apostolic Palace voting members have announced their decision: Stop trading with
+Gilgamesh (Requires 376 of 608 Total Votes)
+
+#### Hammurabi (Civ4ScreenShot2006)
+
+- Worker (7)
+- Work Boat (2)
+- Horse Knight (3)
+- Dragoon (20)
+- Maceman (1)
+- Cannon (5)
+- Musketman (1)
+- Rifleman (19)
+- Grenadier (8)
+- Galley (2)
+- Trireme (1)
+- Galleon (1)
+- Ship of the Line (1)
+- Ironclad (1)
+
+#### Moctezuma II (Civ4ScreenShot2007)
+
+- Worker (12)
+- Work Boat (2)
+- Great Artist (1)
+- Longbowman (1)
+- Camel Knight (21)
+- Camel Cuirassier (14)
+- Spearman (2)
+- Pikeman (1)
+- Cannon (8)
+- Musketman (6)
+- Rifleman (33)
+- Grenadier (31)
+- Galley (1)
+- Galleon (1)
+- Ironclad (1)
+
+#### Qin Shi Huang (Civ4ScreenShot2008)
+
+- Worker (13)
+- Work Boat (2)
+- Longbowman (2)
+- Camel Knight (2)
+- Camel Cuirassier (1)
+- Dragoon (39)
+- Maceman (3)
+- Cannon (2)
+- Musketman (6)
+- Rifleman (24)
+- Galley (2)
+- Galleon (1)
+- Frigate (2)
+
+#### Alexander III (Civ4ScreenShot2009)
+
+- Longbowman (5)
+- Hoplite (1)
+- Axeman (2)
+
+#### Gilgamesh (Civ4ScreenShot2010)
+
+- Worker (1)
+- Spy (1)
+- Horse Knight (1)
+- Camel Knight (1)
+- Maceman (1)
+- Cannon (1)
+- Musketman (7)
+
+#### Ewuare (Civ4ScreenShot2011)
+
+- Worker (18)
+- Spy (1)
+- Work Boat (1)
+- Great Prophet (1)
+- Longbowman (1)
+- Camel Knight (7)
+- Camel Cuirassier (7)
+- Spearman (1)
+- Axeman (1)
+- Machine Gun (15)
+- Field Gun (1)
+- Musketman (1)
+- Infantry (49)
+- Paratrooper (10)
+- Grenadier (2)
+- Bazooka (9)
+- SAM Infantry (15)
+- Mobile SAM (39)
+- Tank (1)
+- Gunship (12)
+
+#### Tokugawa Ieyasu (Civ4ScreenShot2012)
+
+- Worker (22)
+- Great Spy (1)
+- Archer (1)
+- Dragoon (20)
+- Machine Gun (11)
+- Field Gun (11)
+- Rifleman (2)
+- Infantry (44)
+- Grenadier (8)
+- Bazooka (13)
+- SAM Infantry (3)
+- Mobile SAM (13)
+- Galleon (1)
+- Destroyer (2)
+
+#### Saladin (Civ4ScreenShot2013)
+
+- Settler (1)
+- Worker (2)
+- Spy (1)
+- Scout (1)
+- Longbowman (3)
+- Hajjan (1)
+- Camel Cuirassier (1)
+- Axeman (1)
+- Catapult (1)
+- Cannon (9)
+- Musketman (7)
+
+#### Suryavarman II (Civ4ScreenShot2014)
+
+- Worker (8)
+- Camel Cuirassier (2)
+- Spearman (1)
+- Pikeman (1)
+- Axeman (1)
+- Maceman (1)
+- Field Gun (2)
+- Musketman (22)
+- Grenadier (16)
+- Galley (1)
+- Galleon (1)
+
+#### Julius Caesar (Civ4ScreenShot2015)
+
+- Worker (2)
+- Camel Knight (5)
+- Camel Cuirassier (6)
+- Spearman (3)
+- Pikeman (1)
+- Cannon (6)
+- Musketman (9)
+- Grenadier (9)
+- Galleon (1)
+
+### Turn 305 after
+
+Here is the markdown snippet for the attached screenshots, formatted according to your example.
+
+#### Scoreboard after
+
+| Military Ratio | Score | Leader Name |
+| --- | --- | --- |
+| **3.5** | 2966 | Ewuare |
+| **2.1** | 2937 | Tokugawa Ieyasu |
+| **0.7** | 1257 | Suryavarman II |
+| **1.3** | 1761 | Moctezuma II |
+| **0.5** | 749 | Julius Caesar |
+| **1.2** | 1517 | Qin Shi Huang |
+| **0.2** | 710 | Gilgamesh |
+| - | 1414 | PC |
+| **0.3** | 719 | Saladin |
+| **0.1** | 571 | Alexander III |
+
+#### Civ4ScreenShot2030 - Event Log
+
+- AD 1906: Ewuare signs defensive pact with PC
+- AD 1904: Saladin has renounced the protection of PC and is once again a free state.
+- AD 1904: Tokugawa Ieyasu and Suryavarman II have made peace with you and Saladin.
+- AD 1902: Akkad (PC) has been captured by the Japanese Empire!!
+- AD 1900: Gilgamesh converts to Hinduism! (Renounces Judaism.)
+- AD 1900: Qin Shi Huang converts to Daoism! (Renounces Judaism.)
+- AD 1898: Tokugawa Ieyasu and Suryavarman II have made peace with Moctezuma II and Julius Caesar.
+- AD 1898: Gilgamesh has agreed to become a vassal state of Qin Shi Huang
+- AD 1898: You and Saladin have declared war on Tokugawa Ieyasu and Suryavarman II!
+- AD 1896: Qin Shi Huang has made peace with Tokugawa Ieyasu and Suryavarman II in exchange for
+255 gold
+- AD 1896: Ewuare's Golden Age has begun!!!
+- AD 1892: You and Saladin have made peace with Qin Shi Huang
+- AD 1890: Guangzhou (Qin Shi Huang) has been captured by the Japanese Empire!!
+- AD 1888: You and Saladin have declared war on Qin Shi Huang!
+- AD 1884: Saladin has agreed to become a vassal state of PC
+- AD 1880: Moctezuma II converts to Christianity! (Renounces Judaism.)
+- AD 1871: Moctezuma II and Julius Caesar have made peace with Ewuare.
+- AD 1871: Apostolic Palace voting members have announced their decision: Stop trading with
+Gilgamesh (Requires 376 of 608 Total Votes)
+- AD 1865: Isin (Moctezuma II) has been captured by the Kingdom Of Benin!!
+- AD 1862: Tokugawa Ieyasu is the first to discover Theory of Evolution!
+
+#### Hammurabi (Civ4ScreenShot2019)
+
+- NO UNITCOMBAT: Worker (7), Work Boat (2)
+- ARCHERS (BOW, SHORT): Archer (1)
+- MOUNTED (MELEE): Horse Knight (3)
+- MOUNTED (RANGED): Horse Cuirassier (1), Dragoon (19)
+- MELEE (SHOCK): Maceman (2)
+- SIEGE WEAPONS: Field Gun (3)
+- GUN UNITS: Musketman (1), Rifleman (18), Grenadier (9), Bazooka (4)
+- NAVAL UNITS: Galley (2), Trireme (1), Galleon (1), Ship of the Line (1), Ironclad (1)
+
+#### Moctezuma II (Civ4ScreenShot2020)
+
+- NO UNITCOMBAT: Worker (13), Work Boat (2), Great Prophet (1)
+- ARCHERS (BOW, LONG): Longbowman (1)
+- MOUNTED (MELEE): Camel Knight (12)
+- MOUNTED (RANGED): Camel Cuirassier (11)
+- MELEE (POLEARM): Spearman (2), Pikeman (1)
+- SIEGE WEAPONS: Cannon (5)
+- GUN UNITS: Musketman (7), Rifleman (35), Grenadier (20)
+- NAVAL UNITS: Galley (1), Galleon (1), Ironclad (1)
+
+#### Qin Shi Huang (Civ4ScreenShot2021)
+
+- NO UNITCOMBAT: Worker (13), Work Boat (2)
+- ARCHERS (BOW, LONG): Longbowman (2)
+- MOUNTED (MELEE): Camel Knight (2)
+- MOUNTED (RANGED): Dragoon (34)
+- MELEE (SHOCK): Maceman (2)
+- SIEGE WEAPONS: Cannon (1)
+- GUN UNITS: Musketman (5), Rifleman (25)
+- NAVAL UNITS: Galley (2), Galleon (1), Frigate (2)
+
+#### Alexander III (Civ4ScreenShot2022)
+
+- NO UNITCOMBAT: (none shown)
+- ARCHERS (BOW, LONG): Longbowman (5)
+- MELEE (POLEARM): Hoplite (1)
+- MELEE (SHOCK): Axeman (2)
+
+#### Gilgamesh (Civ4ScreenShot2023)
+
+- NO UNITCOMBAT: Worker (1)
+- MOUNTED (MELEE): Horse Knight (1), Camel Knight (1)
+- MELEE (SHOCK): Maceman (1)
+- SIEGE WEAPONS: Cannon (1)
+- GUN UNITS: Musketman (7)
+
+#### Ewuare (Civ4ScreenShot2024)
+
+- NO UNITCOMBAT: Worker (19), Spy (1)
+- ARCHERS (BOW, LONG): Longbowman (1)
+- MOUNTED (MELEE): Camel Knight (7)
+- MOUNTED (RANGED): Camel Cuirassier (7)
+- MELEE (POLEARM): Spearman (1)
+- MELEE (SHOCK): Axeman (1)
+- SIEGE WEAPONS: Machine Gun (22)
+- GUN UNITS: Field Gun (1), Musketman (1), Infantry (49), Paratrooper (11), Grenadier (2), Bazooka (9), SAM Infantry (15), Mobile SAM (50)
+- ARMORED UNITS: Tank (1)
+- HELICOPTER UNITS: Gunship (18)
+- NAVAL UNITS: Galley (2)
+
+#### Tokugawa Ieyasu (Civ4ScreenShot2025)
+
+- NO UNITCOMBAT: Worker (22), Great Spy (1)
+- ARCHERS (BOW, SHORT): Archer (1)
+- MOUNTED (RANGED): Dragoon (18)
+- SIEGE WEAPONS: Machine Gun (6), Field Gun (11)
+- GUN UNITS: Rifleman (5), Infantry (36), Grenadier (11), Bazooka (15), SAM Infantry (1), Mobile SAM (11)
+- NAVAL UNITS: Galleon (1), Ship of the Line (1), Destroyer (3)
+
+#### Saladin (Civ4ScreenShot2026)
+
+- NO UNITCOMBAT: Settler (1), Worker (2), Spy (1)
+- RECON UNITS: Scout (1)
+- ARCHERS (BOW, LONG): Longbowman (3)
+- MOUNTED (RANGED): Hajjan (1)
+- MELEE (SHOCK): Axeman (1)
+- SIEGE WEAPONS: Catapult (1), Cannon (10)
+- GUN UNITS: Musketman (7)
+
+#### Suryavarman II (Civ4ScreenShot2027)
+
+- NO UNITCOMBAT: Worker (9), Work Boat (1)
+- MOUNTED (RANGED): Horse Cuirassier (2), Camel Cuirassier (2)
+- MELEE (POLEARM): Spearman (1), Pikeman (1)
+- MELEE (SHOCK): Axeman (1), Maceman (1)
+- SIEGE WEAPONS: Cannon (2)
+- GUN UNITS: Musketman (20), Grenadier (12)
+- NAVAL UNITS: Galley (1), Galleon (1)
+
+#### Julius Caesar (Civ4ScreenShot2028)
+
+- NO UNITCOMBAT: Worker (2)
+- MOUNTED (MELEE): Camel Knight (5)
+- MOUNTED (RANGED): Camel Cuirassier (6)
+- MELEE (POLEARM): Spearman (3), Pikeman (1)
+- SIEGE WEAPONS: Cannon (7)
+- GUN UNITS: Musketman (9), Grenadier (7)
+- NAVAL UNITS: Galleon (1)
+
+### Uniformed interpretation of the data by ChatGPT 5.2
+
+Not knowing anything about what the DLL change may be other than a DLL change was made a DLL change related to military and that we want to compare them, here is what ChatGPT 5.2 thought:
+
+### Blind interpretation of the data by ChatGPT 5.2
+
+> - Overall, the "after" run looks more favorable to one clear winner (Ewuare), and harsher on several mid/high-power AIs (Moctezuma, Tokugawa, Qin).
+> - The scoreboard power picture shifts: Ewuare rises from 3.3 to 3.5, while Tokugawa drops from 2.4 to 2.1, and Moctezuma drops from 1.7 to 1.3.
+> - Unit counts match that story: Ewuare is up roughly +25 land combat units (big increases in Mobile SAM, Machine Gun, and Gunship), while Moctezuma is down roughly -23 land combat units, Tokugawa down roughly -11, Qin down roughly -8.
+> - Hammurabi goes the other direction: slightly larger, more modern mixed army in the after run (Field Guns + Bazookas appear, total land combat up a bit).
+> - Diplomatically/militarily, the event log in the before run contains "enemy spotted near Sippar/Dur-Kurigalzu" plus a later city capture (Isin (Ewuare) captured by the Aztecs), which reads like real pressure or a defensive failure.
+> - In the after run, instead you have "Ewuare signs defensive pact with PC" and "Ewuare's Golden Age has begun", and the visible log does not show the same "enemy spotted" warnings or the same "Ewuare loses Isin" outcome.
+> - Taken purely as outcomes, the after run looks like: fewer immediate threats to the player area (at least none shown), Ewuare consolidating and powering up, and some rival armies shrinking hard (whether by battlefield losses, disbanding, or other causes is not knowable from this data alone).
+> - If your goal is "AI war outcomes feel more decisive and less prone to random catastrophic defense failures for the strong civ", the after run looks better.
+> - If your goal is "keep multiple AIs at comparable strength and avoid a runaway top civ", the after run looks riskier because the power distribution becomes more top-heavy around Ewuare.
+
+### Re-interpreting with code knowledge by ChatGPT 5.2
+
+> Note on wording: earlier, my "code knowledge" section was really just an inference from the outcomes (not actual code), because you had not provided the diff yet. Below is the real code-based analysis of the actual change you posted.
+>
+> #### What the DLL change actually does
+>
+> You added a new optional behavior to `CvSelectionGroupAI::AI_getBestGroupAttacker(...)`: when `bPreferLowPower` is true (and the caller is AI, and the new XML define is enabled), the attacker selection stops being "best odds / LFB" and becomes "spend expendables first".
+> You then forced this on for stack attacks by changing `CvSelectionGroup::groupAttack` to call:
+> `AI_getBestGroupAttacker(..., !bMaxSurvival, bMaxSurvival, true)`
+> So for AI group attacks, `bPreferLowPower` is now always true.
+>
+> #### The new selection rule (when enabled)
+>
+> For each candidate unit that can attack, you compute:
+>
+> - `iOdds = AI_attackOdds(...)` (but you do not use it to choose the unit directly)
+> - `iPower = AI_currEffectiveStr(...)` (effective strength on that plot, including collateral evaluation inputs)
+> - `iValue = iPower`, with a giant bias:
+>
+> - if `bombardRate() > 0` OR `collateralDamage() > 0`, you do `iValue -= 1000000`
+>     Then you pick the unit with:
+>
+> 1. lowest `iValue` (so: siege/collateral units first, otherwise lowest effective power first)
+> 2. tie-break: lowest XP first
+> 3. tie-break: among "healthy enough" units (>= `MIN_HEALTH_PERCENT`, default 60), lower health percent first (use slightly wounded units before fully healthy ones)
+>
+> #### The important interaction with the existing sacrifice logic
+>
+> At the end of the function, the old logic still runs:
+> `if (bSacrifice && iUnitOdds < 68) { pick AI_getBestGroupSacrifice(...) }`
+> For AI group attacks, `bMaxSurvival` is effectively false (there is even an assert expecting max-survival to be human-only), so `bSacrifice` tends to be true.
+> That means your low-power choice will get overridden when the chosen unit has odds < 68.
+> Net effect in practice is roughly:
+>
+> - If your "expendable-first" pick has odds < 68, the function falls back to the old sacrifice picker anyway.
+> - If your "expendable-first" pick has odds >= 68, it will actually be used, even if another unit had much higher odds.
+>
+> #### What this change is likely to do in-game
+>
+> It is not a production change; it is a casualty-distribution and combat-resolution change.
+> In particular it will:
+>
+> - Make siege/collateral units attack earlier much more aggressively than the old logic (because of the -1,000,000 bias), even in cases where the old odds-based logic might have preferred a different unit first.
+> - Prefer lower-power (often older/cheaper/obsolete, but also sometimes just "situationally weak on this tile") attackers whenever they still have "not terrible" odds (>= 68).
+> - Preserve high-XP and high-power units by holding them back, which can make a strong stack keep its best units alive longer (good for the leader, potentially snowbally overall).
+> - Increase variance: choosing a 68-75% attacker instead of a 90-99% attacker will sometimes cause extra losses, and those losses can cascade into very different war trajectories over only 10 turns.
+>
+> #### Risks / edge cases in the heuristic (code-level)
+>
+> 1. Odds are not part of the main ranking.
+>    You only avoid truly awful odds indirectly via the `< 68` sacrifice fallback.
+>    So the code can still choose a materially worse attacker (say 70%) over a near-certain attacker (say 95%) purely because it is lower power / lower XP.
+>    That is a real "win-rate vs preservation" tradeoff, and it can absolutely change who wins a war.
+> 2. `iPower` is "effective strength on this plot", not "unit cost" or "unit replaceability".
+>    Sometimes a valuable unit can look low-power due to situational modifiers, and your rule will spend it early when you did not intend to.
+> 3. The -1,000,000 siege bias is a hard override.
+>    It does not merely "prefer siege first", it forces siege/bombard/collateral to the front of the line whenever available.
+>    That is often correct for city assaults, but it may be wrong for some field fights or odd tactical positions.
+> 4. Health tie-break only applies after `iValue` and XP tie.
+>    So it does not strongly protect badly wounded units (it only nudges within a narrow tie scenario).
+>
+> #### Re-reading your observed outcomes with this code in mind
+>
+> In your 10-turn sample, the "after" run ends up more top-heavy:
+>
+> - Ewuare increases military ratio (3.3 -> 3.5) and visibly grows modern forces (notably Mobile SAM and Gunships).
+> - Several rivals end the run with noticeably fewer units than in the "before" run (Moctezuma, Tokugawa, Qin).
+>   Given the code, that pattern is plausible if:
+> - The strongest side(s) had enough depth of "expendable-but-acceptable-odds" attackers to trade away, while preserving their elite finishers.
+> - The weaker side(s) were forced into more marginal attacks (or simply lost more when attacking/defending into collateral-first sequencing), causing stack collapses.
+>   This is exactly the kind of change that can amplify existing power disparities: the civ with the deeper and more modern stack benefits more from "preserve elites", while the civ with thin forces can get punished harder when it spends weak attackers first and fails to convert attacks into wins.
+>
+> Also, your note that "many wars and stacks colliding happened in those 10 turns" matters a lot:
+> This change only expresses itself when stacks are actually attacking.
+> So your sampling window is a good stress test for it (but also more chaotic / path-dependent).
+>
+> #### Conclusion: good, bad, or randomness?
+>
+> My honest read from the code + the kind of divergence you see is:
+>
+> - Not obviously "broken" (the <68 sacrifice fallback prevents the most suicidal low-odds picks in many AI stack attacks).
+> - Very likely to increase war decisiveness and variance, and also likely to increase snowballing (strong stacks preserve elites and keep momentum).
+> - The outcome difference you saw could be partly "real improvement" (better sequencing, better elite preservation) and partly "RNG / path dependence" (any DLL change can shift RNG call order and cascade into totally different wars by turn 305).
+>   So I would classify it as: "plausibly good idea, but high-impact enough that a single 10-turn A/B is not sufficient; it needs a small batch test to see if it consistently improves AI war results without creating runaway amplification."
+>
+> #### If you want a simple, low-risk refinement (still in your style)
+>
+> If the goal is "expendables first, but don’t throw wins away", the simplest guardrail is:
+>
+> - First compute `iBestOddsOverall` (max odds among eligible attackers).
+> - Only allow the low-power ordering among units with `iOdds >= iBestOddsOverall - X` (e.g. X=10), or require `iOdds >= 80` for non-siege units.
+>   That preserves your intent (don’t spend elites when multiple units have comparable odds), while preventing the 70% vs 95% type of self-sabotage.
+>
+> If you want, paste the old (pre-change) selection block call sites you care about (where else `AI_getBestGroupAttacker` is called), and I can tell you exactly where this new behavior will and will not apply (and where it might be unexpectedly bypassing LFB).
+
+#### About siege (ChatGPT 5.2)
+
+> ### Siege and collateral units
+>
+> #### What the code intends
+>
+> Your new attack-order path treats "siege/collateral" as: `bombardRate() > 0` **or** `collateralDamage() > 0`, and it hard-prioritizes them by subtracting 1,000,000 from their selection value.
+> So for **AI stack attacks** (not humans), once a group has committed to attacking, siege/collateral should usually go **first**, and therefore should be "burned down" (spent) earlier on average.
+> (Also: **Machine Guns are not siege** in Civ4 terms; they normally have neither bombard nor collateral. Your rule will not auto-frontload them unless your XML gives them collateral/bombard.)
+>
+> #### What we can and cannot infer from your 10-turn snapshots
+>
+> From a single end-of-window composition snapshot, we **cannot directly prove** "siege went first" because we do not observe the attack sequence, and siege counts are also affected by production, upgrades, and reinforcements.
+> What we *can* do is a weak signal check: did total visible siege/collateral counts (Catapult + Cannon + Field Gun in your lists) trend down more in the "after" run?
+>
+> #### Siege/collateral counts: before vs after (from your lists)
+>
+> Total siege/collateral units visible:
+>
+> - Before: ~46 (Cannon 31, Field Gun 14, Catapult 1)
+> - After:  ~42 (Cannon 26, Field Gun 15, Catapult 1)
+>   That is a small net drop (~-4) over 10 turns, which is **compatible** with "siege gets used up earlier" but far from conclusive.
+>
+> Per-civ notable deltas (siege only):
+>
+> - Moctezuma: Cannon 8 -> 5 (down)
+> - Qin: Cannon 2 -> 1 (down)
+> - Hammurabi: Cannon 5 -> Field Gun 3 (different mix, slightly down in count)
+> - Saladin: Catapult 1 + Cannon 9 -> Catapult 1 + Cannon 10 (slightly up)
+> - Julius: Cannon 6 -> 7 (slightly up)
+>
+> #### Practical interpretation
+>
+> The aggregate signal is mild: there is *some* movement consistent with spending siege earlier (notably Moctezuma/Qin), but not a strong "everyone burned siege" signature.
+> That makes sense because your logic only changes **attack ordering**, and only expresses strongly in fights where stacks attack repeatedly; production/upgrades can easily mask siege attrition in a 10-turn slice.
+
+### Same with claude opus (4.5) not informed about code
+
+Hi! Happy to help analyze this blind comparison.
+
+Looking at the two outcomes after 10 turns (Turn 295 → 305):
+
+#### Key Differences
+
+##### Scoreboard Changes
+
+| Leader | Before | After | Change |
+| -------- | -------- | ------- | -------- |
+| Ewuare | 2928 (3.3 mil) | 2966 (3.5 mil) | +38 score, +0.2 mil |
+| Tokugawa | 2928 (2.4 mil) | 2937 (2.1 mil) | +9 score, -0.3 mil |
+| Qin Shi Huang | 1435 (1.3 mil) | 1517 (1.2 mil) | +82 score, -0.1 mil |
+| PC (player) | 1399 | 1414 | +15 score |
+| Saladin | 679 (0.4 mil) | 719 (0.3 mil) | +40 score, -0.1 mil |
+
+##### Notable Diplomatic/Event Differences
+
+**Before version:**
+
+- Ewuare declared war on Tokugawa/Suryavarman
+- More chaotic war declarations
+- Gilgamesh kept his Spy unit
+
+**After version:**
+
+- Ewuare signs **defensive pact with PC** (big deal!)
+- Ewuare enters a **Golden Age**
+- Gilgamesh becomes **vassal of Qin Shi Huang**
+- Saladin **breaks free** from PC vassalage
+- Generally more peace settlements
+
+##### Military Composition
+
+The "After" version shows more **tech progression** for multiple civs—PC gained Field Guns, Bazookas, and a Horse Cuirassier. Ewuare expanded his Gunship fleet (12→18) and Mobile SAMs (39→50).
+
+#### Verdict
+
+The **"After" DLL** appears to produce a **more stable, diplomatically active** outcome with better AI decision-making (defensive pacts, vassalization, Golden Ages triggering). The military ratios are slightly more compressed, suggesting more balanced power dynamics.
+
+Would you say that matches what the DLL change was intended to do?
+
+### Same but wit code knowledge (Claude opus 4.5)
+
+#### Analysis of the Low-Power Attack Order Optimization
+
+##### What the Code Does
+
+The change modifies `AI_getBestGroupAttacker` to reorder which units attack first in AI stack battles:
+
+> **Before:** AI selected attackers based on highest odds/value (elite units often attacked first)
+>
+> **After:** When `bPreferLowPower=true` (enabled for AI only), the selection prioritizes:
+>
+> 1. **Siege/collateral units first** (get a massive -1,000,000 penalty to push them to the front)
+> 2. **Lowest effective power** among remaining units
+> 3. **Lowest XP** as tiebreaker
+> 4. **Lower health** (if above 60% HP threshold) as final tiebreaker
+
+The rationale in the code comment is sound:
+
+> - "Older/weaker units cost upkeep but scale poorly, while elite units are costly to lose and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds."*
+
+---
+
+#### Re-analyzing the Test Results
+
+With this context, let me revisit what we saw:
+
+##### Military Composition Shifts
+
+| Civ | Before | After | Interpretation |
+| ----- | -------- | ------- | ---------------- |
+| **Ewuare** | Gunship (12), Mobile SAM (39) | Gunship (18), Mobile SAM (50) | Elite units survived better → grew army |
+| **Tokugawa** | Infantry (44), Bazooka (13) | Infantry (36), Bazooka (15) | Lost more infantry (expendables) but preserved Bazookas |
+| **PC (Hammurabi)** | No Bazookas, no Field Guns | Bazooka (4), Field Gun (3) | Preserved/built elite units instead of losing them in attacks |
+
+This is **exactly what the code should produce** — expendable units die, elites survive and accumulate.
+
+##### The Gilgamesh Spy Disappearance
+
+> **Before:** Gilgamesh had Spy (1)
+> **After:** Gilgamesh has no Spy
+
+This could be explained by: if Gilgamesh attacked with his stack, the new logic might have sent the Spy in as a low-power unit (Spies have minimal combat strength). This could be an **edge case bug** — spies probably shouldn't be selected as attackers at all, but if they somehow pass the `canAttack()` check, they'd be prioritized as "expendable."
+
+##### Diplomatic Cascade Differences
+
+The diplomatic differences (Ewuare's defensive pact, Gilgamesh becoming Qin's vassal) are likely **downstream effects** of different battle outcomes:
+
+- If AI stacks win more decisively (preserving elites), they're in better position → more confident diplomacy
+- Ewuare's Golden Age in "After" could be triggered by Great Person generation that survived because elite units weren't lost
+
+---
+
+#### Verdict (after)
+
+> ##### **The change appears to be working as intended — this is a positive result, not randomness.**
+
+**Evidence it's working:**
+
+1. Elite unit counts grew for aggressive AIs (Ewuare's Gunships, PC's Bazookas)
+2. Basic infantry/expendables were consumed appropriately
+3. The leading AIs (Ewuare, Tokugawa) maintained or improved their positions
+4. More decisive outcomes led to cleaner diplomatic resolutions (defensive pacts, vassalizations)
+
+**Potential concerns:**
+
+1. The Spy disappearing from Gilgamesh is suspicious — might want a `!kLoopUnit.isSpy()` check or similar
+2. The `-1,000,000` magic number for siege/collateral is a bit crude (though functional)
+3. `bPreferLowPower` is hardcoded `true` in `groupAttack` — might want this configurable per situation
+
+**Overall assessment:**
+
+> ##### ✅ **Good change** — economically rational AI behavior, observable positive effects in test run, clean implementation with XML toggles for easy testing
+
+The 10-turn sample is small, but the results align with expected behavior rather than looking like noise. The AI is preserving valuable units and spending cheap ones, which is fundamentally sound strategy.
+
+### About siege (claude opus 4.5)
+
+#### Siege Unit Prioritization Analysis
+
+#### How the Code Handles Siege/Collateral Units
+
+The key logic is here:
+
+```cpp
+if (kLoopUnit.bombardRate() > 0 || bCollateral)
+    iValue -= 1000000;
+```
+
+This gives siege units (Cannons, Catapults, Field Guns, Trebuchets) and collateral damage units a **massive priority boost** (lower value = selected first) to attack before regular combat units.
+
+---
+
+#### Checking the Test Data for Siege Attrition
+
+##### Siege Unit Changes (Before → After)
+
+| Civ | Unit Type | Before | After | Change |
+| ----- | ----------- | -------- | ------- | -------- |
+| **PC (Hammurabi)** | Cannon | 5 | 0 | **-5** ✅ |
+| **PC (Hammurabi)** | Field Gun | 0 | 3 | +3 (new production) |
+| **Moctezuma II** | Cannon | 8 | 5 | **-3** ✅ |
+| **Qin Shi Huang** | Cannon | 2 | 1 | **-1** ✅ |
+| **Saladin** | Cannon | 9 | 10 | +1 (production > losses) |
+| **Saladin** | Catapult | 1 | 1 | 0 |
+| **Julius Caesar** | Cannon | 6 | 7 | +1 |
+| **Suryavarman II** | Cannon | 0 | 2 | +2 (new) |
+| **Tokugawa** | Field Gun | 11 | 11 | 0 |
+| **Tokugawa** | Machine Gun | 11 | 6 | **-5** ✅ |
+| **Ewuare** | Machine Gun | 15 | 22 | +7 (production) |
+| **Ewuare** | Field Gun | 1 | 1 | 0 |
+
+---
+
+#### Interpretation
+
+> ##### ✅ **Yes, siege units are being burned down first as intended — for civs actively at war.**
+
+**Clear evidence:**
+
+- **PC lost all 5 Cannons** — this is the player civ that was at war with Tokugawa/Suryavarman. The AI (controlling autoplay) correctly spent Cannons before Riflemen/Grenadiers.
+- **Moctezuma lost 3 Cannons** — was fighting Ewuare over Isin/Khuraan.
+- **Tokugawa lost 5 Machine Guns** — Machine Guns have `collateralDamage() > 0` in most Civ4 mods, so they get the same treatment.
+
+**Civs that gained siege:**
+
+- **Saladin, Caesar, Suryavarman** — these civs were mostly at peace or in minor skirmishes during the 10 turns, so their production outpaced losses.
+- **Ewuare** gained Machine Guns (+7) — likely heavy production during Golden Age; Ewuare was winning fights decisively so fewer losses overall.
+
+---
+
+#### Edge Case: Tokugawa's Machine Guns
+
+> **Before:** Machine Gun (11) → **After:** Machine Gun (6)
+
+This is interesting — Tokugawa lost **5 Machine Guns** but only **lost 8 Infantry** (44→36). The ratio suggests Machine Guns were indeed being sent in early as collateral units, softening defenders before Infantry finished them off.
+
+Compare to his **Bazookas: 13→15** (gained 2). Bazookas have no collateral, so they were preserved as finishers. **This is exactly the intended behavior.**
+
+---
+
+#### Summary
+
+> ##### Siege/Collateral Prioritization: **Working as designed** ✅
+>
+> | Behavior | Expected | Observed |
+> | ---------- | ---------- | ---------- |
+> | Cannons spent before Riflemen | Yes | Yes (PC: -5 Cannons, kept 18 Rifles) |
+> | Collateral units (Machine Gun) sent early | Yes | Yes (Tokugawa: -5 MGs, -8 Infantry) |
+> | Non-collateral elites preserved | Yes | Yes (Tokugawa: +2 Bazookas) |
+> | Peaceful civs accumulate siege | Yes | Yes (Saladin, Caesar gained Cannons) |
+
+The `-1,000,000` penalty is doing its job — it's crude but effective. Siege units bombard, then die attacking, then regular troops clean up. Economically rational.
+
+### GPT-5.2-Codex analysis (informed by code + data)
+
+- This change is primarily about casualty distribution, not production. It should shift losses toward low-effective-strength units and siege/collateral units, which preserves high-XP elites for finishing fights or retreating if the attack turns bad.
+- The economic rationale aligns with our intent: older/weak units have ongoing upkeep and low marginal impact, so spending them first reduces maintenance drag while protecting promotion investment and versatile endgame units.
+- The snapshot data looks consistent with that story: several civs show elite counts holding or rising (e.g., Bazookas, Gunships) while basic infantry and siege take the larger losses in the same 10-turn window. That pattern matches the new ordering logic more than a pure odds-based selection would.
+- At the same time, the sample window is short and was full of wars and diplomatic shifts (defensive pacts, vassalization, Golden Ages). Those cascades can amplify small combat-order differences, so this is suggestive but not conclusive.
+- Expected risk: the policy can increase snowballing, because the strongest civs have enough expendables to trade while preserving elites, while weaker civs may lose the few strong units they have or fail to convert marginal attacks into wins. The toggle is important for tuning and for A/B testing.
+
+Recommendation: keep testing across multiple 10-turn windows or different saves to see whether the power distribution stabilizes or becomes too top-heavy; track siege attrition and elite-unit survival as the most direct signals of the intended effect.

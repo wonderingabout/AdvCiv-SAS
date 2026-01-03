@@ -428,7 +428,7 @@ int CvSelectionGroupAI::AI_getWeightedOdds(CvPlot const* pPlot, bool bPotentialE
 CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 	bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz,
 	// <advc.048>
-	bool bSacrifice, bool bMaxSurvival) const
+	bool bSacrifice, bool bMaxSurvival, bool bPreferLowPower) const
 {
 	int const iOddsThresh = 68; // Should this be lower if bHuman?
 	FAssert(!bMaxSurvival || !bSacrifice); // </advc.048>
@@ -436,10 +436,22 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 
 	int iBestValue = 0;
 	int iBestOdds = 0;
+	int iBestXP = 0;
+	int iBestHealthRank = 0;
 	CvUnitAI* pBestUnit = NULL;
 	CLLNode<IDInfo> const* pUnitNode = headUnitNode();
 	bool const bHuman = (pUnitNode == NULL ? true :
 			GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwner()).isHuman());
+	static const bool bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE =
+			GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE");
+	bool const bUseLowPower = (bPreferLowPower && !bHuman &&
+			bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE);
+	if (bUseLowPower)
+	{
+		iBestValue = 1 << 30;
+		iBestXP = 1 << 30;
+		iBestHealthRank = 1 << 30;
+	}
 	FAssert(!bMaxSurvival || bHuman); // advc.048
 	while (pUnitNode != NULL)
 	{
@@ -466,6 +478,42 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 
 		if (!bForce && !kLoopUnit.canMoveInto(*pPlot, true, bPotentialEnemy))
 			continue;
+
+		// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
+		// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
+		// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
+		// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
+		// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
+		// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
+		if (bUseLowPower)
+		{
+			int const iOdds = kLoopUnit.AI_attackOdds(pPlot, bPotentialEnemy);
+			bool const bCollateral = (kLoopUnit.collateralDamage() > 0);
+			int iBaseCollateral = (bCollateral ? estimateCollateralWeight(pPlot, getTeam()) : 0);
+			int const iEffectiveStr = kLoopUnit.AI_currEffectiveStr(pPlot, &kLoopUnit,
+					bCollateral, iBaseCollateral, true);
+			int iValue = iEffectiveStr;
+			if (kLoopUnit.bombardRate() > 0 || bCollateral)
+				iValue -= 1000000;
+			int const iXP = kLoopUnit.getExperience();
+			int const iMaxHP = std::max(1, kLoopUnit.maxHitPoints());
+			static const int iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT =
+					GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT");
+			int const iHealthPercent = (100 * (iMaxHP - kLoopUnit.getDamage())) / iMaxHP;
+			int iHealthRank = (iHealthPercent >= iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT
+					? iHealthPercent : 100);
+			if (pBestUnit == NULL || iValue < iBestValue ||
+				(iValue == iBestValue && iXP < iBestXP) ||
+				(iValue == iBestValue && iXP == iBestXP && iHealthRank < iBestHealthRank))
+			{
+				iBestValue = iValue;
+				iBestOdds = iOdds;
+				iBestXP = iXP;
+				iBestHealthRank = iHealthRank;
+				pBestUnit = &kLoopUnit;
+			}
+			continue;
+		}
 
 		// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000: START
 		if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE) &&
