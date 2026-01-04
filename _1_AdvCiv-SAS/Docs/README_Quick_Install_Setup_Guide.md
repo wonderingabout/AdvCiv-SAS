@@ -17,6 +17,7 @@ To install and play this mod AdvCiv-SAS, you can follow the steps in this docume
 &emsp;[Full Development version (to modify it yourself)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#full-development-version-to-modify-it-yourself)  
 [Configure your game](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#configure-your-game)  
 &emsp;[General ideas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#general-ideas)  
+&emsp;[Disable the Steam overlay](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#disable-the-steam-overlay)  
 &emsp;[Relevant BUG Menu Options — enable if needed](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed)  
 [Settings if you want to develop/modify the mod or try some autoplay or such anyways etc (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-anyways-etc-skip-this-section-if-only-playing-without-wanting-extra-details)  
 [Where to download more/other mods](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#where-to-download-moreother-mods)  
@@ -113,6 +114,10 @@ There are some options i use personally xd but anyways etc in ingame settings th
 Then in BUG Menu options i also use this for example hehe but do as you prefer as well anyways etc (non-exhaustive in case i forgot / didn't show some anyways etc):
 
 - wide city bars
+
+### Disable the Steam overlay
+
+Optionally, for steam users, consider disabling the Steam Overlay if you don't use it in Civ4; allows access to the F12 key that won't screenshot anymore (as of now default In-game is Open Sevopedia).
 
 ### Relevant BUG Menu Options — enable if needed
 

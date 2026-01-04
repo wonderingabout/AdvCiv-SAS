@@ -1343,7 +1343,7 @@
 		 German. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc. ; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS as of now at least in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall difficulty. See the .csv (locally or on github) that compares all handicap settings and is updated as of now for details.</English>
+		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc. ; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS as of now at least in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall difficulty.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Tag>
@@ -1359,7 +1359,7 @@
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_PRINCE_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger. I would again recommend to see the .csv (locally or on github) that compares all handicap settings and is updated as of now for details.</English>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_MONARCH_HELP</Tag>

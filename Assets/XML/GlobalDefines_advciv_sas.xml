@@ -116,6 +116,11 @@
 		<DefineName>SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: For modders: set where GOODY and AIFreeTechs/FreeTechs rows resume in the Sevopedia handicap chart; default appends them at the end (excluding those rows). Based on Middle-earth Platypedia CvHandicapInfo approach. Credit: GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) --> 
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD</DefineName>
+		<DefineTextVal>iUnownedWaterTilesPerBarbarianUnit</DefineTextVal>
+	</Define>
 
 
 

@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, AI Personality Panel, etc.), some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
+Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Handicap Chart category, AI Personality Panel, etc.), some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
@@ -31,13 +31,13 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[City Screen rework](/README.md#city-screen-rework)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
-&emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
 &emsp;[Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-etc)  
+&emsp;[New categories (Handicap Chart, etc.)](/README.md#new-categories-handicap-chart-etc)  
+&emsp;[Some higher level reworks (AI Personality Panel, etc.)](/README.md#some-higher-level-reworks-ai-personality-panel-etc)  
 &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
 [UI (Common)](/README.md#ui-common)  
 &emsp;[Images as buttons](/README.md#images-as-buttons)  
 &emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
-[.csv and .md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
 [Less Generic unit names or/and combat types](/README.md#less-generic-unit-names-orand-combat-types)  
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
 &emsp;[World map with civs](/README.md#world-map-with-civs)  
@@ -46,6 +46,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 [48 Civs DLL](/README.md#48-civs-dll)  
 [Long Comments Archive](/README.md#long-comments-archive)  
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+[Python scripts](/README.md#python-scripts)  
 [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)  
 [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
 ["Temporary" crashes](/README.md#temporary-crashes)  
@@ -166,7 +167,33 @@ Additionally, also added a new specialists breakdown as of now on bottom-right. 
 
 ## UI (Main Sevopedia reworks)
 
-### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
+Note: for more screenshots and documentation of the sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+
+### Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)
+
+#### Search Bar
+
+With the help of claude opus 4.5 and chatgpt 5.2, we introduced a search bar in AdvCiv-SAS that is shared by several sevopedia pages. It allows to **search** for entries using the **keyboard**.
+
+The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
+
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG" alt="0.610_sevopedia_searchbar_example (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
+
+See for details: [example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
+
+#### Keyboard Navigation with the UP/DOWN arrows
+
+Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+
+### New categories (Handicap Chart, etc.)
+
+New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and based on the Middle-earth's Platypedia code.
+
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+
+### Some higher level reworks (AI Personality Panel, etc.)
 
 One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature.
 
@@ -192,33 +219,13 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG" alt="0.750_sevopedia_projects_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG" alt="0.760_sevopedia_specialists_sample (1).JPG" width="250"></img>
 
-For the full more extensive screenshot of main new sevopedia reworks, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md)
-
-#### Extra notes specifically about the sevopedia leader's AI Personality Panel feature
+#### Notes about the sevopedia leader's AI Personality Panel
 
 note 1: its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
 note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc).
 
 note 3: if you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). This was done so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See for details: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md)
-
-### Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)
-
-#### Search Bar
-
-With the help of claude opus 4.5 and chatgpt 5.2, we introduced a search bar in AdvCiv-SAS that is shared by several sevopedia pages. It allows to **search** for entries using the **keyboard**.
-
-The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
-
-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG" alt="0.610_sevopedia_searchbar_example (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
-
-See for details: [example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
-
-#### Keyboard Navigation with the UP/DOWN arrows
-
-Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
 
 ### Some other sevopedia reworks
 
@@ -348,25 +355,6 @@ See also for details:
 - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category)
 - [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
 
-## .csv and .md view of the handicap (difficulties info in a table for all difficulties) info
-
-Mostly for modders, and it is not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
-
-Generated with the [flatten_handicap_info_to_csv_and_md.py](/flatten_handicap_info_to_csv_and_md.py) script. If you change the xml, regenerate new .csv file with the script.
-
-- view it here: [(github web viewer)](/handicap_info_to_csv_advciv-sas.csv)
-- legend md: [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md)
-
-You can use github's search bar for example, or view it with libreoffice for example.
-
-Note: base advciv handicap info in [/_0_Common_Docs/AdvCiv_Base_Doc/](/_0_Common_Docs/AdvCiv_Base_Doc/).
-
-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
-
-For other scripts, see [python-scripts](https://github.com/wonderingabout/AdvCiv-SAS/tree/python-scripts).
-
 ## AI-generated images
 
 While developping the AdvCiv-SAS mod, i have learned (despite having tried in the past a few times with Midjourney but not related to this anyways etc.) to and successfully generated some AI-generated images, first with tools like ChatGPT for buttons or/and such, and then for our main menu background images with other tools, in particular with the help of PixelCut AI that was very nice.
@@ -445,6 +433,10 @@ os.path.join(cwd, "Mods", "AdvCiv-SAS", "_0_Common_Docs", "BUG_Doc", name)
 ```
 
 This possibly theoretically could be used to open other external files in Civ4 maybe (check if accurate, as i don't know too much about these). See also [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+
+## Python scripts
+
+For modders: i have made several scripts with AI assistance. We don't use them anymore in AdvCiv-SAS, but they can be found on the [python-scripts](https://github.com/wonderingabout/AdvCiv-SAS/tree/python-scripts) branch.
 
 ## CuCuGS
 
@@ -694,13 +686,25 @@ After some more time using it, what i like the most is how really accurate and a
 
 Note: see also [AGENTS.md](/AGENTS.md).
 
+#### Create a new Sevopedia category (e.g. Handicap Chart)
+
+Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the [new Handicap Chart Sevopedia category](/README.md#new-categories-handicap-chart-etc).
+
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG" alt="codex_ gpt_5.2_handicap_chart (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG" alt="codex_ gpt_5.2_handicap_chart (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG" alt="codex_ gpt_5.2_handicap_chart (3).PNG" width="250"></img>
+
+#### Long_Comments extracting
+
 GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
 
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (1).PNG" alt="gpt_codex (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (2).PNG" alt="gpt_codex (2).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (3).PNG" alt="gpt_codex (3).PNG" width="250"></img>
 
-Another example of code comments summarizing (from  [commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98](https://github.com/wonderingabout/AdvCiv-SAS/commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98):
+#### code comments summarizing
+
+Another example of code comments summarizing (from [commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98](https://github.com/wonderingabout/AdvCiv-SAS/commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98):
 
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG" alt="codex_ gpt_5.2_comments_correct (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG" alt="codex_ gpt_5.2_comments_correct (2).PNG" width="250"></img>

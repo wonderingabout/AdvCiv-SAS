@@ -2,8 +2,6 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- -->
-<!-- custom: i added .csv and .md versions of the handicap table showing all handicap values in one table for advciv-sas and another table for old advciv, see docs for details. -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #20 -->
 <!-- custom: note: iResearchPercent and iAIResearchPercent are now in our mod used as of now to adjust AI building priorities for example as of now for espionage and espionage defense buildings in particular, in the DLL in as of now CvCityAI::AI_buildingValue, if you adjust these here, try to match the changes there, general idea is as of now that at highest difficulties where AI has a tech research advantage, it needs to protect itself against human in particular spy attempts, vs when having research penalties in lowest difficulties, it needs to engage in spying more and not care as much about spying defense, see there for details -->
 <!-- Handicap Infos -->
@@ -29,9 +27,9 @@
 			<!-- was 20 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<!-- custom: see code comment at iAIGPThresholdPercent for details anyways etc -->
+			<!-- custom: see code comment at iAIGPThresholdPercent -->
 			<iBaseGrowthThresholdPercent>85</iBaseGrowthThresholdPercent>
-			<!-- custom: see code comment at iAIGPThresholdPercent for details anyways etc -->
+			<!-- custom: see code comment at iAIGPThresholdPercent -->
 			<iGPThresholdPercent>85</iGPThresholdPercent>
 			<!-- custom: make culture levels the same at all difficulties for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment/guess anyways etc, plsu tedious to manage count points for players who do, not an interesting mechanic i find, anyways etc -->
 			<iCultureLevelPercent>100</iCultureLevelPercent>

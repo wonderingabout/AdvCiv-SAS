@@ -11,7 +11,6 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 
 [Full code diff (very long)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#full-code-diff-very-long)  
 [Sevopedia](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sevopedia)  
-[Handicap info tables (.csv / .md) and script](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicap-info-tables-csv--md-and-script)  
 [Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes--quick-starter-guide)  
 &emsp;[Translations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#translations)  
 &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming-non-exhaustive)  
@@ -64,22 +63,15 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
 
 ## Sevopedia
 
-Some changes are also summarized directly in the Sevopedia. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md). Sample screenshots are provided there.
-
-- New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons) aims to make leader behavior easier to understand. See the section above for images and details.
+- New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons; new Handicap Chart page, etc.) aims to make leader behavior easier to understand. See the section above for images and details.
 
 <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
 
 - **AI Personality panel — legend:** column & symbol meanings: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
 
-## Handicap info tables (.csv / .md) and script
-
-To help compare difficulty (“handicap”) settings, tables are generated as CSV/MD. See [handicap tables readme section](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info).
-
-<img src="../Images/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
-<img src="../Images/scripts/csv_md_handicap_vs_code_preview_example.PNG" alt="csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
+See: [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
 
 ## Main Changes — quick starter guide
 
@@ -297,8 +289,6 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
 
 ### Handicap i.e. difficulty settings (non-exhaustive)
 
-See the **CSV/MD tables** for exact values ([handicap tables readme section](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)).
-
 - **No free techs** for AI or human.
 - **Human costs fixed** across difficulties for tech/unit (`iResearchPercent`, `iTrainPercent` stay constant for the human). AI equivalents scale with difficulty.
 - **Unit maintenance** (`iUnitCostPercent`, `iAIUnitCostPercent`) aligned across difficulties for fairness; difficulty tuned through other params.
@@ -308,7 +298,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 - **AI worker speed**: `iAIWorkRateModifier` **0** on all difficulties.
 - **AI starting workers**: `iAIStartingWorkerUnits` **0** on all difficulties.
 - **Goodies (huts)**: remove **worker/settler** pops; rebalance barbarian outcomes (fewer strong, more weak at high difficulties); increase **experience** rewards at higher difficulties.
-- **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables (AdvCiv-SAS, github viewer)](/handicap_info_to_csv_advciv-sas.csv) and [Handicap tables (base AdvCiv 1.12 for comparison, github viewer)](/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv).
+- **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive.
 - **Difficulty scaling — `iAIHandicapIncrementTurns`**: **disabled (set to 0 on all difficulties)**. This removes the **per-turn** AI discount that made games progressively harder; with AdvCiv-SAS’s improved hammer efficiency, that scaling led to runaway AIs at high levels. Now AI cost/research **modifiers** come **only** from the static **difficulty (handicap) XML fields** (e.g., `iAITrainPercent`, `iAIBuildingCostPercent`, `iAIResearchPercent`, …), which have been **retuned to be linear by difficulty (not per-turn)**—hard but fair. Practical effects: fewer excess units and lower bankruptcy risk, healthier mid→late-game economies, and challenge that relies on AI competency gains rather than exponential scaling.
 
 ### Terrains / Features (non-exhaustive)
@@ -453,7 +443,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
 
 ### Barbarians (non-exhaustive)
 
-- **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml); also see the AdvCiv-SAS **handicap tables** in the repo for comparative values.
+- **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml).
 - **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc).
 - Barbarian civ-specific **buildings** can be captured (`iConquestProb`) with **half the chance** of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
 - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).

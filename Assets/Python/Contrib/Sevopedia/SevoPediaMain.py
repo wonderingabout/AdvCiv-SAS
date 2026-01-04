@@ -24,6 +24,7 @@ import SevoPediaUnit
 import SevoPediaBuilding
 import SevoPediaPromotion
 import SevoPediaUnitChart
+import SevoPediaHandicapChart
 import SevoPediaBonus
 import SevoPediaTerrain
 import SevoPediaFeature
@@ -253,11 +254,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: self.placeBTSConcepts,
 			SevoScreenEnums.PEDIA_HINTS		: self.placeHints,
 			SevoScreenEnums.PEDIA_SHORTCUTS  	: self.placeShortcuts,
+			SevoScreenEnums.PEDIA_HANDICAP_CHART	: self.placeHandicapChart,
 			}
 
 		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
 		self.pediaLeader	= SevoPediaLeader.SevoPediaLeader(self)
 		self.pediaIndex     = SevoPediaIndex.SevoPediaIndex(self)
+		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
 
 		self.mapScreenFunctions = {
 			SevoScreenEnums.PEDIA_TECHS		: SevoPediaTech.SevoPediaTech(self),
@@ -283,6 +286,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			SevoScreenEnums.PEDIA_CONCEPTS		: SevoPediaHistory.SevoPediaHistory(self),
 			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: SevoPediaHistory.SevoPediaHistory(self),
 			SevoScreenEnums.PEDIA_SHORTCUTS  	: SevoPediaHistory.SevoPediaHistory(self),
+			SevoScreenEnums.PEDIA_HANDICAP_CHART	: self.pediaHandicapChart,
 			}
 
 
@@ -653,6 +657,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
 		self.szCategoryShortcuts	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", ())
+		self.szCategoryHandicapChart	= localText.getText("TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", ())
 		
 		self.categoryList = [
 			["TECHS",	self.szCategoryTechs],
@@ -681,6 +686,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			["HINTS",	self.szCategoryConceptsNew],
 			["HINTS",	self.szCategoryHints],
 			["HINTS",	self.szCategoryShortcuts], # advc.004y: Restored
+			["SAS",	self.szCategoryHandicapChart],
 			]
 
 		self.categoryGraphics = {
@@ -693,6 +699,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			"CIVS"		: u"%c  " %(CyGame().getSymbolID(FontSymbols.MAP_CHAR)),
 			"CIVICS"	: u"%c  " %(gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()),
 			"HINTS"		: u"%c  " %(gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()),
+			"SAS"		: u"%c  " %(CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)),
 			}
 
 		screen = self.getScreen()
@@ -944,6 +951,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		upgradesGraph = UnitUpgradesGraph.UnitUpgradesGraph(self)
 		upgradesGraph.getGraph()
 		upgradesGraph.drawGraph()
+
+	def placeHandicapChart(self):
+		self.SAS_szSearchString = u""
+		self.SAS_lastItemsWidget = None
+		self.SAS_lastItemsInfo = None
+		self.SAS_deleteSearchWidgets()
+
+		self.getScreen().deleteWidget("PediaMainItemList")
+		self.pediaHandicapChart.interfaceScreen()
 
 
 	def placeUnitCategories(self):

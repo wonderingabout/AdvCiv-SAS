@@ -1,6 +1,6 @@
 # README_Sevopedia_Reworks.md
 
-Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
+Below are more detailed examples of the sevopedia reworks.
 
 Not always listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings.
 
@@ -13,6 +13,8 @@ Note 2: in below sample examples, click the images to view them full size.
 [Some Lower Level Changes or new features](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages)  
 &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
+[New categories (Handicap Chart, etc.)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#new-categories-handicap-chart-etc)  
+&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 1: more AI Personality examples (in leaders category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category)  
 &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
@@ -46,7 +48,6 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
 - 1st commit: It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame: [commit/6c67df16f99479500a820d34dddd4f4fe569bc8e](https://github.com/wonderingabout/AdvCiv-SAS/commit/6c67df16f99479500a820d34dddd4f4fe569bc8e).
 - 2nd commit: now preserves headers and spacers, and seemingly functions just as well if groupings (headers + their spacers) are disabled, as in `SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA` for instance. See screenshot provided showing this being supported successfully in this sample: [commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17](https://github.com/wonderingabout/AdvCiv-SAS/commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17).
 - 3rd commit: fix backspace key (delete to the left last written char if any) firing twice when pressed once in the search bar. Note: no need to support delete to the right key nor enter key if i'm not mistaken and as per chatgpt 5.2 and claude opus 4.5's review and solution thanks [commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234](https://github.com/wonderingabout/AdvCiv-SAS/commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234).
-- 4th commit: fix an out of range python error that sometimes happened when scrolling beyond first entry with the help of chatgpt 5.2 thanks [commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220](https://github.com/wonderingabout/AdvCiv-SAS/commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220#diff-c8653fbee55dd4a1fa9f17ca80f217b2d5d87a7c49f8d7ac33979c0cf7eb8c2aR2090-R2094) (see commit notes for details as they are written by chatgpt 5.2 thanks who knows better about these and provided the fix).
 
 See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
 
@@ -63,8 +64,21 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
 - 1st commit: It is the conservative first stable functional version. Has some minor issues such sometimes as the tree pages (Unit Tree, Promotions Tree) having the arrows not result in anything unless the player clicks on the page itself, or some similar or related issues: [commit/10fd402effc12c3fa90c265b74630a263a7e761e](https://github.com/wonderingabout/AdvCiv-SAS/commit/10fd402effc12c3fa90c265b74630a263a7e761e).
 - 2nd commit: Conservative fixes with the help of chatgpt 5.2 and claude opus 4.5. Now scrolling in tree pages is functional without requiring a click, and when going from a tree page to a list page we can now use successfully the arrow keys without requiring a click. : [commit/ed2b7c658621f122e1824a858ab79856a5bef736](https://github.com/wonderingabout/AdvCiv-SAS/commit/ed2b7c658621f122e1824a858ab79856a5bef736).
 - 3rd commit: Conservative performance optimizations: Category-aware caching (O(1) navigation) (as per claude opus 4.5's summary of chatgpt 5.2's implementation based on their previous version of this optimization. See commit notes for details as i don't know too much about these, but seems harmless and hopefully helps indeed (check if accurate)) : [commit/e81ea035ab3af8a3fc8e231dc0f86fb50eb59d02](https://github.com/wonderingabout/AdvCiv-SAS/commit/e81ea035ab3af8a3fc8e231dc0f86fb50eb59d02).
+- 4th commit: fix an out of range python error that sometimes happened when scrolling beyond first entry with the help of chatgpt 5.2 thanks [commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220](https://github.com/wonderingabout/AdvCiv-SAS/commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220#diff-c8653fbee55dd4a1fa9f17ca80f217b2d5d87a7c49f8d7ac33979c0cf7eb8c2aR2090-R2094) (see commit notes for details as they are written by chatgpt 5.2 thanks who knows better about these and provided the fix).
 
 Note: history handling (i.e. not remembering all visited pages with the arrows inbetween original entry and entry we browsed to) purposely ignored and not supported as it caused issues and fixing it was not easy and created other issues as well, cleaner to just support it as it is (i.e. remembering all these entries as is the default) if i'm not mistaken (check if accurate).
+
+## New categories (Handicap Chart, etc.)
+
+### example 0.5: Handicap Chart category
+
+New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of GPT-5.2-Codex and based on the Middle-earth's Platypedia code.
+
+Note: in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
+
+<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG" alt="0.625_sevopedia_handicap_chart (2).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs" alt="0.6251_sevopedia_handicap_chart_free_techs.JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 

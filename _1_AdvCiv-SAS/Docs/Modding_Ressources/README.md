@@ -281,7 +281,7 @@ note: about the below example, a global search on "HandicapIncrementTurns" direc
 
 VS Code's (for example) global search can be useful in particular but not only, for example, to try to understand what advciv id changes do.
 
-For example while trying to tweak difficulty settings after having added our new script of handicap info display as explained in [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info), i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
+For example while trying to tweak difficulty settings after having added a script for handicap info, i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
 
 Output is as follows for a search on "251" and right click "copy" on the global search results (part of them that are in manual.txt i mean anyways etc):
 

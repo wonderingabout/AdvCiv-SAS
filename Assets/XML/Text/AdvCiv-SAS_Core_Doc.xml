@@ -124,4 +124,15 @@
 		<Tag>TXT_KEY_CONCEPT_SCORING_SYSTEM_PEDIA</Tag>
 		<English>[H1]Scoring System[\H1][PARAGRAPH:2]In Civilization IV the leadership skills of players are compared to a subjective list of twenty of the best or worst leaders in history, similar to the list in Civilization I. The score is based on a number of factors, including military growth and success, technological advancement, construction of wonders and economic growth. It is shown at the end of the game.[PARAGRAPH:2]The released version of the game abandoned Civilization III's graded scale. In Civ3, a spectacular victory on the easiest difficulty would provide the player with only a middling score, and the best titles were only awarded to players attempting the hardest difficulties. The original Civ4, on the other hand, allows the player to obtain any score on any difficulty level. As of the v1.61 patch, the grading system has returned to the curved-by-difficulty scale.[NEWLINE][NEWLINE]Source with more info: https://civilization.fandom.com/wiki/Civilization_IV#Scoring_system</English>
 	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART</Tag>
+		<English>Handicap</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE</Tag>
+		<English>None</English>
+	</TEXT>
 </Civ4GameText>

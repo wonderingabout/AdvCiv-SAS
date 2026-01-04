@@ -126,7 +126,7 @@ Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too and/or
 
 ### previous state
 
-This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather, as we had issues importing it from our custom leaders_data_to_csv or/and it took too much time, due to data being too big or i guess maybe if i'm not mistaken.
+This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather, as we had issues importing it from our custom leaders_data_to_ or/and it took too much time, due to data being too big or i guess maybe if i'm not mistaken.
 
 #### main table before changes to traits anyways etc
 

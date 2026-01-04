@@ -97,7 +97,7 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 
 ### Docs
 
-- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user (AGENTS.md currently has markdownlint issues).
+- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
 
 ## Comment Style Example
 
