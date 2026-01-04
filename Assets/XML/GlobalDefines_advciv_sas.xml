@@ -126,7 +126,7 @@
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
 		<iDefineIntVal>65</iDefineIntVal>
 	</Define>
-	<!-- custom: enable (1) / disable (0) to add small header icons in the handicap chart table. (GPT-5.2-Codex) -->
+	<!-- custom: enable (1) / disable (0) to add an icon column for the left-side field labels in the handicap chart table. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

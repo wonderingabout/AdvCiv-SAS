@@ -598,7 +598,15 @@ it too though unless i'm mistaken)
 
 Written by chatgpt and adjusted bit by me wonderingabout anyways etc.
 
-This mod is free to use, modify, and share. No formal restrictions - but I kindly ask that, if you reuse significant parts of it (especially unique design, code, or text), you consider crediting the original authors listed in the [README authors section](/README.md#authors), including myself, ChatGPT, and Claude AI where applicable. That’s not a legal obligation, but would be kindly appreciated even though not obligated if i may say but anyways etc.
+This mod is free to use, modify, and share.
+
+While i cannot enforce it, i strongly appreciate that if you reuse part of our work, you'd credit us. Example:
+
+```txt
+AdvCiv-SAS by wonderingabout and AI helpers
+```
+
+The original authors are listed in the [README authors section](/README.md#authors), including myself, ChatGPT, and Claude AI, and other AI helpers.
 
 ## Starting your mod
 

@@ -5,6 +5,7 @@
 # Based on the Middle-earth mod's PlatyPedia handicap approach: pull values from
 # CvHandicapInfo getters (rather than XML parsing) for Python 2.4 compatibility.
 #
+# <!-- custom: note: pending issue of img being left-aligned but couldn't fix it for now, i believe the advantage of being able to sort by emoji i.e. theme outweighs this downside so left as such for now. -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -19,13 +20,44 @@ class SevoPediaHandicapChart:
 		self.top = main
 		self._cachedTable = None
 
-		self.MARGIN = 12
-		self.ROW_H = 28
+		self.MARGIN = 4
+		self.ROW_H = 15
+		self.W_ICON = 24
 		self.W_FIELD = 290
+		self.ICON_IMG_SIZE = 16
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT must be >= 1.")
-		self.HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS") != 0)
+		self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS") != 0)
+		self._icon_great_people = u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)
+		self._icon_war = u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)
+		self._icon_barb = u"%c" % CyGame().getSymbolID(FontSymbols.POWER_CHAR)
+		self._icon_animal = u"%c" % CyGame().getSymbolID(FontSymbols.EATEN_FOOD_CHAR)
+		self._icon_goody = u"%c" % CyGame().getSymbolID(FontSymbols.STAR_CHAR)
+		self._icon_research = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()
+		self._icon_gold = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()
+		self._icon_culture = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()
+		self._icon_happy = u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)
+		self._icon_health = u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)
+		self._icon_food = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()
+		self._icon_prod = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
+		self._icon_defense = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
+		self._icon_moves = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
+		self._icon_citizen = u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
+		self._btn_swords_path = localText.getText("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", ())
+		self._btn_skull_path = localText.getText("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", ())
+		self._btn_dove_path = localText.getText("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", ())
+		self._btn_lion_path = localText.getText("TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH", ())
+		self._img_swords = self._makeImgTag(self._btn_swords_path)
+		self._img_skull = self._makeImgTag(self._btn_skull_path)
+		self._img_dove = self._makeImgTag(self._btn_dove_path)
+		self._img_lion = self._makeImgTag(self._btn_lion_path)
+		self._button_sort_keys = {
+			self._btn_swords_path: 2,
+			self._btn_skull_path: 3,
+			self._btn_lion_path: 4,
+			self._btn_dove_path: 10,
+		}
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -62,24 +94,28 @@ class SevoPediaHandicapChart:
 			return
 
 		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
-		remainingW = max(0, totalW - self.W_FIELD)
-		wNum = remainingW / (nCols - 1)
+		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+			remainingW = max(0, totalW - self.W_ICON - self.W_FIELD)
+			value_cols = nCols - 2
+		else:
+			remainingW = max(0, totalW - self.W_FIELD)
+			value_cols = nCols - 1
+		if value_cols > 0:
+			wNum = remainingW / value_cols
+		else:
+			wNum = 0
 
 		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSort(table)
 
 		for iCol in range(nCols):
-			if iCol == 0:
+			if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0:
+				colW = self.W_ICON
+			elif (self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0):
 				colW = self.W_FIELD
 			else:
 				colW = wNum
-			label_text = header[iCol]
-			if self.HEADER_ICONS:
-				if iCol == 0:
-					label_text = u"%c %s" % (CyGame().getSymbolID(FontSymbols.BULLET_CHAR), label_text)
-				else:
-					label_text = u"%c %s" % (CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR), label_text)
-			label = u"<font=2>" + label_text + u"</font>"
+			label = u"<font=2>" + header[iCol] + u"</font>"
 			screen.setTableColumnHeader(table, iCol, label, colW)
 
 		for row in rows:
@@ -89,10 +125,33 @@ class SevoPediaHandicapChart:
 					cell = row[iCol]
 				else:
 					cell = u""
-				text = u"<font=2>" + cell + u"</font>"
-				if iCol == 0:
+				if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0:
+					icon_text = cell
+					icon_button = ""
+					sort_code = 0
+					if icon_text and icon_text.find(u"<img=") != -1:
+						start = icon_text.find(u"<img=") + len(u"<img=")
+						end = icon_text.find(u" ", start)
+						if end == -1:
+							end = icon_text.find(u">", start)
+						if end > start:
+							icon_button = CvUtil.convertToStr(icon_text[start:end])
+							sort_code = self._button_sort_keys.get(icon_button, 0)
+						if sort_code <= 0:
+							sort_code = 31
+						elif sort_code > 31:
+							sort_code = 31
+						text = u"<font=1>%c</font>" % sort_code
+					elif icon_text:
+						text = u"<font=2>" + icon_text + u"</font>"
+					else:
+						text = u""
+					screen.setTableText(table, iCol, iRow, text, icon_button, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				elif (self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0):
+					text = u"<font=2>" + cell + u"</font>"
 					screen.setTableText(table, iCol, iRow, text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				else:
+					text = u"<font=2>" + cell + u"</font>"
 					screen.setTableText(table, iCol, iRow, text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def _getTableData(self):
@@ -255,7 +314,7 @@ class SevoPediaHandicapChart:
 
 		rows = []
 		for field in fields:
-			row = {"Field": field}
+			row = {"Field": field, "IconKey": field}
 			for difficulty in difficulty_types:
 				value = ""
 				if difficulty in parsed_data:
@@ -288,7 +347,7 @@ class SevoPediaHandicapChart:
 				right_row = goody_rows_by_field.get(goody_right)
 				if left_row is None or right_row is None:
 					continue
-				new_row = {"Field": label}
+				new_row = {"Field": label, "IconKey": label}
 				for difficulty in difficulty_types:
 					left_val = left_row.get(difficulty, "0")
 					right_val = right_row.get(difficulty, "0")
@@ -318,14 +377,22 @@ class SevoPediaHandicapChart:
 				new_rows.append(nrow)
 		rows = self._expandTechRows(new_rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names)
 
-		header = ["Field"]
+		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+			header = ["", "Field"]
+		else:
+			header = ["Field"]
 		for difficulty in difficulty_types:
 			header.append(self._beautify_enum_name(difficulty))
 
 		data = [header]
 		for row in rows:
 			field_name = row["Field"]
-			out_row = [field_name]
+			display_field = field_name
+			if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+				icon_text = self._getFieldIconText(row.get("IconKey", ""))
+				out_row = [icon_text, display_field]
+			else:
+				out_row = [display_field]
 			for difficulty in difficulty_types:
 				value = row.get(difficulty, "")
 				if row["Field"] in ("FreeTechs", "AIFreeTechs"):
@@ -411,7 +478,7 @@ class SevoPediaHandicapChart:
 				continue
 
 			label = self._humanAiLabel(field)
-			new_row = {"Field": label}
+			new_row = {"Field": label, "IconKey": row.get("IconKey", "")}
 			for difficulty in difficulty_types:
 				human_val = row.get(difficulty, "")
 				ai_val = ai_row.get(difficulty, "")
@@ -430,6 +497,98 @@ class SevoPediaHandicapChart:
 			base = base[1:]
 		base = re.sub(r"([a-z])([A-Z])", r"\1 \2", base)
 		return base + " (Human / AI)"
+
+	def _getFieldIconText(self, field_key):
+		if not field_key:
+			return ""
+		icon_map = {
+			"iAIAttitudeChangePercent": self._img_dove,
+			"iAIAdvancedStartPercent": self._icon_defense,
+			"iAIAnimalBonus": self._img_lion,
+			"iAIBarbarianBonus": self._img_skull,
+			"iAICivicUpkeepPercent": self._icon_gold,
+			"iAIConstructPercent": self._icon_prod,
+			"iAICreatePercent": self._icon_prod,
+			"iAIDeclareWarProb": self._img_swords,
+			"iAIGPThresholdPercent": self._icon_great_people,
+			"iAIGrowthPercent": self._icon_food,
+			"iAIHandicapIncrementTurns": self._icon_defense,
+			"iAIInflationPercent": self._icon_gold,
+			"iAIResearchPercent": self._icon_research,
+			"iAIStartingDefenseUnits": self._img_swords,
+			"iAIStartingExploreUnits": self._img_swords,
+			"iAIStartingUnitMultiplier": self._img_swords,
+			"iAIStartingWorkerUnits": self._icon_citizen,
+			"iAITrainPercent": self._img_swords,
+			"iAIUnitCostPercent": self._img_swords,
+			"iAIUnitSupplyPercent": self._img_swords,
+			"iAIUnitUpgradePercent": self._img_swords,
+			"iAIWarWearinessPercent": self._img_swords,
+			"iAIWorkRateModifier": self._icon_citizen,
+			"iAIWorldConstructPercent": self._icon_prod,
+			"iAIWorldCreatePercent": self._icon_prod,
+			"iAIWorldTrainPercent": self._img_swords,
+			"iAdvancedStartPointsMod": self._icon_defense,
+			"iAnimalAttackProb": self._img_lion,
+			"iAnimalBonus": self._img_lion,
+			"iAttitudeChange": self._img_dove,
+			"iBarbarianBonus": self._img_skull,
+			"iBarbarianCityAttackBonus": self._img_skull,
+			"iBarbarianCityCreationProb": self._img_skull,
+			"iBarbarianCityCreationTurnsElapsed": self._img_skull,
+			"iBarbarianCreationTurnsElapsed": self._img_skull,
+			"iBarbarianDefenders": self._img_skull,
+			"iBaseGrowthThresholdPercent": self._icon_food,
+			"iBuildTimePercent": self._icon_citizen,
+			"iCivicUpkeepPercent": self._icon_gold,
+			"iColonyMaintenancePercent": self._icon_gold,
+			"iConstructPercent": self._icon_prod,
+			"iCorporationMaintenancePercent": self._icon_gold,
+			"iCreatePercent": self._icon_prod,
+			"iCultureLevelPercent": self._icon_culture,
+			"iDifficulty": self._icon_defense,
+			"iDistanceMaintenancePercent": self._icon_gold,
+			"iForeignCultureStrength": self._icon_culture,
+			"iFreeUnits": self._img_swords,
+			"iFreeWinsVsBarbs": self._img_skull,
+			"iGold": self._icon_gold,
+			"iGPThresholdPercent": self._icon_great_people,
+			"iHappyBonus": self._icon_happy,
+			"iHealthBonus": self._icon_health,
+			"iInflationPercent": self._icon_gold,
+			"iMaxColonyMaintenance": self._icon_gold,
+			"iMaxNumCitiesMaintenance": self._icon_gold,
+			"iNoTechTradeModifier": self._icon_research,
+			"iNumCitiesMaintenancePercent": self._icon_gold,
+			"iResearchPercent": self._icon_research,
+			"iSeaBarbarianBonus": self._img_skull,
+			"iSeaBarbarianExtraMoves": self._img_skull,
+			"iStartingDefenseUnits": self._img_swords,
+			"iStartingExploreUnits": self._img_swords,
+			"iStartingLocPercent": self._icon_defense,
+			"iStartingWorkerUnits": self._icon_citizen,
+			"iTechTradeKnownModifier": self._icon_research,
+			"iTrainPercent": self._img_swords,
+			"iUnitCostPercent": self._img_swords,
+			"iUnownedTilesPerBarbarianCity": self._img_skull,
+			"iUnownedTilesPerBarbarianUnit": self._img_skull,
+			"iUnownedTilesPerGameAnimal": self._img_lion,
+			"iUnownedWaterTilesPerBarbarianUnit": self._img_skull,
+			"Goody Gold (Low / High)": self._icon_gold,
+			"Goody (Experience / Healing)": self._img_swords,
+			"Goody (Map / Tech)": self._icon_research,
+			"Goody (Scout / Warrior)": self._img_swords,
+			"Goody (Worker / Settler)": self._icon_citizen,
+			"Goody Barbarians (Weak / Strong)": self._img_skull,
+			"FreeTechs": self._icon_research,
+			"AIFreeTechs": self._icon_research,
+		}
+		return icon_map.get(field_key, "")
+
+	def _makeImgTag(self, path):
+		if not path:
+			return ""
+		return u"<img=%s size=%d></img>" % (path, self.ICON_IMG_SIZE)
 
 	def _format_tech_list(self, value, return_list, none_text, abbrev_tech_names):
 		if not value:
@@ -475,8 +634,10 @@ class SevoPediaHandicapChart:
 				new_row = {}
 				if i == 0:
 					new_row["Field"] = field
+					new_row["IconKey"] = field
 				else:
 					new_row["Field"] = ""
+					new_row["IconKey"] = ""
 				for difficulty in difficulty_types:
 					chunks = per_diff_chunks[difficulty]
 					if i < len(chunks):

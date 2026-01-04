@@ -156,4 +156,12 @@ See also as of now the mod's root /README.md for related info. -->
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH</Tag>
 		<English>Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds</English>
 	</TEXT>
+
+
+
+	<!-- custom: 🥉 emoji similarly from emojiterra. -->
+    <TEXT>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Lion_Face/1f981_64px.dds</English>
+	</TEXT>
 </Civ4GameText>
