@@ -87,6 +87,7 @@ with GFC_Control
 		
 		with .Layout
 		{
+			// <!-- custom: keep main menu spacing but tighten outer margins. We reverted the 2/2 spacing because it mostly affected the right-side recap panel (which already has room), while the goal is to fit more game speeds on the left list. Source: C2CTheme_Common.thm uses Layout_MainMenu_OuterMargin 4,4,4,4; spacing 2/2. Goal: fill side/bottom panels without changing bullet spacing here. (GPT-5.2-Codex (summarized)) -->
 			.Size_VSpacing						=	8;
 			.Size_HSpacing						=	8;
 			.Size_OuterMargin					=	GRectMargin(8,8,8,8);
@@ -94,7 +95,10 @@ with GFC_Control
 			with SF_CtrlTheme_Civ4_Control
 			{			
 			GRectMargin .Layout_Thick_OuterMargin		=	GRectMargin(12,12,12,12);
-			GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(20,8,20,20);
+			//GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(20,8,20,20);
+			//GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(4,4,4,4);
+			// <!-- custom: Change A: empirically expand main menu panel occupancy by pushing Layout_MainMenu_OuterMargin into negative space. Old values (20,8,20,20) and C2C (4,4,4,4) left too much unused area. (GPT-5.2-Codex (summarized)). Applying this change A frees a lot of margins on top (in particular to remove the unneeded header that takes a lot of room and that is really not that pretty so better remove anyway maybe), bottom, left, and right sides. Unlike change B, change A does not allow to have radio buttons tighter so it doesn't help that much to reduce the need for scrolling, but still a bit, and most importantly is much prettier and feels modern looking i think at least more so. -->
+			GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(-4,-48,-4,-6);
 			}
 		}										
 													

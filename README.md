@@ -26,6 +26,9 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
 [Main Changes Guide](/README.md#main-changes-guide)  
 [Custom Main Changes Guide](/README.md#custom-main-changes-guide)  
+[UI (Main Menu)](/README.md#ui-main-menu)  
+&emsp;[Home page](/README.md#home-page)  
+&emsp;["Play Now" rework](/README.md#play-now-rework)  
 [UI (Ingame)](/README.md#ui-ingame)  
 &emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
@@ -117,6 +120,26 @@ You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/D
 ## Custom Main Changes Guide
 
 This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md) anyways etc.
+
+## UI (Main Menu)
+
+### Home page
+
+Edited the .thm files so the main menu's home page feels more modern and utlizes more of the screen for display, and in a prettier way too (removes the very ugly blue panel, adds darker and bolder text, etc.). See also [/README.md#ai-generated-images](/README.md#ai-generated-images).
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.400_main_menu_home (1).JPG" alt="0.400_main_menu_home (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.400_main_menu_home (2).JPG" alt="0.400_main_menu_home (2).JPG" width="250"></img>
+
+### "Play Now" rework
+
+Edited the .thm as well. Was done with the help of GPT-5.2-Codex, based on C2C's implementation of tighter radio buttons. I also added some beautification to remove the header and more of the margins as well. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm).
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (1).JPG" alt="0.401_main_menu_play_now (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (2).JPG" alt="0.401_main_menu_play_now (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (3).JPG" alt="0.401_main_menu_play_now (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (4).JPG" alt="0.401_main_menu_play_now (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (5).JPG" alt="0.401_main_menu_play_now (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (6).JPG" alt="0.401_main_menu_play_now (6).JPG" width="250"></img>
 
 ## UI (Ingame)
 

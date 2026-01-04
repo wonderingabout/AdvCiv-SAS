@@ -1130,13 +1130,17 @@ with GFC_Control_Button
 			.FocusMargin_Image				=	GRectMargin(2,2,2,2);
 			.FocusMargin_Content			=	GRectMargin(0,0,4,2);
 			.FocusMargin_Control			=	GRectMargin(4,4,4,4);		
-			.TextOffset						=	GPoint(0,-1);
+			// <!-- custom: Change B: shrink radio button height to match C2C (GSize 64x24, Image 16x16, TextOffset 0,0) (GPT-5.2-Codex (summarized)). I am not sure which of the line changes in the B change helped solve the issue of radio buttons being too spread out needlesly which made us scroll for no good reason unlike how C2C handles it (much better at least), but not testing it futher as it works as is and they are minimal changes anyway. Now we don't need to scroll anymore to see all maps as of now! And there is a lot more room to fit extra game speeds or such, which is the original reason that motivated this change. -->
+			//.TextOffset					=	GPoint(0,-1);
+			.TextOffset						=	GPoint(0,0);
 			.DownOffset_Content				=	GPoint(0,0);
 			.DownOffset_Text				=	GPoint(0,0);
 			.DownOffset_Image				=	GPoint(0,0);
 			.ItemSpace						=	GFC_Control_Size_ItemSpace;			
-			.Default						=	GSize(64,31);
-			.Image							=	GSize(24,24);
+			//.Default						=	GSize(64,31);
+			.Default						=	GSize(64,24);
+			//.Image						=	GSize(24,24);
+			.Image							=	GSize(16,16);
 		}									
 
 		with .Color								

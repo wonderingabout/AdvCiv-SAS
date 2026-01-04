@@ -100,6 +100,11 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
 - renamed "Cavalry" to "Dragoon" (was way too generic, era-aspecific, and old unit's name and art were inaccurate for target advciv-sas early-industrial tech tree time anyways etc)
 - unit promotions have clearer names now too: for example Counter-Archer, counter Siege, Counter-Tank. Or another example is "City Bombard Damage" (instead of barrage). Numeric naming has been changed too for clarity and ease of read: for example "Combat III" is now "Combat 3" too.
 
+## UI (Main Menu)
+
+- Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
+- (Requires AdvCiv-SAS 5295+) Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
+
 ### UI (Common)
 
 - Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).

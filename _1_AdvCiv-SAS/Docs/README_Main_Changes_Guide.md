@@ -14,6 +14,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 [Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes--quick-starter-guide)  
 &emsp;[Translations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#translations)  
 &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming-non-exhaustive)  
+&emsp;[UI (Main Menu)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-main-menu)  
 &emsp;[UI (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-common)  
 &emsp;[UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game)  
 &emsp;[UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related)  
@@ -97,6 +98,11 @@ See: [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
 - “Unique units” → “Civilization units” (they aren’t singletons; they’re civ-specific).
 - Cavalry → Dragoon (too generic/era-agnostic; new name and unit better matches early-industrial role).
 - Promotion names made more explicit (e.g., Counter-Archer, Counter-Siege, City Bombard Damage). Roman numerals → Arabic (“Combat 3”).
+
+## UI (Main Menu)
+
+- Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
+- (Requires AdvCiv-SAS 5295+) Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
 
 ### UI (Common)
 
