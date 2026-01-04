@@ -25,6 +25,7 @@ class SevoPediaHandicapChart:
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT must be >= 1.")
+		self.HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS") != 0)
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -72,7 +73,13 @@ class SevoPediaHandicapChart:
 				colW = self.W_FIELD
 			else:
 				colW = wNum
-			label = u"<font=2>" + header[iCol] + u"</font>"
+			label_text = header[iCol]
+			if self.HEADER_ICONS:
+				if iCol == 0:
+					label_text = u"%c %s" % (CyGame().getSymbolID(FontSymbols.BULLET_CHAR), label_text)
+				else:
+					label_text = u"%c %s" % (CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR), label_text)
+			label = u"<font=2>" + label_text + u"</font>"
 			screen.setTableColumnHeader(table, iCol, label, colW)
 
 		for row in rows:
