@@ -488,6 +488,14 @@ public:
 	int getConstructPercent() const { return m_iConstructPercent; }
 	int getCreatePercent() const { return m_iCreatePercent; }
 	// </advc.251>
+
+	// <!-- custom: expose extra handicap fields to Python for Sevopedia handicap chart. (GPT-5.2-Codex) -->
+	int getForeignCultureStrength() const { return get(ForeignCultureStrength); }
+	int getBarbarianCityAttackBonus() const { return get(BarbarianCityAttackBonus); }
+	int getSeaBarbarianBonus() const { return get(SeaBarbarianBonus); }
+	int getSeaBarbarianExtraMoves() const { return get(SeaBarbarianExtraMoves); }
+	// <!-- custom: End - expose extra handicap fields to Python for Sevopedia handicap chart. (GPT-5.2-Codex) -->
+
 	int getDistanceMaintenancePercent() const;
 	int getNumCitiesMaintenancePercent() const;
 	int getMaxNumCitiesMaintenance() const;

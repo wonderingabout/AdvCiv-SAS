@@ -74,11 +74,14 @@ Note: history handling (i.e. not remembering all visited pages with the arrows i
 
 New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of GPT-5.2-Codex and based on the Middle-earth's Platypedia code.
 
-Note: in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
+Note: as for sevopedia leader's AI Personality Panel where we exposed in AdvCiv-SAS the BBAI victory weights getters, in the Handicap Chart we have also exposed to python some missing HandicapInfo fields, which requires a recompile of the DLL. If missing in your DLL, the Handicap Chart page will raise an error.
+
+Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
 
 <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG" alt="0.625_sevopedia_handicap_chart (2).JPG" width="250"></img>
-<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs" alt="0.6251_sevopedia_handicap_chart_free_techs.JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG" alt="0.6251_sevopedia_handicap_chart_free_techs.JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG" alt="0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 

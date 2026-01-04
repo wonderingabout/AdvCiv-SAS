@@ -176,36 +176,25 @@ def _compute_leader_cache_internal():
 
 
 
-	def check_required_newly_exposed_python_getters_gc_leader_exist():
-		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or modder aware of this if they are missing, see also sevopedia_helpers py file debug output code comments for details too; and raise an error if so. -->
-
-		REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
-			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt hehe, but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there -->
-			"getCultureVictoryWeight",
-			"getSpaceVictoryWeight",
-			"getConquestVictoryWeight",
-			"getDominationVictoryWeight",
-			"getDiplomacyVictoryWeight",
-			# <!-- custom: some seemingly base advciv specific new attitude threshold fields not in base civ4 (didn't check) but at least that don't have getters exposed to python but anyways etc... -->
-			"getCityRefuseAttitudeThreshold",
-			"getNativeCityRefuseAttitudeThreshold",
-		)
+	def check_required_newly_exposed_python_getters_gc_leader_exist(required_getters):
+		# <!-- custom: verify all getters used by the leader display config are exposed in the DLL. (GPT-5.2-Codex) -->
+		if not required_getters:
+			return
 
 		for iLeader in NON_EXCLUDED_LEADERS:
 			missing = []
-			for getter in REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER:
-				if not hasattr(gc.getLeaderHeadInfo(iLeader), getter):
+			leader_info = gc.getLeaderHeadInfo(iLeader)
+			for getter in required_getters:
+				if not hasattr(leader_info, getter):
 					missing.append(getter)
 
 			if missing:
-				raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from iLeader=%d). Please expose them in .cpp files and build the DLL again (and replace old DLL with new one anyways etc) (or check if this getter matches an existing XML field in your mod and possibly adjust this code based on this if intended as such that this/these getter(s) triggering this error is/are missing). See README.md or AdvCiv-SAS documentation for help or such." % (", ".join(missing), iLeader))
+				raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from iLeader=%d. Please expose them in .cpp files and build the DLL again (or adjust the leader field list if your mod removes or renames these getters)." % (", ".join(missing), iLeader))
 			
 			# success: only check first real leader
 			if IS_DEBUG_LEADER:
 				print("[DEBUG] Getter check passed for iLeader=%d. All required Python getters are present." % iLeader)
-			break  # ✅ success: no need to check further
-
-	check_required_newly_exposed_python_getters_gc_leader_exist()
+			break  # ?. success: no need to check further
 
 
 
@@ -645,9 +634,8 @@ def _compute_leader_cache_internal():
 
 	# <!-- custom: store only the fields we want to display in the AI personality panel not the other / not all XML fields, see sevopedia debuggers py file and debugPrintLeaderHeadInfoFieldsToFetch and or its example of output for details anyways etc -->
 	fields_with_direct_getters, fields_attitude_thresholds = get_fields_directly_parsed()
-
-
-
+	required_getters = tuple(fields_with_direct_getters.keys()) + tuple(fields_attitude_thresholds.keys())
+	check_required_newly_exposed_python_getters_gc_leader_exist(required_getters)
 	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments):
 		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions anyways etc, same for maximum values too anyways etc -->
 		leader_info_minimums = {}
@@ -1883,3 +1871,4 @@ class SevoPediaLeader:
 			else:
 				self.top.getScreen().leaderheadKeyInput(self.leaderWidget, inputClass.getData())
 		return 0
+

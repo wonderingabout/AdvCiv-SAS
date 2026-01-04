@@ -94,6 +94,8 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
 - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
 - When adding guidance, include at least one simple code example so other agents can copy the pattern.
+- Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+- When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
 
 ### Docs
 

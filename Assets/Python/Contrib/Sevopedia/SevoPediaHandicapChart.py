@@ -21,7 +21,10 @@ class SevoPediaHandicapChart:
 
 		self.MARGIN = 12
 		self.ROW_H = 28
-		self.W_FIELD = 340
+		self.W_FIELD = 290
+		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
+		if self.TABLE_FILL_PERCENT <= 0:
+			raise ValueError("[FATAL] SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT must be >= 1.")
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -57,7 +60,8 @@ class SevoPediaHandicapChart:
 		if nCols < 2:
 			return
 
-		remainingW = max(0, tableW - self.W_FIELD)
+		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
+		remainingW = max(0, totalW - self.W_FIELD)
 		wNum = remainingW / (nCols - 1)
 
 		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
@@ -88,12 +92,7 @@ class SevoPediaHandicapChart:
 		if self._cachedTable is not None:
 			return self._cachedTable
 
-		data = []
-		try:
-			data = self._buildTableFromGameData()
-		except:
-			data = []
-
+		data = self._buildTableFromGameData()
 		self._cachedTable = data
 		return data
 
@@ -101,13 +100,17 @@ class SevoPediaHandicapChart:
 		field_getters = (
 			("iAIAttitudeChangePercent", "getAIAttitudeChangePercent"),
 			("iAIAdvancedStartPercent", "getAIAdvancedStartPercent"),
-			("iAIAnimalCombatModifier", "getAIAnimalCombatModifier"),
-			("iAIBarbarianCombatModifier", "getAIBarbarianCombatModifier"),
+			("iAIAnimalBonus", "getAIAnimalCombatModifier"),
+			("iAIBarbarianBonus", "getAIBarbarianCombatModifier"),
 			("iAICivicUpkeepPercent", "getAICivicUpkeepPercent"),
+			("iAIConstructPercent", "getAIConstructPercent"),
 			("iAICreatePercent", "getAICreatePercent"),
 			("iAIDeclareWarProb", "getAIDeclareWarProb"),
+			("iAIGPThresholdPercent", "getAIGPThresholdPercent"),
 			("iAIGrowthPercent", "getAIGrowthPercent"),
+			("iAIHandicapIncrementTurns", "getAIHandicapIncrementTurns"),
 			("iAIInflationPercent", "getAIInflationPercent"),
+			("iAIResearchPercent", "getAIResearchPercent"),
 			("iAIStartingDefenseUnits", "getAIStartingDefenseUnits"),
 			("iAIStartingExploreUnits", "getAIStartingExploreUnits"),
 			("iAIStartingUnitMultiplier", "getAIStartingUnitMultiplier"),
@@ -121,21 +124,31 @@ class SevoPediaHandicapChart:
 			("iAIWorldConstructPercent", "getAIWorldConstructPercent"),
 			("iAIWorldCreatePercent", "getAIWorldCreatePercent"),
 			("iAIWorldTrainPercent", "getAIWorldTrainPercent"),
+			("iAdvancedStartPointsMod", "getAdvancedStartPointsMod"),
 			("iAnimalAttackProb", "getAnimalAttackProb"),
-			("iAnimalCombatModifier", "getAnimalCombatModifier"),
+			("iAnimalBonus", "getAnimalCombatModifier"),
 			("iAttitudeChange", "getAttitudeChange"),
+			("iBarbarianBonus", "getBarbarianCombatModifier"),
+			("iBarbarianCityAttackBonus", "getBarbarianCityAttackBonus"),
 			("iBarbarianCityCreationProb", "getBarbarianCityCreationProb"),
 			("iBarbarianCityCreationTurnsElapsed", "getBarbarianCityCreationTurnsElapsed"),
-			("iBarbarianCombatModifier", "getBarbarianCombatModifier"),
 			("iBarbarianCreationTurnsElapsed", "getBarbarianCreationTurnsElapsed"),
-			("iBarbarianInitialDefenders", "getBarbarianInitialDefenders"),
+			("iBarbarianDefenders", "getBarbarianInitialDefenders"),
+			("iBaseGrowthThresholdPercent", "getBaseGrowthThresholdPercent"),
+			("iBuildTimePercent", "getBuildTimePercent"),
 			("iCivicUpkeepPercent", "getCivicUpkeepPercent"),
 			("iColonyMaintenancePercent", "getColonyMaintenancePercent"),
+			("iConstructPercent", "getConstructPercent"),
 			("iCorporationMaintenancePercent", "getCorporationMaintenancePercent"),
+			("iCreatePercent", "getCreatePercent"),
+			("iCultureLevelPercent", "getCultureLevelPercent"),
 			("iDifficulty", "getDifficulty"),
 			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent"),
+			("iForeignCultureStrength", "getForeignCultureStrength"),
 			("iFreeUnits", "getFreeUnits"),
 			("iFreeWinsVsBarbs", "getFreeWinsVsBarbs"),
+			("iGold", "getStartingGold"),
+			("iGPThresholdPercent", "getGPThresholdPercent"),
 			("iHappyBonus", "getHappyBonus"),
 			("iHealthBonus", "getHealthBonus"),
 			("iInflationPercent", "getInflationPercent"),
@@ -144,18 +157,29 @@ class SevoPediaHandicapChart:
 			("iNoTechTradeModifier", "getNoTechTradeModifier"),
 			("iNumCitiesMaintenancePercent", "getNumCitiesMaintenancePercent"),
 			("iResearchPercent", "getResearchPercent"),
+			("iSeaBarbarianBonus", "getSeaBarbarianBonus"),
+			("iSeaBarbarianExtraMoves", "getSeaBarbarianExtraMoves"),
 			("iStartingDefenseUnits", "getStartingDefenseUnits"),
 			("iStartingExploreUnits", "getStartingExploreUnits"),
-			("iStartingGold", "getStartingGold"),
 			("iStartingLocPercent", "getStartingLocationPercent"),
 			("iStartingWorkerUnits", "getStartingWorkerUnits"),
 			("iTechTradeKnownModifier", "getTechTradeKnownModifier"),
+			("iTrainPercent", "getTrainPercent"),
+			("iUnitCostPercent", "getUnitCostPercent"),
 			("iUnownedTilesPerBarbarianCity", "getUnownedTilesPerBarbarianCity"),
 			("iUnownedTilesPerBarbarianUnit", "getUnownedTilesPerBarbarianUnit"),
 			("iUnownedTilesPerGameAnimal", "getUnownedTilesPerGameAnimal"),
 			("iUnownedWaterTilesPerBarbarianUnit", "getUnownedWaterTilesPerBarbarianUnit"),
-			("iUnitCostPercent", "getUnitCostPercent"),
 		)
+		# <!-- custom: fail fast if the DLL doesn't expose required CvHandicapInfo getters for the handicap chart. (GPT-5.2-Codex) -->
+		if gc.getNumHandicapInfos() > 0:
+			info = gc.getHandicapInfo(0)
+			missing = []
+			for field_name, getter_name in field_getters:
+				if not hasattr(info, getter_name):
+					missing.append(getter_name)
+			if missing:
+				raise RuntimeError("[FATAL] Your mod DLL does not expose the required CvHandicapInfo Python getters: %s. Please expose them in CyInfoInterface2.cpp and rebuild the DLL." % ", ".join(missing))
 		goody_types = (
 			"GOODY_LOW_GOLD",
 			"GOODY_HIGH_GOLD",
@@ -170,7 +194,17 @@ class SevoPediaHandicapChart:
 			"GOODY_BARBARIANS_WEAK",
 			"GOODY_BARBARIANS_STRONG",
 		)
+		goody_groups = (
+			("Goody Gold (Low / High)", ("GOODY_LOW_GOLD", "GOODY_HIGH_GOLD")),
+			("Goody (Experience / Healing)", ("GOODY_EXPERIENCE", "GOODY_HEALING")),
+			("Goody (Map / Tech)", ("GOODY_MAP", "GOODY_TECH")),
+			("Goody (Scout / Warrior)", ("GOODY_SCOUT", "GOODY_WARRIOR")),
+			("Goody (Worker / Settler)", ("GOODY_WORKER", "GOODY_SETTLER")),
+			("Goody Barbarians (Weak / Strong)", ("GOODY_BARBARIANS_WEAK", "GOODY_BARBARIANS_STRONG")),
+		)
 		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")
+		if not anchor_field:
+			raise ValueError("[FATAL] Missing SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD define.")
 		abbrev_tech_names = {
 			"Animal Husbandry": "Animal H.",
 			"Bronze Working": "Bronze W.",
@@ -194,12 +228,8 @@ class SevoPediaHandicapChart:
 			handicap_dict = {}
 
 			for field_name, getter_name in field_getters:
-				value = ""
-				try:
-					getter = getattr(info, getter_name)
-					value = getter()
-				except:
-					value = ""
+				getter = getattr(info, getter_name)
+				value = getter()
 				handicap_dict[field_name] = str(value)
 				all_fields[field_name] = 1
 
@@ -226,6 +256,8 @@ class SevoPediaHandicapChart:
 				row[difficulty] = value
 			rows.append(row)
 
+		rows = self._mergeHumanAiRows(rows, difficulty_types, none_text)
+
 		before = []
 		goody_rows = []
 		nested = []
@@ -236,6 +268,33 @@ class SevoPediaHandicapChart:
 				nested.append(row)
 			else:
 				before.append(row)
+
+		if goody_rows:
+			goody_rows_by_field = {}
+			for grow in goody_rows:
+				goody_rows_by_field[grow["Field"]] = grow
+
+			grouped_goody_rows = []
+			skipped_goody_fields = {}
+			for label, (goody_left, goody_right) in goody_groups:
+				left_row = goody_rows_by_field.get(goody_left)
+				right_row = goody_rows_by_field.get(goody_right)
+				if left_row is None or right_row is None:
+					continue
+				new_row = {"Field": label}
+				for difficulty in difficulty_types:
+					left_val = left_row.get(difficulty, "0")
+					right_val = right_row.get(difficulty, "0")
+					new_row[difficulty] = "%s / %s" % (left_val, right_val)
+				grouped_goody_rows.append(new_row)
+				skipped_goody_fields[goody_left] = True
+				skipped_goody_fields[goody_right] = True
+
+			for grow in goody_rows:
+				if grow["Field"] not in skipped_goody_fields:
+					grouped_goody_rows.append(grow)
+
+			goody_rows = grouped_goody_rows
 
 		new_rows = []
 		for row in before:
@@ -316,6 +375,54 @@ class SevoPediaHandicapChart:
 				break
 		name = re.sub(r"_", " ", name)
 		return name.title()
+
+	def _mergeHumanAiRows(self, rows, difficulty_types, none_text):
+		row_by_field = {}
+		for row in rows:
+			row_by_field[row["Field"]] = row
+
+		merged = []
+		skip_fields = {}
+		for row in rows:
+			field = row["Field"]
+			if field in skip_fields:
+				continue
+			if field.startswith("iAI"):
+				human_field = "i" + field[3:]
+				if human_field in row_by_field:
+					continue
+				merged.append(row)
+				continue
+			if not field.startswith("i"):
+				merged.append(row)
+				continue
+
+			ai_field = "iAI" + field[1:]
+			ai_row = row_by_field.get(ai_field)
+			if ai_row is None:
+				merged.append(row)
+				continue
+
+			label = self._humanAiLabel(field)
+			new_row = {"Field": label}
+			for difficulty in difficulty_types:
+				human_val = row.get(difficulty, "")
+				ai_val = ai_row.get(difficulty, "")
+				if not human_val:
+					human_val = none_text
+				if not ai_val:
+					ai_val = none_text
+				new_row[difficulty] = "%s / %s" % (human_val, ai_val)
+			merged.append(new_row)
+			skip_fields[ai_field] = True
+		return merged
+
+	def _humanAiLabel(self, field):
+		base = field
+		if base.startswith("i"):
+			base = base[1:]
+		base = re.sub(r"([a-z])([A-Z])", r"\1 \2", base)
+		return base + " (Human / AI)"
 
 	def _format_tech_list(self, value, return_list, none_text, abbrev_tech_names):
 		if not value:
