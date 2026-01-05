@@ -17,6 +17,7 @@
 # UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data.
 #
 # <!-- custom: note: some code comments may be outdated as they were written when we would compute once per civ4 game launch the LEADERS_INFO_CACHED for efficiency, however since then we as of now now switched to no compute at all (use precomputed SevoPediaLeaderCachePredumped.py) (see also toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))) as it is even cheaper and should scale better with mods that have more leaders or xml attributes (if i'm not mistaken). Plus the values rarely change and are only for UI so not worth spending so much on them even if was more efficient. -->
+# <!-- custom: now refactored with the help of chatgpt 5.2 (web) and GPT-5.2-Codex thanks a lot. -->
 
 
 
@@ -36,6 +37,7 @@ localText = CyTranslator()
 
 
 IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
+IS_DISPLAY_AI_CATEGORY_HEADERS = True
 IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
 
 # <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a debug sample (non-exhaustive but hopefully quite plenty) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to work fine, available there if needed, for my own hard drive too. -->
@@ -233,121 +235,125 @@ def _compute_leader_cache_internal():
 
 
 
-	# <!-- custom: similar structure as leaders info for all leaders as in other fields than contact ones generally (not like the temporary for calculations and such leaders_temp_aggregated_contact_probs but like leaders_info) but only for raw contact aggregated probs not for the final aggregated normalized values that we normalize later with all fileds's normalization stage and which is the value that we then display at UI level, i.e. the normalized one is the one we display, not this temporary raw aggregated prob to normalize later that we store here, hopefully clearer; similarly for positive/negative memory aggregated affections/resentments -->
+	# <!-- custom: store raw aggregated contact probs (iAggregatedRaw...) separately from normalized aggregated probs (iAggregated...).
+	# Only the normalized values are displayed; raw values are kept for later normalization/min-max. The raw-to-normalized parsing
+	# and label composition happens later in compute_and_store_leaders_info_cached. Do the same for raw aggregated positive/negative
+	# memory affections/resentments. (GPT-5.2-Codex (summarized)) -->
 	leaders_info_aggregated_raw_contact_probs = {}
 	leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments = {}
 
 
 
 	def compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_aggregated_raw_contact_probs):
-		# <!-- custom: for contact fields use an aggregated synthetic probability instead of exporting both rands and delays ; based on my understanding of this (translate to english with web browser chrome or such page translate anyways etc) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e7%a9%8d%e6%a5%b5%e6%80%a7 , it seems rand is the most important as it is the contact chance (inverted as 1/n where n=value anyways etc) for each turn, whereas/while the delay is only the chance or rather number of turns of/until it being/is possible again after it happened, so should be much less important if i am not mistaken anyways etc, approximate this as 80% weight on contact rand and 20% weight on contact delay to make an aggregated contact prob to synthesize these anyways etc -->
+		# leaders_info_aggregated_raw_contact_probs[iLeader][parsed_contact_key] = aggregated_raw_score
+		# parsed_contact_key is e.g. "iAggregatedRawContactProbStopTrading" (0-100)
+		#
+		# We compute these in two passes:
+		# - Pass 1: adjusted rand/delay values + min/max per contact type
+		# - Pass 2: normalize adjusted values to 0-100, then combine into an aggregated raw score
 
-		# <!-- custom: temporary storage to compute aggregated probs, iLeader: { key: value } -->
-		leaders_temp_aggregated_contact_probs = {}
+		# Precompute per-contact metadata once.
+		contact_types = [gc.getContactTypes(i) for i in xrange(NUM_CONTACT_TYPES_ASSESSED)]
+		contact_suffixes = [get_pascal_case_suffix(contact_type) for contact_type in contact_types]
+		parsed_adjusted_rand_names = ["iAdjustedContactRand%s" % suffix for suffix in contact_suffixes]
+		parsed_adjusted_delay_names = ["iAdjustedContactDelay%s" % suffix for suffix in contact_suffixes]
+		parsed_aggregated_raw_names = ["iAggregatedRawContactProb%s" % suffix for suffix in contact_suffixes]
 
-		# <!-- custom: this is even more temporary than leaders_temp_aggregated_contact_probs as it is only a local variable used to compute min max during the raw aggregated contact probs call, so anyways etc no problem to recreate a new one everytime if we ever reloop over compute_and_store_leaders_info_aggregated_raw_contact_probs if we ever do (currently we don't as all contact fields are handled the same for aggregation (no positive-negative contact affection-resentment nor anything similar anyways etc)) ; this variable mimicks/has an identical structure to leader_info_minimums and leader_info_maximums in other parts of the code, but only storing respectively min and max among all leaders for some memory fields (note: so no iLeader (and no part in the iLeader loop anyways etc) since this is value among all leaders anyways etc), singular because we can think of leader_info_minimums as a fake leader having minimum among all leaders for each of its fields, and same/similar for leader_info_maximums anyways etc -->
-		# <!-- custom: { key: value } -->
-		leader_info_minimums_adjusted_values_only_contact_fields = {}
-		leader_info_maximums_adjusted_values_only_contact_fields = {}
+		# Pass 1: compute adjusted values and collect min/max across leaders.
+		# temp_by_leader[iLeader][i] = (adjusted_rand, adjusted_delay, b_force_zero)
+		temp_by_leader = {}
+		min_adj_rand = [None] * NUM_CONTACT_TYPES_ASSESSED
+		max_adj_rand = [None] * NUM_CONTACT_TYPES_ASSESSED
+		min_adj_delay = [None] * NUM_CONTACT_TYPES_ASSESSED
+		max_adj_delay = [None] * NUM_CONTACT_TYPES_ASSESSED
 
-		# <!-- custom: for steps below, see also generate_leaders_data.py's way of handling contact probs. -->
-
-		# First pass: extract raw values and compute adjusted values (for scoring + min/max)
 		for iLeader in NON_EXCLUDED_LEADERS:
-			# <!-- custom: temporary field, no need to check if iLeader key exists before creating it, unlike for leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, anyways etc -->
-			leaders_temp_aggregated_contact_probs[iLeader] = {}
-
-			# <!-- custom: note: we get very weird bugs if misnaming variables, as python sadly or angrily for me xd stupidly anyways etc reuses variables from other loops even though they should not exist in another indepent scope other loop, so naming them with _0 _1 _2 _3 _4 for each pass to make sure python doesn't reuse them anwyays etc and we successfully get an error as intended if variable doesn't exist anyways etc -->
-
-			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+			leader_rows = [None] * NUM_CONTACT_TYPES_ASSESSED
 
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				value_1_rand_raw = loopLeaderHeadInfo.getContactRand(i)
 				value_1_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
-				contact_type_1 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
-				suffix_1 = get_pascal_case_suffix(contact_type_1) # → "JoinWar"
 
-				# <!-- custom: this entire function is not where the real parsing of these raw contact fields is done (these raw fields parsing is later in another function, at the same time of when we store/parse contact aggregated fields, if i am not mistaken) -->
-				# <!-- custom: store raw_values for each leader first too anyways etc -->
-				parsed_name_1_rand = "iContactRand%s" % suffix_1 # → iContactRandJoinWar
-				parsed_name_1_delay = "iContactDelay%s" % suffix_1 # → iContactDelayJoinWar
-				leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_rand] = value_1_rand_raw
-				leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_delay] = value_1_delay_raw
+				adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(
+					value_1_rand_raw,
+					value_1_delay_raw,
+					IS_DEBUG_LEADER,
+					contact_types[i]
+				)
 
-				adjusted_value_1_rand, adjusted_value_1_delay, force_zero_adjusted_values = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, IS_DEBUG_LEADER, contact_type_1)
-				parsed_name_1_adjusted_rand = "iAdjustedContactRand%s" % suffix_1 # → iAdjustedContactRandJoinWar
-				parsed_name_1_adjusted_delay = "iAdjustedContactDelay%s" % suffix_1 # → iAdjustedContactDelayJoinWar
-				parsed_name_1_force_zero_adjusted_values = "bForceZeroContact%s" % suffix_1 # → bForceZeroContactJoinWar
-				leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_adjusted_rand] = adjusted_value_1_rand
-				leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_adjusted_delay] = adjusted_value_1_delay
-				leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_force_zero_adjusted_values] = force_zero_adjusted_values
+				leader_rows[i] = (adjusted_rand, adjusted_delay, b_force_zero)
 
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] First pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\n" % str(leaders_temp_aggregated_contact_probs))
+				# Min/max init
+				if min_adj_rand[i] is None:
+					min_adj_rand[i] = adjusted_rand
+					max_adj_rand[i] = adjusted_rand
+					min_adj_delay[i] = adjusted_delay
+					max_adj_delay[i] = adjusted_delay
+				else:
+					if adjusted_rand < min_adj_rand[i]:
+						min_adj_rand[i] = adjusted_rand
+					if adjusted_rand > max_adj_rand[i]:
+						max_adj_rand[i] = adjusted_rand
+					if adjusted_delay < min_adj_delay[i]:
+						min_adj_delay[i] = adjusted_delay
+					if adjusted_delay > max_adj_delay[i]:
+						max_adj_delay[i] = adjusted_delay
 
-		# Second pass: Precompute min/max from adjusted values only among all leaders
-		for iLeader in NON_EXCLUDED_LEADERS:
-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
-				contact_type_2 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
-				suffix_2 = get_pascal_case_suffix(contact_type_2) # → "JoinWar"
-				parsed_name_2_adjusted_rand = "iAdjustedContactRand%s" % suffix_2 # → iAdjustedContactRandJoinWar
-				parsed_name_2_adjusted_delay = "iAdjustedContactDelay%s" % suffix_2 # → iAdjustedContactDelayJoinWar
-				# <!-- custom: note: no need to compute nor store min max for force zero so it is not a field we compare (it is not numerical, but is rather a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken), so also no need to parse name for it too at this min max step/pass -->
-				adjusted_value_2_rand = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_2_adjusted_rand]
-				adjusted_value_2_delay = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_2_adjusted_delay]
-
-				computeAndStoreMinMaxOfOneKey(parsed_name_2_adjusted_rand, adjusted_value_2_rand, leader_info_minimums_adjusted_values_only_contact_fields, leader_info_maximums_adjusted_values_only_contact_fields)
-				computeAndStoreMinMaxOfOneKey(parsed_name_2_adjusted_delay, adjusted_value_2_delay, leader_info_minimums_adjusted_values_only_contact_fields, leader_info_maximums_adjusted_values_only_contact_fields)
+			temp_by_leader[iLeader] = leader_rows
 
 		if IS_DEBUG_LEADER:
-			print("[DEBUG] Second pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\nleader_info_minimums_adjusted_values_only_contact_fields=%s\n\nleader_info_maximums_adjusted_values_only_contact_fields=%s\n\n" % (str(leaders_temp_aggregated_contact_probs), str(leader_info_minimums_adjusted_values_only_contact_fields), str(leader_info_maximums_adjusted_values_only_contact_fields)))
+			print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (
+				str(min_adj_rand),
+				str(max_adj_rand),
+				str(min_adj_delay),
+				str(max_adj_delay)
+			))
 
-		# Third pass: compute raw aggregate scores
+		# Pass 2: normalize and compute final aggregated raw score per contact type.
 		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
 
 		for iLeader in NON_EXCLUDED_LEADERS:
-			# <!-- custom: even though this should not be needed for raw aggregated contact probs, unlike for positive or negative raw aggregated memory affections or resentments where we loop 4 times for each combination (see there for details anyways etc), as we don't loop again at/in compute_and_store_leaders_info_aggregated_raw_contact_probs after first call since all contact fields are handled/aggregated the same way (no positive/negative or affection/resentment or similar, only one call, anyways etc), do also same initialization and has key check for leaders_info_aggregated_raw_contact_probs than for raw aggregated memory fields anyways, for consistency etc, and also to make sure the raw aggregate calculation dict does not exist until we create it at this stage now and we didn't do a mistake somehow in creating it before that, so similarly to how raw aggregated memory fields computation is handled make sure the raw aggregated contact calculation dict does not have iLeader key already existing before we create it now. -->
 			if iLeader in leaders_info_aggregated_raw_contact_probs:
-				raise(KeyError("[FATAL] Unexpected key iLeader=%d in leaders_info_aggregated_raw_contact_probs already existing, even though we did not intialize contact aggregated calculation dict for each leader yet before we run/start it at this line. This should not exist until then, please make sure steps are executed in the correct order in your mod, or update this code if you aggregated contact fields in another way than in the original mod you based it on if reusing this code."))
+				raise KeyError("[FATAL] Unexpected key iLeader=%d in leaders_info_aggregated_raw_contact_probs already existing" % iLeader)
 			leaders_info_aggregated_raw_contact_probs[iLeader] = {}
 
+			leader_rows = temp_by_leader[iLeader]
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
-				contact_type_3 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
-				suffix_3 = get_pascal_case_suffix(contact_type_3) # → "JoinWar"
-				parsed_name_3_adjusted_rand = "iAdjustedContactRand%s" % suffix_3 # → iAdjustedContactDelayJoinWar
-				parsed_name_3_adjusted_delay = "iAdjustedContactDelay%s" % suffix_3 # → iAdjustedContactRandJoinWar
-				parsed_name_3_force_zero_adjusted_values = "bForceZeroContact%s" % suffix_3 # → bForceZeroContactJoinWar
-				adjusted_value_3_rand = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_3_adjusted_rand]
-				adjusted_value_3_delay = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_3_adjusted_delay]
-				force_zero_adjusted_values = leaders_temp_aggregated_contact_probs[iLeader][parsed_name_3_force_zero_adjusted_values]
+				adjusted_rand, adjusted_delay, b_force_zero = leader_rows[i]
 
-				# <!-- custom: fetch min and max among all leaders already stored at previous step, of adjusted values -->
-				adjusted_value_3_rand_min = leader_info_minimums_adjusted_values_only_contact_fields[parsed_name_3_adjusted_rand]
-				adjusted_value_3_rand_max = leader_info_maximums_adjusted_values_only_contact_fields[parsed_name_3_adjusted_rand]
-				adjusted_value_3_delay_min = leader_info_minimums_adjusted_values_only_contact_fields[parsed_name_3_adjusted_delay]
-				adjusted_value_3_delay_max = leader_info_maximums_adjusted_values_only_contact_fields[parsed_name_3_adjusted_delay]
-				# <!-- custom: no need to fetch force zero's min max (it also doesn't exist) similarly as it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken) -->
+				adjusted_rand_norm_score = normalize_to_100(
+					adjusted_rand,
+					min_adj_rand[i],
+					max_adj_rand[i],
+					B_WARN,
+					b_invert_contact_rands,
+					parsed_adjusted_rand_names[i]
+				)
 
-				adjusted_value_3_rand_norm_score = normalize_to_100(adjusted_value_3_rand, adjusted_value_3_rand_min, adjusted_value_3_rand_max, B_WARN, b_invert_contact_rands, parsed_name_3_adjusted_rand)
-				adjusted_value_3_delay_norm_score = normalize_to_100(adjusted_value_3_delay, adjusted_value_3_delay_min, adjusted_value_3_delay_max, B_WARN, b_invert_contact_delays, parsed_name_3_adjusted_delay)
-				aggregated_raw_contact_score_from_adjusted_values = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_3_rand_norm_score, adjusted_value_3_delay_norm_score, force_zero_adjusted_values)
-				
-				# <!-- custom: note: this is the the raw aggregated (i.e. the aggregated value before it is a normalized aggregated value, to not confound with raw values like raw attitude_percent and raw decay) value that we then normalize and until after then store as part of the real leader info displayed later in the code that we display at UI level), this is a temporary value not the final one. -->
-				parsed_name_3_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix_3 # → iAggregatedRawContactProbJoinWar
-				leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_3_aggregated_raw_contact_prob] = aggregated_raw_contact_score_from_adjusted_values
+				adjusted_delay_norm_score = normalize_to_100(
+					adjusted_delay,
+					min_adj_delay[i],
+					max_adj_delay[i],
+					B_WARN,
+					b_invert_contact_delays,
+					parsed_adjusted_delay_names[i]
+				)
+
+				aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(
+					adjusted_rand_norm_score,
+					adjusted_delay_norm_score,
+					b_force_zero
+				)
+
+				leaders_info_aggregated_raw_contact_probs[iLeader][parsed_aggregated_raw_names[i]] = aggregated_value
 
 		if IS_DEBUG_LEADER:
-			print("[DEBUG] Third pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\nleader_info_minimums_adjusted_values_only_contact_fields=%s\n\nleader_info_maximums_adjusted_values_only_contact_fields=%s\n\nleaders_info_aggregated_raw_contact_probs=%s\n\n" % (str(leaders_temp_aggregated_contact_probs), str(leader_info_minimums_adjusted_values_only_contact_fields), str(leader_info_maximums_adjusted_values_only_contact_fields), str(leaders_info_aggregated_raw_contact_probs)))
+			print("[DEBUG] leaders_info_aggregated_raw_contact_probs after pass 2: %s" % str(leaders_info_aggregated_raw_contact_probs))
 
-		# Fourth pass: normalize final scores <!-- custom: is done later in the code anyways etc -->
-
-		# <!-- custom: cleanup -->
-		del leaders_temp_aggregated_contact_probs
-		del leader_info_minimums_adjusted_values_only_contact_fields
-		del leader_info_maximums_adjusted_values_only_contact_fields
-
-
+		# Cleanup
+		del temp_by_leader
+		del min_adj_rand, max_adj_rand, min_adj_delay, max_adj_delay
 
 	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
 	MEM_POS_IDX = tuple(get_positive_memory_indexes_to_types().keys())
@@ -372,121 +378,132 @@ def _compute_leader_cache_internal():
 
 
 
-	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection):
+	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(
+		leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments,
+		is_positive,
+		is_affection
+	):
+		# leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_memory_key] = aggregated_raw_score
+		# parsed_memory_key is e.g. "iAggregatedRawPositiveMemoryDeclaredWarAffection" (0-100)
+		#
+		# We compute these in two passes, similar to contact probs:
+		# - Pass 1: adjusted attitude%/decay values + min/max per memory type
+		# - Pass 2: normalize adjusted values to 0-100, then combine into an aggregated raw score
+
 		positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
 		positive_negative = get_positive_negative(is_positive)
 		affection_resentment = get_affection_resentment(is_affection)
 
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] '0th' pass (preparation) (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, positive_or_negative_memory_indexes=%s, positive_negative=%s, affection_resentment=%s" % (str(is_positive), str(is_affection), str(positive_or_negative_memory_indexes), positive_negative, affection_resentment))
+		# Precompute per-memory metadata once.
+		memory_indexes = list(positive_or_negative_memory_indexes)
+		memory_types = [gc.getMemoryInfo(iMemoryIndex).getType() for iMemoryIndex in memory_indexes]
+		memory_suffixes = [get_pascal_case_suffix(memory_type) for memory_type in memory_types]
 
-		# <!-- custom: temporary storage to compute positive and negative raw aggregated affections and resentments, iLeader: { key: value } -->
-		leaders_temp_positive_and_negative_memory_affections_and_resentments = {}
+		parsed_adjusted_attitude_names = ["iAdjustedMemoryAttitudePercent%s%s" % (suffix, affection_resentment) for suffix in memory_suffixes]
+		parsed_adjusted_decay_names = ["iAdjustedMemoryDecay%s%s" % (suffix, affection_resentment) for suffix in memory_suffixes]
+		parsed_aggregated_raw_names = ["iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) for suffix in memory_suffixes]
 
-		# <!-- custom: this is even more temporary than leaders_temp_positive_and_negative_memory_affections_and_resentments as it is only a local variable used to compute min max during the positive or negative raw aggregated affection or resentment loop, so anyways etc no problem to recreate a new one everytime we reloop over compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments if we ever do ; also note: this variable mimicks/has an identical structure to leader_info_minimums and leader_info_maximums in other parts of the code, but only storing respectively min and max among all leaders for some memory fields (note: so no iLeader (and no part in the iLeader loop anyways etc) since this is value among all leaders anyways etc), singular because we can think of leader_info_minimums as a fake leader having minimum among all leaders for each of its fields, and same/similar for leader_info_maximums anyways etc -->
-		# <!-- custom: { key: value } -->
-		leader_info_minimums_adjusted_values_only_memory_fields = {}
-		leader_info_maximums_adjusted_values_only_memory_fields = {}
+		count = len(memory_indexes)
 
-		# First pass: extract raw values and compute adjusted values (for scoring + min/max)
+		# Pass 1: compute adjusted values and collect min/max across leaders.
+		# temp_by_leader[iLeader][j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
+		temp_by_leader = {}
+		min_adj_attitude = [None] * count
+		max_adj_attitude = [None] * count
+		min_adj_decay = [None] * count
+		max_adj_decay = [None] * count
+
 		for iLeader in NON_EXCLUDED_LEADERS:
-			# <!-- custom: temporary field, no need to check if iLeader key exists before creating it, unlike for leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, anyways etc -->
-			leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader] = {}
-
-			# <!-- custom: note: we get very weird bugs if misnaming variables, as python sadly or angrily for me xd stupidly anyways etc reuses variables from other loops even though they should not exist in another indepent scope other loop, so naming them with _0 _1 _2 _3 _4 for each pass to make sure python doesn't reuse them anwyays etc and we successfully get an error as intended if variable doesn't exist anyways etc -->
-
-			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+			leader_rows = [None] * count
 
-			# <!-- custom: skip negative memories if is_positive and vice versa anyways etc ; note: there is no such index skipping depending on memory type equivalent in the contact code (that uses range over all contact indexes (i.e. over all contact types if i am not mistaken anyways etc anyways etc) as we always process and handle all contact types the same (only difference is at display level where as of now we display them as contact offer or contact demand, but it is only a functional/visual difference if i am not mistaken anyways etc and computationally we handle them all the same, unlike memory types where the raw values are adjusted differently depending on whether memory type is positive or negative anyways etc) anyways etc -->
-			for i in positive_or_negative_memory_indexes:
-				value_1_attitude_percent_raw = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
-				value_1_decay_raw = loopLeaderHeadInfo.getMemoryDecayRand(i)
-				mem_type_1 = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
-				suffix_1 = get_pascal_case_suffix(mem_type_1) # → "DeclaredWar"
-				
-				# <!-- custom: store raw_values for each leader first too anyways etc -->
-				# <!-- custom: export raw attitude percents and decays only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment, anyways etc), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations anyways etc -->
-				parsed_name_1_attitude_percent = "iMemoryAttitudePercent%s" % suffix_1 # → iMemoryAttitudePercentDeclaredWar
-				if parsed_name_1_attitude_percent not in leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader]:
-					leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_attitude_percent] = value_1_attitude_percent_raw
+			for j in xrange(count):
+				iMemoryIndex = memory_indexes[j]
+				memory_type = memory_types[j]
 
-				parsed_name_1_decay = "iMemoryDecay%s" % suffix_1 # → iMemoryDecayDeclaredWar
-				if parsed_name_1_decay not in leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader]:
-					leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_decay] = value_1_decay_raw
+				attitude_percent_raw = loopLeaderHeadInfo.getMemoryAttitudePercent(iMemoryIndex)
+				decay_rand_raw = loopLeaderHeadInfo.getMemoryDecayRand(iMemoryIndex)
 
-				# <!-- custom: code comment from generate_leaders_data.py that is relevant here so adding it slightly modified (the code comment i mean anyways etc) for sevopedia leader anyways etc : adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only use affection and resentment versions of the adjusted temporary values to calculate the raw aggregated positive and negative memory affections and resentments if i am not mistaken. -->
-				adjusted_value_1_attitude_percent_affection_or_resentment, adjusted_value_1_decay_affection_or_resentment, force_zero_adjusted_affection_or_resentment = get_adjusted_memory_values(value_1_attitude_percent_raw, value_1_decay_raw, is_affection, IS_DEBUG_LEADER, mem_type_1)
-				parsed_name_1_adjusted_attitude_percent_affection_or_resentment = "iAdjustedMemoryAttitudePercent%s%s" % (suffix_1, affection_resentment) # → iAdjustedMemoryAttitudePercentDeclaredWarAffection or iAdjustedMemoryAttitudePercentDeclaredWarResentment
-				parsed_name_1_adjusted_decay_affection_or_resentment = "iAdjustedMemoryDecay%s%s" % (suffix_1, affection_resentment) # → iAdjustedMemoryDecayDeclaredWarAffection or iAdjustedMemoryDecayDeclaredWarResentment
-				parsed_name_1_force_zero_adjusted_affection_or_resentment = "bForceZeroMemory%s%s" % (suffix_1, affection_resentment) # → bForceZeroMemoryMemoryDecayDeclaredWarAffection or bForceZeroMemoryMemoryDecayDeclaredWarResentment
-				leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_adjusted_attitude_percent_affection_or_resentment] = adjusted_value_1_attitude_percent_affection_or_resentment
-				leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_adjusted_decay_affection_or_resentment] = adjusted_value_1_decay_affection_or_resentment
-				leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_force_zero_adjusted_affection_or_resentment] = force_zero_adjusted_affection_or_resentment
+				adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(
+					attitude_percent_raw,
+					decay_rand_raw,
+					is_affection,
+					IS_DEBUG_LEADER,
+					memory_type
+				)
 
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] First pass (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\n" % (str(is_positive), str(is_affection), str(leaders_temp_positive_and_negative_memory_affections_and_resentments)))
+				leader_rows[j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
 
-		# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders -->
-		for iLeader in NON_EXCLUDED_LEADERS:
-			for i in positive_or_negative_memory_indexes:
-				mem_type_2 = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
-				suffix_2 = get_pascal_case_suffix(mem_type_2) # → "DeclaredWar"
-				parsed_name_2_adjusted_attitude_percent_affection_or_resentment = "iAdjustedMemoryAttitudePercent%s%s" % (suffix_2, affection_resentment) # → iAdjustedMemoryAttitudePercentDeclaredWarAffection or iAdjustedMemoryAttitudePercentDeclaredWarResentment
-				parsed_name_2_adjusted_decay_affection_or_resentment = "iAdjustedMemoryDecay%s%s" % (suffix_2, affection_resentment) # → iAdjustedMemoryDecayDeclaredWarAffection or iAdjustedMemoryDecayDeclaredWarResentment
-				# <!-- custom: no need to compute nor store min max for force zero so it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken), so also no need to parse name for it too at this min max step/pass -->
-				adjusted_value_2_attitude_percent_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_2_adjusted_attitude_percent_affection_or_resentment]
-				adjusted_value_2_decay_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_2_adjusted_decay_affection_or_resentment]
+				# Min/max init
+				if min_adj_attitude[j] is None:
+					min_adj_attitude[j] = adjusted_attitude_percent
+					max_adj_attitude[j] = adjusted_attitude_percent
+					min_adj_decay[j] = adjusted_decay
+					max_adj_decay[j] = adjusted_decay
+				else:
+					if adjusted_attitude_percent < min_adj_attitude[j]:
+						min_adj_attitude[j] = adjusted_attitude_percent
+					if adjusted_attitude_percent > max_adj_attitude[j]:
+						max_adj_attitude[j] = adjusted_attitude_percent
+					if adjusted_decay < min_adj_decay[j]:
+						min_adj_decay[j] = adjusted_decay
+					if adjusted_decay > max_adj_decay[j]:
+						max_adj_decay[j] = adjusted_decay
 
-				computeAndStoreMinMaxOfOneKey(parsed_name_2_adjusted_attitude_percent_affection_or_resentment, adjusted_value_2_attitude_percent_affection_or_resentment, leader_info_minimums_adjusted_values_only_memory_fields, leader_info_maximums_adjusted_values_only_memory_fields)
-				computeAndStoreMinMaxOfOneKey(parsed_name_2_adjusted_decay_affection_or_resentment, adjusted_value_2_decay_affection_or_resentment, leader_info_minimums_adjusted_values_only_memory_fields, leader_info_maximums_adjusted_values_only_memory_fields)
+			temp_by_leader[iLeader] = leader_rows
 
 		if IS_DEBUG_LEADER:
-			print("[DEBUG] Second pass (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\nleader_info_minimums_adjusted_values_only_memory_fields=%s\n\nleader_info_maximums_adjusted_values_only_memory_fields=%s\n\n" % (str(is_positive), str(is_affection), str(leaders_temp_positive_and_negative_memory_affections_and_resentments), str(leader_info_minimums_adjusted_values_only_memory_fields), str(leader_info_maximums_adjusted_values_only_memory_fields)))
+			print("[DEBUG] Memory aggregation pass 1 done for %s/%s" % (positive_negative, affection_resentment))
+			print("[DEBUG] min_adj_attitude=%s max_adj_attitude=%s" % (str(min_adj_attitude), str(max_adj_attitude)))
+			print("[DEBUG] min_adj_decay=%s max_adj_decay=%s" % (str(min_adj_decay), str(max_adj_decay)))
 
-		# Third pass: compute raw aggregate scores
+		# Pass 2: normalize and compute final aggregated raw score per memory type.
 		b_invert_attitude_percent, b_invert_decay = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
-		
+
 		for iLeader in NON_EXCLUDED_LEADERS:
-			# <!-- custom: be careful, we loop 4 times over compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, for positive-affection, positive-resentment, negative-affection, negative-resentment, so do not initalize this 4 times, we would lose 3/4 = 75% of the data otherwise anyways etc ; instead only initialize the iLeader key if it doesn't exist already (i.e. at 1st iteration/combination among the 4, for the other remaining 3 combinations, skip initialization as it would overwrite/delete all previously stored entries if i am not mistaken except the last iteration anyways etc) -->
 			if iLeader not in leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments:
 				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader] = {}
 
-			for i in positive_or_negative_memory_indexes:
-				mem_type_3 = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
-				suffix_3 = get_pascal_case_suffix(mem_type_3) # → "DeclaredWar"
-				parsed_name_3_adjusted_attitude_percent = "iAdjustedMemoryAttitudePercent%s%s" % (suffix_3, affection_resentment) # → iAdjustedMemoryAttitudePercentDeclaredWarAffection or iAdjustedMemoryAttitudePercentDeclaredWarResentment
-				parsed_name_3_adjusted_decay = "iAdjustedMemoryDecay%s%s" % (suffix_3, affection_resentment) # → iAdjustedMemoryDecayDeclaredWarAffection or iAdjustedMemoryDecayDeclaredWarResentment
-				parsed_name_3_force_zero_adjusted_affection_or_resentment = "bForceZeroMemory%s%s" % (suffix_3, affection_resentment) # → bForceZeroMemoryMemoryDecayDeclaredWarAffection or bForceZeroMemoryMemoryDecayDeclaredWarResentment
-				adjusted_value_3_attitude_percent_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_adjusted_attitude_percent]
-				adjusted_value_3_decay_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_adjusted_decay]
-				force_zero_adjusted_affection_or_resentment = leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_force_zero_adjusted_affection_or_resentment]
+			leader_rows = temp_by_leader[iLeader]
+			for j in xrange(count):
+				adjusted_attitude_percent, adjusted_decay, b_force_zero = leader_rows[j]
 
-				# <!-- custom: fetch min and max among all leaders already stored at previous step, of adjusted values -->
-				adjusted_value_3_attitude_percent_affection_or_resentment_min = leader_info_minimums_adjusted_values_only_memory_fields[parsed_name_3_adjusted_attitude_percent]
-				adjusted_value_3_attitude_percent_affection_or_resentment_max = leader_info_maximums_adjusted_values_only_memory_fields[parsed_name_3_adjusted_attitude_percent]
-				adjusted_value_3_decay_affection_or_resentment_min = leader_info_minimums_adjusted_values_only_memory_fields[parsed_name_3_adjusted_decay]
-				adjusted_value_3_decay_affection_or_resentment_max = leader_info_maximums_adjusted_values_only_memory_fields[parsed_name_3_adjusted_decay]
-				# <!-- custom: no need to fetch force zero's min max (it also doesn't exist) similarly as it is not a field we compare (it is a boolean specific to the current adjusted attitude_percent and decay, affection or resentment, if i am not mistaken) -->
+				adjusted_attitude_norm_score = normalize_to_100(
+					adjusted_attitude_percent,
+					min_adj_attitude[j],
+					max_adj_attitude[j],
+					B_WARN,
+					b_invert_attitude_percent,
+					parsed_adjusted_attitude_names[j]
+				)
 
-				adjusted_value_3_attitude_percent_affection_or_resentment_norm_score = normalize_to_100(adjusted_value_3_attitude_percent_affection_or_resentment, adjusted_value_3_attitude_percent_affection_or_resentment_min, adjusted_value_3_attitude_percent_affection_or_resentment_max, B_WARN, b_invert_attitude_percent, parsed_name_3_adjusted_attitude_percent)
-				adjusted_value_3_decay_affection_or_resentment_norm_score = normalize_to_100(adjusted_value_3_decay_affection_or_resentment, adjusted_value_3_decay_affection_or_resentment_min, adjusted_value_3_decay_affection_or_resentment_max, B_WARN, b_invert_decay, parsed_name_3_adjusted_decay)
-				aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_value_3_attitude_percent_affection_or_resentment_norm_score, adjusted_value_3_decay_affection_or_resentment_norm_score, force_zero_adjusted_affection_or_resentment)
-				
-				parsed_name_3_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix_3, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
-				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_aggregated_raw_positive_or_negative_memory_affection_or_resentment] = aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values
+				adjusted_decay_norm_score = normalize_to_100(
+					adjusted_decay,
+					min_adj_decay[j],
+					max_adj_decay[j],
+					B_WARN,
+					b_invert_decay,
+					parsed_adjusted_decay_names[j]
+				)
+
+				aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(
+					adjusted_attitude_norm_score,
+					adjusted_decay_norm_score,
+					b_force_zero
+				)
+
+				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_aggregated_raw_names[j]] = aggregated_value
 
 		if IS_DEBUG_LEADER:
-			print("[DEBUG] Third pass of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\nleader_info_minimums_adjusted_values_only_memory_fields=%s\n\nleader_info_maximums_adjusted_values_only_memory_fields=%s\n\nleaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments=%s\n\n" % (str(leaders_temp_positive_and_negative_memory_affections_and_resentments), str(leader_info_minimums_adjusted_values_only_memory_fields), str(leader_info_maximums_adjusted_values_only_memory_fields), str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)))
+			print("[DEBUG] leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments after pass 2 for %s/%s: %s" % (
+				positive_negative,
+				affection_resentment,
+				str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
+			))
 
-		# Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores <!-- custom: is done later in the code anyways etc -->
-
-		# <!-- custom: cleanup anyways etc -->
-		del leaders_temp_positive_and_negative_memory_affections_and_resentments
-		del leader_info_minimums_adjusted_values_only_memory_fields
-		del leader_info_maximums_adjusted_values_only_memory_fields
-
-
+		# Cleanup
+		del temp_by_leader
+		del min_adj_attitude, max_adj_attitude, min_adj_decay, max_adj_decay
 
 	# <!-- custom: before computing minimums and maximums, compute and store raw aggregated fields, flattened, so they can be processed like any field/attribute and do min/max on them too for all leaders anyways etc -->
 	compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_aggregated_raw_contact_probs)
@@ -628,6 +645,10 @@ def _compute_leader_cache_internal():
 			"getVassalRefuseAttitudeThreshold": ("Vassal", False),
 		}
 
+		# <!-- custom: fields not parsed into leaders_info_cached yet; useful for deeper AI modeling later:
+		# Advanced arrays (optional):
+		# - <UnitAIWeightModifier> by UnitAIType
+		# - <ImprovementWeightModifier> by ImprovementType (GPT-5.2-Codex) -->
 		return fields_with_direct_getters, fields_attitude_thresholds
 
 
@@ -1035,7 +1056,12 @@ def _compute_leader_cache_internal():
 				# Your original line was correct:
 				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, all_symbols, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
 
-			# <!-- custom: similarly for memory fields, we don't need the raw attitude_percent and decay since they are already in label and we don't display them normalized otherwise either (or neither? But anyways etc...) anyways etc, so normalize only aggregated positive and negative memory affections and resentments, but more specifically also, we don't display positive memory resentments and negative memory affections due to table being too small for these all but anyways etc and/but also our XML being otherwise quite straightforward at least as of now if not always or not, as positive memories all have a positive attitude_percent if i'm not mistaken and same or similarly rather anyways etc negative memories all have a negative atittude_percent, so positive memory resentments and negative memory affections would just perfectly overlap and be redundant with positive memory affections and negative memory resentments, so don't display them at least as of now if not most likely always in advciv-sas or maybe not but most likely anyways etc. But the feature is there if some mods want to display it, and i think it's very cool to have masochistic (negative memory affections) and/or bitterly ungrateful (positive memory resentments), so code comment code samples or rather maybe lines anyways etc if you want to support it in your mod, remember to also add these fields (parsed_name (parsed names for all fields actually but anyways etc)) in UI categories too and order them as you see fit if you'd want that, which i think is very cool and wish i did and could do, but table is already too full, and i dont have such a crazy in a way i like hehe leader as of yet (or yet? Simply? But anyways etc...) if not always or maybe not but most likely in this case i mean anyways etc, but in all cases, regardless of which, uncomment if you want to add positive memory resentments and negative memory resentments, same also for raw memory attitude_percents and decays not displayed as well since they are in label of aggregated field and we don't otherwise need them, anyways etc -->
+			# <!-- custom: for memory fields, we display only aggregated positive/negative memory affections and resentments.
+			# Raw attitude_percent/decay are already embedded in labels and are not normalized, so we don't display them separately.
+			# We also skip positive memory resentments and negative memory affections because the table is too small and these would
+			# overlap with positive memory affections / negative memory resentments given positive memories have positive attitude_percent
+			# and negative memories have negative attitude_percent. They are also niche and would clutter the dump/cache; the pipeline
+			# still supports them if you add their parsed_name fields to the UI category order below (test to be sure). (GPT-5.2-Codex (summarized)) -->
 			# b_invert_memory_attitude_percents, b_invert_memory_decays = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
 			#symbol_memory_attitude_percents_decays = all_symbols["RAW_SCALE_SYMBOL"]
 
@@ -1155,14 +1181,20 @@ def _compute_leader_cache_internal():
 
 
 
-	def get_ai_category_header_line_with_or_without_button_and_x_offset(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, localText):
-		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
-			button_path = localText.getText(emoji_name_to_button_path_txt_keys[emoji_name], ())
+	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_path_txt_key, ai_category_header, localText):
+		if not IS_DISPLAY_AI_CATEGORY_HEADERS:
+			return (None, 0)
+		# If the header is disabled (None), keep the exact same "no header" tuple semantics.
+		if ai_category_header is None:
+			return (None, 0)
+
+		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS and icon_button_path_txt_key:
+			button_path = localText.getText(icon_button_path_txt_key, ())
 			button_size = 16
 			line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
 			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
 
-			# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the ai_category start anyways etc -->
+			# <!-- custom: add x offset (negative) so we can push button a bit left and reduce whitespace -->
 			ai_category_x_offset_with_button = -7
 
 			return (ai_category_header_line_with_button, ai_category_x_offset_with_button)
@@ -1172,31 +1204,16 @@ def _compute_leader_cache_internal():
 
 			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
 
-
-
-	def get_ai_category(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, ai_category_key_order, localText):
-		# <!-- custom: tuple structure of an ai_category anyways etc -->
-		# (
-		#		ai_category_header_line,
-		#		ai_category_x_offset,
-		#		(
-		#			key1,
-		#			key2,
-		#			etc...
-		#		),
-		# )
-		ai_category_header_line, x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, localText)
-
-
-		return (
-			ai_category_header_line,
-			x_offset,
-			ai_category_key_order,
+	def get_ai_category(icon_button_path_txt_key, ai_category_header, ai_category_key_order, localText):
+		ai_category_header_line, ai_category_x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(
+			icon_button_path_txt_key,
+			ai_category_header,
+			localText
 		)
 
+		return (ai_category_header_line, ai_category_x_offset, ai_category_key_order)
 
-
-	def get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment):
+	def get_ai_category_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment):
 		ai_category_key_order_positive_memories = (
 			"iAggregated%sMemoryGiveHelp%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryAcceptDemand%s" % (positive_negative, affection_resentment),
@@ -1215,7 +1232,7 @@ def _compute_leader_cache_internal():
 
 
 
-	def get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment):
+	def get_ai_category_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment):
 		ai_category_key_order_negative_memories = (
 			"iAggregated%sMemoryDeclaredWar%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryDeclaredWarOnFriend%s" % (positive_negative, affection_resentment),
@@ -1239,7 +1256,7 @@ def _compute_leader_cache_internal():
 			"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
-			# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough maybe. -->
+			# <!-- custom: hide this one because we don't have enough space in the table. (GPT-5.2-Codex (summarized)) -->
 			# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
 			"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
@@ -1249,31 +1266,19 @@ def _compute_leader_cache_internal():
 		return ai_category_key_order_negative_memories
 
 
-
-	def get_ai_categories(localText):
-		emoji_name_to_button_path_txt_keys = get_emoji_name_to_button_path_txt_keys(localText)
-
-		# <!-- custom: first generate each category with a ai_category_header_line, label, x_offset, and intra-category attribute/field order too for all categories -->
-
-		# Aggregated Contact Prob values/attributes (0-100 (%)) computed from ContactDelay and ContactRand
-		# 🕊️ <!-- custom: Contact Offer Probabilities (0-100) anyways etc -->
-		ai_category_key_order_contact_offer_probs = (
-			"iAggregatedContactProbPeaceTreaty",
-			"iAggregatedContactProbOpenBorders",
-			"iAggregatedContactProbTradeMap",
-			"iAggregatedContactProbTradeTech",
-			"iAggregatedContactProbTradeBonus",
-			"iAggregatedContactProbGiveHelp", # <!-- custom: "Give (the) Weak(er player(s)) Help" if i am not mistaken and understood it correctly according to modiki or/and kujira's website description and my understanding of it anyways etc  (is a repetition of understanding twice i (maybe) understand... (3 times now but) anyways etc... -->
-			"iAggregatedContactProbDefensivePact",
-			"iAggregatedContactProbPermanentAlliance",
-		)
-		emoji_name_contact_offer_probs = "Dove"
-		ai_category_header_contact_offer_probs = "Contact Offer Probabilities"
-		ai_category_contact_offer_probs = get_ai_category(emoji_name_contact_offer_probs, emoji_name_to_button_path_txt_keys, ai_category_header_contact_offer_probs, ai_category_key_order_contact_offer_probs, localText)
-
-		# <!-- custom: unlike in/for positive and negative memories where there is a functionnal difference (memory atitude is either positive (value) or negative (value), here for contact probabilities, for both contact offer and contact demand, the contact delay is always positive (and the contact rand too if i am not mistaken, therefore they are not separated as 2 different positive/negative contacts in generate_leaders_data.py (easier also this way to implement, cleaner perhaps too implementation or/and other things)), but they are displayed differently in 2 separate categories, hopefully for a clearer read too and easier read too perhaps) -->
-		# 📣 <!-- custom: Contact Demand Probabilities (0-100) anyways etc -->
-		ai_category_key_order_contact_demand_probs = (
+	def get_ai_category_order_contact_probs(is_offer):
+		if is_offer:
+			return (
+				"iAggregatedContactProbPeaceTreaty",
+				"iAggregatedContactProbOpenBorders",
+				"iAggregatedContactProbTradeMap",
+				"iAggregatedContactProbTradeTech",
+				"iAggregatedContactProbTradeBonus",
+				"iAggregatedContactProbGiveHelp",
+				"iAggregatedContactProbDefensivePact",
+				"iAggregatedContactProbPermanentAlliance",
+			)
+		return (
 			"iAggregatedContactProbReligionPressure",
 			"iAggregatedContactProbCivicPressure",
 			"iAggregatedContactProbStopTrading",
@@ -1281,115 +1286,35 @@ def _compute_leader_cache_internal():
 			"iAggregatedContactProbAskForHelp",
 			"iAggregatedContactProbJoinWar",
 		)
-		emoji_name_contact_demand_probs = "Megaphone"
-		ai_category_header_contact_demand_probs = "Contact Demand Probabilities"
-		ai_category_contact_demand_probs = get_ai_category(emoji_name_contact_demand_probs, emoji_name_to_button_path_txt_keys, ai_category_header_contact_demand_probs, ai_category_key_order_contact_demand_probs, localText)
 
-		# <!-- custom: some of these 4 combinations of positive or negative memory affections or resentments below are unused and thus commented-out ((but functionnal although i did not retest so stilluntested since rewrite of sevopedia leadr to use xml leader info directly not old leaders_data.py but anyways etc) and can be implemented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to be changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
-
-		# ❤️ Positive Memory Affections (0-100)
-		is_positive = True
-		is_affection = True
-		positive_negative = get_positive_negative(is_positive)
-		affection_resentment = get_affection_resentment(is_affection)
-		ai_category_key_order_positive_memory_affections = get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment)
-		emoji_name_positive_memory_affections = "RedHeart"
-		ai_category_header_positive_memory_affections = "%s Memory %ss" % (positive_negative, affection_resentment)
-		ai_category_positive_memory_affections = get_ai_category(emoji_name_positive_memory_affections, emoji_name_to_button_path_txt_keys, ai_category_header_positive_memory_affections, ai_category_key_order_positive_memory_affections, localText)
-
-
-		# 💔 Positive Memory Resentments (0-100)
-		# is_positive = True
-		# is_affection = False
-		# positive_negative = get_positive_negative(is_positive)
-		# affection_resentment = get_affection_resentment(is_affection)
-		# ai_category_key_order_positive_memory_resentments = get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment)
-		# emoji_name_positive_memory_resentments = "BrokenHeart"
-		# ai_category_header_positive_memory_resentments = "%s Memory %ss" % (positive_negative, affection_resentment)
-		# ai_category_positive_memory_resentments = get_ai_category(emoji_name_positive_memory_resentments, emoji_name_to_button_path_txt_keys, ai_category_header_positive_memory_resentments, ai_category_key_order_positive_memory_resentments, localText)
-
-
-
-		# 💀 Negative Memory Resentments (0-100)
-		is_positive = False
-		is_affection = False
-		positive_negative = get_positive_negative(is_positive)
-		affection_resentment = get_affection_resentment(is_affection)
-		ai_category_key_order_negative_memory_resentments = get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment)
-		emoji_name_negative_memory_resentments = "Skull"
-		ai_category_header_negative_memory_resentments = "%s Memory %ss" % (positive_negative, affection_resentment)
-		ai_category_negative_memory_resentments = get_ai_category(emoji_name_negative_memory_resentments, emoji_name_to_button_path_txt_keys, ai_category_header_negative_memory_resentments, ai_category_key_order_negative_memory_resentments, localText)
-
-		# 🔥 Negative Memory Affections (0-100)
-		# is_positive = False
-		# is_affection = True
-		# positive_negative = get_positive_negative(is_positive)
-		# affection_resentment = get_affection_resentment(is_affection)
-		# ai_category_key_order_negative_memory_affections = get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment)
-		# emoji_name_negative_memory_affections = "Fire"
-		# ai_category_header_negative_memory_affections = "%s Memory %ss" % (positive_negative, affection_resentment)
-		# ai_category_negative_memory_affections = get_ai_category(emoji_name_negative_memory_affections, emoji_name_to_button_path_txt_keys, ai_category_header_negative_memory_affections, ai_category_key_order_negative_memory_affections, localText)
-
-		# 🧠 Core Personality
-		ai_category_key_order_core_personality = (
-			"getBaseAttitude",
-			"getBasePeaceWeight",
-			"getPeaceWeightRand",
-			"getWorseRankDifferenceAttitudeChange",
-			"getBetterRankDifferenceAttitudeChange",
-			"getWarmongerRespect",
-			"getCloseBordersAttitudeChange",
-			# <!-- custom: table is a bit too tight, so move these ACL here rather, not ideal but hopefully good enough at least in this case but anyways etc -->
-			"getSameReligionAttitudeChangeLimit",
-			"getDifferentReligionAttitudeChangeLimit",
-			"getFavoriteCivicAttitudeChangeLimit",
+	def get_ai_category_order_refusal_thresholds(is_offer):
+		if is_offer:
+			return (
+				"getOpenBordersRefuseAttitudeThreshold",
+				"getMapRefuseAttitudeThreshold",
+				"getTechRefuseAttitudeThreshold",
+				"getStrategicBonusRefuseAttitudeThreshold",
+				"getHappinessBonusRefuseAttitudeThreshold",
+				"getHealthBonusRefuseAttitudeThreshold",
+				"getNoGiveHelpAttitudeThreshold",
+				"getDefensivePactRefuseAttitudeThreshold",
+			)
+		return (
+			"getConvertReligionRefuseAttitudeThreshold",
+			"getAdoptCivicRefuseAttitudeThreshold",
+			# <!-- custom: probability to refuse declaring war based on attitude (higher = less likely to attack). (GPT-5.2-Codex) -->
+			"getDeclareWarRefuseAttitudeThreshold",
+			"getDeclareWarThemRefuseAttitudeThreshold",
+			"getStopTradingRefuseAttitudeThreshold",
+			"getStopTradingThemRefuseAttitudeThreshold",
+			"getDemandTributeAttitudeThreshold",
+			"getCityRefuseAttitudeThreshold",
+			"getNativeCityRefuseAttitudeThreshold",
+			"getVassalRefuseAttitudeThreshold",
 		)
-		emoji_name = "Brain"
-		ai_category_header_core_personality = "Core Personality"
-		ai_category_core_personality = get_ai_category(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header_core_personality, ai_category_key_order_core_personality, localText)
 
-		# 🏆 Victory Weights (BBAI-style)
-		ai_category_key_order_victory_weights = (
-			"getConquestVictoryWeight",
-			"getDominationVictoryWeight",
-			"getCultureVictoryWeight",
-			"getDiplomacyVictoryWeight",
-			"getSpaceVictoryWeight",
-		)
-		emoji_name_victory_weights = "Trophy"
-		ai_category_header_victory_weights = "Victory Weights (BBAI-style)"
-		ai_category_victory_weights = get_ai_category(emoji_name_victory_weights, emoji_name_to_button_path_txt_keys, ai_category_header_victory_weights, ai_category_key_order_victory_weights, localText)
-
-		# 🌿 No War Attitude Probs
-		# Probability to refuse declaring war based on attitude (higher = less likely to attack)
-		ai_category_key_order_no_war_attitude_probs = (
-			"iNoWarAttitudeProbFurious",
-			"iNoWarAttitudeProbAnnoyed",
-			"iNoWarAttitudeProbCautious",
-			"iNoWarAttitudeProbPleased",
-			"iNoWarAttitudeProbFriendly",
-		)
-		emoji_name_no_war_attitude_probs = "Herb"
-		ai_category_header_no_war_attitude_probs = "No War At"
-		ai_category_no_war_attitude_probs = get_ai_category(emoji_name_no_war_attitude_probs, emoji_name_to_button_path_txt_keys, ai_category_header_no_war_attitude_probs, ai_category_key_order_no_war_attitude_probs, localText)
-
-		# ⚙️ Flavors
-		ai_category_key_order_flavors = (
-			"iFlavorMilitary",
-			"iFlavorReligion",
-			"iFlavorProduction",
-			"iFlavorGold",
-			"iFlavorScience",
-			"iFlavorCulture",
-			"iFlavorGrowth",
-			"iFlavorEspionage",
-		)
-		emoji_name_flavors = "Gear"
-		ai_category_header_flavors = "Flavors"
-		ai_category_flavors = get_ai_category(emoji_name_flavors, emoji_name_to_button_path_txt_keys, ai_category_header_flavors, ai_category_key_order_flavors, localText)
-
-		# ⚔️ War Strategy Attributes
-		ai_category_key_order_war_strategy_attributes = (
+	def get_ai_category_order_war_strategy():
+		return (
 			"getMaxWarRand",
 			"getMaxWarNearbyPowerRatio",
 			"getMaxWarDistantPowerRatio",
@@ -1403,83 +1328,79 @@ def _compute_leader_cache_internal():
 			"getDemandRebukedWarProb",
 			"getDogpileWarRand",
 			"getDeclareWarTradeRand",
-			# <!-- custom: not ideal but putting the getShareWarAttitudeChangeLimit here in war strategy attributes where i found some place, as it is one of the only 4 Attitude Changes +/- Limits +/- Changes that varies/"changes" if i mays ay anyways etc among all leaders in base AdvCiv XML and thus AdvCiv-SAS by extension (and its leaders_data too if i am not mistaken by extension too as it is directly derived from it (i.e. from said/such/the (AdvCiv-SAS's) XML anyways etc), ideally i would want to aggregate them (combining AC + ACL + AD to give a synthetic representation of these either aggregated like the previosu aggregated ones or maybe switch rather to a rela math computation formula (as i didn't know the exact formula and didn't want to make it too complicated as it was hard enough to just make it work xd but now i would love to, but anyways etc, for now most convenient is just to show the info about these 4 critically variying attributes and see later if or not if anyways etc i would aggregate or/and combine them or/and maybe the other aggregated attributes (some or all (of them) anyways etc) in a similar manner or not anyways etc, for now this is fast and hopefully representative enough (even though we don't see all raw vals or fields by doing it in such a way, hopefully better than nothig; ideally i would love to represent in an (for example for same religion Aggregated behaviour not yet named) in an same religion such aggregated name behaviour affection and same religion such aggregated name behaviour resentment, meaning AI would be able to resent having same religion, or vice versa loving having a different religion, similarly to how the positive/negative memory with affection/resentment system works, this would be ideal butgoing for most simple for now. -->
+			# <!-- custom: not ideal but keep this ACL here so War Strategy stays in one block and fits the panel. (GPT-5.2-Codex) -->
 			"getShareWarAttitudeChangeLimit",
 			"getVassalPowerModifier",
 			"getRefuseToTalkWarThreshold",
 			"getMakePeaceRand",
 		)
-		emoji_name_war_strategy_attributes = "CrossedSwords"
-		ai_category_header_war_strategy_attributes = "War Strategy"
-		ai_category_war_strategy_attributes = get_ai_category(emoji_name_war_strategy_attributes, emoji_name_to_button_path_txt_keys, ai_category_header_war_strategy_attributes, ai_category_key_order_war_strategy_attributes, localText)
 
-		# 💰 Economic Preferences
-		ai_category_key_order_economic_preferences = (
+	def get_ai_category_order_core_personality():
+		# <!-- custom: order is tuned to fit the panel; not strictly thematic (e.g., some ACL fields stay here) to keep
+		# headers readable within the available space. (GPT-5.2-Codex) -->
+		return (
+			"getBaseAttitude",
+			"getBasePeaceWeight",
+			"getPeaceWeightRand",
+			"getWorseRankDifferenceAttitudeChange",
+			"getBetterRankDifferenceAttitudeChange",
+			"getWarmongerRespect",
+			"getCloseBordersAttitudeChange",
+			# <!-- custom: table is tight, so keep ACL fields here to avoid another header. (GPT-5.2-Codex) -->
+			"getSameReligionAttitudeChangeLimit",
+			"getDifferentReligionAttitudeChangeLimit",
+			"getFavoriteCivicAttitudeChangeLimit",
+		)
+
+	def get_ai_category_order_victory_weights():
+		return (
+			"getConquestVictoryWeight",
+			"getDominationVictoryWeight",
+			"getCultureVictoryWeight",
+			"getDiplomacyVictoryWeight",
+			"getSpaceVictoryWeight",
+		)
+
+	def get_ai_category_order_flavors():
+		return (
+			"iFlavorMilitary",
+			"iFlavorReligion",
+			"iFlavorProduction",
+			"iFlavorGold",
+			"iFlavorScience",
+			"iFlavorCulture",
+			"iFlavorGrowth",
+			"iFlavorEspionage",
+		)
+
+	def get_ai_category_order_economic_preferences():
+		return (
 			"getMaxGoldTradePercent",
 			"getMaxGoldPerTurnTradePercent",
 			"getTechTradeKnownPercent",
 			"getNoTechTradeThreshold",
-			# <!-- custom: move buildunitprob here too as table is otherwise full the war startegy one overfill, should fit quite well as is linked to eocnomic behaviour, may even fit better possibly. -->
 			"getBuildUnitProb",
 			"getWonderConstructRand",
-			# <!-- custom: move espionage here, was in core personality, not ideal not too bad as such. -->
 			"getEspionageWeight",
 		)
-		emoji_name_economic_preferences = "MoneyBag"
-		ai_category_header_economic_preferences = "Economic Preferences"
-		ai_category_economic_preferences = get_ai_category(emoji_name_economic_preferences, emoji_name_to_button_path_txt_keys, ai_category_header_economic_preferences, ai_category_key_order_economic_preferences, localText)
 
-		# ⛔ Offer Refuse Attitude Thresholds
-		ai_category_key_order_offer_refuse_attitude_thresholds = (
-			"getOpenBordersRefuseAttitudeThreshold",
-			"getMapRefuseAttitudeThreshold",
-			"getTechRefuseAttitudeThreshold",
-			"getStrategicBonusRefuseAttitudeThreshold",
-			"getHappinessBonusRefuseAttitudeThreshold",
-			"getHealthBonusRefuseAttitudeThreshold",
-			"getNoGiveHelpAttitudeThreshold",
-			"getDefensivePactRefuseAttitudeThreshold",
-			# <!-- custom: hide this getPermanentAllianceRefuseAttitudeThreshold as the table is otherwise full and can't display all data, this field is constant across all leaders at leaders so maybe not too bad as such. -->
-			# "getPermanentAllianceRefuseAttitudeThreshold",
+	def get_ai_category_order_no_war_at():
+		return (
+			"iNoWarAttitudeProbFurious",
+			"iNoWarAttitudeProbAnnoyed",
+			"iNoWarAttitudeProbCautious",
+			"iNoWarAttitudeProbPleased",
+			"iNoWarAttitudeProbFriendly",
 		)
-		emoji_name_offer_refuse_attitude_thresholds = "NoEntry"
-		ai_category_header_offer_refuse_attitude_thresholds = "Offer Refuse Attitude Thresholds"
-		ai_category_offer_refuse_attitude_thresholds = get_ai_category(emoji_name_offer_refuse_attitude_thresholds, emoji_name_to_button_path_txt_keys, ai_category_header_offer_refuse_attitude_thresholds, ai_category_key_order_offer_refuse_attitude_thresholds, localText)
 
-		# 🪓 Demand Refuse Attitude Thresholds
-		ai_category_key_order_demand_refuse_attitude_thresholds = (
-			"getConvertReligionRefuseAttitudeThreshold",
-			"getAdoptCivicRefuseAttitudeThreshold",
-			"getDeclareWarRefuseAttitudeThreshold",
-			"getDeclareWarThemRefuseAttitudeThreshold",
-			"getStopTradingRefuseAttitudeThreshold",
-			"getStopTradingThemRefuseAttitudeThreshold",
-			"getDemandTributeAttitudeThreshold",
-			"getCityRefuseAttitudeThreshold",
-			"getNativeCityRefuseAttitudeThreshold",
-			"getVassalRefuseAttitudeThreshold",
-		)
-		emoji_name_demand_refuse_attitude_thresholds = "Axe"
-		ai_category_header_demand_refuse_attitude_thresholds = "Demand Refuse Attitude Thresholds"
-		ai_category_demand_refuse_attitude_thresholds = get_ai_category(emoji_name_demand_refuse_attitude_thresholds, emoji_name_to_button_path_txt_keys, ai_category_header_demand_refuse_attitude_thresholds, ai_category_key_order_demand_refuse_attitude_thresholds, localText)
-
-		# 📉 Attitude Changes +/- Limits +/- Divisors
-		# <!-- custom: see the code comment at getShareWarAttitudeChangeLimit in this file for details -->
-		ai_category_key_order_attitude_changes_plusminus_limits_plusminus_divisors = (
-			# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully not too bad as such, see the code comment at iShareWarAttitudeChangeLimit in this file for details. -->
+	def get_ai_category_order_attitude_changes():
+		return (
 			"getSameReligionAttitudeChange",
 			"getSameReligionAttitudeDivisor",
-			#
-			# ACL missing from this category
-			#
 			"getDifferentReligionAttitudeChange",
 			"getDifferentReligionAttitudeDivisor",
-			# ACL missing from this category
 			"getFavoriteCivicAttitudeChange",
 			"getFavoriteCivicAttitudeDivisor",
-			#
-			# ACL missing from this category
-			#
 			"getLostWarAttitudeChange",
 			"getAtWarAttitudeDivisor",
 			"getAtWarAttitudeChangeLimit",
@@ -1487,9 +1408,6 @@ def _compute_leader_cache_internal():
 			"getAtPeaceAttitudeChangeLimit",
 			"getShareWarAttitudeChange",
 			"getShareWarAttitudeDivisor",
-			#
-			# ACL missing from this category
-			#
 			"getBonusTradeAttitudeDivisor",
 			"getBonusTradeAttitudeChangeLimit",
 			"getOpenBordersAttitudeDivisor",
@@ -1497,57 +1415,81 @@ def _compute_leader_cache_internal():
 			"getDefensivePactAttitudeDivisor",
 			"getDefensivePactAttitudeChangeLimit",
 		)
-		emoji_name_attitude_changes_plusminus_limits_plusminus_divisors = "ChartDecreasing"
-		ai_category_header_attitude_changes_plusminus_limits_plusminus_divisors = "Attitude Changes +/- Lims +/- Divs"
-		ai_category_attitude_changes_plusminus_limits_plusminus_divisors = get_ai_category(emoji_name_attitude_changes_plusminus_limits_plusminus_divisors, emoji_name_to_button_path_txt_keys, ai_category_header_attitude_changes_plusminus_limits_plusminus_divisors, ai_category_key_order_attitude_changes_plusminus_limits_plusminus_divisors, localText)
 
-		# 🔧 Misc Modifiers
-		ai_category_key_order_misc_modifiers = (
-			"getFreedomAppreciation",
-		)
-		emoji_name_misc_modifiers = "Wrench"
-		ai_category_header_misc_modifiers = "Misc Modifiers"
-		ai_category_misc_modifiers = get_ai_category(emoji_name_misc_modifiers, emoji_name_to_button_path_txt_keys, ai_category_header_misc_modifiers, ai_category_key_order_misc_modifiers, localText)
+	def get_ai_category_order_misc_modifiers():
+		return ("getFreedomAppreciation",)
 
-		# <!-- custom: fields we don't parse at all in leaders_info_cached, maybe useful as a reminder from chatgpt's old code comment anyways etc -->
-		#
-		# 🧪 Advanced Arrays (optional: if needed later)
-		# These are indexed arrays, useful for deep modeling or future expansions
-		#
-		# - <UnitAIWeightModifier> by UnitAIType
-		# - <ImprovementWeightModifier> by ImprovementType
 
-		# <!-- custom: now order for each table the inter-category order of the categories displayed in it, as we see fit/prefer anyways etc -->
-		ai_right_categories = (
-			ai_category_economic_preferences,
-			ai_category_contact_offer_probs,
-			ai_category_contact_demand_probs,
-			ai_category_offer_refuse_attitude_thresholds,
-			ai_category_demand_refuse_attitude_thresholds,
-			ai_category_misc_modifiers,
-		)
+	# <!-- custom: Python 2.4 global lookup is brittle; keep these helper names stable to avoid NameError at runtime when refactoring. (GPT-5.2-Codex) -->
+	def get_ai_categories(localText):
+		def get_header_text(header_key_or_text):
+			if header_key_or_text is None:
+				return None
+			if header_key_or_text.startswith("TXT_KEY_"):
+				return localText.getText(header_key_or_text, ())
+			return header_key_or_text
 
-		ai_middle_categories = (
-			ai_category_positive_memory_affections,
-			# <!-- custom: not used in AdvCiv-SAS and also not in AdvCiv-AdvCiv-SAS's data, no bitterly ungrateful AI in AdvCiv/AdvCiv-SAS at least not now hehe (i don't think i'll change it (for AdvCiv-SAS i or the AdvCiv-SAS authors (including chatgpt at least hehe but anyways) hehe will change it anyways etc), but if i want the tools are there, anyways etc anyways) -->
-			#ai_category_positive_memory_resentments,
-			ai_category_negative_memory_resentments,
-			# <!-- custom: not used in AdvCiv-AdvCiv-SAS's data, no masochistic :o (would be fun even nice maybe but anyways, not that i dislike nor do i especially want.. but anyways etc anyways...) AI in AdvCiv/AdvCiv-SAS at least not now hehe (i don't think i'll change it (for AdvCiv-SAS i or the AdvCiv-SAS authors (including chatgpt at least hehe but anyways) hehe will change it anyways etc), but if i want the tools are there, anyways etc anyways) -->
-			#ai_category_negative_memory_affections,
-			ai_category_no_war_attitude_probs,
-			ai_category_attitude_changes_plusminus_limits_plusminus_divisors,
+		# === AI Panel's Categories (display order) ===
+		# Note: icon_button_path_txt_key values are TXT_KEYs that resolve (via localText) to an image path.
+		# We keep them local here for clarity and to avoid any global "emoji mapping" state.
+
+		right_defs = (
+			# <!-- custom: Economic Preferences. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", get_ai_category_order_economic_preferences()),
+			# <!-- custom: Contact Offer Probabilities. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
+			# <!-- custom: Contact Demand Probabilities. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
+			# <!-- custom: Offer Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
+			# <!-- custom: Demand Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_AXE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
+			# <!-- custom: Misc Modifiers. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_WRENCH_PATH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
 		)
 
-		ai_left_categories = (
-			ai_category_core_personality,
-			ai_category_victory_weights,
-			ai_category_flavors,
-			ai_category_war_strategy_attributes,
+		middle_defs = (
+			# <!-- custom: Positive Memory Affections. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
+			# <!-- custom: Negative Memory Resentments. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
+			# <!-- custom: No War At. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", get_ai_category_order_no_war_at()),
+			# <!-- custom: Attitude Changes +/- Lims +/- Divs. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_CHART_DECREASING_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", get_ai_category_order_attitude_changes()),
 		)
 
-		return ai_right_categories, ai_middle_categories, ai_left_categories
+		left_defs = (
+			# <!-- custom: Core Personality. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", get_ai_category_order_core_personality()),
+			# <!-- custom: Victory Weights (BBAI-style). (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", get_ai_category_order_victory_weights()),
+			# <!-- custom: Flavors. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", get_ai_category_order_flavors()),
+			# <!-- custom: War Strategy. (GPT-5.2-Codex) -->
+			("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", get_ai_category_order_war_strategy()),
+		)
 
+		right_categories = []
+		middle_categories = []
+		left_categories = []
 
+		if IS_DISPLAY_AI_CATEGORY_HEADERS:
+			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in right_defs:
+				right_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order, localText))
+			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in middle_defs:
+				middle_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order, localText))
+			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in left_defs:
+				left_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order, localText))
+		else:
+			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in right_defs:
+				right_categories.append(get_ai_category(None, None, ai_category_key_order, localText))
+			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in middle_defs:
+				middle_categories.append(get_ai_category(None, None, ai_category_key_order, localText))
+			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in left_defs:
+				left_categories.append(get_ai_category(None, None, ai_category_key_order, localText))
+
+		return (tuple(right_categories), tuple(middle_categories), tuple(left_categories))
 
 	# === AI Panel's Categories ===
 	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText)
@@ -1808,9 +1750,10 @@ class SevoPediaLeader:
 			ai_category_header_line, ai_category_x_offset, ai_category_key_order = ai_category
 
 			# --- AI Category Header Line ---
-			xOffsetButton = xLabel + ai_category_x_offset
-			screen.setText(self.top.getNextWidgetName(), "", ai_category_header_line, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			y += self.H_AI_LINE_HEIGHT
+			if ai_category_header_line is not None:
+				xOffsetButton = xLabel + ai_category_x_offset
+				screen.setText(self.top.getNextWidgetName(), "", ai_category_header_line, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				y += self.H_AI_LINE_HEIGHT
 
 			# <!-- custom: AI Category items in their predefined order anyways etc -->
 			for key in ai_category_key_order:
@@ -1846,6 +1789,8 @@ class SevoPediaLeader:
 
 
 	def handleInput (self, inputClass):
+		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search,
+		# consider removing or remapping here. (GPT-5.2-Codex) -->
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
 			if (inputClass.getData() == int(InputTypes.KB_0)):
 				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.LEADERANIM_GREETING)

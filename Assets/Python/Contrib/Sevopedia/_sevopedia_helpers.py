@@ -95,46 +95,6 @@ def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPat
 
 
 
-def get_emoji_name_to_button_path_txt_keys(localText):
-	# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_Images_As_Buttons.xml or AdvCiv-SAS_Button_Paths_Hardcoded.xml or such for details -->
-	# emojiName → TXT_KEY path
-	emoji_name_to_button_path_txt_keys = {
-		"Dove": "TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH",
-		"Megaphone": "TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH",
-		"RedHeart": "TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH",
-		"BrokenHeart": "TXT_KEY_IMAGE_AS_BUTTON_BROKEN_HEART_BUTTON_PATH",
-		"Skull": "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH",
-		"Fire": "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH",
-		"Brain": "TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH",
-		"Trophy": "TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH",
-		"Herb": "TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH",
-		"Gear": "TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH",
-		"CrossedSwords": "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH",
-		"MoneyBag": "TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH",
-		"NoEntry": "TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH",
-		"Axe": "TXT_KEY_IMAGE_AS_BUTTON_AXE_BUTTON_PATH",
-		"ChartDecreasing": "TXT_KEY_IMAGE_AS_BUTTON_CHART_DECREASING_BUTTON_PATH",
-		"Wrench": "TXT_KEY_IMAGE_AS_BUTTON_WRENCH_PATH",
-	}
-
-	check_images_as_buttons_paths_are_valid(emoji_name_to_button_path_txt_keys, localText)
-
-	return emoji_name_to_button_path_txt_keys
-
-
-
-# <!-- custom: check all images as buttons paths are valid before proceeding (i.e. check they really exist in our XML indeed if i may say anyways etc), error code provided by me hehe, the error check fixed by chatgpt and i made some adjustments too thanks to its awesome code and ym awesome fix or and tweaks mayube rather but anyways etc... -->
-def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
-	# This will raise an error if:
-	# - The TXT_KEY doesn't exist in any loaded Text/*.xml
-	# - The image fails to resolve and is replaced by Civ4's fallback "pink square" (which happens if the DDS path is also invalid, but we catch it at the TXT_KEY level here)
-
-	for buttonHeader, configButtonPathSTxtKey in txtKeyDict.items():
-		resolvedButtonPath = localText.getText(configButtonPathSTxtKey, ())
-		check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
-
-
-
 # <!-- custom: added with the help of chatgpt 5.2 thanks to help separate Land features in sevopedia into as of now Land (Removable) and Land (Other) anyways etc. -->
 # A feature is "removable" if there exists a Build that removes it (e.g. Chop Forest, Clear Jungle, Remove Fallout).
 # We do this via CvBuildInfo because CvFeatureInfo in our DLL does not expose getRemoveTech().

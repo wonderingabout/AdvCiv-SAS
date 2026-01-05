@@ -39,6 +39,64 @@
 	</TEXT>
 
 
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES</Tag>
+		<English>Economic Preferences</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES</Tag>
+		<English>Contact Offer Probabilities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES</Tag>
+		<English>Contact Demand Probabilities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER</Tag>
+		<English>Offer Refuse Attitude Thresholds</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND</Tag>
+		<English>Demand Refuse Attitude Thresholds</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY</Tag>
+		<English>Core Personality</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS</Tag>
+		<English>Victory Weights (BBAI-style)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_FLAVORS</Tag>
+		<English>Flavors</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS</Tag>
+		<English>Positive Memory Affections</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS</Tag>
+		<English>Negative Memory Resentments</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY</Tag>
+		<English>War Strategy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS</Tag>
+		<English>Misc Modifiers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT</Tag>
+		<English>No War At</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES</Tag>
+		<English>Attitude Changes +/- Lims +/- Divs</English>
+	</TEXT>
+
+
 
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #74 -->
 	<TEXT>
