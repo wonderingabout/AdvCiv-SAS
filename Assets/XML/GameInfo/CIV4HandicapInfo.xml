@@ -9,7 +9,7 @@
 	<HandicapInfos>
 		<!-- advc.126: Added free tech for later eras to
 			 Settler and Chieftain. -->
-		<HandicapInfo> <!-- custom: settler (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: settler (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_SETTLER</Type>
 			<Description>TXT_KEY_HANDICAP_SETTLER</Description>
 			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
@@ -36,7 +36,7 @@
 			<!-- was 60 -->
 			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
-			<!-- custom: make costs the same at all difficulty for human players, only AI costs vary similarly than/as in/for techs or such anyways etc -->
+			<!-- custom: make costs the same at all handicap for human players, only AI costs vary similarly than/as in/for techs or such anyways etc -->
 			<!-- was 80 (let's steer beginners away a bit from just playing SimCity) -->
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
@@ -147,7 +147,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>10</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: chieftain (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: chieftain (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_CHIEFTAIN</Type>
 			<Description>TXT_KEY_HANDICAP_CHIEFTAIN</Description>
 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
@@ -275,7 +275,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>20</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: warlord (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: warlord (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_WARLORD</Type>
 			<Description>TXT_KEY_HANDICAP_WARLORD</Description>
 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
@@ -402,7 +402,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>30</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: noble (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: noble (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_NOBLE</Type>
 			<Description>TXT_KEY_HANDICAP_NOBLE</Description>
 			<Help>TXT_KEY_HANDICAP_NOBLE_HELP</Help>
@@ -533,7 +533,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>40</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: prince (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: prince (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_PRINCE</Type>
 			<Description>TXT_KEY_HANDICAP_PRINCE</Description>
 			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
@@ -671,7 +671,7 @@
 		</HandicapInfo>
 		<!-- advc.126: Added free tech for later eras to
 			 all handicaps below. -->
-		<HandicapInfo> <!-- custom: monarch (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: monarch (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_MONARCH</Type>
 			<Description>TXT_KEY_HANDICAP_MONARCH</Description>
 			<Help>TXT_KEY_HANDICAP_MONARCH_HELP</Help>
@@ -812,7 +812,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>60</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: emperor (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: emperor (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_EMPEROR</Type>
 			<Description>TXT_KEY_HANDICAP_EMPEROR</Description>
 			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
@@ -934,7 +934,7 @@
 				<GoodyType>GOODY_MAP</GoodyType>
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_SCOUT</GoodyType>
-				<!-- custom: increase GOODY_EXPERIENCE by 1 more at higher difficulties so it matches the other difficulty having more of them the harder they are, and no reason not to but anyways etc. -->
+				<!-- custom: increase GOODY_EXPERIENCE by 1 more at higher difficulties so it matches the other handicap having more of them the harder they are, and no reason not to but anyways etc. -->
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_HEALING</GoodyType>
@@ -955,7 +955,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>70</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: immortal (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: immortal (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_IMMORTAL</Type>
 			<Description>TXT_KEY_HANDICAP_IMMORTAL</Description>
 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
@@ -1078,7 +1078,7 @@
 				<GoodyType>GOODY_MAP</GoodyType>
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_SCOUT</GoodyType>
-				<!-- custom: increase GOODY_EXPERIENCE by 1 more at higher difficulties so it matches the other difficulty having more of them the harder they are, and no reason not to but anyways etc. -->
+				<!-- custom: increase GOODY_EXPERIENCE by 1 more at higher difficulties so it matches the other handicap having more of them the harder they are, and no reason not to but anyways etc. -->
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_HEALING</GoodyType>
@@ -1100,7 +1100,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>80</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: deity (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+		<HandicapInfo> <!-- custom: deity (useful for VS Code upper tree view while scrolling) -->
 			<Type>HANDICAP_DEITY</Type>
 			<Description>TXT_KEY_HANDICAP_DEITY</Description>
 			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
@@ -1194,7 +1194,7 @@
 			<iAIResearchPercent>70</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>75</iAITrainPercent>
-			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
+			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across handicap levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 60 -->
@@ -1234,7 +1234,7 @@
 				<GoodyType>GOODY_MAP</GoodyType>
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_SCOUT</GoodyType>
-				<!-- custom: increase GOODY_EXPERIENCE by 1 more at higher difficulties so it matches the other difficulty having more of them the harder they are, and no reason not to but anyways etc. -->
+				<!-- custom: increase GOODY_EXPERIENCE by 1 more at higher difficulties so it matches the other handicap having more of them the harder they are, and no reason not to but anyways etc. -->
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_HEALING</GoodyType>

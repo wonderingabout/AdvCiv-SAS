@@ -8,9 +8,9 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Handicap Chart category, AI Personality Panel, etc.), some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
 
-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and for mechanics such as new Game Speeds (Nitro, Turbo, etc., Slow, Very Slow); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
-All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher difficulties, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all difficulties) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
 
 AdvCiv-SAS is now generally stable, but if issues were to arise such as bugs or such, i may not be too available to help, so your best bet may be to open a thread and ping me there rather (or reply in the discussion thread mentionned above), so that if i were not to reply, perhaps someone else would provide some solution or guidance maybe.
 
@@ -85,7 +85,7 @@ See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs/README_More_Ex
 
 ## Ingame gameplay samples
 
-These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Later screenshots are from version 5055 and around version 5200.
+These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch handicap if i'm not mistaken but anyways etc. Later screenshots are from version 5055 and around version 5200.
 
 <img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.960_gameplay_4986_sample_monarch_1.JPG" alt="0.960_gameplay_4986_sample_monarch_1.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG" alt="0.961_autoplay_about_5200_sample_noble_1 (1).JPG" width="250"></img>
@@ -132,7 +132,11 @@ Edited the .thm files so the main menu's home page feels more modern and utlizes
 
 ### "Play Now" rework
 
-Edited the .thm as well. Was done with the help of GPT-5.2-Codex, based on C2C's implementation of tighter radio buttons. I also added some beautification to remove the header and more of the margins as well. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm).
+Edited the .thm as well. Was done with the help of GPT-5.2-Codex, based on C2C's implementation of tighter radio buttons. I also added some beautification to remove the header and more of the margins as well.
+
+Very cool clarification idea by chatgpt 5.2 (web) as part of adding new game speeds, which i then fine tuned or adjusted a bit and expanded on such as in: `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` when necessary, and reworded other fields or blurbs as well. Thanks a lot!
+
+Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). Commit: [commit/d194577b3bf54364637817d767ccf607b5480325](https://github.com/wonderingabout/AdvCiv-SAS/commit/d194577b3bf54364637817d767ccf607b5480325)
 
 <img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (1).JPG" alt="0.401_main_menu_play_now (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (2).JPG" alt="0.401_main_menu_play_now (2).JPG" width="250"></img>

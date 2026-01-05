@@ -7,12 +7,15 @@
 #
 # <!-- custom: note: pending issue of img being left-aligned but couldn't fix it for now, i believe the advantage of being able to sort by emoji i.e. theme outweighs this downside so left as such for now. -->
 
+
+
 from CvPythonExtensions import *
 import CvUtil
 import re
 
 gc = CyGlobalContext()
 localText = CyTranslator()
+
 
 
 class SevoPediaHandicapChart:
@@ -24,40 +27,10 @@ class SevoPediaHandicapChart:
 		self.ROW_H = 15
 		self.W_ICON = 24
 		self.W_FIELD = 290
-		self.ICON_IMG_SIZE = 16
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT must be >= 1.")
 		self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS") != 0)
-		self._icon_great_people = u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)
-		self._icon_war = u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)
-		self._icon_barb = u"%c" % CyGame().getSymbolID(FontSymbols.POWER_CHAR)
-		self._icon_animal = u"%c" % CyGame().getSymbolID(FontSymbols.EATEN_FOOD_CHAR)
-		self._icon_goody = u"%c" % CyGame().getSymbolID(FontSymbols.STAR_CHAR)
-		self._icon_research = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()
-		self._icon_gold = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()
-		self._icon_culture = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()
-		self._icon_happy = u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)
-		self._icon_health = u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)
-		self._icon_food = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()
-		self._icon_prod = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
-		self._icon_defense = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
-		self._icon_moves = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
-		self._icon_citizen = u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
-		self._btn_swords_path = localText.getText("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", ())
-		self._btn_skull_path = localText.getText("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", ())
-		self._btn_dove_path = localText.getText("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", ())
-		self._btn_lion_path = localText.getText("TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH", ())
-		self._img_swords = self._makeImgTag(self._btn_swords_path)
-		self._img_skull = self._makeImgTag(self._btn_skull_path)
-		self._img_dove = self._makeImgTag(self._btn_dove_path)
-		self._img_lion = self._makeImgTag(self._btn_lion_path)
-		self._button_sort_keys = {
-			self._btn_swords_path: 2,
-			self._btn_skull_path: 3,
-			self._btn_lion_path: 4,
-			self._btn_dove_path: 10,
-		}
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -89,7 +62,6 @@ class SevoPediaHandicapChart:
 		header = data[0]
 		rows = data[1:]
 		nCols = len(header)
-
 		if nCols < 2:
 			return
 
@@ -100,6 +72,7 @@ class SevoPediaHandicapChart:
 		else:
 			remainingW = max(0, totalW - self.W_FIELD)
 			value_cols = nCols - 1
+
 		if value_cols > 0:
 			wNum = remainingW / value_cols
 		else:
@@ -108,6 +81,11 @@ class SevoPediaHandicapChart:
 		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSort(table)
 
+		# Minor Python-level micro-opt: bind methods used in hot loops.
+		setHeader = screen.setTableColumnHeader
+		appendRow = screen.appendTableRow
+		setCell = screen.setTableText
+
 		for iCol in range(nCols):
 			if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0:
 				colW = self.W_ICON
@@ -115,44 +93,33 @@ class SevoPediaHandicapChart:
 				colW = self.W_FIELD
 			else:
 				colW = wNum
-			label = u"<font=2>" + header[iCol] + u"</font>"
-			screen.setTableColumnHeader(table, iCol, label, colW)
+			setHeader(table, iCol, header[iCol], colW)
 
 		for row in rows:
-			iRow = screen.appendTableRow(table)
+			iRow = appendRow(table)
 			for iCol in range(nCols):
 				if iCol < len(row):
 					cell = row[iCol]
 				else:
 					cell = u""
+
+				# Icon column: cell is (text, buttonPath) tuple
 				if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0:
-					icon_text = cell
-					icon_button = ""
-					sort_code = 0
-					if icon_text and icon_text.find(u"<img=") != -1:
-						start = icon_text.find(u"<img=") + len(u"<img=")
-						end = icon_text.find(u" ", start)
-						if end == -1:
-							end = icon_text.find(u">", start)
-						if end > start:
-							icon_button = CvUtil.convertToStr(icon_text[start:end])
-							sort_code = self._button_sort_keys.get(icon_button, 0)
-						if sort_code <= 0:
-							sort_code = 31
-						elif sort_code > 31:
-							sort_code = 31
-						text = u"<font=1>%c</font>" % sort_code
-					elif icon_text:
-						text = u"<font=2>" + icon_text + u"</font>"
+					if isinstance(cell, tuple):
+						text = cell[0]
+						icon_button = cell[1]
 					else:
-						text = u""
-					screen.setTableText(table, iCol, iRow, text, icon_button, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						text = cell
+						icon_button = ""
+					setCell(table, iCol, iRow, text, icon_button, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+				# Field column (left)
 				elif (self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0):
-					text = u"<font=2>" + cell + u"</font>"
-					screen.setTableText(table, iCol, iRow, text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+				# Value columns (center)
 				else:
-					text = u"<font=2>" + cell + u"</font>"
-					screen.setTableText(table, iCol, iRow, text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def _getTableData(self):
 		if self._cachedTable is not None:
@@ -237,6 +204,7 @@ class SevoPediaHandicapChart:
 			("iUnownedTilesPerGameAnimal", "getUnownedTilesPerGameAnimal"),
 			("iUnownedWaterTilesPerBarbarianUnit", "getUnownedWaterTilesPerBarbarianUnit"),
 		)
+
 		# <!-- custom: fail fast if the DLL doesn't expose required CvHandicapInfo getters for the handicap chart. (GPT-5.2-Codex) -->
 		if gc.getNumHandicapInfos() > 0:
 			info = gc.getHandicapInfo(0)
@@ -246,6 +214,7 @@ class SevoPediaHandicapChart:
 					missing.append(getter_name)
 			if missing:
 				raise RuntimeError("[FATAL] Your mod DLL does not expose the required CvHandicapInfo Python getters: %s. Please expose them in CyInfoInterface2.cpp and rebuild the DLL." % ", ".join(missing))
+
 		goody_types = (
 			"GOODY_LOW_GOLD",
 			"GOODY_HIGH_GOLD",
@@ -268,9 +237,11 @@ class SevoPediaHandicapChart:
 			("Goody (Worker / Settler)", ("GOODY_WORKER", "GOODY_SETTLER")),
 			("Goody Barbarians (Weak / Strong)", ("GOODY_BARBARIANS_WEAK", "GOODY_BARBARIANS_STRONG")),
 		)
+
 		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")
 		if not anchor_field:
 			raise ValueError("[FATAL] Missing SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD define.")
+
 		abbrev_tech_names = {
 			"Animal Husbandry": "Animal H.",
 			"Bronze Working": "Bronze W.",
@@ -280,12 +251,14 @@ class SevoPediaHandicapChart:
 		techs_per_cell = 1
 		none_text = localText.getText("TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE", ())
 
-		all_fields = {}
-		parsed_data = {}
-		difficulty_types = []
+		# Collect tech types once.
 		tech_types = []
 		for iTech in xrange(gc.getNumTechInfos()):
 			tech_types.append(gc.getTechInfo(iTech).getType())
+
+		all_fields = {}
+		parsed_data = {}
+		difficulty_types = []
 
 		for iHandicap in xrange(gc.getNumHandicapInfos()):
 			info = gc.getHandicapInfo(iHandicap)
@@ -375,30 +348,188 @@ class SevoPediaHandicapChart:
 				new_rows.append(grow)
 			for nrow in nested:
 				new_rows.append(nrow)
+
 		rows = self._expandTechRows(new_rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names)
 
+		# --------------------------------------------------------------------
+		# One-time render prep (kept local; cache stores only final table cells)
+		# --------------------------------------------------------------------
+		def _font2(s):
+			return u"<font=2>%s</font>" % s
+
+		def _sort_char(code):
+			# Clamp to 1..31; match old behavior (default 31 for unknown/non-positive).
+			if code <= 0:
+				code = 31
+			elif code > 31:
+				code = 31
+			return u"<font=1>%c</font>" % code
+
+		icon_cell_for_key = None
 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
-			header = ["", "Field"]
+			game = CyGame()
+
+			# Glyph icons (FontSymbols / commerce / yields)
+			glyph_by_name = {
+				"great_people": u"%c" % game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR),
+				"research": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar(),
+				"gold": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(),
+				"culture": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar(),
+				"happy": u"%c" % game.getSymbolID(FontSymbols.HAPPY_CHAR),
+				"health": u"%c" % game.getSymbolID(FontSymbols.HEALTHY_CHAR),
+				"food": u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar(),
+				"prod": u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(),
+				"defense": u"%c" % game.getSymbolID(FontSymbols.DEFENSE_CHAR),
+				"citizen": u"%c" % game.getSymbolID(FontSymbols.CITIZEN_CHAR),
+			}
+
+			# Button icons (path must be narrow str for setTableText)
+			btn_by_name = {
+				"swords": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", ())), 2),
+				"skull": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", ())), 3),
+				"lion": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH", ())), 4),
+				"dove": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", ())), 10),
+			}
+
+			# Token map: key -> "btn:name" or "glyph:name"
+			icon_token_by_key = {
+				"iAIAttitudeChangePercent": "btn:dove",
+				"iAIAdvancedStartPercent": "glyph:defense",
+				"iAIAnimalBonus": "btn:lion",
+				"iAIBarbarianBonus": "btn:skull",
+				"iAICivicUpkeepPercent": "glyph:gold",
+				"iAIConstructPercent": "glyph:prod",
+				"iAICreatePercent": "glyph:prod",
+				"iAIDeclareWarProb": "btn:swords",
+				"iAIGPThresholdPercent": "glyph:great_people",
+				"iAIGrowthPercent": "glyph:food",
+				"iAIHandicapIncrementTurns": "glyph:defense",
+				"iAIInflationPercent": "glyph:gold",
+				"iAIResearchPercent": "glyph:research",
+				"iAIStartingDefenseUnits": "btn:swords",
+				"iAIStartingExploreUnits": "btn:swords",
+				"iAIStartingUnitMultiplier": "btn:swords",
+				"iAIStartingWorkerUnits": "glyph:citizen",
+				"iAITrainPercent": "btn:swords",
+				"iAIUnitCostPercent": "btn:swords",
+				"iAIUnitSupplyPercent": "btn:swords",
+				"iAIUnitUpgradePercent": "btn:swords",
+				"iAIWarWearinessPercent": "btn:swords",
+				"iAIWorkRateModifier": "glyph:citizen",
+				"iAIWorldConstructPercent": "glyph:prod",
+				"iAIWorldCreatePercent": "glyph:prod",
+				"iAIWorldTrainPercent": "btn:swords",
+				"iAdvancedStartPointsMod": "glyph:defense",
+				"iAnimalAttackProb": "btn:lion",
+				"iAnimalBonus": "btn:lion",
+				"iAttitudeChange": "btn:dove",
+				"iBarbarianBonus": "btn:skull",
+				"iBarbarianCityAttackBonus": "btn:skull",
+				"iBarbarianCityCreationProb": "btn:skull",
+				"iBarbarianCityCreationTurnsElapsed": "btn:skull",
+				"iBarbarianCreationTurnsElapsed": "btn:skull",
+				"iBarbarianDefenders": "btn:skull",
+				"iBaseGrowthThresholdPercent": "glyph:food",
+				"iBuildTimePercent": "glyph:citizen",
+				"iCivicUpkeepPercent": "glyph:gold",
+				"iColonyMaintenancePercent": "glyph:gold",
+				"iConstructPercent": "glyph:prod",
+				"iCorporationMaintenancePercent": "glyph:gold",
+				"iCreatePercent": "glyph:prod",
+				"iCultureLevelPercent": "glyph:culture",
+				"iDifficulty": "glyph:defense",
+				"iDistanceMaintenancePercent": "glyph:gold",
+				"iForeignCultureStrength": "glyph:culture",
+				"iFreeUnits": "btn:swords",
+				"iFreeWinsVsBarbs": "btn:skull",
+				"iGold": "glyph:gold",
+				"iGPThresholdPercent": "glyph:great_people",
+				"iHappyBonus": "glyph:happy",
+				"iHealthBonus": "glyph:health",
+				"iInflationPercent": "glyph:gold",
+				"iMaxColonyMaintenance": "glyph:gold",
+				"iMaxNumCitiesMaintenance": "glyph:gold",
+				"iNoTechTradeModifier": "glyph:research",
+				"iNumCitiesMaintenancePercent": "glyph:gold",
+				"iResearchPercent": "glyph:research",
+				"iSeaBarbarianBonus": "btn:skull",
+				"iSeaBarbarianExtraMoves": "btn:skull",
+				"iStartingDefenseUnits": "btn:swords",
+				"iStartingExploreUnits": "btn:swords",
+				"iStartingLocPercent": "glyph:defense",
+				"iStartingWorkerUnits": "glyph:citizen",
+				"iTechTradeKnownModifier": "glyph:research",
+				"iTrainPercent": "btn:swords",
+				"iUnitCostPercent": "btn:swords",
+				"iUnownedTilesPerBarbarianCity": "btn:skull",
+				"iUnownedTilesPerBarbarianUnit": "btn:skull",
+				"iUnownedTilesPerGameAnimal": "btn:lion",
+				"iUnownedWaterTilesPerBarbarianUnit": "btn:skull",
+				"Goody Gold (Low / High)": "glyph:gold",
+				"Goody (Experience / Healing)": "btn:swords",
+				"Goody (Map / Tech)": "glyph:research",
+				"Goody (Scout / Warrior)": "btn:swords",
+				"Goody (Worker / Settler)": "glyph:citizen",
+				"Goody Barbarians (Weak / Strong)": "btn:skull",
+				"FreeTechs": "glyph:research",
+				"AIFreeTechs": "glyph:research",
+			}
+
+			def icon_cell_for_key(icon_key):
+				if not icon_key:
+					return (u"", "")
+				token = icon_token_by_key.get(icon_key, "")
+				if not token:
+					return (u"", "")
+				if token.startswith("btn:"):
+					name = token[4:]
+					btn = btn_by_name.get(name)
+					if btn is None:
+						return (u"", "")
+					path, sort_code = btn[0], btn[1]
+					if not path:
+						return (u"", "")
+					return (_sort_char(sort_code), path)
+				if token.startswith("glyph:"):
+					name = token[6:]
+					glyph = glyph_by_name.get(name, u"")
+					if not glyph:
+						return (u"", "")
+					return (_font2(glyph), "")
+				return (u"", "")
+
+		# Build header (pre-fonted)
+		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+			header = [u"", _font2("Field")]
 		else:
-			header = ["Field"]
+			header = [_font2("Field")]
 		for difficulty in difficulty_types:
-			header.append(self._beautify_enum_name(difficulty))
+			header.append(_font2(self._beautify_enum_name(difficulty)))
 
 		data = [header]
+
+		# Build rows (pre-fonted)
 		for row in rows:
 			field_name = row["Field"]
 			display_field = field_name
+
 			if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
-				icon_text = self._getFieldIconText(row.get("IconKey", ""))
-				out_row = [icon_text, display_field]
+				icon_key = row.get("IconKey", "")
+				icon_cell = (u"", "")
+				if icon_cell_for_key is not None:
+					icon_cell = icon_cell_for_key(icon_key)
+				out_row = [icon_cell, _font2(display_field)]
 			else:
-				out_row = [display_field]
+				out_row = [_font2(display_field)]
+
 			for difficulty in difficulty_types:
 				value = row.get(difficulty, "")
 				if row["Field"] in ("FreeTechs", "AIFreeTechs"):
 					value = self._format_tech_list(value, False, none_text, abbrev_tech_names)
-				out_row.append(value)
+				out_row.append(_font2(value))
+
 			data.append(out_row)
+
 		return data
 
 	def _appendGoodyFields(self, handicap_dict, info, all_fields, goody_types):
@@ -497,98 +628,6 @@ class SevoPediaHandicapChart:
 			base = base[1:]
 		base = re.sub(r"([a-z])([A-Z])", r"\1 \2", base)
 		return base + " (Human / AI)"
-
-	def _getFieldIconText(self, field_key):
-		if not field_key:
-			return ""
-		icon_map = {
-			"iAIAttitudeChangePercent": self._img_dove,
-			"iAIAdvancedStartPercent": self._icon_defense,
-			"iAIAnimalBonus": self._img_lion,
-			"iAIBarbarianBonus": self._img_skull,
-			"iAICivicUpkeepPercent": self._icon_gold,
-			"iAIConstructPercent": self._icon_prod,
-			"iAICreatePercent": self._icon_prod,
-			"iAIDeclareWarProb": self._img_swords,
-			"iAIGPThresholdPercent": self._icon_great_people,
-			"iAIGrowthPercent": self._icon_food,
-			"iAIHandicapIncrementTurns": self._icon_defense,
-			"iAIInflationPercent": self._icon_gold,
-			"iAIResearchPercent": self._icon_research,
-			"iAIStartingDefenseUnits": self._img_swords,
-			"iAIStartingExploreUnits": self._img_swords,
-			"iAIStartingUnitMultiplier": self._img_swords,
-			"iAIStartingWorkerUnits": self._icon_citizen,
-			"iAITrainPercent": self._img_swords,
-			"iAIUnitCostPercent": self._img_swords,
-			"iAIUnitSupplyPercent": self._img_swords,
-			"iAIUnitUpgradePercent": self._img_swords,
-			"iAIWarWearinessPercent": self._img_swords,
-			"iAIWorkRateModifier": self._icon_citizen,
-			"iAIWorldConstructPercent": self._icon_prod,
-			"iAIWorldCreatePercent": self._icon_prod,
-			"iAIWorldTrainPercent": self._img_swords,
-			"iAdvancedStartPointsMod": self._icon_defense,
-			"iAnimalAttackProb": self._img_lion,
-			"iAnimalBonus": self._img_lion,
-			"iAttitudeChange": self._img_dove,
-			"iBarbarianBonus": self._img_skull,
-			"iBarbarianCityAttackBonus": self._img_skull,
-			"iBarbarianCityCreationProb": self._img_skull,
-			"iBarbarianCityCreationTurnsElapsed": self._img_skull,
-			"iBarbarianCreationTurnsElapsed": self._img_skull,
-			"iBarbarianDefenders": self._img_skull,
-			"iBaseGrowthThresholdPercent": self._icon_food,
-			"iBuildTimePercent": self._icon_citizen,
-			"iCivicUpkeepPercent": self._icon_gold,
-			"iColonyMaintenancePercent": self._icon_gold,
-			"iConstructPercent": self._icon_prod,
-			"iCorporationMaintenancePercent": self._icon_gold,
-			"iCreatePercent": self._icon_prod,
-			"iCultureLevelPercent": self._icon_culture,
-			"iDifficulty": self._icon_defense,
-			"iDistanceMaintenancePercent": self._icon_gold,
-			"iForeignCultureStrength": self._icon_culture,
-			"iFreeUnits": self._img_swords,
-			"iFreeWinsVsBarbs": self._img_skull,
-			"iGold": self._icon_gold,
-			"iGPThresholdPercent": self._icon_great_people,
-			"iHappyBonus": self._icon_happy,
-			"iHealthBonus": self._icon_health,
-			"iInflationPercent": self._icon_gold,
-			"iMaxColonyMaintenance": self._icon_gold,
-			"iMaxNumCitiesMaintenance": self._icon_gold,
-			"iNoTechTradeModifier": self._icon_research,
-			"iNumCitiesMaintenancePercent": self._icon_gold,
-			"iResearchPercent": self._icon_research,
-			"iSeaBarbarianBonus": self._img_skull,
-			"iSeaBarbarianExtraMoves": self._img_skull,
-			"iStartingDefenseUnits": self._img_swords,
-			"iStartingExploreUnits": self._img_swords,
-			"iStartingLocPercent": self._icon_defense,
-			"iStartingWorkerUnits": self._icon_citizen,
-			"iTechTradeKnownModifier": self._icon_research,
-			"iTrainPercent": self._img_swords,
-			"iUnitCostPercent": self._img_swords,
-			"iUnownedTilesPerBarbarianCity": self._img_skull,
-			"iUnownedTilesPerBarbarianUnit": self._img_skull,
-			"iUnownedTilesPerGameAnimal": self._img_lion,
-			"iUnownedWaterTilesPerBarbarianUnit": self._img_skull,
-			"Goody Gold (Low / High)": self._icon_gold,
-			"Goody (Experience / Healing)": self._img_swords,
-			"Goody (Map / Tech)": self._icon_research,
-			"Goody (Scout / Warrior)": self._img_swords,
-			"Goody (Worker / Settler)": self._icon_citizen,
-			"Goody Barbarians (Weak / Strong)": self._img_skull,
-			"FreeTechs": self._icon_research,
-			"AIFreeTechs": self._icon_research,
-		}
-		return icon_map.get(field_key, "")
-
-	def _makeImgTag(self, path):
-		if not path:
-			return ""
-		return u"<img=%s size=%d></img>" % (path, self.ICON_IMG_SIZE)
 
 	def _format_tech_list(self, value, return_list, none_text, abbrev_tech_names):
 		if not value:

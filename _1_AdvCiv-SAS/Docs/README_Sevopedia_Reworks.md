@@ -78,6 +78,8 @@ Note: as for sevopedia leader's AI Personality Panel where we exposed in AdvCiv-
 
 They are also sortable by emojis, which allows to group them by theme (e.g. war, gold, knowledge, etc.).
 
+Then, chatgpt 5.2 (web) helped refactor it for perf opt, clarity, and such; thanks a lot!
+
 Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
 
 <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>

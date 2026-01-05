@@ -1338,12 +1338,13 @@
 
 
 
-	<!-- custom: rewrite difficulty/handicap descriptions/help texts anyways etc to match new/reworked advciv-sas gradual handicap settings, which are in particular much harder at settler, gradually harder until deity, and as of now there are no free techs and ai free techs anymore in advciv-sas and is intended to stand so as of now at least anyways etc -->
+	<!-- custom: rename "Difficulty" to "Handicap" -->
+	<!-- custom: rewrite handicap descriptions texts to match reworked advciv-sas gradual handicap settings -->
 	<!-- advc.137: Originally in Civ4GameText_Help.xml. Changed only English and
 		 German. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc. ; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS as of now at least in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall difficulty.</English>
+		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc.; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall handicap.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Tag>
@@ -1985,34 +1986,7 @@
 		<Italian>[ICON_BULLET]%D1_Change%% contro barbari (e animali)</Italian>
 		<Spanish>[ICON_BULLET]%D1_Change%% contra bárbaros (e animales)</Spanish>
 	</TEXT>
-	<!-- Based on TXT_KEY_MISC_HEALTH_FROM_HANDICAP in Civ4GameTextInfos.xml -->
-	<TEXT>
-		<Tag>TXT_KEY_MISC_FROM_HANDICAP</Tag>
-		<English>[ICON_BULLET]%D1_Change%% from Difficulty Level</English>
-		<French>[ICON_BULLET]%D1_Change%% (niveau de difficulté)</French>
-		<German>[ICON_BULLET]%D1_Change%% durch Schwierigkeitsgrad</German>
-		<Italian>[ICON_BULLET]%D1_Change%% per il livello di difficolt&#224;</Italian>
-		<Spanish>[ICON_BULLET]%D1_Change%% por nivel de dificultad</Spanish>
-	</TEXT>
 
-
-	<!-- advc.137: From Vanilla Civ4GameTextInfos.xml; recommendation added. -->
-	<TEXT>
-		<Tag>TXT_KEY_SEALEVEL_LOW_RECOMMEND</Tag>
-		<English>Low - extra players recommended (+35%%)</English>
-		<French>Bas</French>
-		<German>Niedrig - zus. Spieler empfohlen (+35%%)</German>
-		<Italian>Basso</Italian>
-		<Spanish>Bajo</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_SEALEVEL_HIGH_RECOMMEND</Tag>
-		<English>High - fewer players recommended (-25%%)</English>
-		<French>Haut</French>
-		<German>Hoch - weniger Spieler empfohlen (-25%%)</German>
-		<Italian>Alto</Italian>
-		<Spanish>Alto</Spanish>
-	</TEXT>
 	<!-- advc.137: Better use a separate key for H/M/L when it doesn't refer to
 		 the sea level. Text is the same though (from Civ4GameTextInfos.xml). -->
 	<TEXT>

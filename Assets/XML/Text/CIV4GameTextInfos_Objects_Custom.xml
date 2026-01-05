@@ -81,6 +81,41 @@
 
 
 
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_NITRO</Tag>
+		<English>Nitro (165 / 33%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_TURBO</Tag>
+		<English>Turbo (250 / 50%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_QUICK</Tag>
+		<English>Quick (330 / 67%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_NORMAL</Tag>
+		<English>Normal (500 / 100%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_EPIC</Tag>
+		<English>Epic (750 / 150%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_MARATHON</Tag>
+		<English>Marathon (1000 / 200%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_SLOW</Tag>
+		<English>Slow (1500 / 300%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_VERY_SLOW</Tag>
+		<English>Very Slow (2000 / 400%)</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "Ivory" to "Elephants". Here the main reasons for this change: 
 	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
 	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is derived from elephants, independent of whether they are alive or dead.

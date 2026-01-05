@@ -185,9 +185,10 @@
 		<English>%s3  %d1_Pts[TAB]in total; negative total reduced to[NEWLINE]%s4  %d2_Pts[TAB](square root times three)</English>
 		<German>%s3  %d1_Pts[TAB]insgesamt; negative Summe reduziert auf[NEWLINE]%s4  %d2_Pts[TAB](dreimal die Quadratwurzel)</German>
 	</TEXT>
+	<!-- custom: rename "Difficulty" to "Handicap" -->
 	<TEXT>
 		<Tag>TXT_KEY_RF_RISE_BREAKDOWN</Tag>
-		<English>%s14%d1_Pts[TAB]from sum of scored chapters [NEWLINE]%s15%d2_Pts[TAB]from finished but unscored chapters[NEWLINE]%s16+%d3_Pts[TAB]from victory, compensating for %d4 missed chapters[NEWLINE]%s17 -%d5_Pts[TAB]from initial rank (%d6. of %d7)[NEWLINE]%s18+%d8_Pts[TAB]for %d9%% time unspent in current chapter[NEWLINE]%s19+%d10_Pts[TAB](+%d11%%) from %s12_Hnd difficulty[NEWLINE]   -----------------------------------------------------------[NEWLINE]%s20  %d13_Pts[TAB]in total</English>
+		<English>%s14%d1_Pts[TAB]from sum of scored chapters [NEWLINE]%s15%d2_Pts[TAB]from finished but unscored chapters[NEWLINE]%s16+%d3_Pts[TAB]from victory, compensating for %d4 missed chapters[NEWLINE]%s17 -%d5_Pts[TAB]from initial rank (%d6. of %d7)[NEWLINE]%s18+%d8_Pts[TAB]for %d9%% time unspent in current chapter[NEWLINE]%s19+%d10_Pts[TAB](+%d11%%) from %s12_Hnd handicap[NEWLINE]   -----------------------------------------------------------[NEWLINE]%s20  %d13_Pts[TAB]in total</English>
 		<German>%s14%d1_Pts[TAB]für gewertete Abschnitte [NEWLINE]%s15%d2_Pts[TAB]für beendete, noch ungewertete Abschnitte[NEWLINE]%s16+%d3_Pts[TAB]für Sieg, Ersatz für %d4 verpasste Abschnitte[NEWLINE]%s17 -%d5_Pts[TAB]für Ausgangsrang (%d6. von %d7)[NEWLINE]%s18+%d8_Pts[TAB]für %d9%% übrige Zeit im aktuellen Abschnitt[NEWLINE]%s19+%d10_Pts[TAB](+%d11%%) für Schwierigkeitsstufe %s12_Hnd[NEWLINE]   -----------------------------------------------------------[NEWLINE]%s20  %d13_Pts[TAB]insgesamt</German>
 	</TEXT>
 	<TEXT>
@@ -401,10 +402,11 @@
 		<German>Beginn der Zwischenzeit</German>
 	</TEXT>
 
+	<!-- custom: rename "Difficulty" to "Handicap" -->
 	<!-- advc.708 -->
 	<TEXT>
 		<Tag>TXT_KEY_RF_HANDICAP_SETTINGS</Tag>
-		<English>Game Difficulty (AI discounts):[NEWLINE][TAB]%s1_GameHandicap[NEWLINE]Human Player Difficulty: %s2_HumanPlayerHandicap[NEWLINE]Difficulty for AI Players: %s3_AIPlayerHandicap</English>
+		<English>Game Handicap (AI discounts):[NEWLINE][TAB]%s1_GameHandicap[NEWLINE]Human Player Handicap: %s2_HumanPlayerHandicap[NEWLINE]Handicap for AI Players: %s3_AIPlayerHandicap</English>
 		<German>Schwierigkeitsstufe:[NEWLINE][TAB]KI-Boni, Barbaren: %s1_GameHandicap[NEWLINE][TAB]Kosten für Spieler: %s2_HumanPlayerHandicap[NEWLINE][TAB]Kosten für KI-Gegner: %s3_AIPlayerHandicap</German>
 	</TEXT>
 

@@ -508,23 +508,79 @@
 
 
 
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_GAMESPEED_QUICK_HELP</Tag>
-		<English>Up to 330 turns. Research, growth and production are 33% faster than on normal speed. As unit movement is unaffected by game speed, warfare is relatively slow. This setting is worth considering especially for multiplayer games and small maps. As of now in AdvCiv-SAS it goes from 50 000 BC to 2105 AD.</English>
+	<!-- custom: rename "SEALEVEL" to "SEA LEVEL". -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_SEALEVEL_TITLE</Tag>
+		<English>SEA LEVEL</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MENU_SEALEVEL</Tag>
+		<English>Sea level:</English>
+	</TEXT>
+	<!-- custom: we don't need all this here, clutters the text and overfills here, let players choose what they want xd, was "Low - extra players recommended (+35%%)" -->
+	<!-- advc.137: From Vanilla Civ4GameTextInfos.xml; recommendation added. -->
+	<TEXT>
+		<Tag>TXT_KEY_SEALEVEL_LOW_RECOMMEND</Tag>
+		<English>Low</English>
+	</TEXT>
+	<!-- custom: was "High - fewer players recommended (-25%%)". -->
+	<TEXT>
+		<Tag>TXT_KEY_SEALEVEL_HIGH_RECOMMEND</Tag>
+		<English>High</English>
+	</TEXT>
+	<!-- custom: was "DIFFICULTY". -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_DIFFICULTY_TITLE</Tag>
+		<English>HANDICAP</English>
+	</TEXT>
+	<!-- Based on TXT_KEY_MISC_HEALTH_FROM_HANDICAP in Civ4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_FROM_HANDICAP</Tag>
+		<English>[ICON_BULLET]%D1_Change%% from Handicap</English>
+	</TEXT>
+	<!-- custom: add year info in header so we don't need to copy it in headers or maintain it there, was "GAME SPEED"  -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_GAME_SPEED_TITLE</Tag>
+		<English>GAME SPEED (50 000 BC - 2105 AD)</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_NITRO_HELP</Tag>
+		<English>A faster game speed than Turbo: Research, growth, building and unit production take less time.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_TURBO_HELP</Tag>
+		<English>A faster game speed than Quick: Research, growth, building and unit production take less time.</English>
+	</TEXT>
+	<!-- custom: reworded to emphasize it's fast, not slow. -->
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_QUICK_HELP</Tag>
+		<English>Research, growth and production are faster than on normal speed. Still, as unit movement is unaffected by game speed, warfare is not necessarily that much faster. This setting is worth considering especially for multiplayer games and small maps.</English>
+	</TEXT>
+	<!-- custom: i've only removed the turn number here (we don't want to maintain it, easier and clearer to show it in header / field name directly). -->
 	<!-- I've only added the turn number here (assuming Ancient-era start and
 		 enabled Time victory) -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_GAMESPEED_NORMAL_HELP</Tag>
-		<English>Up to 500 turns. This is the traditional game speed for Civ. As of now in AdvCiv-SAS it goes from 50 000 BC to 2105 AD.</English>
+		<English>This is the traditional game speed for Civ.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_GAMESPEED_EPIC_HELP</Tag>
-		<English>Up to 750 turns. Research, growth and production take 50% longer than on normal speed. As unit movement is unaffected by game speed, this setting allows more time for warfare in each era. As of now in AdvCiv-SAS it goes from 50 000 BC to 2105 AD.</English>
+		<English>Research, growth and production take longer than on normal speed. As unit movement is unaffected by game speed, this setting allows more time for warfare in each era.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_GAMESPEED_MARATHON_HELP</Tag>
-		<English>Up to 1000 turns (less than in BTS and than in base AdvCiv). Research, growth, building and unit production take 2 times longer than on normal speed. This setting favors warfare and demands much patience. As of now in AdvCiv-SAS it goes from 50 000 BC to 2105 AD.</English>
+		<English>Less turns than in BTS and than in base AdvCiv. Research, growth, building and unit production take longer than on normal speed. This setting favors warfare and demands much patience.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_SLOW_HELP</Tag>
+		<English>A slower game speed than Marathon: Research, growth, building and unit production take longer.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_VERY_SLOW_HELP</Tag>
+		<English>A slower game speed than Slow: Research, growth, building and unit production take longer.</English>
 	</TEXT>
 
 
