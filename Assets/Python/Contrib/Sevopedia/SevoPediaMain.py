@@ -65,6 +65,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		
 		self.TAB_TOC   = "Contents"
 		self.TAB_INDEX = "Index"
+		self.SAS_USE_BOTTOM_TABS = False
 
 		self.WIDGET_ID		= "PediaMainWidget"
 		self.BACKGROUND_ID	= "PediaMainBackground"
@@ -254,6 +255,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: self.placeBTSConcepts,
 			SevoScreenEnums.PEDIA_HINTS		: self.placeHints,
 			SevoScreenEnums.PEDIA_SHORTCUTS  	: self.placeShortcuts,
+			SevoScreenEnums.PEDIA_INDEX		: self.placeIndexCategory,
 			SevoScreenEnums.PEDIA_HANDICAP_CHART	: self.placeHandicapChart,
 			}
 
@@ -545,13 +547,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.tab == self.TAB_TOC
 	
 	def showContents(self, bForce=False, iCategory=SevoScreenEnums.PEDIA_TECHS):
+		self.pediaIndex.SAS_indexDeleteSearchWidgets()
 		self.deleteAllWidgets()
 		if not self.isContentsShowing():
 			BugUtil.debug("Drawing category list")
 			self.placeCategories(iCategory)
 			screen = self.getScreen()
-			screen.setText(self.TOC_ID, "Background", self.TOC_ACTIVE_TEXT,   CvUtil.FONT_LEFT_JUSTIFY,   self.X_TOC,   self.Y_TOC,   0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
-			screen.setText(self.INDEX_ID, "Background", self.INDEX_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX, self.Y_INDEX, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+			if not self.SAS_USE_BOTTOM_TABS:
+				self.SAS_safeDeleteWidget(screen, self.TOC_ID)
+				self.SAS_safeDeleteWidget(screen, self.INDEX_ID)
+			if self.SAS_USE_BOTTOM_TABS:
+				screen.setText(self.TOC_ID, "Background", self.TOC_ACTIVE_TEXT,   CvUtil.FONT_LEFT_JUSTIFY,   self.X_TOC,   self.Y_TOC,   0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+				screen.setText(self.INDEX_ID, "Background", self.INDEX_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX, self.Y_INDEX, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
 			screen.show(self.BACK_ID)
 			screen.show(self.NEXT_ID)
 
@@ -588,6 +595,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.tab == self.TAB_INDEX
 	
 	def showIndex(self):
+		if not self.SAS_USE_BOTTOM_TABS:
+			return
 		if self.isIndexShowing():
 			return
 		self.deleteAllWidgets()
@@ -599,6 +608,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.hide(self.NEXT_ID)
 		self.pediaIndex.interfaceScreen()
 		self.tab = self.TAB_INDEX
+	
+	def placeIndexCategory(self):
+		screen = self.getScreen()
+		self.SAS_lastItemsWidget = None
+		self.SAS_lastItemsInfo = None
+		self.SAS_szSearchString = u""
+		self.SAS_keyDebounceByKey = {}
+		self.SAS_deleteSearchWidgets()
+		self.SAS_safeDeleteWidget(screen, self.ITEM_LIST_ID)
+		self.pediaIndex.interfaceScreen(True)
 	
 	def setPediaCommonWidgets(self):
 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
@@ -657,6 +676,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
 		self.szCategoryShortcuts	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", ())
+		self.szCategoryIndex		= localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX", ())
 		self.szCategoryHandicapChart	= localText.getText("TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", ())
 		
 		self.categoryList = [
@@ -687,6 +707,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			["HINTS",	self.szCategoryHints],
 			["HINTS",	self.szCategoryShortcuts], # advc.004y: Restored
 			["SAS",	self.szCategoryHandicapChart],
+			["HINTS",	self.szCategoryIndex],
 			]
 
 		self.categoryGraphics = {
@@ -2349,8 +2370,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 		# Index has its own input (existing behavior).
-		if (self.isIndexShowing()):
+		if self.SAS_USE_BOTTOM_TABS and self.isIndexShowing():
 			return self.pediaIndex.handleInput(inputClass)
+		if self.isContentsShowing() and self.iCategory == SevoScreenEnums.PEDIA_INDEX:
+			iHandled = self.pediaIndex.handleInput(inputClass)
+			if iHandled:
+				return iHandled
 
 		# <!-- custom: clear button click (chatgpt 5.2 + claude opus 4.5) -->
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
@@ -2411,12 +2436,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
 		# Existing TOC/INDEX buttons.
-		if (inputClass.getFunctionName() == self.TOC_ID):
-			self.showContents()
-			return 1
-		elif (inputClass.getFunctionName() == self.INDEX_ID):
-			self.showIndex()
-			return 1
+		if self.SAS_USE_BOTTOM_TABS:
+			if (inputClass.getFunctionName() == self.TOC_ID):
+				self.showContents()
+				return 1
+			elif (inputClass.getFunctionName() == self.INDEX_ID):
+				self.showIndex()
+				return 1
 		
 		return 0
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
@@ -2438,6 +2464,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 		# <!-- custom: also delete search widgets when deleting list widgets (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_deleteSearchWidgets()
+		self.pediaIndex.SAS_indexDeleteSearchWidgets()
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
 	def getNextWidgetName(self):

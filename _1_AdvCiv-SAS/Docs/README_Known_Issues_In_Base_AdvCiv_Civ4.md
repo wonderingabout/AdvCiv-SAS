@@ -123,6 +123,7 @@ hopefully helpful, thanks, anyways, thanks,
 [87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)  
 [88 - (Tremendously Improved) AI always upgrading way too much units and not teching at all, sometimes for dozen turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-teching-at-all-sometimes-for-dozen-turns)  
 [89 - (Improved) In an attack stack, attack with lower value (effective strength, XP, health) units first](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first)  
+[90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#90---fixed-base-advciv-bug-of-sevopedia-index-using-the-religions-button-instead-of-the-corporations)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3925,3 +3926,27 @@ The `-1,000,000` penalty is doing its job — it's crude but effective. Siege un
 - Expected risk: the policy can increase snowballing, because the strongest civs have enough expendables to trade while preserving elites, while weaker civs may lose the few strong units they have or fail to convert marginal attacks into wins. The toggle is important for tuning and for A/B testing.
 
 Recommendation: keep testing across multiple 10-turn windows or different saves to see whether the power distribution stabilizes or becomes too top-heavy; track siege attrition and elite-unit survival as the most direct signals of the intended effect.
+
+## 90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'
+
+Bug found by GPT-5.2-Codex thanks a lot :) Of Sevopedia Index using the Religion's button instead of the corporations
+
+```py
+			elif (type == "Religion"):
+				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+			elif (type == "Corporation"):
+				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+```
+
+now fixed with the help of GPT-5.2-Codex thanks a lot to:
+
+```py
+			elif (type == "Religion"):
+				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+			elif (type == "Corporation"):
+				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCorporationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+```
+
+Exists even in [Base AdvCiv 1.12's Sevopedia Index](https://github.com/f1rpo/AdvCiv/blob/1.12/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py#L232-L235)
+
+And now fixed in AdvCiv-SAS! Thanks GPT-5.2-Codex :)

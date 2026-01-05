@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Handicap Chart category, AI Personality Panel, etc.), some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
+Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, Handicap Chart category, AI Personality Panel, etc.), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and for mechanics such as new Game Speeds (Nitro, Turbo, etc., Slow, Very Slow); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
@@ -34,7 +34,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[City Screen rework](/README.md#city-screen-rework)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
-&emsp;[Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-etc)  
+&emsp;[Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-index-as-category-etc)  
 &emsp;[New categories (Handicap Chart, etc.)](/README.md#new-categories-handicap-chart-etc)  
 &emsp;[Some higher level reworks (AI Personality Panel, etc.)](/README.md#some-higher-level-reworks-ai-personality-panel-etc)  
 &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
@@ -196,7 +196,7 @@ Additionally, also added a new specialists breakdown as of now on bottom-right. 
 
 Note: for more screenshots and documentation of the sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
 
-### Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)
+### Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)
 
 #### Search Bar
 
@@ -214,7 +214,14 @@ See for details: [example 0.1: added a search bar. Used in several sevopedia pag
 
 Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
 
-### New categories (Handicap Chart, etc.)
+#### Index As Category
+
+Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved with GPT-5.2-Codex's big help the index from being a tab to being its own category. This should increase ease-of-access and make it better integrated with the other categories (no need to go back and forth to other pages, etc.). Note that it also implements a Sevopedia Search Bar. See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category).
+
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+
+### Other new categories (Handicap Chart, etc.)
 
 New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and based on the Middle-earth's Platypedia code.
 

@@ -20,21 +20,76 @@ class SevoPediaIndex:
 		self.top = main
 		
 		self.LIST_BUTTON_SIZE = 24
-		self.X_INDEX = self.top.X_CATEGORIES
-		self.Y_INDEX = self.top.Y_CATEGORIES
-		self.W_INDEX = self.top.W_SCREEN - 2 * self.top.X_CATEGORIES
-		self.H_INDEX = self.top.H_CATEGORIES
-		
-		self.X_LETTER = main.X_INDEX + 130  # position of first letter button
-		self.Y_LETTER = main.Y_INDEX
-		self.W_LETTER = 20
+		self.SAS_indexSetLayout(False)
 		
 		self.index = None
 		self.letterTextIDs = None
+		self.SAS_INDEX_SEARCH_PANEL_ID = "PediaIndexSearchPanel"
+		self.SAS_INDEX_SEARCH_LABEL_ID = "PediaIndexSearchLabel"
+		self.SAS_INDEX_SEARCH_CLEAR_ID = "PediaIndexSearchClear"
+		self.SAS_INDEX_SEARCH_DEFAULT_TEXT = u"Type to filter..."
+		self.SAS_INDEX_SEARCH_H = 32
+		self.SAS_szIndexSearchString = u""
+		self.SAS_indexKeyDebounceByKey = {}
+		self.SAS_indexWidgetNames = []
 
-	def interfaceScreen(self):
+	def SAS_indexSetLayout(self, bCategory):
+		if bCategory:
+			self.X_INDEX = self.top.X_ITEMS
+			self.Y_INDEX = self.top.Y_ITEMS
+			self.W_INDEX = self.top.W_SCREEN - self.top.X_ITEMS
+			self.H_INDEX = self.top.H_ITEMS
+		else:
+			self.X_INDEX = self.top.X_CATEGORIES
+			self.Y_INDEX = self.top.Y_CATEGORIES
+			self.W_INDEX = self.top.W_SCREEN - 2 * self.top.X_CATEGORIES
+			self.H_INDEX = self.top.H_CATEGORIES
+		
+		self.X_LETTER = self.X_INDEX + 130  # position of first letter button
+		self.Y_LETTER = self.Y_INDEX
+		self.W_LETTER = 20
+
+	def interfaceScreen(self, bCategory=False):
+		self.SAS_indexSetLayout(bCategory)
 		self.buildIndex()
 		self.placeIndex()
+	
+	def SAS_indexDeleteSearchWidgets(self):
+		screen = self.top.getScreen()
+		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_PANEL_ID)
+		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_LABEL_ID)
+		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_CLEAR_ID)
+	
+	def SAS_indexIsSearchActive(self):
+		return (self.SAS_szIndexSearchString is not None and len(self.SAS_szIndexSearchString.strip()) > 0)
+	
+	def SAS_indexSyncSearchPanel(self):
+		screen = self.top.getScreen()
+		
+		self.SAS_indexDeleteSearchWidgets()
+		
+		iX = self.X_INDEX
+		iY = self.Y_INDEX
+		iW = self.W_INDEX
+		iH = self.SAS_INDEX_SEARCH_H
+		
+		screen.addPanel(self.SAS_INDEX_SEARCH_PANEL_ID, u"", u"", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_BLUE50)
+		
+		if self.SAS_indexIsSearchActive():
+			szText = self.SAS_szIndexSearchString
+		else:
+			szText = self.SAS_INDEX_SEARCH_DEFAULT_TEXT
+		
+		screen.setLabel(self.SAS_INDEX_SEARCH_LABEL_ID, self.SAS_INDEX_SEARCH_PANEL_ID,
+				u"<font=3>%s</font>" % szText,
+				CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0,
+				FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		
+		if self.SAS_indexIsSearchActive():
+			screen.setLabel(self.SAS_INDEX_SEARCH_CLEAR_ID, self.SAS_INDEX_SEARCH_PANEL_ID,
+					u"<font=3>x</font>",
+					CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0,
+					FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def buildIndex(self):
 		if self.index:
@@ -152,10 +207,23 @@ class SevoPediaIndex:
 		screen = self.top.getScreen()
 		CONCEPT_CHAR = gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()
 		
+		if self.SAS_indexWidgetNames:
+			for szWidget in self.SAS_indexWidgetNames:
+				try:
+					screen.deleteWidget(szWidget)
+				except:
+					pass
+			self.SAS_indexWidgetNames = []
+		
+		self.SAS_indexSyncSearchPanel()
+		
 		nColumns = 3
 		self.tableName = self.top.getNextWidgetName()
-		screen.addTableControlGFC(self.tableName, nColumns, self.X_INDEX, self.Y_INDEX, self.W_INDEX, self.H_INDEX, False, False, self.LIST_BUTTON_SIZE, self.LIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		iTableY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
+		iTableH = self.H_INDEX - (self.SAS_INDEX_SEARCH_H + 4)
+		screen.addTableControlGFC(self.tableName, nColumns, self.X_INDEX, iTableY, self.W_INDEX, iTableH, False, False, self.LIST_BUTTON_SIZE, self.LIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(self.tableName, False)
+		self.SAS_indexWidgetNames.append(self.tableName)
 		for i in range(nColumns):
 			screen.setTableColumnHeader(self.tableName, i, "", (self.W_INDEX - 10) / nColumns)
 		
@@ -163,8 +231,15 @@ class SevoPediaIndex:
 		iColumn = 0
 		sLetter = "#"
 		iX = self.X_LETTER
+		iLetterY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
 		self.letterTextIDs = {}
+		szFilter = self.SAS_szIndexSearchString.strip().lower()
+		bFilter = (len(szFilter) > 0)
 		for name, type, item in self.index:
+			if item[1] < 0:
+				continue
+			if bFilter and name.lower().find(szFilter) == -1:
+				continue
 			if (name[:1] != sLetter):
 				sLetter = name[:1]
 				screen.appendTableRow(self.tableName)
@@ -175,9 +250,10 @@ class SevoPediaIndex:
 				textName = self.top.getNextWidgetName()
 				letterText = u"<font=4>%s</font>" % sLetter
 				screen.setText(textName, "Background", letterText, CvUtil.FONT_CENTER_JUSTIFY, 
-						iX, self.Y_LETTER, 0, FontTypes.TITLE_FONT, 
+						iX, iLetterY, 0, FontTypes.TITLE_FONT, 
 						WidgetTypes.WIDGET_GENERAL, iRow, -1)
 				self.letterTextIDs[textName] = iRow
+				self.SAS_indexWidgetNames.append(textName)
 				iX += self.W_LETTER
 				iRow += 1
 				iColumn = 0
@@ -230,8 +306,9 @@ class SevoPediaIndex:
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivicInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
 			elif (type == "Religion"):
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: base AdvCiv bugfix GPT-5.2-Codex found thanks, was gc.getReligionInfo(iData1).getButton() -->
 			elif (type == "Corporation"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCorporationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
 			
 			elif (type == "Concept"):
 				screen.setTableText(self.tableName, iColumn, iRow, u"<font=3>%c %s</font>" % (CONCEPT_CHAR, item[0]), gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iData1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -242,6 +319,44 @@ class SevoPediaIndex:
 
 	def handleInput (self, inputClass):
 		BugUtil.debugInput(inputClass)
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+			if inputClass.getFunctionName() == self.SAS_INDEX_SEARCH_CLEAR_ID:
+				if self.SAS_indexIsSearchActive():
+					self.SAS_szIndexSearchString = u""
+					self.SAS_indexKeyDebounceByKey = {}
+					self.placeIndex()
+				return 1
+		
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
+			screen = self.top.getScreen()
+			if screen.isActive():
+				if (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
+					iKey = inputClass.getData()
+					
+					if self.top.SAS_shouldDebounceKey(iKey):
+						if self.SAS_indexKeyDebounceByKey.get(iKey, 0):
+							self.SAS_indexKeyDebounceByKey[iKey] = 0
+							return 1
+						self.SAS_indexKeyDebounceByKey[iKey] = 1
+					
+					szChar = self.top.SAS_getVisibleCharacter(inputClass)
+					if len(szChar) > 0:
+						self.SAS_szIndexSearchString = self.SAS_szIndexSearchString + szChar
+						self.placeIndex()
+						return 1
+					
+					if iKey == int(InputTypes.KB_BACKSPACE):
+						if len(self.SAS_szIndexSearchString) > 0:
+							self.SAS_szIndexSearchString = self.SAS_szIndexSearchString[:-1]
+							self.placeIndex()
+							return 1
+					elif iKey == int(InputTypes.KB_ESCAPE):
+						if self.SAS_indexIsSearchActive():
+							self.SAS_szIndexSearchString = u""
+							self.SAS_indexKeyDebounceByKey = {}
+							self.placeIndex()
+							return 1
+		
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED 
 				and inputClass.getFunctionName() + str(inputClass.getID()) in self.letterTextIDs):
 			screen = self.top.getScreen()

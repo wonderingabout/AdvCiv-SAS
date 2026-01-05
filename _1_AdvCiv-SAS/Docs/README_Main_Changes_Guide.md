@@ -64,15 +64,13 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
 
 ## Sevopedia
 
-- New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons; new Handicap Chart page, etc.) aims to make leader behavior easier to understand. See the section above for images and details.
+- New/updated Sevopedia content (e.g., the Index As Category; the AI personality panel with raw attributes and cross-leader comparisons; new Handicap Chart page, etc.) aims to make leader behavior and information easier to understand. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md) for images and details.
 
-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
 
 - **AI Personality panel — legend:** column & symbol meanings: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
-
-See: [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
 
 ## Main Changes — quick starter guide
 
@@ -88,7 +86,7 @@ See: [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
 - Nuclear interception text clarifies that displayed chance is **adjusted** by nuke evasion; see the forum thread for context ([civfanatics](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/)).
 - “Civilopedia” → “Sevopedia”.
 - “Ressource(s)” → “Bonus(es)”.
-- (Requires AdvCiv-SAS 5297+) “Difficulty” → “Handicap” (matches Civ4 naming).
+- (Requires AdvCiv-SAS 5296+) “Difficulty” → “Handicap” (matches Civ4 naming).
 - Renamed "Horseback Riding" to "Mounted Combat" (includes all mounts, not just horse-based ones).
 - Bonus names standardized: Ivory → Elephants; Cow → Cattle; Clam → Molluscs; Wine → Grapes, etc.
 - Terrain/Feature: Ice (Terrain) → Ice Sheet; Ice (Feature) → Ice Cap.
@@ -126,10 +124,11 @@ See: [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
 ### UI (Sevopedia reworks & related)
 
 - Wider content area, narrower main category column; fills available screen space.
-- (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
 - **Search Bar**: shared by several sevopedia pages; it allows to **search** for entries using the **keyboard**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: search bar](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
 - **Keyboard Navigation**: allows to **browse sevopedia categories** using the keyboard in the list pages (e.g. In the Units Category: Axeman, Swordsman, Worker) or tree pages (e.g. Units Tree and Promotion Tree categories) using the **keyboard UP/DOWN arrow keys**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN) navigation](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
 - **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+- (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+- (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
 - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
 - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
 - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).

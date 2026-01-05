@@ -13,6 +13,7 @@ Note 2: in below sample examples, click the images to view them full size.
 [Some Lower Level Changes or new features](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages)  
 &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
+&emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
 [New categories (Handicap Chart, etc.)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#new-categories-handicap-chart-etc)  
 &emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
@@ -67,6 +68,13 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
 - 4th commit: fix an out of range python error that sometimes happened when scrolling beyond first entry with the help of chatgpt 5.2 thanks [commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220](https://github.com/wonderingabout/AdvCiv-SAS/commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220#diff-c8653fbee55dd4a1fa9f17ca80f217b2d5d87a7c49f8d7ac33979c0cf7eb8c2aR2090-R2094) (see commit notes for details as they are written by chatgpt 5.2 thanks who knows better about these and provided the fix).
 
 Note: history handling (i.e. not remembering all visited pages with the arrows inbetween original entry and entry we browsed to) purposely ignored and not supported as it caused issues and fixing it was not easy and created other issues as well, cleaner to just support it as it is (i.e. remembering all these entries as is the default) if i'm not mistaken (check if accurate).
+
+### example 0.3: Index As Category
+
+Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved with GPT-5.2-Codex's big help the index from being a tab to being its own category. This should increase ease-of-access and make it better integrated with the other categories (no need to go back and forth to other pages, etc.).
+
+<img src="../Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
 
 ## New categories (Handicap Chart, etc.)
 
