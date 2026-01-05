@@ -181,7 +181,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.nWidgetCount = 0
 
 		self.categoryList = []
-		self.categoryGraphics = []
 		self.iCategory = -1
 		self.iItem = -1
 		self.iItemIndex = -1
@@ -228,68 +227,79 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
 		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
 
-		self.mapListGenerators = {
-			SevoScreenEnums.PEDIA_TECHS		: self.placeTechs,
-			SevoScreenEnums.PEDIA_UNITS		: self.placeUnits,
-			SevoScreenEnums.PEDIA_UNIT_UPGRADES	: self.placeUnitUpgrades,
-			SevoScreenEnums.PEDIA_UNIT_CATEGORIES	: self.placeUnitCategories,
-			SevoScreenEnums.PEDIA_PROMOTIONS		: self.placePromotions,
-			SevoScreenEnums.PEDIA_PROMOTION_TREE	: self.placePromotionTree,
-			SevoScreenEnums.PEDIA_BUILDINGS		: self.placeBuildings,
-			SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: self.placeNationalWonders,
-			SevoScreenEnums.PEDIA_WORLD_WONDERS	: self.placeWorldWonders,
-			SevoScreenEnums.PEDIA_PROJECTS		: self.placeProjects,
-			SevoScreenEnums.PEDIA_SPECIALISTS		: self.placeSpecialists,
-			SevoScreenEnums.PEDIA_TERRAINS		: self.placeTerrains,
-			SevoScreenEnums.PEDIA_FEATURES		: self.placeFeatures,
-			SevoScreenEnums.PEDIA_BONUSES		: self.placeBonuses,
-			SevoScreenEnums.PEDIA_IMPROVEMENTS	: self.placeImprovements,
-			SevoScreenEnums.PEDIA_CIVS		: self.placeCivs,
-			SevoScreenEnums.PEDIA_LEADERS		: self.placeLeaders,
-			# advc.004y: Restored
-			SevoScreenEnums.PEDIA_TRAITS		: self.placeTraits,
-			SevoScreenEnums.PEDIA_CIVICS		: self.placeCivics,
-			SevoScreenEnums.PEDIA_RELIGIONS		: self.placeReligions,
-			SevoScreenEnums.PEDIA_CORPORATIONS	: self.placeCorporations,
-			SevoScreenEnums.PEDIA_CONCEPTS		: self.placeConcepts,
-			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: self.placeBTSConcepts,
-			SevoScreenEnums.PEDIA_HINTS		: self.placeHints,
-			SevoScreenEnums.PEDIA_SHORTCUTS  	: self.placeShortcuts,
-			SevoScreenEnums.PEDIA_INDEX		: self.placeIndexCategory,
-			SevoScreenEnums.PEDIA_HANDICAP_CHART	: self.placeHandicapChart,
-			}
-
 		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
 		self.pediaLeader	= SevoPediaLeader.SevoPediaLeader(self)
 		self.pediaIndex     = SevoPediaIndex.SevoPediaIndex(self)
+		# <!-- custom: keep a shared handicap chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
 		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
 
-		self.mapScreenFunctions = {
-			SevoScreenEnums.PEDIA_TECHS		: SevoPediaTech.SevoPediaTech(self),
-			SevoScreenEnums.PEDIA_UNITS		: SevoPediaUnit.SevoPediaUnit(self),
-			SevoScreenEnums.PEDIA_UNIT_CATEGORIES	: SevoPediaUnitChart.SevoPediaUnitChart(self),
-			SevoScreenEnums.PEDIA_PROMOTIONS		: SevoPediaPromotion.SevoPediaPromotion(self),
-			SevoScreenEnums.PEDIA_BUILDINGS		: self.pediaBuilding,
-			SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: SevoPediaBuilding.SevoPediaBuilding(self),
-			SevoScreenEnums.PEDIA_WORLD_WONDERS	: SevoPediaBuilding.SevoPediaBuilding(self),
-			SevoScreenEnums.PEDIA_PROJECTS		: SevoPediaProject.SevoPediaProject(self),
-			SevoScreenEnums.PEDIA_SPECIALISTS		: SevoPediaSpecialist.SevoPediaSpecialist(self),
-			SevoScreenEnums.PEDIA_TERRAINS		: SevoPediaTerrain.SevoPediaTerrain(self),
-			SevoScreenEnums.PEDIA_FEATURES		: SevoPediaFeature.SevoPediaFeature(self),
-			SevoScreenEnums.PEDIA_BONUSES		: SevoPediaBonus.SevoPediaBonus(self),
-			SevoScreenEnums.PEDIA_IMPROVEMENTS	: SevoPediaImprovement.SevoPediaImprovement(self),
-			SevoScreenEnums.PEDIA_CIVS		: SevoPediaCivilization.SevoPediaCivilization(self),
-			SevoScreenEnums.PEDIA_LEADERS		: self.pediaLeader,
-			# advc.004y: Restored
-			SevoScreenEnums.PEDIA_TRAITS		: SevoPediaTrait.SevoPediaTrait(self),
-			SevoScreenEnums.PEDIA_CIVICS		: SevoPediaCivic.SevoPediaCivic(self),
-			SevoScreenEnums.PEDIA_RELIGIONS		: SevoPediaReligion.SevoPediaReligion(self),
-			SevoScreenEnums.PEDIA_CORPORATIONS	: SevoPediaCorporation.SevoPediaCorporation(self),
-			SevoScreenEnums.PEDIA_CONCEPTS		: SevoPediaHistory.SevoPediaHistory(self),
-			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: SevoPediaHistory.SevoPediaHistory(self),
-			SevoScreenEnums.PEDIA_SHORTCUTS  	: SevoPediaHistory.SevoPediaHistory(self),
-			SevoScreenEnums.PEDIA_HANDICAP_CHART	: self.pediaHandicapChart,
-			}
+		# <!-- custom: category list refactor: previously category order, list generators, screen handlers, and link keys
+		# lived in separate maps and hardcoded blocks, so reordering or adding a category required edits in multiple places
+		# and could desync labels from links; now a single SAS_CATEGORY_DEFS tuple is the source of truth.
+		# This makes category edits safer (one-row change), easier to review, and less error-prone, while keeping the same
+		# runtime behavior and allowing explicit per-category icons without fallback/group logic.
+		# Icons are computed once here and embedded in the tuple, so they are not global state and don't depend on later setup.
+		# To add or reorder, edit SAS_CATEGORY_DEFS only; maps, list generators, and PEDIA_MAIN links update automatically.
+		# (GPT-5.2-Codex (summarized)) -->
+		iconTech = u"%c  " % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
+		iconUnit = u"%c  " % (CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
+		iconPromo = u"%c  " % (CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
+		iconBldg = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
+		iconSpec = u"%c  " % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
+		iconTerrain = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar())
+		iconCiv = u"%c  " % (CyGame().getSymbolID(FontSymbols.MAP_CHAR))
+		iconCivic = u"%c  " % (gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar())
+		iconHint = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
+		iconSas = u"%c  " % (CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR))
+
+		# <!-- custom: central category wiring for list generators, screen handlers, and PEDIA_MAIN links.
+		# To add a category, insert one row in SAS_CATEGORY_DEFS: (PEDIA_ENUM, TXT_KEY, icon, listMethodName, screenClassOrInstance, PEDIA_MAIN_LINK_KEY or None).
+		# Example: (SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconTech, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH")
+		# Reorder by moving rows here; no other maps or link tables need edits. (GPT-5.2-Codex) -->
+		self.SAS_CATEGORY_DEFS = (
+			(SevoScreenEnums.PEDIA_INDEX, "TXT_KEY_PEDIA_SCREEN_INDEX", iconHint, "placeIndexCategory", None, None),
+			(SevoScreenEnums.PEDIA_HANDICAP_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", iconSas, "placeHandicapChart", self.pediaHandicapChart, None),
+			(SevoScreenEnums.PEDIA_TERRAINS, "TXT_KEY_PEDIA_CATEGORY_TERRAIN", iconTerrain, "placeTerrains", SevoPediaTerrain.SevoPediaTerrain, "PEDIA_MAIN_TERRAIN"),
+			(SevoScreenEnums.PEDIA_FEATURES, "TXT_KEY_PEDIA_CATEGORY_FEATURE", iconTerrain, "placeFeatures", SevoPediaFeature.SevoPediaFeature, "PEDIA_MAIN_FEATURE"),
+			(SevoScreenEnums.PEDIA_BONUSES, "TXT_KEY_PEDIA_CATEGORY_BONUS", iconTerrain, "placeBonuses", SevoPediaBonus.SevoPediaBonus, "PEDIA_MAIN_BONUS"),
+			(SevoScreenEnums.PEDIA_IMPROVEMENTS, "TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", iconTerrain, "placeImprovements", SevoPediaImprovement.SevoPediaImprovement, "PEDIA_MAIN_IMPROVEMENT"),
+			(SevoScreenEnums.PEDIA_UNITS, "TXT_KEY_PEDIA_CATEGORY_UNIT", iconUnit, "placeUnits", SevoPediaUnit.SevoPediaUnit, "PEDIA_MAIN_UNIT"),
+			(SevoScreenEnums.PEDIA_UNIT_UPGRADES, "TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", iconUnit, "placeUnitUpgrades", None, None),
+			(SevoScreenEnums.PEDIA_UNIT_CATEGORIES, "TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT", iconUnit, "placeUnitCategories", SevoPediaUnitChart.SevoPediaUnitChart, "PEDIA_MAIN_UNIT_GROUP"),
+			(SevoScreenEnums.PEDIA_PROMOTIONS, "TXT_KEY_PEDIA_CATEGORY_PROMOTION", iconPromo, "placePromotions", SevoPediaPromotion.SevoPediaPromotion, "PEDIA_MAIN_PROMOTION"),
+			(SevoScreenEnums.PEDIA_PROMOTION_TREE, "TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE", iconPromo, "placePromotionTree", None, None),
+			(SevoScreenEnums.PEDIA_BUILDINGS, "TXT_KEY_PEDIA_CATEGORY_BUILDING", iconBldg, "placeBuildings", self.pediaBuilding, "PEDIA_MAIN_BUILDING"),
+			(SevoScreenEnums.PEDIA_NATIONAL_WONDERS, "TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS", iconBldg, "placeNationalWonders", SevoPediaBuilding.SevoPediaBuilding, None),
+			(SevoScreenEnums.PEDIA_WORLD_WONDERS, "TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS", iconBldg, "placeWorldWonders", SevoPediaBuilding.SevoPediaBuilding, None),
+			(SevoScreenEnums.PEDIA_PROJECTS, "TXT_KEY_PEDIA_CATEGORY_PROJECT", iconBldg, "placeProjects", SevoPediaProject.SevoPediaProject, "PEDIA_MAIN_PROJECT"),
+			(SevoScreenEnums.PEDIA_SPECIALISTS, "TXT_KEY_PEDIA_CATEGORY_SPECIALIST", iconSpec, "placeSpecialists", SevoPediaSpecialist.SevoPediaSpecialist, "PEDIA_MAIN_SPECIALIST"),
+			(SevoScreenEnums.PEDIA_CIVS, "TXT_KEY_PEDIA_CATEGORY_CIV", iconCiv, "placeCivs", SevoPediaCivilization.SevoPediaCivilization, "PEDIA_MAIN_CIV"),
+			(SevoScreenEnums.PEDIA_LEADERS, "TXT_KEY_PEDIA_CATEGORY_LEADER", iconCiv, "placeLeaders", self.pediaLeader, "PEDIA_MAIN_LEADER"),
+			# advc.004y: Restored (comment this out to remove traits)
+			(SevoScreenEnums.PEDIA_TRAITS, "TXT_KEY_PEDIA_TRAITS", iconCiv, "placeTraits", SevoPediaTrait.SevoPediaTrait, "PEDIA_MAIN_TRAIT"),
+			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconCivic, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
+			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconCivic, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
+			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconCivic, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
+			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconTech, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
+			(SevoScreenEnums.PEDIA_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT", iconHint, "placeConcepts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_CONCEPT"),
+			(SevoScreenEnums.PEDIA_BTS_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", iconHint, "placeBTSConcepts", SevoPediaHistory.SevoPediaHistory, None),
+			(SevoScreenEnums.PEDIA_HINTS, "TXT_KEY_PEDIA_CATEGORY_HINTS", iconHint, "placeHints", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_HINTS"),
+			(SevoScreenEnums.PEDIA_SHORTCUTS, "TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", iconHint, "placeShortcuts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_SHORTCUTS"),
+			)
+
+		self.mapListGenerators = {}
+		self.mapScreenFunctions = {}
+		self.SAS_mainLinkToCategory = {}
+		for iEnum, szLabelKey, szIconGroup, szListMethod, screenSpec, szLinkKey in self.SAS_CATEGORY_DEFS:
+			if szListMethod:
+				self.mapListGenerators[iEnum] = getattr(self, szListMethod)
+			if screenSpec:
+				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart):
+					self.mapScreenFunctions[iEnum] = screenSpec
+				else:
+					self.mapScreenFunctions[iEnum] = screenSpec(self)
+			if szLinkKey:
+				self.SAS_mainLinkToCategory[szLinkKey] = iEnum
 
 
 
@@ -468,7 +478,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.iActivePlayer = gc.getGame().getActivePlayer()
 		self.iCategory = -1
 		if (not self.pediaHistory):
-			self.pediaHistory.append((SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_TECHS))
+			# <!-- custom: default to the first row in SAS_CATEGORY_DEFS, so the opening category always
+			# matches the current category order instead of being hardcoded to Techs. (GPT-5.2-Codex) -->
+			self.pediaHistory.append((SevoScreenEnums.PEDIA_MAIN, self.SAS_CATEGORY_DEFS[0][0]))
 		current = self.pediaHistory.pop()
 		self.pediaFuture = []
 		self.pediaHistory = []
@@ -497,7 +509,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if (iCategory == SevoScreenEnums.PEDIA_MAIN):
 			BugUtil.debug("Main link %d" % iItem)
 			self.showContents(bIsLink, iItem)
-			screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iItem - (SevoScreenEnums.PEDIA_MAIN + 1))
+			iListIndex = self.SAS_categoryEnumToIndex.get(iItem, -1)
+			if iListIndex != -1:
+				screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iListIndex)
 			#self.iCategory = iItem
 			return
 
@@ -507,7 +521,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iCategory = self.determineNewConceptSubCategory(iItem)
 			BugUtil.debug("Switching to category %d" % iCategory)
 		self.showContents(bIsLink, iCategory)
-		screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iCategory - (SevoScreenEnums.PEDIA_MAIN + 1))
+		iListIndex = self.SAS_categoryEnumToIndex.get(iCategory, -1)
+		if iListIndex != -1:
+			screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iListIndex)
 		if (iCategory not in (SevoScreenEnums.PEDIA_UNIT_UPGRADES, SevoScreenEnums.PEDIA_PROMOTION_TREE, SevoScreenEnums.PEDIA_HINTS)):
 			screen.enableSelect(self.ITEM_LIST_ID, True)
 			if (self.iItemIndex != -1):
@@ -546,7 +562,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def isContentsShowing(self):
 		return self.tab == self.TAB_TOC
 	
-	def showContents(self, bForce=False, iCategory=SevoScreenEnums.PEDIA_TECHS):
+	def showContents(self, bForce=False, iCategory=None):
+		if iCategory is None:
+			iCategory = self.SAS_CATEGORY_DEFS[0][0]
 		self.pediaIndex.SAS_indexDeleteSearchWidgets()
 		self.deleteAllWidgets()
 		if not self.isContentsShowing():
@@ -650,78 +668,33 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
 
-		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
-		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
-		self.szCategoryUnitUpgrades	= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", ())
-		self.szCategoryUnitCategories	= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT", ())
-		self.szCategoryPromotions	= localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION", ())
-		self.szCategoryPromotionTree	= localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE", ())
-		self.szCategoryBuildings	= localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING", ())
-		self.szCategoryNationalWonders	= localText.getText("TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS", ())
-		self.szCategoryWorldWonders	= localText.getText("TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS", ())
-		self.szCategoryProjects		= localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ())
-		self.szCategorySpecialists	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SPECIALIST", ())
-		self.szCategoryTerrains		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TERRAIN", ())
-		self.szCategoryFeatures		= localText.getText("TXT_KEY_PEDIA_CATEGORY_FEATURE", ())
-		self.szCategoryBonuses		= localText.getText("TXT_KEY_PEDIA_CATEGORY_BONUS", ())
-		self.szCategoryImprovements	= localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ())
-		self.szCategoryCivs			= localText.getText("TXT_KEY_PEDIA_CATEGORY_CIV", ())
-		self.szCategoryLeaders		= localText.getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ())
-		# advc.004y: Restored
-		self.szCategoryTraits		= localText.getText("TXT_KEY_PEDIA_TRAITS", ())
-		self.szCategoryCivics		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CIVIC", ())
-		self.szCategoryReligions	= localText.getText("TXT_KEY_PEDIA_CATEGORY_RELIGION", ())
-		self.szCategoryCorporations	= localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ())
-		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
-		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
-		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
-		self.szCategoryShortcuts	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", ())
-		self.szCategoryIndex		= localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX", ())
-		self.szCategoryHandicapChart	= localText.getText("TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", ())
-		
-		self.categoryList = [
-			["TECHS",	self.szCategoryTechs],
-			["UNITS",	self.szCategoryUnits],
-			["UNITS",	self.szCategoryUnitUpgrades],
-			["UNITS",	self.szCategoryUnitCategories],
-			["PROMOTIONS",	self.szCategoryPromotions],
-			["PROMOTIONS",	self.szCategoryPromotionTree],
-			["BUILDINGS",	self.szCategoryBuildings],
-			["BUILDINGS",	self.szCategoryNationalWonders],
-			["BUILDINGS",	self.szCategoryWorldWonders],
-			["BUILDINGS",	self.szCategoryProjects],
-			["SPECIALISTS",	self.szCategorySpecialists],
-			["TERRAINS",	self.szCategoryTerrains],
-			["TERRAINS",	self.szCategoryFeatures],
-			["TERRAINS",	self.szCategoryBonuses],
-			["TERRAINS",	self.szCategoryImprovements],
-			["CIVS",	self.szCategoryCivs],
-			["CIVS",	self.szCategoryLeaders],
-			# advc.004y: Restored (comment this out to remove traits)
-			["CIVS",	self.szCategoryTraits],
-			["CIVICS",	self.szCategoryCivics],
-			["CIVICS",	self.szCategoryReligions],
-			["CIVICS",	self.szCategoryCorporations],
-			["HINTS",	self.szCategoryConcepts],
-			["HINTS",	self.szCategoryConceptsNew],
-			["HINTS",	self.szCategoryHints],
-			["HINTS",	self.szCategoryShortcuts], # advc.004y: Restored
-			["SAS",	self.szCategoryHandicapChart],
-			["HINTS",	self.szCategoryIndex],
-			]
+		self.categoryList = []
+		self.SAS_categoryEnumToIndex = {}
+		for iEnum, szLabelKey, szIcon, szListMethod, screenSpec, szLinkKey in self.SAS_CATEGORY_DEFS:
+			self.categoryList.append((szIcon, localText.getText(szLabelKey, ()), iEnum))
+		for i, category in enumerate(self.categoryList):
+			self.SAS_categoryEnumToIndex[category[2]] = i
 
-		self.categoryGraphics = {
-			"TECHS"		: u"%c  " %(gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()),
-			"UNITS"		: u"%c  " %(CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)),
-			"PROMOTIONS"	: u"%c  " %(CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR)),
-			"BUILDINGS"	: u"%c  " %(gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()),
-			"SPECIALISTS"	: u"%c  " %(CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)),
-			"TERRAINS"	: u"%c  " %(gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()),
-			"CIVS"		: u"%c  " %(CyGame().getSymbolID(FontSymbols.MAP_CHAR)),
-			"CIVICS"	: u"%c  " %(gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()),
-			"HINTS"		: u"%c  " %(gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()),
-			"SAS"		: u"%c  " %(CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)),
-			}
+		self.SAS_linkMatchDefs = (
+			("getNumTechInfos", "getTechInfo", SevoScreenEnums.PEDIA_TECHS),
+			("getNumUnitInfos", "getUnitInfo", SevoScreenEnums.PEDIA_UNITS),
+			("getNumUnitCombatInfos", "getUnitCombatInfo", SevoScreenEnums.PEDIA_UNIT_CATEGORIES),
+			("getNumPromotionInfos", "getPromotionInfo", SevoScreenEnums.PEDIA_PROMOTIONS),
+			("getNumBuildingInfos", "getBuildingInfo", SevoScreenEnums.PEDIA_BUILDINGS),
+			("getNumProjectInfos", "getProjectInfo", SevoScreenEnums.PEDIA_PROJECTS),
+			("getNumSpecialistInfos", "getSpecialistInfo", SevoScreenEnums.PEDIA_SPECIALISTS),
+			("getNumTerrainInfos", "getTerrainInfo", SevoScreenEnums.PEDIA_TERRAINS),
+			("getNumFeatureInfos", "getFeatureInfo", SevoScreenEnums.PEDIA_FEATURES),
+			("getNumBonusInfos", "getBonusInfo", SevoScreenEnums.PEDIA_BONUSES),
+			("getNumImprovementInfos", "getImprovementInfo", SevoScreenEnums.PEDIA_IMPROVEMENTS),
+			("getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS),
+			("getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS),
+			("getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS),
+			("getNumReligionInfos", "getReligionInfo", SevoScreenEnums.PEDIA_RELIGIONS),
+			("getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS),
+			("getNumConceptInfos", "getConceptInfo", SevoScreenEnums.PEDIA_CONCEPTS),
+			("getNumNewConceptInfos", "getNewConceptInfo", SevoScreenEnums.PEDIA_BTS_CONCEPTS),
+			)
 
 		screen = self.getScreen()
 		screen.setRenderInterfaceOnly(True)
@@ -755,7 +728,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.setStyle(self.CATEGORY_LIST_ID, "Table_StandardCiv_Style")
 		screen.clearListBoxGFC(self.CATEGORY_LIST_ID)
 		for i, category in enumerate(self.categoryList):
-			graphic = self.categoryGraphics[category[0]]
+			graphic = category[0]
 			# <advc.002b> Prepend graphic only if there is room
 			szHeading = category[1]
 			# For English, 16 happens to be OK.
@@ -774,7 +747,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				iThresh = 19
 			if len(szHeading) <= iThresh:
 				szHeading = graphic + szHeading # </advc.002b>
-			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, category[2], 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(self.CATEGORY_LIST_ID)
 
 
@@ -2267,99 +2240,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def link(self, szLink):
-		if (szLink == "PEDIA_MAIN_TECH"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_TECHS, True, True)
-		elif (szLink == "PEDIA_MAIN_UNIT"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_UNITS, True, True)
-		elif (szLink == "PEDIA_MAIN_UNIT_GROUP"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_UNIT_CATEGORIES, True, True)
-		elif (szLink == "PEDIA_MAIN_PROMOTION"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_PROMOTIONS, True, True)
-		elif (szLink == "PEDIA_MAIN_BUILDING"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_BUILDINGS, True, True)
-		elif (szLink == "PEDIA_MAIN_PROJECT"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_PROJECTS, True, True)
-		elif (szLink == "PEDIA_MAIN_SPECIALIST"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_SPECIALISTS, True, True)
-		elif (szLink == "PEDIA_MAIN_TERRAIN"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_TERRAINS, True, True)
-		elif (szLink == "PEDIA_MAIN_FEATURE"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_FEATURES, True, True)
-		elif (szLink == "PEDIA_MAIN_BONUS"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_BONUSES, True, True)
-		elif (szLink == "PEDIA_MAIN_IMPROVEMENT"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_IMPROVEMENTS, True, True)
-		elif (szLink == "PEDIA_MAIN_CIV"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_CIVS, True, True)
-		elif (szLink == "PEDIA_MAIN_LEADER"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_LEADERS, True, True)
-		elif (szLink == "PEDIA_MAIN_TRAIT"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_TRAITS, True, True)
-		elif (szLink == "PEDIA_MAIN_CIVIC"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_CIVICS, True, True)
-		elif (szLink == "PEDIA_MAIN_RELIGION"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_RELIGIONS, True, True)
-		elif (szLink == "PEDIA_MAIN_CONCEPT"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_CONCEPTS, True, True)
-		elif (szLink == "PEDIA_MAIN_HINTS"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_HINTS, True, True)
-		elif (szLink == "PEDIA_MAIN_SHORTCUTS"):
-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_SHORTCUTS, True, True)
+		iCategory = self.SAS_mainLinkToCategory.get(szLink, None)
+		if iCategory is not None:
+			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, iCategory, True, True)
 
-		for i in range(gc.getNumTechInfos()):
-			if (gc.getTechInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_TECHS, i, True, True)
-		for i in range(gc.getNumUnitInfos()):
-			if (gc.getUnitInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_UNITS, i, True, True)
-		for i in range(gc.getNumUnitCombatInfos()):
-			if (gc.getUnitCombatInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_UNIT_CATEGORIES, i, True, True)
-		for i in range(gc.getNumPromotionInfos()):
-			if (gc.getPromotionInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_PROMOTIONS, i, True, True)
-		for i in range(gc.getNumBuildingInfos()):
-			if (gc.getBuildingInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_BUILDINGS, i, True, True)
-		for i in range(gc.getNumProjectInfos()):
-			if (gc.getProjectInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_PROJECTS, i, True, True)
-		for i in range(gc.getNumSpecialistInfos()):
-			if (gc.getSpecialistInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_SPECIALISTS, i, True, True)
-		for i in range(gc.getNumTerrainInfos()):
-			if (gc.getTerrainInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_TERRAINS, i, True, True)
-		for i in range(gc.getNumFeatureInfos()):
-			if (gc.getFeatureInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_FEATURES, i, True, True)
-		for i in range(gc.getNumBonusInfos()):
-			if (gc.getBonusInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_BONUSES, i, True, True)
-		for i in range(gc.getNumImprovementInfos()):
-			if (gc.getImprovementInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_IMPROVEMENTS, i, True, True)
-		for i in range(gc.getNumCivilizationInfos()):
-			if (gc.getCivilizationInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_CIVS, i, True, True)
-		for i in range(gc.getNumLeaderHeadInfos()):
-			if (gc.getLeaderHeadInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_LEADERS, i, True, True)
-		for i in range(gc.getNumCivicInfos()):
-			if (gc.getCivicInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_CIVICS, i, True, True)
-		for i in range(gc.getNumReligionInfos()):
-			if (gc.getReligionInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_RELIGIONS, i, True, True)
-		for i in range(gc.getNumCorporationInfos()):
-			if (gc.getCorporationInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_CORPORATIONS, i, True, True)
-		for i in range(gc.getNumConceptInfos()):
-			if (gc.getConceptInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_CONCEPTS, i, True, True)
-		for i in range(gc.getNumNewConceptInfos()):
-			if (gc.getNewConceptInfo(i).isMatchForLink(szLink, False)):
-				return self.pediaJump(SevoScreenEnums.PEDIA_BTS_CONCEPTS, i, True, True)
+		for szNumMethod, szInfoMethod, iCategory in self.SAS_linkMatchDefs:
+			iCount = getattr(gc, szNumMethod)()
+			getInfo = getattr(gc, szInfoMethod)
+			for i in range(iCount):
+				info = getInfo(i)
+				if info and info.isMatchForLink(szLink, False):
+					return self.pediaJump(iCategory, i, True, True)
 
 
 
