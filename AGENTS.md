@@ -20,10 +20,22 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 - **Be more verbose when explaining rationales** - it's important to capture the intent behind the change while summarizing. The "why" is critical, so preserve problem descriptions, observed behavior, and intended fixes more fully than other commentary.
 - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
 - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
-- Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` depending on which model is doing the summarization.
+- When adding new comments, use the format `<!-- custom: ... (GPT-5.2-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
+- Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` or similar depending on which model is doing the summarization.
 - **Do NOT commit changes without explicit user approval** - wait for review at the end.
 - When committing, add a `Co-authored-by:` trailer with the model identifier unless the user requests otherwise.
 - When user feedback adds a new rule, update this file proactively.
+
+## Comment Style Example
+
+```cpp
+// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
+// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
+// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
+// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
+// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
+// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
+```
 
 ## Current Scope (2026-01-02)
 
@@ -86,6 +98,17 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 
 ## Coding Preferences
 
+These are general guidelines, not irrevocable requirements; adjust based on task needs.
+
+### General
+
+- No approximations like `"%.1f"` or `%02d`; we want precision, no fluff. Use `%f` or `%d` instead. Example of exception: `%02d` as zero-padding for nicer ordering/alignment `(Calendar_01, Calendar_02, ...)`.
+- Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
+- Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
+- For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+- When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+- Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+
 ### Python (Civ4)
 
 - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
@@ -97,33 +120,17 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
 - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
 
+## XML
+
+## C++
+
+- Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles and give players more tuning options; avoid overusing defines when the feature is tiny or unlikely to need tuning.
+- Prefer minimalistic, simple AI changes that are easy to reason about and compile.
+- Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
+- When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
+- Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions. Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
+
 ### Docs
 
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
-
-## Comment Style Example
-
-```cpp
-// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
-// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
-// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
-// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
-// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
-// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
-```
-
-- Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++).
-- Rationale: toggles allow quick testing without recompiles and give players more tuning options; avoid overusing defines when the feature is tiny or unlikely to need tuning.
-- Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
-- Prefer minimalistic, simple AI changes that are easy to reason about and compile.
-- Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
-- Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
-- Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
-- For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
-- When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
-- When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
-- These are general guidelines, not strict requirements; adjust based on task needs.
-- Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions.
 - When adding doc entries in dev mode (most of the time), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers. Current rule of thumb: last stable is 5282, so 5283+ is beta/dev and should carry the prefix until the next stable release.
-- When adding new comments, use the format `<!-- custom: ... (GPT-5.2-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
-- Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.

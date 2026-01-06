@@ -131,7 +131,7 @@
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: set the game speed chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
+	<!-- custom: set the game speed chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex). -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>

@@ -27,11 +27,11 @@
 			<!-- was 20 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<!-- custom: see code comment at iAIGPThresholdPercent -->
-			<iBaseGrowthThresholdPercent>85</iBaseGrowthThresholdPercent>
+			<!-- custom: see code comment at iAIGPThresholdPercent. Additionally a grep of "BaseGrowthThresholdPercent" with VS Code's global search lead to the base advciv's manual.txt explanation of this field. I gave it to ChatGPT 5.2 who said it's better for our goals of fair but hard to make it 100 at all handicaps. See for details known issue as of now 91. -->
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<!-- custom: see code comment at iAIGPThresholdPercent -->
 			<iGPThresholdPercent>100</iGPThresholdPercent>
-			<!-- custom: make culture levels the same at all difficulties for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment/guess anyways etc, plsu tedious to manage count points for players who do, not an interesting mechanic i find -->
+			<!-- custom: make culture levels the same at all handicaps for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment, plus tedious to manage count points for players who do, not an interesting mechanic i find -->
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 60 -->
 			<iResearchPercent>100</iResearchPercent>
@@ -93,6 +93,7 @@
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
 			<!-- was 160 -->
+			<!-- custom: see code comment at iBaseGrowthThresholdPercent. Additionally, I also thought we can adjust `iAIGrowthPercent` to 100 at all handicaps, since the human player now has no advantage or disadvantage, and it could have helped the issue of AI runaway at higher handicaps (or vice versa) and allow finer tuning instead through other knobs, but maybe the base growth change is enough for now. Possibly to keep in mind if AI is much smarter as a way to nerf it further perhaps. -->
 			<iAIGrowthPercent>115</iAIGrowthPercent>
 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from \_0_Common_Docs\AdvCiv_Base_Doc\manual.txt -->
 			<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs). So it’s +8 on Warlord, -8 on Prince. This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the “player penalty” side. (ChatGPT 5.2) -->
@@ -142,7 +143,7 @@
 				<GoodyType>GOODY_TECH</GoodyType>
 				<GoodyType>GOODY_TECH</GoodyType>
 			</Goodies>
-			<!-- custom: remove Free Techs and AI Free Techs at all difficulties, hopefully this gives extra versatility in the game and AI tech path choices, reduce AI tech costs or whatever it is called to compensate anyways etc -->
+			<!-- custom: remove Free Techs and AI Free Techs at all handicaps, hopefully this gives extra versatility in the game and AI tech path choices, reduce AI tech costs or whatever it is called to compensate anyways etc -->
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
@@ -165,7 +166,7 @@
 			<!-- was 30 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>90</iBaseGrowthThresholdPercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 75 -->
@@ -295,7 +296,7 @@
 			<!-- was 40 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>95</iBaseGrowthThresholdPercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<iResearchPercent>100</iResearchPercent>
@@ -553,7 +554,7 @@
 			<!-- was 60 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>105</iBaseGrowthThresholdPercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 110 -->
@@ -689,7 +690,7 @@
 			<!-- was 70 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 120 -->
@@ -829,9 +830,9 @@
 			<!-- advc.251 (start) -->
 			<!-- was 80 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
-			<!-- custom: not immediately clear to me what this does looking at .cpp code from little or not little i udnerstand of it but anyways etc (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my udnerstanding, was 110 -->
+			<!-- custom: not immediately clear to me what this does looking at .cpp code from little or not little i understand of it but anyways etc (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my understanding, was 110 -->
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>115</iBaseGrowthThresholdPercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<iResearchPercent>100</iResearchPercent>
@@ -973,7 +974,7 @@
 			<!-- was 90 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>120</iBaseGrowthThresholdPercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 125 -->
@@ -1029,7 +1030,7 @@
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 3 -->
 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
-			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
+			<!-- custom: with our changes and improvements to AI efficiency, we can afford giving AIs the same worker start at all handicaps, was 1 -->
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
@@ -1117,10 +1118,10 @@
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<!-- advc.251 (start) -->
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>125</iBaseGrowthThresholdPercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
-			<!-- custom: now research percent is 100 at all difficulties/handicap settings for human players, only AI percent varies for conveninence/clarity and consistency anyways etc -->
+			<!-- custom: now research percent is 100 at all handicaps for human players, only AI percent varies for conveninence/clarity and consistency anyways etc -->
 			<!-- advc.251: was 130 -->
 			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
@@ -1171,7 +1172,7 @@
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
-			<!-- custom: now the same at all difficulties for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code if i may say but anyways etc ; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
+			<!-- custom: now the same at all handicaps for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code if i may say but anyways etc ; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -1179,13 +1180,13 @@
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 4 -->
 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
-			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
+			<!-- custom: with our changes and improvements to AI efficiency, we can afford giving AIs the same worker start at all handicaps, was 1 -->
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<!-- custom: make these 0 to test early as barbarians are a bit too strong as of now anyways etc -->
 			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>160</iAIDeclareWarProb>
-			<!-- custom: let's try to give 0 at all difficulties, our workers are so efficient now thanks to AI changes in bestcitybuild and such, i think we can afford it, and if needed may as well rather just increase worker count rather, for an enjoyable fairer experience for human players too anyways etc -->
+			<!-- custom: let's try to give 0 at all handicaps, our workers are so efficient now thanks to AI changes in bestcitybuild and such, i think we can afford it, and if needed may as well rather just increase worker count rather, for an enjoyable fairer experience for human players too anyways etc -->
 			<!-- advc.251: was 100 -->
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>75</iAIGrowthPercent>
@@ -1195,7 +1196,7 @@
 			<iAIResearchPercent>70</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>75</iAITrainPercent>
-			<!-- custom: i want more reliable handicap settings and after asking chatgpt "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across handicap levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent -->
+			<!-- custom: i want more reliable handicap settings and after asking chatgpt "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across handicap levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all handicaps; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 60 -->
@@ -1217,7 +1218,7 @@
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>75</iAIInflationPercent>
 			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
-			<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->
+			<!-- custom: now disabled at all handicaps, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->
 			<!-- advc.251: Renamed; was 5 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular i mean, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess, hopefully accurate enough if i may say and more in line with the spirit of our changes if i may say but anyways etc -->

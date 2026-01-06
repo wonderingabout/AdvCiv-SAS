@@ -124,6 +124,7 @@ hopefully helpful, thanks, anyways, thanks,
 [88 - (Tremendously Improved) AI always upgrading way too much units and not teching at all, sometimes for dozen turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-teching-at-all-sometimes-for-dozen-turns)  
 [89 - (Improved) In an attack stack, attack with lower value (effective strength, XP, health) units first](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first)  
 [90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#90---fixed-base-advciv-bug-of-sevopedia-index-using-the-religions-button-instead-of-the-corporations)  
+[91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#91---adjusted-ibasegrowththresholdpercent-scales-with-handicap-but-its-not-clear-what-it-does-and-how-it-should-be-said)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3950,3 +3951,71 @@ now fixed with the help of GPT-5.2-Codex thanks a lot to:
 Exists even in [Base AdvCiv 1.12's Sevopedia Index](https://github.com/f1rpo/AdvCiv/blob/1.12/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py#L232-L235)
 
 And now fixed in AdvCiv-SAS! Thanks GPT-5.2-Codex :)
+
+## 91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said
+
+Below explanation by ChatGPT 5.2 when i gave it the relevant base advciv's [manual.txt](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt) blurb.
+
+Based on it, i set all `iBaseGrowthThresholdPercent` to 100.
+
+I also thought we can adjust `iAIGrowthPercent` to 100 at all handicaps, since the human player now has no advantage or disadvantage, it could help the issue of AI runawayat higher handicaps (or vice versa) and allow finer tuning instead through other knobs.
+
+Check if accurate.
+
+### Explanation
+
+That manual excerpt is basically f1rpo explaining a **coupled difficulty model**:
+
+- If difficulty makes **research** more expensive (for the human), then **growth** and **Great People** should also get costlier “to match” (otherwise the balance drifts toward warfare / unit spam in Marathon-like ways).
+- And he added *two* different knobs for growth because he wanted:
+
+  - **Human**: adjust only the **base** part of growth (keep the “2 food per pop” part simple/unchanged).
+  - **AI**: allow a broader growth bonus that also affects the per-pop part (because “simplicity” doesn’t matter for AI).
+
+### The crucial thing you noticed
+
+In your SAS chart, **human research is already normalized to 100** (and a bunch of other human penalties look reduced/removed compared to base AdvCiv).
+
+So: keeping **human** `iBaseGrowthThresholdPercent` and `iGPThresholdPercent` varying (85..125) is no longer doing what f1rpo’s rationale describes (matching human research penalties), because **you removed the thing they were meant to match**.
+
+That means in SAS those two fields become “silent player penalties” that:
+
+- don’t correspond to your current “human = 100 baseline” philosophy, and
+- (for growth) also interact with **expansion**, because of this line in the manual:
+
+> “For each 1 food that the initial city growth threshold differs from 20, the cost for a Settler is adjusted by 5%.”
+
+With your current values:
+
+- Deity human: 125% of 20 → 25, difference +5 → **+25% settler cost** (if that code is still present in your DLL).
+- Settler human: 85% of 20 → 17, difference -3 → **-15% settler cost**.
+
+So `iBaseGrowthThresholdPercent` is not “just growth pacing”; it’s also (in AdvCiv’s design) an **early landgrab throttle**.
+
+### What I’d do in AdvCiv-SAS (hard, but fair)
+
+If your goal is “difficulty comes from the AI, not hidden human penalties”, then the consistent move is:
+
+1: **Normalize human**
+
+- `iBaseGrowthThresholdPercent = 100` on all handicaps
+- `iGPThresholdPercent = 100` on all handicaps
+
+2: Put the curve where you already put it elsewhere: **AI-only**
+
+- Keep / tune `iAIGrowthPercent` and `iAIGPThresholdPercent` to hit the difficulty you want.
+
+### Two practical options
+
+**Option A (minimal change, safest):**
+
+- Set human to 100 for both.
+- Leave AI as-is for now (`iAIGrowthPercent`: 115..75, `iAIGPThresholdPercent`: 115..75).
+  This preserves your current AI advantage *shape* while removing the human penalty layer.
+
+**Option B (more “internally consistent” with your new normalization):**
+
+- Human 100.
+- Rebuild AI curves deliberately (like we did for GP), *but be careful with growth* because `iAIGrowthPercent` is a stronger lever than GP threshold (it can inflate AI cities across the whole game, not just GP timing).
+
+If you want, paste your current **AI** growth-related rows (or just confirm you still have that “settler cost adjusts from growth threshold” code enabled), and I’ll recommend a specific `iAIGrowthPercent` curve that fits your current AIResearchPercent curve and your worker/production tuning.

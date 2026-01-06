@@ -141,7 +141,7 @@ class SevoPediaGameSpeedChart:
 			("iVoteIntervalPercent", "getVoteIntervalPercent"),
 		)
 
-		field_order = [
+		field_order = (
 			"iGrowthPercent",
 			"iTrainPercent",
 			"iConstructPercent",
@@ -176,7 +176,7 @@ class SevoPediaGameSpeedChart:
 			"iVoteIntervalPercent",
 			"NumTurnIncrements",
 			"TotalTurns",
-		]
+		)
 
 		max_increments = 0
 		start_year = gc.getDefineINT("START_YEAR")
@@ -224,8 +224,8 @@ class SevoPediaGameSpeedChart:
 				seg_start_year = start_year + (cum_months / 12)
 				cum_months = cum_months + (month_inc * turns)
 				seg_end_year = start_year + (cum_months / 12)
-				years_per_turn = month_inc / 12
-				speed_dict["Calendar_%02d" % (i + 1)] = self._format_calendar_segment(seg_start_year, seg_end_year, turns, years_per_turn)
+				# Use zero-padded indices (01, 02, ...) so the calendar rows align nicely and sort naturally.
+				speed_dict["Calendar_%d" % (i + 1)] = self._format_calendar_segment(seg_start_year, seg_end_year, turns, month_inc)
 
 			speed_dict["NumTurnIncrements"] = str(num_increments)
 			speed_dict["TotalTurns"] = str(total_turns)
@@ -238,10 +238,8 @@ class SevoPediaGameSpeedChart:
 			insert_at = field_order.index("TotalTurns") + 1
 		except:
 			insert_at = len(field_order)
-		calendar_fields = []
-		for i in xrange(max_increments):
-			calendar_fields.append("Calendar_%02d" % (i + 1))
-		field_order[insert_at:insert_at] = calendar_fields
+		calendar_fields = tuple("Calendar_%d" % (i + 1) for i in xrange(max_increments))
+		field_order = field_order[:insert_at] + calendar_fields + field_order[insert_at:]
 
 		# --------------------------------------------------------------------
 		# One-time render prep (kept local; cache stores only final table cells)
@@ -310,45 +308,49 @@ class SevoPediaGameSpeedChart:
 			return sz + "k"
 		return str(iYearsPerTurn)
 
+	def _format_rate_per_turn(self, month_inc):
+		# Returns (op, rate_str):
+		# - Exact years: op='*', rate='5' or '10k'
+		# - Months < 12: op='*', rate='m6'  (so "2m6" means 2 turns of 6 months)
+		# - Year+month: op='*', rate='187m6' (so "2*187m6" means 2 turns of 187 years + 6 months)
+		if month_inc <= 0:
+			return ("*", "0")
+		if month_inc < 12:
+			return ("*", "m%d" % month_inc)
+		if (month_inc % 12) == 0:
+			years_per_turn = month_inc / 12
+			return ("*", self._format_years_per_turn(years_per_turn))
+		years_per_turn = month_inc / 12
+		rem_months = month_inc % 12
+		szYears = self._format_years_per_turn(years_per_turn)
+		return ("*", "%sm%d" % (szYears, rem_months))
 
-	def _format_calendar_segment(self, start_year, end_year, turns, years_per_turn):
-		# Compact, cell-friendly timeline string.
-		# Example: "50kBC+(2T*10k)=30kAD"
+	def _format_calendar_segment(self, start_year, end_year, turns, month_inc):
+		# Examples:
+		# - "50kBC+2*10k=30kAD"
+		# - "1900AD+3*m6=1901AD" (months < 12)
+		# - "4000BC+2*187m6=3625BC" (year+month)
 		szStart = self._format_year_label(start_year)
 		szEnd = self._format_year_label(end_year)
-		szRate = self._format_years_per_turn(years_per_turn)
-		return "%s+%d*%s=%s" % (szStart, turns, szRate, szEnd)
-
+		(szOp, szRate) = self._format_rate_per_turn(month_inc)
+		return "%s+%d%s%s=%s" % (szStart, turns, szOp, szRate, szEnd)
 
 
 	def _beautify_field_name(self, raw_name):
-		# Make the Field column compact: remove spaces, replace "Percent" with "%", and shorten some long labels.
+		# Keep field labels readable; only shorten trailing "Percent" to "%".
 		name = raw_name
-
-		# Calendar segment rows (Calendar_01 -> Cal01)
-		if name.startswith("Calendar_"):
-			try:
-				return "Cal%s" % name.split("_", 1)[1]
-			except:
-				return "Cal"
-
-		# Shorten a few very long core labels
-		if name == "NumTurnIncrements":
-			return "NumInc"
-		if name == "TotalTurns":
-			return "TotalT"
 
 		# Strip leading 'i' from iFooBar style fields
 		if name.startswith("i") and len(name) > 1 and name[1].isupper():
 			name = name[1:]
 
-		# Pretty-split underscores / camelCase, then compact
+		# Pretty-split underscores / camelCase
 		name = re.sub(r"_", " ", name)
 		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
 
-		# Replace Percent -> % and remove all spaces to free width
-		name = name.replace("Percent", "%")
-		name = name.replace(" ", "")
+		# Replace trailing "Percent" with "%"
+		if name.endswith("Percent"):
+			name = name[:-len("Percent")] + "%"
 
 		return name
 
