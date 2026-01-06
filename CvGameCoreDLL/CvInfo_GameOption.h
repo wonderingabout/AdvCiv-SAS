@@ -296,6 +296,11 @@ public:
 	int getBuildPercent() const { return m_iBuildPercent; }
 	int getImprovementPercent() const { return m_iImprovementPercent; }
 	int getGreatPeoplePercent() const { return m_iGreatPeoplePercent; }
+
+	// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+	int getCulturePercent() const { return m_iCulturePercent; }
+	// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 	int getAnarchyPercent() const { return m_iAnarchyPercent; }
 	int getBarbPercent() const;
 	int getFeatureProductionPercent() const;
@@ -309,6 +314,20 @@ public:
 	int getInflationOffset() const;
 	int getInflationPercent() const;
 	int getVictoryDelayPercent() const { return m_iVictoryDelayPercent; }
+
+	// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+	int getAIMemoryRandPercent() const { return get(AIMemoryRandPercent); }
+	int getAIContactRandPercent() const { return get(AIContactRandPercent); }
+	int getAIContactDelayPercent() const { return get(AIContactDelayPercent); }
+	int getFullTradeCreditPercent() const { return get(FullTradeCreditPercent); }
+	int getRevoltDivPercent() const { return get(RevoltDivPercent); }
+	int getReligionSpreadDivPercent() const { return get(ReligionSpreadDivPercent); }
+	int getEventRollSidesPercent() const { return get(EventRollSidesPercent); }
+	int getVoteIntervalPercent() const { return get(VoteIntervalPercent); }
+	int getUnitCostPercent() const { return get(UnitCostPercent); }
+	int getExtraFreeOutsideUnits() const { return get(ExtraFreeOutsideUnits); }
+	// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 	int getNumTurnIncrements() const;
 
 	GameTurnInfo& getGameTurnInfo(int iIndex) const;
@@ -324,6 +343,11 @@ protected:
 	int m_iBuildPercent;
 	int m_iImprovementPercent;
 	int m_iGreatPeoplePercent;
+
+	// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+	int m_iCulturePercent;
+	// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 	int m_iAnarchyPercent;
 	int m_iBarbPercent;
 	int m_iFeatureProductionPercent;

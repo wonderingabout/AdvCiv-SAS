@@ -345,6 +345,11 @@ m_iResearchPercent(/* advc: */ -1),
 m_iBuildPercent(0),
 m_iImprovementPercent(0),
 m_iGreatPeoplePercent(0),
+
+// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+m_iCulturePercent(0),
+// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 m_iAnarchyPercent(0),
 m_iBarbPercent(0),
 m_iFeatureProductionPercent(0),
@@ -447,6 +452,11 @@ bool CvGameSpeedInfo::read(CvXMLLoadUtility* pXML)
 	pXML->GetChildXmlValByName(&m_iBuildPercent, "iBuildPercent");
 	pXML->GetChildXmlValByName(&m_iImprovementPercent, "iImprovementPercent");
 	pXML->GetChildXmlValByName(&m_iGreatPeoplePercent, "iGreatPeoplePercent");
+
+	// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+	pXML->GetChildXmlValByName(&m_iCulturePercent, "iCulturePercent");
+	// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 	pXML->GetChildXmlValByName(&m_iAnarchyPercent, "iAnarchyPercent");
 	pXML->GetChildXmlValByName(&m_iBarbPercent, "iBarbPercent");
 	pXML->GetChildXmlValByName(&m_iFeatureProductionPercent, "iFeatureProductionPercent");

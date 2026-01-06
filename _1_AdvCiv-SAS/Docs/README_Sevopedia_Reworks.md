@@ -14,8 +14,9 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages)  
 &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
 &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
-[New categories (Handicap Chart, etc.)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#new-categories-handicap-chart-etc)  
+[Other new categories (Handicap Chart, Game Speed Chart, etc.)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories-handicap-chart-game-speed-chart-etc)  
 &emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
+&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 1: more AI Personality examples (in leaders category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category)  
 &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
@@ -81,7 +82,7 @@ As of now has its own search bar, but keyboard navigation is not supported.
 <img src="../Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
 
-## New categories (Handicap Chart, etc.)
+## Other new categories (Handicap Chart, Game Speed Chart, etc.)
 
 ### example 0.5: Handicap Chart category
 
@@ -99,6 +100,17 @@ Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown
 <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG" alt="0.625_sevopedia_handicap_chart (2).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG" alt="0.6251_sevopedia_handicap_chart_free_techs.JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG" alt="0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG" width="250"></img>
+
+### example 0.6: Game Speed Chart category
+
+Extending on the Handicap Chart, with the help of GPT-Codex-5.2 and ChatGPT 5.2 (web) i added a Game Speed Chart category in sevopedia to show gamespeed info.
+
+Especially useful to see the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30kAD"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+
+Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+
+<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG" alt="0.626_sevopedia_game_speed_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG" alt="0.626_sevopedia_game_speed_chart (2).JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 

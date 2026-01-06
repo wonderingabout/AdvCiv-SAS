@@ -30,8 +30,8 @@
 			<!-- custom: see code comment at iAIGPThresholdPercent -->
 			<iBaseGrowthThresholdPercent>85</iBaseGrowthThresholdPercent>
 			<!-- custom: see code comment at iAIGPThresholdPercent -->
-			<iGPThresholdPercent>85</iGPThresholdPercent>
-			<!-- custom: make culture levels the same at all difficulties for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment/guess anyways etc, plsu tedious to manage count points for players who do, not an interesting mechanic i find, anyways etc -->
+			<iGPThresholdPercent>100</iGPThresholdPercent>
+			<!-- custom: make culture levels the same at all difficulties for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment/guess anyways etc, plsu tedious to manage count points for players who do, not an interesting mechanic i find -->
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 60 -->
 			<iResearchPercent>100</iResearchPercent>
@@ -94,8 +94,9 @@
 			<!-- advc.251 (start) -->
 			<!-- was 160 -->
 			<iAIGrowthPercent>115</iAIGrowthPercent>
-			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt) anyways etc -->
-			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
+			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from \_0_Common_Docs\AdvCiv_Base_Doc\manual.txt -->
+			<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs). So it’s +8 on Warlord, -8 on Prince. This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the “player penalty” side. (ChatGPT 5.2) -->
+			<iAIGPThresholdPercent>124</iAIGPThresholdPercent>
 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
 			<iAIResearchPercent>118</iAIResearchPercent>
 			<!-- was 6x 160 -->
@@ -165,7 +166,7 @@
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>90</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>90</iGPThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 75 -->
 			<iResearchPercent>100</iResearchPercent>
@@ -224,7 +225,7 @@
 			<!-- advc.251 (start) -->
 			<!-- was 130 -->
 			<iAIGrowthPercent>110</iAIGrowthPercent>
-			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>116</iAIGPThresholdPercent>
 			<iAIResearchPercent>112</iAIResearchPercent>
 			<!-- was 6x 130 -->
 			<iAITrainPercent>110</iAITrainPercent>
@@ -295,7 +296,7 @@
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>95</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>95</iGPThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
@@ -351,7 +352,7 @@
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>105</iAIGrowthPercent>
 			<!-- advc.251 -->
-			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>108</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>106</iAIResearchPercent>
 			<iAITrainPercent>105</iAITrainPercent>
@@ -553,7 +554,7 @@
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>105</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>105</iGPThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 110 -->
 			<iResearchPercent>100</iResearchPercent>
@@ -616,7 +617,7 @@
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>95</iAIGrowthPercent>
 			<!-- advc.251 -->
-			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>92</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>94</iAIResearchPercent>
 			<iAITrainPercent>95</iAITrainPercent>
@@ -689,7 +690,7 @@
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>110</iGPThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 120 -->
 			<iResearchPercent>100</iResearchPercent>
@@ -755,7 +756,7 @@
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>90</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
-			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>84</iAIGPThresholdPercent>
 			<iAIResearchPercent>88</iAIResearchPercent>
 			<!-- was 90 -->
 			<iAITrainPercent>90</iAITrainPercent>
@@ -831,7 +832,7 @@
 			<!-- custom: not immediately clear to me what this does looking at .cpp code from little or not little i udnerstand of it but anyways etc (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my udnerstanding, was 110 -->
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>115</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>115</iGPThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
@@ -892,7 +893,7 @@
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>85</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
-			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>76</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>82</iAIResearchPercent>
 			<!-- was 85 -->
@@ -973,7 +974,7 @@
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>120</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>120</iGPThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 125 -->
 			<iResearchPercent>100</iResearchPercent>
@@ -1039,7 +1040,7 @@
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>80</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
-			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>68</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>76</iAIResearchPercent>
 			<!-- was 80 -->
@@ -1117,7 +1118,7 @@
 			<!-- advc.251 (start) -->
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>125</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>125</iGPThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- custom: now research percent is 100 at all difficulties/handicap settings for human players, only AI percent varies for conveninence/clarity and consistency anyways etc -->
 			<!-- advc.251: was 130 -->
@@ -1170,7 +1171,7 @@
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
-			<!-- custom: now the same at all difficulties for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code if i may say but anyways etc ; extend this logic indirectly to explorers or such anyways etc although not directly related, no reason anymore to give freebies there if AIs are comeptent enough anyways etc -->
+			<!-- custom: now the same at all difficulties for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code if i may say but anyways etc ; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -1189,12 +1190,12 @@
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>75</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
-			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>60</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>70</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>75</iAITrainPercent>
-			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across handicap levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
+			<!-- custom: i want more reliable handicap settings and after asking chatgpt "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across handicap levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 60 -->

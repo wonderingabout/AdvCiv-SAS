@@ -64,11 +64,12 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
 
 ## Sevopedia
 
-- New/updated Sevopedia content (e.g., the Index As Category; the AI personality panel with raw attributes and cross-leader comparisons; new Handicap Chart page, etc.) aims to make leader behavior and information easier to understand. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md) for images and details.
+- New/updated Sevopedia content (e.g., the Index As Category; the AI personality panel with raw attributes and cross-leader comparisons; new Handicap Chart page; the new Game Speed Chart, etc.) aims to make leader behavior and information easier to understand. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md) for images and details.
 
 <img src="../Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG" alt="0.626_sevopedia_game_speed_chart (2).JPG" width="250"></img>
 
 - **AI Personality panel — legend:** column & symbol meanings: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
 
@@ -130,6 +131,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
 - (Requires AdvCiv-SAS 5298+) the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
 - (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
 - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"50kBC+2*10k=30kAD"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
 - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
 - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
 - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
@@ -300,7 +302,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
 ### Handicap i.e. difficulty settings (non-exhaustive)
 
 - **No free techs** for AI or human.
-- **Human costs fixed** across handicaps for tech/unit (`iResearchPercent`, `iTrainPercent` stay constant for the human). AI equivalents scale with handicap.
+- **Human costs fixed** across handicaps for tech/unit (`iResearchPercent`, `iTrainPercent`, (Requires AdvCiv-SAS 5300+) `iGPThresholdPercent` stay constant for the human). AI equivalents scale with handicap.
 - **Unit maintenance** (`iUnitCostPercent`, `iAIUnitCostPercent`) aligned across handicaps for fairness; difficulty tuned through other params.
 - **Unit supply parity:** Raised `iAIUnitSupplyPercent` from 50 to 100, so AIs no longer get half-price unit supply outside their borders; human and AI players now pay the same supply costs (unlike base AdvCiv).
 - **Unit upgrade costs — aligned and reduced.** Increased `iAIUnitUpgradePercent` from **50 → 100**, so AIs now use the **same unit upgrade multiplier** as humans (no more half-cost AI upgrades). In parallel, `CvUnit::upgradePrice` now applies a global **modifier** (current value: **75%**, tunable), because the old human rate felt too expensive in play. Net effect: in base AdvCiv the AI paid **50%** and the human **100%** of the base upgrade cost; in AdvCiv-SAS, **both now pay 75%** of that cost.

@@ -35,7 +35,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 &emsp;[City Screen rework](/README.md#city-screen-rework)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-index-as-category-etc)  
-&emsp;[New categories (Handicap Chart, etc.)](/README.md#new-categories-handicap-chart-etc)  
+&emsp;[Other new categories (Handicap Chart, Game Speed Chart, etc.)](/README.md#other-new-categories-handicap-chart-game-speed-chart-etc)  
 &emsp;[Some higher level reworks (AI Personality Panel, etc.)](/README.md#some-higher-level-reworks-ai-personality-panel-etc)  
 &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
 [UI (Common)](/README.md#ui-common)  
@@ -221,11 +221,14 @@ Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
 
-### Other new categories (Handicap Chart, etc.)
+### Other new categories (Handicap Chart, Game Speed Chart, etc.)
 
-New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and based on the Middle-earth's Platypedia code.
+New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, the Game Speed Chart, etc. Added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and ChatGPT 5.2 (web) based on the Middle-earth's Platypedia code.
+
+They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30kAD"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG" alt="0.626_sevopedia_game_speed_chart (2).JPG" width="250"></img>
 
 ### Some higher level reworks (AI Personality Panel, etc.)
 
@@ -637,7 +640,7 @@ This mod is free to use, modify, and share.
 While i cannot enforce it, i strongly appreciate that if you reuse part of our work, you'd credit us. Example:
 
 ```txt
-AdvCiv-SAS by wonderingabout and AI helpers
+the AdvCiv-SAS mod by wonderingabout and AI helpers
 ```
 
 The original authors are listed in the [README authors section](/README.md#authors), including myself, ChatGPT, and Claude AI, and other AI helpers.
@@ -730,7 +733,7 @@ Note: see also [AGENTS.md](/AGENTS.md).
 
 #### Create a new Sevopedia category (e.g. Handicap Chart)
 
-Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the [new Handicap Chart Sevopedia category](/README.md#new-categories-handicap-chart-etc).
+Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories (Handicap Chart, Game Speed Chart, etc.)](/README.md#other-new-categories-handicap-chart-game-speed-chart-etc)).
 
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG" alt="codex_ gpt_5.2_handicap_chart (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG" alt="codex_ gpt_5.2_handicap_chart (2).PNG" width="250"></img>

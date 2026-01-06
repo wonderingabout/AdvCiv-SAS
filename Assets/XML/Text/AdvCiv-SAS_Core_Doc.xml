@@ -129,7 +129,11 @@
 
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART</Tag>
-		<English>Handicap</English>
+		<English>Handicaps</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART</Tag>
+		<English>Speeds</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE</Tag>
