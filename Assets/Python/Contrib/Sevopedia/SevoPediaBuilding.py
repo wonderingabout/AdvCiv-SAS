@@ -11,7 +11,7 @@
 
 
 
-			# <!-- custom: for freebonus, done according to kujira's website if i am not mistaken, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
+			# <!-- custom: for freebonus, done according to kujira's website, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
 			#
 			# This determines the amount of resource this structure produces.
 			# If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
@@ -33,16 +33,16 @@
 
 
 		# <!-- custom: Info about how we parse this:
-		# - BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details anyways etc) anyways etc)):
+		# - BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details))):
 		# 	<bPower>0</bPower>
 		# 	<bDirtyPower>0</bDirtyPower>
 		# 	<bAreaCleanPower>1</bAreaCleanPower>
-		# And ingame in placeSpecial we see: "Provides Power ((icon/button? anyways etc)) for All cities in this continent", so we parse it as a "AllC Clean" or something like this anyways etc, to know if clean or dirty for all cities, i changed its values a bit to:
+		# And ingame in placeSpecial we see: "Provides Power ((icon/button?)) for All cities in this continent", so we parse it as a "AllC Clean" or something like this, to know if clean or dirty for all cities, i changed its values a bit to:
 		# 	<bPower>0</bPower>
 		# 	<!-- custom: test -->
 		# 	<bDirtyPower>1</bDirtyPower>
 		# 	<bAreaCleanPower>1</bAreaCleanPower>
-		# The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case anyways etc) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is anyways etc, they don't seem to cumulate anyways etc
+		# The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is, they don't seem to cumulate
 		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER). -->
 
 
@@ -104,7 +104,7 @@ class SevoPediaBuilding:
 		self.W_BUILDING_PANE = (self.top.R_PEDIA_PAGE - self.X_BUILDING_PANE - self.MEDIUM_MARGIN) / 2
 		self.H_BUILDING_PANE = 190
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -252,7 +252,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: table code based on placeAIPersonality panel method/function in sevopedialeader we (me and chatgpt) had written and enhanced together and all anyways etc, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
+	# <!-- custom: table code based on placeAIPersonality panel method/function in sevopedialeader we (me and chatgpt) had written and enhanced together and all, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
 	def placeStats(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -263,25 +263,25 @@ class SevoPediaBuilding:
 		numColumns = 3
 		columnWidth = self.W_STATS_PANE / numColumns
 
-		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented anyways etc), taken from claude AI's message and adjusted (formatted) thanks. -->
+		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented), taken from claude AI's message and adjusted (formatted) thanks. -->
 		# Here's what the method now does in sequence:
 		# - 1. Cost: Shows production cost
 		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Gold +x%) with power breakdown (, +y% w/ (power button))
 		# - 3. Commerce Changes, and Commerce Modifiers: Shows actual commerce amounts (+x science, gold, culture, espionage), and Shows percentage bonuses and double times (+x% and x2 times)
 		# - 4. Happiness/Unhappiness: Shows happiness effects
 		# - 5. Health/Unhealth: Shows health effects
-		# - 6. Great People: Shows great people rate changes with button and great people modifiers too anyways etc
+		# - 6. Great People: Shows great people rate changes with button and great people modifiers too
 		# -->
-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
+		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier)) (the 4th before going to a new column and back to 1st row), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
 
-		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be anyways etc useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY") -->
+		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY") -->
 		self.setupStatsPanel(screen, panelName, placeStatsTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
 
 		x = self.X_STATS_PANE
 		y = self.Y_STATS_PANE
 		rowItemId = 0
 
-		# <!-- custom: if i am not mistaken it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all if i am not mistaken, so commenting it out
+		# <!-- custom: if i am not mistaken it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all, so commenting it out
 		#if (isWorldWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
 		#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxGlobalInstances()
 		#	szBuildingType = localText.getText("TXT_KEY_PEDIA_WORLD_WONDER", ())
@@ -417,7 +417,7 @@ class SevoPediaBuilding:
 				self.fillStatsCell(screen, szText2, x, y)
 				x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-		# <!-- custom: 4: Happiness or Unhappiness anyways etc (4) -->
+		# <!-- custom: 4: Happiness or Unhappiness (4) -->
 		iHappiness = buildingInfo.getHappiness()
 		if self.top.iActivePlayer != -1:
 			if self.iBuilding == gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(buildingInfo.getBuildingClassType()):
@@ -434,7 +434,7 @@ class SevoPediaBuilding:
 			self.fillStatsCell(screen, szText2, x, y)
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-		# <!-- custom: 5: Health(y?)(iness?? Anyways etc... Anyways etc...) or Unhealth(y)(same anyways etc... anyways etc...) anyways etc (5) -->
+		# <!-- custom: 5: -->
 		iHealth = buildingInfo.getHealth()
 		if self.top.iActivePlayer != -1:
 			if self.iBuilding == gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(buildingInfo.getBuildingClassType()):
@@ -461,7 +461,7 @@ class SevoPediaBuilding:
 			
 			# Display the text
 			self.fillStatsCell(screen, szText2, x, y)
-			# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later. -->
+			# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed) to know where to place our great people button later. -->
 			self.X_FLAT_GREAT_PERSON = x
 			self.Y_FLAT_GREAT_PERSON = y
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
@@ -532,7 +532,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: additional info by chatgpt thanks: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for anyways etc to which chatgpt also replied thanks but or not but or yes but"In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." -->
+	# <!-- custom: additional info by chatgpt thanks: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for to which chatgpt also replied thanks but or not but or yes but"In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." -->
 	def get_iDefaultBuilding_current_civ(self, i):
 		# Get the default building of this class for the current civilization
 		if self.top.iActivePlayer != -1:
@@ -585,7 +585,7 @@ class SevoPediaBuilding:
 				screen.appendMultiListButton(rowListName, gc.getTechInfo(iPrereqTech).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereqTech, 1, False)
 
 				isButtonFound = True
-				# <!-- custom: note: no specific text, no need for numTxt and such, simply display the button then end this part of the code anyways etc, but we still increment so that buttons that buttons that need/use a numTxt under have their numTxt correctly positioned -->
+				# <!-- custom: note: no specific text, no need for numTxt and such, simply display the button then end this part of the code, but we still increment so that buttons that buttons that need/use a numTxt under have their numTxt correctly positioned -->
 				iButtonIndex += 1
 
 		iPrereqAndBonus = gc.getBuildingInfo(self.iBuilding).getPrereqAndBonus()
@@ -613,7 +613,7 @@ class SevoPediaBuilding:
 			for k in range(gc.getNUM_CORPORATION_PREREQ_BONUSES()):
 				iPrereqCorporationBonus = gc.getCorporationInfo(iCorporation).getPrereqBonus(k)
 				if iPrereqCorporationBonus >= 0:
-					# <!-- custom: in all cases anyways etc (whether there is a numTxt or not to place as well anyways etc), place the button -->
+					# <!-- custom: in all cases (whether there is a numTxt or not to place as well), place the button -->
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
 					screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqCorporationBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqCorporationBonus, 1, False)
@@ -656,7 +656,7 @@ class SevoPediaBuilding:
 					screen.appendMultiListButton(rowListName, projectInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
 
 					if not bFirst:
-						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad), not having thus to rewrite our otherwise working code. -->
+						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad), not having thus to rewrite our otherwise working code. -->
 						# Also since our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe. -->
 						numTxt = localText.getText("TXT_KEY_OR", ())
 						# <!-- custom: "or" numTxt aligned between this button and the previous one -->
@@ -816,7 +816,7 @@ class SevoPediaBuilding:
 				isButtonFound = True
 				iButtonIndex += 1
 
-		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas; idea i got from watching ri mod's sevopedia building or so it seems anyways etc ingame, of how the cruiser if i am not mistaken requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most anyways etc in this caseis that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks-->
+		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas; idea i got from watching ri mod's sevopedia building or so it seems ingame, of how the cruiser if i am not mistaken requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most in this caseis that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks-->
 		# Loop through all units to check their building prerequisites
 		for iLoopUnit in range(gc.getNumUnitInfos()):
 			loopUnitInfo = gc.getUnitInfo(iLoopUnit)

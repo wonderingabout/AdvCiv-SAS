@@ -106,7 +106,7 @@
 
 
 
-	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker if i am not mistaken, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details anyways etc) or/and (tranlslate to english ((following) web page) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
+	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details) or/and (tranlslate to english ((following) web page) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
 	<!-- advc.004c: Based on TXT_KEY_BUILDING_DEFENSE_MOD (see below).
 		 For the DefenseRaise XML tag. Use the defense icon and refer to
 		 non-gunpowder-based units as "pre-Renaissance". "Gunpowder-based" is
@@ -154,7 +154,7 @@
 
 
 
-	<!-- custom: now renamed "montezuma" to "moctezuma (2/II) anyways etc"-->
+	<!-- custom: now renamed "montezuma" to "moctezuma (2/II)"-->
 	<TEXT>
 		<Tag>TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE</Tag>
 		<English>Moctezuma Castle</English>
@@ -394,12 +394,12 @@
 		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
 		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
 	</TEXT>
-	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc (update: susing scientific_method (now removed quote anyways etc)) -->
+	<!-- custom: replace _ALPHABET with _NATURALISM (update: susing scientific_method (now removed quote)) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_NATURALISM_QUOTE</Tag>
 		<English>"I do not feel obliged to believe that the same God who has endowed us with sense, reason, and intellect has intended us to forgo their use." - Galileo Galilei</English>
 	</TEXT>
-	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc; update: with the quote of tech_steam_power -->
+	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY; update: with the quote of tech_steam_power -->
 	<!-- "anecdote" should make clear enough that it might be fictional -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
@@ -420,32 +420,32 @@
 		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
 		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
 	</TEXT>
-	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sasand audio; update: with the quote of tech_theology (now removed) -->
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sasand audio; update: with the quote of tech_theology (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TERRAFORMING_QUOTE</Tag>
 		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
 	</TEXT>
-	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TRANSHUMANISM_QUOTE</Tag>
 		<English>"The future will be better tomorrow." - Dan Quayle</English>
 	</TEXT>
-	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such anyways etc, also use the base advciv +/- civ4's replaceable_parts's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such, also use the base advciv +/- civ4's replaceable_parts's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Tag>
 		<English>"The whole is more than the sum of its parts." - Aristotle</English>
 	</TEXT>
-	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such anyways etc, also use the base advciv +/- civ4's paper's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such, also use the base advciv +/- civ4's paper's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
 		<English>"I cannot live without books" - Thomas Jefferson</English>
 	</TEXT>
-	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such anyways etc, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS_QUOTE</Tag>
 		<English>"The real problem is not whether machines think, but whether men do." - B.F. Skinner</English>
 	</TEXT>
-	<!-- custom: replace tech_stealth in related"_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace tech_stealth in related"_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Tag>
 		<English>"Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine</English>
@@ -542,7 +542,7 @@
 
 
 
-	<!-- custom: from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Misc1.xml and modified or not for advciv-sas -->
+	<!-- custom: from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Misc1.xml and modified or not for advciv-sas -->
 	<TEXT>
 		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
 		<English>Congratulations, you have trained your first Archery (Bow, Short) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>

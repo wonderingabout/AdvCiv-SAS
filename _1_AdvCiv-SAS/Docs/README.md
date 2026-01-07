@@ -1,6 +1,6 @@
 # Docs
 
-Main Advciv-SAS documentation folder. Other notable, non-exhaustive references as well anyways etc below anyways etc.
+Main Advciv-SAS documentation folder. Other notable, non-exhaustive references as well below.
 
 ## Extra_Appendixes
 

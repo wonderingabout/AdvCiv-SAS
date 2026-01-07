@@ -949,7 +949,7 @@ void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc
 // <advc.004m>
 void CvGlobals::updateCameraStartDistance(bool bReset)
 {
-	// <!-- custom: doesn't seem safe to static const (there seems to be a setdefine later, so caching may interfere with that, but i don't know a lot about these so check if accurate anyways etc) anyways etc), chatgpt 5 also advises so, check if accurate as i don't know too much about these but it seems unsafe to change these so left as such (i.e. code unchanged besides this code as of now in this case i mean) if i may say i mean -->
+	// <!-- custom: doesn't seem safe to static const (there seems to be a setdefine later, so caching may interfere with that, but i don't know a lot about these so check if accurate)), chatgpt 5 also advises so, check if accurate as i don't know too much about these but it seems unsafe to change these so left as such (i.e. code unchanged besides this code as of now in this case i mean) if i may say i mean -->
 	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f,
 			GC.getDefineFLOAT("CAMERA_START_DISTANCE"));
 	float fNewValue = m_fCAMERA_START_DISTANCE_Override;

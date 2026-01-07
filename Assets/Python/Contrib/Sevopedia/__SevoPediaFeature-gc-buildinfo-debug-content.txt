@@ -1,7 +1,7 @@
 in sevopediafeature, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), with chatgpt 5.2's help, in interfaceScreen:
 iBuild = gc.getInfoTypeForString("BUILD_ROAD")  # example
 printObjAttrs(gc.getBuildInfo(iBuild))
-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
+returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
 
 
 

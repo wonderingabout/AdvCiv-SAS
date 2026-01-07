@@ -166,9 +166,9 @@ bool CvSelectionGroupAI::AI_update()
 	#ifdef _DEBUG
 		iMaxAttempts -= 4; // Trigger assert early
 	#endif
-		// <!-- custom: make assert more informative as it fires and we'd want info on what is causing it anyways etc, done with the help of chatgpt 5, check if accurate -->
+		// <!-- custom: make assert more informative as it fires and we'd want info on what is causing it, done with the help of chatgpt 5, check if accurate -->
 		// FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
-		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate anyways etc, so i moved the assert so it is inside the debug flag as it advised, check if accurate -->
+		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate, so i moved the assert so it is inside the debug flag as it advised, check if accurate -->
 	#ifdef _DEBUG
 		// Do it lazily and safely like this (drop-in):
 		// <!-- custom: added an extra layer with this assert condition we check first to not do it for each and every unit or such (i don't know too much so check if accurate, but seems much more efficient as such even in debug). Note: i didn't test if the assert fires correctly again, but since our fix is unchanged by this extra condition i added by moving it out of the assert, hopefully fine as such to save computation, but check if accurate as i don't know too much about these -->

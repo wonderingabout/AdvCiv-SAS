@@ -6,7 +6,7 @@
 <!-- -->
 <!-- Bonus Infos -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #25 -->
-<!-- custom: due to the preexisting warning below anyways etc, disabling bonuses we don't need/want rather than removing them altogether, so they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally anyways etc) without removing them, the assets affected by this change are rebalanced with another effect instead or/and left as is if deemed fine to do so As for why they are removed, it is tedious (at leats to me if i may say anyways etc) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less -->
+<!-- custom: due to the preexisting warning below, disabling bonuses we don't need/want rather than removing them altogether, so they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally) without removing them, the assets affected by this change are rebalanced with another effect instead or/and left as is if deemed fine to do so As for why they are removed, it is tedious (at leats to me if i may say) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less -->
 <!-- WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem -->
 
 <!-- advc.129: Changed bonus class of Gold, Silver and Gems from "General"
@@ -31,7 +31,7 @@
 			</YieldChanges>
 			<!-- advc.036: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: due to robotic/future era changes/additions, try to make this bonus extra important as an objective similarly to other bonuses that have this > 0 as well anyways etc, was 0 -->
+			<!-- custom: due to robotic/future era changes/additions, try to make this bonus extra important as an objective similarly to other bonuses that have this > 0 as well, was 0 -->
 			<iAIObjective>10</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -145,7 +145,7 @@
 			</YieldChanges>
 			<!-- advc.036: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: not as important as bonus_iron but really not far, if all fails we can produce axemen, macemen, possibly other units so definitely value it. Note: this iAIObjectivefield is now used by workers to decide which plot to work first or which city to move to anyways etc, was 0 -->
+			<!-- custom: not as important as bonus_iron but really not far, if all fails we can produce axemen, macemen, possibly other units so definitely value it. Note: this iAIObjectivefield is now used by workers to decide which plot to work first or which city to move to, was 0 -->
 			<iAIObjective>8</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -205,14 +205,14 @@
 			<TechReveal>TECH_ANIMAL_HUSBANDRY</TechReveal>
 			<TechCityTrade>TECH_ANIMAL_HUSBANDRY</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: now giving food like most if not all food strategic animals anyways etc, hammer is adjusted through their specific improvement (for example pasture, anyways etc) rather, anyways etc, was 0 / 1 / 0 -->
+			<!-- custom: now giving food like most if not all food strategic animals, hammer is adjusted through their specific improvement (for example pasture) rather, was 0 / 1 / 0 -->
 			<YieldChanges>
 				<iYieldChange>1</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: try to make horse extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0 -->
+			<!-- custom: try to make horse extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it but hopefully maybe would work as intended maybe not guaranteed though may or not) if they don't have it, was 0 -->
 			<iAIObjective>10</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -230,9 +230,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well anyways etc, was 75 / 128 -->
-			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too anyways etc, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula anyways etc), was 50 / 128 -->
-			<!-- custom: after the _camel formula change and in general now that we have enough bonus_camel, and hopefully not too much anyways etc, to balance out and make stronger desert tiles, we don't need as much horse, reduce it a bit anyways etc, was 50 / 192 -->
+			<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well, was 75 / 128 -->
+			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula), was 50 / 128 -->
+			<!-- custom: after the _camel formula change and in general now that we have enough bonus_camel, and hopefully not too much, to balance out and make stronger desert tiles, we don't need as much horse, reduce it a bit, was 50 / 192 -->
 			<!-- advc.129: was 100 -->
 			<iPlayer>30</iPlayer>
 			<!-- advc.129: was 256 -->
@@ -277,7 +277,7 @@
 			</YieldChanges>
 			<!-- advc.036: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: try to make iron extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0 -->
+			<!-- custom: try to make iron extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it but hopefully maybe would work as intended maybe not guaranteed though may or not) if they don't have it, was 0 -->
 			<iAIObjective>10</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -397,7 +397,7 @@
 			<Civilopedia>TXT_KEY_BONUS_OIL_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_MODERN</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_OIL</ArtDefineTag>
-			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed) -->
 			<TechReveal>TECH_COMBUSTION</TechReveal>
 			<TechCityTrade>TECH_COMBUSTION</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
@@ -539,7 +539,7 @@
 			</YieldChanges>
 			<!-- advc.036: was 30 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: useful for some future units, possibly nukes or whatever (i really don't know a lot about these since i didn't play civ4 so late into the game anyways etc, but with our advciv-sas changes, it could be useful in many ways still anyways etc), was 0 -->
+			<!-- custom: useful for some future units, possibly nukes or whatever (i really don't know a lot about these since i didn't play civ4 so late into the game, but with our advciv-sas changes, it could be useful in many ways still), was 0 -->
 			<iAIObjective>6</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -715,7 +715,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<iPlayer>0</iPlayer>
-			<!-- custom: buff water ressources, and molluscs should be more general and widespread than clam(s) alone is(are?) anyways etc, was 0 / 32 -->
+			<!-- custom: buff water ressources, and molluscs should be more general and widespread than clam(s) alone is(are?), was 0 / 32 -->
 			<iTilesPer>26</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
@@ -807,7 +807,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: buff cow presence towards the edges when seems relevant or/and possible to do so, anyways etc, according to/using https://www.google.com/search?q=cow+world+map&sca_esv=04268fcd01117b60&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=5pswaO_-A9P5kdUP4fDG0AQ&ved=0ahUKEwjvic22-7mNAxXTfKQEHWG4EUoQ4dUDCBE&uact=5&oq=cow+world+map&gs_lp=EgNpbWciDWNvdyB3b3JsZCBtYXAyCBAAGBMYBxgeMggQABgTGAcYHjIHEAAYgAQYEzIKEAAYExgFGAcYHjIKEAAYExgFGAcYHjIKEAAYExgFGAcYHkiGA1AAWIYCcAB4AJABAJgBMqABgQGqAQEzuAEDyAEA-AEBmAIDoAKHAcICBhAAGAcYHsICCBAAGAcYChgemAMAkgcBM6AHxA-yBwEzuAeHAcIHAzAuM8gHBA&sclient=img#vhid=9hlMhu2993mhWM&vssid=mosaic , anyways etc, was 9 / 50 -->
+			<!-- custom: buff cow presence towards the edges when seems relevant or/and possible to do so, according to/using https://www.google.com/search?q=cow+world+map&sca_esv=04268fcd01117b60&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=5pswaO_-A9P5kdUP4fDG0AQ&ved=0ahUKEwjvic22-7mNAxXTfKQEHWG4EUoQ4dUDCBE&uact=5&oq=cow+world+map&gs_lp=EgNpbWciDWNvdyB3b3JsZCBtYXAyCBAAGBMYBxgeMggQABgTGAcYHjIHEAAYgAQYEzIKEAAYExgFGAcYHjIKEAAYExgFGAcYHjIKEAAYExgFGAcYHkiGA1AAWIYCcAB4AJABAJgBMqABgQGqAQEzuAEDyAEA-AEBmAIDoAKHAcICBhAAGAcYHsICCBAAGAcYChgemAMAkgcBM6AHxA-yBwEzuAeHAcIHAzAuM8gHBA&sclient=img#vhid=9hlMhu2993mhWM&vssid=mosaic , was 9 / 50 -->
 			<!-- advc.129: was 0 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>65</iMaxLatitude>
@@ -818,7 +818,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
-			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say anyways etc, was 0 / 22 -->
+			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -916,7 +916,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to very quick search in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=deer+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcpTTqBUdyVgzq0c3_k8z34FKdUNCNiw5OX_lAsIf8VARnD9D5GX4da1rijxFZl6bQwFge1sId2k_KUaS3y2xIjhlPnpGKiJa1IRCtKpMP3kDHobIPV1kPLIRJvmUh7guUKzir7QVb-qVCgHxvp6hJaZuXmi70P5qniE11OO4djUFFIltjA&sa=X&ved=2ahUKEwjN4r-x2bmNAxV3QaQEHYYHI8sQtKgLegQIEhAB&biw=2048&bih=1023&dpr=1.88#vhid=EKEnB7XJ0KxTwM&vssid=mosaic anyways etc, and to buff specifically the edges of the map since seems possible or/and maybe rather relevant here at least for advciv-sas anyways etc, was 30 / 90 -->
+			<!-- custom: adjusted according to very quick search in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=deer+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcpTTqBUdyVgzq0c3_k8z34FKdUNCNiw5OX_lAsIf8VARnD9D5GX4da1rijxFZl6bQwFge1sId2k_KUaS3y2xIjhlPnpGKiJa1IRCtKpMP3kDHobIPV1kPLIRJvmUh7guUKzir7QVb-qVCgHxvp6hJaZuXmi70P5qniE11OO4djUFFIltjA&sa=X&ved=2ahUKEwjN4r-x2bmNAxV3QaQEHYYHI8sQtKgLegQIEhAB&biw=2048&bih=1023&dpr=1.88#vhid=EKEnB7XJ0KxTwM&vssid=mosaic, and to buff specifically the edges of the map since seems possible or/and maybe rather relevant here at least for advciv-sas, was 30 / 90 -->
 			<iMinLatitude>45</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>
@@ -925,7 +925,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: since deer is the only tundra food animal bonus representative as of now (unlike other terrains or/and features that have many animal (bonuses) representatives anyways etc (for example or/and to compare anyways etc)), buffing it a bit more i.e. in this case allowing it/ making it appear a bit more often anyways etc, was 0 / 16 -->
+			<!-- custom: since deer is the only tundra food animal bonus representative as of now (unlike other terrains or/and features that have many animal (bonuses) representatives (for example or/and to compare)), buffing it a bit more i.e. in this case allowing it/ making it appear a bit more often, was 0 / 16 -->
 			<!-- custom: do not reduce bonus_deer even after having added bonus_camel as it is intended that it has more food and is in tundra tiles only too btw -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>12</iTilesPer>
@@ -988,7 +988,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: buff water ressources, and fish as a general bonus/ressource should still be quite widespread; 0 / 24 may still be a tiny bit too high possibly, reduce to 0 / 25 anyways etc, was originally 0 / 35 if i am not mistaken in base advciv code at least as of now -->
+			<!-- custom: buff water ressources, and fish as a general bonus/ressource should still be quite widespread; 0 / 24 may still be a tiny bit too high possibly, reduce to 0 / 25, was originally 0 / 35 if i am not mistaken in base advciv code at least as of now -->
 			<iPlayer>0</iPlayer>
 			<!-- advc.129: was 32 -->
 			<iTilesPer>26</iTilesPer>
@@ -1014,7 +1014,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<!-- custom: interesting read that summarizes quite well what i glanced through if i may say or/and if it's a word maybe rather in english anyways etc, https://www.january.ai/blog/pork-vs-beef , pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo and/or in improvementinfos too for details -->
+		<!-- custom: interesting read that summarizes quite well what i glanced through if i may say or/and if it's a word maybe rather in english, https://www.january.ai/blog/pork-vs-beef , pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo and/or in improvementinfos too for details -->
 		<BonusInfo> <!-- custom: type: BONUS_PIG (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_PIG</Type>
 			<Description>TXT_KEY_BONUS_PIG</Description>
@@ -1036,7 +1036,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted using https://www.google.com/search?q=all+pigs+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=1YIwaMzbC5qakdUPzfjw2Qc&ved=0ahUKEwiMmubC47mNAxUaTaQEHU08PHsQ4dUDCBE&uact=5&oq=all+pigs+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKWFsbCBwaWdzIG5hdHVyYWwgaGFiaXRhdCBpbiB0aGUgd29ybGQgbWFwSLcZUNwFWPcYcAF4AJABAJgBI6AB0QOqAQIxNrgBA8gBAPgBAZgCAKACAJgDAIgGAZIHAKAH0AWyBwC4BwDCBwDIBwA&sclient=img#vhid=fAqsKwsbKGnyUM&vssid=mosaic , and to buff edges of the map, pig in a large sense (boar and such anyways etc), can probably be more widespread than that anyways etc, was 9 / 50 -->
+			<!-- custom: adjusted using https://www.google.com/search?q=all+pigs+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=1YIwaMzbC5qakdUPzfjw2Qc&ved=0ahUKEwiMmubC47mNAxUaTaQEHU08PHsQ4dUDCBE&uact=5&oq=all+pigs+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKWFsbCBwaWdzIG5hdHVyYWwgaGFiaXRhdCBpbiB0aGUgd29ybGQgbWFwSLcZUNwFWPcYcAF4AJABAJgBI6AB0QOqAQIxNrgBA8gBAPgBAZgCAKACAJgDAIgGAZIHAKAH0AWyBwC4BwDCBwDIBwA&sclient=img#vhid=fAqsKwsbKGnyUM&vssid=mosaic , and to buff edges of the map, pig in a large sense (boar and such), can probably be more widespread than that, was 9 / 50 -->
 			<!-- advc.129: was 10 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>70</iMaxLatitude>
@@ -1047,7 +1047,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
-			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say anyways etc, was 0 / 22 -->
+			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1100,7 +1100,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to https://www.google.com/search?sca_esv=d68d1b3088278740&rlz=1C1GCEA_enFR1111FR1111&q=rice+natural+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtci1AK0oIkDPIMLSzNdfCsScXRDO9E92u6oQy0ZUCTVtFdzRg-C6HN8C63vx8nYX9s-qoP0iE8VkwFQOGgctLLxMbKATUbgZLQyYfx64LEnfqULbDUPajcQia8TKaZuoNhizdrYogk8tOMhcjKRK_WJwA0yKkaZ6G3hJccOaKX8s1Ovvg5A&sa=X&ved=2ahUKEwjGs-bM97mNAxUhT6QEHXAwMxYQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88 , and to buff rice a bit if relevant here anyways etc and possible indeed about/for rice since it is quite weak indeed if i am not mistaken too of it being how it (rice) works anyways etc, anyways etc, was 0 / 40 -->
+			<!-- custom: adjusted according to https://www.google.com/search?sca_esv=d68d1b3088278740&rlz=1C1GCEA_enFR1111FR1111&q=rice+natural+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtci1AK0oIkDPIMLSzNdfCsScXRDO9E92u6oQy0ZUCTVtFdzRg-C6HN8C63vx8nYX9s-qoP0iE8VkwFQOGgctLLxMbKATUbgZLQyYfx64LEnfqULbDUPajcQia8TKaZuoNhizdrYogk8tOMhcjKRK_WJwA0yKkaZ6G3hJccOaKX8s1Ovvg5A&sa=X&ved=2ahUKEwjGs-bM97mNAxUhT6QEHXAwMxYQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88 , and to buff rice a bit if relevant here and possible indeed about/for rice since it is quite weak indeed if i am not mistaken too of it being how it (rice) works, was 0 / 40 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>55</iMaxLatitude>
 			<Rands>
@@ -1172,7 +1172,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too, was 0 / 16 -->
-			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say anyways etc, was 0 / 22 -->
+			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1274,7 +1274,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, was 100 / 0 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1308,7 +1308,7 @@
 			<ArtDefineTag>ART_DEF_BONUS_FUR</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
-			<!-- custom: was the now removed anyways etc TECH_PLASTICS -->
+			<!-- custom: was the now removed TECH_PLASTICS -->
 			<TechObsolete>TECH_ENVIRONMENTALISM</TechObsolete>
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
@@ -1332,7 +1332,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, was 100 / 0 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1402,7 +1402,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 67 / 0 -->
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, was 67 / 0 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1425,7 +1425,7 @@
 					<bTerrain>1</bTerrain>
 				</TerrainBoolean>
 			</TerrainBooleans>
-			<!-- custom: changed as recommended/suggested by chatgpt after asking it too, and also after that where i found some info for example here https://www.beldiamond.com/blogs/guidance/where-do-precious-gemstones-come-from?srsltid=AfmBOooKdFeP12k24LvXWWNp9GGZqRQ94ZhK5frfS8ui2gCy3VuVODyj; strategically may make river economy more viable or if already is viable more versatile anyways etc, was FEATURE_JUNGLE 1; note: it may also indirectly help address some AI issues i have noticed mentionned in some base advciv or such code comments now that gemstones spawn on various terrains including feature less ones if i may say and am not mistaken in saying or thinking so, at least in all cases i find it an interesting design as such in particular for flood_plains that are now more versatile on top of it being more realistic perhaps immersive as hinted or suggested by chatgpt to add them i mean mentionning something like this / meaning something similar i mean -->
+			<!-- custom: changed as recommended/suggested by chatgpt after asking it too, and also after that where i found some info for example here https://www.beldiamond.com/blogs/guidance/where-do-precious-gemstones-come-from?srsltid=AfmBOooKdFeP12k24LvXWWNp9GGZqRQ94ZhK5frfS8ui2gCy3VuVODyj; strategically may make river economy more viable or if already is viable more versatile, was FEATURE_JUNGLE 1; note: it may also indirectly help address some AI issues i have noticed mentionned in some base advciv or such code comments now that gemstones spawn on various terrains including feature less ones if i may say and am not mistaken in saying or thinking so, at least in all cases i find it an interesting design as such in particular for flood_plains that are now more versatile on top of it being more realistic perhaps immersive as hinted or suggested by chatgpt to add them i mean mentionning something like this / meaning something similar i mean -->
 			<FeatureBooleans>
 				<FeatureBoolean>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -1440,7 +1440,7 @@
 					<bFeature>1</bFeature>
 				</FeatureBoolean>
 			</FeatureBooleans>
-			<!-- custom: added terrain_desert so it appears in sevopedia terrain's featureterrainbooleans corresponding panel, although functionally it should not be necessary as flood_plains feature appear only on desert terrain if i am not mistaken, so allowing bonus_gemstones in this exampleon flood_plains feature is the same as allowing flood_plains feature in desert terrain so should not be needed if i am not mistaken, but as i said i meean added so bonus_gemstones is displayed in sevopedia terrain's desert entry, was TERRAIN_GRASS 1 -->
+			<!-- custom: added terrain_desert so it appears in sevopedia terrain's featureterrainbooleans corresponding panel, although functionally it should not be necessary as flood_plains feature appear only on desert terrain, so allowing bonus_gemstones in this exampleon flood_plains feature is the same as allowing flood_plains feature in desert terrain so should not be needed, but as i said i meean added so bonus_gemstones is displayed in sevopedia terrain's desert entry, was TERRAIN_GRASS 1 -->
 			<FeatureTerrainBooleans>
 				<FeatureTerrainBoolean>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
@@ -1481,7 +1481,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make strategic luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 78 / 0 -->
+			<!-- custom: make strategic luxury ressources harder to find so they are worth more and fighting more for, was 78 / 0 -->
 			<!-- advc.129: was 100 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
@@ -1547,7 +1547,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 67 / 0 -->
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, was 67 / 0 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1578,7 +1578,7 @@
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
 			<!-- custom: was TECH_INDUSTRIALISM -->
 			<TechObsolete>TECH_ENVIRONMENTALISM</TechObsolete>
-			<!-- custom: now giving food like most if not all food strategic animals anyways etc, hammer is adjusted through their specific improvement (for example pasture, anyways etc) rather, anyways etc, was 0 / 1 / 0 -->
+			<!-- custom: now giving food like most if not all food strategic animals, hammer is adjusted through their specific improvement (for example pasture) rather, was 0 / 1 / 0 -->
 			<YieldChanges>
 				<iYieldChange>1</iYieldChange>
 				<iYieldChange>0</iYieldChange>
@@ -1592,7 +1592,7 @@
 			<iPlacementOrder>5</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: trying to make nothern and southern edges positions of the map as relevant and strong than central one for livestock bonuses, and if accurate and seemingly relevant here if i may say anyways etc, was 0 / 40 -->
+			<!-- custom: trying to make nothern and southern edges positions of the map as relevant and strong than central one for livestock bonuses, and if accurate and seemingly relevant here if i may say, was 0 / 40 -->
 			<iMinLatitude>40</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>
@@ -1601,7 +1601,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: elephants seemingly spawn way too often on a few map generated to see, reducing it significantly so players would fight harder for them and they'd be more valuable, also switch to a food strategic (for example horse like anyways etc) formula, was 100 / 0 -->
+			<!-- custom: elephants seemingly spawn way too often on a few map generated to see, reducing it significantly so players would fight harder for them and they'd be more valuable, also switch to a food strategic (for example horse like) formula, was 100 / 0 -->
 			<iPlayer>50</iPlayer>
 			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1669,7 +1669,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, was 100 / 0 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1729,7 +1729,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make strategic luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 78 / 0 -->
+			<!-- custom: make strategic luxury ressources harder to find so they are worth more and fighting more for, was 78 / 0 -->
 			<!-- advc.129: was 67 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
@@ -1777,7 +1777,7 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: spices make us more productive perhaps, maybe a bit like sugar and coffee and incense anyways etc... -->
+			<!-- custom: spices make us more productive perhaps, maybe a bit like sugar and coffee and incense -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
@@ -1800,7 +1800,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, was 100 / 0 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1864,7 +1864,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, was 100 / 0 -->
 			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1904,7 +1904,7 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: now that this (grapes) is based on grapes not on wine anymore, it makes more sense to give food instead of gold, buffing wine (now grapes) at same that was/were bit weak anyways etc so wishable hopefully at least is what i want anyways etc for grapes -->
+			<!-- custom: now that this (grapes) is based on grapes not on wine anymore, it makes more sense to give food instead of gold, buffing wine (now grapes) at same that was/were bit weak so wishable hopefully at least is what i want for grapes -->
 			<YieldChanges>
 				<iYieldChange>1</iYieldChange>
 				<iYieldChange>0</iYieldChange>
@@ -1949,7 +1949,7 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<!-- custom: reworked and adjusted partly according to wikipedia or/and other source(s) or not or and what i wanted or not anyways etc or/a -->
+		<!-- custom: reworked and adjusted partly according to wikipedia or/and other source(s) or not or and what i wanted or not or/a -->
 		<BonusInfo> <!-- custom: type: BONUS_WHALE (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_WHALE</Type>
 			<Description>TXT_KEY_BONUS_WHALE</Description>
@@ -1968,7 +1968,7 @@
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
-			<!-- custom: capturing and defeating such a huge animal is impressive, source of awe and fold stories perhaps as per the/a lore and/or such and/or other and/or not anyways etc, replace with this instead of health base yield change, to not make it (i.e. whales op, anyways etc and also be consistent with other changes (1 ressource/bonus per yield or the opposite rather)) -->
+			<!-- custom: capturing and defeating such a huge animal is impressive, source of awe and fold stories perhaps as per the/a lore and/or such and/or other and/or not, replace with this instead of health base yield change, to not make it (i.e. whales op and also be consistent with other changes (1 ressource/bonus per yield or the opposite rather)) -->
 			<iHealth>0</iHealth>
 			<iHappiness>1</iHappiness>
 			<iPlacementOrder>6</iPlacementOrder>
@@ -2095,7 +2095,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL anyways etc, a bit if not lot at elast for/to metedious to maintain/manage for small gains, as for camels it can be directly used to buff desert tiles or/and be an alternative mount to the horse and opens the door to having camel mounts multiple/many ones/units anyways etc, may also have some interactions with wonders or such or not such or yes such; is based on BONUS_HORSE's xml and adjusted and such (for example only in desert to boost these tiles and as seems quite accurate anyways etc), was BONUS_MOVIES -->
+		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, a bit if not lot at elast for/to metedious to maintain/manage for small gains, as for camels it can be directly used to buff desert tiles or/and be an alternative mount to the horse and opens the door to having camel mounts multiple/many ones/units, may also have some interactions with wonders or such or not such or yes such; is based on BONUS_HORSE's xml and adjusted and such (for example only in desert to boost these tiles and as seems quite accurate), was BONUS_MOVIES -->
 		<BonusInfo> <!-- custom: type: BONUS_CAMEL (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_CAMEL</Type>
 			<Description>TXT_KEY_BONUS_CAMEL</Description>
@@ -2105,7 +2105,7 @@
 			<TechReveal>TECH_ANIMAL_HUSBANDRY</TechReveal>
 			<TechCityTrade>TECH_ANIMAL_HUSBANDRY</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: now giving food like most if not all food strategic animals anyways etc, hammer is adjusted through their specific improvement (for example pasture, anyways etc) rather; giving more food than horse ressource to make it a super nutritious food ressource, should be accurate even though i dindt check... storing water + flesh meat in desert, i could be mistaken too if i may say or maybe not or not too much but in all cases -->
+			<!-- custom: now giving food like most if not all food strategic animals, hammer is adjusted through their specific improvement (for example pasture) rather; giving more food than horse ressource to make it a super nutritious food ressource, should be accurate even though i dindt check... storing water + flesh meat in desert, i could be mistaken too if i may say or maybe not or not too much but in all cases -->
 			<YieldChanges>
 				<iYieldChange>3</iYieldChange>
 				<iYieldChange>0</iYieldChange>
@@ -2113,7 +2113,7 @@
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- custom: unlike horse, don't seek hard camel, but take it naturally if it's there maybe -->
-			<!-- custom: not as important as bonus_horse but really not far, we can't build chariots and cavalry as of now, but if all fails we can produce camel archers, horse knights, and camel knights, a very strong bonus to value especially if we don't have it, but even if we do we could trade it or keep as extra in case anyways etc so to simplify it value it just as much anyways etc. Note: this iAIObjectivefield is now used by workers to decide which plot to work first or which city to move to anyways etc, was 0 -->
+			<!-- custom: not as important as bonus_horse but really not far, we can't build chariots and cavalry as of now, but if all fails we can produce camel archers, horse knights, and camel knights, a very strong bonus to value especially if we don't have it, but even if we do we could trade it or keep as extra in case so to simplify it value it just as much. Note: this iAIObjectivefield is now used by workers to decide which plot to work first or which city to move to, was 0 -->
 			<iAIObjective>8</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -2131,10 +2131,10 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well anyways etc, was 75 / 128 -->
-			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too anyways etc, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula anyways etc), was 50 / 128 -->
-			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not noware as of now anyways etc the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles) is/can be also used to buff specificially tundra tiles and relatively anyways etc, so apply or try to apply/balance quite bit if not lto or not but or not butfor the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
-			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now, try to reduce it a bit; after more testing, 50 / 27 seems quite good, try to reduce base camel if i am not mistaken and increase camel per tile i.e. more frequent per x tiles; after some bit of testing or not bit lot or both bit or lot or not anyways etc, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want if i am not mistaken too anyways etc which this formula achieves quite well or seems to do so, was 50 / 27 -->
+			<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well, was 75 / 128 -->
+			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula), was 50 / 128 -->
+			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not noware as of now the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles) is/can be also used to buff specificially tundra tiles and relatively, so apply or try to apply/balance quite bit if not lto or not but or not butfor the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
+			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now, try to reduce it a bit; after more testing, 50 / 27 seems quite good, try to reduce base camel if i am not mistaken and increase camel per tile i.e. more frequent per x tiles; after some bit of testing or not bit lot or both bit or lot or not, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want which this formula achieves quite well or seems to do so, was 50 / 27 -->
 			<!-- advc.129: was 100 -->
 			<iPlayer>20</iPlayer>
 			<!-- advc.129: was 256 -->

@@ -39,10 +39,7 @@
 			<CreateSound/>
 			<MovieDefineTag>ART_DEF_MOVIE_MANHATTAN_PROJECT</MovieDefineTag>
 		</ProjectInfo>
-		<!-- custom: button import from RFC DOC mod (c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Art\Interface\Buttons\Buildings\internet.dds), as for button in our xml anyways etc, was:
-		<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,4</Button>
-		anyways etc...
-		-->
+		<!-- custom: button import from RFC DOC mod's internet.dds, as for button in our xml -->
 		<ProjectInfo>
 			<Type>PROJECT_THE_INTERNET</Type>
 			<Description>TXT_KEY_PROJECT_THE_INTERNET</Description>
@@ -149,7 +146,7 @@
 			<Civilopedia>TXT_KEY_PROJECT_SS_COCKPIT_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<!-- custom: move PROJECT_SS_COCKPIT to computers, seems to make more sense, plus most importantly anyways etc we incentivize more computers and can build the spaceship a bit sooner as well, anyways etc, was the now removed TECH_FIBER_OPTICS -->
+			<!-- custom: move PROJECT_SS_COCKPIT to computers, seems to make more sense, plus most importantly we incentivize more computers and can build the spaceship a bit sooner as well, was the now removed TECH_FIBER_OPTICS -->
 			<TechPrereq>TECH_COMPUTERS</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>

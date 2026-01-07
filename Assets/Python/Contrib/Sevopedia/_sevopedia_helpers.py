@@ -1,4 +1,4 @@
-# <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe anyways etc thanks anyways etc thanks chatgpt etc anyways etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
+# <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
 #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
 #HYPOTHESIZED_INTER_BUTTON_SPACING = 4
 
@@ -40,7 +40,7 @@ def get_leader_index_from_leader_type(leader_type, gc):
 		if current_leader_type == leader_type:
 			return iLeader
 
-	raise ValueError("[FATAL] leader_type=%s not found in gc.getLeaderHeadInfo list. Note: this can also happen but not only in particular with LEADER_DEFAULTS, which does not seem to have a leader index at all in gc of base advciv code if i am not mistaken, that we use as well in our/this mod very similarly if not identically, so make sure to address the edge case of LEADER_DEFAULTS in another way to not get caught/stuck in this edge case error message in particular, possibly for other leaders as well." % leader_type)
+	raise ValueError("[FATAL] leader_type=%s not found in gc.getLeaderHeadInfo list. Note: this can also happen but not only in particular with LEADER_DEFAULTS, which does not seem to have a leader index at all in gc of base advciv code, that we use as well in our/this mod very similarly if not identically, so make sure to address the edge case of LEADER_DEFAULTS in another way to not get caught/stuck in this edge case error message in particular, possibly for other leaders as well." % leader_type)
 
 
 
@@ -91,7 +91,7 @@ def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
 
 def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey):
 	if resolvedButtonPath == configButtonPathSTxtKey:
-		raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedButtonPath=%s matches configButtonPath=%s in buttonHeader=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_Images_As_Buttons.xml or/and AdvCiv-SAS_Button_Paths_Hardcoded.xml (or wherever they are stored in the future if these files's filename or code changes anyways etc) is valid and exists in your mod path." % (resolvedButtonPath, configButtonPathSTxtKey, buttonHeader))
+		raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedButtonPath=%s matches configButtonPath=%s in buttonHeader=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_Images_As_Buttons.xml or/and AdvCiv-SAS_Button_Paths_Hardcoded.xml (or wherever they are stored in the future if these files's filename or code changes) is valid and exists in your mod path." % (resolvedButtonPath, configButtonPathSTxtKey, buttonHeader))
 
 
 
@@ -114,7 +114,7 @@ def SAS_isFeatureRemovable(iFeature, gc):
 
 
 
-# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now anyways etc should raise an error not silently pass if i may say and if i am not mistaken; also useful to access any asset id safely if i am not mistaken such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now anyways etc instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me anyways etc based on previous parts of this code comment if i am not mistaken and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd. -->
+# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass if i may say and if i am not mistaken; also useful to access any asset id safely if i am not mistaken such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me based on previous parts of this code comment if i am not mistaken and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd. -->
 def getInfoTypeOrFail(tag, gc):
 	iType = gc.getInfoTypeForString(tag)
 	if iType == -1:
@@ -125,14 +125,14 @@ def getInfoTypeOrFail(tag, gc):
 
 def get_citiesResolvedButtonPath(localText):
 	citiesConfigButtonPathTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH"
-	# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
+	# <!-- custom: add str() wrapper else (i.e. without it) we get an error (it seems) (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons (from err log):
 	#
 	# ArgumentError: Python argument types in
 	#	CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
 	# did not match C++ signature:
 	#	attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
 	#  
-	# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc -->
+	# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases), etc -->
 	citiesResolvedButtonPath = str(localText.getText(citiesConfigButtonPathTxtKey, ()))
 
 	citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
@@ -143,7 +143,7 @@ def get_citiesResolvedButtonPath(localText):
 
 
 def get_concept_id(concept_type, gc):
-	# <!-- custom: Find the concept ID, for example for (but anyways etc) concept_type "CONCEPT_CITIES" (LLM) -->
+	# <!-- custom: Find the concept ID, for example for concept_type "CONCEPT_CITIES" (LLM) -->
 	for i in range(gc.getNumConceptInfos()):
 		if gc.getConceptInfo(i).getType() == concept_type:
 			return i
@@ -197,7 +197,7 @@ def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
 	elif iNumFreeBonuses >= 1:
 		return "%d" % (iNumFreeBonuses)
 	else:
-		raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds of iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc." % iNumFreeBonuses)
+		raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds of iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer." % iNumFreeBonuses)
 
 
 
@@ -220,7 +220,7 @@ def get_extra_correction_x(numTxt):
 
 
 def get_extra_correction_x_inbetween_buttons(button_size):
-	# <!-- custom: adjustment to the extraCorrectionX so that the numTxt is inbetween buttons if i may say anyways etc, useful for handling the "or" numTxt for example -->
+	# <!-- custom: adjustment to the extraCorrectionX so that the numTxt is inbetween buttons if i may say, useful for handling the "or" numTxt for example -->
 
 	# <!-- custom: also add a small extra correction because we are slightly off from the center point of between the panels -->
 	extraCorrectionOffFromTheCenter = -3
@@ -244,10 +244,10 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai if i may say helped me design and adjust thanks, we don't need to handle the 1th no spacing with next item of the list, as anything multilied by 0 negates spacing, this applies to both column and row calculation(s) if i am not mistaken; however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT -->
 	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
 
-	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on anyways etc numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") if i am not mistaken in trying it as such anyways etc, so we add a tiny bit of in this case extra x correction (extraCorrectionX) anyways etc etc -->
+	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") if i am not mistaken in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
 	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 
-	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length anyways etc), then it is fine i think anyways etc to hardcode it here for convenience and efficiency anyways etc at least i want to do so hopefully convenient or/and helpful or not or yes or etc anyways etc to do so -->
+	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or/and helpful or not or yes or etc to do so -->
 	extraCorrectionY = -9
 	textY = multiListY + button_size + extraCorrectionY + (buttonRow * button_size) + (buttonRow * HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING)
 

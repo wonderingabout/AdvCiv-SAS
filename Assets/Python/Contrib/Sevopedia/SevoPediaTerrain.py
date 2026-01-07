@@ -154,7 +154,7 @@ class SevoPediaTerrain:
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
-		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now; the peak info is also incomplete, not mentioning for example the impassable info if i am not mistaken so also not displaying it for peak if i am not mistaken in doing so-->
+		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now; the peak info is also incomplete, not mentioning for example the impassable info if i am not mistaken so also not displaying it for peak if i am not mistaken in doing so-->
 		if self.iTerrain == iPeak or self.iTerrain == iHill:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
 			textName = self.top.getNextWidgetName()
@@ -218,7 +218,7 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc, as for peak exclude it as well as it shouldn't have improvements at least as of now -->
+		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now, as for peak exclude it as well as it shouldn't have improvements at least as of now -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 		if self.iTerrain == iPeak or self.iTerrain == iHill:
@@ -235,7 +235,7 @@ class SevoPediaTerrain:
 					continue
 				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
 					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
-				# <!-- custom: the output is not reliable for hills improvements (missing forts, also cottages are conditionally dependent on terrain having enough food according to https://civilization.fandom.com/wiki/Hill_(Civ4) if i am not mistaken, missing forest preserve too dependent on forest or jungle according to this link as well, so disabling the display entirely rather)
+				# <!-- custom: the output is not reliable for hills improvements (missing forts, also cottages are conditionally dependent on terrain having enough food according to https://civilization.fandom.com/wiki/Hill_(Civ4), missing forest preserve too dependent on forest or jungle according to this link as well, so disabling the display entirely rather)
 				# elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
 				# 	screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
 
@@ -262,7 +262,7 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: not applicable for this plot type / terrain if i am not mistaken, so show an alternative text instead -->
+		# <!-- custom: not applicable for this plot type / terrain, so show an alternative text instead -->
 		if self.iTerrain == iPeak:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
 			textName = self.top.getNextWidgetName()
@@ -275,7 +275,7 @@ class SevoPediaTerrain:
 				bonusInfo = gc.getBonusInfo(iBonus)
 				if bonusInfo.isGraphicalOnly():
 					continue
-				# <!-- custom: minor refactor fromr rfc doc mod since output seems to be the same, check for both all terrains and then specifically for hill anyways etc (with the more general check first so it is executed faster even if a micro bit in this case (but still! If i may say too (reference to baten kaitos's kalas line...))) -->
+				# <!-- custom: minor refactor fromr rfc doc mod since output seems to be the same, check for both all terrains and then specifically for hill (with the more general check first so it is executed faster even if a micro bit in this case (but still! If i may say too (reference to baten kaitos's kalas line...))) -->
 				elif (bonusInfo.isTerrain(self.iTerrain)) or (self.iTerrain == iHill and bonusInfo.isHills()):
 					screen.attachImageButton(panel, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
 
@@ -358,7 +358,7 @@ class SevoPediaTerrain:
 
 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
-		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well anyways etc, so handle its display separately -->
+		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well, so handle its display separately -->
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 		iCoast = getInfoTypeOrFail("TERRAIN_COAST", gc)
 		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
@@ -400,7 +400,7 @@ class SevoPediaTerrain:
 						iButtonIndex += 1
 
 		elif self.iTerrain == iHill:
-			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such anyways etc) -->
+			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such) -->
 			iPromotionHillsMaster1 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER1", gc)
 			iPromotionHillsMaster2 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER2", gc)
 			iPromotionHillsMaster3 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER3", gc)
@@ -450,7 +450,7 @@ class SevoPediaTerrain:
 					iButtonIndex += 1
 
 		elif self.iTerrain == iCoast or self.iTerrain == iOcean:
-			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such anyways etc) -->
+			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such) -->
 			iPromotionNavigator = getInfoTypeOrFail("PROMOTION_NAVIGATOR", gc)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):

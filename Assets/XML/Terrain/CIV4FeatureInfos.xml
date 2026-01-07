@@ -133,7 +133,7 @@
 			<HillsYieldChange/>
 			<iMovement>2</iMovement>
 			<iSeeThrough>1</iSeeThrough>
-			<!-- custom: (now and as of now same as of the forest health positive modifier but negative here anyways etc), was -25 -->
+			<!-- custom: (now and as of now same as of the forest health positive modifier but negative here), was -25 -->
 			<iHealthPercent>-50</iHealthPercent>
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #27 -->
 			<!-- advc.012: was 50 -->

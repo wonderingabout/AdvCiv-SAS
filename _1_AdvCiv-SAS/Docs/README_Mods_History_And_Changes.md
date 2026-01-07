@@ -1,6 +1,6 @@
 # README_Mods_History_And_Changes
 
-To create/use/repurpose anyways etc this new "Mods Info" category starting from base AdvCiv (1.12 when i started it and as of now still anyways etc), [@f1rpo](https://github.com/f1rpo)'s, main maintainer of (base anyways etc) AdvCiv helped me and provided very useful and detailed feedback so i could do it myself and continue where i was stuck in this case anyways etc. It is one of the cases where ChatGPT could not help so i especially appreciate it in this case even more, thanks a lot.
+To create/use/repurpose this new "Mods Info" category starting from base AdvCiv (1.12 when i started it and as of now still), [@f1rpo](https://github.com/f1rpo)'s, main maintainer of (base) AdvCiv helped me and provided very useful and detailed feedback so i could do it myself and continue where i was stuck in this case. It is one of the cases where ChatGPT could not help so i especially appreciate it in this case even more, thanks a lot.
 
 ## Menu
 

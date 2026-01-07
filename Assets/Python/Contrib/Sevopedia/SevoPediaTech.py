@@ -8,9 +8,9 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see modding ressources readme at /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md (or whichever path it may be anyways etc if changed path or modifications i did or may have done additionally or kept as is).
+# <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see modding ressources readme at /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md (or whichever path it may be if changed path or modifications i did or may have done additionally or kept as is).
 #
-# Without the DLL modification, i assume it would still run fine if i am not mistaken, just you would not have the bullet point at the tech, for example Future tech, that it cannot be traded in placeSpecial, but only the summary at the end of the list of all non tradeable tech that uses the already existing in base advcivgc.getTechInfo(iTech).isTrade() if i am not mistaken, but which info of (this tech is not tradeable) is in base advciv not displayed in the placeSpecial bullet of the currently selected tech unless you modify DLL as explained before -->
+# Without the DLL modification, i assume it would still run fine, just you would not have the bullet point at the tech, for example Future tech, that it cannot be traded in placeSpecial, but only the summary at the end of the list of all non tradeable tech that uses the already existing in base advcivgc.getTechInfo(iTech).isTrade(), but which info of (this tech is not tradeable) is in base advciv not displayed in the placeSpecial bullet of the currently selected tech unless you modify DLL as explained before -->
 
 
 
@@ -29,7 +29,7 @@ IS_SHOW_NON_TRADEABLE_TECHS_LIST = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_NON
 
 
 
-# <!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time the list as string of untradeable techs; note also anyways etc: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak (my) (but anyways etc...) previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd -->
+# <!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time the list as string of untradeable techs; note also: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak my previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd -->
 def getPrecomputedUntradeableTechsText():
 	untradeableTechs = []
 
@@ -82,7 +82,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.top.R_PEDIA_PAGE - self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
 		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = 110
 
-		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code anyways etc, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments -->
+		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments -->
 		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (3 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (3 * self.SMALL_MARGIN)
 
 		self.X_HISTORY = self.X_TECH_PANE
@@ -153,7 +153,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		screen.addListBoxGFC(listBoxName, "", self.X_TECH_PANE + 92, self.Y_TECH_PANE + 14, self.W_TECH_PANE, self.H_TECH_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listBoxName, False)
-		# <!-- custom: extra space (" ") in some of these listboxstringsto better align with the research icon char starting more on the right anyways etc, depending on where the space is put, the text is so much better left-aligned between rows i think/feel/see or so it seems to me if i mmay say... -->
+		# <!-- custom: extra space (" ") in some of these listboxstringsto better align with the research icon char starting more on the right, depending on where the space is put, the text is so much better left-aligned between rows i think/feel/see or so it seems to me if i mmay say... -->
 		screen.appendListBoxString(listBoxName, u" <font=4b>" + techInfo.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(listBoxName, u"<font=3> " + szEra + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(listBoxName, u"<font=4>" + szCostText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
@@ -310,7 +310,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szText += gc.getTechInfo(self.iTech).getQuote()
 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
 		szQuoteTextWidget = self.top.getNextWidgetName()
-		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too anyways etc, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
+		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 9, self.Y_HISTORY + 12, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

@@ -3,7 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- --><!-- Promotion Infos -->
-<!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them anyways etc) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or/and the code there in as of now the .cpp corresponding file(s) -->
+<!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or/and the code there in as of now the .cpp corresponding file(s) -->
 <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<PromotionInfos>
 
@@ -5198,7 +5198,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest anyways etc) air intercept button-->
+			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest) air intercept button-->
 			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_3/air_interception_3.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -5266,7 +5266,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest anyways etc) air intercept button-->
+			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest) air intercept button-->
 			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_4/air_interception_4.dds</Button>
 		</PromotionInfo>
 
@@ -5345,7 +5345,7 @@
 		</PromotionInfo>
 
 
-		<!-- custom: since this seems unused in DLL due to #if 0 if i am not mistaken and understood correctly chatgpt 5's explanation of it, and since it is and was also commented out here already in the XML as well, also commented it out in the DLL as well, see there for details in corresponding as of now .cpp file(s) anyways etc (can be found with a global search with vs code for example), and done as approved to be possible by chatgpt 5, check if accurate -->
+		<!-- custom: since this seems unused in DLL due to #if 0 if i am not mistaken and understood correctly chatgpt 5's explanation of it, and since it is and was also commented out here already in the XML as well, also commented it out in the DLL as well, see there for details in corresponding as of now .cpp file(s) (can be found with a global search with vs code for example), and done as approved to be possible by chatgpt 5, check if accurate -->
 		<!-- K-Mod, special penalty promotion.
 			 advc.905a: iMovesChange set to -1
 			 advc.313: Replaced with handicap-based modifiers.

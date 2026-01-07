@@ -415,7 +415,7 @@
 			</CommerceFlexible>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 3 espionage and growth 0 (was empty anyways etc.) culture 9 religion 4 production 3 -->
+			<!-- custom: was FLAVOR_MILITARY 3 espionage and growth 0 (was empty) culture 9 religion 4 production 3 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -505,7 +505,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 3 science 0 and growth 0 (were missing anyways etc.) culture 10 religion 4 -->
+			<!-- custom: was FLAVOR_MILITARY 3 science 0 and growth 0 (were missing) culture 10 religion 4 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -695,7 +695,7 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<!-- advc.131b -->
-			<!-- custom: a useful tech, not too op though, especially after our tech rework, make sure it is not penalized and value it a bit, else let ai decide anyways etc, was -125 -->
+			<!-- custom: a useful tech, not too op though, especially after our tech rework, make sure it is not penalized and value it a bit, else let ai decide, was -125 -->
 			<iAIWeight>25</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.910: was 700 -->
@@ -1143,7 +1143,7 @@
 			<Quote>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_LATER_ABRAHAMISM</Sound>
 			<SoundMP>AS2D_TECH_MP_LATER_ABRAHAMISM</SoundMP>
-			<!-- custom: art button import anyways etc from ffh2 mod's tech_fanaticism -->
+			<!-- custom: art button import from ffh2 mod's tech_fanaticism -->
 			<Button>Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_NATIONALISM (useful for VS Code upper tree view while scrolling) -->
@@ -1241,7 +1241,7 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: is a strong military tech or quite strong one at least anyways etc, was 0 -->
+			<!-- custom: is a strong military tech or quite strong one at least, was 0 -->
 			<!-- advc.552: Was 10; rather give this weight to Nationalism -->
 			<iAITradeModifier>10</iAITradeModifier>
 			<iCost>1950</iCost>
@@ -1355,7 +1355,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- advc.015a: Production was 3; add flavor science (was missing anyways etc.)-->
+			<!-- advc.015a: Production was 3; add flavor science (was missing)-->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
@@ -2372,7 +2372,7 @@
 			<Quote>TXT_KEY_TECH_SEAFARING_QUOTE</Quote>
 			<Sound>AS2D_TECH_SEAFARING</Sound>
 			<SoundMP>AS2D_TECH_MP_SEAFARING</SoundMP>
-			<!-- custom: button import from c2c mod's TECH_BOAT_BUILDING in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos\Assets\C2C2.FPK -->
+			<!-- custom: button import from c2c mod's TECH_BOAT_BUILDING in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos\Assets\C2C2.FPK -->
 			<Button>Art/AdvCiv_SAS/Techs/Seafaring/boatbuilding.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_WRITING (useful for VS Code upper tree view while scrolling) -->
@@ -2568,7 +2568,7 @@
 			<iGridX>12</iGridX>
 			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
-			<!-- custom: was missing (and i assume empty(is the effect from the old TECH_SCIENTIFIC_METHOD (now removed anyways etc))) -->
+			<!-- custom: was missing (and i assume empty(is the effect from the old TECH_SCIENTIFIC_METHOD (now removed))) -->
 			<SpecialistExtraCommerces>
 				<iCommerce>0</iCommerce>
 				<iCommerce>1</iCommerce>
@@ -2607,7 +2607,7 @@
 			<Quote>TXT_KEY_TECH_NATURALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_NATURALISM</Sound>
 			<SoundMP>AS2D_TECH_MP_NATURALISM</SoundMP>
-			<!-- custom: new naturalism button now that it replaces old tech alphabet anyways etc, based on a base civ4 atlas -->
+			<!-- custom: new naturalism button now that it replaces old tech alphabet, based on a base civ4 atlas -->
 			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,5</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for VS Code upper tree view while scrolling) -->
@@ -2865,7 +2865,7 @@
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
-			<!-- custom: currently TECH_LIBERALISM is bloated and too strong already if i am not mistaken, giving theory_of_evolution some purpsoe while also making sense in terms of gameplay, searching it means falling behind in military path so i hope it can be worth it this way to choose this alternative path anyways etc and for versatile startegy too anyways etc, was 0 -->
+			<!-- custom: currently TECH_LIBERALISM is bloated and too strong already, giving theory_of_evolution some purpsoe while also making sense in terms of gameplay, searching it means falling behind in military path so i hope it can be worth it this way to choose this alternative path and for versatile startegy too, was 0 -->
 			<iFirstFreeTechs>1</iFirstFreeTechs>
 			<iAsset>40</iAsset>
 			<iPower>0</iPower>
@@ -2894,7 +2894,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: good tech to have for growth type of leaders (also considering following techs in our reworked tech tree anyways etc) and gold ones to a lesser extent; on top of being very good for science leaders even though deviates from main military tech tree path but should be very worth or quite worth, so put flavor science very or quite very high if i am not mistaken too -->
+			<!-- custom: good tech to have for growth type of leaders (also considering following techs in our reworked tech tree) and gold ones to a lesser extent; on top of being very good for science leaders even though deviates from main military tech tree path but should be very worth or quite worth, so put flavor science very or quite very high if i am not mistaken too -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -2916,7 +2916,7 @@
 			<Quote>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Quote>
 			<Sound>AS2D_TECH_THEORY_OF_EVOLUTION</Sound>
 			<SoundMP>AS2D_TECH_MP_THEORY_OF_EVOLUTION</SoundMP>
-			<!-- custom: button from ai-generated images with the help of chatgpt thanks as (i.e. that anyways etc) was done in the past -->
+			<!-- custom: button from ai-generated images with the help of chatgpt thanks as (i.e. that) was done in the past -->
 			<Button>Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_BANKING (useful for VS Code upper tree view while scrolling) -->
@@ -3397,7 +3397,7 @@
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<!-- custom: was 0 -->
 			<bIrrigation>1</bIrrigation>
-			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress was made in irrigation technology around 0 AD/BC. +/- 1000 years, so maybe this fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example anyways etc., was 0 -->
+			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress was made in irrigation technology around 0 AD/BC. +/- 1000 years, so maybe this fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example , was 0 -->
 			<bIgnoreIrrigation>1</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>8</iGridX>
@@ -3446,7 +3446,7 @@
 			<Quote>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Quote>
 			<Sound>AS2D_TECH_WATER_WHEEL</Sound>
 			<SoundMP>AS2D_TECH_MP_WATER_WHEEL</SoundMP>
-			<!-- custom: button import from c2c mod anyways etc, also tech name idea i got from them as i was hestiating between a few other variants and didn't know this one thanks -->
+			<!-- custom: button import from c2c mod, also tech name idea i got from them as i was hestiating between a few other variants and didn't know this one thanks -->
 			<Button>Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_PHYSICS (useful for VS Code upper tree view while scrolling) -->
@@ -3463,7 +3463,7 @@
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
 			<Era>ERA_RENAISSANCE</Era>
-			<!-- custom: this rewards non military paths more relatively anyways etc, and the tech is quite bare otherwise so maybe hopefully fine/balanced and makes quite i mean makes sense in terms of lore or theme so hopefully fine as such at least i want to do so in advciv-sas, as in base civ4 or advciv coincidentally xd.: more balanced as such, boosts weak non-military physics tech anyways etc, and a reference i guess to newton/copernic or such so very relevant thematically i think -->
+			<!-- custom: this rewards non military paths more relatively, and the tech is quite bare otherwise so maybe hopefully fine/balanced and makes quite i mean makes sense in terms of lore or theme so hopefully fine as such at least i want to do so in advciv-sas, as in base civ4 or advciv coincidentally xd.: more balanced as such, boosts weak non-military physics tech, and a reference i guess to newton/copernic or such so very relevant thematically i think -->
 			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -3688,7 +3688,7 @@
 			<Era>ERA_INDUSTRIAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
-			<!-- custom: tech_electricity is strong already as the main military path, favour/reward other techs instead in this case anyways etc relatively more anyways etc, was 0 -->
+			<!-- custom: tech_electricity is strong already as the main military path, favour/reward other techs instead in this case relatively more, was 0 -->
 			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
@@ -4365,7 +4365,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: tech is very important for future military units although it itself (if this how to say it in english) doesn't have strong military / offensive or defensive units anyways etc, but still put high military flavor so AI leaders search this tech strongly if they want later units; it is similarly a key tech to access later future techs so make sure AI leaders research it if they have the science flavor as well by having a high enough flavor_science as well -->
+			<!-- custom: tech is very important for future military units although it itself (if this how to say it in english) doesn't have strong military / offensive or defensive units, but still put high military flavor so AI leaders search this tech strongly if they want later units; it is similarly a key tech to access later future techs so make sure AI leaders research it if they have the science flavor as well by having a high enough flavor_science as well -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -5229,7 +5229,7 @@
 			<Quote>TXT_KEY_TECH_NAVIGATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_NAVIGATION</Sound>
 			<SoundMP>AS2D_TECH_MP_NAVIGATION</SoundMP>
-			<!-- custom: button import from FFH2 mod's TECH_CARTOGRAPHY in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK -->
+			<!-- custom: button import from FFH2 mod's TECH_CARTOGRAPHY in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK -->
 			<Button>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_CONSTRUCTION (useful for VS Code upper tree view while scrolling) -->
@@ -5515,7 +5515,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: add flavor_gold 4 as per our reworked effects in buildings anyways etc; + was FLAVOR_MILITARY 3 -->
+			<!-- custom: add flavor_gold 4 as per our reworked effects in buildings; + was FLAVOR_MILITARY 3 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -5660,7 +5660,7 @@
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
-			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or/and such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too, maybe it is more balanced or/and startegically interesting as such, was 0 -->
+			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or/and such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or/and startegically interesting as such, was 0 -->
 			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
@@ -5995,7 +5995,7 @@
 			<Quote>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MARINE_TECHNOLOGY</Sound>
 			<SoundMP>AS2D_TECH_MP_MARINE_TECHNOLOGY</SoundMP>
-			<!-- custom: button import from NW mod's very very nice one in all or all in one rather. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker anyways etc, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting fine (folder name has the advciv-sas asset name or closest or close to it anyways etc, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if needed)), is based on NW mod's TECH_HEAVY_WATER button -->
+			<!-- custom: button import from NW mod's very very nice one in all or all in one rather. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting fine (folder name has the advciv-sas asset name or closest or close to it, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if needed)), is based on NW mod's TECH_HEAVY_WATER button -->
 			<Button>Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_ASSEMBLY_LINE (useful for VS Code upper tree view while scrolling) -->

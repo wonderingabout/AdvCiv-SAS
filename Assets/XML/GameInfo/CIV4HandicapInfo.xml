@@ -130,12 +130,12 @@
 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
 				<GoodyType>GOODY_MAP</GoodyType>
-				<!-- custom: removed 1 (i.e. as of now all remaining settlers if i am not mistaken from here anyways etc) GOODY_SETTLER -->
+				<!-- custom: removed 1 (i.e. as of now all remaining settlers if i am not mistaken from here) GOODY_SETTLER -->
 				<!-- advc.314: One GOODY_SETTLER entry removed -->
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_SCOUT</GoodyType>
-				<!-- custom: removed 2 (i.e. as of now all remaining workers if i am not mistaken from here anyways etc) GOODY_WORKER, which goes well with me wanting these difficulties to be playable and a worthwhile challenge, which is impossible if we hand free workers or worse settlers, it kinds of breaks balance as well -->
+				<!-- custom: removed 2 (i.e. as of now all remaining workers if i am not mistaken from here) GOODY_WORKER, which goes well with me wanting these difficulties to be playable and a worthwhile challenge, which is impossible if we hand free workers or worse settlers, it kinds of breaks balance as well -->
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_HEALING</GoodyType>
 				<GoodyType>GOODY_TECH</GoodyType>
@@ -260,11 +260,11 @@
 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
 				<GoodyType>GOODY_MAP</GoodyType>
 				<!-- advc.314: One GOODY_SETTLER entry removed -->
-				<!-- custom: removed 1 (i.e. as of now all remaining settlers if i am not mistaken from here anyways etc) GOODY_SETTLER -->
+				<!-- custom: removed 1 (i.e. as of now all remaining settlers if i am not mistaken from here) GOODY_SETTLER -->
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_SCOUT</GoodyType>
-				<!-- custom: removed 2 (i.e. as of now all remaining workers if i am not mistaken from here anyways etc) GOODY_WORKER -->
+				<!-- custom: removed 2 (i.e. as of now all remaining workers if i am not mistaken from here) GOODY_WORKER -->
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_HEALING</GoodyType>
 				<GoodyType>GOODY_TECH</GoodyType>
@@ -390,7 +390,7 @@
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_WARRIOR</GoodyType>
 				<GoodyType>GOODY_SCOUT</GoodyType>
-				<!-- custom: removed one (i.e. as of now all remaining workers if i am not mistaken from here anyways etc) GOODY_WORKER -->
+				<!-- custom: removed one (i.e. as of now all remaining workers if i am not mistaken from here) GOODY_WORKER -->
 				<GoodyType>GOODY_EXPERIENCE</GoodyType>
 				<GoodyType>GOODY_HEALING</GoodyType>
 				<GoodyType>GOODY_TECH</GoodyType>
@@ -1218,7 +1218,7 @@
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>75</iAIInflationPercent>
 			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
-			<!-- custom: now disabled at all handicaps, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->
+			<!-- custom: now disabled at all handicaps, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->
 			<!-- advc.251: Renamed; was 5 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular i mean, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess, hopefully accurate enough if i may say and more in line with the spirit of our changes -->
@@ -1257,7 +1257,7 @@
 			</Goodies>
 			<FreeTechs/>
 			<AIFreeTechs/>
-			<!-- custom: adjusted slightly based on/with knowledge of the code sample in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\UWAIAgent.cpp as well as chatgpt's explanation of it anyways etc, our handicap settings are more gradual than in base advciv, not sure it makes a difference but go for gradual values between handicap settings anyways etc, also start from a higher base line difficulty since our settings in advciv-sas are slightly harder anyways etc, was 85 -->
+			<!-- custom: adjusted slightly based on/with knowledge of the code sample in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\UWAIAgent.cpp as well as chatgpt's explanation of it, our handicap settings are more gradual than in base advciv, not sure it makes a difference but go for gradual values between handicap settings, also start from a higher base line difficulty since our settings in advciv-sas are slightly harder, was 85 -->
 			<!-- advc.250a -->
 			<iDifficulty>90</iDifficulty>
 		</HandicapInfo>

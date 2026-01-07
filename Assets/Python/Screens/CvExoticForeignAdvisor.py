@@ -82,7 +82,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.X_LINK = 0
 		self.Y_LINK = 726
 		
-		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks anyways etc.  -->
+		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks.  -->
 		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10
 		# self.Y_GLANCE_OFFSET = 3
 		self.X_GLANCE_OFFSET = 0
@@ -115,7 +115,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.MIN_TOP_BOTTOM_SPACE = 45
 		
 		# Minimum space at the left and right end of the screen.
-		# <!-- custom: reduce this as we don't need so much space on the sides, and we need the space to show more info anyways etc as per gemini 3 pro's solution thanks -->
+		# <!-- custom: reduce this as we don't need so much space on the sides, and we need the space to show more info as per gemini 3 pro's solution thanks -->
 		# self.MIN_LEFT_RIGHT_SPACE = 25
 		self.MIN_LEFT_RIGHT_SPACE = 0
 		
@@ -154,7 +154,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		# Height of the panel showing the surplus resources. If self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP is 'False'
 		# you'll need to set a higher value for this variable (110 is recommended).
-		# <!-- custom: it seems to me just one row of bonuses is enough, to begin with we don't have that much in our mod and not so much are tradeable at the same time anyway (plus we removed the header as well so we don't need as much space anyways etc.), so reduce this -->
+		# <!-- custom: it seems to me just one row of bonuses is enough, to begin with we don't have that much in our mod and not so much are tradeable at the same time anyway (plus we removed the header as well so we don't need as much space), so reduce this -->
 		# self.RES_SURPLUS_HEIGHT = 110 # advc.073: was 80
 		self.RES_SURPLUS_HEIGHT = 60
 		
@@ -331,7 +331,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 
 		self.WAR_ICON = smallSymbol(FontSymbols.WAR_CHAR)
 		self.PEACE_ICON = smallSymbol(FontSymbols.PEACE_CHAR)
-		# <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. Added with the help of claude sonnet 4.5 and gemini 3 pro thanks; check if accurate -->
+		# <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab. Added with the help of claude sonnet 4.5 and gemini 3 pro thanks; check if accurate -->
 		self.WILLING_VASSAL_ICON = smallSymbol(FontSymbols.SILVER_STAR_CHAR) # using a crown/strength symbol for vassalization
 		self.VASSAL_ICON = smallSymbol(FontSymbols.STRENGTH_CHAR)  # or use a different symbol
 
@@ -401,7 +401,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		##########################################
 
 		# Set the background and exit button, and show the screen
-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia , so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
 		# # RJG Start - following line added as per RJG (http://forums.civfanatics.com/showpost.php?p=6996936&postcount=15)
 		# # K-Mod, undone
 		# screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
@@ -484,12 +484,12 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
 		# <advc.066> Replacing the above (same as in drawInfoOriginal)
-		# <!-- custom: remove the margins same as in the other foreign advisor tabs after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification -->
+		# <!-- custom: remove the margins same as in the other foreign advisor tabs after our changes, similarly to what gemini 3 pro advised in its solution thanks. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification -->
 		# leftRightMargin = 25
 		# topBottomMargin = 50
 		leftRightMargin = 0
 		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now -->
-		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure anyways etc.) rows can be higher if they have more lines as of now in the foreign advisor's active tab but doing as such for consistency as well as in base advciv code as well coincidentally i mean. -->
+		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure) rows can be higher if they have more lines as of now in the foreign advisor's active tab but doing as such for consistency as well as in base advciv code as well coincidentally i mean. -->
 		topBottomMargin = 42
 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
@@ -578,7 +578,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		#self.W_SCREEN = screen.getXResolution() - 40
 		#self.X_SCREEN = (screen.getXResolution() - 24) / 2
 
-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia , so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
 		# self.X_LEADER_CIRCLE_TOP = self.X_SCREEN
 		# --- FIX: Center the web in the middle of the screen ---
 		# We take the full screen width and divide by 2 to find the center pixel
@@ -606,7 +606,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
 		# <advc.066> Replacing the above (same as in drawActive)
-		# <!-- custom: remove the margins same as in the other foreign advisor tabs after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification -->
+		# <!-- custom: remove the margins same as in the other foreign advisor tabs after our changes, similarly to what gemini 3 pro advised in its solution thanks. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification -->
 		# leftRightMargin = 25
 		# topBottomMargin = 50
 		leftRightMargin = 0
@@ -683,7 +683,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					nCivic = objLoopPlayer.getCivics (nCivicOption)
 					screen.attachImageButton (infoPanelName, "", gc.getCivicInfo (nCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nCivic, 1, False)
 
-				# <!-- custom: also show favorite religions in the foreign advisor's info tab anyways etc. Code added with the help of gemini 3 pro thanks anyways etc, also refactor this part of the code as well for clarity -->
+				# <!-- custom: also show favorite religions in the foreign advisor's info tab. Code added with the help of gemini 3 pro thanks, also refactor this part of the code as well for clarity -->
 				nFavoriteCivic = objLeaderHead.getFavoriteCivic()
 				hasFavoriteCivic = (objLoopPlayer.isFavoriteCivicKnown() and nFavoriteCivic != -1) # advc.130n
 
@@ -952,7 +952,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# iExtraHeight = 0
 		iExtraHeight = 7
 
-		# <!-- custom: adjust base Y (was 104) as it was a bit too low (as in at the bottom anyways etc.) which led to an asymetrical display in bottom being too high as compared to top's edge over limit after our changes, vs now it being much more centered which allows to more cleanly/easily adjust iExtraHeight -->
+		# <!-- custom: adjust base Y (was 104) as it was a bit too low (as in at the bottom) which led to an asymetrical display in bottom being too high as compared to top's edge over limit after our changes, vs now it being much more centered which allows to more cleanly/easily adjust iExtraHeight -->
 		screen.addPanel(mainPanelName, "", "", True, True, 0 - iExtraWidth, 106 - iExtraHeight, self.W_SCREEN + (2 * iExtraWidth), self.mainPanelHeight + (2 * iExtraHeight), PanelStyles.PANEL_STYLE_MAIN)
 		self.drawGlanceRows (screen, mainPanelName, self.iSelectedLeader != self.iActiveLeader, self.iSelectedLeader)
 
@@ -1070,7 +1070,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 						else:
 							szText = ""
 
-						# <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. Also for information or exhaustiveness the human player occupies the first row and has no column in the glances tab it seems if i'm not mistaken anyways etc. Added with the combined help of claude sonnet 4.5 and gemini pro 3, since neither could get it right on their own or fast enough; claude helped most but gemini too and me too i mean thanks to me too. I fed claude the C++ code of int CvTeamAI::AI_vassalTradeVal, DenialTypes CvTeamAI::AI_vassalTrade, int CvTeamAI::AI_surrenderTradeVal, and DenialTypes CvTeamAI::AI_surrenderTrade, since its previous python implementation didn't work. Check if accurate -->
+						# <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab. Also for information or exhaustiveness the human player occupies the first row and has no column in the glances tab it seems if i'm not mistaken. Added with the combined help of claude sonnet 4.5 and gemini pro 3, since neither could get it right on their own or fast enough; claude helped most but gemini too and me too i mean thanks to me too. I fed claude the C++ code of int CvTeamAI::AI_vassalTradeVal, DenialTypes CvTeamAI::AI_vassalTrade, int CvTeamAI::AI_surrenderTradeVal, and DenialTypes CvTeamAI::AI_surrenderTrade, since its previous python implementation didn't work. Check if accurate -->
 						# Goal: If this is MY Row (iLoopPlayer is me), check if the RIVAL (j) wants to be my vassal.
 						# Vassal Check (Human Row Edition)
 						if iLoopPlayer == self.iActiveLeader:
@@ -1588,7 +1588,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		# 1. Define the full screen
 		# <!-- custom: note: this is the starting position of the grid/table, not of the blue panel -->
-		# <!-- custom: note: for example gridX moves the grid's starting position more to the left or right (for example so we use what used to be the yellow empty space on the left (and also on the right) if needed anyways etc.) -->
+		# <!-- custom: note: for example gridX moves the grid's starting position more to the left or right (for example so we use what used to be the yellow empty space on the left (and also on the right) if needed) -->
 		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
 		gridY = self.MIN_TOP_BOTTOM_SPACE + 10
 

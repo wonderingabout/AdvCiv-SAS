@@ -194,7 +194,7 @@
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
-			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 80 -->
+			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing), was 80 -->
 			<!-- advc.126: was 100 (and was unused) -->
 			<iCulturePercent>100</iCulturePercent>
 			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 40 -->
@@ -279,12 +279,12 @@
 			<!-- as in DoC -->
 			<iHumanMaxGroundbreakingPenalty>25</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 90 -->
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers), so no reason to over-realism here either or whatever the reason was, was 90 -->
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 90 -->
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
-			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 70 -->
+			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing), was 70 -->
 			<!-- advc.126: was 90 -->
 			<iCulturePercent>100</iCulturePercent>
 			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 40 -->
@@ -365,12 +365,12 @@
 			<!-- 30 in DoC -->
 			<iHumanMaxGroundbreakingPenalty>35</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 80 -->
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers), so no reason to over-realism here either or whatever the reason was, was 80 -->
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 80 -->
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
-			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 60 -->
+			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing), was 60 -->
 			<!-- advc.126: was 80 -->
 			<iCulturePercent>100</iCulturePercent>
 			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 34 -->
@@ -453,12 +453,12 @@
 				 supposed to get ahead? -->
 			<iHumanMaxGroundbreakingPenalty>25</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 70 -->
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers), so no reason to over-realism here either or whatever the reason was, was 70 -->
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 70 -->
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
-			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 50 -->
+			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing), was 50 -->
 			<!-- advc.126: was 70 -->
 			<iCulturePercent>100</iCulturePercent>
 			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 34 -->
@@ -536,12 +536,12 @@
 				 late-game content. -->
 			<iHumanMaxGroundbreakingPenalty>0</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 60 -->
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers), so no reason to over-realism here either or whatever the reason was, was 60 -->
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 60 -->
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
-			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 50 -->
+			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing), was 50 -->
 			<!-- advc.126: was 60 -->
 			<iCulturePercent>100</iCulturePercent>
 			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 34 -->

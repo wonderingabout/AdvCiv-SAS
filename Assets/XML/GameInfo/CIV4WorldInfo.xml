@@ -137,7 +137,7 @@
 			<iGridHeight>28</iGridHeight>
 			<iTerrainGrainChange>0</iTerrainGrainChange>
 			<iFeatureGrainChange>0</iFeatureGrainChange>
-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc, was 115 -->
+			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, was 115 -->
 			<!-- advc.910: was 130 -->
 			<iResearchPercent>100</iResearchPercent>
 			<!-- advc.140: was 50 -->

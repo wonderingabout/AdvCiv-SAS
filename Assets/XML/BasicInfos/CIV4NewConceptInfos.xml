@@ -21,7 +21,7 @@
 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
 			<Civilopedia>TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR</Civilopedia>
 		</NewConceptInfo>
-		<!-- custom: new base AdvCiv non-exhaustive change listing (from base AdvCiv's manual.pdf or similar format or possibly other docs or sources if i find relevant info there and want to display it as well, anyways etc)-->
+		<!-- custom: new base AdvCiv non-exhaustive change listing (from base AdvCiv's manual.pdf or similar format or possibly other docs or sources if i find relevant info there and want to display it as well)-->
 		<NewConceptInfo>
 			<Type>CONCEPT_BASE_ADVCIV_SOME_CHANGES</Type>
 			<Description>TXT_KEY_BASE_ADVCIV_SOME_CHANGES</Description>

@@ -194,7 +194,7 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 		return false;
 	if(!ReadGlobalDefines("xml\\GlobalDefines_advc.xml", cache))
 		return false; // </advc.009>
-	// <!-- custom: add our new advciv-sas specific file as well anyways etc, as also recommended by chatgpt 5 upon checking this code sample as i asked it to, check if accurate -->
+	// <!-- custom: add our new advciv-sas specific file as well, as also recommended by chatgpt 5 upon checking this code sample as i asked it to, check if accurate -->
 	// Load AdvCiv-SAS overrides / extras
 	if(!ReadGlobalDefines("xml\\GlobalDefines_advciv_sas.xml", cache))
 		return false; // </advc.009>

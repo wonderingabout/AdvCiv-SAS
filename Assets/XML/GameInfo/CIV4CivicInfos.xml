@@ -5,7 +5,7 @@
 	<!-- Copyright Firaxis Games 2005 -->
 	<!-- -->
 	<!-- Civic Infos -->
-	<!-- custom: vassalage civic tech prereq rationale changed as chatgpt 5.1 confirms thanks; also as a side effect closer to bts early vassalage availability anyways etc, was TECH_FEUDALISM -->
+	<!-- custom: vassalage civic tech prereq rationale changed as chatgpt 5.1 confirms thanks; also as a side effect closer to bts early vassalage availability, was TECH_FEUDALISM -->
 	<!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (Egypt–Canaan, Hittites, Zhou “fengjian”, Assyria, early China, etc.). These are formal overlord–subject treaties with tribute, hostages, mutual defense, and legal obligations. -->
 	<!-- Mechanically, you do not want capitulation and permanent sub-states to exist while players are still fighting over their first 3–5 cities. In SAS your wars are deadly and the AI is opportunistic; early vassalizing would produce some nasty snowballs. -->
 	<!-- So I would: Put Vassal States in the late Classical band, not earlier than that.
@@ -895,7 +895,7 @@
 			<Button>,Art/Interface/Buttons/Civics/Caste_System.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,3,1</Button>
 			<TechPrereq>TECH_CODE_OF_LAWS</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
-			<!-- custom: (was too op and ubiquitous anyways etc, now it is still strong but has a significant early cost to sustain it, and scaling improves later in the game instead), was UPKEEP_MEDIUM -->
+			<!-- custom: (was too op and ubiquitous, now it is still strong but has a significant early cost to sustain it, and scaling improves later in the game instead), was UPKEEP_MEDIUM -->
 			<Upkeep>UPKEEP_HIGH</Upkeep>
 			<iAIWeight>0</iAIWeight>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
@@ -1041,7 +1041,7 @@
 			<BuildingHappinessChanges/>
 			<BuildingHealthChanges/>
 			<FeatureHappinessChanges/>
-			<!-- custom: removed the IMPROVEMENT_TOWN penalty (civic was too weak, plus city indirectly benefits from harvests i think in an alternate late game serf-based potential economy/civ anyways etc), and added an extra gold yield on water food improvements to keep agrarian theme as chatgpt 5 approved i mean with the suggestion -->
+			<!-- custom: removed the IMPROVEMENT_TOWN penalty (civic was too weak, plus city indirectly benefits from harvests i think in an alternate late game serf-based potential economy/civ), and added an extra gold yield on water food improvements to keep agrarian theme as chatgpt 5 approved i mean with the suggestion -->
 			<!-- K-Mod -->
 			<ImprovementYieldChanges>
 				<ImprovementYieldChange>
@@ -1087,7 +1087,7 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<!-- custom: button import from c2c mod's TECH_WARRANTS_AND_DECREES -->
 			<Button>Art/AdvCiv_SAS/Civics/Wage_Labor/decrees.dds</Button>
-			<!-- custom: hopefully having it sooner also increases strategic options as well anyways etc, was TECH_DEMOCRACY -->
+			<!-- custom: hopefully having it sooner also increases strategic options as well, was TECH_DEMOCRACY -->
 			<!-- Short version: yes, if what you want is the rise of monetized, contract-based work rather than “the modern proletariat.”
 				- Wage labor existed well before the Industrial Revolution (soldiers, artisans, day/harvest laborers, urban craftsmen, ship crews). It accelerates from the 13th–15th c. with coin monetization, towns, and guild production, then expands massively later.
 				- Tying it to Banking (Italian city-states, credit networks, bills of exchange) is thematically solid. -->
@@ -1260,7 +1260,7 @@
 			<iStateReligionGreatPeopleRateModifier>0</iStateReligionGreatPeopleRateModifier>
 			<iDistanceMaintenanceModifier>0</iDistanceMaintenanceModifier>
 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
-			<!-- custom: quality has a cost anyways etc, was 0 -->
+			<!-- custom: quality has a cost, was 0 -->
 			<iCorporationMaintenanceModifier>25</iCorporationMaintenanceModifier>
 			<iExtraHealth>0</iExtraHealth>
 			<iFreeExperience>0</iFreeExperience>
@@ -1281,9 +1281,9 @@
 			<iLargestCityHappiness>0</iLargestCityHappiness>
 			<iWarWearinessModifier>0</iWarWearinessModifier>
 			<iFreeSpecialist>1</iFreeSpecialist>
-			<!-- custom: less trade, not none, this is not isolationism anyways etc, was 0 -->
+			<!-- custom: less trade, not none, this is not isolationism, was 0 -->
 			<iTradeRoutes>-1</iTradeRoutes>
-			<!-- custom: less trade, not none, this is not isolationism anyways etc,as chatgpt 5.1 confirms thanks anyways etc, was 1 -->
+			<!-- custom: less trade, not none, this is not isolationism,as chatgpt 5.1 confirms thanks, was 1 -->
 			<!-- Yeah, I agree with your instinct here: if you don’t want a full-on “autarky / isolationism” civic, then “less trade, not none” fits Protectionism better, and avoids the huge tech-pace hit from bNoForeignTrade. -->
 			<bNoForeignTrade>0</bNoForeignTrade>
 			<bNoCorporations>0</bNoCorporations>
@@ -1449,7 +1449,7 @@
 			<TradeYieldModifiers/>
 			<CommerceModifiers/>
 			<CapitalCommerceModifiers/>
-			<!-- custom: market globally improves not just one specialist liek as of now in trade_bloc anyways etc, was empty -->
+			<!-- custom: market globally improves not just one specialist liek as of now in trade_bloc, was empty -->
 			<SpecialistExtraCommerces>
 				<iCommerce>1</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -1527,7 +1527,7 @@
 				<iYield>10</iYield>
 				<iYield>0</iYield>
 			</YieldModifiers>
-			<!-- custom: rework state property so it redistributes wealth i.e. hammer here anyways etc, as chatgpt 5.1 confirms after i asked it (but check if accurate i mean) anyways etc, was empty -->
+			<!-- custom: rework state property so it redistributes wealth i.e. hammer here, as chatgpt 5.1 confirms after i asked it (but check if accurate i mean), was empty -->
 			<!-- Mechanically, yes:
 				YieldModifiers (all cities): +10% hammers
 				CapitalYieldModifiers (capital only): -20% hammers
@@ -1834,7 +1834,7 @@
 			<bNoNonStateReligionSpread>1</bNoNonStateReligionSpread>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iNonStateReligionHappiness>0</iNonStateReligionHappiness>
-			<!-- custom: (so civic stays relevant longer in the game and thematically relevant (more belligerent to others anyways etc)), was 0 -->
+			<!-- custom: (so civic stays relevant longer in the game and thematically relevant (more belligerent to others)), was 0 -->
 			<iStateReligionUnitProductionModifier>10</iStateReligionUnitProductionModifier>
 			<iStateReligionBuildingProductionModifier>0</iStateReligionBuildingProductionModifier>
 			<!-- custom: was 2 -->

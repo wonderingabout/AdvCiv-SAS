@@ -12,21 +12,21 @@ Some of the asset rebalancing is shown here (not exhaustive)
 
 ## How to
 
-A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod-anyways-etc) anyways etc.) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table. There may be easier ways to do it, but this one is quite effective and worked for me.
+A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod-anyways-etc)) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table. There may be easier ways to do it, but this one is quite effective and worked for me.
 
 ## Starting techs rework
 
 As it is too lengthy to put in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), here are how we changed the starting civ techs in our mod
 
-### before most recent as of now rework anyways etc
+### before most recent as of now rework
 
-#### main table (chatgpt 5 written anyways etc) - before change anyways etc
+#### main table (chatgpt 5 written) - before change
 
-Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too
+Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too
 
 See below in the main table after changes as it includes the before values as well.
 
-#### Global tech totals (should sum to 70 = 35 civs × 2) - before change anyways etc
+#### Global tech totals (should sum to 70 = 35 civs × 2) - before change
 
 Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe):
 
@@ -38,9 +38,9 @@ Allowed starting techs
 - Hunting:    11
 - Pottery:     2
 
-### after most recent as of now rework anyways etc
+### after most recent as of now rework
 
-After a few or quite many back and forth and reviewing rounds with chatgpt 5 which helped me tons but also me hehe and my own ideas but it helped lot too, here are (below) the adjusted starting techs for civs as of now in advciv-sas, written by chatgpt 5. This was mostly to remove/replace old now removed tech_agriculture and tech_the_wheel starters that are now no longer starting techs, as well as quite along with it rebalance it and rework it all. I think the result is really good at least much better than it was check if accurate anyways etc.
+After a few or quite many back and forth and reviewing rounds with chatgpt 5 which helped me tons but also me hehe and my own ideas but it helped lot too, here are (below) the adjusted starting techs for civs as of now in advciv-sas, written by chatgpt 5. This was mostly to remove/replace old now removed tech_agriculture and tech_the_wheel starters that are now no longer starting techs, as well as quite along with it rebalance it and rework it all. I think the result is really good at least much better than it was check if accurate.
 
 #### main table (chatgpt 5 written with some tweaks from me)
 
@@ -128,7 +128,7 @@ Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too and/or
 
 This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather, as we had issues importing it from our custom leaders_data_to_ or/and it took too much time, due to data being too big or i guess maybe if i'm not mistaken.
 
-#### main table before changes to traits anyways etc
+#### main table before changes to traits
 
 See below in the main table after changes as it includes the before values as well.
 
@@ -204,9 +204,9 @@ See below in the main table after changes as it includes the before values as we
 | Philosophical + Spiritual | 1 |
 | Protective + Spiritual | 1 |
 
-### new state after rework with rationale and/or such anyways etc
+### new state after rework with rationale and/or such
 
-#### main table after changes to traits anyways etc
+#### main table after changes to traits
 
 | Leader | Current Traits | Recommendation | Rationale |
 | --- | --- | --- | --- |
@@ -255,7 +255,7 @@ See below in the main table after changes as it includes the before values as we
 | Shaka | Aggressive, Expansive | **Aggressive, Organized** | Fits Ikhanda-style admin — “charismatic” in Civ terms can imply inspirational popularity; historically he ruled more by fear/discipline. Your pick Aggressive, Organized is perfect (impi/regimental system + logistics). I wouldn’t use Charismatic here. |
 | Sitting Bull | Philosophical, Protective | **Keep** | Visionary/teacher + defensive resistance. |
 | Stalin | Industrious, Aggressive | **Keep** | Forced industrialization + ruthless offensives. |
-| Suleiman | Imperialist, Philosophical | **Keep** | “Lawgiver” persona + patronage of learning fits Philosophical better than Spiritual for gameplay and history; keeps imperial scope. `<!-- custom: plus if i remember enough i read he was quite areligious or religious open no? If so phi might fit better indeed than spi no? Thanks anyways etc thanks -->` |
+| Suleiman | Imperialist, Philosophical | **Keep** | “Lawgiver” persona + patronage of learning fits Philosophical better than Spiritual for gameplay and history; keeps imperial scope. `<!-- custom: plus if i remember enough i read he was quite areligious or religious open no? If so phi might fit better indeed than spi no? Thanks thanks -->` |
 | Suryavarman | Expansive, Creative | **Industrious, Creative** | Builder of Angkor; monumental works + culture. |
 | Tokugawa | Protective, Aggressive | **Protective, Organized** | After unification, policy emphasized internal order, class discipline, and isolation over external aggression; governance beats battlefield ferocity. `<!-- custom: from a very quick search and my intuition/memory of what i read about him, he was very cautious and cunning/scheming rather if i'm not mistaken so maybe aggressive doesn't fit as well; also from a balance standpoint, if he is isolated, he would benefit much more from tax/costs reduction to run smoothly his empire than aggressive right? If i may say i mean -->` |
 | Victoria | Imperialist, Financial | **Keep** | Global empire + finance/trade. |
@@ -281,7 +281,7 @@ See below in the main table after changes as it includes the before values as we
 
 Sanity: 53 leaders × 2 = 106 total assignments.
 
-#### new pairs total count anyways etc
+#### new pairs total count
 
 | Pair | Count |
 | --- | --- |
@@ -335,15 +335,15 @@ Sanity: 53 leaders × 2 = 106 total assignments.
 
 ## Leaders' favourite civics rework
 
-Based on the old base advciv 1.12 data (or current advciv-sas if missing such as for new leaders we added like as of now Ewuare or/and such if any anyways etc), check if accurate anyways etc.
+Based on the old base advciv 1.12 data (or current advciv-sas if missing such as for new leaders we added like as of now Ewuare or/and such if any), check if accurate.
 
-Goal is to make it more historically accurate, balanced in gameplay, and more or less evenly spread (although less of a focus but an additional ideal extra) anyways etc. Also to to account for our reworked/replaced civics such as of now civic_wage_labor, civic_trade_bloc, civic_protectionism, etc.
+Goal is to make it more historically accurate, balanced in gameplay, and more or less evenly spread (although less of a focus but an additional ideal extra). Also to to account for our reworked/replaced civics such as of now civic_wage_labor, civic_trade_bloc, civic_protectionism, etc.
 
-### before changes favourite civics per leader anyways etc
+### before changes favourite civics per leader
 
 See below in the main table after changes as it includes the before values as well.
 
-### before changes favourite civics count per civic anyways etc
+### before changes favourite civics count per civic
 
 | Civic | Count as favourite |
 | --- | --- |
@@ -378,13 +378,13 @@ See below in the main table after changes as it includes the before values as we
 
 - sanity: total favourites across all civics = **53** (should match number of leaders)
 
-### after changes favourite civics per leader anyways etc
+### after changes favourite civics per leader
 
-Done with the help of chatgpt 5.1, and other ais for check-up such as claude sonnet 4.5 and grok 4.1 and others anyways etc, and my reviewing or/and such as well i mean. Check if accurate anyways etc.
+Done with the help of chatgpt 5.1, and other ais for check-up such as claude sonnet 4.5 and grok 4.1 and others, and my reviewing or/and such as well i mean. Check if accurate.
 
 note: as of now advciv-sas civics are (check if updated in sevopedia/xml) wage labor is medieval new, protecitonism is late classical new (replaces mercantilism), environmentalism is removed in favour of trade_bloc (medieval (1300s) at printing press in our mod), and civic_paganism has been renamed to civic_prehistoric_religion (although it's as of now the same civic, just to distinguish/differentiate it from the religion_paganism we as of now added in advciv-sas).
 
-Also i added this info from chatgpt 5.1's thoughts as i found it very accurate and nicely phrased thanks anyways etc: "I think favorite civics should relate to the core of a leader's regime—such as government, legal, or religious systems—not just practices like slavery, which were widespread. For example, Caesar, Hannibal, and Pericles all had slavery—so choosing "Slavery" for one wouldn't add accuracy. Similarly, serfdom or trade bloc membership should be linked more to their regime and identity, not the specific labor practices of their time.".
+Also i added this info from chatgpt 5.1's thoughts as i found it very accurate and nicely phrased thanks: "I think favorite civics should relate to the core of a leader's regime—such as government, legal, or religious systems—not just practices like slavery, which were widespread. For example, Caesar, Hannibal, and Pericles all had slavery—so choosing "Slavery" for one wouldn't add accuracy. Similarly, serfdom or trade bloc membership should be linked more to their regime and identity, not the specific labor practices of their time.".
 
 | Leader | Current Favourite Civic | Recommendation | Rationale |
 | --- | --- | --- | --- |
@@ -393,7 +393,7 @@ Also i added this info from chatgpt 5.1's thoughts as i found it very accurate a
 | Augustus | Representation | **Bureaucracy** | Augustus builds a durable imperial administration (provinces, census, tax, standing army) centered on Rome; Civ-style Bureaucracy is exactly “imperial capital + strong apparatus,” which fits him far better than Representation. |
 | Bismarck | Nationhood | **Keep** | His short, limited wars (1864, 1866, 1870–71) are national unification wars built on conscription and mass mobilization; “Nation in arms” plus post-1871 nation-state management fits Nationhood very well. |
 | Boudica | Universal Suffrage | **Nationhood** | Historically she leads a revolt framed as defending “the people” and their land against Rome, rallying tribes into a war coalition; at Civ scale that is closer to a draft/war-mobilization civic than to late-game elections. We avoid Tribalism as a favourite because it’s an empty civic in your mod. |
-| Brennus | Organized Religion | **Vassalage** | I’d lean to changing Brennus to Vassalage – that gives him something more personal, and different from Boudica, without stretching what we actually know. For this Brennus (279 BCE, Thermopylae/Delphi one), the only clear thing in the sources is that he’s a fearsome coalition war-leader. He commands a big multi-tribal force with subordinate chiefs and warbands – lots of personal loyalty and “follow this chieftain into Greece for plunder.” We know far more about him as an overlord of warriors than as a religious organiser or nation-builder. So: Boudica = Nationhood → “people’s war / uprising of the Britons”. Brennus = Vassalage → “overlord with allied chiefs and retinues on campaign.” That keeps them both Celtic and warlike, but with distinctly different regime “shapes”. `<!-- custom: based on my past research, Brennus was fairly areligious, so after pointing/suggesting/asking chatgpt 5.1 this question/point, it told me organized religion works as a celtic society broad abstraction but not so typical of brennus himself who was not known for his piety or such if i understood it correctly. Since i want something more personalized to leaders ideally, changed it from the old organized religion then instead of keeping same trait anyways etc. It then rereviewed the table again with this perspective/idea in mind and no other change needed for accuracy or such according to it, except for Cyrus (see his line for details anyways etc) check if accurate anyways etc thanks for help lot still chatgpt 5.1 anyways etc: -->` "Short answer: with the Brennus change, I don’t see any other leader where the current favourite civic clearly misses their personal/regime identity in the way “Organized Religion → Brennus” did." anyways etc. |
+| Brennus | Organized Religion | **Vassalage** | I’d lean to changing Brennus to Vassalage – that gives him something more personal, and different from Boudica, without stretching what we actually know. For this Brennus (279 BCE, Thermopylae/Delphi one), the only clear thing in the sources is that he’s a fearsome coalition war-leader. He commands a big multi-tribal force with subordinate chiefs and warbands – lots of personal loyalty and “follow this chieftain into Greece for plunder.” We know far more about him as an overlord of warriors than as a religious organiser or nation-builder. So: Boudica = Nationhood → “people’s war / uprising of the Britons”. Brennus = Vassalage → “overlord with allied chiefs and retinues on campaign.” That keeps them both Celtic and warlike, but with distinctly different regime “shapes”. `<!-- custom: based on my past research, Brennus was fairly areligious, so after pointing/suggesting/asking chatgpt 5.1 this question/point, it told me organized religion works as a celtic society broad abstraction but not so typical of brennus himself who was not known for his piety or such if i understood it correctly. Since i want something more personalized to leaders ideally, changed it from the old organized religion then instead of keeping same trait. It then rereviewed the table again with this perspective/idea in mind and no other change needed for accuracy or such according to it, except for Cyrus (see his line for details) check if accurate thanks for help lot still chatgpt 5.1: -->` "Short answer: with the Brennus change, I don’t see any other leader where the current favourite civic clearly misses their personal/regime identity in the way “Organized Religion → Brennus” did.". |
 | Catherine | Hereditary Rule | **Keep** | Whatever her Enlightenment correspondence, she is an autocratic empress whose legitimacy rests on dynastic monarchy and palace coups; Hereditary Rule is exactly that. |
 | Charlemagne | Vassalage | **Keep** | Carolingian rule is the textbook example of counts, marcher lords, and benefices granted for service; Vassalage is one of the most accurate favourite civic matches in the entire roster. |
 | Churchill | Nationhood | **Keep** | Churchill’s moment is wartime Britain: mass conscription, propaganda, and appeals to “the nation” rather than technocratic administration or economics. Nationhood fits that role. |
@@ -444,7 +444,7 @@ Also i added this info from chatgpt 5.1's thoughts as i found it very accurate a
 
 - sanity: leaders listed in this table = **53** (one favourite civic per leader)
 
-### after changes favourite civics count per civic anyways etc
+### after changes favourite civics count per civic
 
 | Civic | Count as favourite |
 | --- | --- |
@@ -491,9 +491,9 @@ Since its structure and way of doing it was quite differently done (not using ch
 
 According to this document [https://boutique.tropismes.com/bonus/extrait/9782812148347](https://boutique.tropismes.com/bonus/extrait/9782812148347), page 29, Gaul leaders/chiefs (maybe that includes brennus of the Gaul too?) did not exert a strong religious pressure on their people as they were driven by freedom if i understand it correctly.
 
-If this accurate and reliable, i may want/have/need to change brennus's xml to focus less on religion and more on civis, perhaps even boudica's but there may be more data on her since she is more recent, and i didn't look yet anyways etc (at least not in detail, only that she was seemingly more religious at least than what i know now of brenus if this doc is accurate, but it was quick glance too on boudica anyways so may look later or maybe not though.), so may apply this to brennus only or/and other similar leaders or not anyways etc.
+If this accurate and reliable, i may want/have/need to change brennus's xml to focus less on religion and more on civis, perhaps even boudica's but there may be more data on her since she is more recent, and i didn't look yet (at least not in detail, only that she was seemingly more religious at least than what i know now of brenus if this doc is accurate, but it was quick glance too on boudica anyways so may look later or maybe not though.), so may apply this to brennus only or/and other similar leaders or not.
 
-Note: in advciv-sas as of now confucianism has been removed and replaced with paganism religion anyways etc.
+Note: in advciv-sas as of now confucianism has been removed and replaced with paganism religion.
 
 #### Churchill
 
@@ -516,7 +516,7 @@ as for Ewuare (kingdom of benin), christianity seems to be an important part of 
 
 #### Frederick
 
-frederick seems to be agnostic (quite strongly xd from the very little read i had here (in french) which is quite funny, the ironic pleasantry/plaisanterie in his letter anyways etc.): [https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)](https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)); but i read little about it and this page seems enough to say he is agnostic indeed maybe anyways etc, but seems a bit enough.
+frederick seems to be agnostic (quite strongly xd from the very little read i had here (in french) which is quite funny, the ironic pleasantry/plaisanterie in his letter): [https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)](https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)); but i read little about it and this page seems enough to say he is agnostic indeed maybe, but seems a bit enough.
 
 update: since i can't find what this refers to at a quick glance, i now asked chatgpt 5.1 about it still no luck xd. My best guess is in one of his correspondances with someone else he noted how something is ironic or/and paradoxical, this is how i remember it but nothing specific, maybe i should have written it or maybe not since i didn't. At least i tried xd maybe i mean.
 
@@ -526,7 +526,7 @@ genghis khan seems to have been tengrist something i mean anyways, but according
 
 >Bien que Gengis Khan ait été avant tout tengriste, il manifesta un grand respect à l'égard du dirigeant de la secte taoïste Quanzhen, Qiu Chuji, lorsque celui-ci lui rendit visite dans l'Hindou Kouch, à Kaboul, en 1222, à son invitation, et prédit la conquête de la Chine par les Mongols. En retour, Gengis Khan lui donna d'importants pouvoirs politiques et religieux. Il fut exempté de taxes, et depuis Pékin, sa secte fut la plus favorisée de l'Empire Mongol. Il défendit la liberté d'autogestion des autres sectes, auprès du khagan, qu'il s'agisse des taoïstes, des bouddhistes, des chrétiens nestoriens ou des musulmans[18].
 
-therefore, it is not incorrect to say, among civ4 advciv-sas's religions in particular, hat his favourite religion, if he had to choose one, is not none but maybe rather indeed daoism, is also quie convenient even though was not main goal that this is not filled., one leader can have a favourite religion even though not having said religion themselves; this is perhaps an important distinction i should add in changelogs and added now anyways etc.
+therefore, it is not incorrect to say, among civ4 advciv-sas's religions in particular, hat his favourite religion, if he had to choose one, is not none but maybe rather indeed daoism, is also quie convenient even though was not main goal that this is not filled., one leader can have a favourite religion even though not having said religion themselves; this is perhaps an important distinction i should add in changelogs and added now.
 
 #### Lincoln
 
@@ -541,7 +541,7 @@ i did not look at them in (long) detail, but i think in detail enough hopefully.
 
 #### Pericles
 
-pericles prefers religion according to [https://ehne.fr/fr/eduscol/pericles-est-il-vraiment-le-grand-homme-de-la-democratie-athenienne#:~:text=Enfin%2C%20P%C3%A9ricl%C3%A8s%20s'est%20appuy%C3%A9,ont%20beaucoup%20fait%20pour%20la](https://ehne.fr/fr/eduscol/pericles-est-il-vraiment-le-grand-homme-de-la-democratie-athenienne#:~:text=Enfin%2C%20P%C3%A9ricl%C3%A8s%20s'est%20appuy%C3%A9,ont%20beaucoup%20fait%20pour%20la) so going with religion paganism hopefully accurate enough anyways etc.
+pericles prefers religion according to [https://ehne.fr/fr/eduscol/pericles-est-il-vraiment-le-grand-homme-de-la-democratie-athenienne#:~:text=Enfin%2C%20P%C3%A9ricl%C3%A8s%20s'est%20appuy%C3%A9,ont%20beaucoup%20fait%20pour%20la](https://ehne.fr/fr/eduscol/pericles-est-il-vraiment-le-grand-homme-de-la-democratie-athenienne#:~:text=Enfin%2C%20P%C3%A9ricl%C3%A8s%20s'est%20appuy%C3%A9,ont%20beaucoup%20fait%20pour%20la) so going with religion paganism hopefully accurate enough.
 
 #### Wang Kon
 
@@ -549,15 +549,15 @@ for wang kon, according to civ4 wiki (in [https://civilization.fandom.com/wiki/W
 
 >During his reign Wang Kon promoted Buddhism as the state religion, and oversaw the conquest of northern Korea and parts of Manchuria. When dealing with local clans,
 
-if i am not mistaken, he promoted buddhism as the state religion; i don't know why his preferred religion was confucianism, but since there is no confucianism anymore now in advciv-sas, he leans closer (i think) to buddhism based on this maybe anyways etc. than say paganism or none religion (favourite), is convenient to increase buddhism leader count that is really low and not increase paganism leader count that is high enough (a bit too high but historically fine and matching christinaity so maybe fine too anyways etc); Hopefully fine enough and accurate enough even though not exhaustive.
+if i am not mistaken, he promoted buddhism as the state religion; i don't know why his preferred religion was confucianism, but since there is no confucianism anymore now in advciv-sas, he leans closer (i think) to buddhism based on this maybe. than say paganism or none religion (favourite), is convenient to increase buddhism leader count that is really low and not increase paganism leader count that is high enough (a bit too high but historically fine and matching christinaity so maybe fine too); Hopefully fine enough and accurate enough even though not exhaustive.
 
 ### Other leaders
 
-Not documented in my old notes (sometimes as of now directly in XML code comments near `<FavoriteReligion>` it seems (but check to be sure anyways etc.)), but many leaders have also been changed, mostly if not only to paganism.
+Not documented in my old notes (sometimes as of now directly in XML code comments near `<FavoriteReligion>` it seems (but check to be sure)), but many leaders have also been changed, mostly if not only to paganism.
 
-### Summary of the favourite religion leaders' changes in advciv-sas anyways etc
+### Summary of the favourite religion leaders' changes in advciv-sas
 
-A summary of my previous notes with the help of chatgpt 5.1 (check if accurate anyways etc.) anyways etc, showing base advciv's (except for some leader(s) like Ewuare since they didn't exist in base advciv) favourite religion vs advciv-sas.
+A summary of my previous notes with the help of chatgpt 5.1 (check if accurate), showing base advciv's (except for some leader(s) like Ewuare since they didn't exist in base advciv) favourite religion vs advciv-sas.
 
 | Leader | Base | New | Rationale |
 | --- | --- | --- | --- |

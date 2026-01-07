@@ -116,7 +116,7 @@ class SevoPediaImprovement:
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getImprovementInfo(self.iImprovement).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
-		# <!-- custom: move base yield info from yields panel to the improvement_pane panel, prettier or/adn clearer/more accurate as well maybe anyways etc (a bit like in sevopedia terrain and sevopedia feature anyways etc) -->
+		# <!-- custom: move base yield info from yields panel to the improvement_pane panel, prettier or/adn clearer/more accurate as well maybe (a bit like in sevopedia terrain and sevopedia feature) -->
 		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
 		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town)
 		s = u""
@@ -150,7 +150,7 @@ class SevoPediaImprovement:
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: prettier and clearer without the/a header anyways etc, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or/and more closely if i am not mistaken too -->
+		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or/and more closely if i am not mistaken too -->
 		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.addPanel( panelName, "", "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
 
@@ -178,7 +178,7 @@ class SevoPediaImprovement:
 	def placeBonusYields(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: prettier and clearer without the/a header anyways etc, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or/and more closely if i am not mistaken too -->
+		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or/and more closely if i am not mistaken too -->
 		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES", ()), "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.addPanel( panelName, "", "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
 		info = gc.getImprovementInfo(self.iImprovement)
@@ -229,7 +229,7 @@ class SevoPediaImprovement:
 
 
 
-	# <!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ) anyways etc, also with gemini ai's help too thanks a lot as well anyways etc, and adjusted or not for advciv-sas -->
+	# <!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ), also with gemini ai's help too thanks a lot as well, and adjusted or not for advciv-sas -->
 	def placeMostYields(self):
 		screen = self.top.getScreen()
 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
@@ -319,7 +319,7 @@ class SevoPediaImprovement:
 				#screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Determine which concept to link to based on the route type.
 				routeInfo = gc.getRouteInfo(item)
-				# <!-- custom: as of now if i am not mistaken with a conceptIDToRoute of -1 we would get with get_concept_widgetType_widgetID1_widgetID2 anyways etc an id1 -1 and id2 -1 and widget general too so maybe fine for not crash, else i'd still want it to crash loudly rather than silently, as i said to gemini ai too who approved of it hehe as they (ais) usually do but i believe sitll provided some critical thinking or non-opposition one with my idea maybe if i am not mistaken but in all cases thanks for being my echo chamber xd gemini ai if i may say yo helped me lot if i may say here too anyways etc and other ais as well thanks i mean too, but since this seems safe enough in handling fallback no redirect, maybe leave as is and do not write a hard crash if missing at load such as what we do as of now for the getters in sevopedia leader for example if i remember correctly and am not mistaken i mean (i think not but in case and to be safe who knows) -->
+				# <!-- custom: as of now if i am not mistaken with a conceptIDToRoute of -1 we would get with get_concept_widgetType_widgetID1_widgetID2 an id1 -1 and id2 -1 and widget general too so maybe fine for not crash, else i'd still want it to crash loudly rather than silently, as i said to gemini ai too who approved of it hehe as they (ais) usually do but i believe sitll provided some critical thinking or non-opposition one with my idea maybe if i am not mistaken but in all cases thanks for being my echo chamber xd gemini ai if i may say yo helped me lot if i may say here too and other ais as well thanks i mean too, but since this seems safe enough in handling fallback no redirect, maybe leave as is and do not write a hard crash if missing at load such as what we do as of now for the getters in sevopedia leader for example if i remember correctly and am not mistaken i mean (i think not but in case and to be safe who knows) -->
 				# Initialize with invalid ID
 				conceptIDToRoute = -1
 				# Check if it's a Road or Railroad, or a general Route concept

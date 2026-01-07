@@ -1177,7 +1177,7 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_HELP_YIELD_CHANGE:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Improvement");
 		break;
-	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel bonuses at tech_animal_husbandry anyways etc) generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only anyways etc; result: fixed the issue it seems! So left as such -->
+	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel bonuses at tech_animal_husbandry) generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only; result: fixed the issue it seems! So left as such -->
 	case WIDGET_HELP_BONUS_REVEAL:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");
 		break;

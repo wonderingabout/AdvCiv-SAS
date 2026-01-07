@@ -4310,7 +4310,7 @@
 					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<!-- custom: note: this seemingly does nothing as barbarians still build libraries if i am not mistaken about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so anyways etc at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues) anyways etc) as they do in autoplay at least-->
+				<!-- custom: note: this seemingly does nothing as barbarians still build libraries if i am not mistaken about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues)) as they do in autoplay at least-->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
@@ -4332,12 +4332,12 @@
 					<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless, anyways etc)-->
+				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless)-->
 			</Buildings>
 
 
 
-			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv anyways etc: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such, anyways etc) if they can last long enough in this case until then-->
+			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such) if they can last long enough in this case until then-->
 			<!-- advc.303: Not sure where comments are allowed in this file;
 			demonstrably not everywhere. Added NONE entries to the Barbarians
 			starting at Monument (still called "Obelisk" internally) until

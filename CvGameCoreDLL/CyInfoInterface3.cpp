@@ -44,7 +44,7 @@ void CyInfoPythonInterface3()
 		.def("getMaxGoldTradePercent", &CvLeaderHeadInfo::getMaxGoldTradePercent, "int ()")
 		.def("getMaxGoldPerTurnTradePercent", &CvLeaderHeadInfo::getMaxGoldPerTurnTradePercent, "int ()")
 
-		// <!-- custom: as for BBAI weights getter methods if i am not mistaken, they are not exposed in sevopedia leader (gc) so we can't access their data in python, so adding them for our AI personality panel's code to display them directly from xml, based on the BBAI code sample i have found in CvInfo_Civilization.h, based on the fact that getMaxWarRand is here as well yet BBAI is specifically missing here -->
+		// <!-- custom: as for BBAI weights getter methods, they are not exposed in sevopedia leader (gc) so we can't access their data in python, so adding them for our AI personality panel's code to display them directly from xml, based on the BBAI code sample i have found in CvInfo_Civilization.h, based on the fact that getMaxWarRand is here as well yet BBAI is specifically missing here -->
 		.def("getCultureVictoryWeight", &CvLeaderHeadInfo::getCultureVictoryWeight, "int ()")
 		.def("getSpaceVictoryWeight", &CvLeaderHeadInfo::getSpaceVictoryWeight, "int ()")
 		.def("getConquestVictoryWeight", &CvLeaderHeadInfo::getConquestVictoryWeight, "int ()")

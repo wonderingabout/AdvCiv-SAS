@@ -10,7 +10,7 @@
 		old barbarian button code:
 			<Button>,Art/interface/LeaderHeads/Btn_LH_Mongol_Genghis.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,12</Button>
 		new button imported from Realism invictus mod's .fpk and specifically and only this button
-		extracted (not all the files only this one we need anyways etc) with dragon unpacker, at file:
+		extracted (not all the files only this one we need) with dragon unpacker, at file:
 		C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface0.FPK
 		with some adjustments or not for AdvCiv-SAS
 		-->
@@ -463,7 +463,7 @@
 		</LeaderheadArtInfo>
 		-->
 
-		<!-- custom: example from history rewritten mod, where we took leader_ewuare (kingdom of benin)'s animation and such all art assets after our initial static image approach, to use the many available one, while keeping consistency with the existing concept in civ4 of images being animated which is quite nice, and since we have so many animations available in all mods, better use them rather at least when we can anyways etc:
+		<!-- custom: example from history rewritten mod, where we took leader_ewuare (kingdom of benin)'s animation and such all art assets after our initial static image approach, to use the many available one, while keeping consistency with the existing concept in civ4 of images being animated which is quite nice, and since we have so many animations available in all mods, better use them rather at least when we can:
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_EWUARE</Type>
 			<Button>Art/LeaderHeads/Ewuare/Button_Ewuare.dds</Button>
@@ -478,7 +478,7 @@
 
 
 
-		<!-- custom: art import from HR mod if i am not mistaken from my memories of it i mean and from it being most likely as HR has the nigerian civilization with many related(ing? Anyways etc) leaders if i am not mistaken as well -->
+		<!-- custom: art import from HR mod if i am not mistaken from my memories of it i mean and from it being most likely as HR has the nigerian civilization with many related(ing?) leaders if i am not mistaken as well -->
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_EWUARE</Type>
 			<Button>Art/AdvCiv_SAS/LeaderHeads/Ewuare/Button_Ewuare.dds</Button>

@@ -21,7 +21,7 @@ and modified or not for our needs in advciv-sas -->
 
 
 
-	<!-- custom: add mention that this does not include plot types (if i am not mistaken (such as hills, peak, if i am not mistaken as well anyways etc)), renamed asset as such; "some" as ocean is included since we show the ice cap (i.e. ice feature in base advciv +/- civ4 anyways etc) feature -->
+	<!-- custom: add mention that this does not include plot types (if i am not mistaken (such as hills, peak, if i am not mistaken as well)), renamed asset as such; "some" as ocean is included since we show the ice cap (i.e. ice feature in base advciv +/- civ4) feature -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES</Tag>
 		<English>Terrains (Minus some Plot types)</English>

@@ -580,7 +580,7 @@ class CvMainInterface:
 		gSetSquare("GlobeToggle", "Top", 0, 0, BTNSZ(36))
 		self.setMiniMapRects()
 
-		# <!-- custom: enlarge the bottom panels now that we increased self.SIDE_PANELS_WIDTH to fit more info, so that the bottom panel is aligned with the enlarged side panels (that have bonuses, etc.), as chatgpt 5.2 confirmed thanks a lot anyways etc. Note: somehow width is slightly too low and not enough with just self.SIDE_PANELS_WIDTH, so adding some extra manual adjustment anyways etc. Doing it this way i could confirm chatgpt 5.2's explanation seems correct (check if accurate) -->
+		# <!-- custom: enlarge the bottom panels now that we increased self.SIDE_PANELS_WIDTH to fit more info, so that the bottom panel is aligned with the enlarged side panels (that have bonuses, etc.), as chatgpt 5.2 confirmed thanks a lot. Note: somehow width is slightly too low and not enough with just self.SIDE_PANELS_WIDTH, so adding some extra manual adjustment. Doing it this way i could confirm chatgpt 5.2's explanation seems correct (check if accurate) -->
 		# also ensure CenterBottomPanel starts to the right of CityLeftPanel (needs +8 because LowerLeftCorner trims -8).
 		iEstimatedBottomPanelsExtraWidth = 8
 		iEstimatedBottomPanelsWidth = self.SIDE_PANELS_WIDTH + iEstimatedBottomPanelsExtraWidth
@@ -1141,7 +1141,7 @@ class CvMainInterface:
 			gSetPoint(szPrefix + "BUG", PointLayout(
 					gRect("CommerceSliderBtns3").xRight() + HSPACE(3), iY))
 
-			# <!-- custom after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui. thanks anyways etc.) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically -->
+			# <!-- custom after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui. thanks) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically -->
 			# iEstimatedCommerceRightMargin = 16
 			iEstimatedCommerceRightMargin = 20
 			iEstimatedLeftSideSize = 152
@@ -1483,7 +1483,7 @@ class CvMainInterface:
 		iBonusBackrOverhang = min(VSPACE(16),
 				gRect("SpecialistLabelBackground").height())
 
-		# <!-- custom: make it even between the 3 bonus columns, since we have more room and cleaner as such and in case the strategy bonuses use some effects or such, they'd need some room to show them anyways etc. Done with the help of gemini 3 pro, check if accurate anyways etc. Also use a variable so it dynamically adjusts to total side width in case we want to change it later anyways etc. Also account for the margins, the total width seems to be effectively quite a bit less than max, empirically reduce it a bit to adjust for that. Note: i tried 15 instead of 2 * 8 but it seems to give same result than 2 * 7 (i.e. 14 and 15 are not different somehow if i'm not mistaken, only 14 or 16 show a difference visually ingame) so went with 2 * 8 rather than 2 * 7 as it seems prettier to me as such even though a bit too wide but the other is too tight -->
+		# <!-- custom: make it even between the 3 bonus columns, since we have more room and cleaner as such and in case the strategy bonuses use some effects or such, they'd need some room to show them. Done with the help of gemini 3 pro, check if accurate. Also use a variable so it dynamically adjusts to total side width in case we want to change it later. Also account for the margins, the total width seems to be effectively quite a bit less than max, empirically reduce it a bit to adjust for that. Note: i tried 15 instead of 2 * 8 but it seems to give same result than 2 * 7 (i.e. 14 and 15 are not different somehow if i'm not mistaken, only 14 or 16 show a difference visually ingame) so went with 2 * 8 rather than 2 * 7 as it seems prettier to me as such even though a bit too wide but the other is too tight -->
 		iBonusTableTableWidth = self.SIDE_PANELS_WIDTH - (2 * 8)
 		iBonusTableColumnWidth = iBonusTableTableWidth / 3
 		gSetRect("BonusPane0", "CityRightPanelContents",
@@ -3574,7 +3574,7 @@ class CvMainInterface:
 						iCount += 1
 						bFound = True
 
-				# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks -->
+				# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather). Fix with the help of chatgpt 5.2 thanks -->
 				# 3) Replace the selectMultiList(...getCityTabSelectionRow()) in the city-screen block
 				# <!-- custom: note: after applying all the 3 steps of this fix, when clicking on lower rows while we are in the top rows sections, we successfully prevent auto-scrolling down as we want, however it seems that when we click on the upper rows while we are in the bottom rows sections, then we auto-scroll back to top. It may not be ideal; or, maybe this is a nice side effect we can keep, as bottom rows mostly only have wonders and processes, and we don't want to build too many of them anyway, so kept as such -->
 				# screen.selectMultiList("BottomButtonList", CyInterface().getCityTabSelectionRow())
@@ -7420,7 +7420,7 @@ class CvMainInterface:
 				return self.MainInterfaceInputMap.get(inputClass.getFunctionName() + "1")(inputClass)
 # BUG - PLE - end
 
-			# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks -->
+			# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather). Fix with the help of chatgpt 5.2 thanks -->
 			# 2) Update that pin only when the user clicks the city tab / scroll arrows
 			# Prevent BottomButtonList from auto-jumping when showing multiple build rows
 			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:

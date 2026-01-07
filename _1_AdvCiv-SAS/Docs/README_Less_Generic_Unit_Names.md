@@ -2,7 +2,7 @@
 
 As this will be expanded later if it is at all, moving this part of the README to a specific file or/and also to not clutter main README.md.
 
-I think some unit names are very lousy, for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. But, if want to do it (more maybe at least if i may say anyways etc) properly, i have some cool unit names in mind. Not sure it would be implemented, but ideally or/and maybe, here are some ideas i have.
+I think some unit names are very lousy, for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. But, if want to do it (more maybe at least if i may say) properly, i have some cool unit names in mind. Not sure it would be implemented, but ideally or/and maybe, here are some ideas i have.
 
 ## Menu
 
@@ -10,17 +10,17 @@ I think some unit names are very lousy, for example for "spearman" it's basicall
 
 ## Less generic or inaccurate unit names or/and combat types (todo and non-exhaustive)
 
-I found these possibly more epic and badass (i think but anyways) names after a quick bit of research or intutiion/idea of mine or and such or that i saw somewhere or something similar anyways etc, so using this instead, see below, anyways.
+I found these possibly more epic and badass (i think but anyways) names after a quick bit of research or intutiion/idea of mine or and such or that i saw somewhere or something similar, so using this instead, see below, anyways.
 
-Some other units also have a more problematic name, as they are very inaccurate. For example a Knight is a title if i am not mistaken, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry (update note: since then reframed as dragoon units anyways etc.) could be in any era if i'm not mistaken but need to check too or/and more, anyways:
+Some other units also have a more problematic name, as they are very inaccurate. For example a Knight is a title, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry (update note: since then reframed as dragoon units) could be in any era if i'm not mistaken but need to check too or/and more, anyways:
 
-- Spearman: Lancer (Light, Medium, Heavy), similar reasoning maybe at a different era instead not sure anyways etc
+- Spearman: Lancer (Light, Medium, Heavy), similar reasoning maybe at a different era instead not sure
 - Axeman: Battle Axe Warrior
-- Swordsman: Swordsfighter (Light, Medium, Heavy) or use it if we add an ealier or later sword unit at a different era, or maybe Swordsmaster instead anyways etc
+- Swordsman: Swordsfighter (Light, Medium, Heavy) or use it if we add an ealier or later sword unit at a different era, or maybe Swordsmaster instead
 - Maceman: Mace Warrior? Keep Maceman here? (But would be inconsistent then or not immersive if others don't have man too, anyways, also mace warrior is quite cool too i think, but anyways)
 
-- Longbowman: Longbow? Longbow Soldier? Similar reasoning anyways etc
-- Crossbowman: Crossbow? Crossbow Soldier? Similar reasoning anyways etc
+- Longbowman: Longbow? Longbow Soldier? Similar reasoning
+- Crossbowman: Crossbow? Crossbow Soldier? Similar reasoning
 - Rifleman: Rifle Soldier?
 
 - Chariot: Charioteer? War Chariot?
@@ -31,7 +31,7 @@ Some other units also have a more problematic name, as they are very inaccurate.
 - Camel Lancer Knight
 - Camel Swordsfighter Knight
 
-- Cavalry (update note: since then reframed as dragoon units anyways etc.): Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
+- Cavalry (update note: since then reframed as dragoon units): Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
 
 Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by XP system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
 

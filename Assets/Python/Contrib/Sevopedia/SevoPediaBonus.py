@@ -40,7 +40,7 @@ class SevoPediaBonus:
 		self.W_BONUS_PANE = (self.top.R_PEDIA_PAGE - self.X_BONUS_PANE - self.MEDIUM_MARGIN) / 2
 		self.H_BONUS_PANE = 250
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -175,7 +175,7 @@ class SevoPediaBonus:
 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
 		
-		# <!-- custom: handle multiple potential yield changes anyways etc by separating the header from yield stats display --> 
+		# <!-- custom: handle multiple potential yield changes by separating the header from yield stats display --> 
 		szTextHeader = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES", ()) + "\n" + u"</b></font>"
 		screen.appendListBoxString(panelName, szTextHeader, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -555,7 +555,7 @@ class SevoPediaBonus:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
-		# <!-- custom: code added with the help of claude ai thanks anyways etc based on our existing code on advciv-sas and my prompt too and/or such -->
+		# <!-- custom: code added with the help of claude ai thanks based on our existing code on advciv-sas and my prompt too and/or such -->
 		if IS_SHOW_AI_INFO:
 			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION"
 		else:

@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Leader Infos and AI Settings -->
-<!-- custom: remember or/and be careful anyways etc to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown if i am not mistaken too -->
+<!-- custom: remember or/and be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown if i am not mistaken too -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<LeaderHeadInfos>
 		<LeaderHeadInfo> <!-- custom: Barbarian (add leader name here too for easier vs code tree read while in the file) -->
@@ -110,7 +110,7 @@
 			<MemoryDecays/>
 			<MemoryAttitudePercents/>
 			<NoWarAttitudeProbs/>
-			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
+			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
 			Make sure to build enough workers and early enough to develop the land too.
 			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend.
 			It seems also 25 (for UNITAI_WORKER) is not enough to make enough workers and fast/soon enough, trying a higher number.
@@ -240,7 +240,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to some leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games, was 0 -->
+			<!-- custom: additionally to iBuildUnitProb changes to some leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games, was 0 -->
 			<iBuildUnitProb>10</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
@@ -905,7 +905,7 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games -->
+			<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -3783,7 +3783,7 @@
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
-			<!-- custom: rebalanced according to and with the help of chatgpt o3 much later anyways etc to follow civ4 original format, i had done 5 military 3 growth 2 religion originally anyways etc, hopefully more accurate this way and civ4 compliant and also reliable for ai personality panel display and compare too -->
+			<!-- custom: rebalanced according to and with the help of chatgpt o3 much later to follow civ4 original format, i had done 5 military 3 growth 2 religion originally, hopefully more accurate this way and civ4 compliant and also reliable for ai personality panel display and compare too -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -3870,7 +3870,7 @@
 					<iWeightModifier>60</iWeightModifier>
 				</UnitAIWeightModifier>
 			</UnitAIWeightModifiers>
-			<!-- custom: add workshop as per chatgpt's recommendation after it did a web search plus feeding it our pedia entry that is wiki based anyways etc if it remembered it quite accurately since the quite many prompts we did, among other uncommented xml changes -->
+			<!-- custom: add workshop as per chatgpt's recommendation after it did a web search plus feeding it our pedia entry that is wiki based if it remembered it quite accurately since the quite many prompts we did, among other uncommented xml changes -->
 			<ImprovementWeightModifiers>
 				<ImprovementWeightModifier>
 					<ImprovementType>IMPROVEMENT_TOWN</ImprovementType>
@@ -6192,7 +6192,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: increase julius caesar war tendency/profile a bit, asking chatgpt it seems that he has such a profile from little or not or quite bit or not i know about him, chatgpt also says augustus caesar would be a bit less anyways etc, it does seem they don't wage war enough anyways etc in base advciv at least (+/- civ4?), so increasing it quite a bit if not cautiosuly but quite decisively more... to see and maybe accurate, also asked it to double check no web search on search and try to balance it with other leaders, this value of 40 seems a better fit anwyays etc, was 30 -->
+			<!-- custom: increase julius caesar war tendency/profile a bit, asking chatgpt it seems that he has such a profile from little or not or quite bit or not i know about him, chatgpt also says augustus caesar would be a bit less, it does seem they don't wage war enough in base advciv at least (+/- civ4?), so increasing it quite a bit if not cautiosuly but quite decisively more... to see and maybe accurate, also asked it to double check no web search on search and try to balance it with other leaders, this value of 40 seems a better fit anwyays etc, was 30 -->
 			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
@@ -9071,7 +9071,7 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<!-- Qin Shi Huang: was CIVIC_BUREAUCRACY -->
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may or not be related but hopefully accurate enough anyways etc. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or/and some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
+			<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may or not be related but hopefully accurate enough. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or/and some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
 			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>

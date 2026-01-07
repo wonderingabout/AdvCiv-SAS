@@ -1,4 +1,4 @@
-comment block with all or many attributes/fields infos is taken from Doto mod in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml, i don't know if all applies to us but good to have this info so adding it to our file, and thanks too for it anyways etc, serves as additional info to confirm our hypothesis/observation/external civ4 doc/wiki read website that areacleanpower (all cities power) is indeed clean not 0 unhealthy anyways etc
+comment block with all or many attributes/fields infos is taken from Doto mod in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml, i don't know if all applies to us but good to have this info so adding it to our file, and thanks too for it, serves as additional info to confirm our hypothesis/observation/external civ4 doc/wiki read website that areacleanpower (all cities power) is indeed clean not 0 unhealthy
 
 
 

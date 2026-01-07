@@ -184,7 +184,7 @@ class SevoPediaPromotion:
 		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc anyways etc, check if accurate -->
+		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc, check if accurate -->
 		# Loop through all units to find those with this promotion
 		for iUnit in xrange(gc.getNumUnitInfos()):
 			unitInfo = gc.getUnitInfo(iUnit)
@@ -243,7 +243,7 @@ class SevoPediaPromotion:
 		## <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc anyways etc, check if accurate -->
+		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc, check if accurate -->
 		# Loop through all buildings to find those that grant this promotion
 		for iBuilding in range(gc.getNumBuildingInfos()):
 			buildingInfo = gc.getBuildingInfo(iBuilding)
@@ -285,7 +285,7 @@ class SevoPediaPromotion:
 		i = 0
 		for iI in range(gc.getNumUnitCombatInfos()):
 			if (0 != gc.getPromotionInfo(self.iPromotion).getUnitCombat(iI)):
-				# <!-- custom: note: i had removed the `iRow = screen.appendTableRow(szTable)` line to fix ruff warning of variable being unused so cleaning this up, after having asked chatgpt this seemed fine and safe to do and we had no errors so maybe was solved as well (as in sevopedia unit ruff warning fix/cleanup as well anyways etc) anyways etc, other sevopedia classes didn't seem to have a similar issue from quick glance at each file, although i had not investigated it in depth, was hopefully fine i thought, and if in doubt i could have checked ingame display to see if it matches xml info, in sevopedia anyways etc. However: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
+				# <!-- custom: note: i had removed the `iRow = screen.appendTableRow(szTable)` line to fix ruff warning of variable being unused so cleaning this up, after having asked chatgpt this seemed fine and safe to do and we had no errors so maybe was solved as well (as in sevopedia unit ruff warning fix/cleanup as well), other sevopedia classes didn't seem to have a similar issue from quick glance at each file, although i had not investigated it in depth, was hopefully fine i thought, and if in doubt i could have checked ingame display to see if it matches xml info, in sevopedia. However: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
 				# iRow = screen.appendTableRow(szTable)
 				screen.appendTableRow(szTable)
 				screen.setTableText(szTable, 0, i, u"<font=2>" + gc.getUnitCombatInfo(iI).getDescription() + u"</font>", gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)

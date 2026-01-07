@@ -991,7 +991,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 		szString.append(NEWLINE);
 		szString.append(gDLL->getText(
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004: short version
-				pUnit->collateralDamage(), // <!-- custom: add missing iCollateralDamage info as well, for example <iCollateralDamage>25</iCollateralDamage>; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well-->
+				pUnit->collateralDamage(), // <!-- custom: add missing iCollateralDamage info as well, for example <iCollateralDamage>25</iCollateralDamage>; added thanks to chatgpt's help as well and me guessing or adjusting it as well-->
 				pUnit->collateralDamageLimit(),
 				pUnit->collateralDamageMaxUnits())); // advc.004
 		// <!-- custom: if i am not mistaken the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA should not be an else conditional display but a cumulative effect with the base collateral damage, so showing both as well -->
@@ -9093,7 +9093,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
-	// <!-- custom: move these impassable blocks near the other and following anyways etc canMoveImpassable() block -->
+	// <!-- custom: move these impassable blocks near the other and following canMoveImpassable() block -->
 	{
 		bool bFirst = true;
 		szTempBuffer.Format(L"%s%s ", NEWLINE,
@@ -9355,7 +9355,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		szBuffer.append(gDLL->getText(/* advc.004: */ bCivilopediaText ?
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE" :
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004
-				u.getCollateralDamage(), // <!-- custom: add missing iCollateralDamage info as well, for example <iCollateralDamage>25</iCollateralDamage>; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well-->
+				u.getCollateralDamage(), // <!-- custom: add missing iCollateralDamage info as well, for example <iCollateralDamage>25</iCollateralDamage>; added thanks to chatgpt's help as well and me guessing or adjusting it as well-->
 				iCollateralDamageLimit,
 				u.getCollateralDamageMaxUnits()));// advc.004
 	}
@@ -9370,7 +9370,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
-	// <!-- custom: in sevopedia, now that we display them as buttons in a specific/dedicated panel anyways etc, with txtNum for each (for example ("+50/-30", "__/-30", "+50/__", etc) rather in sevopedia unit, we don't need the old cumbersome data, so hiding it from sevopedia placeSpecial, while still keeping it in game at least for now if not always or not -->
+	// <!-- custom: in sevopedia, now that we display them as buttons in a specific/dedicated panel, with txtNum for each (for example ("+50/-30", "__/-30", "+50/__", etc) rather in sevopedia unit, we don't need the old cumbersome data, so hiding it from sevopedia placeSpecial, while still keeping it in game at least for now if not always or not -->
 	if (!bCivilopediaText)
 	{
 		if (u.getCityAttackModifier() == u.getCityDefenseModifier())
@@ -9421,7 +9421,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				u.getDropRange()));
 	}
 
-	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore anyways etc as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not -->
+	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not -->
 	if (!bCivilopediaText)
 	{
 		if (u.getHillsDefenseModifier() == u.getHillsAttackModifier())
@@ -9681,7 +9681,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			szBuffer.append(szTempBuffer);
 		}
 	} // </advc.905b>
-	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken. -->
+	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar), so safe to remove and uneeded to keep now, if i am not mistaken. -->
 	if (!bCivilopediaText)
 	{
 		bool bFirst = true;
@@ -9743,7 +9743,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	CvUnitClassInfo const& kUnitClass = GC.getInfo(eUnitClass); // advc
 	UnitTypes const eDefaultUnit = kUnitClass.getDefaultUnit();
 
-	// <!-- custom: in sevopedia, now that we have the new placeCivilizations added by Claude AI and my prompt and adjustments anyways etc., we don't need the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc). -->
+	// <!-- custom: in sevopedia, now that we have the new placeCivilizations added by Claude AI and my prompt and adjustments , we don't need the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example). -->
 	if (!bCivilopediaText)
 	{
 		if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
@@ -9760,7 +9760,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 							GC.getInfo(eLoopCivilization).getTextKeyWide()));
 				}
 			}
-			// <!-- custom: in sevopedia, we now have a placeReplace panel, so we don't need this extra replaces line anyways etc. (see sevopedia unit for details) -->
+			// <!-- custom: in sevopedia, we now have a placeReplace panel, so we don't need this extra replaces line. (see sevopedia unit for details) -->
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
 					GC.getInfo(eDefaultUnit).getTextKeyWide()));
@@ -10127,7 +10127,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
-	// // <!-- custom: in sevopedia, we now have a placeReplace method/function in sevopedia unit, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
+	// // <!-- custom: in sevopedia, we now have a placeReplace method/function in sevopedia unit, so we don't need and don't want anymore this extra replaced by field/line (see sevopediaunit.py for details) -->
 	// if (bCivilopediaText)
 	// {
 	// 	if (eDefaultUnit == eUnit)
@@ -10725,7 +10725,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
 
-		// <!-- custom: split the message info between/to cover anyways etc clean and dirty cases -->
+		// <!-- custom: split the message info between/to cover clean and dirty cases -->
 		/*if (kBuilding.isDirtyPower() && (GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE) != 0)) {
 			szTempBuffer.Format(L" (+%d%c)", abs(GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE)), ((GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE) > 0) ? gDLL->getSymbolID(HEALTHY_CHAR): gDLL->getSymbolID(UNHEALTHY_CHAR)));
 			szBuffer.append(szTempBuffer);
@@ -10766,7 +10766,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
 		// <!-- custom: also add the K-Mod code block nice info for area clean power to not misleadingly assume that areacleanpower power has no unhealthy effect.
-		// But since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one anyways etc) and part of this K-Mod code.
+		// But since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) and part of this K-Mod code.
 		// But since i am not sure that dirty power is cancelled in this city if both areacleanpower and dirtypower are specified, added a "(?)" as well. -->
 		// <!-- custom: split the message info between/to cover clean and dirty cases. -->
 		// K-Mod. Also include base health change from power.
@@ -11605,7 +11605,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 	}
 	if (kBuilding.getPowerBonus() != NO_BONUS)
 	{
-		// <!-- custom: add info about whether power is clean or dirty for bonus as well, and add the power icon, similarly to how was done in the other TXT_KEY_BUILDING_PROVIDES_POWER similar/apparented reworks of the placeSpecial messages anyways etc, see this DLL code or/and XML txt key changes or/and sevopediabuilding. -->
+		// <!-- custom: add info about whether power is clean or dirty for bonus as well, and add the power icon, similarly to how was done in the other TXT_KEY_BUILDING_PROVIDES_POWER similar/apparented reworks of the placeSpecial messages, see this DLL code or/and XML txt key changes or/and sevopediabuilding. -->
 		szBuffer.append(NEWLINE);
 		// <!-- custom: common message at the start -->
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_WITH",
@@ -11920,7 +11920,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		}
 	}
 
-	// <!-- custom: in sevopedia, we now have a placeReplace method/function in sevopedia unit, so we don't need this extra replaced by line anyways etc. (see sevopediaunit.py for details) -->
+	// <!-- custom: in sevopedia, we now have a placeReplace method/function in sevopedia unit, so we don't need this extra replaced by line. (see sevopediaunit.py for details) -->
 	// if (bCivilopediaText && eDefaultBuilding == eBuilding)
 	// {
 	// 	FOR_EACH_ENUM(Building)

@@ -630,7 +630,7 @@
 			<!-- advc.252: start -->
 			<!-- was 10 -->
 			<iInflationPercent>10</iInflationPercent>
-			<!-- custom: not sure if we should change it too much but reduce it a bit to match close to gamespeed_epic progression just in case anyways etc, was -225 -->
+			<!-- custom: not sure if we should change it too much but reduce it a bit to match close to gamespeed_epic progression just in case, was -225 -->
 			<!-- was -270 -->
 			<iInflationOffset>-180</iInflationOffset>
 
@@ -644,7 +644,7 @@
 			<!-- advc.252: end -->
 			<!-- advc.130r: start -->
 			<iAIMemoryRandPercent>200</iAIMemoryRandPercent>
-			<!-- custom: not sure if we should change it but reduce it a bit just in case anyways etc, was 167 -->
+			<!-- custom: not sure if we should change it but reduce it a bit just in case, was 167 -->
 			<iAIContactRandPercent>140</iAIContactRandPercent>
 			<iAIContactDelayPercent>200</iAIContactDelayPercent>
 			<!-- advc.130r: end -->
@@ -652,7 +652,7 @@
 			<iFullTradeCreditPercent>200</iFullTradeCreditPercent>
 			<!-- advc.101 -->
 			<iRevoltDivPercent>200</iRevoltDivPercent>
-			<!-- custom: not sure if we should change it too much but aim for exact double just in case anyways etc, was 250 -->
+			<!-- custom: not sure if we should change it too much but aim for exact double just in case, was 250 -->
 			<!-- advc.173: Spread through Missionaries will benefit from
 				 TrainPercent, but I don't think passive spread should
 				 match that. Units having a bigger role is normal for
@@ -660,7 +660,7 @@
 			<iReligionSpreadDivPercent>200</iReligionSpreadDivPercent>
 			<!-- advc.252: start -->
 			<iEventRollSidesPercent>200</iEventRollSidesPercent>
-			<!-- custom: not sure if we should change it too much but aim for exact double just in case anyways etc, was 250 -->
+			<!-- custom: not sure if we should change it too much but aim for exact double just in case, was 250 -->
 			<iVoteIntervalPercent>200</iVoteIntervalPercent>
 			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
 			<!--

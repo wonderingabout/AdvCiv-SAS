@@ -14,7 +14,7 @@
 
 
 	<!-- custom: "Unique Units" were not unique (could be built many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
-	After futher consideration, there are no multi Civ-specific units (units that can be built only be a few civs in common) in AdvCiv-SAS if i am not mistaken, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
+	After futher consideration, there are no multi Civ-specific units (units that can be built only be a few civs in common) in AdvCiv-SAS, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
 	<TEXT>
 		<Tag>TXT_KEY_FREE_UNITS</Tag>
 		<English>Civilization Units</English>
@@ -118,7 +118,7 @@
 
 	<!-- custom: rename "Ivory" to "Elephants". Here the main reasons for this change: 
 	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
-	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is derived from elephants, independent of whether they are alive or dead.
+	- 2) ivory doesn't grow on the groud i think, but is derived from elephants, independent of whether they are alive or dead.
 	- 3) One could also maybe imagine that elephants the animal itself makes people happy, and not necessarily their ivory.
 	Note: since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version. -->
 	<TEXT>
@@ -315,12 +315,12 @@
 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
 		<English>The Three Gorges Dam</English>
 	</TEXT>
-	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this caseeven though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe tooin this case anyways etc) and we need/want a music tech wonder -->
+	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this caseeven though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe tooin this case) and we need/want a music tech wonder -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
 		<English>Natya Shastra</English>
 	</TEXT>
-	<!-- custom: rename "CHICHEN_ITZA" (but not the city though anyways etc) to "TEMPLE_OF_KUKULCAN" -->
+	<!-- custom: rename "CHICHEN_ITZA" (but not the city though) to "TEMPLE_OF_KUKULCAN" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN</Tag>
 		<English>Temple of Kukulcan</English>
@@ -451,7 +451,7 @@
 		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN</Tag>
 		<English>Hajjan</English>
 	</TEXT>
-	<!-- custom: rename "_KESHIK" to "_KHISHIGTEN" anyways etc, name from https://www.reddit.com/r/mongolia/comments/15zd5gj/comment/jxgk8zu/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button anyways etc as it seems most accurate accurate to comment there -->
+	<!-- custom: rename "_KESHIK" to "_KHISHIGTEN", name from https://www.reddit.com/r/mongolia/comments/15zd5gj/comment/jxgk8zu/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button as it seems most accurate accurate to comment there -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_MONGOL_KHISHIGTEN</Tag>
 		<English>Khishigten</English>
@@ -732,7 +732,7 @@
 
 
 
-	<!-- custom: rename "Gunpowder Units" to "Gun units" to encompass all kind of gun units not just the early ones that use gunpowder; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of anyways etc smokeless powder instead -->
+	<!-- custom: rename "Gunpowder Units" to "Gun units" to encompass all kind of gun units not just the early ones that use gunpowder; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of smokeless powder instead -->
 	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_GUN</Tag>
 		<English>Gun Units</English>

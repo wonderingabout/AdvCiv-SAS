@@ -14,7 +14,7 @@
 #
 # Store in LEADERS_INFO_CACHED tuples of (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way, also from using tuples or such rather than dicts), normalized value for display, and scale precomputed to enhance performance as well)
 # Categories precomputing as well as tuples: the ai_category_header that handles also emoji buttons in header label too optionally displayed if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe, this x_offset is to accomodate these emoji buttons as text if needed; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature)
-# UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data.
+# UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check, so display is very fast despite the quite big data.
 #
 # <!-- custom: note: some code comments may be outdated as they were written when we would compute once per civ4 game launch the LEADERS_INFO_CACHED for efficiency, however since then we as of now now switched to no compute at all (use precomputed SevoPediaLeaderCachePredumped.py) (see also toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))) as it is even cheaper and should scale better with mods that have more leaders or xml attributes (if i'm not mistaken). Plus the values rarely change and are only for UI so not worth spending so much on them even if was more efficient. -->
 # <!-- custom: now refactored with the help of chatgpt 5.2 (web) and GPT-5.2-Codex thanks a lot. -->
@@ -40,16 +40,16 @@ IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_LE
 IS_DISPLAY_AI_CATEGORY_HEADERS = True
 IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
 
-# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thingbut is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so do as you see fit use at your own risk code is there if you want to know what it does with also a debug sample (non-exhaustive but hopefully quite plenty) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to work fine, available there if needed, for my own hard drive too. -->
+# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thingbut is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible, so do as you see fit use at your own risk code is there if you want to know what it does with also a debug sample (non-exhaustive but hopefully quite plenty) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to work fine, available there if needed, for my own hard drive too. -->
 IS_DEBUG_LEADER = False
 
-# <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization anyways etc, so set B_WARN to false if i am not mistaken in my understanding -->
+# <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization, so set B_WARN to false if i am not mistaken in my understanding -->
 B_WARN = False
 
 if IS_DEBUG_LEADER:
 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map(gc)))
 
-# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically) unlike in generate_leaders_data.py for external to civ4 script usage, as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive -->
+# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically) unlike in generate_leaders_data.py for external to civ4 script usage, as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive -->
 EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
 	"LEADER_BARBARIAN",
 )
@@ -372,7 +372,7 @@ def _compute_leader_cache_internal():
 			positive_or_negative_memory_indexes = MEM_NEG_IDX
 
 		if not positive_or_negative_memory_indexes:
-			raise ValueError("[VALUE ERROR] memory_indexes=%s check is false; memory_indexes cannot be empty or missing or some other kind of related or similar error anyways etc, please check memory types (positive or negative) are fetched/imported correctly" % str(positive_or_negative_memory_indexes))
+			raise ValueError("[VALUE ERROR] memory_indexes=%s check is false; memory_indexes cannot be empty or missing or some other kind of related or similar error, please check memory types (positive or negative) are fetched/imported correctly" % str(positive_or_negative_memory_indexes))
 		
 		return positive_or_negative_memory_indexes
 
@@ -543,7 +543,7 @@ def _compute_leader_cache_internal():
 
 	def get_fields_directly_parsed():
 		# <!-- custom: dict of getter_name: (label, b_invert) -->
-		# <!-- custom: note: --> Attributes that need value inversion when normalizing <!-- custom: is anyways etc when --> high = bad, low = good
+		# <!-- custom: note: --> Attributes that need value inversion when normalizing <!-- custom: is when --> high = bad, low = good
 		fields_with_direct_getters = {
 			# ==== FIRST XML FIELDS PART 1 (from XML order) ====
 			"getWonderConstructRand": ("Wonder C.R", False),
@@ -584,7 +584,7 @@ def _compute_leader_cache_internal():
 			"getAttackOddsChangeRand": ("Risky Aggr Rand+", False),
 			"getWorseRankDifferenceAttitudeChange": ("Worse Rank AC", False),
 			"getBetterRankDifferenceAttitudeChange": ("Better Rank AC", False),
-			# <!-- custom: inverted according to: https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos at "iCloseBordersAttitudeChange" and then according to also anyways etc https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange (description translated(ion) seems a bit less accurate but is informative and helpful maybe etc -->
+			# <!-- custom: inverted according to: https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos at "iCloseBordersAttitudeChange" and then according to also https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange (description translated(ion) seems a bit less accurate but is informative and helpful maybe etc -->
 			"getCloseBordersAttitudeChange": ("CloseBordersSpark", True),
 			"getLostWarAttitudeChange": ("Lost W AC", False),
 			"getAtWarAttitudeDivisor": ("At W AD", False),
@@ -613,7 +613,7 @@ def _compute_leader_cache_internal():
 			# ==== VASSAL AND FREEDOM FIELDS (from XML order) ====
 			"getVassalPowerModifier": ("ResistCapitulP.M", False),
 			"getFreedomAppreciation": ("FreedomApprec", False),
-			# <!-- custom: then fields with nested or/and incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more anyways etc) are handled separately later -->
+			# <!-- custom: then fields with nested or/and incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more) are handled separately later -->
 		}
 
 		# ==== ATTITUDE THRESHOLDS ====
@@ -658,7 +658,7 @@ def _compute_leader_cache_internal():
 	required_getters = tuple(fields_with_direct_getters.keys()) + tuple(fields_attitude_thresholds.keys())
 	check_required_newly_exposed_python_getters_gc_leader_exist(required_getters)
 	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments):
-		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions anyways etc, same for maximum values too -->
+		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions, same for maximum values too -->
 		leader_info_minimums = {}
 		leader_info_maximums = {}
 
@@ -748,7 +748,7 @@ def _compute_leader_cache_internal():
 			if key not in leader_info_maximums:
 				raise KeyError(u"[KEY ERROR] Missing leader_info_maximums key=%s, in leader_info_minimums but not in leader_info_maximums, cannot proceed if both leader_info_minimums and leader_info_maximums all have same keys, please check your min and max computing or and DLL behaviour that may explain missing fields." % key)
 
-			# <!-- custom: also warn once if min == max for each field/key and now while it is computationally (at module load) inexpensive to do so anyways etc, do not rewarn at each leader computation nor later at init or and such -->
+			# <!-- custom: also warn once if min == max for each field/key and now while it is computationally (at module load) inexpensive to do so, do not rewarn at each leader computation nor later at init or and such -->
 			if leader_info_minimums[key] == leader_info_maximums[key]:
 				if IS_DEBUG_LEADER:
 					print("[WARNING] Key=%s has an identical min and max value (%d). Warning only once at module load so we don't have/want/need to redo it later at the normalization stage, fix/change the XML leader info value(s) of some leader(s) so that min and max among all leaders are different if desired, or keep as is if intended/desired that leaders behave the same for this key." % (key, leader_info_minimums[key]))
@@ -786,7 +786,7 @@ def _compute_leader_cache_internal():
 		# - "SameReligion" has a length of 12
 		# - "ACL" + " " + "(39)" has a total_tail_length of 3 + 1 + 4 = 8
 		# - max_length is 15
-		# So there will be max_length - total_tail_length = 15 - 8 = 7 chars remaining for the key_or_suffix_with_tail_trimmed, trim anything beyond that anyways etc, so the key_or_suffix_with_tail_trimmed is now only for example "SameReligion" → "SameRel" -->
+		# So there will be max_length - total_tail_length = 15 - 8 = 7 chars remaining for the key_or_suffix_with_tail_trimmed, trim anything beyond that, so the key_or_suffix_with_tail_trimmed is now only for example "SameReligion" → "SameRel" -->
 		total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
 		room_for_first = max_length - total_tail_length
 		if room_for_first <= 0:
@@ -802,7 +802,7 @@ def _compute_leader_cache_internal():
 	def get_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length):
 		# Returns key_or_suffix + label_raw, trimmed so total length ≤ max_length.
 		#
-		# <!-- custom: examples of output from chagpt as well and some added by me anyways etc as well too thanks anyways etc and my prompt too anyways etc: -->
+		# <!-- custom: examples of output from chagpt as well and some added by me as well too thanks and my prompt too: -->
 		# "getMaxWarRand", " (50)", 18 → "MaxWarRand (50)"
 		# "DemandWar", " (50/510)", 18 → "Demand (50/510)"
 		# "LongLongKeyNameHere", " (9)", 14 → "LongLongKe (9)"
@@ -858,7 +858,7 @@ def _compute_leader_cache_internal():
 			raise ValueError(u"Unexpected symbol=%s not in all_symbols=%s in cache_key=%s at iLeader=%d." % (symbol, str(all_symbols), cache_key, iLeader))
 		scale = get_symbol_scale(norm_value, symbol)
 
-		# Store final as <!-- custom: a tuple after all parsing/caching is finished for this leader for faster/better performance than dict or such other storage --> for future display at UI code anyways etc
+		# Store final as <!-- custom: a tuple after all parsing/caching is finished for this leader for faster/better performance than dict or such other storage --> for future display at UI code
 		leader_info_cached_tuple = (label, norm_value, scale)
 		leader_info_cached[cache_key] = leader_info_cached_tuple
 		if IS_DEBUG_LEADER:
@@ -937,7 +937,7 @@ def _compute_leader_cache_internal():
 			36: "Recent W",			# MEMORY_DECLARED_WAR_RECENT
 		}
 
-		# <!-- custom: a minimal anyways etc sanity check before merging the index_labels anyways etc (not checking if some indexes are missing here in the dictionary as we'd likely i assumeget a key error later otherwise -->
+		# <!-- custom: a minimal sanity check before merging the index_labels (not checking if some indexes are missing here in the dictionary as we'd likely i assumeget a key error later otherwise -->
 		check_overlapping_keys_between_dicts(positive_memory_index_labels, negative_memory_index_labels)
 		# ✅ Combined dictionary
 		positive_and_negative_memory_index_labels = {}
@@ -953,7 +953,7 @@ def _compute_leader_cache_internal():
 			symbol_generics = all_symbols["RAW_SCALE_SYMBOL"]
 			for getter_name_generic, (label_generic, b_invert_generic) in fields_with_direct_getters.items():
 				raw_value_generic = getattr(loopLeaderHeadInfo, getter_name_generic)()
-				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables anyways etc (i.e. before the scale (e.g. "++++" or similar anyways etc column of each of the AI personality panel tables too -->
+				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables (i.e. before the scale (e.g. "++++" or similar column of each of the AI personality panel tables too -->
 				label_raw_generic = "(%d)" % raw_value_generic
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					label_with_raw_value_generic = get_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
@@ -985,7 +985,7 @@ def _compute_leader_cache_internal():
 				raw_value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
 				label_raw_flavor = "(%d)" % raw_value_flavor
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
 					label_with_raw_value_flavor = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_flavor, 19)
 				else:
 					label_with_raw_value_flavor = "%s %s" % (label_flavor, label_raw_flavor)
@@ -993,7 +993,7 @@ def _compute_leader_cache_internal():
 				max_value_flavor = leader_info_maximums[parsed_name_flavor]
 				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_flavor, max_value_flavor, b_invert_flavors, symbol_flavors, all_symbols, parsed_name_flavor, label_with_raw_value_flavor, iLeader, leader_info_cached)
 
-			# <!-- custom: for contact fields, normalize the aggregated contact probs, do not normalize the rands nor the delays (would be redundant, as we don't display them with scale symbols or such, just the raw value in label is enough anyways etc); to export raw fields (rand and delay, uncomment the related rand and delay lines below (untested but probably works-functions else tweak bit anyways etc) to export them to UI if want to display them (then you'd need to uncomment or add if missing them anyways etc in UI categories too anyways etc)) -->
+			# <!-- custom: for contact fields, normalize the aggregated contact probs, do not normalize the rands nor the delays (would be redundant, as we don't display them with scale symbols or such, just the raw value in label is enough); to export raw fields (rand and delay, uncomment the related rand and delay lines below (untested but probably works-functions else tweak bit) to export them to UI if want to display them (then you'd need to uncomment or add if missing them in UI categories too)) -->
 			# b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
 			# symbol_contact_rands_delays = all_symbols["RAW_SCALE_SYMBOL"]
 
@@ -1008,7 +1008,7 @@ def _compute_leader_cache_internal():
 				# raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
 				# label_raw_rand = "(%d)" % raw_value_rand
 				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
 				# 	label_with_raw_value_rand = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand, 19)
 				# else:
 				# 	label_with_raw_value_rand = "%s %s" % (label_contact, label_raw_rand)
@@ -1022,31 +1022,31 @@ def _compute_leader_cache_internal():
 				# max_value_delay = leader_info_maximums[parsed_name_delay]
 				# label_raw_delay = "(%d)" % raw_value_delay
 				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
 				# 	label_with_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_delay, 19)
 				# else:
 				# 	label_with_raw_value_delay = "%s %s" % (label_contact, label_raw_delay)
 				# compute_and_store_leader_info_cached_tuple(raw_value_delay, min_value_delay, max_value_delay, b_invert_contact_delays, symbol_contact_rands_delays, all_symbols, parsed_name_delay, label_with_raw_value_delay, iLeader, leader_info_cached)
 
-				# <!-- custom: then back to aggregated contact fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores
+				# <!-- custom: then back to aggregated contact fields, the ones that we display at least as of now , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores
 				# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display -->
 				parsed_name_4_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix # → iAggregatedRawContactProbJoinWar
 
-				# <!-- custom: be careful/note anyways etc: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name anyways etc since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated contact probs caching -->
+				# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated contact probs caching -->
 				parsed_name_4_aggregated_contact_prob = "iAggregatedContactProb%s" % suffix # → iAggregatedContactProbJoinWar
 
-				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done anyways etc in/at UI -->
+				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
 				raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
 				raw_value_delay = loopLeaderHeadInfo.getContactDelay(i)
 				# <!-- custom: do not display the raw aggregated prob here, but instead the raw rand and raw delay -->
 				label_raw_rand_and_raw_delay = "(%d/%d)" % (raw_value_rand, raw_value_delay)
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
 					label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand_and_raw_delay, 19)
 				else:
 					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_contact, label_raw_rand_and_raw_delay)
 
-				# <!-- custom: be careful/note anyways etc, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error, anyways etc), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well -->
+				# <!-- custom: be careful/note, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well -->
 				raw_value_4_aggregated_contact_prob = leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_4_aggregated_raw_contact_prob]
 				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
 				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
@@ -1071,7 +1071,7 @@ def _compute_leader_cache_internal():
 
 			for is_positive in (True, False):
 				for is_affection in (True, False):
-					# <!-- custom: skip positive memory resentments and negative memory affections as said in top code comment before if i may say anyways etc, uncomment or remove this/these checks anyways etc to export them as well -->
+					# <!-- custom: skip positive memory resentments and negative memory affections as said in top code comment before if i may say, uncomment or remove this/these checks to export them as well -->
 					if is_positive and (not is_affection):
 						continue
 					if (not is_positive) and is_affection:
@@ -1086,15 +1086,15 @@ def _compute_leader_cache_internal():
 						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
 						label_memory = positive_and_negative_memory_index_labels[i]
 
-						# <!-- custom: for positive and negative memory affection and resentment fields, normalize the aggregated positive and negative memory affections and resentments, do not normalize the atittude percents nor the decays (would be redundant similarly as for contact fields anyways etc) (also export of these raw fields (attitude percents and decays is untested as we don't need them at least untested as of now i meansimilarly to contact field, may or not function, i assume it would or with minimal tweaks or fixes if any are needed, plus would need to add UI logic or ordering to display them rather if want in another mod for example, unlikely we would in advciv-sas as redundant with aggregated fields as said before in this code comment too even though not 100% sure sure but most likely anyways etc)) -->
+						# <!-- custom: for positive and negative memory affection and resentment fields, normalize the aggregated positive and negative memory affections and resentments, do not normalize the atittude percents nor the decays (would be redundant similarly as for contact fields) (also export of these raw fields (attitude percents and decays is untested as we don't need them at least untested as of now i meansimilarly to contact field, may or not function, i assume it would or with minimal tweaks or fixes if any are needed, plus would need to add UI logic or ordering to display them rather if want in another mod for example, unlikely we would in advciv-sas as redundant with aggregated fields as said before in this code comment too even though not 100% sure sure but most likely)) -->
 
-						# <!-- custom: export raw attitude percents and decays only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment, anyways etc), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations -->
+						# <!-- custom: export raw attitude percents and decays only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations -->
 						# parsed_name_attitude_percent = "iMemoryAttitudePercent%s" % suffix # → iMemoryAttitudePercentDeclaredWar
 						# if parsed_name_attitude_percent not in leader_info_cached:
 						# 	raw_value_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
 						# 	label_raw_attitude_percent = "(%d)" % raw_value_attitude_percent
 						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
 						# 		label_with_raw_value_attitude_percent = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent, 19)
 						# 	else:
 						# 		label_with_raw_value_attitude_percent = "%s %s" % (label_memory, label_raw_attitude_percent)
@@ -1107,7 +1107,7 @@ def _compute_leader_cache_internal():
 						# 	raw_value_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
 						# 	label_raw_decay = "(%d)" % raw_value_decay
 						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
 						# 		label_with_raw_value_decay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_decay, 19)
 						# 	else:
 						# 		label_with_raw_value_decay = "%s %s" % (label_memory, label_raw_decay)
@@ -1115,26 +1115,26 @@ def _compute_leader_cache_internal():
 						# 	max_value_decay = leader_info_maximums[parsed_name_decay]
 						# 	compute_and_store_leader_info_cached_tuple(raw_value_decay, min_value_decay, max_value_decay, b_invert_memory_decays, symbol_memory_attitude_percents_decays, all_symbols, parsed_name_decay, label_with_raw_value_decay, iLeader, leader_info_cached)
 
-						# <!-- custom: then back to aggregated positive and negative memory affection and resentment fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores
+						# <!-- custom: then back to aggregated positive and negative memory affection and resentment fields, the ones that we display at least as of now , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores
 						# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display -->
-						# <!-- custom: note: unlike for min max exports (compute and store) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays if i am not mistaken, see also min max code of memory fields at step 1 step 2 or similar code comments for details -->
+						# <!-- custom: note: unlike for min max exports (compute and store) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays, see also min max code of memory fields at step 1 step 2 or similar code comments for details -->
 						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
 
-						# <!-- custom: be careful/note anyways etc: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name anyways etc since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching -->
+						# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching -->
 						parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment = "iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedPositiveMemoryDeclaredWarAffection or iAggregatedPositiveMemoryDeclaredWarResentment or iAggregatedNegativeMemoryDeclaredWarAffection or iAggregatedNegativeMemoryDeclaredWarResentment
 
 
-						# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done anyways etc in/at UI -->
+						# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
 						raw_value_4_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
 						raw_value_4_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
 						label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
 						if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-							# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+							# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
 							label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
 						else:
 							label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_memory, label_raw_attitude_percent_and_raw_decay)
 
-						# <!-- custom: be careful/note anyways etc, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error, anyways etc), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well -->
+						# <!-- custom: be careful/note, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well -->
 						raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment = leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
 						min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_minimums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
 						max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_maximums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
@@ -1151,7 +1151,7 @@ def _compute_leader_cache_internal():
 				raw_value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
 				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
 					label_with_raw_value_no_war_attitude_prob = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_no_war_attitude_prob, 19)
 				else:
 					label_with_raw_value_no_war_attitude_prob = "%s %s" % (label_no_war_attitude_prob, label_raw_no_war_attitude_prob)
@@ -1159,7 +1159,7 @@ def _compute_leader_cache_internal():
 				max_value_no_war_attitude_prob = leader_info_maximums[parsed_name_no_war_attitude_prob]
 				compute_and_store_leader_info_cached_tuple(raw_value_no_war_attitude_prob, min_value_no_war_attitude_prob, max_value_no_war_attitude_prob, b_invert_no_war_attitude_probs, symbol_no_war_attitude_probs, all_symbols, parsed_name_no_war_attitude_prob, label_with_raw_value_no_war_attitude_prob, iLeader, leader_info_cached)
 
-			# <!-- custom: store final complete leader_info_cached (i.e. store a leader_info_cached for each iLeader anyways etc) in LEADERS_INFO_CACHED -->
+			# <!-- custom: store final complete leader_info_cached (i.e. store a leader_info_cached for each iLeader) in LEADERS_INFO_CACHED -->
 			LEADERS_INFO_CACHED[iLeader] = leader_info_cached
 			if IS_DEBUG_LEADER:
 				print(u"[DEBUG] Leader info cached for iLeader=%d is leader_info_cached=%s" % (iLeader, str(leader_info_cached)))
@@ -1527,7 +1527,7 @@ class SevoPediaLeader:
 		# i have measured this on my (4K but anyways) screen in windowed mode (for dev mod but anyways)
 		# - in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)     ;    (reverse-ratio: 1,1591)
 		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)     ;    (reverse-ratio: 1,1214)
-		# (extracted from the more detailed notes in modding ressources's readme about art design anyways etc, please look at it or the filename containing these note samples anyways etc or similar for details anyways etc)
+		# (extracted from the more detailed notes in modding ressources's readme about art design, please look at it or the filename containing these note samples or similar for details)
 		#
 		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not, anyways, )) (while also increasing the portrait/picture which i think is a bit small currently, maybe more immersive or/and pleasant or not, anyways, )
 		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 that i measured in game diplomacy (see above, anyways), while also increasing size (of the portrait anyways) anyways)
@@ -1629,8 +1629,8 @@ class SevoPediaLeader:
 		self.placeCiv()
 		self.placeTraits()
 
-		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached (but we still want the excluded leaders to be excluded from computation as it could and most likely will most often if not always affect the ranking and scores normalized of other leaders with this additional item anyways etc
-		# This is especially useful for iLeader of LEADER_BARBARIAN (iLeader 0 at least as of now if i'm not mistaken anyways etc) in particular that is somehow accessible in the sevopedia civilization category from the barbarian civ i mean anyways (which is also useful because we now display their city names for example, see sevopedia civilization for details about how we place city names in it now) -->
+		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached (but we still want the excluded leaders to be excluded from computation as it could and most likely will most often if not always affect the ranking and scores normalized of other leaders with this additional item
+		# This is especially useful for iLeader of LEADER_BARBARIAN (iLeader 0 at least as of now if i'm not mistaken) in particular that is somehow accessible in the sevopedia civilization category from the barbarian civ i mean anyways (which is also useful because we now display their city names for example, see sevopedia civilization for details about how we place city names in it now) -->
 		#
 		if (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
 			self.placeAIPersonalityPanel(iLeader)
@@ -1761,7 +1761,7 @@ class SevoPediaLeader:
 				self.fillAITableRow(screen, label, norm_value, scale, xLabel, xValue, xScale, y)
 				y += self.H_AI_LINE_HEIGHT
 
-			# <!-- custom: space for next ai_category if any are there anyways etc (else still space but not used more efficient this way i think i mean than rechecking each time and we have some tables that overflow vertically too so maybe fine this way too if not broken in this case i mean maybe-->
+			# <!-- custom: space for next ai_category if any are there (else still space but not used more efficient this way i think i mean than rechecking each time and we have some tables that overflow vertically too so maybe fine this way too if not broken in this case i mean maybe-->
 			y += self.H_AI_CATEGORY_SPACING
 
 

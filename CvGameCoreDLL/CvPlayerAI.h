@@ -330,7 +330,7 @@ public:
 
 	int AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const* pArea = NULL) const;			// Exposed to Python
 
-	// <!-- custom: add helpers to count how many units of a combat type we have and/or such anyways etc, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details anyways etc; code provided by chatgpt 5, check if accurate -->
+	// <!-- custom: add helpers to count how many units of a combat type we have and/or such, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details; code provided by chatgpt 5, check if accurate -->
 	// Counts units by combat class (e.g. UNITCOMBAT_SIEGE)
 	int AI_countUnitsByCombat(UnitCombatTypes eCombat) const;
 	int AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) const;

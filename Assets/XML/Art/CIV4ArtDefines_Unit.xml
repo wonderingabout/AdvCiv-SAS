@@ -177,7 +177,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod) and based on this import art then adjusted or not for advciv-sas anyways etc taking base advciv's ART_DEF_UNIT_WORKER as a base anyways etc, kfm is base civ4 or/and advciv one -->
+		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod) and based on this import art then adjusted or not for advciv-sas taking base advciv's ART_DEF_UNIT_WORKER as a base, kfm is base civ4 or/and advciv one -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds</Button>
@@ -491,7 +491,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for exampel anyways etc, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such anyways etc) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas -->
+		<!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for exampel, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_PAGAN_MISSIONARY</Type>
 			<Button>Art/AdvCiv_SAS/Units/Pagan_Missionary/Button_Magi.dds</Button>
@@ -1101,7 +1101,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from ri mod's ART_DEF_UNIT_ENGLISH_LONGBOWMAN (from their svn version nicely thanksso no need to go painfully through fpks and now very very easy to fetch assets thanks lot) anyways etc; note: the .kfm is the base advciv +/- civ4 one; as for the bag arrows they were missing, and in nifskope i found they were in the shared folder (thanks to wiztree much much easier to use in their svn version of their ri mod i mean) at longbowman.dds so added to our own unit much cleaner as in easier to find as such -->
+		<!-- custom: art import from ri mod's ART_DEF_UNIT_ENGLISH_LONGBOWMAN (from their svn version nicely thanksso no need to go painfully through fpks and now very very easy to fetch assets thanks lot); note: the .kfm is the base advciv +/- civ4 one; as for the bag arrows they were missing, and in nifskope i found they were in the shared folder (thanks to wiztree much much easier to use in their svn version of their ri mod i mean) at longbowman.dds so added to our own unit much cleaner as in easier to find as such -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ENGLISH_YEOMAN_ARCHER</Type>
 			<Button>Art/AdvCiv_SAS/Units/English_Yeoman_Archer/Longbowman_england.dds</Button>
@@ -1692,7 +1692,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it anyways etc), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" anyways etc... button is now the base civ4 camel archer's one for clarity/consistency with the other camel generic (i.e. non-civ-specific unit) buttons anyways etc, and instead arabian civ-specific unit has a new button instead see there for details anyways etc. (note: the .kfm is base civ4 one of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc) -->
+		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" button is now the base civ4 camel archer's one for clarity/consistency with the other camel generic (i.e. non-civ-specific unit) buttons, and instead arabian civ-specific unit has a new button instead see there for details. (note: the .kfm is base civ4 one of arabian old camel archer so can't find it in the ri mod) -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_ARCHER</Type>
 			<Button>,Art/Interface/Buttons/Units/CamelArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,8</Button>
@@ -1841,7 +1841,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it anyways etc, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" anyways etc) with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot -->
+		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk") with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_KNIGHT</Type>
 			<Button>Art/AdvCiv_SAS/Units/Camel_Knight/CamelRider.dds</Button>
@@ -1916,7 +1916,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod anyways etc, as was in base advciv +/- civ4 anyways etc way too close to the unit_explorer's button, hoopefully much clearer now -->
+		<!-- custom: button art import from ri mod, as was in base advciv +/- civ4 way too close to the unit_explorer's button, hoopefully much clearer now -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SPANISH_CONQUISTADOR</Type>
 			<Button>Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds</Button>
@@ -1967,7 +1967,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from RFC DOC mod's ART_DEF_UNIT_DRAGOON thanks anyways etc. Note: .kfm is base advciv +/- civ4's one if i'm not mistaken as per rfc doc mod's unitartinfo in xml if i'm not mistaken -->
+		<!-- custom: art import from RFC DOC mod's ART_DEF_UNIT_DRAGOON thanks. Note: .kfm is base advciv +/- civ4's one if i'm not mistaken as per rfc doc mod's unitartinfo in xml if i'm not mistaken -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DRAGOON</Type>
 			<Button>Art/AdvCiv_SAS/Units/Dragoon/Dragoon.dds</Button>
@@ -2016,7 +2016,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc; import / based on the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) and adjusted or not for advciv-sas anyways etc; some assets like kfm or such being base civ4 ones -->
+		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really; import / based on the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) and adjusted or not for advciv-sas; some assets like kfm or such being base civ4 ones -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_GERMAN_HUSSAR</Type>
 			<Button>Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds</Button>
@@ -2308,7 +2308,7 @@
 			<fBattleDistance>0.5</fBattleDistance>
 			<fRangedDeathTime>0.31</fRangedDeathTime>
 			<bActAsRanged>1</bActAsRanged>
-			<!-- custom: see above for details anyways etc, was AS2D_UNIT_BUILD_UNIQUE_UNIT -->
+			<!-- custom: see above for details, was AS2D_UNIT_BUILD_UNIQUE_UNIT -->
 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
 			<AudioRunSounds>
 				<AudioRunTypeLoop>LOOPSTEP_WHEELS</AudioRunTypeLoop>

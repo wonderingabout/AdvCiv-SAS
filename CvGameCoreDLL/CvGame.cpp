@@ -9061,7 +9061,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	pStream->Read(&m_initialRandSeed.uiSync);
 	// </advc.027b>
 
-	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate; this is simplified thanks to claude ai, and my prompt(s) and adjustments too and/or such, check if accurate, anyways etc (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are truecode, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now anyways etc), which i also did here -->
+	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate; this is simplified thanks to claude ai, and my prompt(s) and adjustments too and/or such, check if accurate (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are truecode, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now), which i also did here -->
 
 	// Simplified: assuming current UI flag version (27)
 	// Simplified: assuming current UI flag version (no backwards compatibility)

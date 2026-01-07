@@ -1,4 +1,4 @@
-# <!-- custom: imported from RFC Dawn of Civilization mod  C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py which may be modified or not for AdvCiv-SAS; for example renamed placeDetails to placeSpecial for consistency with our other special effect method names in other sevopedia classes anyways etc, or/and other changes or not -->
+# <!-- custom: imported from RFC Dawn of Civilization mod  C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py which may be modified or not for AdvCiv-SAS; for example renamed placeDetails to placeSpecial for consistency with our other special effect method names in other sevopedia classes, or/and other changes or not -->
 
 
 
@@ -29,15 +29,15 @@ def do_pre_load_xml_features_info_required_data_validation():
 			if buildInfo.isFeatureRemove(iFeature):
 				removeProduction = buildInfo.getFeatureProduction(iFeature)
 
-				# <!-- custom: there shouldn't be any negative value if i am not mistaken, but if relevant in a mod, they may want to also take them into account here -->
+				# <!-- custom: there shouldn't be any negative value, but if relevant in a mod, they may want to also take them into account here -->
 				if removeProduction > 0:
 					if maxSoFarProduction is None:
 						maxSoFarProduction = removeProduction
 					else:
 						if removeProduction > maxSoFarProduction:
-							# <!-- custom: (note: this simplifies display for the where case cottages and farms would have different values (e.g. 20 vs 35 (imaginary values to illustrate anyways etc)) which would be highly unusual. This edge case is ignored to simplify code, display, and logic, and raising an error instead anyways etc. Ideally if a mod implements such a feature (the remove iProduction 20 vs 35 for different builds), which would be strange btw as building a farm also has a remove the jungle feature as part of it if i am not mistaken it is not a different operation at least it seems so ingame anyways, but in all cases they'd or can remove this check and error, and then alter display to see the different possible values maybe, although again i don't see too much of a case where it may be useful, but just in case and if i am maybe mistaken, you'd need to change this code and then the display logic to display the different value -->
+							# <!-- custom: (note: this simplifies display for the where case cottages and farms would have different values (e.g. 20 vs 35 (imaginary values to illustrate)) which would be highly unusual. This edge case is ignored to simplify code, display, and logic, and raising an error instead. Ideally if a mod implements such a feature (the remove iProduction 20 vs 35 for different builds), which would be strange btw as building a farm also has a remove the jungle feature as part of it if i am not mistaken it is not a different operation at least it seems so ingame anyways, but in all cases they'd or can remove this check and error, and then alter display to see the different possible values maybe, although again i don't see too much of a case where it may be useful, but just in case and if i am maybe mistaken, you'd need to change this code and then the display logic to display the different value -->
 							if maxSoFarProduction > 0:
-								raise ValueError(u"[VALUE ERROR] Unexpected different iProduction removeProduction=%d value where a not equal to 0 value maxSoFarProduction=%d already existed between builds (cottage, remove_jungle, farm, etc.) at feature=%d (feature type is %s). Please make sure your iProduction is consistent accross all builds that can remove this feature, or if purposely designed as such, modify this code to display such information if you want or/and remove the error anyways etc." % (removeProduction, maxSoFarProduction, iFeature, gc.getFeatureInfo(iFeature).getType()))
+								raise ValueError(u"[VALUE ERROR] Unexpected different iProduction removeProduction=%d value where a not equal to 0 value maxSoFarProduction=%d already existed between builds (cottage, remove_jungle, farm, etc.) at feature=%d (feature type is %s). Please make sure your iProduction is consistent accross all builds that can remove this feature, or if purposely designed as such, modify this code to display such information if you want or/and remove the error." % (removeProduction, maxSoFarProduction, iFeature, gc.getFeatureInfo(iFeature).getType()))
 
 							maxSoFarProduction = removeProduction
 
@@ -69,7 +69,7 @@ class SevoPediaFeature:
 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
 		self.W_INFO_PANE = 290
-		# <!-- custom: make some room for the new fields we added in placeSpecial and align display horizontally with placeSpecial anyways etc, was 120 -->
+		# <!-- custom: make some room for the new fields we added in placeSpecial and align display horizontally with placeSpecial, was 120 -->
 		self.H_INFO_PANE = 127
 
 		self.W_ICON = 100
@@ -106,7 +106,7 @@ class SevoPediaFeature:
 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
-		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new anyways etc sevopedia terrain implementation -->
+		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new sevopedia terrain implementation -->
 		self.X_RELEVANT_UNITS = self.X_BONUSES_ON_ANY_TERRAIN
 		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ON_ANY_TERRAIN + self.H_BONUSES_ON_ANY_TERRAIN + self.SMALL_MARGIN
 		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
@@ -189,7 +189,7 @@ class SevoPediaFeature:
 					szSpecialText += u"\n"
 				bullet = localText.getText("[ICON_BULLET]", ())
 
-				# <!-- custom: check iProduction and iTime separately for cases such as feature fallout that have 0 iProduction but an iTime > 0 (so we need to handle being able to display only the iTime optionally without iProduction anyways etc) -->
+				# <!-- custom: check iProduction and iTime separately for cases such as feature fallout that have 0 iProduction but an iTime > 0 (so we need to handle being able to display only the iTime optionally without iProduction) -->
 				removeTime = buildInfo.getFeatureTime(self.iFeature)
 				if removeTime > 0:
 					szSpecialText += u"%sRemove iTime: %d" % (bullet, removeTime)
@@ -292,7 +292,7 @@ class SevoPediaFeature:
 		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: handle feature(s) that is (are) impassable (anyways etc...) such as of now only the ice cap feature anyways etc quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences anyways etc, see code comments at sevopedia feature's placeUnitsImpassable -->
+		# <!-- custom: handle feature(s) that is (are) impassable such as of now only the ice cap feature quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences, see code comments at sevopedia feature's placeUnitsImpassable -->
 		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
 		# <!-- custom: handle features with promotions or other specific effects separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on -->
 		iForest = getInfoTypeOrFail("FEATURE_FOREST", gc)
@@ -328,7 +328,7 @@ class SevoPediaFeature:
 					#isButtonFound = True
 					iButtonIndex += 1
 
-		# <!-- custom: in advciv-sas as of now at least if not always or not anyways etc, woodsman promotions apply both to jungle but also to forest tiles as well, seems more sensical to me anyways etc, adjust below logic depending on which features have promotions applying to them or some other effects you'd want to display in the numTxt or not -->
+		# <!-- custom: in advciv-sas as of now at least if not always or not, woodsman promotions apply both to jungle but also to forest tiles as well, seems more sensical to me, adjust below logic depending on which features have promotions applying to them or some other effects you'd want to display in the numTxt or not -->
 		elif self.iFeature == iForest or self.iFeature == iJungle:
 			# <!-- custom: raise an error if asset does not exist -->
 			iPromotionWoodsman1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1", gc)
@@ -410,7 +410,7 @@ class SevoPediaFeature:
 
 		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE"
 
-		# <!-- custom: https://forums.civfanatics.com/threads/make-ice-workable.462809/?utm_source=chatgpt.com based on this provided to me by chatgpt thanks, it seems the ice feature (called as of now "ice cap" feature in advciv-sas anyways etc is impassable but can be walked on if a unit has such a flag, so using a code similar to the terrain_peak handling in sevopedia terrain's as of now placeUnitsImpassable -->
+		# <!-- custom: https://forums.civfanatics.com/threads/make-ice-workable.462809/?utm_source=chatgpt.com based on this provided to me by chatgpt thanks, it seems the ice feature (called as of now "ice cap" feature in advciv-sas is impassable but can be walked on if a unit has such a flag, so using a code similar to the terrain_peak handling in sevopedia terrain's as of now placeUnitsImpassable -->
 		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
 
 		if self.iFeature == iIce:

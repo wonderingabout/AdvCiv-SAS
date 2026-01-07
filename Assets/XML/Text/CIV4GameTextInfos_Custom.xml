@@ -28,7 +28,7 @@
 
 
 
-	<!-- custom: generic one (english version only anyways etc) we replace one was:
+	<!-- custom: generic one (english version only) we replace one was:
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH</Tag>
 		<English>[ICON_BULLET]Provides Power with [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s1_BonusName[\LINK][COLOR_REVERT]</English>
@@ -61,14 +61,14 @@
 
 
 
-	<!-- custom: remove the common provides power part from the areacleanpower message, and add mention that area clean power (areacleanpower anyways etc) (all cities clean power) also applies to all cities, (note: ) perhaps differently in terms of unhealthiness bonus or not-->
+	<!-- custom: remove the common provides power part from the areacleanpower message, and add mention that area clean power (areacleanpower) (all cities clean power) also applies to all cities, (note: ) perhaps differently in terms of unhealthiness bonus or not-->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES</Tag>
 		<English>(clean power ([ICON_POWER])) for All Cities on this Continent: </English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_IN_THIS_CITY_CLEAN_OR_DIRTY_QUESTION</Tag>
-		<English>; as for in this City specifically rather instead, i (advciv-sas developer/maintainer anyways etc) don't know if clean in all cities overrides dirty in this city specifically or if if dirty in this city specifically adds up (only in this city) to clean power health change from all cities so showing both for this city, so in this city clean power ([ICON_POWER]) (or dirty power ([ICON_POWER]) ?): </English>
+		<English>; as for in this City specifically rather instead, i (advciv-sas developer/maintainer) don't know if clean in all cities overrides dirty in this city specifically or if if dirty in this city specifically adds up (only in this city) to clean power health change from all cities so showing both for this city, so in this city clean power ([ICON_POWER]) (or dirty power ([ICON_POWER]) ?): </English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_IN_THIS_CITY_CLEAN</Tag>
@@ -95,7 +95,7 @@
 		<Tag>TXT_KEY_PLOT_IMPASSABLE</Tag>
 		<English>[COLOR_WARNING_TEXT]IMPASSABLE (except relevant units)[COLOR_REVERT]</English>
 	</TEXT>
-	<!-- custom: replace inaccurate info if i am not mistakenof "Impassable terrain" (that i saw in sevopedia feature for example) with a more general text (as ice cap is a feature for example not a terrain so the "terrain" part of the text is inaccurate, also although impassable, some units are exceptions anyways etc), hinting at exceptions -->
+	<!-- custom: replace inaccurate info if i am not mistakenof "Impassable terrain" (that i saw in sevopedia feature for example) with a more general text (as ice cap is a feature for example not a terrain so the "terrain" part of the text is inaccurate, also although impassable, some units are exceptions), hinting at exceptions -->
 	<TEXT>
 		<Tag>TXT_KEY_TERRAIN_IMPASSABLE</Tag>
 		<English>[NEWLINE][ICON_BULLET]Impassable (except relevant units)</English>
@@ -144,7 +144,7 @@
 		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM</Tag>
 		<English>unlimited</English>
 	</TEXT>
-	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere in advciv (nor even civ4 actually), and since we don't use it anymore in sevopedia unit now (hide the field rather entirely anyways etc, may as well remove it now, anyways etc) -->
+	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere in advciv (nor even civ4 actually), and since we don't use it anymore in sevopedia unit now (hide the field rather entirely, may as well remove it now) -->
 
 
 

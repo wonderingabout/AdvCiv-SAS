@@ -22,7 +22,7 @@
 	<German>(AdvCiv) Keine Sorge, wenn Ihre kapitulierten Vasallen bei Gegnern unbeliebt sind - das kann f�r eine Kriegserkl�rung nicht ausschlaggebend sein. Das gilt aber nicht f�r  Vasallen, die sich Ihnen friedlich angeschlossen haben!</German>
 </TEXT>
 
-<!-- custom: caravel removed, disable this hint as well (commented-out anyways etc) -->
+<!-- custom: caravel removed, disable this hint as well (commented-out) -->
 <!-- advc.008c: In BtS, this was a lengthy explanation about how to found a
 	 corporation. I had previously edited it a bit for brevity. See K-Mod
 	 hints.xml in AdvCiv 0.92 for that version of the hint.

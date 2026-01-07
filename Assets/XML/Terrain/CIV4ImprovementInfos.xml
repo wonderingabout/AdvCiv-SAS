@@ -237,7 +237,7 @@
 				</TerrainMakesValid>
 			</TerrainMakesValids>
 			<FeatureMakesValids/>
-			<!-- custom: removed improvement_winery, now grapes (wine renamed to this now anyways etc) are upgraded/improved by improvement_farm, see docs for details -->
+			<!-- custom: removed improvement_winery, now grapes (wine renamed to this now) are upgraded/improved by improvement_farm, see docs for details -->
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #28 -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
@@ -393,7 +393,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
-			<!-- custom: not easy to capture, but after they are, give a lot of food, + useful for their oil or such, and finally a touristic attraction source of folk stories and such anyways etc, but since we gave it as base yield, not doing it again here else whales may be a bit too strong then -->
+			<!-- custom: not easy to capture, but after they are, give a lot of food, + useful for their oil or such, and finally a touristic attraction source of folk stories and such, but since we gave it as base yield, not doing it again here else whales may be a bit too strong then -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_WHALE</BonusType>
@@ -524,7 +524,7 @@
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
-					<!-- custom: for silver specifically, useful to craft items too and such anyways etc, from a balance standpoint, since we can't make units with silver, buff it by giving gold (i.e. gpt (commerce) anyways etc) too instead -->
+					<!-- custom: for silver specifically, useful to craft items too and such, from a balance standpoint, since we can't make units with silver, buff it by giving gold (i.e. gpt (commerce)) too instead -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>1</iYieldChange>
@@ -615,7 +615,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: nerf the workshop a bit as it was a bit too op, was as of now first PrereqTech TECH_GUILDS (now removed) and TECH_CHEMISTRY anyways etc; also add more hammer at fusion or similar tech, idea i got from rfc doc mod -->
+			<!-- custom: nerf the workshop a bit as it was a bit too op, was as of now first PrereqTech TECH_GUILDS (now removed) and TECH_CHEMISTRY; also add more hammer at fusion or similar tech, idea i got from rfc doc mod -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -694,7 +694,7 @@
 			</FeatureMakesValids>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: seems more historically accurate and meshes quite well with our reworked tech tree to buff it at tech_steam_power instead, see also BUILD_LUMBERMILL code comment as well for additional info anyways etc if any are there anyways etc, was TECH_GAME_THEORY -->
+			<!-- custom: seems more historically accurate and meshes quite well with our reworked tech tree to buff it at tech_steam_power instead, see also BUILD_LUMBERMILL code comment as well for additional info if any are there, was TECH_GAME_THEORY -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_STEAM_POWER</PrereqTech>
@@ -816,7 +816,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: TechYieldChange prereq tech, sems more accurate and buffes them too, while making middle game sooner and more relevant if i may say anyways etc, was TECH_GAME_THEORY -->
+			<!-- custom: TechYieldChange prereq tech, sems more accurate and buffes them too, while making middle game sooner and more relevant if i may say, was TECH_GAME_THEORY -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -953,7 +953,7 @@
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: food can quickly become op, give it at most food related improvements except the farm; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least anyways etc, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this casein a way that is hopefully not op anyways etc and that maybe thematically makes sense -->
+			<!-- custom: food can quickly become op, give it at most food related improvements except the farm; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this casein a way that is hopefully not op and that maybe thematically makes sense -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>

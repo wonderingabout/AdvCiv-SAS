@@ -3407,7 +3407,7 @@ with GFC_Control_Button
 	}
 
 	// Main Menu text selection 
-	// <!-- custom: also change text color of the main menu from white to black with chatgpt 5's helps anyways etc, because after our nice beuaitficaiton changes removing the blue rectangle (as of now in style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style anyways etc), we now have a hard to read white text, fixed thanks to chatgpt 5's help and my prompts and or suchthanks to changing lines here as of now in style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style -->
+	// <!-- custom: also change text color of the main menu from white to black with chatgpt 5's helps, because after our nice beuaitficaiton changes removing the blue rectangle (as of now in style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style), we now have a hard to read white text, fixed thanks to chatgpt 5's help and my prompts and or suchthanks to changing lines here as of now in style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style -->
 	style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlLabel;
@@ -3424,11 +3424,11 @@ with GFC_Control_Button
 		with .Color_Text
 		{
 			//.Default						=	GFC_Control_Color_Text_Default;
-			// <!-- custom: also adding this tweak thanks to chatgpt 5 which seems to make the text a bit more black somehow and readable also difference is tiny and maybe placebo but it does seem easier to read when comparing anyways etc (but check if accurate and to be sure anyways etc) -->
+			// <!-- custom: also adding this tweak thanks to chatgpt 5 which seems to make the text a bit more black somehow and readable also difference is tiny and maybe placebo but it does seem easier to read when comparing (but check if accurate and to be sure) -->
 			//.Default						=	GColor(0,0,0,255);
 			//.Default						=	GColor(18,16,14,255); // instead of pure 0,0,0 (optional, a warmer off-black can read nicer)
 			// If you ever want one tiny nudge thicker without blur, try this micro-tweak
-			// <!-- custom: we're entering placebo territory here xd but it doesn't look worse so keeping as such maybe, check if accurate anyways etc, ideally i'd make it a bit bolder if possible but maybe not too bad as such, at least much better than white with transparent rectangle -->
+			// <!-- custom: we're entering placebo territory here xd but it doesn't look worse so keeping as such maybe, check if accurate, ideally i'd make it a bit bolder if possible but maybe not too bad as such, at least much better than white with transparent rectangle -->
 			.Default						=	GColor(18,16,14,230); // slight transparency
 			.Press							=	SF_CtrlTheme_Civ4_Control_Color_RollText;
 			.Disable						=	GFC_Control_Color_Text_Disable;

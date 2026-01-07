@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Slide Show Infos -->
-<!-- custom: cleanly imported (BTS version if i am not mistaken too) from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Interface\CIV4SlideShowRandomInfos.xml and modified or not for AdvCiv-SAS, we may need to adjust this for paganism later or/and or maybe not anyways etc, possibly also for daoism (due to renaming from taoism) but not sure maybe not for daoism anyways (as we don't/didn't modify the asset filenames themselves only tag names so far anyways etc) etc -->
+<!-- custom: cleanly imported (BTS version if i am not mistaken too) from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Interface\CIV4SlideShowRandomInfos.xml and modified or not for AdvCiv-SAS, we may need to adjust this for paganism later or/and or maybe not, possibly also for daoism (due to renaming from taoism) but not sure maybe not for daoism anyways (as we don't/didn't modify the asset filenames themselves only tag names so far) etc -->
 <Civ4SlideShowRandomInfos xmlns="x-schema:CIV4InterfaceSchema.xml">
 	<SlideShowRandomInfos>
 		<SlideShowRandomInfo>

@@ -217,7 +217,7 @@
 			<Type>BUILD_LUMBERMILL</Type>
 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
 			<Help/>
-			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine, plus buffes tech_machinery too anyways etc, was TECH_GUILDS (now removed) -->
+			<!-- custom: historically more accurate in our reworked tech tree at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill, machinery is a bit late but fine, plus buffes tech_machinery too, was TECH_GUILDS (now removed) -->
 			<!-- K-Mod: was REPLACEABLE_PARTS -->
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<!-- advc.902: was 800 -->
@@ -283,7 +283,7 @@
 			<Type>BUILD_WATERMILL</Type>
 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
 			<Help/>
-			<!-- custom: seems historically more accurate or/and meshes or fits better anyways etc with our reworked tech tree sooner, was TECH_MACHINERY -->
+			<!-- custom: seems historically more accurate or/and meshes or fits better with our reworked tech tree sooner, was TECH_MACHINERY -->
 			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -370,7 +370,7 @@
 			<Type>BUILD_QUARRY</Type>
 			<Description>TXT_KEY_BUILD_QUARRY</Description>
 			<Help/>
-			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine anyways etc..., if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or/and tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
+			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine, if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or/and tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>600</iTime>
 			<iCost>0</iCost>
@@ -528,7 +528,7 @@
 			<Type>BUILD_OFFSHORE_PLATFORM</Type>
 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
 			<Help/>
-			<!-- custom: was the now removed anyways etc TECH_PLASTICS -->
+			<!-- custom: was the now removed TECH_PLASTICS -->
 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -591,7 +591,7 @@
 			<Type>BUILD_FORT</Type>
 			<Description>TXT_KEY_BUILD_FORT</Description>
 			<Help/>
-			<!-- custom: move fort building a bit later in tech anyways etc, hopefully a bit less or less soon nonsensical or unfit fort building, not reworking this/the code parts that seem(ed at least at that time in advciv issues threat in the civfanatics forum (issue) i mean i had created at that time), delaying it a bit hopefully helps and or is also more consistent with fortifications era (didnt check, maybe tech_engineering is an accurate enough time for this anyways etc), was TECH_MATHEMATICS -->
+			<!-- custom: move fort building a bit later in tech, hopefully a bit less or less soon nonsensical or unfit fort building, not reworking this/the code parts that seem(ed at least at that time in advciv issues threat in the civfanatics forum (issue) i mean i had created at that time), delaying it a bit hopefully helps and or is also more consistent with fortifications era (didnt check, maybe tech_engineering is an accurate enough time for this), was TECH_MATHEMATICS -->
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<iTime>1000</iTime>
 			<iCost>0</iCost>
@@ -656,7 +656,7 @@
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
-			<!-- custom: similar reasoning as remove_forest, moved to earlier in tech tree too anyways etc, was TECH_BRONZE_WORKING -->
+			<!-- custom: similar reasoning as remove_forest, moved to earlier in tech tree too, was TECH_BRONZE_WORKING -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>

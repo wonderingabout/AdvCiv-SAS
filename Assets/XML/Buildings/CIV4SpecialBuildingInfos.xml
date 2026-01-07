@@ -7,7 +7,7 @@
 <!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings and modified or not for AdvCiv-SAS -->
 <Civ4SpecialBuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<SpecialBuildingInfos>
-		<!-- custom: move the tech prereq of bomb shelter from buildinginfos to specialbuildinginfos for consistency with other special buildings (may adjust if neededed else keep as is anyways etc), was none -->
+		<!-- custom: move the tech prereq of bomb shelter from buildinginfos to specialbuildinginfos for consistency with other special buildings (may adjust if neededed else keep as is), was none -->
 		<!-- custom: also change the prereq, was electricity, should be later or/and at another more relevant tech maybe in tech though -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_BOMB_SHELTER</Type>
@@ -20,8 +20,8 @@
 			<ProductionTraits/>
 			<Button>Art/Interface/Buttons/Buildings/BombShelters.dds</Button>
 		</SpecialBuildingInfo>
-		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not? Anyways etc) so they can be built earlier -->
-		<!-- custom: same as for the generic cathedral and monastery, use building atlas button instead (still same button, coordinates changed as is another .dds now anyways etc) -->
+		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not?) so they can be built earlier -->
+		<!-- custom: same as for the generic cathedral and monastery, use building atlas button instead (still same button, coordinates changed as is another .dds now) -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_TEMPLE</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_TEMPLE</Description>
@@ -50,8 +50,8 @@
 			<ProductionTraits/>
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,8</Button>
 		</SpecialBuildingInfo>
-		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries anyways etc) -->
-		<!-- custom: use this seemingly unused building atlas button anyways etc for the generic ((no religion on them) anyways etc) (base advciv's (civ4's too? Anyways etc)) monastery button, seems clearer to me than the hindu specific monastery button anyways etc, and like the generic temple and generic cathedral also having generic buttons, button was:
+		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries) -->
+		<!-- custom: use this seemingly unused building atlas button for the generic ((no religion on them)) (base advciv's (civ4's too?)) monastery button, seems clearer to me than the hindu specific monastery button, and like the generic temple and generic cathedral also having generic buttons, button was:
 		<Button>Art/Interface/Buttons/Buildings/Monastery_Hindu.dds</Button> -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_MONASTERY</Type>

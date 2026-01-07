@@ -47,7 +47,7 @@ class SevoPediaReligion:
 		self.W_RELIGION_PANE = 200
 		self.H_RELIGION_PANE = 230
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -145,7 +145,7 @@ class SevoPediaReligion:
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
-		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes... xd anyways etc...) -->
+		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: (not catch them all... or maybe.. or not or yes... xd) -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			leaderInfo = gc.getLeaderHeadInfo(iLeader)
 			if leaderInfo.getFavoriteReligion() == self.iReligion:

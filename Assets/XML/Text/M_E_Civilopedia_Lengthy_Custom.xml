@@ -65,7 +65,7 @@
 		<Tag>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM_PEDIA</Tag>
 		<English>[TAB]An offshore platform, also referred to as an oil platform or oil rig, is a large structure with facilities to drill wells and extract and process oil and natural gas and export the products to shore.</English>
 	</TEXT>
-	<!-- custom: not used in advciv-sas, implement if needed anyways etc
+	<!-- custom: not used in advciv-sas, implement if needed
 	<TEXT>
 		<Tag>TXT_KEY_IMPROVEMENT_WINERY_PEDIA</Tag>
 		<English>[TAB]A winery is a building or property that produces wine, or a business involved in the production of wine, such as a wine company. Some wine companies own many wineries. Besides wine making equipment, larger wineries may also feature warehouses, bottling lines, laboratories, and large expanses of tanks known as tank farms. The oldest winery in the world found to date is a 6,000 year old winery in the Areni region of Armenia, which is still a wine making region today.</English>

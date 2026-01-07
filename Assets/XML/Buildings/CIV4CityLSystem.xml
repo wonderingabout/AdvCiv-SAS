@@ -1401,7 +1401,7 @@
 			<Attribute Class="Scalar">szSpecialLayout:Water</Attribute>
 			<Scale>1.25</Scale>
 		</ArtRef>
-		<!-- custom: remove seemingly duplicate too similarly anyways etc 1st occurence <ArtRef Name="building:BUILDING_HARBOR"> -->
+		<!-- custom: remove seemingly duplicate too similarly 1st occurence <ArtRef Name="building:BUILDING_HARBOR"> -->
 		<ArtRef Name="building:BUILDING_HARBOR">
 			<Attribute Class="Scalar">szNIF:Art/Structures/Buildings/Harbor/HarborModern.nif</Attribute>
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
@@ -1442,7 +1442,7 @@
 			<Rotate>-60</Rotate>
 			<Scale>2.5</Scale>
 		</ArtRef>
-		<!-- custom: remove seemingly duplicate too similarly anyways etc 1st occurence <ArtRef Name="building:BUILDING_CARTHAGE_COTHON"> -->
+		<!-- custom: remove seemingly duplicate too similarly 1st occurence <ArtRef Name="building:BUILDING_CARTHAGE_COTHON"> -->
 		<ArtRef Name="building:BUILDING_CARTHAGE_COTHON">
 			<Attribute Class="Scalar">szNIF:Art/Structures/Buildings/Harbor/HarborModern.nif</Attribute>
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>

@@ -3260,18 +3260,18 @@ void CvUnit::automate(AutomateTypes eAutomate)
 }
 
 
-// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken anyways etc), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or/and in other places, see known issue as of now 52 for details anyways etc; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate -->
+// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or/and in other places, see known issue as of now 52 for details; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate -->
 // <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks!), implementing our logic here as well, check if accurate -->
 // Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
-// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances anyways etc, see known issue as of now 52 for details anyways etc; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, see known issue mentionned here in these code comments for details, and we otherwise kept function the same -->
+// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances, see known issue as of now 52 for details; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, see known issue mentionned here in these code comments for details, and we otherwise kept function the same -->
 bool CvUnit::canScrap() const
 {
-	// <!-- custom: old function was a 3 liner anyways etc... -->
+	// <!-- custom: old function was a 3 liner -->
 	// if (getPlot().isFighting())
 	// 	return false;
 	// return true;
 
-	// <!-- custom: update: the danger and not before turn 100 and other conditions anyways etc no scrapping gating here worked extremely great and solved the scrapping issue, see known issue as of now 52 for details anyways etc; now doing a less going overboard xd approach, we can just disable scrapping entirely and not waste computation, or in other cases tune it to be selectively disabled or such anyways etc, commenting-out this old code we added at first for that end since we don't need to check these now so kept as is commented-out in case if need (and note: untested or barely tested once), may remove it if uneeded -->
+	// <!-- custom: update: the danger and not before turn 100 and other conditions no scrapping gating here worked extremely great and solved the scrapping issue, see known issue as of now 52 for details; now doing a less going overboard xd approach, we can just disable scrapping entirely and not waste computation, or in other cases tune it to be selectively disabled or such, commenting-out this old code we added at first for that end since we don't need to check these now so kept as is commented-out in case if need (and note: untested or barely tested once), may remove it if uneeded -->
 	// 		// only allow scrapping if actually over budget or burning gold
 	// 		const int iCostPerMil = kOwner.AI_unitCostPerMil();
 	// 		const int iMaxPerMil  = kOwner.AI_maxUnitCostPerMil();
@@ -3284,7 +3284,7 @@ bool CvUnit::canScrap() const
 
 	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
 	{
-		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or/and updated info known issue as of now 52 or other related docs anyways etc)
+		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or/and updated info known issue as of now 52 or other related docs)
 		const UnitAITypes eUnitAI = AI_getUnitAIType();
 
 		const bool bLandMilitaryUnitAIs = (
@@ -3306,7 +3306,7 @@ bool CvUnit::canScrap() const
 		{
 			return false;
 		}
-		// <!-- custom: if the former fails if i may say but anyways for example in some mod mod where workers are high strength or can fight or such, add an additional check faithful to our land military units first spirit and maybe helps catch more without false positives like spies (unless they can really fight again i mean in some mod mod or such (maybe our mod too but very unlikely so most likely not, as i don't have a reason to do this as of now so most likely not) perhaps) or galleons; note: as i don't trust the canFight check in case it fires weird things at us or flags the wrong ones (didn't check but to be safe anyways etc), go with our former check first, maybe computationally more efficient although i didn't check the canFight function-->
+		// <!-- custom: if the former fails if i may say but anyways for example in some mod mod where workers are high strength or can fight or such, add an additional check faithful to our land military units first spirit and maybe helps catch more without false positives like spies (unless they can really fight again i mean in some mod mod or such (maybe our mod too but very unlikely so most likely not, as i don't have a reason to do this as of now so most likely not) perhaps) or galleons; note: as i don't trust the canFight check in case it fires weird things at us or flags the wrong ones (didn't check but to be safe), go with our former check first, maybe computationally more efficient although i didn't check the canFight function-->
 		// prefer explicit AIs, but also OR with canFight() just in case
 		else if (getDomainType() == DOMAIN_LAND && canFight())
 		{
@@ -3314,7 +3314,7 @@ bool CvUnit::canScrap() const
 		}
 
 		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in known issue as of now 23 if i'm not mistaken that we fixed, but then in known issue as of now 53 i noticed a privateer loop and AI dying because of it. Since we now handle properly max naval units among other units being produced, we don't fear overproducing them too much, at least not too hard, but we i.e. i xdfear invisible scrapping. There should almost never be good cases where scrapping is worth, and these should be handled as exceptions rather than the main rule. Just in known issue as of now 52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd). Really, i feel or it seems to me like scrapping should be handled as an exception not as a "i don't know what to do with this weird unit let's just scrap it xd". "No! Don't scrap it xd, figure out what to do with it, most often the risk of loop or such far outweigh having 1 or 2 extra units anyway i think), if fearing financial trouble or such, please implement it in your code, as for me as of now i consider/assume assume AIs develop well and build these formulas based on iNumCities or such for scaling, the benefits seem to far outweigh the risks/costs, and please read known isue as of now 53 for details; also, since we are only adding pre checks and not changing the logic otherwise, should be fine-->
-		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well))) but just in case -->
+		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well))) but just in case -->
 		CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
 		const bool bBarbarian = kPlayer.isBarbarian();
 
@@ -3380,7 +3380,7 @@ bool CvUnit::canScrap() const
 				return false;
 			}
 
-			// <!-- custom: as for settlers, see what happens but don't risk a loop of produce destroy again and again, very costly on city growth. Some code comment mentionned settlers confuse AIs; possibly, but we'd need to test to be sure, there is a risk AI overproduces them in the middle game then scrap and repeat. I didn't see it so far although i didn't see too much, but better not risk, disable scrapping and keep 1 lone extra settler and be done, and see what happens ingame anyways etc if needs adjustment or not (not sure i'd always be here ot make them hehe but i hope the comment helps raise awareness/info about this idea/concern i has) -->
+			// <!-- custom: as for settlers, see what happens but don't risk a loop of produce destroy again and again, very costly on city growth. Some code comment mentionned settlers confuse AIs; possibly, but we'd need to test to be sure, there is a risk AI overproduces them in the middle game then scrap and repeat. I didn't see it so far although i didn't see too much, but better not risk, disable scrapping and keep 1 lone extra settler and be done, and see what happens ingame if needs adjustment or not (not sure i'd always be here ot make them hehe but i hope the comment helps raise awareness/info about this idea/concern i has) -->
 
 			const bool bLandExploreUnitAIs = (
 				(eUnitAI == UNITAI_EXPLORE)
@@ -3404,7 +3404,7 @@ bool CvUnit::canScrap() const
 				bLandMissionaryUnitAIs ||
 				bLandSpyUnitAIs
 			);
-			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap, or other issues we may not be aware of if i am not in my assessment; also if we happen to have a few extras for some reason, (hut, unit gifted, etc), do not mind it, assume it is not excessive and don't complexify logic for a few extra units that ultimately won't change hopefully game outcome(note: we may want though to add a preventive patch against gifting abuse, say if we are above limit, scrap any gifted unit to us, but may be a bit tedious or/and i don't know how, we'd need to scrap the unit received if worse than ours else one of ours if ours are worse etc, ideally would be very nice, but maybe leave it as such if not overboard may be fine and not worth the effort if i may say, although again would be very nice, but hopefully this note/reminder helps if someone other than me (or possibly me but less likely i'd do it again but who knows but i may very well not do it though, may or not not guaranteed, anyways etc) gets the idea from this or something) -->
+			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap, or other issues we may not be aware of if i am not in my assessment; also if we happen to have a few extras for some reason, (hut, unit gifted, etc), do not mind it, assume it is not excessive and don't complexify logic for a few extra units that ultimately won't change hopefully game outcome(note: we may want though to add a preventive patch against gifting abuse, say if we are above limit, scrap any gifted unit to us, but may be a bit tedious or/and i don't know how, we'd need to scrap the unit received if worse than ours else one of ours if ours are worse etc, ideally would be very nice, but maybe leave it as such if not overboard may be fine and not worth the effort if i may say, although again would be very nice, but hopefully this note/reminder helps if someone other than me (or possibly me but less likely i'd do it again but who knows but i may very well not do it though, may or not not guaranteed) gets the idea from this or something) -->
 			if (bMostHandledLandCivilianUnitAIs)
 			{
 				return false;
@@ -3461,7 +3461,7 @@ bool CvUnit::canScrap() const
 					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
 					// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks; scale * 100 for rounding error/precision asa chatgpt 5 described suggested although i may have had or not or yes or etcsame idea or not or yes or etc -->
-					// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily) anyways etc) --> -10% per era -->
+					// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily)) --> -10% per era -->
 					const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value-->
 					const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
 					// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so) for all -->
@@ -3472,7 +3472,7 @@ bool CvUnit::canScrap() const
 					int iTotalUnitAIs = 0;
 					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
 
-					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks anyways etc (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly) -->
+					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly) -->
 					if (iTotalUnitAIs <= iMaxUnits)
 					{
 						return false;
@@ -3495,7 +3495,7 @@ bool CvUnit::canScrap() const
 			const int iCurrentTurn = kGame.getGameTurn();
 
 			static const int iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL = GC.getDefineINT("SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL");
-			// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me anyways etc) -->
+			// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me) -->
 			const int iNoDisbandAtAllTurnsAdjusted = iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
 			const bool bNoDisbandAtAllPhase = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
 
@@ -3560,7 +3560,7 @@ bool CvUnit::canScrap() const
 			return false;
 		}
 
-		// <!-- custom: sanity check: do not scrap great persons (hopefully doesn't happen but who knows, don't kill the great prophet or general or scientist or such anyways etc) -->
+		// <!-- custom: sanity check: do not scrap great persons (hopefully doesn't happen but who knows, don't kill the great prophet or general or scientist or such) -->
 		const bool bGreatPersonUnitAIs = (
 			(eUnitAI == UNITAI_GREAT_PROPHET) ||
 			(eUnitAI == UNITAI_GREAT_ARTIST) ||
@@ -3575,7 +3575,7 @@ bool CvUnit::canScrap() const
 			return false;
 		}
 
-		// <!-- custom: sanity check, do not scrap ICBM (just in case), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases anyways etc)-->
+		// <!-- custom: sanity check, do not scrap ICBM (just in case), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases)-->
 		const bool bAirMissileUnitAIs = (
 			(eUnitAI == UNITAI_ICBM) ||
 			(eUnitAI == UNITAI_MISSILE_AIR)

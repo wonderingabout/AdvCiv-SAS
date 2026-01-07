@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<!-- custom: adding our own AdvCiv-SAS knobs/tunables anyways etc so that players or me xdcan tweak/modify them without having to recompile each time which is tedious anyways etc; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know) or/and check in code of relevant function(s) -->
+<!-- custom: adding our own AdvCiv-SAS knobs/tunables so that players or me xdcan tweak/modify them without having to recompile each time which is tedious; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know) or/and check in code of relevant function(s) -->
 <!-- custom: note: using the prefix is a bit cringe xd but at same time cool and does some publicity, but most importantly it gives us freedom while being compactto name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd but now think it makes sense), check if accurate -->
 <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such) but check to be sure if in doubt -->
-<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure -->
+<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders), check to be sure -->
 <!-- custom: note 4: i did not add it here to avoid having issues or a complicated implementation, but a few places use the hardcoded mod name such as as of now "AdvCiv-SAS" instead for example of "AdvCiv". To find these places easily, i generally wrote a comment that has something like "our mod AdvCiv-SAS" or "mod AdvCiv-SAS" or "AdvCiv-SAS Mod" or something similar so they can be found more easily to change them in case you change the mod's name. -->
-<!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate anyways etc). -->
+<!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate). -->
 <!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while -->
 
 
@@ -29,12 +29,12 @@
 		<DefineName>SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled anyways etc. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
+	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.  -->
+	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.  -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -168,7 +168,7 @@
 
 
 
-	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks anyways etc. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
+	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
@@ -219,15 +219,15 @@
 
 
 
-	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctlymay be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
+	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctlymay be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value) -->
 
-	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
+	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should) change AI settling preferences and recommended sites in UI as well if i'm not mistaken. Are accounted as very bad tiles (check if not updated in code), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city)):
 		- peak tiles
 		- ice cap tiles
 		- desert tiles that are not hill and have no bonus, and that are not floodplains nor oasis
 		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
 	Start phase is before our first city is planted/settled/founded.
-	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect anyways etc
+	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect
 	-->
 	<Define>
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START</DefineName>
@@ -264,7 +264,7 @@
 		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_FOOD_MIN_IMPROVE_WORTH</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: lower (e.g. -700 is lower than -600 anyways etc) means settling on a bonus that gives food when improved is more penalized at least in theory anyways etc; note: multiplied by GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD), so if i'm not mistaken if the bonus specific improvement (e.g. plantation for spices, mine for iron, farm for maize, etc.) (e.g. farm) gives 2 more food, and value is 600, then site would lose 2 * 600 = 1200 value which is big and a strong discouragement from settling on this tile -->
+	<!-- custom: lower (e.g. -700 is lower than -600) means settling on a bonus that gives food when improved is more penalized at least in theory; note: multiplied by GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD), so if i'm not mistaken if the bonus specific improvement (e.g. plantation for spices, mine for iron, farm for maize, etc.) (e.g. farm) gives 2 more food, and value is 600, then site would lose 2 * 600 = 1200 value which is big and a strong discouragement from settling on this tile -->
 	<Define>
 		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_FOOD</DefineName>
 		<iDefineIntVal>-600</iDefineIntVal>
@@ -278,12 +278,12 @@
 		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION</DefineName>
 		<iDefineIntVal>-350</iDefineIntVal>
 	</Define>
-	<!-- custom: if very low food tile, it may be better to settle on it, so penalty is not as high. The higher (e.g. 200 is higher than 150 anyways etc) this is, the more we value settling on this tile -->
+	<!-- custom: if very low food tile, it may be better to settle on it, so penalty is not as high. The higher (e.g. 200 is higher than 150) this is, the more we value settling on this tile -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
-	<!-- custom: but if the bonus yields a lot of production (i.e. hammer), then devalue settling on it. E.g. if value is 75 and for example a bonus specific improvement gives 4 hammer, then we will devalue settling on this tile by 4 * 150 = 600 which is a strong discouragement, as it is better not to settle on this tile and collect the yields even if in low food tile anyways etc. The lower this is the more we penalize settling on this tile -->
+	<!-- custom: but if the bonus yields a lot of production (i.e. hammer), then devalue settling on it. E.g. if value is 75 and for example a bonus specific improvement gives 4 hammer, then we will devalue settling on this tile by 4 * 150 = 600 which is a strong discouragement, as it is better not to settle on this tile and collect the yields even if in low food tile. The lower this is the more we penalize settling on this tile -->
 	<Define>
 		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD</DefineName>
 		<iDefineIntVal>-75</iDefineIntVal>
@@ -309,7 +309,7 @@
 
 
 	<!-- custom: non-bonus home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
-	<!-- custom: the higher (e.g. -100 is higher than -150) these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example anyways etc, then it means we value this tile 50 value more (addition anyways etc), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example -->
+	<!-- custom: the higher (e.g. -100 is higher than -150) these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example, then it means we value this tile 50 value more (addition), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example -->
 	<!-- custom: don't settle here, unless locally extremely good otherwise, made it even lower as some AIs still didn't listen -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS</DefineName>
@@ -327,7 +327,7 @@
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_DESERT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-	<!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too if i am not mistaken still quite good anyways etc, absolutely avoid settling on this unless really the best locally otherwise -->
+	<!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too if i am not mistaken still quite good, absolutely avoid settling on this unless really the best locally otherwise -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_GRASS</DefineName>
 		<iDefineIntVal>-75</iDefineIntVal>
@@ -337,7 +337,7 @@
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS</DefineName>
 		<iDefineIntVal>-50</iDefineIntVal>
 	</Define>
-	<!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain; one minus than fresh water, would be as good otherwise anyways etc; now trying a higher value as some cities still did't listen before it anyways etc, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
+	<!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain; one minus than fresh water, would be as good otherwise; now trying a higher value as some cities still did't listen before it, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_PLAINS</DefineName>
 		<iDefineIntVal>250</iDefineIntVal>
@@ -380,19 +380,19 @@
 
 
 	<!-- custom: non-bonus non-home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
-	<!-- custom: for each plot/tile in the candidate BFC, if they are of the type below, we add to candidate city site this value. For example, if BFC has 4 flatland (i.e. not hill anyways etc) grassland tiles and the value for non-bonus non-home grassland tiles is 60, then it means the combined value of these sites to choose our BFCis 4 * 60 = 240. But if we have say 2 tundra tiles in our BFC and the value for non-bonus non-home plot/tile is for example -25, then the value for these tiles in our BFC would be in total 2 * (-25) = -50, which means our candidate site would be devalued (-50 added to its value), which is much worse than having 4 flatland grass tiles for example. Adjust these values as you see fit to tweak AI settler preferences/evaluation -->
+	<!-- custom: for each plot/tile in the candidate BFC, if they are of the type below, we add to candidate city site this value. For example, if BFC has 4 flatland (i.e. not hill) grassland tiles and the value for non-bonus non-home grassland tiles is 60, then it means the combined value of these sites to choose our BFCis 4 * 60 = 240. But if we have say 2 tundra tiles in our BFC and the value for non-bonus non-home plot/tile is for example -25, then the value for these tiles in our BFC would be in total 2 * (-25) = -50, which means our candidate site would be devalued (-50 added to its value), which is much worse than having 4 flatland grass tiles for example. Adjust these values as you see fit to tweak AI settler preferences/evaluation -->
 	<!-- custom: high food and great cottage candidate, very strong -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLOOD_PLAINS</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: can't grow as much as flood plains with a cottage as it cannot be improved if i am not mistaken, but we have no health penalty, and we get the extra commerce yield immediately, plus it provides fresh water as well. I assume (hope) fresh water code is handled elsewhere that supports oasis too hopefully, but even if not and in all cases, maybe this valorization can help. -->
+	<!-- custom: can't grow as much as flood plains with a cottage as it cannot be improved, but we have no health penalty, and we get the extra commerce yield immediately, plus it provides fresh water as well. I assume (hope) fresh water code is handled elsewhere that supports oasis too hopefully, but even if not and in all cases, maybe this valorization can help. -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_OASIS</DefineName>
 		<iDefineIntVal>90</iDefineIntVal>
 	</Define>
 	<!-- custom: then if not flood plains nor oasis -->
-	<!-- custom: low food but at least we can mine it, avoid but not like flatland desert, defensive bonus is locally not too bad maybe as well if someone invades us (but harder to attack them there as well so so so anyways etc) -->
+	<!-- custom: low food but at least we can mine it, avoid but not like flatland desert, defensive bonus is locally not too bad maybe as well if someone invades us (but harder to attack them there as well so so so) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_DESERT</DefineName>
 		<iDefineIntVal>-25</iDefineIntVal>
@@ -434,7 +434,7 @@
 		<iDefineIntVal>-25</iDefineIntVal>
 	</Define>
 	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) -->
-	<!-- custom: same as tundra hill if i am not mistaken, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe if i'm not mistaken or some other improvements maybe too although i didn't check, but it would be costly in food if i'm not mistaken, so not a great choice to have in our city radius (great to settle on though otherwise if i'm not mistaken but is not handled here, as we are in the non-home-plot code if i am not mistaken) -->
+	<!-- custom: same as tundra hill, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe if i'm not mistaken or some other improvements maybe too although i didn't check, but it would be costly in food if i'm not mistaken, so not a great choice to have in our city radius (great to settle on though otherwise if i'm not mistaken but is not handled here, as we are in the non-home-plot code if i am not mistaken) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_SNOW</DefineName>
 		<iDefineIntVal>-35</iDefineIntVal>
@@ -450,7 +450,7 @@
 
 
 
-	<!-- custom: value iAIObjective bonuses especially more to settle on first, could be critical for our life and death (ideally check if obsolete too). Not having copper or iron may make us die, so really value it more anyways etc. See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplier is 50, then the value of this candidate site that has this iAIObjective valued bonus (as of now copper, iron, horse, camel, aluminium, uranium with various values for each if i'm not mistaken anyways etc) would be for example 10 * 50 = 500 extra value added to this candidate city site which is quite big, but if iAIObjective is 6, then with same 50 multiplier extra value would be 6 * 50 = 300 more points, which is still significant although bit less. Adjust as you see fit to help settlers value more or a lot more (i think negative values would devalue site but i don't know how negative values are handled by XML so better stick with positive ones unless you know what you're doing or want to test or whatever (i am not responsible of what may happen xd then although should be safe but disclaimer i am not responsible test at your own risk and make sure you can use a negative value if you still want it despite this discouragement/caution i gave, anyways etc)) -->
+	<!-- custom: value iAIObjective bonuses especially more to settle on first, could be critical for our life and death (ideally check if obsolete too). Not having copper or iron may make us die, so really value it more. See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplier is 50, then the value of this candidate site that has this iAIObjective valued bonus (as of now copper, iron, horse, camel, aluminium, uranium with various values for each if i'm not mistaken) would be for example 10 * 50 = 500 extra value added to this candidate city site which is quite big, but if iAIObjective is 6, then with same 50 multiplier extra value would be 6 * 50 = 300 more points, which is still significant although bit less. Adjust as you see fit to help settlers value more or a lot more (i think negative values would devalue site but i don't know how negative values are handled by XML so better stick with positive ones unless you know what you're doing or want to test or whatever (i am not responsible of what may happen xd then although should be safe but disclaimer i am not responsible test at your own risk and make sure you can use a negative value if you still want it despite this discouragement/caution i gave)) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_EXTRA_VALUE_NOT_HOME_BONUS_IAIOBJECTIVE_MULTIPLIER</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
@@ -460,7 +460,7 @@
 
 	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal -->
 	<!-- custom: note: very low food tiles like flatland desert, hill desert, snow, and including peak for example count double (2 low food tiles), whie high food tiles like flood plains or oasis count -1 as they give food. Note: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much -->
-	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. anyways etc if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city siteis updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists -->
+	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city siteis updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_TILES</DefineName>
 		<iDefineIntVal>7</iDefineIntVal>
@@ -480,7 +480,7 @@
 
 
 
-	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details anyways etc
+	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	-->
@@ -528,7 +528,7 @@
 
 
 
-	<!-- custom: 2) anyways etc
+	<!-- custom: 2)
 	- SAS: super-simple culture pressure gate (no cheat, cheap) -
 	Goal: it's fine if a site is a *little* pressed, but skip it if it's *too* pressed.
 	Notes
@@ -597,8 +597,8 @@
 		<DefineName>SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_START</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
-	<!-- custom: example of calculation at start phase anyways etc: -->
-	<!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe -->
+	<!-- custom: example of calculation at start phase: -->
+	<!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325; so value lost 35% value as intended, added to clarify calculation to chatgpt 5 or proof it to myself hehe -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MIN_UNHEALTH_THRESH_LATER</DefineName>
 		<iDefineIntVal>-400</iDefineIntVal>
@@ -610,7 +610,7 @@
 
 
 
-	<!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too, check if accurate anyways etc; also refactored a bit otherwise our already changed code as commented below -->
+	<!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too, check if accurate; also refactored a bit otherwise our already changed code as commented below -->
 	<!-- leave headroom under 32767 -->
 	<Define>
 		<DefineName>SAS_EVALUATE_GUARD_KMAXFOUND</DefineName>
@@ -619,7 +619,7 @@
 
 
 
-	<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate anyways etc; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
+	<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
 	<!-- custom: 1 to enable (recommended), 0 to disable -->
 	<Define>
 		<DefineName>SAS_AI_FOUND_OPTIMIZE</DefineName>
@@ -630,7 +630,7 @@
 		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
-	<!-- custom: e.g. ignore safety restrictions if we have this number of cities (idea is to settle them fast when it is early and safe enough to do so to not fall behind as we overly do anyways etc) -->
+	<!-- custom: e.g. ignore safety restrictions if we have this number of cities (idea is to settle them fast when it is early and safe enough to do so to not fall behind as we overly do) -->
 	<Define>
 		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -687,7 +687,7 @@
 	<!-- World Wonder special-case: "barbarian barrier" wonders (Great Wall: bBorderObstacle=1).
 	Enable/disable the special-case, and stop considering it after a max era.
 	Era index: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future -->
-	<!-- custom: if value is 0 (disabled), we won't build great wall after specified era index (e.g. 2, so from era 3 = medieval era, we won't build great wall. We assume this is all a wonder has else said wonder would be op so no need to check other things anyways etc.) -->
+	<!-- custom: if value is 0 (disabled), we won't build great wall after specified era index (e.g. 2, so from era 3 = medieval era, we won't build great wall. We assume this is all a wonder has else said wonder would be op so no need to check other things) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -782,19 +782,19 @@
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
-	<!-- custom: e.g. if this value is 125 (at normal, so 125 * 150 / 100 = turn 187.5 at epic; or 125 * 200 / 100 = turn 250 at as of now marathon, etc. ), then even if our city is not top 2 hammer city with some leeway, we will still not reject building wonder based on this (as top hammers cities are busy expanding so early i guess that would explain autoplay results anyways etc.). But after this turn, it will be a hard reject cause if not met, so for example from turn 126 at normal (or 188.5 at epic, or as of now 251 at marathon in this example anyways etc.) we'll reject building the wonder in this city if this city is not top 2 hammer with some leeway (same behaviour that caused less wonders early, hopefully core cities ar enot busy expanding anymore and can be considered more primarily, plus we don't want to die to rivals so be stricter here at middle game phase onwards as we have less room for mistakes). -->
-	<!-- custom: note: 0 to disable it would mean expansion phase would be over since the turn game started anyways etc (this allows stricter no wonder policy to hopefully make AI stronger militarily; adjust as you see fit anyways etc.). Otherwise a value like 125 or similar may do fine (test to be sure, adjust as you see fit anyways etc.) -->
+	<!-- custom: e.g. if this value is 125 (at normal, so 125 * 150 / 100 = turn 187.5 at epic; or 125 * 200 / 100 = turn 250 at as of now marathon, etc. ), then even if our city is not top 2 hammer city with some leeway, we will still not reject building wonder based on this (as top hammers cities are busy expanding so early i guess that would explain autoplay results). But after this turn, it will be a hard reject cause if not met, so for example from turn 126 at normal (or 188.5 at epic, or as of now 251 at marathon in this example) we'll reject building the wonder in this city if this city is not top 2 hammer with some leeway (same behaviour that caused less wonders early, hopefully core cities ar enot busy expanding anymore and can be considered more primarily, plus we don't want to die to rivals so be stricter here at middle game phase onwards as we have less room for mistakes). -->
+	<!-- custom: note: 0 to disable it would mean expansion phase would be over since the turn game started (this allows stricter no wonder policy to hopefully make AI stronger militarily; adjust as you see fit). Otherwise a value like 125 or similar may do fine (test to be sure, adjust as you see fit) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time anyways etc, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code -->
+	<!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code -->
 	<!-- custom: update: in autoplay, disabling this increases the number of wonders built from 0 wonders to 2 wonders at turn 100 in an autoplay sample. Implemented as i have noticed that even reducing cost does not increase AI willingness to build more wonders. Upon investigating, disabling SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE in XML fixes the issue and AI suddenly build a lot of wonders, there must be a better way to approach the don't build wonders we risk to waste hammers on logic. But for now making these customizable so players can enable/disble them as they see fit and for testing as well -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: specific the number of rivals we max tolerate before we give up on the idea of building this wonder. Note: if we are already (see below for completion percent to keep building it anyways etc.) building it, then ignore this anyways etc. E.g. if value is 3, it means if 3 or more rivals know (as of now) TECH_CALENDAR, then we won't build the oracle. -->
+	<!-- custom: specific the number of rivals we max tolerate before we give up on the idea of building this wonder. Note: if we are already (see below for completion percent to keep building it) building it, then ignore this. E.g. if value is 3, it means if 3 or more rivals know (as of now) TECH_CALENDAR, then we won't build the oracle. -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
@@ -832,7 +832,7 @@
 		<DefineName>SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_PALACE</DefineTextVal>
 	</Define>
-	<!-- custom: max number of turns (at normal, auto adjusted to other game speeds) we tolerate to not reject building a wonder. This is adjusted by various things (handicap, etc), but it grossly means that for example if value is 20 (which is computed as 20 * 150 / 100 = 30 turns in gamespeed_epic for example anyways etc), if a wonder takes 21 or more turns at normal (or 31 at gamespeed_epic for example anyways etc) to build, we will reject it and not build it anyways etc, as it is too unlikely we'd finish it in time or fast enough or would gain enough from building it. -->
+	<!-- custom: max number of turns (at normal, auto adjusted to other game speeds) we tolerate to not reject building a wonder. This is adjusted by various things (handicap, etc), but it grossly means that for example if value is 20 (which is computed as 20 * 150 / 100 = 30 turns in gamespeed_epic for example), if a wonder takes 21 or more turns at normal (or 31 at gamespeed_epic for example) to build, we will reject it and not build it, as it is too unlikely we'd finish it in time or fast enough or would gain enough from building it. -->
 	<!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
@@ -855,30 +855,30 @@
 		<DefineName>SAS_AI_CHOOSE_UNIT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions anyways etc). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead anyways etc). Note: if i'm not mistaken the code we added in this function takes into account units in queue, not just existing ones. Note: contrary to what the name indicates, excess is not just about quantity, but also war circumstances, for example if we are at war and enemy is strong, it is very tight if not rejecting all new sieges, or if in danger or such other conditions (not added all here as bit tedious but hopefully the below help enough control siege production for this function, with the hope that other functions don't interfere too much with our logic here (it is quite centralized so effective, but sometimes maybe it would not although it seemed very effective ingame anyways etc)). -->
+	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead). Note: if i'm not mistaken the code we added in this function takes into account units in queue, not just existing ones. Note: contrary to what the name indicates, excess is not just about quantity, but also war circumstances, for example if we are at war and enemy is strong, it is very tight if not rejecting all new sieges, or if in danger or such other conditions (not added all here as bit tedious but hopefully the below help enough control siege production for this function, with the hope that other functions don't interfere too much with our logic here (it is quite centralized so effective, but sometimes maybe it would not although it seemed very effective ingame)). -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: we need more siege units early if we don't have key strategic bonuses (as of now defined as no iron nor copper nor horse nor camel nor horse nor elephants anyways etc), so relax threshold in these cases. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather -->
+	<!-- custom: we need more siege units early if we don't have key strategic bonuses (as of now defined as no iron nor copper nor horse nor camel nor horse nor elephants), so relax threshold in these cases. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather -->
 	<!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate), so use it with that intent in mind or if you don't mind xd, else the hasBonus or possibly other functions might be used instead but check to be sure -->
 	<!-- custom: example of calculation: if you set this value to for example x=200, and max sieges is calculated to be a=5, then the new threshold will be a=5 + ((a=5 * x=200) / 100) = 5 + (5 * 2) = 5 + 10 = 15 (i.e. +200% which is the same as value multiplied by 3); note: 0 would nullify this effect as any a * 0 = 0 so value stays the same if i'm not mistaken -->
 	<Define>
 		<DefineName>SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us anyways etc). -->
+	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us). -->
 	<!-- custom: note: now shared with no production fallback code hence the different name prefix in this case i mean if i'm not mistaken -->
 	<Define>
 		<DefineName>SAS_NO_EXCESS_TREBUCHETS_LIKE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units. For example if we have computed that max allowed for our empire without excess is 1 trbuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example anyways etc. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough tresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense if i'm not mistaken especially for AI)) -->
+	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units. For example if we have computed that max allowed for our empire without excess is 1 trbuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough tresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense if i'm not mistaken especially for AI)) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaisance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds anyways etc), etc.) -->
+	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaisance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds), etc.) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -891,8 +891,8 @@
 
 
 
-	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example anyways etc), where our code remains active. Past this turn, we don't control excess defenders anymore anyways etc. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less -->
-	<!-- custom: as of now only applies to land unitais as are +/- were anyways etc the most important to trim and that overproduce as of now with our changes -->
+	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example), where our code remains active. Past this turn, we don't control excess defenders anymore. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less -->
+	<!-- custom: as of now only applies to land unitais as are +/- were the most important to trim and that overproduce as of now with our changes -->
 	<!-- custom: note: now shared with no production fallback code hence the different name prefix -->
 	<!-- If your intent is:
 		- Anc/Class/Med caps only early, but
@@ -903,23 +903,23 @@
 		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
 		<iDefineIntVal>170</iDefineIntVal>
 	</Define>
-	<!-- custom: this is the general toggle, for specific ones, look below anyways etc. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit -->
+	<!-- custom: this is the general toggle, for specific ones, look below. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases anyways etc) -->
+	<!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: if we reject unit the other flags of attempt are useless i.e. unused: we only attempt them if this excess defender unit order (to produce this unit anyways etc) is not rejected by the above reject flag. -->
-	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit anyways etc etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure anyways etc) -->
+	<!-- custom: if we reject unit the other flags of attempt are useless i.e. unused: we only attempt them if this excess defender unit order (to produce this unit) is not rejected by the above reject flag. -->
+	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: if no good candidate, attempt to hijack the unitai rather, so for example instead of having a longbowman with unitai_city_defense, we'd have a longbowman with unitai_counter or whatever else it supports that is less defensive, in the hope these roaming units would help attack someone especially if we have many of them, and hopefulyl capture a city, lose some units so our economy improves, rather than waiting to die with too many longbows (or if not too many buildings or whatever else AI would otherwise do anyways etc), used to help a lot tested ingame, but it seems not effective as of now (not sure if i refactored it wrong or something else might(?) have changed or not), or maybe it's an edge case i saw, i recommend keeping it enabled -->
+	<!-- custom: if no good candidate, attempt to hijack the unitai rather, so for example instead of having a longbowman with unitai_city_defense, we'd have a longbowman with unitai_counter or whatever else it supports that is less defensive, in the hope these roaming units would help attack someone especially if we have many of them, and hopefulyl capture a city, lose some units so our economy improves, rather than waiting to die with too many longbows (or if not too many buildings or whatever else AI would otherwise do), used to help a lot tested ingame, but it seems not effective as of now (not sure if i refactored it wrong or something else might(?) have changed or not), or maybe it's an edge case i saw, i recommend keeping it enabled -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -928,7 +928,7 @@
 
 
 	<!-- custom: extremely effective code ingame, seemingly even better than the no excess defender or excess siege code due to it being written differently, i'd still recommend all of these enabled. As for this no very early units, here are some tunables/knobsto customize/configure them.
-	Era info is as follows if i am not mistaken (check if accurate as i am not 100% sure it starts at 0 for first era but i guess so, check to be sure anyways etc). (found with vs code global search, these are the results in an xml file in our mod anyways etc):
+	Era info is as follows if i am not mistaken (check if accurate as i am not 100% sure it starts at 0 for first era but i guess so, check to be sure). (found with vs code global search, these are the results in an xml file in our mod):
 
 	// 18,5: 			<Type>ERA_ANCIENT</Type>
 	// 79,5: 			<Type>ERA_CLASSICAL</Type>
@@ -938,26 +938,26 @@
 	// 401,5: 			<Type>ERA_MODERN</Type>
 	// 477,5: 			<Type>ERA_FUTURE</Type>
 	
-	The below code allows to restrict very cheap units, as they are very likely to make us bankrupt due to how easy they are to overproduce, so AI is most likely to overbuild them. Plus, they are not very effective (expected as they are cheap), so apply strict gating. Note: is per unitclass, so for example the rome legionary and the generic swordsman belong to the same class swordsman and are gated to the same threshold per class (we can't build both legionaries and generic sworsdmen but is to explain anyways etc)
+	The below code allows to restrict very cheap units, as they are very likely to make us bankrupt due to how easy they are to overproduce, so AI is most likely to overbuild them. Plus, they are not very effective (expected as they are cheap), so apply strict gating. Note: is per unitclass, so for example the rome legionary and the generic swordsman belong to the same class swordsman and are gated to the same threshold per class (we can't build both legionaries and generic sworsdmen but is to explain)
 
-	This uses XML costs, so it is independent from handicap modifiers, gamespeeds, etc. Very useful to target the units we want, for example the ancient maceman will always cost 18 in xml no matetr ai modifiers or penalties or map size or era anyways etc.
+	This uses XML costs, so it is independent from handicap modifiers, gamespeeds, etc. Very useful to target the units we want, for example the ancient maceman will always cost 18 in xml no matetr ai modifiers or penalties or map size or era.
 
 	Example of calculation:
 	- ancient maceman: cost 18 hammer, at era 0 (era_ancient), cost threshold is <= 20; 18 <= 20 so ancient maceman is considered a very cheap unit
-	Finding max allowed: At era 0, if cities multiplier is 1, and extra excess allowed is 3 (not naval map). Assuming we have 2 cities, then max allowed of this very cheap unit is (1 multiplier city * 2 num cities) + 3 (extra excess for not naval map anyways etc) = (1 * 2) + 3 = 2 + 3 = 5 units max.
+	Finding max allowed: At era 0, if cities multiplier is 1, and extra excess allowed is 3 (not naval map). Assuming we have 2 cities, then max allowed of this very cheap unit is (1 multiplier city * 2 num cities) + 3 (extra excess for not naval map) = (1 * 2) + 3 = 2 + 3 = 5 units max.
 	Further more, at era 0 in particular, we divide by 2 this number after turn more or less 50 as we really don't want too much of them, and AIs would often build them even at turn 100 which was very nonsensical. So in this example, 5 units max / 2 = 2.5 (don't ask me if it becomes 3 or 2 xd, i'd suspect 2 units max but not sure but either way a low number allowed for 2 cities on non naval map past turn 50)
 
 	- archer: cost 25 hammer, at era 1 (era_classical), cost threshold is <= 27 so archer is considered a very cheap unit.
 	Finding max allowed: At era 1, if cities multiplier is 4, and extra excess allowed is 3, assuming we have 3 cities, then max allowed is (4 cities multiplier * 3 num cities) + 3 extra excess allowed = 4 * 3 + 3 = 12 + 3 = 15 allowed max. Any more won't help anyway
 
-	- longbow or trireme: cost 45 hammer, at era 2 (era_medieval), cost threshold is <= 47, so longbow or trireme are considered a very cheap unit. At era 2, if cities multiplier is 5, and extra excess allowed is 6, assuming we have 5 cities, then max allowed is (5 cities mulitplier * 5 num cities) + 6 extra excess allowed = 5 * 5 + 6 = 25 + 6 = 31 max. Any more won't help us, we really want to avoid getting bankrupt and get more techs or maybe buildings (if AI wants to anyways etc) or some stronger units (ideally if AI does and can anyways etc) that would be more hammer effective and unit cost efficient anyways etc, or attack someone or whatever, but it will only get worse if we build more of these very cheap units at this era. Still it can be best move if we really have no bonus even at medieval, so don't totally discourage it either, but make it low enough that in most cases AI woudl switch to something else.
+	- longbow or trireme: cost 45 hammer, at era 2 (era_medieval), cost threshold is <= 47, so longbow or trireme are considered a very cheap unit. At era 2, if cities multiplier is 5, and extra excess allowed is 6, assuming we have 5 cities, then max allowed is (5 cities mulitplier * 5 num cities) + 6 extra excess allowed = 5 * 5 + 6 = 25 + 6 = 31 max. Any more won't help us, we really want to avoid getting bankrupt and get more techs or maybe buildings (if AI wants to) or some stronger units (ideally if AI does and can) that would be more hammer effective and unit cost efficient, or attack someone or whatever, but it will only get worse if we build more of these very cheap units at this era. Still it can be best move if we really have no bonus even at medieval, so don't totally discourage it either, but make it low enough that in most cases AI woudl switch to something else.
 
-	Seems very although not entirely in classical but seemingly helps a lot our military composition be more varied and not a bunch of cheap units in most cases it seems in autoplay anyways etc, see known issue as of now 67 for some screenshots there although not directly related, we went from 60-75 longbows with 0-10 samurai (from what i remember of it anyways etc) at turn 200 (extreme case) to 37 longbows and 27 samurai.
-	Strongly recommended to keep enabled, tweak as you see fit anyways etc.
+	Seems very although not entirely in classical but seemingly helps a lot our military composition be more varied and not a bunch of cheap units in most cases it seems in autoplay, see known issue as of now 67 for some screenshots there although not directly related, we went from 60-75 longbows with 0-10 samurai (from what i remember of it) at turn 200 (extreme case) to 37 longbows and 27 samurai.
+	Strongly recommended to keep enabled, tweak as you see fit.
 
-	Note: only affects combat units (strength > 0) if i'm not mistaken anyways etc, so no workers unless they ahve strength, but scouts, galleys, archers, all are combat i.e. fighters here
+	Note: only affects combat units (strength > 0) if i'm not mistaken, so no workers unless they ahve strength, but scouts, galleys, archers, all are combat i.e. fighters here
 
-	Note 2: correction to above and extra precision, these era thresholds are tiers, meaning the ancient tier (e.g. ancient maceman, as of now 18 hammer is lower than 20 anyways etc) keeps its gates/caps even after changing era, else we'd have ancient macemen being produced again when we enter classical, which happened in autoplay after i refactored the code, so fixed it by taking the worse cap of each tier (we need to put lower values here though e.g. 20 at ancient tier is lower than 27 at classical tier (for example anyways etc), but say 18 at classical era would not be higher. It is not a strict requirement but just makes things smoother if caps increase anyways etc). Then the classical tier units (e.g. archer 25 hammer < 28 hammer classical tier will have a limit, that will not increase even when we enter medieval era). -->
+	Note 2: correction to above and extra precision, these era thresholds are tiers, meaning the ancient tier (e.g. ancient maceman, as of now 18 hammer is lower than 20) keeps its gates/caps even after changing era, else we'd have ancient macemen being produced again when we enter classical, which happened in autoplay after i refactored the code, so fixed it by taking the worse cap of each tier (we need to put lower values here though e.g. 20 at ancient tier is lower than 27 at classical tier (for example), but say 18 at classical era would not be higher. It is not a strict requirement but just makes things smoother if caps increase). Then the classical tier units (e.g. archer 25 hammer < 28 hammer classical tier will have a limit, that will not increase even when we enter medieval era). -->
 	<!-- custom: note 3: now the anti excess very cheap units is also included in CvCity::doTurn in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game) -->
 	<!-- custom: note 4: this as of now applies only to land direct combat units (not spies, scouts, etc.) -->
 	<Define>
@@ -970,7 +970,7 @@
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: classical onwards, also curb archers -->
-	<!-- custom: this hopefully also curbs archers at classical era 28 > 25 as of now anyways etc, but not overruling chariots nor spears in classical tier so all good) -->
+	<!-- custom: this hopefully also curbs archers at classical era 28 > 25 as of now, but not overruling chariots nor spears in classical tier so all good) -->
 	<Define>
 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD</DefineName>
 		<iDefineIntVal>28</iDefineIntVal>
@@ -981,7 +981,7 @@
 		<iDefineIntVal>47</iDefineIntVal>
 	</Define>
 	<!-- custom: AIs overproduce pikemen late into renaissance and sometimes maybe even industrial era (i don't remember exactly but +/- turn 300 at game speed normal) which is way too late as these units are no longer effective as soon as we get cannons or cuirassier units against which pikemen are very weak so don't produce them anymore. Also, since they are so cheap, on top of being militarily inefficient/ineffective, they are also most likely to bankrupt us or make our economy significantly weaker for no gain so avoid entirely building them at renaissance+ -->
-	<!-- custom: note 1.1: as of now, before renaissance, all tiers apply only to domain_land units only (e.g. no sea or air domain (note: gunship or such are domain land though anyways etc) etc units anyways etc) in the no production unit fallback code in CvCity::doTurn, however it applies to all domain units in the general until production gates in CvCityAI::AI_chooseUnit, even though both of these functions use the same SAS_ defines/knobs -->
+	<!-- custom: note 1.1: as of now, before renaissance, all tiers apply only to domain_land units only (e.g. no sea or air domain (note: gunship or such are domain land though) etc units) in the no production unit fallback code in CvCity::doTurn, however it applies to all domain units in the general until production gates in CvCityAI::AI_chooseUnit, even though both of these functions use the same SAS_ defines/knobs -->
 	<!-- custom: note 1.2: however, as of now, for the renaissance plus tier specifically, this tier applies only to domain_land units, both in the no production unit fallback code in CvCity::doTurn, and in the general until production gates in CvCityAI::AI_chooseUnit, both of which use the same SAS_ defines/knobs -->
 	<!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot -->
 	<!-- // only after we actually reach Renaissance -->
@@ -996,7 +996,7 @@
 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or sucha modmod might additionally add -->
+	<!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or sucha modmod might additionally add -->
 	<Define>
 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1059,12 +1059,12 @@
 
 
 
-	<!-- custom: set to only allow offense default unitais as fallback (as of now UNITAI_COUNTER, UNITAI_ATTACK, UNITAI_ATTACK_CITY, check code for updated version if any change since then anyways etc); untested but may for example reduce early longbow spam in favour of more offense units (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now anyways etc)): it is a trade off though as we'd have (in theory, as of now untested) less defensive units then -->
+	<!-- custom: set to only allow offense default unitais as fallback (as of now UNITAI_COUNTER, UNITAI_ATTACK, UNITAI_ATTACK_CITY, check code for updated version if any change since then); untested but may for example reduce early longbow spam in favour of more offense units (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)): it is a trade off though as we'd have (in theory, as of now untested) less defensive units then -->
 	<Define>
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: set to only allow defense default unitais as fallback (as of now UNITAI_CITY_DEFENSE, UNITAI_CITY_COUNTER, UNITAI_CITY_SPECIAL, UNITAI_RESERVE), check code for updated version if any change since then anyways etc); untested (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now anyways etc)) -->
+	<!-- custom: set to only allow defense default unitais as fallback (as of now UNITAI_CITY_DEFENSE, UNITAI_CITY_COUNTER, UNITAI_CITY_SPECIAL, UNITAI_RESERVE), check code for updated version if any change since then); untested (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)) -->
 	<Define>
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1072,14 +1072,14 @@
 
 
 
-	<!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons anyways etc), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative, but trebuchets are not versatile enough so do not allow them. Defense difference is not big if just for a few units, but these few catapults can many times be decisive so build a few in fallback code but not lot anyways etc. See known issue as of now 53.3 for info related to previous version of these changes -->
+	<!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative, but trebuchets are not versatile enough so do not allow them. Defense difference is not big if just for a few units, but these few catapults can many times be decisive so build a few in fallback code but not lot. See known issue as of now 53.3 for info related to previous version of these changes -->
 	<!-- custom: else as of now no restriction, facilitate cannons+ as we have a bit too few generally and they are strong enough to be considered for both defense and offense especially if we have nothing better like pikes and no muskets yet -->
-	<!-- custom: note: unit not counted in candidates if higher or equal than this value (also this doesn't count trebuchet like units in total as of now), so that we guarantee minimum catapults as much as possible as of now anyways etc. E.g. if value is 4, max we allow is 3 -->
+	<!-- custom: note: unit not counted in candidates if higher or equal than this value (also this doesn't count trebuchet like units in total as of now), so that we guarantee minimum catapults as much as possible as of now. E.g. if value is 4, max we allow is 3 -->
 	<Define>
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
-	<!-- custom: a bit more lenient with this one since it is strict cap (not an extra cap) and we added guards so that hopefully they are not produced if enemy is strong or such. We shouldn't restrict them too much if they are the only viable offense path, but producing more than a few they are highly likely to become ununsed, so use a low threshold. Not using this, AIs would produce tons of trebuchets (like 17-19 at turn 200 which was highly detrimental anyways etc) via the no production fallback part of the code -->
+	<!-- custom: a bit more lenient with this one since it is strict cap (not an extra cap) and we added guards so that hopefully they are not produced if enemy is strong or such. We shouldn't restrict them too much if they are the only viable offense path, but producing more than a few they are highly likely to become ununsed, so use a low threshold. Not using this, AIs would produce tons of trebuchets (like 17-19 at turn 200 which was highly detrimental) via the no production fallback part of the code -->
 	<Define>
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
@@ -1092,12 +1092,12 @@
 
 
 
-	<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
+	<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
 	<Define>
 		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the greek hoplite) are equally inflated (i.e. valorized anyways etc) in the fallback unit code, so the AI players values them if buildable (even though they are generally less effective at offense (but they as civ-specific units should have in one way or another "good"/stronger stats than base units (else rebalance them) so it is maybe fine too to valorize them as well, with here the option to disable it if you prefer anyways etc)). In other words, as of now between for example a greek_hoplite and and a generic unit_longbowman, enable this to choose the greek_hoplite (as it is more efficient in hammer cost, and versatile enough) rather than the longbowman as a fallback unit, but between a spearman and a longbowman as fallback unit, still favour the longbowman (as it is more versatile and slightly stronger as well even if more expensive better than stockpiling weaker units and go bankrupt) -->
+	<!-- custom: enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the greek hoplite) are equally inflated (i.e. valorized) in the fallback unit code, so the AI players values them if buildable (even though they are generally less effective at offense (but they as civ-specific units should have in one way or another "good"/stronger stats than base units (else rebalance them) so it is maybe fine too to valorize them as well, with here the option to disable it if you prefer)). In other words, as of now between for example a greek_hoplite and and a generic unit_longbowman, enable this to choose the greek_hoplite (as it is more efficient in hammer cost, and versatile enough) rather than the longbowman as a fallback unit, but between a spearman and a longbowman as fallback unit, still favour the longbowman (as it is more versatile and slightly stronger as well even if more expensive better than stockpiling weaker units and go bankrupt) -->
 	<Define>
 		<DefineName>SAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1264,7 +1264,7 @@
 
 
 
-	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health, moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values anyways etc), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled anyways etc. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable. See custom main changes guide for more details or code -->
+	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health, moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable. See custom main changes guide for more details or code -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1272,13 +1272,13 @@
 
 
 
-	<!-- custom: independently from multi effect bonuses valuing, also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc. anyways etc) specifically anyways etc; AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided with the help of chatgpt 5 thanks -->
+	<!-- custom: independently from multi effect bonuses valuing, also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc.) specifically; AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided with the help of chatgpt 5 thanks -->
 	<!--
 	// totally—treat AIObjective as the general “this bonus is strategically important” knob, and then layer your edge rules (iron/copper, horse/camel, elephants (low value)) on top. Because both are multiplicative, order doesn’t change the math, but putting the AIObjective block first reads nicest.
 	// - 1) Generic AIObjective bump (broad rule) -
 	// Each AIObjective point adds X%, capped at Y%
 	-->
-	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example if i'm not mistaken anyways etc). -->
+	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example if i'm not mistaken). -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1299,25 +1299,25 @@
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: here is the logic i drafted (updated bit but refer to below code comments per define rather for clarity with updated values there as well) to chatgpt 5 after some back and forth and consideration:
-	Note: since it is technical and i didn't reread and/or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct anyways etc
+	Note: since it is technical and i didn't reread and/or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct
 
 	if we have no horse nor camel nor elephants pre medieval, increase them to 1.5x
 	if we have no metal pre medieval, increase them to 1.5x
 
 	if we have no horse nor camel medieval, increase them 1.5x if we have metals else 0.75x
 	if we have no metal medieval, increase iron 2.0x copper 0.75x if we have mounts else iron 1.0x copper 0.50x
-	regardless of all, medieval+ elephants is 0.50x (useless except buildings, offset the small iaiobjective and correct value anyways etc)
+	regardless of all, medieval+ elephants is 0.50x (useless except buildings, offset the small iaiobjective and correct value)
 	regardless of all, medieval+ copper is 0.50x similarly
 
 	if we have no horse nor camel renaissance, increase them 1.5x if we have iron else 0.75x
 	if we have no iron renaissance increase for cannons 1.50x, if we have mounts increase 1.50x
 
-	if we have no camel don't care in industrial+, onwards apply 0.50x (not used for units anymore anyways etc)
+	if we have no camel don't care in industrial+, onwards apply 0.50x (not used for units anymore)
 
 	if we have no horse in industrial (cavalry is now metal independant) keep same (we have fallbacks and better units onwards)
 
-	if we have no horse in modern+ apply 0.50x (not used for units anymore anyways etc)
-	Below code comments by chatgpt 5, check if accurate anyways etc
+	if we have no horse in modern+ apply 0.50x (not used for units anymore)
+	Below code comments by chatgpt 5, check if accurate
 	-->
 	<!-- Pre-Medieval: boost mounts if you have NO Horse/Camel/Elephants. 100=off, 150=+50%. -->
 	<Define>
@@ -1375,7 +1375,7 @@
 
 
 
-	<!-- custom: note: as of now copper exception (alternative bonus to iron anyways etc) for Holy Roman Empire's new HOLY_ROMAN_HOUFNICE is not handled to simplify and as is bit tedious, may or not do so in the future -->
+	<!-- custom: note: as of now copper exception (alternative bonus to iron) for Holy Roman Empire's new HOLY_ROMAN_HOUFNICE is not handled to simplify and as is bit tedious, may or not do so in the future -->
 	<!-- Renaissance: LACK mounts + HAVE IRON → modest mount boost (Cuirassiers path) -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT</DefineName>
@@ -1517,7 +1517,7 @@
 
 
 
-	<!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech anyways etc.), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issues as of now 77 and 78 for details -->
+	<!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issues as of now 77 and 78 for details -->
 	<!-- // Prefer tech trades with master/vassal partners.
 	// This boosts the chance that we initiate CONTACT_TRADE_TECH
 	// when ePlayer is either our master or our vassal. -->
@@ -1617,7 +1617,7 @@
 
 
 
-	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate anyways etc). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really; also i mean check if accurate and thanks for help i mean too -->
+	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really; also i mean check if accurate and thanks for help i mean too -->
 	<!-- custom: as for these new knobs, for this one the higher the value, the more we want to switch to this civic for each of our cities that are unhappy (it may be worth to change to such a civic if city is unhappy and we have some unhappiness in this city that is due to this civic not being adopted). -->
 	<Define>
 		<DefineName>SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY</DefineName>
@@ -1672,7 +1672,7 @@
 		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
-	<!-- custom: for our new unlimited specialists valuation code, it is great at spreading more evenly civics at various stages of the game vs only civic_caste_system before, but we switch a bit too ofte. Yet, it is not as attractive to change civics if we'd have anarchy, so add some devaluation depending on anarchy length. E.g. if civic value is 1000 (random number as an example anyways etc) and this knob's value is 10(%), and we have 2 anarchy turns to change civic, then the new civic value would be ((100 - (2 * 10)) * 1000) / 100 = (80 * 1000) / 100 = 800. But if anarchy length is 0 turns, then value remains 1000 and as attractive, as ((100 - (0 * 10)) * 1000) / 100 = 100 * 1000 / 100 = 1000 (100% value is same). In short, for example -10% civic value loss per turn of anarchy. -->
+	<!-- custom: for our new unlimited specialists valuation code, it is great at spreading more evenly civics at various stages of the game vs only civic_caste_system before, but we switch a bit too ofte. Yet, it is not as attractive to change civics if we'd have anarchy, so add some devaluation depending on anarchy length. E.g. if civic value is 1000 (random number as an example) and this knob's value is 10(%), and we have 2 anarchy turns to change civic, then the new civic value would be ((100 - (2 * 10)) * 1000) / 100 = (80 * 1000) / 100 = 800. But if anarchy length is 0 turns, then value remains 1000 and as attractive, as ((100 - (0 * 10)) * 1000) / 100 = 100 * 1000 / 100 = 1000 (100% value is same). In short, for example -10% civic value loss per turn of anarchy. -->
 	<Define>
 		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
@@ -1727,7 +1727,7 @@
 
 
 
-	<!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well anyways etc.), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks; check if accurate -->
+	<!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks; check if accurate -->
 	<!-- The Solution
 	We need to change the Diplomatic Modifier section in AI_religionValue.
 	1) Remove the Attitude Gate: The AI should recognize that sharing a religion is a tool to make people like them, not just a reward for people who already do.
@@ -1737,7 +1737,7 @@
 	<!-- Formula: Modifier = [(MULT * Base * PowerBlocPercent) + MULT_ADD] / [(DIVIDER_MULT * ReligionFlavor) + DIVIDER_ADD] -->
 	<!-- Base = Personality-based value (50-95), PowerBlocPercent = 0-100 based on power of civs sharing religion -->
 	<!-- Example: 70% power bloc, Base=75, Flavor=5: [(10*75*70)+0] / [(1*5)+0] = 52500/5 = 10500% -->
-	<!-- custom: note: as noted by chatgpt 5.1 in a similar example thanks anyways etc., in this example this would result in multiplying base value by 105 (10500 percent = 105) which is a "huge" "boost" as per its words but may be fine i think (check if accurate though as this is just a guess of mine) to account for military power more in religion value. Adjust as you see fit or/and based on autoplay or whatever. -->
+	<!-- custom: note: as noted by chatgpt 5.1 in a similar example thanks , in this example this would result in multiplying base value by 105 (10500 percent = 105) which is a "huge" "boost" as per its words but may be fine i think (check if accurate though as this is just a guess of mine) to account for military power more in religion value. Adjust as you see fit or/and based on autoplay or whatever. -->
 	<!-- Increasing MULT amplifies diplomatic weight. Increasing DIVIDER_ADD reduces flavor penalty for low-religion leaders. -->
 	<!-- Multiplier for diplomatic modifier. Higher = stronger diplomatic influence. Min: 0 -->
 	<Define>
@@ -1821,28 +1821,28 @@
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored anyways etc). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC. -->
+	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC. -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledgling") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess anyways etc (more or less 10 total culture), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC) -->
+	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledgling") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess (more or less 10 total culture), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC) -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: since it is always the artist that is being forced early when invalid, adding this fix with the help of chatgpt 5 -->
-	<!-- custom: update: it seems that in some cases we lose the artist bfc ability we had, gating it with an xml define/toggle to see if it selectively loses/restores the bfc ability anyways etc, recommended to disable it until/unless it is determined safe if at all to enable anyways etc; update 2: tested in autoplay and we indeed selectively lose the ability to force an artist for bfc after enabling this, so disabling this entirely, kept a toggle if want to experiement or test it. Recommended to keep this disabled anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not -->
+	<!-- custom: update: it seems that in some cases we lose the artist bfc ability we had, gating it with an xml define/toggle to see if it selectively loses/restores the bfc ability, recommended to disable it until/unless it is determined safe if at all to enable; update 2: tested in autoplay and we indeed selectively lose the ability to force an artist for bfc after enabling this, so disabling this entirely, kept a toggle if want to experiement or test it. Recommended to keep this disabled. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not -->
 	<Define>
 		<DefineName>SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: also give the option for human players to auto force an artist until we have our BFC for their convenience anyways etc (1 to enable (recommended), 0 to disable anyways etc). -->
+	<!-- custom: also give the option for human players to auto force an artist until we have our BFC for their convenience (1 to enable (recommended), 0 to disable). -->
 	<Define>
 		<DefineName>SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually anyways etc. The human player can reassign a non-forced artist if they want then. E.g. if BFC is 10 city culture at gamespeed_normal and 20 at marathon and 6 at quick, and if our value of sanity is 4, then it means if we have 10 + 4 = 14 so 15+ culture in city at game speed normal (or 20 + 4 = 24 so 25+ at marathon, or 6 + 4 = 10 so 11+ at quick anyways etc) and we still didn't unassign the artist, then do it for the human player ourselves -->
+	<!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually. The human player can reassign a non-forced artist if they want then. E.g. if BFC is 10 city culture at gamespeed_normal and 20 at marathon and 6 at quick, and if our value of sanity is 4, then it means if we have 10 + 4 = 14 so 15+ culture in city at game speed normal (or 20 + 4 = 24 so 25+ at marathon, or 6 + 4 = 10 so 11+ at quick) and we still didn't unassign the artist, then do it for the human player ourselves -->
 	<Define>
 		<DefineName>SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1865,7 +1865,7 @@
 
 
 
-	<!-- custom: whichever XML name is for the water food building class (in advciv-sas the harbor buildings give +1 food on water tile, adjust based on your building info xml to prioritize building this if low food and coastal if you want to anyways etc) -->
+	<!-- custom: whichever XML name is for the water food building class (in advciv-sas the harbor buildings give +1 food on water tile, adjust based on your building info xml to prioritize building this if low food and coastal if you want to) -->
 	<Define>
 		<DefineName>SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_HARBOR</DefineTextVal>
@@ -1883,7 +1883,7 @@
 
 
 
-	<!-- custom: water food building (as of now building_harbor anyways etc) emergency/force anyways etc production choice for a city if it is low food and coastal. Set to 1 to enable (recommended, fixes AI cities in autoplay stagnant for dozen turns while being coastal and surrounded by tundra, but never building a harbor (or whatever building the water food building is anyways etc)), 0 to disable it -->
+	<!-- custom: water food building (as of now building_harbor) emergency/force production choice for a city if it is low food and coastal. Set to 1 to enable (recommended, fixes AI cities in autoplay stagnant for dozen turns while being coastal and surrounded by tundra, but never building a harbor (or whatever building the water food building is)), 0 to disable it -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1902,7 +1902,7 @@
 		<DefineName>SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: e.g. if city has 4 base hammers (base production before any modifier is applied if i'm not mistaken anyways etc.) and we are at era 1 (era_classical.), then if city has less than 5 * 1 + 2 = 7 base hammers at classical, it will be considered a low hammer city and won't do any emergency defense building (as of now walls, castle anyways etc.) nor emergency unit (too low hammers or possibly isolated (generally these low hammer cities are watery or something anyways etc.) city to be useful, bet on economy rather anyways etc.)-->
+	<!-- custom: e.g. if city has 4 base hammers (base production before any modifier is applied if i'm not mistaken) and we are at era 1 (era_classical.), then if city has less than 5 * 1 + 2 = 7 base hammers at classical, it will be considered a low hammer city and won't do any emergency defense building (as of now walls, castle) nor emergency unit (too low hammers or possibly isolated (generally these low hammer cities are watery or something) city to be useful, bet on economy rather)-->
 	<Define>
 		<DefineName>SAS_DO_TURN_LOW_BASE_HAMMERS_BASE_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
@@ -1914,7 +1914,7 @@
 
 
 
-	<!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see custom main changes guide or code for details anyways etc), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often anyways etc. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help, or if you prefer/want anyways etc 0 to disable anyways etc. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken anyways etc) -->
+	<!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see custom main changes guide or code for details), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help, or if you prefer/want 0 to disable. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken) -->
 	<!-- custom: note 2: logic applies only if these buildings are urgent, else no need to force these buildings and it would most likely be inefficient in terms of AI strength to do so -->
 	<!-- // Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger -->
 	<Define>
@@ -1958,12 +1958,12 @@
 		<DefineName>SAS_AI_PROMOTION_VALUE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generalyl our code seems as of now quite/very effective but check to be sure anyways etc) -->
+	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generalyl our code seems as of now quite/very effective but check to be sure) -->
 	<Define>
 		<DefineName>SAS_AI_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN</DefineName>
 		<iDefineIntVal>-100000</iDefineIntVal>
 	</Define>
-	<!-- custom: high value so a promotion is ideally always picked first (same anyways etc) -->
+	<!-- custom: high value so a promotion is ideally always picked first (same) -->
 	<Define>
 		<DefineName>SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST</DefineName>
 		<iDefineIntVal>100000</iDefineIntVal>
@@ -1971,17 +1971,17 @@
 
 
 
-	<!-- custom: multiply the valuing of a great general being transformed into a great general by this value (was 4 if met civs, 2 if didn't meet any civ in base advciv anyways etc (note: new value applies regardless of civs we met to simplify code a bit anyways etc)) -->
+	<!-- custom: multiply the valuing of a great general being transformed into a great general by this value (was 4 if met civs, 2 if didn't meet any civ in base advciv (note: new value applies regardless of civs we met to simplify code a bit)) -->
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_EXTRA_VALUING</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
-	<!-- custom: city needs to be in this top N number of cities in hammer production to be extra valued as a military instructor candidate (e.g. if city is in top 3 hammer cities, extra value it to be chosen as a military instructor candidate city anyways etc). -->
+	<!-- custom: city needs to be in this top N number of cities in hammer production to be extra valued as a military instructor candidate (e.g. if city is in top 3 hammer cities, extra value it to be chosen as a military instructor candidate city). -->
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_CITY_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: extra valuing if city is in top hammer cities, and the higher the rank the more we value it: e.g. 1000 means city will be extra valued with an added value of 1000 - (10 * 1) = 990 * the military instructor's specialist experience in top 1 hammer city (mostly additive and conservative addition, so made numbers high enough to make it significant while trying to avoid overflow anyways etc), or 1000 - (10 * 2) = 980 in top 2 hammer city, or 1000 - (10 * 3) = 970 in top 3 hammer city. -->
+	<!-- custom: extra valuing if city is in top hammer cities, and the higher the rank the more we value it: e.g. 1000 means city will be extra valued with an added value of 1000 - (10 * 1) = 990 * the military instructor's specialist experience in top 1 hammer city (mostly additive and conservative addition, so made numbers high enough to make it significant while trying to avoid overflow), or 1000 - (10 * 2) = 980 in top 2 hammer city, or 1000 - (10 * 3) = 970 in top 3 hammer city. -->
 	<!-- Extra additive weight for GG Military Instructor in Top-N hammer cities.
 		Added amount = 100 * iExperience * (TOP_N_HAMMER_EXTRA_VALUING - 10 * rank),
 		where rank = 1 is best.
@@ -1993,7 +1993,7 @@
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING</DefineName>
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
-	<!-- custom: if city has or is building this buildingclass, increase the above value by this number (adjust as per your xml for which building it is anyways etc) -->
+	<!-- custom: if city has or is building this buildingclass, increase the above value by this number (adjust as per your xml for which building it is) -->
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_HEROIC_EPIC</DefineTextVal>

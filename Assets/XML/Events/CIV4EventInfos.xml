@@ -11764,7 +11764,7 @@
 			<PythonCallback/>
 			<PythonExpireCheck/>
 			<PythonCanDo/>
-			<!-- custom: BONUS_MOVIES removed and replaced with BONUS_CAMEL, so so disabling this old movies related code anyways etc, was <PythonHelp>getHelpIndependentFilms</PythonHelp> -->
+			<!-- custom: BONUS_MOVIES removed and replaced with BONUS_CAMEL, so so disabling this old movies related code, was <PythonHelp>getHelpIndependentFilms</PythonHelp> -->
 			<PythonHelp/>
 			<Button>,Art/Interface/Buttons/Process/Blank.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,5</Button>
 			<iAIValue>1000</iAIValue>

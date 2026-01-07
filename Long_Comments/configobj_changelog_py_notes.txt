@@ -1,4 +1,4 @@
-# <!-- custom: long giant docstring changelog notes from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\BUG\configobj.py cluttering needlessly the py file, first changed it to # instead of string litteral for performance, but then as part as xml cleaning as well, moved it instead to its own text file which is here with the content being as below: -->
+# <!-- custom: long giant docstring changelog notes from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\BUG\configobj.py cluttering needlessly the py file, first changed it to # instead of string litteral for performance, but then as part as xml cleaning as well, moved it instead to its own text file which is here with the content being as below: -->
 
 
 

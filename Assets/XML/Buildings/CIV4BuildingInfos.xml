@@ -2,10 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- custom: see in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or/and helpful if needed anyways etc xml fields and their meaning, took it from the Doto mod, see there for details -->
+<!-- custom: see in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or/and helpful if needed xml fields and their meaning, took it from the Doto mod, see there for details -->
 <!-- custom: adjust the iPower (as in unit info) of some buildings to better reflect their strength equivalent:
-- increase iPower of/for anyways etc buildings that are underestimated as well, such as the castle
-- reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shouldn't be too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info anyways etc 
+- increase iPower of/for buildings that are underestimated as well, such as the castle
+- reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shouldn't be too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info 
 -->
 <!-- custom: note: also we made some AI optimizations about which buildings to build or not, some of which are hard coded. In all cases, i'd recommend if you make changes to the XML here (change a buildign's characteristics or add / remove), to also reflect these there in CvCityAI::AI_buildingValue, to help AI better optimize its building choices with your new changes -->
 <!-- custom: note: in same code part than the above, AI also won't build wonders it doesn't have a modifier for, as it would most likely be beaten by rivals for it (except during some of the early turns), with a hardcoded threshold of 25 (%), so assuming you don't have civics or religions or such giving a production modifier that is understood by the code, i'd advise not to lower bonus modifier for wonders (e.g. stone makes great wall or iron makes eiffel tower be built faster) below 25 if you want AIs to keep going for them when it has the bonus, else even if it has the bonus (and if it doesn't to), if it doesn't also have other positive modifiers to motivate it to build the wonder, it simply won't. Adjust code there if you want a lower threshold -->
@@ -35,7 +35,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: hopefully helps the AI not pick these too soon anyways etc, also not nonsensical thematically and perhaps in terms of gameplay as well(note: as of now not the barbarian_palace that can be built anytime still anyways etc), was NONE -->
+			<!-- custom: hopefully helps the AI not pick these too soon, also not nonsensical thematically and perhaps in terms of gameplay as well(note: as of now not the barbarian_palace that can be built anytime still), was NONE -->
 			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -231,7 +231,7 @@
 			<bAreaCleanPower>0</bAreaCleanPower>
 			<DiploVoteType>NONE</DiploVoteType>
 			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays) for them, hopefully (more?) interesting for human players this way too (at least maybe me or not or yes or an other or and not anyways etc) -->
+			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays) for them, hopefully (more?) interesting for human players this way too (at least maybe me or not or yes or an other or and not) -->
 			<bCapital>0</bCapital>
 			<bGovernmentCenter>1</bGovernmentCenter>
 			<bGoldenAge>0</bGoldenAge>
@@ -384,7 +384,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: added so it appears in tech tree (tech advisor), is also historically accurate if i am not mistaken according to quick glances i made at in this casehttps://en.wikipedia.org/wiki/Forbidden_City anyways etc, was NONE -->
+			<!-- custom: added so it appears in tech tree (tech advisor), is also historically accurate if i am not mistaken according to quick glances i made at in this casehttps://en.wikipedia.org/wiki/Forbidden_City, was NONE -->
 			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -430,7 +430,7 @@
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
 			<iConquestProb>0</iConquestProb>
-			<!-- custom: was 8 which i think is may too high, considering the courthouse requirement already that is quite expensive, having 6 cities is enough and costly enough too anyways, 8 makes it too unlikely to be built in too many games, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here anyways etc thanks chatgpt; also 6 is a number at which it is relevant enough to build it (so AIs in particular do not build it and lose on efficiency if uneeded or not too worth anyways etc and build something else instead) while not being too restrictive for players, including AI players but also human players who want to build it too, was 8 -->
+			<!-- custom: was 8 which i think is may too high, considering the courthouse requirement already that is quite expensive, having 6 cities is enough and costly enough too anyways, 8 makes it too unlikely to be built in too many games, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here thanks chatgpt; also 6 is a number at which it is relevant enough to build it (so AIs in particular do not build it and lose on efficiency if uneeded or not too worth and build something else instead) while not being too restrictive for players, including AI players but also human players who want to build it too, was 8 -->
 			<iCitiesPrereq>6</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
@@ -489,7 +489,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details anyways etc, as for this one in particular, match the base palace, and not especially cultural(nerf easy sources of culture and not thematically relevant ones (ideally buff the other sources as well without making it op or/and unbalanced as well)), was 0 / 0 / 4 -->
+			<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details, as for this one in particular, match the base palace, and not especially cultural(nerf easy sources of culture and not thematically relevant ones (ideally buff the other sources as well without making it op or/and unbalanced as well)), was 0 / 0 / 4 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -518,7 +518,7 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<!-- custom: relax courthouse requirement a bit anyways etc, quite unlikely a player would generally have so many cities, even if the player somehow has, unlikely all have courthouses too at least in early-mid game anyways etc, so relax it a bit, was BUILDINGCLASS_COURTHOUSE 4 -->
+			<!-- custom: relax courthouse requirement a bit, quite unlikely a player would generally have so many cities, even if the player somehow has, unlikely all have courthouses too at least in early-mid game, so relax it a bit, was BUILDINGCLASS_COURTHOUSE 4 -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
@@ -534,7 +534,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: great spy great person is low enough it can be ignored and probably better to ignore it in this case at least, as for flavors in base advciv, were/was flavor military 5??? Fixed to growth gold based formula as seems much more accurate (didn't read the adv manual id though in case it has info but this still seems much more accurate like this with these udpated flavors i/we i.e. i anyways etc now anyways etc added in advciv-sas -->
+			<!-- custom: great spy great person is low enough it can be ignored and probably better to ignore it in this case at least, as for flavors in base advciv, were/was flavor military 5??? Fixed to growth gold based formula as seems much more accurate (didn't read the adv manual id though in case it has info but this still seems much more accurate like this with these udpated flavors i/we i.e. i now added in advciv-sas -->
 			<Flavors>
 				<!-- advc.020: Was 10 Gold, 2 Espionage -->
 				<Flavor>
@@ -1136,7 +1136,7 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<!-- custom: remove trait specfic production bonuses, at least for the protective trait buildings, bonuses were too lousy (or/and weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe or not bbigger or yes bigger or other or not or etc anyways etc more importantly that the castle would be otherwise too op for the protective trait players -->
+			<!-- custom: remove trait specfic production bonuses, at least for the protective trait buildings, bonuses were too lousy (or/and weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe or not bbigger or yes bigger or other or not or etc more importantly that the castle would be otherwise too op for the protective trait players -->
 			<ProductionTraits/>
 			<HappinessTraits>
 				<HappinessTrait>
@@ -1520,7 +1520,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: add the new BUILDING_RUSSIAN_GORD, civ-specific building for the russian empire (based on the castle), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, for a stronger early game impact and more military focus in this case,, see xml or and docs or and similar or and not anyways etc for details -->
+		<!-- custom: add the new BUILDING_RUSSIAN_GORD, civ-specific building for the russian empire (based on the castle), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, for a stronger early game impact and more military focus in this case,, see xml or and docs or and similar or and not for details -->
 		<BuildingInfo> <!-- custom: class: castle, type: russian_gord (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_RUSSIAN_GORD</Type>
@@ -1630,7 +1630,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<!-- custom: also add military production modifiers to make it more of a military type of building, anyways etc, was 0 -->
+			<!-- custom: also add military production modifiers to make it more of a military type of building, was 0 -->
 			<iMilitaryProductionModifier>25</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
@@ -1947,7 +1947,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: hopefully this helps avoiding a military beeline by AIs or human players, or selectively boosts military leaders more with this extra chance in the early game (for those that start with as of now tech_hunting) anyways etc, was NONE -->
+			<!-- custom: hopefully this helps avoiding a military beeline by AIs or human players, or selectively boosts military leaders more with this extra chance in the early game (for those that start with as of now tech_hunting), was NONE -->
 			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -2087,7 +2087,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least, see xml for details anyways etc) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc, was flavor military 10 -->
+			<!-- custom: reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least, see xml for details) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search, was flavor military 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -2516,7 +2516,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: note: told AIs to never build this if i'm not mistaken in the DLL in as of now CvCityAI::AI_buildingValue if we don't have any of the required bonuses to produce units with it, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details anyways etc, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this-->
+			<!-- custom: note: told AIs to never build this if i'm not mistaken in the DLL in as of now CvCityAI::AI_buildingValue if we don't have any of the required bonuses to produce units with it, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this-->
 			<!-- custom: see code comment at BUILDING_BARRACKS for details, was 0 -->
 			<iAIWeight>75</iAIWeight>
 			<iCost>60</iCost>
@@ -2653,7 +2653,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<!-- custom: see code comment at BUILDING_STABLE for details if i am not mistaken, anyways etc, was TECH_ADVANCED_FLIGHT -->
+			<!-- custom: see code comment at BUILDING_STABLE for details, was TECH_ADVANCED_FLIGHT -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
@@ -2736,7 +2736,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<!-- custom: also add military production modifiers to make it more of a versatile production/growth type of building, anyways etc, was 0 -->
+			<!-- custom: also add military production modifiers to make it more of a versatile production/growth type of building, was 0 -->
 			<iMilitaryProductionModifier>10</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
@@ -2776,7 +2776,7 @@
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
-			<!-- custom: reduce this, give instead military production bonus to buff the building and make it more versatile, kind of like how the zulu barracks are at least in base civ4 if i am not mistaken, was 4 -->
+			<!-- custom: reduce this, give instead military production bonus to buff the building and make it more versatile, kind of like how the zulu barracks are at least in base civ4, was 4 -->
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -2831,7 +2831,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: seems to make more sense here around tech_flight that is bloated (while tech_artillery is empty in comparison if i may say anyways etc), plus also bunkers help protect against artillery too according to wikipedia very very quick glance anyways etc, was TECH_ELECTRICITY -->
+			<!-- custom: seems to make more sense here around tech_flight that is bloated (while tech_artillery is empty in comparison if i may say), plus also bunkers help protect against artillery too according to wikipedia very very quick glance, was TECH_ELECTRICITY -->
 			<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3312,7 +3312,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: important to get the granary early enough especially since it is so cheap/cheaper even if effect is a bit weaker, also indirectly helps military and production (slaving and hammer count) now, so give it quite similar flavors than than the incan qullqa civ-specific granary anyways etc, was flavor growth 4 -->
+			<!-- custom: important to get the granary early enough especially since it is so cheap/cheaper even if effect is a bit weaker, also indirectly helps military and production (slaving and hammer count) now, so give it quite similar flavors than than the incan qullqa civ-specific granary, was flavor growth 4 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -3654,8 +3654,8 @@
 				<iYield>0</iYield>
 			</YieldModifiers>
 			<CommerceChanges/>
-			<!-- custom: reworked as part of the slavery+granary rework or/and rebalance(ing anyways etc), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, but in all cases i want to rework it as such now, anyways etc), maybe will turn out well, or not, or yes or etc, was was 0, 0, 1 -->
-			<!-- custom: was 0, 0, 1 (note: as for the below advc comment of base advciv, it applies to the old <iCommerce>1</iCommerce> line now removed entirely as part of our rework in advciv-sas, anyways etc) -->
+			<!-- custom: reworked as part of the slavery+granary rework or/and rebalance(ing), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, but in all cases i want to rework it as such now), maybe will turn out well, or not, or yes or etc, was was 0, 0, 1 -->
+			<!-- custom: was 0, 0, 1 (note: as for the below advc comment of base advciv, it applies to the old <iCommerce>1</iCommerce> line now removed entirely as part of our rework in advciv-sas) -->
 			<!-- advc.908b: was 2 -->
 			<ObsoleteSafeCommerceChanges/>
 			<!-- custom: also remove culture double times and culture related things in xml now that this is not a cultural building anymore but a production/growth one -->
@@ -3696,7 +3696,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: remove culture flavor entirely, increase flavor growth if i am not mistaken, as this is indeed an op building now in a balanced way if i may say maybe, but in all cases anyways etc, rework flavors more generally to match the new building's profile -->
+			<!-- custom: remove culture flavor entirely, increase flavor growth, as this is indeed an op building now in a balanced way if i may say maybe, but in all cases, rework flavors more generally to match the new building's profile -->
 			<!-- advc.020: was 10 Growth; doesn't account for the +culture -->
 			<Flavors>
 				<Flavor>
@@ -3978,7 +3978,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: building is still quite weak and effect not so strong, and since its so early, buffing it a bit more (here by reducing cost in/at this line anyways etc), anyways etc, was 90 -->
+			<!-- custom: building is still quite weak and effect not so strong, and since its so early, buffing it a bit more (here by reducing cost in/at this line), was 90 -->
 			<!-- advc.911c: was 100 -->
 			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -4262,7 +4262,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things anyways etc https://en.wikipedia.org/wiki/Baray -->
+		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things https://en.wikipedia.org/wiki/Baray -->
 		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KHMER_BARAY</Type>
@@ -4991,7 +4991,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: now at sailing anyways etc, was TECH_SAILING -->
+			<!-- custom: now at sailing, was TECH_SAILING -->
 			<PrereqTech>TECH_SEAFARING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -5080,7 +5080,7 @@
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<!-- custom: give this effect to the reworked lighthouse, focus on immediate short-term but lasting anyways etc utility for the reworked harbour/harbor anyways etc, was 50 -->
+			<!-- custom: give this effect to the reworked lighthouse, focus on immediate short-term but lasting utility for the reworked harbour/harbor, was 50 -->
 			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
@@ -5092,7 +5092,7 @@
 			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: get this effect from the old lighthouse before its rework, anyways etc, was empty -->
+			<!-- custom: get this effect from the old lighthouse before its rework, was empty -->
 			<!-- custom: see related info and define to configure at SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME-->
 			<SeaPlotYieldChanges>
 				<iYield>1</iYield>
@@ -5188,7 +5188,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: now at sailing anyways etc, was TECH_SAILING -->
+			<!-- custom: now at sailing, was TECH_SAILING -->
 			<PrereqTech>TECH_SEAFARING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -5278,7 +5278,7 @@
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<!-- custom: give this effect to the reworked lighthouse, focus on immediate short-term but lasting anyways etc utility for the reworked harbour/harbor anyways etc, was 50 -->
+			<!-- custom: give this effect to the reworked lighthouse, focus on immediate short-term but lasting utility for the reworked harbour/harbor, was 50 -->
 			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
@@ -5290,7 +5290,7 @@
 			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: get this effect from the old lighthouse before its rework, anyways etc, was empty -->
+			<!-- custom: get this effect from the old lighthouse before its rework, was empty -->
 			<!-- custom: see related info and define to configure at SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME-->
 			<SeaPlotYieldChanges>
 				<iYield>1</iYield>
@@ -5487,7 +5487,7 @@
 			<iAsset>4</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
+			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, was empty -->
 			<SeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
@@ -5518,7 +5518,7 @@
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
-			<!-- custom: similarly to the great_lighthouse, add this previous water building requirement, after all lighthouses were built on top of a harborwould need to check that on wikipedia or such to be sure, but the general idea i have / would have i mean is to make lighthouse stronger but also with more/stronger requirements anyways etc, was empty -->
+			<!-- custom: similarly to the great_lighthouse, add this previous water building requirement, after all lighthouses were built on top of a harborwould need to check that on wikipedia or such to be sure, but the general idea i have / would have i mean is to make lighthouse stronger but also with more/stronger requirements, was empty -->
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
 					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
@@ -5528,7 +5528,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: just like how the reworked harbor is now the food/health building, the reworked lighthouse is now the gold building anyways etc, adjust flavors as such; also add production flavor as this building is a prereq for the new port building that as of now gives quite a lot of production on water tiles, and also is quite similar to how the harbor normal building also has a gold flavor, was growth 10 -->
+			<!-- custom: just like how the reworked harbor is now the food/health building, the reworked lighthouse is now the gold building, adjust flavors as such; also add production flavor as this building is a prereq for the new port building that as of now gives quite a lot of production on water tiles, and also is quite similar to how the harbor normal building also has a gold flavor, was growth 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -5608,7 +5608,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: (trying to) make sure they (barbarians) build it fast enough so cheap cost as cheap as possible or and relevant as i found it anyways etc, but no iAIWeight as the building is not critical to have for barbarians i mean unlike the now reworked harbor -->
+			<!-- custom: (trying to) make sure they (barbarians) build it fast enough so cheap cost as cheap as possible or and relevant as i found it, but no iAIWeight as the building is not critical to have for barbarians i mean unlike the now reworked harbor -->
 			<iAIWeight>0</iAIWeight>
 			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -5671,7 +5671,7 @@
 			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
+			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, was empty -->
 			<SeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
@@ -5702,7 +5702,7 @@
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
-			<!-- custom: similarly to the great_lighthouse, add this previous water building requirement, after all lighthouses were built on top of a harborwould need to check that on wikipedia or such to be sure, but the general idea i have / would have i mean is to make lighthouse stronger but also with more/stronger requirements anyways etc, was empty -->
+			<!-- custom: similarly to the great_lighthouse, add this previous water building requirement, after all lighthouses were built on top of a harborwould need to check that on wikipedia or such to be sure, but the general idea i have / would have i mean is to make lighthouse stronger but also with more/stronger requirements, was empty -->
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
 					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
@@ -5887,7 +5887,7 @@
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
-			<!-- custom: similarly to the reworked normal lighthouse building anyways etc, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements -->
+			<!-- custom: similarly to the reworked normal lighthouse building, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements -->
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
 					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
@@ -6084,7 +6084,7 @@
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
-			<!-- custom: similarly to the reworked normal lighthouse building anyways etc, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements -->
+			<!-- custom: similarly to the reworked normal lighthouse building, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements -->
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
 					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
@@ -6218,7 +6218,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<!-- custom: also add military production modifiers to make it more of a military type of building, anyways etc, was 0 -->
+			<!-- custom: also add military production modifiers to make it more of a military type of building, was 0 -->
 			<iMilitaryProductionModifier>10</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
@@ -6268,7 +6268,7 @@
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
-			<!-- custom: similarly to the reworked normal lighthouse building anyways etc, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements -->
+			<!-- custom: similarly to the reworked normal lighthouse building, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements -->
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
 					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
@@ -6321,7 +6321,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: change to sooner tech where relevant, maybe historically more accurate too according to https://en.wikipedia.org/wiki/Custom_House,_City_of_London and to make it coincide with the age of exploration of the american continent having a water building around there would be nice anyways etc, anyways etc, was TECH_ECONOMICS -->
+			<!-- custom: change to sooner tech where relevant, maybe historically more accurate too according to https://en.wikipedia.org/wiki/Custom_House,_City_of_London and to make it coincide with the age of exploration of the american continent having a water building around there would be nice, was TECH_ECONOMICS -->
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -6642,7 +6642,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: i don't know why there is production, even from reading the 020 manual in the nice manual.txt i added too but that i am thankful for too if i may say or not too or yes too, i don't understand at least doesn't seem clear to me what the indirect effects of having production here would do, since i don't understand it, might as well remove it, ideally should just keep it as is, but it shouldn't make too much of a difference, i don't know too well if at all how flavors work, but maybe this is a safe or quite safe change, anyways etc, trying it and see if doesn't break anything or is not too determinant may keep as is unless i find a better explanation or reason(ing?) to keep, was flavor gold 8 production 5 -->
+			<!-- custom: i don't know why there is production, even from reading the 020 manual in the nice manual.txt i added too but that i am thankful for too if i may say or not too or yes too, i don't understand at least doesn't seem clear to me what the indirect effects of having production here would do, since i don't understand it, might as well remove it, ideally should just keep it as is, but it shouldn't make too much of a difference, i don't know too well if at all how flavors work, but maybe this is a safe or quite safe change, trying it and see if doesn't break anything or is not too determinant may keep as is unless i find a better explanation or reasoning to keep, was flavor gold 8 production 5 -->
 			<!-- advc.020: was 10 Gold; the +production isn't accounted for -->
 			<Flavors>
 				<Flavor>
@@ -6679,7 +6679,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: move it sooner in tech tree as seems historically accurate plus to buff it and water buildings and units and tiles and or such anyways etc, meshes quite well also in retrospect even though i hadn't/didn't intend as such as first anyways etc, with TECH_ASTRONOMY in our reworked tech tree and naval conquest era maybe anyways etc, i would still want naval warfare to not be a priority for AI and it to ideally focus on land warfare and such, but hopefully harmless to add one more building around this quite key mid game era, but enhances strategic possibilities too maybe anyways etc, was TECH_MARINE_TECHNOLOGY -->
+			<!-- custom: move it sooner in tech tree as seems historically accurate plus to buff it and water buildings and units and tiles and or such, meshes quite well also in retrospect even though i hadn't/didn't intend as such as first, with TECH_ASTRONOMY in our reworked tech tree and naval conquest era maybe, i would still want naval warfare to not be a priority for AI and it to ideally focus on land warfare and such, but hopefully harmless to add one more building around this quite key mid game era, but enhances strategic possibilities too maybe, was TECH_MARINE_TECHNOLOGY -->
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -6782,7 +6782,7 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>1</iAsset>
-			<!-- custom: de prioritize naval units in warfare power estimation, so same for their building anyways etc, was 2 -->
+			<!-- custom: de prioritize naval units in warfare power estimation, so same for their building, was 2 -->
 			<iPower>1</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
@@ -6821,7 +6821,7 @@
 				</DomainProductionModifier>
 			</DomainProductionModifiers>
 			<BuildingHappinessChanges/>
-			<!-- custom: having a harder or hard at all in this case anyways etc building +/- class hereprereq would make AIs build them less or later, and since building is not core and is also a naval building, would make AI focus more on land warfare and help it maybe anyways etc, is also thematically consistent with the theme of gradually increasing production, here in this case naval production, with gradually more specialized buildings, was empty -->
+			<!-- custom: having a harder or hard at all in this case building +/- class hereprereq would make AIs build them less or later, and since building is not core and is also a naval building, would make AI focus more on land warfare and help it maybe, is also thematically consistent with the theme of gradually increasing production, here in this case naval production, with gradually more specialized buildings, was empty -->
 			<PrereqBuildingClasses/>
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
@@ -6832,7 +6832,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: greatly reduce flavor military and production, especially now that it is sooner in tech anyways etc, naval warfare should be optional and not distract the AI, was flavors production 2 military 7 -->
+			<!-- custom: greatly reduce flavor military and production, especially now that it is sooner in tech, naval warfare should be optional and not distract the AI, was flavors production 2 military 7 -->
 			<!-- advc.020: Was 10 Production, but it's really mainly a
 				 military building. -->
 			<Flavors>
@@ -7440,7 +7440,7 @@
 			<FreeStartEra>ERA_FUTURE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make them available sooner while they are still relevant and i mean as early as possible before game ends in this case anyways etc, and historically (more at least) accuratebut anyways etc, was TECH_ASSEMBLY_LINE -->
+			<!-- custom: make them available sooner while they are still relevant and i mean as early as possible before game ends in this case, and historically (more at least) accurate, was TECH_ASSEMBLY_LINE -->
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -9371,7 +9371,7 @@
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<!-- custom: was 2 spy(ies) anyways etc, now with the rework is 2 priest(s) now -->
+			<!-- custom: was 2 spy(ies), now with the rework is 2 priest(s) now -->
 			<!-- advc.911a: was 1 spy -->
 			<SpecialistCounts>
 				<SpecialistCount>
@@ -9395,7 +9395,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: was 5 military, 3 gold, 3 espionage, now reworked into a religious type of building (but all religions though (gives priest specialists and such, anyways etc) -->
+			<!-- custom: was 5 military, 3 gold, 3 espionage, now reworked into a religious type of building (but all religions though (gives priest specialists and such) -->
 			<!-- advc.020: was 10 Gold, 3 Espionage -->
 			<Flavors>
 				<Flavor>
@@ -9614,7 +9614,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: change tech prereq so this building appears in the Technology Advisor and is not listed in sevopedia buildings in the "No Tech Prerequisite" group anyways etc. For balance and strategy, also helps reward the science path more than give a generic free academy path for warmogners or anyone; anyways etc., was NONE. -->
+			<!-- custom: change tech prereq so this building appears in the Technology Advisor and is not listed in sevopedia buildings in the "No Tech Prerequisite" group. For balance and strategy, also helps reward the science path more than give a generic free academy path for warmogners or anyone; , was NONE. -->
 			<PrereqTech>TECH_LITERATURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -10149,7 +10149,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: basing it (madrassa anyways etc) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or/and from memory that they are religous, thus islamic buildings mostly if not only, anyways etc), this is also good because now anyways etc i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it) -->
+		<!-- custom: basing it (madrassa) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or/and from memory that they are religous, thus islamic buildings mostly if not only), this is also good because now i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it) -->
 		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_ARABIAN_MADRASSA</Type>
@@ -10612,7 +10612,7 @@
 			<iLevelPrereq>0</iLevelPrereq>
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
-			<!-- custom: french_salon is now based on university, old observatory building is removed for less clutter in buildings anyways etc, now synergy also with oxford_university anyways etc, add great people change here at 50 for the french_salon -->
+			<!-- custom: french_salon is now based on university, old observatory building is removed for less clutter in buildings, now synergy also with oxford_university, add great people change here at 50 for the french_salon -->
 			<iGreatPeopleRateModifier>50</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
@@ -10708,7 +10708,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: add flavor growth, reduce flavor science, same as the ROMAN_FORUM, GPP goes with growth, same as in advciv comment of it too and i got idea of it indepently i.e. of french_salon giving gpp based on what forum does hehe if i'm not mistaken and assumed flavor_growth by myself too (quite proudly but...) anyways etc..., was science 10 -->
+			<!-- custom: add flavor growth, reduce flavor science, same as the ROMAN_FORUM, GPP goes with growth, same as in advciv comment of it too and i got idea of it indepently i.e. of french_salon giving gpp based on what forum does hehe if i'm not mistaken and assumed flavor_growth by myself too (quite proudly but...), was science 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -10748,7 +10748,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make the building available sooner while it is more relevant while the game lasts anyways etc especially considering its science effect would be pointless if there are no more not anymore any tech to research..., is maybe more historically accurate this was as per our reworked tech tree at least if not in civ4 +/- base advciv too maybe (didn't check) or not, was TECH_SUPERCONDUCTORS and tech types empty -->
+			<!-- custom: make the building available sooner while it is more relevant while the game lasts especially considering its science effect would be pointless if there are no more not anymore any tech to research..., is maybe more historically accurate this was as per our reworked tech tree at least if not in civ4 +/- base advciv too maybe (didn't check) or not, was TECH_SUPERCONDUCTORS and tech types empty -->
 			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -10831,7 +10831,7 @@
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<!-- custom: remove space race effect, make it a purely scientific building now as the laboratory is now reworked, see xml of the building or and code comments or and docs for details anyways etc, was 50 -->
+			<!-- custom: remove space race effect, make it a purely scientific building now as the laboratory is now reworked, see xml of the building or and code comments or and docs for details, was 50 -->
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -10864,7 +10864,7 @@
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<!-- custom: increase scientist "can turn x citizen""into" anyways etc, was 1 -->
+			<!-- custom: increase scientist "can turn x citizen""into", was 1 -->
 			<SpecialistCounts>
 				<SpecialistCount>
 					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
@@ -11572,7 +11572,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: buff culture-specific buildings, increase cost to justify/match the effect anyways etc, was 80 -->
+			<!-- custom: buff culture-specific buildings, increase cost to justify/match the effect, was 80 -->
 			<!-- advc: K-Mod had increased this to 100 -->
 			<iCost>90</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -11678,7 +11678,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: was flavor growth 10, doesn't seem to give that much growth to me, as you need to move the culture slider to get any benefit, which kills your growth in other areas (although cities "grow" fine but not so good for a global "grow" (tech, commerce, etc) i would guess anyways etc) -->
+			<!-- custom: was flavor growth 10, doesn't seem to give that much growth to me, as you need to move the culture slider to get any benefit, which kills your growth in other areas (although cities "grow" fine but not so good for a global "grow" (tech, commerce, etc) i would guess) -->
 			<!-- advc.020: No flavor in BtS; weird. It's a typical Growth
 				 building. -->
 			<Flavors>
@@ -11740,7 +11740,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong anyways etc; since an artist specialist gives 3 gpp as of now (and culture or/and such anyways etc), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building anyways etc); also to rpely to chagpt 5 that said +2 may be too much, it seems thinking about it that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such anyways etc, was NONE and 0 -->
+			<!-- custom: emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong; since an artist specialist gives 3 gpp as of now (and culture or/and such), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building); also to rpely to chagpt 5 that said +2 may be too much, it seems thinking about it that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such, was NONE and 0 -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -11805,7 +11805,7 @@
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
-			<!-- custom: not varied enough, make it more culture focused and still strong enough hopefully, give other effects instead anyways etc, was 2 -->
+			<!-- custom: not varied enough, make it more culture focused and still strong enough hopefully, give other effects instead, was 2 -->
 			<iHappiness>1</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
@@ -11833,7 +11833,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: buff culture-specific buildings and make them more varied anyways etc, was 2 -->
+			<!-- custom: buff culture-specific buildings and make them more varied, was 2 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -12062,7 +12062,7 @@
 				<iCommerce>10</iCommerce>
 			</CommerceHappinesses>
 			<ReligionChanges/>
-			<!-- custom: description mentions it influencing god sacrifices, varied, more versatile and quite strong anyways etc, was empty -->
+			<!-- custom: description mentions it influencing god sacrifices, varied, more versatile and quite strong, was empty -->
 			<SpecialistCounts>
 				<SpecialistCount>
 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
@@ -12074,7 +12074,7 @@
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_COLOSSEUM</ConstructSound>
 			<BonusHealthChanges/>
-			<!-- custom: very nice idea by chatgpt 5 anyways etc, thematic and varied and quite good/strong too if player has bonus, was empty -->
+			<!-- custom: very nice idea by chatgpt 5, thematic and varied and quite good/strong too if player has bonus, was empty -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
 					<BonusType>BONUS_MAIZE</BonusType>
@@ -12491,7 +12491,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: building reworked as a hybrid broadcasting building if i may say anyways etc, adjust flavors to match these changes, was flavors culture 9 growth 5 -->
+			<!-- custom: building reworked as a hybrid broadcasting building if i may say, adjust flavors to match these changes, was flavors culture 9 growth 5 -->
 			<!-- advc.020: was 10 Culture, but also helpful for Growth -->
 			<Flavors>
 				<Flavor>
@@ -12708,7 +12708,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things anyways etc https://en.wikipedia.org/wiki/Forum_(Roman) -->
+		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things https://en.wikipedia.org/wiki/Forum_(Roman) -->
 		<BuildingInfo> <!-- custom: class: market, type: roman_forum (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_ROMAN_FORUM</Type>
@@ -12967,7 +12967,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost quite a bit anyways etc, reduce also its effect a bit to compensate if i may say anyways etc, 130 may still be a bit too high, was 130 -->
+			<!-- custom: reduce cost quite a bit, reduce also its effect a bit to compensate if i may say, 130 may still be a bit too high, was 130 -->
 			<!-- advc.911b: was 150 -->
 			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -13064,7 +13064,7 @@
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
-			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types anyways etc) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
+			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
 			<!-- custom: similarly, sugar is not too good for health (but is also not too bad either quite good even necessary if i am not mistaken depending on dosage maybe), but sure makes happy i'd say so making it give happiness instead, buffing sugar at the same time which i think is fine especially as sugar is a bit weak otherwise, not matching its quite strong influence on population -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
@@ -13265,7 +13265,7 @@
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
-			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types anyways etc) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
+			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
 			<!-- custom: see code comment at as of now the generic grocer. -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
@@ -13287,7 +13287,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: custom similarly than for the base grocer in advciv-sas as i have independently assessed anyways etc and as the effect is weaker too so further reason to reduce it -->
+			<!-- custom: custom similarly than for the base grocer in advciv-sas as i have independently assessed and as the effect is weaker too so further reason to reduce it -->
 			<!-- advc.020: was 10 Gold, but also helpful for Growth -->
 			<Flavors>
 				<Flavor>
@@ -15044,7 +15044,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: change as per the reworked tech tree now that physics is sooner in tech tree anyways etc, not sure if accurate checked only a bit but should not be too far off and tech steam power is bloated, i don't see a direct correlation with tech steam power as well unless i'm mistaken bu didn't check lot again anyways etc, also accounting the time to build them maybe fine as is with this change fine as it is now changed i mean but or not but or yes but, and this buffs tech physics that is a bit weak at least as of now anyways etc, was TECH_STEAM_POWER -->
+			<!-- custom: change as per the reworked tech tree now that physics is sooner in tech tree, not sure if accurate checked only a bit but should not be too far off and tech steam power is bloated, i don't see a direct correlation with tech steam power as well unless i'm mistaken bu didn't check lot again, also accounting the time to build them maybe fine as is with this change fine as it is now changed i mean but or not but or yes but, and this buffs tech physics that is a bit weak at least as of now, was TECH_STEAM_POWER -->
 			<PrereqTech>TECH_PHYSICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -16123,7 +16123,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<!-- custom: was NONE (and 0 for rate change too below) -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -16885,7 +16885,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<!-- custom: was NONE (and 0 for rate change too below) -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -17646,7 +17646,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<!-- custom: was NONE (and 0 for rate change too below) -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -18408,7 +18408,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<!-- custom: was NONE (and 0 for rate change too below) -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -19169,7 +19169,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<!-- custom: was NONE (and 0 for rate change too below) -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -19930,7 +19930,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<!-- custom: was NONE (and 0 for rate change too below) -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -20691,7 +20691,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<!-- custom: was NONE (and 0 for rate change too below) -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -21139,7 +21139,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<!-- custom: this was way too op and game breaking, leading AIs to run away too, and considering the modifier is available for all the game, fine as such i think anyways etc, was 100 -->
+			<!-- custom: this was way too op and game breaking, leading AIs to run away too, and considering the modifier is available for all the game, fine as such i think, was 100 -->
 			<iMilitaryProductionModifier>50</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
@@ -21163,7 +21163,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details anyways etc, these are op enough already and would prefer to gain culture in a more risky and rewarding path rather anyways etc, was 0 / 0 / 4 -->
+			<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details, these are op enough already and would prefer to gain culture in a more risky and rewarding path rather, was 0 / 0 / 4 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -21344,7 +21344,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details anyways etc, these are op enough already and would prefer to gain culture in a more risky and rewarding path rather anyways etc, was 0 / 0 / 4 -->
+			<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details, these are op enough already and would prefer to gain culture in a more risky and rewarding path rather, was 0 / 0 / 4 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -21563,7 +21563,7 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<!-- custom: a bit too high, reduce it a bit anyways etc, was 4 -->
+			<!-- custom: a bit too high, reduce it a bit, was 4 -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
@@ -21800,7 +21800,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: TECH_NATURALISM (if we rework it indeed as such anyways etc) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era, also boosting culture path and wonders by building them sooner indirectly; was TECH_NATIONALISM -->
+			<!-- custom: TECH_NATURALISM (if we rework it indeed as such) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era, also boosting culture path and wonders by building them sooner indirectly; was TECH_NATIONALISM -->
 			<PrereqTech>TECH_NATURALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -22162,10 +22162,10 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: moved to TECH_STEAM_POWER as per our reworked tech tree, seems to make sense there from very little or little in this case anyways etc on wikipedia or such similar anyways etc i glanced of it, was TECH_MARINE_TECHNOLOGY -->
+			<!-- custom: moved to TECH_STEAM_POWER as per our reworked tech tree, seems to make sense there from very little or little in this case on wikipedia or such similar i glanced of it, was TECH_MARINE_TECHNOLOGY -->
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<TechTypes/>
-			<!-- custom: based on info at (translate to english using your web browser and such) https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbonuses, requiring bonuses to build this building, to help AIs not build it unneededly and inefficiently, plus if i understood it correctly there is no reason to build this if we don't have either of the prerequired bonuses, ideally both, to simplify and nerf this building, simply require all bonuses (i assume in all empire) anyways etc, it makes sense thematically and is closer than how it is in civ3 btw too hehe if i'm not mistaken, looks more sensical/sane to me as such and balanced as well, was Bonus NONE and PrereqBonuses empty -->
+			<!-- custom: based on info at (translate to english using your web browser and such) https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbonuses, requiring bonuses to build this building, to help AIs not build it unneededly and inefficiently, plus if i understood it correctly there is no reason to build this if we don't have either of the prerequired bonuses, ideally both, to simplify and nerf this building, simply require all bonuses (i assume in all empire), it makes sense thematically and is closer than how it is in civ3 btw too hehe if i'm not mistaken, looks more sensical/sane to me as such and balanced as well, was Bonus NONE and PrereqBonuses empty -->
 			<Bonus>BONUS_COAL</Bonus>
 			<PrereqBonuses>
 				<Bonus>BONUS_IRON</Bonus>
@@ -22204,7 +22204,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: increase cost a bit to punish/reward more building it depending on game success so it needs to be more carefully chosen/considered anyways etc, was 700 -->
+			<!-- custom: increase cost a bit to punish/reward more building it depending on game success so it needs to be more carefully chosen/considered, was 700 -->
 			<iCost>800</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
@@ -22438,7 +22438,7 @@
 			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
 			<iMaintenanceModifier>0</iMaintenanceModifier>
 			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<!-- custom: now using a positive value (i.e. negative as in bad for the player anyways etc, but with another positive effect to match/compensate it anyways etc, may be interesting for police/military states that already have too much war weariness and want to trade it off for something else anyways etc, historically this would be because now indigenous people having their mountain stolen may be expected to retaliate so more war on horizon anyways etc), was - 25 -->
+			<!-- custom: now using a positive value (i.e. negative as in bad for the player, but with another positive effect to match/compensate it, may be interesting for police/military states that already have too much war weariness and want to trade it off for something else, historically this would be because now indigenous people having their mountain stolen may be expected to retaliate so more war on horizon), was - 25 -->
 			<iGlobalWarWearinessModifier>50</iGlobalWarWearinessModifier>
 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
 			<iHealRateChange>0</iHealRateChange>
@@ -22699,7 +22699,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: do not give too high military flavor else military leaders would build it instead of units, also the effect is not too strong for military leaders as well, especially considering the cost as also said/highlighted anyways etc in base advciv comment below, but make it not 0 as is slightly good for military leaders as well but not too much or mandatory if i may say and if i am not mistaken i mean; also add small science flavor considering great person type and value of modifier i mean if i am not mistaken now that this is a world wonder, was flavors military 6 growth 3 -->
+			<!-- custom: do not give too high military flavor else military leaders would build it instead of units, also the effect is not too strong for military leaders as well, especially considering the cost as also said/highlighted in base advciv comment below, but make it not 0 as is slightly good for military leaders as well but not too much or mandatory if i may say and if i am not mistaken i mean; also add small science flavor considering great person type and value of modifier i mean if i am not mistaken now that this is a world wonder, was flavors military 6 growth 3 -->
 			<!-- advc.020: No flavor in BtS. Mostly a military thing, though
 				 Growth has an easier time with the prereq. Hospitals. -->
 			<Flavors>
@@ -23297,7 +23297,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed) -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_LITERATURE</PrereqTech>
 			<TechTypes/>
@@ -23601,7 +23601,7 @@
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
-			<!-- custom: give global gold per tile should scale better and be stronger too hopefully without being OP anyways etc, kind of like how the reworked lighthouse (normal) building does anyways etc but in all cities, -->
+			<!-- custom: give global gold per tile should scale better and be stronger too hopefully without being OP, kind of like how the reworked lighthouse (normal) building does but in all cities, -->
 			<GlobalSeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
@@ -23653,7 +23653,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: will not always be built or too strong if civ/player doesn't have too much coastal cities or/an AI doesn't use them well so don't put too high flavor anyways etc, was flavor growth 2 and gold 7 -->
+			<!-- custom: will not always be built or too strong if civ/player doesn't have too much coastal cities or/an AI doesn't use them well so don't put too high flavor, was flavor growth 2 and gold 7 -->
 			<!-- advc.020: Was 10 Growth. Fits with Lighthouse, but the actual
 				 ability isn't for tall civs. +TR is a Gold ability. -->
 			<Flavors>
@@ -23992,7 +23992,7 @@
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
-			<!-- custom: remove old water tiles effect now in the great_lighthouse, give (an)other+/-s anyways etc effect+/-s instead -->
+			<!-- custom: remove old water tiles effect now in the great_lighthouse, give (an)other+/-s effect+/-s instead -->
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<YieldModifiers/>
@@ -24045,7 +24045,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavor to new building type/profile now a production building anyways etc, cannot put a too high military flavor else military leaders would build it instead of units, was flavor gold 10 -->
+			<!-- custom: adjust flavor to new building type/profile now a production building, cannot put a too high military flavor else military leaders would build it instead of units, was flavor gold 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -24287,7 +24287,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
-			<!-- custom: nerf its effect a bit and make it never obsolete, should be more balanced and interesting building/effect anyways etc, was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+			<!-- custom: nerf its effect a bit and make it never obsolete, should be more balanced and interesting building/effect, was TECH_SCIENTIFIC_METHOD (now removed) -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_AESTHETICS and techTypes TECH_POLYTHEISM -->
 			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
@@ -24482,7 +24482,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
-			<!-- custom: similar reasoning than angkor_wat, see code comment there for details anyways etc, was TECH_COMPUTERS -->
+			<!-- custom: similar reasoning than angkor_wat, see code comment there for details, was TECH_COMPUTERS -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_PHILOSOPHY -->
 			<PrereqTech>TECH_AESTHETICS</PrereqTech>
@@ -24690,7 +24690,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<!-- custom: hagia sophia reworked, never obsoletes now anyways etc, was TECH_STEAM_POWER -->
+			<!-- custom: hagia sophia reworked, never obsoletes now, was TECH_STEAM_POWER -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			<TechTypes/>
@@ -24842,7 +24842,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: building reworked, update flavor(s) anyways etc, was flavor production 5 -->
+			<!-- custom: building reworked, update flavor(s), was flavor production 5 -->
 			<!-- advc.020: Was 10 Production. Hard to say what the flavor
 				 should be since the ability is hardly useful at all.
 				 Could argue that Production is best suited for building an
@@ -25007,7 +25007,7 @@
 			</CommerceChangeDoubleTimes>
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
-			<!-- custom: hopefully buffs the building and is thematically accurate/relevant, as well as and balanced and not op; hopefully also helps cultural path anyways etc, was empty -->
+			<!-- custom: hopefully buffs the building and is thematically accurate/relevant, as well as and balanced and not op; hopefully also helps cultural path, was empty -->
 			<SpecialistExtraCommerces>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -25042,7 +25042,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: not all military leaders should prioritize defense, in fatc they should focus on offense and building units rather, so not puting flavor military here, but useful for leaders who want to defend against them, so putting other relevant or few flavors instead opposite to it anyways etc, was flavor production 5 -->
+			<!-- custom: not all military leaders should prioritize defense, in fatc they should focus on offense and building units rather, so not puting flavor military here, but useful for leaders who want to defend against them, so putting other relevant or few flavors instead opposite to it, was flavor production 5 -->
 			<!-- advc.020: was 10 Production; cf. Hagia Sophia -->
 			<Flavors>
 				<Flavor>
@@ -25605,7 +25605,7 @@
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<!-- custom: now is a world wonder, gives 2 free scientists, makes it stronger and better overlap with the "can be turned into scientist" effect of some university (civ-specific) buildings of the university buildingclass anyways etc, was SpecialistCounts 2 -->
+			<!-- custom: now is a world wonder, gives 2 free scientists, makes it stronger and better overlap with the "can be turned into scientist" effect of some university (civ-specific) buildings of the university buildingclass, was SpecialistCounts 2 -->
 			<SpecialistCounts/>
 			<FreeSpecialistCounts>
 				<FreeSpecialistCount>
@@ -25632,7 +25632,7 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<!-- custom: too high i think anyways etc, reducing it, was PrereqBuildingClasses 4 -->
+			<!-- custom: too high i think, reducing it, was PrereqBuildingClasses 4 -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
@@ -25790,7 +25790,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: (AdvCiv had reduced this to 10 if i may say xd...... but thanks for all changes really i mean now also me i.e. i am anyways etc tweaking as i see fit or/and best fit or/and as i want too or not or yes or etc anyways etc i mean anyways was 0 / 0 / 10 -->
+			<!-- custom: (AdvCiv had reduced this to 10 if i may say xd...... but thanks for all changes really i mean now also me i.e. i am tweaking as i see fit or/and best fit or/and as i want too or not or yes or etc i mean anyways was 0 / 0 / 10 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -26274,7 +26274,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy quite well (they used many factories or some related techniques only 250 or such land workers i mean based on a quick search it seems), and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->
+			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy quite well (they used many factories or some related techniques only 250 or such land workers i mean based on a quick search it seems), and as per our reworked tech tree and as i'd want to balance the building too, was TECH_RADIO -->
 			<!-- advc.200: -->
 			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 			<TechTypes/>
@@ -26286,7 +26286,7 @@
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<!-- custom: remove free broadcast towers based on this: https://forums.civfanatics.com/threads/the-eiffel-tower-and-broadcast-towers.224537/ , i don't know a lot about this and didn't know at all hehe if i may say anyways, but it does seem weird to have free broadcast towers in all cities just because one eiffel tower is built. The building itself (probably anyways etc) needs to be reworked or removed, for now changing its effects a bit or more than bit -->
+			<!-- custom: remove free broadcast towers based on this: https://forums.civfanatics.com/threads/the-eiffel-tower-and-broadcast-towers.224537/ , i don't know a lot about this and didn't know at all hehe if i may say anyways, but it does seem weird to have free broadcast towers in all cities just because one eiffel tower is built. The building itself (probably) needs to be reworked or removed, for now changing its effects a bit or more than bit -->
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
@@ -26315,7 +26315,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: now sooner and reworked so adjust(ing for this building/wonder) cost anyways etc, was 1250 -->
+			<!-- custom: now sooner and reworked so adjust(ing for this building/wonder) cost, was 1250 -->
 			<iCost>575</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
@@ -26593,7 +26593,7 @@
 			<CommerceHappinesses/>
 			<ReligionChanges/>
 			<SpecialistCounts/>
-			<!-- custom: buff the building as was bit weak anyways etc, was empty -->
+			<!-- custom: buff the building as was bit weak, was empty -->
 			<FreeSpecialistCounts>
 				<FreeSpecialistCount>
 					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
@@ -27233,7 +27233,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make it available sooner so it is built before endgame anyways etc, should also be historically or/and thematically quite accurate too, was the now removed anyways etc TECH_PLASTICS -->
+			<!-- custom: make it available sooner so it is built before endgame, should also be historically or/and thematically quite accurate too, was the now removed TECH_PLASTICS -->
 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
@@ -27415,7 +27415,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: so it can be built sooner and seems quite accurate too, also tech assembly line is too strong and bloated while this other tech has more space to use anyways etc would be more balanced and make it/this tech stronger as well anyways etc, was TECH_ASSEMBLY_LINE -->
+			<!-- custom: so it can be built sooner and seems quite accurate too, also tech assembly line is too strong and bloated while this other tech has more space to use would be more balanced and make it/this tech stronger as well, was TECH_ASSEMBLY_LINE -->
 			<PrereqTech>TECH_NATIONALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -27926,9 +27926,9 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
-			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed) -->
 			<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
-			<!-- custom: was TECH_POLYTHEISM and tech types empty anyways etc-->
+			<!-- custom: was TECH_POLYTHEISM and tech types empty-->
 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
@@ -28288,7 +28288,7 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<!-- custom: similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too anyways etc) to be built anyways etc, at least is what ideally i would want, however unfortunately monasteries are not merged under the same class if i am not mistaken so i can't sadly require x monasteries, require a library instead (and reduce number a bit), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead anyways etc, was empty -->
+			<!-- custom: similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too) to be built, at least is what ideally i would want, however unfortunately monasteries are not merged under the same class if i am not mistaken so i can't sadly require x monasteries, require a library instead (and reduce number a bit), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead, was empty -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
@@ -28304,7 +28304,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: see code comment at flavor of spiral minaret adding only flavor religion anyways etc, was flavor religion 10 -->
+			<!-- custom: see code comment at flavor of spiral minaret adding only flavor religion, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
@@ -28511,7 +28511,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: no flavor military too as military leaders need to focus on offense not defense, see chichen itza code comment as well if i am not mistaken, and i seem to have read this or something similar in a base advciv code comment too or somewhere if i am not mistaken so not sure so maybe this gave me the idea now again or i got it independently or both or other anyways etc, was flavor gold 5 growth 4 -->
+			<!-- custom: no flavor military too as military leaders need to focus on offense not defense, see chichen itza code comment as well, and i seem to have read this or something similar in a base advciv code comment too or somewhere if i am not mistaken so not sure so maybe this gave me the idea now again or i got it independently or both or other, was flavor gold 5 growth 4 -->
 			<!-- advc.310, advc.020: Was 8 Military. Extra trades routes get
 				 Gold flavor. A bit of Growth because the prereq. Walls have
 				that flavor. -->
@@ -28690,7 +28690,7 @@
 			<ConstructSound/>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
-			<!-- custom: BONUS_ELEPHANTS is a military ressource/bonus already so has its own / enough use anyways etc, use gold then instead as per the lore https://en.wikipedia.org/wiki/Statue_of_Zeus_at_Olympia too -->
+			<!-- custom: BONUS_ELEPHANTS is a military ressource/bonus already so has its own / enough use, use gold then instead as per the lore https://en.wikipedia.org/wiki/Statue_of_Zeus_at_Olympia too -->
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_GOLD</BonusType>
@@ -28707,7 +28707,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: use similar reasoning as in base advciv comment below if i am not mistaken i mean as well as for chichen itza and great wall too, but do not put any flavor at all as military leaders would produce less units, and gold or religion or culture or such or growth or science or other would not be defended more because ennemies have more war weariness so don't put any flavor here anyways etc, except for the production great person related effect anyways etc, was flavor culture 6 -->
+			<!-- custom: use similar reasoning as in base advciv comment below if i am not mistaken i mean as well as for chichen itza and great wall too, but do not put any flavor at all as military leaders would produce less units, and gold or religion or culture or such or growth or science or other would not be defended more because ennemies have more war weariness so don't put any flavor here, except for the production great person related effect, was flavor culture 6 -->
 			<!-- advc.020: Was 8 Military. Make it Culture b/c of the culture
 				 bonus. The defensive ability (if it actually did sth.) would
 				 also work well for a peaceable, Culture-flavored leader. -->
@@ -28895,7 +28895,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: production effect too small to be given safely to AIs, they may not go for specific civic that gives it anyways etc, was flavors production 5 culture 4 growth 3 -->
+			<!-- custom: production effect too small to be given safely to AIs, they may not go for specific civic that gives it, was flavors production 5 culture 4 growth 3 -->
 			<!-- advc.020: No flavor in BtS; cf. Taj Mahal. -->
 			<Flavors>
 				<Flavor>
@@ -28977,7 +28977,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: now sooner, adjust cost, anyways etc, was 1000 -->
+			<!-- custom: now sooner, adjust cost, was 1000 -->
 			<iCost>525</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
@@ -29299,7 +29299,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: can't give this a too high military flavor anyways etc else military leaders would build it instead of building units, still it's strong enough with the early drafting to have military laders consider it if i'm not mistaken anyways etc but not too strong flavor else they would not build units anymore, was flavors science 5 growth 2 culture 2 -->
+			<!-- custom: can't give this a too high military flavor else military leaders would build it instead of building units, still it's strong enough with the early drafting to have military laders consider it if i'm not mistaken but not too strong flavor else they would not build units anymore, was flavors science 5 growth 2 culture 2 -->
 			<!-- advc.020: Was 10 Religion, but mainly unlocks Free Religion
 				 (Science), and possibly Pacifism (Growth, Culture). -->
 			<Flavors>
@@ -29330,7 +29330,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities anyways etc, hopefully historically accurate as they were built much later if i am not mistaken too anyways and after checking more seems really an accurate time around pre-(age of)exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History -->
+		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities, hopefully historically accurate as they were built much later if i am not mistaken too anyways and after checking more seems really an accurate time around pre-(age of)exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History -->
 		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MOAI_STATUES</BuildingClass>
 			<Type>BUILDING_MOAI_STATUES</Type>
@@ -29459,7 +29459,7 @@
 			<!-- custom: remove local/city-only effect ((of) SeaPlotYieldChanges if i am not mistaken too but or not but) -->
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
-			<!-- custom: make the effect stronger, now applies to all cities, on top of the building-only effect of the port anyways etc, was empty -->
+			<!-- custom: make the effect stronger, now applies to all cities, on top of the building-only effect of the port, was empty -->
 			<GlobalSeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>1</iYield>
@@ -29576,7 +29576,7 @@
 			<DiploVoteType>NONE</DiploVoteType>
 			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
 			<bCapital>0</bCapital>
-			<!-- custom: avoid redundant effect with forbidden_palace / forbidden palace before we renamed asset name in advciv-sas i mean too, give another(other) effect(s) anyways etc, was 1 -->
+			<!-- custom: avoid redundant effect with forbidden_palace / forbidden palace before we renamed asset name in advciv-sas i mean too, give another(other) effect(s), was 1 -->
 			<bGovernmentCenter>0</bGovernmentCenter>
 			<!-- custom: was 0 -->
 			<bGoldenAge>1</bGoldenAge>
@@ -29755,7 +29755,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: note: Executives now require tech(s) to be built (see there for details anyways etc.) If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit, was NONE. -->
+			<!-- custom: note: Executives now require tech(s) to be built (see there for details) If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit, was NONE. -->
 			<!-- custom: was TECH_MEDICINE -->
 			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<TechTypes>
@@ -30471,7 +30471,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 -->
-			<!-- custom: changed to another tech to accomodate reworked tech tree changes anyways etc., was the now removed TECH_RAILROAD -->
+			<!-- custom: changed to another tech to accomodate reworked tech tree changes , was the now removed TECH_RAILROAD -->
 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
@@ -30842,7 +30842,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: have greater variety in great person type, one great person type per corporation type without overlap anyways etc, was UNITCLASS_GREAT_ARTIST -->
+			<!-- custom: have greater variety in great person type, one great person type per corporation type without overlap, was UNITCLASS_GREAT_ARTIST -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>

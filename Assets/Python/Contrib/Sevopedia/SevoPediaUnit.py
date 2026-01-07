@@ -43,7 +43,7 @@ class SevoPediaUnit:
 		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE - self.MEDIUM_MARGIN) / 4
 		self.H_UNIT_PANE = 190
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -189,7 +189,7 @@ class SevoPediaUnit:
 
 	def placeStats(self):
 		screen = self.top.getScreen()
-		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am anyways etc) trying to avoid redundance as long as code seems to work fine or as intended and also to avoid or/and fix the ruff warning anyways etc, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least; check if accurate and to be sure; -->
+		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am) trying to avoid redundance as long as code seems to work fine or as intended and also to avoid or/and fix the ruff warning, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least; check if accurate and to be sure; -->
 		panelName = self.top.getNextWidgetName()
 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
 
@@ -213,7 +213,7 @@ class SevoPediaUnit:
 		# <!-- custom: don't show movement for domain immobile units (missiles and such for example, not air fighters and such) --> 
 		if eDomain != DomainTypes.DOMAIN_IMMOBILE:
 			# <!-- custom: show all stats that we want/have as they are, including 1 move air or
-			# 4 move helicopter, (hopefully helpful ,) (but) (if or not)(anyways etc) -->
+			# 4 move helicopter -->
 			## Don't show 1 move for air units
 			#elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
 			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT_CUSTOM", (gc.getUnitInfo(self.iUnit).getMoves(),))
@@ -487,7 +487,7 @@ class SevoPediaUnit:
 				if iModCombat != 0:
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
-					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case anyways etc, our previous code was seemingly mistaken -->
+					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case, our previous code was seemingly mistaken -->
 					screen.appendMultiListButton(rowListName, gc.getUnitCombatInfo(i).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
 
 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
@@ -740,7 +740,7 @@ class SevoPediaUnit:
 
 		bullet = localText.getText("[ICON_BULLET]", ())
 
-		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas anyways etc, code provided with the help of chatgpt thanks etc anyways etc thanks and thanks to me too hehe if i may say in this case, and adjusted for advciv-sas or not by me too -->
+		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas, code provided with the help of chatgpt thanks etc thanks and thanks to me too hehe if i may say in this case, and adjusted for advciv-sas or not by me too -->
 		# Get unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
 
@@ -748,7 +748,7 @@ class SevoPediaUnit:
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
 			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
 
-		# <!-- custom: if unit grants unit(s) on capture anyways etc, code added thanks to claude ai as well as my prompt and adjustments and/or such or not or yes or etc -->
+		# <!-- custom: if unit grants unit(s) on capture, code added thanks to claude ai as well as my prompt and adjustments and/or such or not or yes or etc -->
 		unitCaptureClassType = unitInfo.getUnitCaptureClassType()
 		if unitCaptureClassType != -1:
 			unitCaptureClassTypeInfo = gc.getUnitClassInfo(unitCaptureClassType)
@@ -857,7 +857,7 @@ class SevoPediaUnit:
 
 
 
-	# <!-- custom: note: this sevopediaunit's below placeCivilizations function/method can handle several civs if i am not mistaken, see sevopedia building's placeCivilizations's code comment for details -->
+	# <!-- custom: note: this sevopediaunit's below placeCivilizations function/method can handle several civs, see sevopedia building's placeCivilizations's code comment for details -->
 	def placeCivilizations(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -913,7 +913,7 @@ class SevoPediaUnit:
 	def placePromotions(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: no TXT_KEY_PEDIA_CATEGORY_PROMOTION "header" for smoother display with how the unit pane is done (and promo pane is next to it now anyways etc) -->
+		# <!-- custom: no TXT_KEY_PEDIA_CATEGORY_PROMOTION "header" for smoother display with how the unit pane is done (and promo pane is next to it now) -->
 		screen.addPanel(panelName, localText.getText("", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		rowListName = self.top.getNextWidgetName()
 		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, 1, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)

@@ -1,4 +1,4 @@
-// <!-- custom: vs code settings for advciv-sas, it seems specifically for settings.json comments are allowed so no .jsonc and using instead .json so we can add comments too if i am not mistaken and according to chatgpt (who also provided parts if not lot or most of code below which i tweaked or/and added on too anyways etc.) -->
+// <!-- custom: vs code settings for advciv-sas, it seems specifically for settings.json comments are allowed so no .jsonc and using instead .json so we can add comments too if i am not mistaken and according to chatgpt (who also provided parts if not lot or most of code below which i tweaked or/and added on too) -->
 {
     // Use real tab characters instead of spaces
     "editor.insertSpaces": false,
@@ -15,7 +15,7 @@
         "reportUnusedImport": "none", // sometimes noisy
         "reportUnusedVariable": "none" // let Ruff handle these
     },
-    // <!-- custom: even though pylance is not ideal it seems as quite slow sometimes and doesn't detect some imports if i am not mistaken too anyways etc, still much faster than jedi for example which i tested quick anyways etc, and it is still useful to navigate code so add it, minus all noise if i may say of import errors, so we can also see all linter of ruff (see ruff.toml for details anyways etc) as of now anyways etc very nice messages anyways etc and also other real code errors so we can fix them easier too -->
+    // <!-- custom: even though pylance is not ideal it seems as quite slow sometimes and doesn't detect some imports, still much faster than jedi for example which i tested quick, and it is still useful to navigate code so add it, minus all noise if i may say of import errors, so we can also see all linter of ruff (see ruff.toml for details) as of now very nice messages and also other real code errors so we can fix them easier too -->
     // Ensure we’re using Pylance (optional if already default)
     "python.languageServer": "Pylance",
     // <!-- custom: these seem to be default enabled by vs code, keep them as is -->
