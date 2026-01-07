@@ -359,10 +359,13 @@ class SevoPediaGameSpeedChart:
 				iTurns = turn_info.iNumGameTurnsPerIncrement
 				iMonthInc = turn_info.iMonthIncrement
 
-				szCell = self._format_calendar_segment(start_year, cum_months, iTurns, iMonthInc)
+				iSegMonths = iTurns * iMonthInc
+				iStartYear = start_year + (cum_months // 12)
+				iEndYear   = start_year + ((cum_months + iSegMonths) // 12)
+				szCell = self._format_calendar_segment(iStartYear, iEndYear, iTurns, iMonthInc)
 
 				parsed_data[speed_type][calendar_fields[iInc]] = szCell
-				cum_months += iTurns * iMonthInc
+				cum_months += iSegMonths
 
 		# Display order:
 		# - base rows (row_specs order)
