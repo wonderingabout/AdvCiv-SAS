@@ -177,57 +177,82 @@ class SevoPediaWorldSizeChart:
 				raise RuntimeError("[FATAL] Your mod DLL does not expose the required CvWorldInfo Python getters: %s. Please expose them in CyInfoInterface2.cpp and rebuild the DLL." % ", ".join(missing))
 
 		game = CyGame()
-		btn_by_name = {
-			"swords": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", ())), 2),
-			"skull": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", ())), 3),
-			"herb": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH", ())), 4),
-			"fire": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH", ())), 5),
-		}
+		btn_by_name = {}
+		# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
+		def _btn_path(szTxtKey):
+			return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
 
-		glyph_by_name = {
-			"map": u"%c" % game.getSymbolID(FontSymbols.MAP_CHAR),
-			"citizen": u"%c" % game.getSymbolID(FontSymbols.CITIZEN_CHAR),
-			"prod": u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(),
-			"gold": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(),
-			"research": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar(),
-			"defense": u"%c" % game.getSymbolID(FontSymbols.DEFENSE_CHAR),
-			"unhappy": u"%c" % game.getSymbolID(FontSymbols.UNHAPPY_CHAR),
-		}
+		_btn_defs = (
+			# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+			("swords", "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
+			("herb",   "TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH"),
+			("fire",   "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH"),
+		)
+		for i, (name, txtKey) in enumerate(_btn_defs):
+			# Group id only affects sorting by the icon column.
+			# Reorder _btn_defs to change the icon-theme sort order.
+			btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
 
+		glyph_by_name = {}
+		# GameFont glyph icons (yields/commerce/symbols).
+		_glyph_defs = (
+			# (name, glyph_char)
+			("map",      (u"%c" % (game.getSymbolID(FontSymbols.MAP_CHAR)))),
+			("citizen",  (u"%c" % (game.getSymbolID(FontSymbols.CITIZEN_CHAR)))),
+			("prod",     (u"%c" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()))),
+			("gold",     (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()))),
+			("research", (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()))),
+			("defense",  (u"%c" % (game.getSymbolID(FontSymbols.DEFENSE_CHAR)))),
+			("unhappy",  (u"%c" % (game.getSymbolID(FontSymbols.UNHAPPY_CHAR)))),
+		)
+		for name, glyph in _glyph_defs:
+			glyph_by_name[name] = glyph
+
+
+		# ---------------------------------------------------------------------
+		# Stable icon sorting (prevents same-icon rows from shuffling on re-sort)
+		# ---------------------------------------------------------------------
+		_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
+
+		def _encode_base5(iValue, iDigits):
+			out = []
+			for _ in xrange(iDigits):
+				out.append(_SORT_DIGITS[iValue % 5])
+				iValue //= 5
+			out.reverse()
+			return u"".join(out)
+
+		def _sort_key(iGroup, iRowIndex):
+			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
 		icon_token_by_key = {}
 		for field_name, _getter_name, icon_token in row_specs:
 			if icon_token:
 				icon_token_by_key[field_name] = icon_token
 
-		def _sort_char(code):
-			if code <= 0:
-				code = 31
-			elif code > 31:
-				code = 31
-			return u"<font=1>%c</font>" % code
-
-		def icon_cell_for_key(icon_key):
+		def icon_cell_for_key(icon_key, iRowIndex):
+			# Always return a stable invisible tie-breaker, even if no icon is found.
 			if not icon_key:
-				return (u"", "")
+				return (_sort_key(0, iRowIndex), "")
 			token = icon_token_by_key.get(icon_key, "")
 			if not token:
-				return (u"", "")
+				return (_sort_key(0, iRowIndex), "")
 			if token.startswith("btn:"):
 				name = token[4:]
 				btn = btn_by_name.get(name)
 				if btn is None:
-					return (u"", "")
-				path, sort_code = btn[0], btn[1]
+					return (_sort_key(0, iRowIndex), "")
+				path, iGroup = btn[0], btn[1]
 				if not path:
-					return (u"", "")
-				return (_sort_char(sort_code), path)
+					return (_sort_key(0, iRowIndex), "")
+				return (_sort_key(iGroup, iRowIndex), path)
 			if token.startswith("glyph:"):
 				name = token[6:]
 				glyph = glyph_by_name.get(name, u"")
 				if not glyph:
-					return (u"", "")
-				return (_font2(glyph), "")
-			return (u"", "")
+					return (_sort_key(0, iRowIndex), "")
+				return (_font2(glyph) + _sort_key(0, iRowIndex), "")
+			return (_sort_key(0, iRowIndex), "")
+
 
 		world_types = []
 		world_labels = []
@@ -262,11 +287,12 @@ class SevoPediaWorldSizeChart:
 
 		table = [header]
 
+		row_index = 0
 		for field_name, _getter_name, _icon_token in row_specs:
 			szFieldName = self._display_field_name(field_name)
 
 			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
-				row = [icon_cell_for_key(field_name), _font2(szFieldName)]
+				row = [icon_cell_for_key(field_name, row_index), _font2(szFieldName)]
 			else:
 				row = [_font2(szFieldName)]
 
@@ -274,6 +300,7 @@ class SevoPediaWorldSizeChart:
 				row.append(_font2(parsed_data.get(world_type, {}).get(field_name, "")))
 
 			table.append(row)
+			row_index += 1
 
 		return table
 

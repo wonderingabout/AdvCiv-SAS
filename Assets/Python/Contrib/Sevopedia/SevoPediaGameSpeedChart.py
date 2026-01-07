@@ -204,35 +204,48 @@ class SevoPediaGameSpeedChart:
 		localText = CyTranslator()
 		game = CyGame()
 
-		btn_by_name = {
-			"dove":      (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", ())),           10),
-			"swords":    (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", ())), 20),
-			"skull":     (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", ())),          30),
-			"lion":      (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH", ())),      40),
-			"herb":      (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH", ())),           50),
-			"money":     (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH", ())),      60),
-			"gear":      (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH", ())),           70),
-			"megaphone": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH", ())),      80),
-			"brain":     (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH", ())),          90),
-			"hourglass": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH", ())),    100),
-			"fire":      (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH", ())),           110),
-			"trophy":    (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ())),         120),
-		}
+		# Keep icon libraries lean: define only icons we actually use in this chart.
+		# If you add new row_specs icons later, extend the *_defs tuples below.
+		#
+		# Sorting note: each icon gets a "sort group" used only when sorting by the icon column.
+		# Groups are spaced by 10 so you can insert new icons between existing groups without
+		# renumbering everything; only relative order matters.
 
-		glyph_by_name = {
-			# name: (glyph_char, sort_group)
-			"food":        (u"%c" % (gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()),               10),
-			"prod":        (u"%c" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()),         20),
-			"gold":        (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()),       30),
-			"research":    (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()),   40),
-			"culture":     (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()),    50),
-			"happy":       (u"%c" % (game.getSymbolID(FontSymbols.HAPPY_CHAR)),                          60),
-			"health":      (u"%c" % (game.getSymbolID(FontSymbols.HEALTHY_CHAR)),                        70),
-			"defense":     (u"%c" % (game.getSymbolID(FontSymbols.DEFENSE_CHAR)),                        80),
-			"citizen":     (u"%c" % (game.getSymbolID(FontSymbols.CITIZEN_CHAR)),                        90),
-			"great_people":(u"%c" % (game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)),                   100),
-			"golden_age":  (u"%c" % (game.getSymbolID(getattr(FontSymbols, "GOLDEN_AGE_CHAR", FontSymbols.GREAT_PEOPLE_CHAR))), 110),
-		}
+		btn_by_name = {}
+		# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
+		def _btn_path(szTxtKey):
+			return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
+
+		_btn_defs = (
+			# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+			("dove",      "TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH"),
+			("swords",    "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
+			("skull",     "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH"),
+			("gear",      "TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH"),
+			("brain",     "TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH"),
+			("hourglass", "TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH"),
+			("fire",      "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH"),
+			("trophy",    "TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH"),
+		)
+		for i, (name, txtKey) in enumerate(_btn_defs):
+			btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
+
+		glyph_by_name = {}
+		# GameFont glyph icons (yields/commerce/symbols).
+		_glyph_defs = (
+			# (name, glyph_char)
+			("food",         (u"%c" % (gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))),
+			("prod",         (u"%c" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()))),
+			("gold",         (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()))),
+			("research",     (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()))),
+			("culture",      (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()))),
+			("happy",        (u"%c" % (game.getSymbolID(FontSymbols.HAPPY_CHAR)))),
+			("citizen",      (u"%c" % (game.getSymbolID(FontSymbols.CITIZEN_CHAR)))),
+			("great_people", (u"%c" % (game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)))),
+			("golden_age",   (u"%c" % (game.getSymbolID(getattr(FontSymbols, "GOLDEN_AGE_CHAR", FontSymbols.GREAT_PEOPLE_CHAR))))),
+		)
+		for i, (name, glyph) in enumerate(_glyph_defs):
+			glyph_by_name[name] = (glyph, (i + 1) * 10)
 
 		# Build a quick lookup dict from the central row_specs list.
 		# (Still "centralized": this dict is derived from row_specs rather than hand-maintained.)
@@ -515,6 +528,8 @@ class SevoPediaGameSpeedChart:
 			szSep = "="
 		return "+%d%s%s%s%s" % (turns, szOp, szRate, szSep, szEnd)
 
+
+
 	def _beautify_field_name(self, raw_name):
 		# Keep field labels readable; only shorten trailing "Percent" to "%".
 		name = raw_name
@@ -532,6 +547,7 @@ class SevoPediaGameSpeedChart:
 			name = name[:-len("Percent")] + "%"
 
 		return name
+
 
 	def _beautify_enum_name(self, raw_name):
 		name = raw_name

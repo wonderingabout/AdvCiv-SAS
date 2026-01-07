@@ -390,43 +390,74 @@ class SevoPediaHandicapChart:
 		def _font2(s):
 			return u"<font=2>%s</font>" % s
 
-		def _sort_char(code):
-			# Clamp to 1..31; match old behavior (default 31 for unknown/non-positive).
-			if code <= 0:
-				code = 31
-			elif code > 31:
-				code = 31
-			return u"<font=1>%c</font>" % code
-
 		icon_cell_for_key = None
 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
 			game = CyGame()
 
-			# Glyph icons (FontSymbols / commerce / yields)
-			glyph_by_name = {
-				"great_people": u"%c" % game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR),
-				"research": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar(),
-				"gold": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(),
-				"culture": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar(),
-				"happy": u"%c" % game.getSymbolID(FontSymbols.HAPPY_CHAR),
-				"health": u"%c" % game.getSymbolID(FontSymbols.HEALTHY_CHAR),
-				"food": u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar(),
-				"prod": u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(),
-				"defense": u"%c" % game.getSymbolID(FontSymbols.DEFENSE_CHAR),
-				"citizen": u"%c" % game.getSymbolID(FontSymbols.CITIZEN_CHAR),
-			}
+			# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
+			btn_by_name = {}
+			def _btn_path(szTxtKey):
+				return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
 
-			# Button icons (path must be narrow str for setTableText)
-			# NOTE: Table sorting only considers the cell TEXT, not the icon path.
-			# For btn:* rows we store (iconPath, sort_code) and render a tiny hidden
-			# control-char via _sort_char(sort_code) as text, so icon-only cells sort
-			# deterministically by icon category (glyph:* already has visible text).
-			btn_by_name = {
-				"swords": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", ())), 2),
-				"skull": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", ())), 3),
-				"lion": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH", ())), 4),
-				"dove": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", ())), 10),
-			}
+			_btn_defs = (
+				# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+				("dove",   "TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH"),
+				("lion",   "TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH"),
+				("skull",  "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH"),
+				("swords", "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
+			)
+			for i, (name, txtKey) in enumerate(_btn_defs):
+				# Group id only affects sorting by the icon column.
+				# Reorder _btn_defs to change the icon-theme sort order.
+				btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
+
+			glyph_by_name = {}
+			# GameFont glyph icons (yields/commerce/symbols).
+			_glyph_defs = (
+				# (name, glyph_char)
+				("great_people", (u"%c" % (game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)))),
+
+				("research",     (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()))),
+				("gold",         (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()))),
+				("culture",      (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()))),
+
+				("happy",        (u"%c" % (game.getSymbolID(FontSymbols.HAPPY_CHAR)))),
+				("health",       (u"%c" % (game.getSymbolID(FontSymbols.HEALTHY_CHAR)))),
+				("food",         (u"%c" % (gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))),
+				("prod",         (u"%c" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()))),
+				("defense",      (u"%c" % (game.getSymbolID(FontSymbols.DEFENSE_CHAR)))),
+				("citizen",      (u"%c" % (game.getSymbolID(FontSymbols.CITIZEN_CHAR)))),
+			)
+			for _name, _glyph in _glyph_defs:
+				glyph_by_name[_name] = _glyph
+			
+			# ---------------------------------------------------------------------
+			# Stable icon sorting (prevents same-icon rows from shuffling on re-sort)
+			# ---------------------------------------------------------------------
+			#
+			# Civ4 table sorting uses the raw cell text. When multiple rows share the
+			# same icon, tie ordering can shuffle between ascending/descending clicks.
+			#
+			# We fix ties by appending an invisible sort key (icon_group + row_index)
+			# to the icon cell text. This keeps the chart readable while making sort
+			# results fully deterministic.
+			#
+			# We avoid ASCII control chars (0x01..0x1F): some Civ4 builds can cause
+			# GameFont glyphs to render blank when such chars appear in table cells.
+			# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F).
+			_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
+
+			def _encode_base5(iValue, iDigits):
+				out = []
+				for _ in xrange(iDigits):
+					out.append(_SORT_DIGITS[iValue % 5])
+					iValue //= 5
+				out.reverse()
+				return u"".join(out)
+
+			def _sort_key(iGroup, iRowIndex):
+				# 4 base-5 digits cover group ids comfortably; 3 digits cover up to 124 rows.
+				return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
 
 			# Token map: key -> "btn:name" or "glyph:name"
 			# Built from the centralized specs above, so there is only ONE place to edit.
@@ -441,28 +472,31 @@ class SevoPediaHandicapChart:
 			icon_token_by_key["FreeTechs"] = "glyph:research"
 			icon_token_by_key["AIFreeTechs"] = "glyph:research"
 
-			def icon_cell_for_key(icon_key):
+			def icon_cell_for_key(icon_key, iRowIndex):
+				# Always return a stable invisible tie-breaker, even if no icon is found.
 				if not icon_key:
-					return (u"", "")
+					return (_sort_key(0, iRowIndex), "")
 				token = icon_token_by_key.get(icon_key, "")
 				if not token:
-					return (u"", "")
+					return (_sort_key(0, iRowIndex), "")
 				if token.startswith("btn:"):
 					name = token[4:]
 					btn = btn_by_name.get(name)
 					if btn is None:
-						return (u"", "")
-					path, sort_code = btn[0], btn[1]
+						return (_sort_key(0, iRowIndex), "")
+					path, iGroup = btn[0], btn[1]
 					if not path:
-						return (u"", "")
-					return (_sort_char(sort_code), path)
+						return (_sort_key(0, iRowIndex), "")
+					return (_sort_key(iGroup, iRowIndex), path)
 				if token.startswith("glyph:"):
 					name = token[6:]
 					glyph = glyph_by_name.get(name, u"")
 					if not glyph:
-						return (u"", "")
-					return (_font2(glyph), "")
-				return (u"", "")
+						return (_sort_key(0, iRowIndex), "")
+					# Preserve the visible glyph, but add an invisible tie-breaker.
+					return (_font2(glyph) + _sort_key(0, iRowIndex), "")
+				return (_sort_key(0, iRowIndex), "")
+
 
 		# Build header (pre-fonted)
 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
@@ -475,6 +509,7 @@ class SevoPediaHandicapChart:
 		data = [header]
 
 		# Build rows (pre-fonted)
+		row_index = 0
 		for row in rows:
 			field_name = row["Field"]
 			display_field = field_name
@@ -483,7 +518,7 @@ class SevoPediaHandicapChart:
 				icon_key = row.get("IconKey", "")
 				icon_cell = (u"", "")
 				if icon_cell_for_key is not None:
-					icon_cell = icon_cell_for_key(icon_key)
+					icon_cell = icon_cell_for_key(icon_key, row_index)
 				out_row = [icon_cell, _font2(display_field)]
 			else:
 				out_row = [_font2(display_field)]
@@ -495,6 +530,7 @@ class SevoPediaHandicapChart:
 				out_row.append(_font2(value))
 
 			data.append(out_row)
+			row_index += 1
 
 		return data
 
