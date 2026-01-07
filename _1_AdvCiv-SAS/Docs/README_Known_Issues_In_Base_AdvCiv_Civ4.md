@@ -125,6 +125,7 @@ hopefully helpful, thanks, anyways, thanks,
 [89 - (Improved) In an attack stack, attack with lower value (effective strength, XP, health) units first](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first)  
 [90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#90---fixed-base-advciv-bug-of-sevopedia-index-using-the-religions-button-instead-of-the-corporations)  
 [91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#91---adjusted-ibasegrowththresholdpercent-scales-with-handicap-but-its-not-clear-what-it-does-and-how-it-should-be-said)  
+[92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4019,3 +4020,15 @@ If your goal is “difficulty comes from the AI, not hidden human penalties”, 
 - Rebuild AI curves deliberately (like we did for GP), *but be careful with growth* because `iAIGrowthPercent` is a stronger lever than GP threshold (it can inflate AI cities across the whole game, not just GP timing).
 
 If you want, paste your current **AI** growth-related rows (or just confirm you still have that “settler cost adjusts from growth threshold” code enabled), and I’ll recommend a specific `iAIGrowthPercent` curve that fits your current AIResearchPercent curve and your worker/production tuning.
+
+## 92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pIXiY183a1NpEBSxr5zFUtcg56rwAXwV?usp=sharing).
+
+I noticed these in the new Sevopedia Game speed that below Marathon values were way to high vs what marathon had (100 vs 1).
+
+Now fixed with code comments, and added the `iExtraFreeOutsideUnits` (plus `iUnitCostPercent`) fields that were missing in XML too instead of relying on DLL defaults.
+
+Gameplay change doesn't seem too significant at a glance, check screenshots and save file provided for comparison.
+
+See commit: todo add.

@@ -14,6 +14,12 @@
 	- 780 months = 65y
 	and adjust iTurnsPerIncrement to keep the same segment endpoints and total turns.
 	Sub-year steps (<12 months) are kept as separate rows (e.g., 6/3/2 months) for clarity. (ChatGPT 5.2) -->
+<!-- custom: note: iExtraFreeOutsideUnits is an OPTIONAL tag (schema minOccurs=0), but the DLL default was 100 (percent-style fallback).
+     That default is wrong for this field because it is a UNIT COUNT added to INITIAL_FREE_OUTSIDE_UNITS, not a percent.
+     Result: speeds missing the tag display/behave like "100" (see SevoPedia Game Speed Chart), while slower speeds explicitly set "1".
+     We now set this tag explicitly for ALL game speeds (usually 0) to avoid hidden fallback values and keep behavior consistent.
+     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2). See known issue as of now 92 for details. -->
+<!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See known issue as of now 92 for details. -->
 <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<GameSpeedInfos>
 
@@ -56,6 +62,10 @@
 			<!-- Inflation: 30/0.33 ~= 90.9 -> 90. Offset: -90 * 0.33 ~= -30. -->
 			<iInflationPercent>90</iInflationPercent>
 			<iInflationOffset>-30</iInflationOffset>
+
+			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
 
 			<iVictoryDelayPercent>60</iVictoryDelayPercent>
 
@@ -164,6 +174,10 @@
 			<iInflationPercent>60</iInflationPercent>
 			<iInflationOffset>-45</iInflationOffset>
 
+			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+
 			<!-- These are absent on Normal (defaults=100), but present on other speeds. Keep them in the "not as compressed as core" spirit. -->
 			<iVictoryDelayPercent>70</iVictoryDelayPercent>
 
@@ -261,6 +275,11 @@
 			<iHurryConscriptAngerPercent>67</iHurryConscriptAngerPercent>
 			<iInflationPercent>45</iInflationPercent>
 			<iInflationOffset>-60</iInflationOffset>
+
+			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+
 			<!-- advc.252: was 67 -->
 			<iVictoryDelayPercent>80</iVictoryDelayPercent>
 			<!-- advc.130r: start -->
@@ -371,6 +390,11 @@
 			<iHurryConscriptAngerPercent>100</iHurryConscriptAngerPercent>
 			<iInflationPercent>30</iInflationPercent>
 			<iInflationOffset>-90</iInflationOffset>
+
+			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+
 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
 			<!-- advc.910: Changed all of the turn counts -->
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #19 -->
@@ -473,6 +497,11 @@
 			<iHurryConscriptAngerPercent>150</iHurryConscriptAngerPercent>
 			<iInflationPercent>20</iInflationPercent>
 			<iInflationOffset>-135</iInflationOffset>
+
+			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+
 			<!-- advc.252: was 150 -->
 			<iVictoryDelayPercent>125</iVictoryDelayPercent>
 			<!-- advc.130r: start -->
@@ -604,10 +633,12 @@
 			<!-- custom: not sure if we should change it too much but reduce it a bit to match close to gamespeed_epic progression just in case anyways etc, was -225 -->
 			<!-- was -270 -->
 			<iInflationOffset>-180</iInflationOffset>
-			<!-- custom: not sure if we should change it but aim for exact double just in case anyways etc, was 85 -->
+
+			<!-- custom: not sure if we should change it but aim for exact double just in case. See also known issue as of now 92 for related info; was 85 -->
 			<!-- Reduce unit expenses ... -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
+
 			<!-- was 300 -->
 			<iVictoryDelayPercent>200</iVictoryDelayPercent>
 			<!-- advc.252: end -->
@@ -726,7 +757,7 @@
 			<iInflationPercent>10</iInflationPercent>
 			<iInflationOffset>-270</iInflationOffset>
 
-			<!-- Copied from Marathon (helps long games a bit; easy to revisit later if you reintroduce old-unit scrapping). -->
+			<!-- Copied from Marathon (helps long games a bit; easy to revisit later if you reintroduce old-unit scrapping). See also known issue as of now 92 for related info -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
 
@@ -839,7 +870,7 @@
 			<iInflationPercent>5</iInflationPercent>
 			<iInflationOffset>-360</iInflationOffset>
 
-			<!-- Keep the Marathon cost relief for long games (easy to tweak later if needed). -->
+			<!-- Keep the Marathon cost relief for long games (easy to tweak later if needed). See also known issue as of now 92 for related info. -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
 
