@@ -130,80 +130,113 @@ class SevoPediaHandicapChart:
 		return data
 
 	def _buildTableFromGameData(self):
-		field_getters = (
-			("iAIAttitudeChangePercent", "getAIAttitudeChangePercent"),
-			("iAIAdvancedStartPercent", "getAIAdvancedStartPercent"),
-			("iAIAnimalBonus", "getAIAnimalCombatModifier"),
-			("iAIBarbarianBonus", "getAIBarbarianCombatModifier"),
-			("iAICivicUpkeepPercent", "getAICivicUpkeepPercent"),
-			("iAIConstructPercent", "getAIConstructPercent"),
-			("iAICreatePercent", "getAICreatePercent"),
-			("iAIDeclareWarProb", "getAIDeclareWarProb"),
-			("iAIGPThresholdPercent", "getAIGPThresholdPercent"),
-			("iAIGrowthPercent", "getAIGrowthPercent"),
-			("iAIHandicapIncrementTurns", "getAIHandicapIncrementTurns"),
-			("iAIInflationPercent", "getAIInflationPercent"),
-			("iAIResearchPercent", "getAIResearchPercent"),
-			("iAIStartingDefenseUnits", "getAIStartingDefenseUnits"),
-			("iAIStartingExploreUnits", "getAIStartingExploreUnits"),
-			("iAIStartingUnitMultiplier", "getAIStartingUnitMultiplier"),
-			("iAIStartingWorkerUnits", "getAIStartingWorkerUnits"),
-			("iAITrainPercent", "getAITrainPercent"),
-			("iAIUnitCostPercent", "getAIUnitCostPercent"),
-			("iAIUnitSupplyPercent", "getAIUnitSupplyPercent"),
-			("iAIUnitUpgradePercent", "getAIUnitUpgradePercent"),
-			("iAIWarWearinessPercent", "getAIWarWearinessPercent"),
-			("iAIWorkRateModifier", "getAIWorkRateModifier"),
-			("iAIWorldConstructPercent", "getAIWorldConstructPercent"),
-			("iAIWorldCreatePercent", "getAIWorldCreatePercent"),
-			("iAIWorldTrainPercent", "getAIWorldTrainPercent"),
-			("iAdvancedStartPointsMod", "getAdvancedStartPointsMod"),
-			("iAnimalAttackProb", "getAnimalAttackProb"),
-			("iAnimalBonus", "getAnimalCombatModifier"),
-			("iAttitudeChange", "getAttitudeChange"),
-			("iBarbarianBonus", "getBarbarianCombatModifier"),
-			("iBarbarianCityAttackBonus", "getBarbarianCityAttackBonus"),
-			("iBarbarianCityCreationProb", "getBarbarianCityCreationProb"),
-			("iBarbarianCityCreationTurnsElapsed", "getBarbarianCityCreationTurnsElapsed"),
-			("iBarbarianCreationTurnsElapsed", "getBarbarianCreationTurnsElapsed"),
-			("iBarbarianDefenders", "getBarbarianInitialDefenders"),
-			("iBaseGrowthThresholdPercent", "getBaseGrowthThresholdPercent"),
-			("iBuildTimePercent", "getBuildTimePercent"),
-			("iCivicUpkeepPercent", "getCivicUpkeepPercent"),
-			("iColonyMaintenancePercent", "getColonyMaintenancePercent"),
-			("iConstructPercent", "getConstructPercent"),
-			("iCorporationMaintenancePercent", "getCorporationMaintenancePercent"),
-			("iCreatePercent", "getCreatePercent"),
-			("iCultureLevelPercent", "getCultureLevelPercent"),
-			("iDifficulty", "getDifficulty"),
-			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent"),
-			("iForeignCultureStrength", "getForeignCultureStrength"),
-			("iFreeUnits", "getFreeUnits"),
-			("iFreeWinsVsBarbs", "getFreeWinsVsBarbs"),
-			("iGold", "getStartingGold"),
-			("iGPThresholdPercent", "getGPThresholdPercent"),
-			("iHappyBonus", "getHappyBonus"),
-			("iHealthBonus", "getHealthBonus"),
-			("iInflationPercent", "getInflationPercent"),
-			("iMaxColonyMaintenance", "getMaxColonyMaintenance"),
-			("iMaxNumCitiesMaintenance", "getMaxNumCitiesMaintenance"),
-			("iNoTechTradeModifier", "getNoTechTradeModifier"),
-			("iNumCitiesMaintenancePercent", "getNumCitiesMaintenancePercent"),
-			("iResearchPercent", "getResearchPercent"),
-			("iSeaBarbarianBonus", "getSeaBarbarianBonus"),
-			("iSeaBarbarianExtraMoves", "getSeaBarbarianExtraMoves"),
-			("iStartingDefenseUnits", "getStartingDefenseUnits"),
-			("iStartingExploreUnits", "getStartingExploreUnits"),
-			("iStartingLocPercent", "getStartingLocationPercent"),
-			("iStartingWorkerUnits", "getStartingWorkerUnits"),
-			("iTechTradeKnownModifier", "getTechTradeKnownModifier"),
-			("iTrainPercent", "getTrainPercent"),
-			("iUnitCostPercent", "getUnitCostPercent"),
-			("iUnownedTilesPerBarbarianCity", "getUnownedTilesPerBarbarianCity"),
-			("iUnownedTilesPerBarbarianUnit", "getUnownedTilesPerBarbarianUnit"),
-			("iUnownedTilesPerGameAnimal", "getUnownedTilesPerGameAnimal"),
-			("iUnownedWaterTilesPerBarbarianUnit", "getUnownedWaterTilesPerBarbarianUnit"),
+		# --------------------------------------------------------------------
+		# Centralized chart spec
+		# --------------------------------------------------------------------
+		# One place to maintain BOTH:
+		#   - which CvHandicapInfo Python getters we read
+		#   - which icon token (btn:* / glyph:*) we show for that row
+		#
+		# This avoids the old duplication where:
+		#   field_getters = (...)   and   icon_token_by_key = {...}
+		# had to be kept in sync manually.
+		field_specs = (
+			# (field_name, getter_name, icon_token)
+			("iAIAttitudeChangePercent", "getAIAttitudeChangePercent", "btn:dove"),
+			("iAIAdvancedStartPercent", "getAIAdvancedStartPercent", "glyph:defense"),
+			("iAIAnimalBonus", "getAIAnimalCombatModifier", "btn:lion"),
+			("iAIBarbarianBonus", "getAIBarbarianCombatModifier", "btn:skull"),
+			("iAICivicUpkeepPercent", "getAICivicUpkeepPercent", "glyph:gold"),
+			("iAIConstructPercent", "getAIConstructPercent", "glyph:prod"),
+			("iAICreatePercent", "getAICreatePercent", "glyph:prod"),
+			("iAIDeclareWarProb", "getAIDeclareWarProb", "btn:swords"),
+			("iAIGPThresholdPercent", "getAIGPThresholdPercent", "glyph:great_people"),
+			("iAIGrowthPercent", "getAIGrowthPercent", "glyph:food"),
+			("iAIHandicapIncrementTurns", "getAIHandicapIncrementTurns", "glyph:defense"),
+			("iAIInflationPercent", "getAIInflationPercent", "glyph:gold"),
+			("iAIResearchPercent", "getAIResearchPercent", "glyph:research"),
+			("iAIStartingDefenseUnits", "getAIStartingDefenseUnits", "btn:swords"),
+			("iAIStartingExploreUnits", "getAIStartingExploreUnits", "btn:swords"),
+			("iAIStartingUnitMultiplier", "getAIStartingUnitMultiplier", "btn:swords"),
+			("iAIStartingWorkerUnits", "getAIStartingWorkerUnits", "glyph:citizen"),
+			("iAITrainPercent", "getAITrainPercent", "btn:swords"),
+			("iAIUnitCostPercent", "getAIUnitCostPercent", "btn:swords"),
+			("iAIUnitSupplyPercent", "getAIUnitSupplyPercent", "btn:swords"),
+			("iAIUnitUpgradePercent", "getAIUnitUpgradePercent", "btn:swords"),
+			("iAIWarWearinessPercent", "getAIWarWearinessPercent", "btn:swords"),
+			("iAIWorkRateModifier", "getAIWorkRateModifier", "glyph:citizen"),
+			("iAIWorldConstructPercent", "getAIWorldConstructPercent", "glyph:prod"),
+			("iAIWorldCreatePercent", "getAIWorldCreatePercent", "glyph:prod"),
+			("iAIWorldTrainPercent", "getAIWorldTrainPercent", "btn:swords"),
+			("iAdvancedStartPointsMod", "getAdvancedStartPointsMod", "glyph:defense"),
+			("iAnimalAttackProb", "getAnimalAttackProb", "btn:lion"),
+			("iAnimalBonus", "getAnimalCombatModifier", "btn:lion"),
+			("iAttitudeChange", "getAttitudeChange", "btn:dove"),
+			("iBarbarianBonus", "getBarbarianCombatModifier", "btn:skull"),
+			("iBarbarianCityAttackBonus", "getBarbarianCityAttackBonus", "btn:skull"),
+			("iBarbarianCityCreationProb", "getBarbarianCityCreationProb", "btn:skull"),
+			("iBarbarianCityCreationTurnsElapsed", "getBarbarianCityCreationTurnsElapsed", "btn:skull"),
+			("iBarbarianCreationTurnsElapsed", "getBarbarianCreationTurnsElapsed", "btn:skull"),
+			("iBarbarianDefenders", "getBarbarianInitialDefenders", "btn:skull"),
+			("iBaseGrowthThresholdPercent", "getBaseGrowthThresholdPercent", "glyph:food"),
+			("iBuildTimePercent", "getBuildTimePercent", "glyph:citizen"),
+			("iCivicUpkeepPercent", "getCivicUpkeepPercent", "glyph:gold"),
+			("iColonyMaintenancePercent", "getColonyMaintenancePercent", "glyph:gold"),
+			("iConstructPercent", "getConstructPercent", "glyph:prod"),
+			("iCorporationMaintenancePercent", "getCorporationMaintenancePercent", "glyph:gold"),
+			("iCreatePercent", "getCreatePercent", "glyph:prod"),
+			("iCultureLevelPercent", "getCultureLevelPercent", "glyph:culture"),
+			("iDifficulty", "getDifficulty", "glyph:defense"),
+			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent", "glyph:gold"),
+			("iForeignCultureStrength", "getForeignCultureStrength", "glyph:culture"),
+			("iFreeUnits", "getFreeUnits", "btn:swords"),
+			("iFreeWinsVsBarbs", "getFreeWinsVsBarbs", "btn:skull"),
+			("iGold", "getStartingGold", "glyph:gold"),
+			("iGPThresholdPercent", "getGPThresholdPercent", "glyph:great_people"),
+			("iHappyBonus", "getHappyBonus", "glyph:happy"),
+			("iHealthBonus", "getHealthBonus", "glyph:health"),
+			("iInflationPercent", "getInflationPercent", "glyph:gold"),
+			("iMaxColonyMaintenance", "getMaxColonyMaintenance", "glyph:gold"),
+			("iMaxNumCitiesMaintenance", "getMaxNumCitiesMaintenance", "glyph:gold"),
+			("iNoTechTradeModifier", "getNoTechTradeModifier", "glyph:research"),
+			("iNumCitiesMaintenancePercent", "getNumCitiesMaintenancePercent", "glyph:gold"),
+			("iResearchPercent", "getResearchPercent", "glyph:research"),
+			("iSeaBarbarianBonus", "getSeaBarbarianBonus", "btn:skull"),
+			("iSeaBarbarianExtraMoves", "getSeaBarbarianExtraMoves", "btn:skull"),
+			("iStartingDefenseUnits", "getStartingDefenseUnits", "btn:swords"),
+			("iStartingExploreUnits", "getStartingExploreUnits", "btn:swords"),
+			("iStartingLocPercent", "getStartingLocationPercent", "glyph:defense"),
+			("iStartingWorkerUnits", "getStartingWorkerUnits", "glyph:citizen"),
+			("iTechTradeKnownModifier", "getTechTradeKnownModifier", "glyph:research"),
+			("iTrainPercent", "getTrainPercent", "btn:swords"),
+			("iUnitCostPercent", "getUnitCostPercent", "btn:swords"),
+			("iUnownedTilesPerBarbarianCity", "getUnownedTilesPerBarbarianCity", "btn:skull"),
+			("iUnownedTilesPerBarbarianUnit", "getUnownedTilesPerBarbarianUnit", "btn:skull"),
+			("iUnownedTilesPerGameAnimal", "getUnownedTilesPerGameAnimal", "btn:lion"),
+			("iUnownedWaterTilesPerBarbarianUnit", "getUnownedWaterTilesPerBarbarianUnit", "btn:skull"),
 		)
+
+		# Goody huts: define the DISPLAYED grouped rows ONCE, then derive:
+		#   - which GOODY_* types we need to count
+		#   - which grouped rows we show in the chart
+		#
+		# Each group can contain any number of goody types (1, 2, 3+). Today we
+		# mostly use pairs, but this structure keeps it flexible for future tweaks.
+		goody_group_specs = (
+			# (label, goody_types_tuple, icon_token)
+			("Goody Gold (Low / High)", ("GOODY_LOW_GOLD", "GOODY_HIGH_GOLD"), "glyph:gold"),
+			("Goody (Experience / Healing)", ("GOODY_EXPERIENCE", "GOODY_HEALING"), "btn:swords"),
+			("Goody (Map / Tech)", ("GOODY_MAP", "GOODY_TECH"), "glyph:research"),
+			("Goody (Scout / Warrior)", ("GOODY_SCOUT", "GOODY_WARRIOR"), "btn:swords"),
+			("Goody (Worker / Settler)", ("GOODY_WORKER", "GOODY_SETTLER"), "glyph:citizen"),
+			("Goody Barbarians (Weak / Strong)", ("GOODY_BARBARIANS_WEAK", "GOODY_BARBARIANS_STRONG"), "btn:skull"),
+		)
+
+		# Build (field, getter) pairs from the centralized spec.
+		field_getters_list = []
+		for field_name, getter_name, _icon_token in field_specs:
+			field_getters_list.append((field_name, getter_name))
+		field_getters = tuple(field_getters_list)
 
 		# <!-- custom: fail fast if the DLL doesn't expose required CvHandicapInfo getters for the handicap chart. (GPT-5.2-Codex) -->
 		if gc.getNumHandicapInfos() > 0:
@@ -215,28 +248,20 @@ class SevoPediaHandicapChart:
 			if missing:
 				raise RuntimeError("[FATAL] Your mod DLL does not expose the required CvHandicapInfo Python getters: %s. Please expose them in CyInfoInterface2.cpp and rebuild the DLL." % ", ".join(missing))
 
-		goody_types = (
-			"GOODY_LOW_GOLD",
-			"GOODY_HIGH_GOLD",
-			"GOODY_MAP",
-			"GOODY_SETTLER",
-			"GOODY_WARRIOR",
-			"GOODY_SCOUT",
-			"GOODY_WORKER",
-			"GOODY_EXPERIENCE",
-			"GOODY_HEALING",
-			"GOODY_TECH",
-			"GOODY_BARBARIANS_WEAK",
-			"GOODY_BARBARIANS_STRONG",
-		)
-		goody_groups = (
-			("Goody Gold (Low / High)", ("GOODY_LOW_GOLD", "GOODY_HIGH_GOLD")),
-			("Goody (Experience / Healing)", ("GOODY_EXPERIENCE", "GOODY_HEALING")),
-			("Goody (Map / Tech)", ("GOODY_MAP", "GOODY_TECH")),
-			("Goody (Scout / Warrior)", ("GOODY_SCOUT", "GOODY_WARRIOR")),
-			("Goody (Worker / Settler)", ("GOODY_WORKER", "GOODY_SETTLER")),
-			("Goody Barbarians (Weak / Strong)", ("GOODY_BARBARIANS_WEAK", "GOODY_BARBARIANS_STRONG")),
-		)
+		# Derive goody_types + goody_groups from goody_group_specs, so there is no
+		# separate "types" list to maintain.
+		goody_types = []
+		_seen = {}
+		goody_groups_list = []
+		for label, group_types, _icon_token in goody_group_specs:
+			# Store the group as-is (tuple of 1, 2, 3+ GOODY_* types).
+			goody_groups_list.append((label, tuple(group_types)))
+			# Flatten all grouped types into a unique ordered list for counting.
+			for gt in group_types:
+				if gt not in _seen:
+					_seen[gt] = True
+					goody_types.append(gt)
+		goody_groups = tuple(goody_groups_list)
 
 		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")
 		if not anchor_field:
@@ -315,19 +340,27 @@ class SevoPediaHandicapChart:
 
 			grouped_goody_rows = []
 			skipped_goody_fields = {}
-			for label, (goody_left, goody_right) in goody_groups:
-				left_row = goody_rows_by_field.get(goody_left)
-				right_row = goody_rows_by_field.get(goody_right)
-				if left_row is None or right_row is None:
+			for label, group_types in goody_groups:
+				# group_types can have 1, 2, 3+ GOODY_* entries.
+				rows_for_group = []
+				ok = True
+				for gt in group_types:
+					r = goody_rows_by_field.get(gt)
+					if r is None:
+						ok = False
+						break
+					rows_for_group.append(r)
+				if not ok:
 					continue
 				new_row = {"Field": label, "IconKey": label}
 				for difficulty in difficulty_types:
-					left_val = left_row.get(difficulty, "0")
-					right_val = right_row.get(difficulty, "0")
-					new_row[difficulty] = "%s / %s" % (left_val, right_val)
+					vals = []
+					for r in rows_for_group:
+						vals.append(r.get(difficulty, "0"))
+					new_row[difficulty] = " / ".join(vals)
 				grouped_goody_rows.append(new_row)
-				skipped_goody_fields[goody_left] = True
-				skipped_goody_fields[goody_right] = True
+				for gt in group_types:
+					skipped_goody_fields[gt] = True
 
 			for grow in goody_rows:
 				if grow["Field"] not in skipped_goody_fields:
@@ -384,6 +417,10 @@ class SevoPediaHandicapChart:
 			}
 
 			# Button icons (path must be narrow str for setTableText)
+			# NOTE: Table sorting only considers the cell TEXT, not the icon path.
+			# For btn:* rows we store (iconPath, sort_code) and render a tiny hidden
+			# control-char via _sort_char(sort_code) as text, so icon-only cells sort
+			# deterministically by icon category (glyph:* already has visible text).
 			btn_by_name = {
 				"swords": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", ())), 2),
 				"skull": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", ())), 3),
@@ -392,88 +429,17 @@ class SevoPediaHandicapChart:
 			}
 
 			# Token map: key -> "btn:name" or "glyph:name"
-			icon_token_by_key = {
-				"iAIAttitudeChangePercent": "btn:dove",
-				"iAIAdvancedStartPercent": "glyph:defense",
-				"iAIAnimalBonus": "btn:lion",
-				"iAIBarbarianBonus": "btn:skull",
-				"iAICivicUpkeepPercent": "glyph:gold",
-				"iAIConstructPercent": "glyph:prod",
-				"iAICreatePercent": "glyph:prod",
-				"iAIDeclareWarProb": "btn:swords",
-				"iAIGPThresholdPercent": "glyph:great_people",
-				"iAIGrowthPercent": "glyph:food",
-				"iAIHandicapIncrementTurns": "glyph:defense",
-				"iAIInflationPercent": "glyph:gold",
-				"iAIResearchPercent": "glyph:research",
-				"iAIStartingDefenseUnits": "btn:swords",
-				"iAIStartingExploreUnits": "btn:swords",
-				"iAIStartingUnitMultiplier": "btn:swords",
-				"iAIStartingWorkerUnits": "glyph:citizen",
-				"iAITrainPercent": "btn:swords",
-				"iAIUnitCostPercent": "btn:swords",
-				"iAIUnitSupplyPercent": "btn:swords",
-				"iAIUnitUpgradePercent": "btn:swords",
-				"iAIWarWearinessPercent": "btn:swords",
-				"iAIWorkRateModifier": "glyph:citizen",
-				"iAIWorldConstructPercent": "glyph:prod",
-				"iAIWorldCreatePercent": "glyph:prod",
-				"iAIWorldTrainPercent": "btn:swords",
-				"iAdvancedStartPointsMod": "glyph:defense",
-				"iAnimalAttackProb": "btn:lion",
-				"iAnimalBonus": "btn:lion",
-				"iAttitudeChange": "btn:dove",
-				"iBarbarianBonus": "btn:skull",
-				"iBarbarianCityAttackBonus": "btn:skull",
-				"iBarbarianCityCreationProb": "btn:skull",
-				"iBarbarianCityCreationTurnsElapsed": "btn:skull",
-				"iBarbarianCreationTurnsElapsed": "btn:skull",
-				"iBarbarianDefenders": "btn:skull",
-				"iBaseGrowthThresholdPercent": "glyph:food",
-				"iBuildTimePercent": "glyph:citizen",
-				"iCivicUpkeepPercent": "glyph:gold",
-				"iColonyMaintenancePercent": "glyph:gold",
-				"iConstructPercent": "glyph:prod",
-				"iCorporationMaintenancePercent": "glyph:gold",
-				"iCreatePercent": "glyph:prod",
-				"iCultureLevelPercent": "glyph:culture",
-				"iDifficulty": "glyph:defense",
-				"iDistanceMaintenancePercent": "glyph:gold",
-				"iForeignCultureStrength": "glyph:culture",
-				"iFreeUnits": "btn:swords",
-				"iFreeWinsVsBarbs": "btn:skull",
-				"iGold": "glyph:gold",
-				"iGPThresholdPercent": "glyph:great_people",
-				"iHappyBonus": "glyph:happy",
-				"iHealthBonus": "glyph:health",
-				"iInflationPercent": "glyph:gold",
-				"iMaxColonyMaintenance": "glyph:gold",
-				"iMaxNumCitiesMaintenance": "glyph:gold",
-				"iNoTechTradeModifier": "glyph:research",
-				"iNumCitiesMaintenancePercent": "glyph:gold",
-				"iResearchPercent": "glyph:research",
-				"iSeaBarbarianBonus": "btn:skull",
-				"iSeaBarbarianExtraMoves": "btn:skull",
-				"iStartingDefenseUnits": "btn:swords",
-				"iStartingExploreUnits": "btn:swords",
-				"iStartingLocPercent": "glyph:defense",
-				"iStartingWorkerUnits": "glyph:citizen",
-				"iTechTradeKnownModifier": "glyph:research",
-				"iTrainPercent": "btn:swords",
-				"iUnitCostPercent": "btn:swords",
-				"iUnownedTilesPerBarbarianCity": "btn:skull",
-				"iUnownedTilesPerBarbarianUnit": "btn:skull",
-				"iUnownedTilesPerGameAnimal": "btn:lion",
-				"iUnownedWaterTilesPerBarbarianUnit": "btn:skull",
-				"Goody Gold (Low / High)": "glyph:gold",
-				"Goody (Experience / Healing)": "btn:swords",
-				"Goody (Map / Tech)": "glyph:research",
-				"Goody (Scout / Warrior)": "btn:swords",
-				"Goody (Worker / Settler)": "glyph:citizen",
-				"Goody Barbarians (Weak / Strong)": "btn:skull",
-				"FreeTechs": "glyph:research",
-				"AIFreeTechs": "glyph:research",
-			}
+			# Built from the centralized specs above, so there is only ONE place to edit.
+			icon_token_by_key = {}
+			for field_name, _getter_name, icon_token in field_specs:
+				if icon_token:
+					icon_token_by_key[field_name] = icon_token
+			for label, _group_types, icon_token in goody_group_specs:
+				if icon_token:
+					icon_token_by_key[label] = icon_token
+			# Synthetic rows.
+			icon_token_by_key["FreeTechs"] = "glyph:research"
+			icon_token_by_key["AIFreeTechs"] = "glyph:research"
 
 			def icon_cell_for_key(icon_key):
 				if not icon_key:

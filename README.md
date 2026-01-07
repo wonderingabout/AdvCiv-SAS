@@ -178,7 +178,7 @@ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Ma
 We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. Also added a tooltip (on hover). See for details [KI#84](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
 
 <img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5132_willing_vassal_trade.JPG" alt="0.5132_willing_vassal_trade.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5132_willing_vassal_trade.jpg" alt="0.5132_willing_vassal_trade.jpg" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors_reworks/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
 
 ### City Screen rework
@@ -190,7 +190,6 @@ Additionally, also added a new specialists breakdown as of now on bottom-right. 
 <img src="./_1_AdvCiv-SAS/Images/other_ui_reworks/0.400_city_screen (1).JPG" alt="0.400_city_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/other_ui_reworks/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/other_ui_reworks/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/other_ui_reworks/0.400_city_screen (4).JPG" alt="0.400_city_screen (4).JPG" width="250"></img>
 
 ## UI (Main Sevopedia reworks)
 

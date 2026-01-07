@@ -136,6 +136,10 @@
 		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 
