@@ -220,7 +220,7 @@ void CvGame::setInitialItems()
 	initFreeCivState(); // </advc.tsl>
 	initFreeUnits();
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const bool bIncreaseStartTurn = GC.getDefineBOOL("INCREASE_START_TURN");
 
 	// <advc.250c>
@@ -267,14 +267,14 @@ void CvGame::setInitialItems()
 		it->AI_updateFoundValues();
 	// <advc.tsl>
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iAutoRegenMap = GC.getDefineINT("AUTO_REGEN_MAP");
 
 	if (m_iMapRegens < iAutoRegenMap)
 		regenerateMap(true); // </advc.tsl>
 }
 
-// <!-- custom: new helpers addition quite self explanatory xd if i may say but anyways etc, see also known issue as of now 42 for details as well, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too. -->
+// <!-- custom: new helpers addition quite self explanatory xd, see also known issue as of now 42 for details as well, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too. -->
 // CvGame.cpp — the “braindead” recompute (just ==)
 void CvGame::recomputeMapnameHeaviness()
 {
@@ -360,7 +360,7 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	CvMapGenerator::GetInstance().generateRandomMap();
 	CvMapGenerator::GetInstance().addGameElements();
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
 	// 5) Call sites (in CvGame.cpp) — recap
 	// After regenerating map: right after addGameElements() in regenerateMap(...)
 	recomputeMapnameHeaviness();
@@ -373,7 +373,7 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	setUpdateTimer(UPDATE_REBUILD_PLOTS, 1);
 	// Fix dark lines running through Flood Plains
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
 		FOR_EACH_ENUM(PlotNum)
 		{
@@ -418,7 +418,7 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 
 	cycleSelectionGroups_delayed(1, false);
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const bool bShownDawnAfterRegen = GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN");
 
 	// <advc.004j>
@@ -539,7 +539,7 @@ void CvGame::setStartTurnYear(int iTurn)
 	}
 	else setEstimateEndTurn(getGameTurn() + getMaxTurns());
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iStartYear = GC.getDefineINT("START_YEAR");
 
 	setStartYear(iStartYear);
@@ -606,7 +606,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	m_eHandicap = eHandicap;
 	// <advc.127>
-	// <!-- custom: note: not doing static const here as there seems to be some required init condition and as recommended by chatgpt 5, check if accurate anyways etc -->
+	// <!-- custom: note: not doing static const here as there seems to be some required init condition and as recommended by chatgpt 5, check if accurate -->
 	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP :
 			// (XML not loaded when constructor called)
 			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
@@ -619,7 +619,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	m_eNormalizationLevel = NORMALIZE_DEFAULT; // advc.108
 	m_szScriptData = "";
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
 	// In your CvGame::reset body where all the other members get defaults, set:
 	m_bLandHeavyMapname  = false;
 	m_bNavalHeavyMapname = false;
@@ -744,7 +744,7 @@ void CvGame::initDiplomacy()
 		}
 	}
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
 	// 5) Call sites (in CvGame.cpp) — recap
 	// After map exists for new/scenario games: end of CvGame::initDiplomacy()
 	recomputeMapnameHeaviness();
@@ -1718,7 +1718,7 @@ void CvGame::setStartingPlotNormalizationLevel(StartingPlotNormalizationLevel eL
 {
 	if (eLevel == NORMALIZE_DEFAULT)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bNormalizeStartplotsAggressively = GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY");
 
 		eLevel = (bNormalizeStartplotsAggressively ?
@@ -1817,7 +1817,7 @@ void CvGame::normalizeRemovePeaks()
 	// <advc.108>
 	scaled rRemovalProb = 1;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iRemovalChancePeak = GC.getDefineINT("REMOVAL_CHANCE_PEAK");
 
 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
@@ -1900,7 +1900,7 @@ bool CvGame::normalizeCanAddLakeTo(CvPlot const& kPlot) const
 
 void CvGame::normalizeRemoveBadFeatures()
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// advc.108:
 	static const int iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
 
@@ -1995,7 +1995,7 @@ void CvGame::normalizeRemoveBadFeatures()
 
 void CvGame::normalizeRemoveBadTerrain()
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iRemovalChanceBadTerrain = GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN");
 
 	// <advc.108>
@@ -2733,7 +2733,7 @@ void CvGame::updateStartingPlotRange() const
 	CvMap const& kMap = GC.getMap();
 	int iRange = kMap.maxStepDistance() + 10;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iStartingDistancePercent = GC.getDefineINT("STARTING_DISTANCE_PERCENT");
 
 	iRange *= iStartingDistancePercent;
@@ -2757,7 +2757,7 @@ void CvGame::updateStartingPlotRange() const
 	iRange *= 100 + GC.getPythonCaller()->minStartingDistanceMod();
 	iRange /= 100;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iMinCivStartingDistance = GC.getDefineINT("MIN_CIV_STARTING_DISTANCE");
 
 	m_iStartingPlotRange = std::max(iRange, iMinCivStartingDistance);
@@ -2869,7 +2869,7 @@ bool CvGame::isPowerfulStartingBonus(CvPlot const& kPlot, PlayerTypes eStartPlay
 	BonusTypes eBonus = kPlot.getBonusType(TEAMID(eStartPlayer));
 	if (eBonus == NO_BONUS)
 		return false;
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const BonusClassTypes eBonusClassPrecious = (BonusClassTypes)GC.getInfoTypeForString("BONUSCLASS_PRECIOUS");
 	return (GC.getInfo(eBonus).getBonusClassType() == eBonusClassPrecious);
 }
@@ -3190,7 +3190,7 @@ void CvGame::updateGwPercentAnger()
 	} // advc: Ensure initialization
 	else iGlobalPollution = iGwSeverityRating = iGlobalDefence = -1;
 
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
 
 	for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -3716,7 +3716,7 @@ bool CvGame::isTeamVoteEligible(TeamTypes eTeam, VoteSourceTypes eVoteSource) co
 			iCount++;
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iTeamVoteMinCandidates = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES");
 
 	int iExtraEligible = iTeamVoteMinCandidates - iCount;
@@ -4745,7 +4745,7 @@ int CvGame::getGlobalWarmingChances() const
 		probability per chance, I hope to get roughly the same number of
 		actual events per game. */
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iGlobalWarmingIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
 
 	scaled rIndexPerChance = iGlobalWarmingIndexPerChance;
@@ -4805,7 +4805,7 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
 		we cross the threshold, and ~1 pop per land tile...
 		so default resistance should be around 10 per tile. */
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iGlobalWarmingResistance = GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
 
 	int iGlobalThreshold = GC.getMap().getLandPlots() *
@@ -4843,7 +4843,7 @@ int CvGame::calculateGwSeverityRating() const
 	/*	advc: Was long, which is equivalent to int. Could use long long,
 		but it looks like 32 bit should suffice. */
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
 
 	int const x = iGlobalWarmingProb * getGlobalWarmingIndex() /
@@ -5529,7 +5529,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 	{
 		if (getWinner() != NO_TEAM)
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 			CvWString szBuffer(gDLL->getText("TXT_KEY_GAME_WON",
 					GET_TEAM(getWinner()).getReplayName().GetCString(),
@@ -5918,7 +5918,7 @@ void CvGame::makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding,
 	m_abSpecialBuildingValid.set(eSpecialBuilding, true);
 	if (bAnnounce)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		CvWString szBuffer = gDLL->getText("TXT_KEY_SPECIAL_BUILDING_VALID",
 				GC.getInfo(eSpecialBuilding).getTextKeyWide());
@@ -5978,8 +5978,8 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 	m_aeHolyCity.set(eReligion, pCity == NULL ? NO_PLOT_NUM : pCity->plotNum());
 	//updateCitySight(true, true);
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iHolyCityInfluence = GC.getDefineINT("HOLY_CITY_INFLUENCE");
 
 	if (pOldCity != NULL)
@@ -6001,7 +6001,7 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
 		return;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	CvWString szMsgRevealed(gDLL->getText("TXT_KEY_MISC_REL_FOUNDED",
@@ -6049,7 +6049,7 @@ void CvGame::setHeadquarters(CorporationTypes eCorp, CvCity* pCity, bool bAnnoun
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
 		return;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	CvWString szMsgRevealed(gDLL->getText("TXT_KEY_MISC_CORPORATION_FOUNDED",
@@ -6392,7 +6392,7 @@ void CvGame::doGlobalWarming()
 	{
 		setGwEventTally(0);
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		
 		// Send a message saying that the threshold has been passed
@@ -6445,8 +6445,8 @@ void CvGame::doGlobalWarming()
 	std::vector<PreGWPlot> aChangedPlots;
 	bool bSoundPlayed = false; // advc.002l
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
 
 	for (int i = 0; i < iGlobalWarmingRolls; i++)
@@ -6577,7 +6577,7 @@ void CvGame::doGlobalWarming()
 	updateGwPercentAnger();
 	if (getGlobalWarmingIndex() > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iGlobalWarmingRestorationRate = GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0);
 
 		changeGlobalWarmingIndex(-getGlobalWarmingIndex() *
@@ -7117,7 +7117,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 		}
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iMinBarbarianStartingDistance = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
 
 	CitySiteEvaluator citySiteEval(GET_PLAYER(BARBARIAN_PLAYER),
@@ -7415,7 +7415,7 @@ void CvGame::createAnimals()
 	if (getElapsedGameTurns() < 5)
 		return;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iMinAnimalStartingDistance = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE");
 
 	int const iMinAnimalStartingDist = iMinAnimalStartingDistance; // advc.300
@@ -7663,8 +7663,8 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 		if (!pPlot->isWater())
 			iCreated++;
 		// </advc.300>
-	// <!-- custom: since this seems unused in XML if i am not mistaken but anyways etc, commented out in the DLL now as approved to be possible by chatgpt 5, check if accurate, anyways etc -->
-	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather if i may say but anyways etc no tediousness, but added this note if helps about this seemingly weirdness, and if i am not mistaken in my understanding or/and knowledge or lack of here in this case if i may say but anyways etc, check if accurate, anyways etc -->
+	// <!-- custom: since this seems unused in XML, commented out in the DLL now as approved to be possible by chatgpt 5, check if accurate -->
+	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather no tediousness, but added this note if helps about this seemingly weirdness, and if i am not mistaken in my understanding or/and knowledge or lack of here in this case, check if accurate -->
 	// advc.313: Replaced by a handicap-based modifier
 	// #if 0
 	// 	/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
@@ -7672,7 +7672,7 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 	// 	if (pPlot->isWater() &&
 	// 		!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
 	// 	{
-	// 		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// 		static const PromotionTypes eDisorganized = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
 	// 		if (eDisorganized != NO_PROMOTION)
 	// 			pNewUnit->setHasPromotion(eDisorganized, true);
@@ -7795,7 +7795,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 	UnitTypes eR = NO_UNIT;
 	int iBestValue = 0;
 	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
-	// <!-- custom: hoist for performance optimization if i'm not mistaken anyways etc -->
+	// <!-- custom: hoist for performance optimization if i'm not mistaken -->
 	static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
 	static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
 	for (int i = 0; i < kCiv.getNumUnits(); i++)
@@ -7870,7 +7870,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 		if (eAndTech == NO_TECH)
 			iUnitEra = -1;
 		// Mounted units only in open terrain
-		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
+		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such -->
 		bool const bMountedMelee = (kUnit.getUnitCombatType() == eMountedMelee);
 		bool const bMountedRanged = (kUnit.getUnitCombatType() == eMountedRanged);
 		if (bMountedMelee || bMountedRanged)
@@ -8778,7 +8778,7 @@ void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer)
 	if (iChecksum == FPChecksum())
 		return; // Active player is able to reproduce checksum received over the net
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 
 	gDLL->UI().addMessage(getActivePlayer(), true, -1,
@@ -8838,7 +8838,7 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer,
 	pMessage->setText(szText);
 	if (NO_COLOR == eColor)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
 		eColor = eColorWhite;
 	}
@@ -9027,7 +9027,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	m_aeHolyCity.read(pStream);
 	m_aeHeadquarters.read(pStream);
 
-	// <!-- custom: brackets without if or else or such was already as such, kept as is as advised by chatgpt 5, check if accurate, anyways etc -->
+	// <!-- custom: brackets without if or else or such was already as such, kept as is as advised by chatgpt 5, check if accurate -->
 	{
 		CvWString szBuffer;
 		uint iSize;
@@ -9061,7 +9061,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	pStream->Read(&m_initialRandSeed.uiSync);
 	// </advc.027b>
 
-	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate, anyways etc ; this is simplified thanks to claude ai, and my prompt(s) and adjustments too and/or such but anyways etc, check if accurate, anyways etc (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are true but anyways etc code, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now anyways etc), which i also did here anyways etc -->
+	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate; this is simplified thanks to claude ai, and my prompt(s) and adjustments too and/or such, check if accurate, anyways etc (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are truecode, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now anyways etc), which i also did here -->
 
 	// Simplified: assuming current UI flag version (27)
 	// Simplified: assuming current UI flag version (no backwards compatibility)
@@ -9131,7 +9131,7 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	if (isOption(GAMEOPTION_NEW_RANDOM_SEED))
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bIgnoreNewRandomSeedOption = GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION");
 
 		if (!isNetworkMultiPlayer() &&
@@ -9152,7 +9152,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	applyOptionEffects(); // advc.310
 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
 	// 5) Call sites (in CvGame.cpp) — recap
 	// After loading a save: end of CvGame::read(FDataStreamBase*)
 	recomputeMapnameHeaviness();
@@ -9334,7 +9334,7 @@ void CvGame::onAllGameDataRead()
 		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
 	// </advc.opt>
 	GC.getAgents().gameStart(true); // advc.agent
-	// <!-- custom: removed old m_uiSaveFlag code if i'm not mistaken anyways etc -->
+	// <!-- custom: removed old m_uiSaveFlag code if i'm not mistaken -->
 
 	// <advc.003m>
 	for (TeamIter<> it; it.hasNext(); ++it)
@@ -9358,7 +9358,7 @@ void CvGame::onAllGameDataRead()
 	} // </advc.opt>
 	m_bAllGameDataRead = true;
 
-	// <!-- custom: while removing old m_uiSaveFlag code if i'm not mistaken but anyways etc, keeping parts that are m_uiSaveFlag independent to preserve functionality as it is in case it is used i mean but check if accurate as i don't know too much about these anyways etc -->
+	// <!-- custom: while removing old m_uiSaveFlag code, keeping parts that are m_uiSaveFlag independent to preserve functionality as it is in case it is used i mean but check if accurate as i don't know too much about these -->
 	// <advc.130n>, advc.148, advc.130r, advc.130x, advc.130c, advc.130w
 	// <advc.127> Save created during AI Auto Play
 	if (m_iAIAutoPlay != 0 && !isNetworkMultiPlayer())
@@ -9528,7 +9528,7 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 	}
 	if (bFindNewColor)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iBarbarianCivilization = GC.getDefineINT("BARBARIAN_CIVILIZATION");
 
 		PlayerColorTypes const eBarbarianColor = (PlayerColorTypes)GC.getInfo((CivilizationTypes)
@@ -9659,7 +9659,7 @@ void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
 	m_aeVoteSourceReligion.set(eVoteSource, eReligion);
 	if (bAnnounce && eReligion != NO_RELIGION)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 		CvWString szBuffer = gDLL->getText("TXT_KEY_VOTE_SOURCE_RELIGION",
@@ -10004,7 +10004,7 @@ void CvGame::doVoteResults()
 		VoteSourceTypes eVoteSource = pVoteTriggered->eVoteSource;
 		bool bPassed = false;
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 		if (!canDoResolution(eVoteSource, subdata))

@@ -188,7 +188,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.pediaHistory = []
 		self.pediaFuture = []
 
-		# <!-- custom: compute once to be computationally more efficient if i'm not mistaken in my thinking, and added with the help of chatgpt 5.2 thanks, anyways etc. -->
+		# <!-- custom: compute once to be computationally more efficient if i'm not mistaken in my thinking, and added with the help of chatgpt 5.2 thanks. -->
 		self.SAS_cacheCivicsTuple = None
 		self.SAS_cacheTechsTuple = None
 		self.SAS_cacheRegularBuildingsTuple = None
@@ -654,7 +654,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.TOC_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + u"</font>"
 		self.INDEX_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + u"</font>"
 
-		# <!-- custom: add highlight text for sevopedia sorting needs as we added but anyways etc, here fetched once for performance optimization or/and such if i'm not mistaken anyways etc. -->
+		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or/and such -->
 		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
@@ -812,7 +812,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
 				self.SAS_cacheTechsTuple = tuple(self.SAS_getTechsGroupedByEra())
 			else:
-				# <!-- custom: base advciv's formula, only difference is we cache it now if i'm not mistaken anyways etc. -->
+				# <!-- custom: base advciv's formula, only difference is we cache it now -->
 				self.SAS_cacheTechsTuple = tuple(self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo))
 		return self.SAS_cacheTechsTuple
 
@@ -858,7 +858,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				if iReligionEra > iEra:
 					iEra = iReligionEra
 
-		# <!-- custom: note: executives's tech actual requirement not implemented here, as in advciv-sas they also have a prereq tech (see XML code comments or main changes guide or such for rationale anyways etc.). Otherwise the implementation so they are listed at e.g. "Industrial" Era and not "No Tech Prerequisite" (which does not reflect their effective ingame availabilty: not until later eras) would be tedious from what i understand of chatgpt 5.2's explanation and solution (plus we don't need to so better not anyways etc.); check if accurate anyways etc. -->
+		# <!-- custom: note: executives's tech actual requirement not implemented here, as in advciv-sas they also have a prereq tech (see XML code comments or main changes guide or such for rationale anyways etc.). Otherwise the implementation so they are listed at e.g. "Industrial" Era and not "No Tech Prerequisite" (which does not reflect their effective ingame availabilty: not until later eras) would be tedious from what i understand of chatgpt 5.2's explanation and solution (plus we don't need to so better not anyways etc.); check if accurate -->
 		# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines (“captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech”).
 
 		return iEra  # -1 means "no tech prereq bucket"
@@ -914,7 +914,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return unitsList
 
-	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getUnitList(self):
 		if self.SAS_cacheUnitsTuple is None:
 			baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
@@ -1024,7 +1024,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		iEra = -1
 
 		# Main AND prereq tech (<PrereqTech>)
-		# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically, check if accurate anyways etc. -->
+		# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically, check if accurate -->
 		# When first implementing era-tiered building lists, we hit a crash: AttributeError: 'CvBuildingInfo' object has no attribute 'getPrereqOrTechs' (Python traceback from SevoPediaMain.getBuildingList). We verified the cause by inspecting our exported Cy/Cv infos (as of now __SevoPediaBuilding-gc-inner-debug-content.txt and __SevoPediaBuilding-gc-debug-content.txt): CvBuildingInfo in this DLL exposes getPrereqAndTech() + getPrereqAndTechs(i), but NOT getPrereqOrTechs(i) (unlike some other mods / DLLs). (Mapping to our XML schema: <PrereqTech> maps to getPrereqAndTech(), and <TechTypes><PrereqTech>...</PrereqTech></TechTypes> maps to getPrereqAndTechs(i).)
 		# Fix: compute the building "availability era" using only these AND-tech prereqs: start with getPrereqAndTech(), then scan additional prereqs via getPrereqAndTechs(i) for i in range(gc.getNUM_BUILDING_AND_TECH_PREREQS()). We bucket the building into the LATEST (max) era among these prereq techs, so it shows up in the era when it actually becomes buildable.
 		# Empirical sanity check: we tested a building with two widely separated PrereqTech and TechTypes (e.g. TECH_MATHEMATICS (Classical) and TECH_FUSION (Future)) in both permutations (A then B, and B then A), and in both cases the building was listed under the later era (Future), confirming the "max era of prereqs" rule behaves correctly in practice.
@@ -1042,7 +1042,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					iEra = iEra2
 
 		# SpecialBuilding tech prereq (eg monasteries gated by SPECIALBUILDING tech)
-		# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks anyways etc. -->
+		# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks -->
 		# Yep — that’s exactly why: for “special buildings” (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees “no building tech prereq” and dumps it into All Eras.
 		# Also consider SpecialBuilding tech prereq (e.g. Monastery -> TECH_MONARCHY in CIV4SpecialBuildingInfos.xml)
 		iSpecialBuildingType = info.getSpecialBuildingType()
@@ -1065,7 +1065,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return iEra  # -1 means "no tech prereq bucket"
 
-	# <!-- custom: helper we can reuse for regular buildings, national wonders, world wonders, with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: helper we can reuse for regular buildings, national wonders, world wonders, with the help of chatgpt 5.2 thanks -->
 	def SAS_getBuildingsGroupedByEra_fromBaseList(self, baseList):
 		buildingsList = []
 
@@ -1115,7 +1115,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return buildingsList
 
-	# <!-- custom: similarly, in sevopedia buildings, group techs by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: similarly, in sevopedia buildings, group techs by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getBuildingList(self):
 		if self.SAS_cacheRegularBuildingsTuple is None:
 			baseList = self.pediaBuilding.getBuildingSortedList(0)
@@ -1130,7 +1130,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getNationalWonderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
 	
-	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks -->
 	def getNationalWonderList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 			if self.SAS_cacheNationalWondersTuple is None:
@@ -1147,7 +1147,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getWorldWonderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
 
-	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks anyways etc. -->	
+	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks -->	
 	def getWorldWonderList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 			if self.SAS_cacheWorldWondersTuple is None:
@@ -1226,7 +1226,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return projectsList
 
-	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getProjectList(self):
 		if self.SAS_cacheProjectsTuple is None:
 			baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
@@ -1282,7 +1282,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return outList
 
-	# <!-- custom: in sevopedia specialists, group specialists by type: regular specialists vs great specialists (those whose <Type> contains "GREAT_"), based on RFC DOC mod's code thanks but anyways etc. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+	# <!-- custom: in sevopedia specialists, group specialists by type: regular specialists vs great specialists (those whose <Type> contains "GREAT_"), based on RFC DOC mod's code thanks. Added with the help of chatgpt 5.2 thanks -->
 	# Notes (kept conservative)
 	# 	- “Great specialists” detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
 	# 	- I reused TXT_KEY_PEDIA_CATEGORY_SPECIALIST for the regular header (so it’s localized), and I used the literal string "Great Specialists" for the great header (since your mod likely doesn’t have RFC’s TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST). If you want, you can later add your own TXT_KEY and swap that line to localText.getText("TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST", ()).
@@ -1354,7 +1354,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getTerrainList(self):
 		if self.SAS_cacheTerrainsTuple is None:
-			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such anyways etc. -->
+			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc; code provided with the help of chatgpt thanks and previous reworks i did with it or with claude ai or and such -->
 			# Note: TERRAIN_HILL and TERRAIN_PEAK already exist in CIV4TerrainInfos.xml, but have <bGraphicalOnly>1</bGraphicalOnly>, so they are hidden by the normal list. For Sevopedia, we want them visible, so we include GraphicalOnly here.
 			baseList = self.getUnfilteredSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
 			if self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER:
@@ -1489,7 +1489,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	#   Farm -> Corn/Wheat/...
 	#   Pasture -> Sheep/Horse/...
 	# For multi-improvement bonuses (e.g. Oil: Well + Offshore Platform), we use a combined header.
-	# <!-- custom: we did this change because RFC DOC used another water/land tie breaker logic that would display Oil only under "Well", but the player needs to know too that "Offshore Platform" is another improvement trades for Oil. Also, if some mod mod added another improvement trades on land (e.g. Farm + Pasture for Milk (imaginary example anyways etc.)) then the water/land tie breaking would not be effective as well, and we'd miss the info that both improvements support this. This is the only case in our mod (Oil) that has more than one improvement trades if i'm not mistaken but anyways etc., so we don't need to complicate the logic further, while hopefully providing this logic in a bit cleaner or more relevant way to us than in RFC DOC mod (although their code helps lot and with chatgpt 5.2's help too and my help too xd i mean thanks to them and me xd as well but anyways etc.) -->
+	# <!-- custom: we did this change because RFC DOC used another water/land tie breaker logic that would display Oil only under "Well", but the player needs to know too that "Offshore Platform" is another improvement trades for Oil. Also, if some mod mod added another improvement trades on land (e.g. Farm + Pasture for Milk (imaginary example anyways etc.)) then the water/land tie breaking would not be effective as well, and we'd miss the info that both improvements support this. This is the only case in our mod (Oil) that has more than one improvement trades., so we don't need to complicate the logic further, while hopefully providing this logic in a bit cleaner or more relevant way to us than in RFC DOC mod (although their code helps lot and with chatgpt 5.2's help too and my help too xd i mean thanks to them and me xd as well) -->
 	def SAS_getBonusesGroupedByImprovement_fromBaseList(self, baseList):
 		bonusesList = []
 
@@ -1607,7 +1607,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return False
 
-	# <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw  thanks; plus other subgroups we added in advciv-sas. Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
+	# <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw  thanks; plus other subgroups we added in advciv-sas. Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot -->
 	# Group improvements as:
 	# - Land (Growth): land improvements in an upgrade chain (e.g. Cottage -> Hamlet -> Village -> Town)
 	# - Land (Bonus-capable): land improvements that can interact with bonuses (trade/connect or bonus yields)
@@ -1747,10 +1747,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getLeaderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, gc.getLeaderHeadInfo)
 
-		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt, it advised me to do this here anyways etc; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
+		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think. After asking chatgpt, it advised me to do this here anyways etc; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe -->
 		if not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT:
 			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
-			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored anyways etc, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case anyways etc), but still before any leader is selected if i am not mistaken too anyways etc -->
+			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored anyways etc, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case anyways etc), but still before any leader is selected if i am not mistaken too -->
 			self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = True
 			print("Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
 	
@@ -1796,7 +1796,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getCivicList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, gc.getCivicInfo)
 
-	# <!-- custom: helper we can reuse for civics grouping, with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: helper we can reuse for civics grouping, with the help of chatgpt 5.2 thanks -->
 	def SAS_getCivicsGroupedByCivicOption(self):
 		civicsList = []
 		iNumCivics = gc.getNumCivicInfos()
@@ -1831,7 +1831,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return civicsList
 
-	# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
 	# Step 2: Replace getCivicList() with “category + era tiers” (behind a SAS define)
 	# Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
 	# In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
@@ -1909,7 +1909,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return religionsList
 
-	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getReligionList(self):
 		baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
 		if self.SAS_cacheReligionsTuple is None:
@@ -2003,7 +2003,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return corpsList
 
-	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getCorporationList(self):
 		if self.SAS_cacheCorporationsTuple is None:
 			baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
@@ -2054,7 +2054,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.addListBoxGFC(szHintBox, "", self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(szHintBox, False)
 		szHintsText = CyGameTextMgr().buildHintsList()
-		# <!-- custom: no need to import string module just to split a string, use native code instead if i am not mistaken and as per chatgpt's explanation and what i understood of it anyways etc -->
+		# <!-- custom: no need to import string module just to split a string, use native code instead if i am not mistaken and as per chatgpt's explanation and what i understood of it -->
 		hintText = szHintsText.split("\n")
 		for hint in hintText:
 			if len(hint) != 0:
@@ -2185,7 +2185,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_listIdxToRow[idx] = i
 			# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
-			# <!-- custom: make a common initial variable so we can tweak it in specific elif or such blocks as we see fit and keep common logic at the end anyways etc; using a long name to avoid weird python scope inheritance issues to unrelated scopes if i'm not mistaken anyways etc. -->
+			# <!-- custom: make a common initial variable so we can tweak it in specific elif or such blocks as we see fit and keep common logic at the end anyways etc; using a long name to avoid weird python scope inheritance issues to unrelated scopes -->
 			sTitlePlaceItems = item[0]
 			widgetPlaceItems = widget
 			# Even though you later handle data1 == -1 inside the civics block, you still do szButtonPlaceItems = info(item[1]).getButton() before any header check.
@@ -2197,7 +2197,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 			if info == gc.getConceptInfo:
 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
-				# <!-- custom: we cannot change to data1 here as we changed it in this scope so need to properly use item[1] rather as chatgpt 5.2 recommends and that indeed lead to an issue ingame of displaying always same sevopedia concept's text but anyways etc. To be safe, not changing it in other places as well unless we need to anyways etc. -->
+				# <!-- custom: we cannot change to data1 here as we changed it in this scope so need to properly use item[1] rather as chatgpt 5.2 recommends and that indeed lead to an issue ingame of displaying always same sevopedia concept's text. To be safe, not changing it in other places as well unless we need to -->
 				data2 = item[1]
 
 			elif info == self.getNewConceptInfo or info == self.getShortcutInfo or info == self.getTraitInfo: # advc
@@ -2213,10 +2213,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				#    -1 should also work as the default; BULL likes to use 1.
 				data2 = 1
 
-				# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+				# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
 				# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
 				# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
-				# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+				# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages anyways etc. Code added with the help of chatgpt 5.2 thanks -->
 				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
 				if data1 == -1:
 					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
@@ -2392,8 +2392,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			list.sort()
 		return list
 	
-	# <!-- custom: according to chatgpt 5.2 and if i understood it correctly but anyways etc., TERRAIN_HILL and TERRAIN_PEAK already exist in our terrains list as per CIV4TerrainInfos.xml. However they have an <bGraphicalOnly>1</bGraphicalOnly> so they are excluded from the display. Reveal them from the display here. We'll later handle their incorrect <bWater>1</bWater> property when handling the list anyways etc. At least we have all the terrains we need now anyways etc. -->
-	# <!-- custom: generalize this logic by using an alternative helper that we can use if we need to (e.g. for peak, hill, or anything else we'd want it to use it for but anyways etc.) without affecting or slowing down the other parts of the code that already use the (filtered/default) getSortedList anyways etc, should be safer or cleaner for performance too if i'm not mistaken as chatgpt 5.2 noted if i understood it correctly anyways etc. It would also allow to add new entries in the future in an easier and cleaner way as well if i'm not mistaken i mean if i may say but anyways etc. -->
+	# <!-- custom: according to chatgpt 5.2 and if i understood it correctly, TERRAIN_HILL and TERRAIN_PEAK already exist in our terrains list as per CIV4TerrainInfos.xml. However they have an <bGraphicalOnly>1</bGraphicalOnly> so they are excluded from the display. Reveal them from the display here. We'll later handle their incorrect <bWater>1</bWater> property when handling the list anyways etc. At least we have all the terrains we need now -->
+	# <!-- custom: generalize this logic by using an alternative helper that we can use if we need to (e.g. for peak, hill, or anything else we'd want it to use it for) without affecting or slowing down the other parts of the code that already use the (filtered/default) getSortedList anyways etc, should be safer or cleaner for performance too if i'm not mistaken as chatgpt 5.2 noted if i understood it correctly anyways etc. It would also allow to add new entries in the future in an easier and cleaner way as well if i'm not mistaken i mean. -->
 	# Wrapper for clarity: same as getSortedList(), but includes GraphicalOnly entries (“Unfiltered” here specifically means “don’t filter GraphicalOnly”.).
 	# Useful for categories where GraphicalOnly infos are still meaningful in Sevopedia (e.g. terrains like TERRAIN_HILL / TERRAIN_PEAK in our CIV4TerrainInfos.xml).
 	def getUnfilteredSortedList(self, numInfos, getInfo, noSort=False, bCheckGraphicalOnly=False):

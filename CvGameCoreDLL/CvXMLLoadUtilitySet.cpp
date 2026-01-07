@@ -194,7 +194,7 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 		return false;
 	if(!ReadGlobalDefines("xml\\GlobalDefines_advc.xml", cache))
 		return false; // </advc.009>
-	// <!-- custom: add our new advciv-sas specific file as well anyways etc, as also recommended by chatgpt 5 upon checking this code sample as i asked it to, check if accurate anyways etc -->
+	// <!-- custom: add our new advciv-sas specific file as well anyways etc, as also recommended by chatgpt 5 upon checking this code sample as i asked it to, check if accurate -->
 	// Load AdvCiv-SAS overrides / extras
 	if(!ReadGlobalDefines("xml\\GlobalDefines_advciv_sas.xml", cache))
 		return false; // </advc.009>
@@ -529,7 +529,7 @@ bool CvXMLLoadUtility::LoadGlobalText()
 		{
 			const int& iLanguage = GAMETEXT.getCurrentLanguage();
 
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iMAX_NUM_LANGUAGES = GC.getDefineINT("MAX_NUM_LANGUAGES");
 
 			const int iMax = iMAX_NUM_LANGUAGES;

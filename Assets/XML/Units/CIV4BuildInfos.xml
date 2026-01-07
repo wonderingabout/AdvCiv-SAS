@@ -29,7 +29,7 @@
 			<Type>BUILD_RAILROAD</Type>
 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
 			<Help/>
-			<!-- custom: TECH_RAILROAD is an inefficient or/and inaccurate but anyways etc tech and is now removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner anyways etc -->
+			<!-- custom: TECH_RAILROAD is an inefficient or/and inaccuratetech and is now removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner -->
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<iTime>300</iTime>
 			<iCost>0</iCost>
@@ -217,7 +217,7 @@
 			<Type>BUILD_LUMBERMILL</Type>
 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
 			<Help/>
-			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine in this case i mean anyways etc anyways etc, plus buffes tech_machinery too anyways etc, was TECH_GUILDS (now removed) -->
+			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine, plus buffes tech_machinery too anyways etc, was TECH_GUILDS (now removed) -->
 			<!-- K-Mod: was REPLACEABLE_PARTS -->
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<!-- advc.902: was 800 -->
@@ -283,7 +283,7 @@
 			<Type>BUILD_WATERMILL</Type>
 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
 			<Help/>
-			<!-- custom: seems historically more accurate or/and meshes or fits better anyways etc with our reworked tech tree sooner, was TECH_MACHINERY anyways etc -->
+			<!-- custom: seems historically more accurate or/and meshes or fits better anyways etc with our reworked tech tree sooner, was TECH_MACHINERY -->
 			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -370,7 +370,7 @@
 			<Type>BUILD_QUARRY</Type>
 			<Description>TXT_KEY_BUILD_QUARRY</Description>
 			<Help/>
-			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine anyways etc..., if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or/and tech tree, after rechecking hehe or not hehe but anyways etc is indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY anyways etc -->
+			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine anyways etc..., if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or/and tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>600</iTime>
 			<iCost>0</iCost>
@@ -591,7 +591,7 @@
 			<Type>BUILD_FORT</Type>
 			<Description>TXT_KEY_BUILD_FORT</Description>
 			<Help/>
-			<!-- custom: move fort building a bit later in tech anyways etc, hopefully a bit less or less soon nonsensical or unfit fort building but anyways etc, not reworking this/the code parts that seem(ed at least at that time in advciv issues threat in the civfanatics forum (issue) i mean i had created at that time but anyways etc), delaying it a bit hopefully helps and or is also more consistent with fortifications era (didnt check, maybe tech_engineering is an accurate enough time for this anyways etc), was TECH_MATHEMATICS -->
+			<!-- custom: move fort building a bit later in tech anyways etc, hopefully a bit less or less soon nonsensical or unfit fort building, not reworking this/the code parts that seem(ed at least at that time in advciv issues threat in the civfanatics forum (issue) i mean i had created at that time), delaying it a bit hopefully helps and or is also more consistent with fortifications era (didnt check, maybe tech_engineering is an accurate enough time for this anyways etc), was TECH_MATHEMATICS -->
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<iTime>1000</iTime>
 			<iCost>0</iCost>
@@ -628,7 +628,7 @@
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
 			<!-- custom: move to an earlier tech and buff remove_jungle, now at same time as remove_forest, plus is necessary to make it sooner due to our tech_tree starting sooner in history or rather bronze working is quite late, maybe stone tools are enough or something to carve tree paths (i did not check though, check if accurate), was TECH_IRON_WORKING -->
-			<!-- custom: also give hammer on chop, after all jungle is composed of trees and such as well, give less than cleanly ordered forest trees and also to balance out forest and jungle each with their strengths if i may say anyways etc ; also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: also give hammer on chop, after all jungle is composed of trees and such as well, give less than cleanly ordered forest trees and also to balance out forest and jungle each with their strengths; also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -673,7 +673,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildChopDown.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,8</Button>
 		</BuildInfo>
-		<!-- custom: changed to TECH_FISSION according to https://forums.civfanatics.com/threads/can-you-scrub-fallout-in-real-life-like-in-civ.558302/ anwyays etc, see also code comment at TXT_KEY_TECH_ECOLOGY_PEDIA for details or and other alternative compelementary info or related details or context if i may say i mean anyways etc -->
+		<!-- custom: changed to TECH_FISSION according to https://forums.civfanatics.com/threads/can-you-scrub-fallout-in-real-life-like-in-civ.558302/ anwyays etc, see also code comment at TXT_KEY_TECH_ECOLOGY_PEDIA for details or and other alternative compelementary info or related details or context -->
 		<BuildInfo>
 			<Type>BUILD_SCRUB_FALLOUT</Type>
 			<Description>TXT_KEY_BUILD_SCRUB_FALLOUT</Description>

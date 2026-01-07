@@ -38,9 +38,9 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here anyways etc -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
-			<!-- custom: similarly set this shit to 0 anyways etc -->
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- BBAI: -->
 			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr (note): No point in a ground-breaking penalty
@@ -50,7 +50,7 @@
 			<iImprovementPercent>100</iImprovementPercent>
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
 			<iCulturePercent>100</iCulturePercent>
-			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally but anyways etc, was 50 -->
+			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 50 -->
 			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>1</iEventChancePerTurn>
 			<iSoundtrackSpace>0</iSoundtrackSpace>
@@ -101,9 +101,9 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here anyways etc -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
-			<!-- custom: similarly set this shit to 0 anyways etc -->
+			<!-- custom: similarly set this shit to 0 -->
 			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
 			<iAIMaxGroundbreakingPenalty>0</iAIMaxGroundbreakingPenalty>
@@ -113,7 +113,7 @@
 			<iImprovementPercent>100</iImprovementPercent>
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
 			<iCulturePercent>100</iCulturePercent>
-			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally but anyways etc, was 50 -->
+			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 50 -->
 			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>2</iEventChancePerTurn>
 			<iSoundtrackSpace>400</iSoundtrackSpace>
@@ -181,9 +181,9 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here anyways etc -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
-			<!-- custom: similarly set this shit to 0 anyways etc -->
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- BBAI: (was 6 in K-Mod) -->
 			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
@@ -197,7 +197,7 @@
 			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 80 -->
 			<!-- advc.126: was 100 (and was unused) -->
 			<iCulturePercent>100</iCulturePercent>
-			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally but anyways etc, was 40 -->
+			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 40 -->
 			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>4</iEventChancePerTurn>
 			<!-- advc.erai -->
@@ -264,14 +264,14 @@
 			<iFreePopulation>1</iFreePopulation>
 			<!-- advc.126: was 37 -->
 			<iStartPercent>36</iStartPercent>
-			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is if i may say but anyways etc, was 90 but anyways etc -->
+			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is, was 90-->
 			<iGrowthPercent>100</iGrowthPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here anyways etc -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
-			<!-- custom: similarly set this shit to 0 anyways etc -->
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 12 in K-Mod, 9 in BBAI. -->
 			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
@@ -279,7 +279,7 @@
 			<!-- as in DoC -->
 			<iHumanMaxGroundbreakingPenalty>25</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 90 anyways etc -->
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 90 -->
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 90 -->
@@ -287,7 +287,7 @@
 			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 70 -->
 			<!-- advc.126: was 90 -->
 			<iCulturePercent>100</iCulturePercent>
-			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally but anyways etc, was 40 -->
+			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 40 -->
 			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>4</iEventChancePerTurn>
 			<!-- advc.erai -->
@@ -350,14 +350,14 @@
 			<iStartingGold>100</iStartingGold>
 			<iFreePopulation>2</iFreePopulation>
 			<iStartPercent>50</iStartPercent>
-			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is if i may say but anyways etc, was 80 but anyways etc -->
+			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is, was 80-->
 			<iGrowthPercent>100</iGrowthPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here anyways etc -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
-			<!-- custom: similarly set this shit to 0 anyways etc -->
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 16 in K-Mod, 14 in BBAI. -->
 			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
@@ -365,7 +365,7 @@
 			<!-- 30 in DoC -->
 			<iHumanMaxGroundbreakingPenalty>35</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 80 anyways etc -->
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 80 -->
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 80 -->
@@ -373,7 +373,7 @@
 			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 60 -->
 			<!-- advc.126: was 80 -->
 			<iCulturePercent>100</iCulturePercent>
-			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally but anyways etc, was 34 -->
+			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 34 -->
 			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>6</iEventChancePerTurn>
 			<!-- advc.erai: start -->
@@ -437,14 +437,14 @@
 			<iStartingGold>200</iStartingGold>
 			<iFreePopulation>3</iFreePopulation>
 			<iStartPercent>65</iStartPercent>
-			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is if i may say but anyways etc, was 70 but anyways etc -->
+			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is, was 70-->
 			<iGrowthPercent>100</iGrowthPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here anyways etc -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
-			<!-- custom: similarly set this shit to 0 anyways etc -->
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 20 in K-Mod, 18 in BBAI. -->
 			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
@@ -453,7 +453,7 @@
 				 supposed to get ahead? -->
 			<iHumanMaxGroundbreakingPenalty>25</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 70 anyways etc -->
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 70 -->
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 70 -->
@@ -461,7 +461,7 @@
 			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 50 -->
 			<!-- advc.126: was 70 -->
 			<iCulturePercent>100</iCulturePercent>
-			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally but anyways etc, was 34 -->
+			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 34 -->
 			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>8</iEventChancePerTurn>
 			<!-- advc.erai -->
@@ -519,14 +519,14 @@
 			<iStartingGold>400</iStartingGold>
 			<iFreePopulation>4</iFreePopulation>
 			<iStartPercent>80</iStartPercent>
-			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is if i may say but anyways etc, was 60 but anyways etc -->
+			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is, was 60-->
 			<iGrowthPercent>100</iGrowthPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here anyways etc -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
-			<!-- custom: similarly set this shit to 0 anyways etc -->
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 18 in K-Mod and BBAI. The historical time line is
 				 less of a concern here, and faster Space victory plays better. -->
 			<iTechCostModifier>0</iTechCostModifier>
@@ -536,7 +536,7 @@
 				 late-game content. -->
 			<iHumanMaxGroundbreakingPenalty>0</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 60 anyways etc -->
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was, was 60 -->
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 60 -->
@@ -544,12 +544,12 @@
 			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc), was 50 -->
 			<!-- advc.126: was 60 -->
 			<iCulturePercent>100</iCulturePercent>
-			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally but anyways etc, was 34 -->
+			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 34 -->
 			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>10</iEventChancePerTurn>
 			<iSoundtrackSpace>40</iSoundtrackSpace>
 			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
-			<!-- custom: replace with original/specific if i may say anyways etc music instead of the modern era music copy pasted again here if i may say anyways etc ; see main readme's copyright section for copyright details if any are there or somewhere else relevant in our mod's docs if any are there as well alternatively as well anyways etc, anyways etc -->
+			<!-- custom: replace with original/specific music instead of the modern era music copy pasted again here; see main readme's copyright section for copyright details if any are there or somewhere else relevant in our mod's docs if any are there as well alternatively as well -->
 			<EraInfoSoundtracks>
 				<EraInfoSoundtrack>AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322</EraInfoSoundtrack>
 				<EraInfoSoundtrack>AS2D_FUTURE_FOOT_TAPPER_CLASSICAL</EraInfoSoundtrack>

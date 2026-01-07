@@ -1,6 +1,6 @@
 # Less Generic unit names or/and combat types
 
-As this will be expanded later if it is at all but anyways etc., moving this part of the README to a specific file or/and also to not clutter main README.md.
+As this will be expanded later if it is at all, moving this part of the README to a specific file or/and also to not clutter main README.md.
 
 I think some unit names are very lousy, for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. But, if want to do it (more maybe at least if i may say anyways etc) properly, i have some cool unit names in mind. Not sure it would be implemented, but ideally or/and maybe, here are some ideas i have.
 

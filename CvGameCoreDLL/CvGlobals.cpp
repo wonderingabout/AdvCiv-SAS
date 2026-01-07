@@ -846,7 +846,7 @@ int CvGlobals::getDefineINT(char const* szName,
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, iReturn);
-	// <!-- custom: this assert fired at map load when starting a new game, but the info in the assert is not helpful by itself in assert message to me i mean, add more info as chatgpt 5 advised/suggested, check if accurate anyways etc -->
+	// <!-- custom: this assert fired at map load when starting a new game, but the info in the assert is not helpful by itself in assert message to me i mean, add more info as chatgpt 5 advised/suggested, check if accurate -->
 	// FAssert(bSuccess); // advc.003c
 	#ifdef _DEBUG
 	if (!bSuccess)
@@ -857,7 +857,7 @@ int CvGlobals::getDefineINT(char const* szName,
                   szName, iDefault,
                   getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
         FAssertMsg(false, buf);
-		// <!-- custom: now with the info we can spot it i mean but anyways etc -->
+		// <!-- custom: now with the info we can spot it -->
 		// Assert Failed
 		// File:  ..\.\CvGlobals.cpp
 		// Line:  858
@@ -865,7 +865,7 @@ int CvGlobals::getDefineINT(char const* szName,
 		// Expression:  false
 		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' â€” using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
 		//
-		// <!-- custom: now fixed by renaming it to INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT (was a typo/bug i introduced while refactoring, still detailed assert is very helpful in identifying which and fixing the issue if possible i mean to me but in this case i mean but anyways etc) -->
+		// <!-- custom: now fixed by renaming it to INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT (was a typo/bug i introduced while refactoring, still detailed assert is very helpful in identifying which and fixing the issue if possible i mean to me but) -->
 	}
 	#endif
 	return iReturn;
@@ -880,7 +880,7 @@ float CvGlobals::getDefineFLOAT(char const* szName) const
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, fReturn);
-	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate anyways etc -->
+	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate -->
 	#ifdef _DEBUG
 	const bool bAssertCondition = (bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
 	if (!bAssertCondition)
@@ -907,7 +907,7 @@ char const* CvGlobals::getDefineSTRING(char const* szName) const
 	bool bSuccess =
 	#endif// </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, szReturn);
-	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate anyways etc -->
+	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate -->
 	// FAssert(bSuccess); // advc.003c
 	#ifdef _DEBUG
 	if (!bSuccess)
@@ -949,7 +949,7 @@ void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc
 // <advc.004m>
 void CvGlobals::updateCameraStartDistance(bool bReset)
 {
-	// <!-- custom: doesn't seem safe to static const (there seems to be a setdefine later, so caching may interfere with that, but i don't know a lot about these so check if accurate anyways etc) anyways etc), chatgpt 5 also advises so, check if accurate as i don't know too much about these but it seems unsafe to change these so left as such (i.e. code unchanged besides this code as of now in this case i mean if i may say but anyways etc) if i may say i mean but anyways etc. -->
+	// <!-- custom: doesn't seem safe to static const (there seems to be a setdefine later, so caching may interfere with that, but i don't know a lot about these so check if accurate anyways etc) anyways etc), chatgpt 5 also advises so, check if accurate as i don't know too much about these but it seems unsafe to change these so left as such (i.e. code unchanged besides this code as of now in this case i mean) if i may say i mean -->
 	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f,
 			GC.getDefineFLOAT("CAMERA_START_DISTANCE"));
 	float fNewValue = m_fCAMERA_START_DISTANCE_Override;

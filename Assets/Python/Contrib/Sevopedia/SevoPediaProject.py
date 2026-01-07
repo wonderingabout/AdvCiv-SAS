@@ -76,7 +76,7 @@ class SevoPediaProject:
 		screen = self.top.getScreen()
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_PROJECT_PANE, self.Y_PROJECT_PANE, self.W_PROJECT_PANE, self.H_PROJECT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
+		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		# screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getProjectInfo(self.iProject).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -105,7 +105,7 @@ class SevoPediaProject:
 			screen.appendListBoxString(panelName, u"<font=4>" + szProjectType.upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if (projectInfo.getProductionCost() > 0):
-			# <!-- custom: simplify textual info for hammer yield to minimum, remove the "COST:" ugly part but anyways etc. -->
+			# <!-- custom: simplify textual info for hammer yield to minimum, remove the "COST:" ugly part -->
 			if self.top.iActivePlayer == -1:
 				szCost = (projectInfo.getProductionCost() * gc.getDefineINT("PROJECT_PRODUCTION_PERCENT")) / 100
 			else:

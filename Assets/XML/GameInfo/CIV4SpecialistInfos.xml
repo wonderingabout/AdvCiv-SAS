@@ -16,7 +16,7 @@
 			<bVisible>1</bVisible>
 			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
-			<!-- custom: this is mostly to help the AI that may allocate a lot of them inefficiently, as well as buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, was 0 / 1 / 0 -->
+			<!-- custom: this is mostly to help the AI that may allocate a lot of them inefficiently, as well as buff the citizen that is still too weak even without that, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in less penalizing to choose the citizen specialist over any other or working a tile, was 0 / 1 / 0 -->
 			<Yields>
 				<iYield>0</iYield>
 				<iYield>1</iYield>

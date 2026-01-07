@@ -6,7 +6,7 @@
 <!-- Basic Infos -->
 <!-- custom: file imported from:
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml
-then modified to have "Mods Info" and "Outdated" instead of the old concept sevopedia categories if i am not mistaken anyways etc, see Long_Comments/Long_Comments_XML.txt comment #93 for details anyways etc) -->
+then modified to have "Mods Info" and "Outdated" instead of the old concept sevopedia categories, see Long_Comments/Long_Comments_XML.txt comment #93 for details anyways etc) -->
 <Civ4BasicInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
 	<ConceptInfos>
 		<!-- custom: moved these concepts away from:
@@ -116,7 +116,7 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 			<Description>TXT_KEY_CONCEPT_BUILDINGS</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_BUILDINGS_PEDIA</Civilopedia>
 		</ConceptInfo>
-		<!-- custom: about the CONCEPT_CITIES, we use it to redirect to, as of now from sevopedia unit, so in case you want to move it, handle the modification there or here as well anyways etc -->
+		<!-- custom: about the CONCEPT_CITIES, we use it to redirect to, as of now from sevopedia unit, so in case you want to move it, handle the modification there or here as well -->
 		<ConceptInfo>
 			<Type>CONCEPT_CITIES</Type>
 			<Description>TXT_KEY_CONCEPT_CITIES</Description>
@@ -275,7 +275,7 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 			<Description>TXT_KEY_CONCEPT_REVOLUTION</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_REVOLUTION_PEDIA</Civilopedia>
 		</ConceptInfo>
-		<!-- custom: new additions to redirect to them in sevopedia improvement, see there for details anyways etc ; is also with the help of gemini ai, anyways etc -->
+		<!-- custom: new additions to redirect to them in sevopedia improvement, see there for details; is also with the help of gemini ai -->
 		<!-- custom: new entry -->
 		<ConceptInfo>
 			<Type>CONCEPT_RIVERS</Type>

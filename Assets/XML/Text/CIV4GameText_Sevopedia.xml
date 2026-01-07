@@ -44,7 +44,7 @@
 		<!-- custom: <English>National Wonders</English> -->
 		<English>N. Wond.</English>
 	</TEXT>
-	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) (anyways etc) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now, anyways etc) -->
+	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now, anyways etc) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS</Tag>
 		<!-- custom: <English>Great Wonders</English> -->
@@ -83,7 +83,7 @@
 
 	<!-- custom: -->
 	<!--				FEATURES CATEGORY				-->
-	<!-- custom: remove mention of the "terrain" in "terrain features" of the root sevopedia category, i think it's confusing, and hinders the (especially new(er)) player's ease of grasping that terrains and features are 2 diferent things, there should be either "terrains" or "features", i think it's an easier way to approach these new "concepts" of civ4.
+	<!-- custom: remove mention of the "terrain" in "terrain features" of the root sevopedia category, i think it's confusing, and hinders the (especially new) player's ease of grasping that terrains and features are 2 diferent things, there should be either "terrains" or "features", i think it's an easier way to approach these new "concepts" of civ4.
 	Not necessary to remove it everywhere, the sentences may become a bit weird too, but in	key visibility and isolated (not sentences), it should be a no brainer i think.
 	I also don't trust these translations, so putting the English version rather, maybe	easier this way or/and better long term.
 	-->
@@ -128,7 +128,7 @@
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
 		<English>Improv.</English>
 	</TEXT>
-	<!-- custom: make this a separate entry for headers or/and such or not such anyways etc -->
+	<!-- custom: make this a separate entry for headers or/and such or not such -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM</Tag>
 		<English>Improvements</English>
@@ -139,13 +139,13 @@
 		<English>Irrigation, Hill, River, Tech, Civic, Route Tile Yield Changes</English>
 	</TEXT>
 	<!-- custom: be careful, this is applied to improvements category not ressources category.
-	Also clarifying it to a more detailed/accurate name to hopefully help the player ; also as of now disabled as is prettier and clearer without it anyways etc, was "Bonus Yields"
+	Also clarifying it to a more detailed/accurate name to hopefully help the player; also as of now disabled as is prettier and clearer without it anyways etc, was "Bonus Yields"
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES</Tag>
 		<English>On Bonuses Extra Yield</English>
 	</TEXT>
 	-->
-	<!-- custom: new panels, see sevopedia improvement for details anyways etc -->
+	<!-- custom: new panels, see sevopedia improvement for details -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS</Tag>
 		<English>TerrainMakesValids</English>
@@ -154,7 +154,7 @@
 		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS</Tag>
 		<English>FeatureMakesValids</English>
 	</TEXT>
-	<!-- custom: clarify that the restriction can be elsewhere (maybe in bonus infos for example? But anyways etc), not only see sevopedia improvement for details anyways etc -->
+	<!-- custom: clarify that the restriction can be elsewhere (maybe in bonus infos for example?), not only see sevopedia improvement for details -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION</Tag>
 		<English>No Restriction in ImprovementInfo 's TerrainMakesValids</English>

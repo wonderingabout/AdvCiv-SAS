@@ -1691,7 +1691,7 @@ with GFC_Control_Panel
 		}
 
 	//Main start menu panel (Blue start menu panel)
-	// <!-- custom: replace some of this code in an attempt to remove the blue rectangle background color in main menu or/and make it transparent instead, to show our main menu background image nicer without this, done with the help of chatgpt 5, check if accurate anyways etc ; note: see also changes at style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style anyways etc -->
+	// <!-- custom: replace some of this code in an attempt to remove the blue rectangle background color in main menu or/and make it transparent instead, to show our main menu background image nicer without this, done with the help of chatgpt 5, check if accurate; note: see also changes at style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style -->
 	style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style
 		{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
@@ -3407,7 +3407,7 @@ with GFC_Control_Button
 	}
 
 	// Main Menu text selection 
-	// <!-- custom: also change text color of the main menu from white to black with chatgpt 5's helps anyways etc, because after our nice beuaitficaiton changes removing the blue rectangle (as of now in style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style anyways etc) if i may say but anyways etc, we now have a hard to read white text, fixed thanks to chatgpt 5's help and my prompts and or such but anyways etc thanks to changing lines here as of now in style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style anyways etc -->
+	// <!-- custom: also change text color of the main menu from white to black with chatgpt 5's helps anyways etc, because after our nice beuaitficaiton changes removing the blue rectangle (as of now in style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style anyways etc), we now have a hard to read white text, fixed thanks to chatgpt 5's help and my prompts and or suchthanks to changing lines here as of now in style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style -->
 	style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlLabel;
@@ -3428,7 +3428,7 @@ with GFC_Control_Button
 			//.Default						=	GColor(0,0,0,255);
 			//.Default						=	GColor(18,16,14,255); // instead of pure 0,0,0 (optional, a warmer off-black can read nicer)
 			// If you ever want one tiny nudge thicker without blur, try this micro-tweak
-			// <!-- custom: we're entering placebo territory here xd but it doesn't look worse so keeping as such maybe, check if accurate anyways etc, ideally i'd make it a bit bolder if possible but maybe not too bad as such, at least much better than white with transparent rectangle anyways etc -->
+			// <!-- custom: we're entering placebo territory here xd but it doesn't look worse so keeping as such maybe, check if accurate anyways etc, ideally i'd make it a bit bolder if possible but maybe not too bad as such, at least much better than white with transparent rectangle -->
 			.Default						=	GColor(18,16,14,230); // slight transparency
 			.Press							=	SF_CtrlTheme_Civ4_Control_Color_RollText;
 			.Disable						=	GFC_Control_Color_Text_Disable;
@@ -3445,18 +3445,18 @@ with GFC_Control_Button
 
 		with .Color_TextShadow
 		{
-			// <!-- custom: original code line commented-out below anyways etc -->
+			// <!-- custom: original code line commented-out below -->
 			//.Default						=	GFC_Control_Color_TextShadow_Default;
-			// <!-- custom: setting this to our below now commented-out new code, the black text becomes thinner which is less readable as in harder to read really at least to me but anyways etc, prefer the bit bolder effect even tohugh is bit blurred as well as a result anyways etc -->
+			// <!-- custom: setting this to our below now commented-out new code, the black text becomes thinner which is less readable as in harder to read really at least to me, prefer the bit bolder effect even tohugh is bit blurred as well as a result -->
 			//.Default						=	GColor(255,255,255,96);
-			// <!-- custom: try this effect that seems to make our text sharper so nice and readable but not overly blurry as chatgpt provided thanks anyways etc -->
+			// <!-- custom: try this effect that seems to make our text sharper so nice and readable but not overly blurry as chatgpt provided thanks -->
 			//.Default						=	GColor(0,0,0,80);
-			// <!-- custom: result: this is super nice, our text looks bolder no pun xd but anyways etc, but still a bit too thin, try to make it further more bold(er?) if i may say but anyways etc thanks to chatgpt 5 as well thanks anyways etc -->
-			// <!-- custom: result: very good!!! Now text is bolder and easier on the eye to read no more strain or less, but not too fat either like a too boiled spaghetti xd if i may say, but anyways etc.. I can adjust it further with this if needed, but looks fine now, i prefer a bit too fat text but readable than thin pretty with eye strain, in this case i mean but anyways etc, thanks chatgpt 5 for all help ehhe if i may say thanks anyways etc -->
+			// <!-- custom: result: this is super nice, our text looks bolder no pun xd, but still a bit too thin, try to make it further more bold thanks to chatgpt 5 as well thanks -->
+			// <!-- custom: result: very good!!! Now text is bolder and easier on the eye to read no more strain or less, but not too fat either like a too boiled spaghetti xd if i may say.. I can adjust it further with this if needed, but looks fine now, i prefer a bit too fat text but readable than thin pretty with eye strain,, thanks chatgpt 5 for all help -->
 			//.Default						=	GColor(0,0,0,160); // try 160–200 for bolder, 120 for lighter
-			// <!-- custom: trying 180 as advised by chatgpt 5 anyways etc ; result: it is hard to tell if there is a difference as difference is so small, but text does seem a tiny bit bolder or somehow more readable if not placebo thanks in all cases if i may say chatgpt 5 anyways etc -->
+			// <!-- custom: trying 180 as advised by chatgpt 5; result: it is hard to tell if there is a difference as difference is so small, but text does seem a tiny bit bolder or somehow more readable if not placebo thanks in all cases if i may say chatgpt 5 -->
 			//.Default						=	GColor(0,0,0,180); // try 160–200 for bolder, 120 for lighter
-			// <!-- custom: trying to make it a bit bolder after all if possible would be nice anyways etc ; result: it is not that text is bolder, but more plain as in filled in this case i mean but anyways etc, hopefully less eye strain but anyways etc -->
+			// <!-- custom: trying to make it a bit bolder after all if possible would be nice; result: it is not that text is bolder, but more plain as in filled, hopefully less eye strain-->
 			//.Default						=	GColor(0,0,0,240); // try 160–200 for bolder, 120 for lighter
 			// If you ever want one tiny nudge thicker without blur, try this micro-tweak:
 			.Default						=	GColor(0,0,0,255); // fully opaque shadow

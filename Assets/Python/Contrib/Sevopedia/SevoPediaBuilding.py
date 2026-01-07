@@ -43,7 +43,7 @@
 		# 	<bDirtyPower>1</bDirtyPower>
 		# 	<bAreaCleanPower>1</bAreaCleanPower>
 		# The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case anyways etc) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is anyways etc, they don't seem to cumulate anyways etc
-		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial if i am not mistaken anyways etc) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER). -->
+		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER). -->
 
 
 
@@ -104,18 +104,18 @@ class SevoPediaBuilding:
 		self.W_BUILDING_PANE = (self.top.R_PEDIA_PAGE - self.X_BUILDING_PANE - self.MEDIUM_MARGIN) / 2
 		self.H_BUILDING_PANE = 190
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
-		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_BUILDING_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_BUILDING_PANE ; same reasoning for Y position -->
+		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_BUILDING_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_BUILDING_PANE; same reasoning for Y position -->
 		self.X_ICON = self.X_BUILDING_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
 		self.Y_ICON = self.Y_BUILDING_PANE + (self.H_BUILDING_PANE - self.H_ICON) / 2
 
-		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer anyways etc -->
+		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer -->
 		self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN = (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
 
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
@@ -131,7 +131,7 @@ class SevoPediaBuilding:
 		self.X_FLAT_GREAT_PERSON = None
 		self.Y_FLAT_GREAT_PERSON = None
 
-		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation anyways etc -->
+		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation -->
 		self.W_TOTAL_EFFECTIVE_BUILDING_PANE = self.W_BUILDING_PANE
 
 		self.X_REQUIRES = self.X_BUILDING_PANE
@@ -274,7 +274,7 @@ class SevoPediaBuilding:
 		# -->
 		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
 
-		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be anyways etc useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY" if i am not mistaken anyways etc), anyways etc -->
+		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be anyways etc useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY") -->
 		self.setupStatsPanel(screen, panelName, placeStatsTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
 
 		x = self.X_STATS_PANE
@@ -318,7 +318,7 @@ class SevoPediaBuilding:
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
 
-		# <!-- custom: 2 Direct Yield Changes (like Food, Production, Gold), and Yield Modifiers (Food +x%, Production +x%, Gold +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and but anyways etc (2) -->
+		# <!-- custom: 2 Direct Yield Changes (like Food, Production, Gold), and Yield Modifiers (Food +x%, Production +x%, Gold +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and(2) -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = buildingInfo.getYieldChange(k)
 
@@ -332,7 +332,7 @@ class SevoPediaBuilding:
 				self.fillStatsCell(screen, szText2, x, y)
 				x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: also adding yield modifiers in the same loop as yield changes for efficiency but also main reason would also be but anyways etc to display for example hammer +25% just after hammer +1 for example, and not after after gold + 5, anyways etc -->
+			# <!-- custom: also adding yield modifiers in the same loop as yield changes for efficiency but also main reason would also beto display for example hammer +25% just after hammer +1 for example, and not after after gold + 5 -->
 			iYieldModifier = buildingInfo.getYieldModifier(k)
 			iPowerYieldModifier = buildingInfo.getPowerYieldModifier(k)
 
@@ -451,7 +451,7 @@ class SevoPediaBuilding:
 			self.fillStatsCell(screen, szText2, x, y)
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 		
-		# <!-- custom: 6: Great people change with button display of the great people type too if i am not mistaken anyways etc, and great people modifier -->
+		# <!-- custom: 6: Great people change with button display of the great people type too, and great people modifier -->
 		if buildingInfo.getGreatPeopleRateChange() != 0:
 			# Create the text with the great person rate change
 			szText = localText.getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
@@ -466,7 +466,7 @@ class SevoPediaBuilding:
 			self.Y_FLAT_GREAT_PERSON = y
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-		# <!-- custom: also add Great People Modifier (similar to how we handle yield modifiers) anyways etc. -->
+		# <!-- custom: also add Great People Modifier (similar to how we handle yield modifiers) -->
 		iGreatPeopleModifier = buildingInfo.getGreatPeopleRateModifier()
 		iGlobalGreatPeopleModifier = buildingInfo.getGlobalGreatPeopleRateModifier()
 
@@ -502,7 +502,7 @@ class SevoPediaBuilding:
 		# Only proceed if this building affects great people rate
 		if buildingInfo.getGreatPeopleRateChange() != 0:
 			buttonXOffset = 66
-			# <!-- custom: slightly shift the button if button size (w and h) are higher than 32 to simulate a better centering effect towards the text of "+2" (great people count example) for example, the buttonYOffset = +2 if it were same value is purely coincidental value that suited us to center the button, no correlation or link at least voluntary anyways etc -->
+			# <!-- custom: slightly shift the button if button size (w and h) are higher than 32 to simulate a better centering effect towards the text of "+2" (great people count example) for example, the buttonYOffset = +2 if it were same value is purely coincidental value that suited us to center the button, no correlation or link at least voluntary -->
 			buttonYOffset = -2
 			buttonW = 39
 			buttonH = buttonW
@@ -524,7 +524,7 @@ class SevoPediaBuilding:
 
 				if greatPersonButton:
 					buttonWidget = self.top.getNextWidgetName()
-					# <!-- custom: add tooltip when hovering on the great person button, with the help of chatgpt 5.2 thanks anyways etc. -->
+					# <!-- custom: add tooltip when hovering on the great person button, with the help of chatgpt 5.2 thanks -->
 					# convert to coords relative to the stats panel (which starts at X_STATS_PANE / Y_STATS_PANE)
 					buttonX = (self.X_FLAT_GREAT_PERSON + buttonXOffset) - self.X_STATS_PANE
 					buttonY = (self.Y_FLAT_GREAT_PERSON + buttonYOffset) - self.Y_STATS_PANE
@@ -532,7 +532,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: additional info by chatgpt thanks: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for anyways etc to which chatgpt also replied thanks but or not but or yes but but anyways etc "In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." -->
+	# <!-- custom: additional info by chatgpt thanks: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for anyways etc to which chatgpt also replied thanks but or not but or yes but"In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." -->
 	def get_iDefaultBuilding_current_civ(self, i):
 		# Get the default building of this class for the current civilization
 		if self.top.iActivePlayer != -1:
@@ -585,7 +585,7 @@ class SevoPediaBuilding:
 				screen.appendMultiListButton(rowListName, gc.getTechInfo(iPrereqTech).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereqTech, 1, False)
 
 				isButtonFound = True
-				# <!-- custom: note: no specific text, no need for numTxt and such, simply display the button then end this part of the code anyways etc, but we still increment so that buttons that buttons that need/use a numTxt under have their numTxt correctly positioned anyways etc -->
+				# <!-- custom: note: no specific text, no need for numTxt and such, simply display the button then end this part of the code anyways etc, but we still increment so that buttons that buttons that need/use a numTxt under have their numTxt correctly positioned -->
 				iButtonIndex += 1
 
 		iPrereqAndBonus = gc.getBuildingInfo(self.iBuilding).getPrereqAndBonus()
@@ -613,21 +613,21 @@ class SevoPediaBuilding:
 			for k in range(gc.getNUM_CORPORATION_PREREQ_BONUSES()):
 				iPrereqCorporationBonus = gc.getCorporationInfo(iCorporation).getPrereqBonus(k)
 				if iPrereqCorporationBonus >= 0:
-					# <!-- custom: in all cases anyways etc (whether there is a numTxt or not to place as well anyways etc), place the button anyways etc -->
+					# <!-- custom: in all cases anyways etc (whether there is a numTxt or not to place as well anyways etc), place the button -->
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
 					screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqCorporationBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqCorporationBonus, 1, False)
 
-					# <!-- custom: then before incrementing the position for the next numTxt, handle the "or" numTxt placement of the current button we just placed anyways etc -->
+					# <!-- custom: then before incrementing the position for the next numTxt, handle the "or" numTxt placement of the current button we just placed -->
 					if not bFirst:
 						numTxt = localText.getText("TXT_KEY_OR", ())
-						# <!-- custom: "or" numTxt aligned between this button and the previous one anyways etc -->
+						# <!-- custom: "or" numTxt aligned between this button and the previous one -->
 						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(BUTTON_SIZE)
 						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 					else:
 						bFirst = False
 
-					# <!-- custom: note: increment only after the "or" numTxt is placed so that it is just inbetween this button and the next one, not in between next one and the one after next one anyways etc -->
+					# <!-- custom: note: increment only after the "or" numTxt is placed so that it is just inbetween this button and the next one, not in between next one and the one after next one -->
 					isButtonFound = True
 					iButtonIndex += 1
 
@@ -659,7 +659,7 @@ class SevoPediaBuilding:
 						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad), not having thus to rewrite our otherwise working code. -->
 						# Also since our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe. -->
 						numTxt = localText.getText("TXT_KEY_OR", ())
-						# <!-- custom: "or" numTxt aligned between this button and the previous one anyways etc -->
+						# <!-- custom: "or" numTxt aligned between this button and the previous one -->
 						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(BUTTON_SIZE)
 						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 					else:
@@ -669,7 +669,7 @@ class SevoPediaBuilding:
 					iButtonIndex += 1
 
 		# Check for required buildings
-		# <!-- custom: see also for this part the note/code comment at top of this py file anyways etc -->
+		# <!-- custom: see also for this part the note/code comment at top of this py file -->
 
 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
 		for i in range(gc.getNumBuildingClassInfos()):
@@ -720,7 +720,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas anyways etc -->  
+	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas -->  
 	def is_building_prereq_overridden_by_civic(self, iBuildingId):
 		# Checks if the prerequisite for the given building ID can be overridden by any civic.
 		# Returns True if an override exists, False otherwise.
@@ -816,7 +816,7 @@ class SevoPediaBuilding:
 				isButtonFound = True
 				iButtonIndex += 1
 
-		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas anyways etc ; idea i got from watching ri mod's sevopedia building or so it seems anyways etc ingame, of how the cruiser if i am not mistaken requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most anyways etc in this case but anyways etc is that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks but anyways etc -->
+		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas; idea i got from watching ri mod's sevopedia building or so it seems anyways etc ingame, of how the cruiser if i am not mistaken requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most anyways etc in this caseis that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks-->
 		# Loop through all units to check their building prerequisites
 		for iLoopUnit in range(gc.getNumUnitInfos()):
 			loopUnitInfo = gc.getUnitInfo(iLoopUnit)
@@ -826,13 +826,13 @@ class SevoPediaBuilding:
 				columnIndex = 0
 				screen.appendMultiListButton(rowListName, loopUnitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iLoopUnit, 1, False)
 
-				# <!-- custom: add numTxt info that this building prereq is or may be but anyways etc overriden by some civics such as organized religion civic for missionaries in this case at least is the only one i can think of in this case but anyways etc -->
+				# <!-- custom: add numTxt info that this building prereq is or may beoverriden by some civics such as organized religion civic for missionaries in this case at least is the only one i can think of -->
 				if self.is_building_prereq_overridden_by_civic(self.iBuilding):
 					numTxt = "(!)Civic(s)"
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-				# <!-- custom: else do not display any numTxt, and just proceed in all cases if i may say anyways etc -->
+				# <!-- custom: else do not display any numTxt, and just proceed in all cases -->
 				isButtonFound = True
 				iButtonIndex += 1
 
@@ -1188,7 +1188,7 @@ class SevoPediaBuilding:
 		if bIsUnique:
 			# Find which civ has this unique (i.e.civ-specific) building
 			for iCiv in range(gc.getNumCivilizationInfos()):
-				# <!-- custom: include barbarians and perhaps other non playable civs in the display for example for the/to display the anyways etc barbarian palace, barbarian granary (so comment out the isPlayable check as Claude AI explained indeed and that i implemented in a simpler manner thanks to its explanation but anyways etc, but also unindent the below below too anyways etc), or/and other civs or not if such exist or not or and other or yes or and not or yes but anyways etc -->
+				# <!-- custom: include barbarians and perhaps other non playable civs in the display for example for to display the barbarian palace, barbarian granary (so comment out the isPlayable check as Claude AI explained indeed and that i implemented in a simpler manner thanks to its explanation, but also unindent the below below too) -->
 				#if gc.getCivilizationInfo(iCiv).isPlayable():
 				iCivBuilding = gc.getCivilizationInfo(iCiv).getCivilizationBuildings(iBuildingClass)
 				if iCivBuilding == self.iBuilding:

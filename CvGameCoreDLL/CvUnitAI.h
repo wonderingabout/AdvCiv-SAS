@@ -31,7 +31,7 @@ public:
 	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
 	int AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const; // advc
 
-	// <!-- custom: add our helpers here for reuse in other files as advised by chatgpt 5 when i asked it if we could do something like this in a very simple way, check if accurate anyways etc -->
+	// <!-- custom: add our helpers here for reuse in other files as advised by chatgpt 5 when i asked it if we could do something like this in a very simple way, check if accurate -->
     // Simple, reusable helpers (C++03, no fancy stuff)
     static std::vector<BuildTypes> const& getBonusSpecificLandBuilds();
     static BuildTypes getBonusSpecificLandBuild(BonusTypes eBonus);

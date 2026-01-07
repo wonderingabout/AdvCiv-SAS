@@ -76,7 +76,7 @@ void CvGameAI::AI_initScenario()
 	options because UWAI implies Aggressive AI. */
 void CvGameAI::AI_sortOutUWAIOptions(bool bFromSaveGame)
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iUSE_KMOD_AI_NONAGGRESSIVE = GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE");
 
 	if (iUSE_KMOD_AI_NONAGGRESSIVE)
@@ -86,7 +86,7 @@ void CvGameAI::AI_sortOutUWAIOptions(bool bFromSaveGame)
 		return;
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iDISABLE_UWAI = GC.getDefineINT("DISABLE_UWAI");
 
 	if (iDISABLE_UWAI)
@@ -96,7 +96,7 @@ void CvGameAI::AI_sortOutUWAIOptions(bool bFromSaveGame)
 		return;
 	}
 	
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iUWAI_IN_BACKGROUND = GC.getDefineINT("UWAI_IN_BACKGROUND");
 
 	m_uwai.setInBackground(iUWAI_IN_BACKGROUND > 0);

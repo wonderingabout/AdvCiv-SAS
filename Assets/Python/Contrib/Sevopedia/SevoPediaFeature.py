@@ -1,4 +1,4 @@
-# <!-- custom: imported from RFC Dawn of Civilization mod  C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py which may be modified or not for AdvCiv-SAS ; for example renamed placeDetails to placeSpecial for consistency with our other special effect method names in other sevopedia classes anyways etc, or/and other changes or not anyways etc -->
+# <!-- custom: imported from RFC Dawn of Civilization mod  C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py which may be modified or not for AdvCiv-SAS; for example renamed placeDetails to placeSpecial for consistency with our other special effect method names in other sevopedia classes anyways etc, or/and other changes or not -->
 
 
 
@@ -29,7 +29,7 @@ def do_pre_load_xml_features_info_required_data_validation():
 			if buildInfo.isFeatureRemove(iFeature):
 				removeProduction = buildInfo.getFeatureProduction(iFeature)
 
-				# <!-- custom: there shouldn't be any negative value if i am not mistaken, but if relevant in a mod, they may want to also take them into account here anyways etc -->
+				# <!-- custom: there shouldn't be any negative value if i am not mistaken, but if relevant in a mod, they may want to also take them into account here -->
 				if removeProduction > 0:
 					if maxSoFarProduction is None:
 						maxSoFarProduction = removeProduction
@@ -103,10 +103,10 @@ class SevoPediaFeature:
 		self.W_BONUSES_ON_ANY_TERRAIN = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
 		self.H_BONUSES_ON_ANY_TERRAIN = self.H_FEATURES
 
-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
-		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new anyways etc sevopedia terrain implementation anyways etc -->
+		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new anyways etc sevopedia terrain implementation -->
 		self.X_RELEVANT_UNITS = self.X_BONUSES_ON_ANY_TERRAIN
 		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ON_ANY_TERRAIN + self.H_BONUSES_ON_ANY_TERRAIN + self.SMALL_MARGIN
 		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
@@ -169,7 +169,7 @@ class SevoPediaFeature:
 
 
 
-	# <!-- custom: code provided by claude ai and chatgpt too anyways etc) thanks to my prompts (too! but anyways etc...) and adjustments too or not or yes or etc but anyways etc -->
+	# <!-- custom: code provided with the help of claude ai and chatgpt too -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
@@ -200,7 +200,7 @@ class SevoPediaFeature:
 				if removeProduction > 0:
 					szSpecialText += u"%s+%d%s on remove" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()))
 
-				# <!-- custom: all values should be the same, no need to continue the loop after we got first strictly positive iProduction or/and iTime based one anyways etc -->
+				# <!-- custom: all values should be the same, no need to continue the loop after we got first strictly positive iProduction or/and iTime based one -->
 				break
 
 		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
@@ -271,7 +271,7 @@ class SevoPediaFeature:
 
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
 		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
 
 		# Create the MultiList control
@@ -292,7 +292,7 @@ class SevoPediaFeature:
 		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: handle feature(s) that is (are) impassable (anyways etc...) such as of now only the ice cap feature anyways etc quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences anyways etc, see code comments at sevopedia feature's placeUnitsImpassable anyways etc -->
+		# <!-- custom: handle feature(s) that is (are) impassable (anyways etc...) such as of now only the ice cap feature anyways etc quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences anyways etc, see code comments at sevopedia feature's placeUnitsImpassable -->
 		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
 		# <!-- custom: handle features with promotions or other specific effects separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on -->
 		iForest = getInfoTypeOrFail("FEATURE_FOREST", gc)
@@ -305,7 +305,7 @@ class SevoPediaFeature:
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				# <!-- custom: note: ingame it seems that bCanMoveImpassable is not enough to move on ice cap (feature ice) that is only allowed on water terrains it seems, so not displaying all units here but anyways etc -->
+				# <!-- custom: note: ingame it seems that bCanMoveImpassable is not enough to move on ice cap (feature ice) that is only allowed on water terrains it seems, so not displaying all units here-->
 				# inside: if self.iFeature == iIce:
 				can_cross_ice = (
 					unitInfo.isCanMoveAllTerrain() or
@@ -328,7 +328,7 @@ class SevoPediaFeature:
 					#isButtonFound = True
 					iButtonIndex += 1
 
-		# <!-- custom: in advciv-sas as of now at least if not always or not anyways etc, woodsman promotions apply both to jungle but also to forest tiles as well, seems more sensical to me anyways etc, adjust below logic depending on which features have promotions applying to them or some other effects you'd want to display in the numTxt or not anyways etc -->
+		# <!-- custom: in advciv-sas as of now at least if not always or not anyways etc, woodsman promotions apply both to jungle but also to forest tiles as well, seems more sensical to me anyways etc, adjust below logic depending on which features have promotions applying to them or some other effects you'd want to display in the numTxt or not -->
 		elif self.iFeature == iForest or self.iFeature == iJungle:
 			# <!-- custom: raise an error if asset does not exist -->
 			iPromotionWoodsman1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1", gc)
@@ -447,8 +447,8 @@ class SevoPediaFeature:
 
 				unitInfoDomain = unitInfo.getDomainType()
 
-				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd but anyways etc..), so having permissive domain any allowed here unlike in peak code if i am not mistaken anyways etc (but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc but anyways etc); however still require unitInfo.isCanMoveAllTerrain(), as ice cap (ice feature) is only allowed on water terrains it seems, and bCanMoveImpassable is not enough for land units to allow them to walk there if i'm not mistaken but anyways etc. So as of now we'd allow the gunship and airship to walk on ice cap, but not the scout or quechua warrior, even though they all have the bCanMoveImpassable, but only the airship and gunship among these also have canMoveAllTerrain as of now i'm not mistaken so only these can also walk on ice cap on top of walking on peak if i'm not mistaken but anyways etc; note: code provided by chatgpt 5 thanks to my prompts and or such and which i adjusted and/or such, check if accurate but anyways etc -->
-				# <!-- custom: below condition/code by chatgpt 5 which i formatted or refactored/adjusted a bit or not or yes or etc, check if accurate anyways etc -->
+				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd..), so having permissive domain any allowed here unlike in peak code(but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc); however still require unitInfo.isCanMoveAllTerrain(), as ice cap (ice feature) is only allowed on water terrains it seems, and bCanMoveImpassable is not enough for land units to allow them to walk there. So as of now we'd allow the gunship and airship to walk on ice cap, but not the scout or quechua warrior, even though they all have the bCanMoveImpassable, but only the airship and gunship among these also have canMoveAllTerrain as of now i'm not mistaken so only these can also walk on ice cap on top of walking on peak; note: code provided by chatgpt 5 thanks to my prompts and or such and which i adjusted and/or such, check if accurate-->
+				# <!-- custom: below condition/code by chatgpt 5 which i formatted or refactored/adjusted a bit or not or yes or etc, check if accurate -->
 				# Your Relevant Units panel (from earlier) already shows:
 				# - land/air with All-Terrain (Gunship, Airship, Recon Drone), and
 				# - sea units with a bypass (Move-Impassable or passable tech).
@@ -478,7 +478,7 @@ class SevoPediaFeature:
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				# <!-- custom: below condition/code by chatgpt 5, check if accurate anyways etc -->
+				# <!-- custom: below condition/code by chatgpt 5, check if accurate -->
 				blocked = (
 					(info.isImpassable() or unitInfo.getFeatureImpassable(self.iFeature)) and
 					not unitInfo.isCanMoveImpassable() and

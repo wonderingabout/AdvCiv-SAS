@@ -23,7 +23,7 @@ hopefully more readable or exportable if need/want be now -->
 
 
 
-	<!-- custom: as of now used for sevopedia entries grouping by era or/ans such other use cases but anyways etc. -->
+	<!-- custom: as of now used for sevopedia entries grouping by era or/ans such other use cases -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_ERA</Tag>
 		<English>Era</English>
@@ -35,7 +35,7 @@ hopefully more readable or exportable if need/want be now -->
 
 
 
-	<!-- custom: code (TXT_KEYs anyways etc) for our new placeCivilizations, placeObsoletesWith, and placeReplace methods added in sevopediaunit thanks to Claude AI's code and explanations and my prompts and (very small or not but all or not anyways etc) adjustments anyways etc -->
+	<!-- custom: code (TXT_KEYs anyways etc) for our new placeCivilizations, placeObsoletesWith, and placeReplace methods added in sevopediaunit thanks to Claude AI's code and explanations and my prompts and (very small or not but all or not anyways etc) adjustments -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS</Tag>
 		<English>Civs</English>
@@ -172,7 +172,7 @@ hopefully more readable or exportable if need/want be now -->
 
 
 
-	<!-- custom: not a lengthy description per se but anyways etc but putting here as fits the theme maybe or not but in all cases anyways etc -->
+	<!-- custom: not a lengthy description per sebut putting here as fits the theme maybe or not but in all cases -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Tag>
 		<English>[TAB]See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details.</English>

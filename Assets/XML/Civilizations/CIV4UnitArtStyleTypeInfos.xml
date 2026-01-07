@@ -4,8 +4,8 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Civilization Infos -->
-<!-- custom: file imported from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Civilizations\CIV4UnitArtStyleTypeInfos.xml and then modified or not for advciv-sas anyways etc -->
-<!-- custom: removed the caravel anyways etc -->
+<!-- custom: file imported from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Civilizations\CIV4UnitArtStyleTypeInfos.xml and then modified or not for advciv-sas -->
+<!-- custom: removed the caravel -->
 <Civ4UnitArtStyleTypeInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<UnitArtStyleTypeInfos>
 		<UnitArtStyleTypeInfo>

@@ -37,7 +37,7 @@ namespace
 
 void CvGameTextMgr::DeInitialize()
 {
-	for (size_t i = 0 ; i < m_apbPromotion.size(); i++)
+	for (size_t i = 0; i < m_apbPromotion.size(); i++)
 		delete[] m_apbPromotion[i];
 }
 
@@ -389,7 +389,7 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
 	}
 	else if (pUnit->getFortifyTurns() > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
 
 		int iModifier = -pUnit->getFortifyTurns() *
@@ -984,17 +984,17 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 				(100 * pUnit->combatLimit()) / GC.getMAX_HIT_POINTS()));
 	}
 
-	// <!-- custom: also show collateral damage info (with defenders too but anyways etc) if collateral damage limit > 0 as well, may be useful to know, anyways etc -->
+	// <!-- custom: also show collateral damage info (with defenders too) if collateral damage limit > 0 as well, may be useful to know -->
 	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit if i am not mistaken so it (also) appears in sevopedia unit, not in this seemingly ingame panel), still, is maybe cleaner (but i don't know again as i don't know a lot about these) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine. -->
 	if (pUnit->collateralDamage() > 0 || pUnit->collateralDamageLimit() > 0)
 	{
 		szString.append(NEWLINE);
 		szString.append(gDLL->getText(
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004: short version
-				pUnit->collateralDamage(), // <!-- custom: add missing iCollateralDamage info as well if i am not mistaken anyways etc, for example <iCollateralDamage>25</iCollateralDamage> ; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc -->
+				pUnit->collateralDamage(), // <!-- custom: add missing iCollateralDamage info as well, for example <iCollateralDamage>25</iCollateralDamage>; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well-->
 				pUnit->collateralDamageLimit(),
 				pUnit->collateralDamageMaxUnits())); // advc.004
-		// <!-- custom: if i am not mistaken the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA should not be an else conditional display but a cumulative effect with the base collateral damage, so showing both as well anyways etc -->
+		// <!-- custom: if i am not mistaken the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA should not be an else conditional display but a cumulative effect with the base collateral damage, so showing both as well -->
 		if (pUnit->getExtraCollateralDamage() != 0)
 		{
 			szString.append(NEWLINE);
@@ -2770,7 +2770,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
 	// <advc.048>
 	bool bBestOddsHelp = false;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const bool bGROUP_ATTACK_BEST_ODDS_HELP = (GC.getDefineINT("GROUP_ATTACK_BEST_ODDS_HELP") > 0);
 
 	if (!bMaxSurvival && bGROUP_ATTACK_BEST_ODDS_HELP)
@@ -5087,8 +5087,8 @@ void CvGameTextMgr::setPlotHelpDebug_ShiftAltOnly(CvWStringBuffer& szString, CvP
 			setCityPlotYieldValueString(szString, pCity, 15, bIgnoreFood, iGrowthValue);
 			setCityPlotYieldValueString(szString, pCity, 14, bIgnoreFood, iGrowthValue);
 
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
 			static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)eDefaultSpecialist;
 
 			// show specialist values too
@@ -8179,10 +8179,10 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	//	Enables bridge building...
 	buildBridgeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech if i am not mistaken too anyways etc ; (<bTrade> in XML if i am not mistaken in tech info 's xml i mean anyways etc)... -->
+	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech if i am not mistaken too; (<bTrade> in XML if i am not mistaken in tech info 's xml) -->
 	buildBTradeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech if i am not mistaken too anyways etc ; (<bRepeat> in XML if i am not mistaken in tech info 's xml i mean anyways etc)... -->
+	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech if i am not mistaken too; (<bRepeat> in XML if i am not mistaken in tech info 's xml) -->
 	buildBRepeatString(szBuffer, eTech, true, bPlayerContext);
 
 	//	Can spread irrigation...
@@ -8933,7 +8933,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 
 	if (u.getLeaderExperience() > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT_Equals_Zero = (GC.getDefineINT("WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT") == 0);
 
 		if (bWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT_Equals_Zero)
@@ -9093,7 +9093,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
-	// <!-- custom: move these impassable blocks near the other and following anyways etc canMoveImpassable() block anyways etc -->
+	// <!-- custom: move these impassable blocks near the other and following anyways etc canMoveImpassable() block -->
 	{
 		bool bFirst = true;
 		szTempBuffer.Format(L"%s%s ", NEWLINE,
@@ -9355,7 +9355,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		szBuffer.append(gDLL->getText(/* advc.004: */ bCivilopediaText ?
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE" :
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004
-				u.getCollateralDamage(), // <!-- custom: add missing iCollateralDamage info as well if i am not mistaken anyways etc, for example <iCollateralDamage>25</iCollateralDamage> ; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc -->
+				u.getCollateralDamage(), // <!-- custom: add missing iCollateralDamage info as well, for example <iCollateralDamage>25</iCollateralDamage>; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well-->
 				iCollateralDamageLimit,
 				u.getCollateralDamageMaxUnits()));// advc.004
 	}
@@ -9370,7 +9370,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
-	// <!-- custom: in sevopedia, now that we display them as buttons in a specific/dedicated panel anyways etc, with txtNum for each (for example ("+50/-30", "__/-30", "+50/__", etc) rather in sevopedia unit, we don't need the old cumbersome data, so hiding it from sevopedia placeSpecial, while still keeping it in game at least for now if not always or not but anyways etc. -->
+	// <!-- custom: in sevopedia, now that we display them as buttons in a specific/dedicated panel anyways etc, with txtNum for each (for example ("+50/-30", "__/-30", "+50/__", etc) rather in sevopedia unit, we don't need the old cumbersome data, so hiding it from sevopedia placeSpecial, while still keeping it in game at least for now if not always or not -->
 	if (!bCivilopediaText)
 	{
 		if (u.getCityAttackModifier() == u.getCityDefenseModifier())
@@ -9421,7 +9421,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				u.getDropRange()));
 	}
 
-	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore anyways etc as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not but anyways etc. -->
+	// <!-- custom: in sevopedia, similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore anyways etc as we display them as button with a txtNum under the button in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not -->
 	if (!bCivilopediaText)
 	{
 		if (u.getHillsDefenseModifier() == u.getHillsAttackModifier())
@@ -9681,7 +9681,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			szBuffer.append(szTempBuffer);
 		}
 	} // </advc.905b>
-	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar i mean anyways etc), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken. -->
+	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken. -->
 	if (!bCivilopediaText)
 	{
 		bool bFirst = true;
@@ -9880,7 +9880,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 						GC.getInfo(u.getHolyCity()).getChar()));
 			}
 		}
-		// <!-- custom: in sevopedia, similarly to how it was done in sevopedia building, we now also display project requirements of units in sevopedia unit with buttons, "or" separated if there are many for a same special unit, see the other "custom:" comments about buildings in this .cpp file for details, or sevopedia building and unit for details on their different implementations and how they overall work/function anyways etc. -->
+		// <!-- custom: in sevopedia, similarly to how it was done in sevopedia building, we now also display project requirements of units in sevopedia unit with buttons, "or" separated if there are many for a same special unit, see the other "custom:" comments about buildings in this .cpp file for details, or sevopedia building and unit for details on their different implementations and how they overall work/function -->
 		if (!bCivilopediaText)
 		{
 			bool bFirst = true;
@@ -10725,13 +10725,13 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
 
-		// <!-- custom: split the message info between/to cover anyways etc clean and dirty cases anyways etc -->
+		// <!-- custom: split the message info between/to cover anyways etc clean and dirty cases -->
 		/*if (kBuilding.isDirtyPower() && (GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE) != 0)) {
 			szTempBuffer.Format(L" (+%d%c)", abs(GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE)), ((GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE) > 0) ? gDLL->getSymbolID(HEALTHY_CHAR): gDLL->getSymbolID(UNHEALTHY_CHAR)));
 			szBuffer.append(szTempBuffer);
 		}*/ // BtS
 		// K-Mod. Also include base health change from power.
-		// <!-- custom: also display "+0" as well as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case anyways etc -->
+		// <!-- custom: also display "+0" as well as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case -->
 		int iPowerHealthChange = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
 
 		int iPowerHealthDirtyToAdd;
@@ -11752,7 +11752,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 			{
 				if (pCity->isBuildingsMaxed())
 				{
-					// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+					// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 					static const int iMAX_BUILDINGS_PER_CITY = GC.getDefineINT("MAX_BUILDINGS_PER_CITY");
 
 					szBuffer.append(NEWLINE);
@@ -11958,7 +11958,7 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer,
 					GC.getInfo((ReligionTypes) kBuilding.getHolyCity()).getChar()));
 		}
 	}
-	// <!-- custom: in sevopedia, now that sevopedia building shows projects in placeRequires as buttons, we can safely remove this from placeSpecial, after having now a display of multiple projects (all a special unit needs), to all unit types belonging to this special unit, and we separate them with a "or" (see sevopedia building's and sevopediaunit's placeRequires(s) for comparison of their differences in implementation as well anyways etc. -->
+	// <!-- custom: in sevopedia, now that sevopedia building shows projects in placeRequires as buttons, we can safely remove this from placeSpecial, after having now a display of multiple projects (all a special unit needs), to all unit types belonging to this special unit, and we separate them with a "or" (see sevopedia building's and sevopediaunit's placeRequires(s) for comparison of their differences in implementation as well -->
 	if (!bCivilopediaText)
 	{
 		bool bFirst = true;
@@ -12609,7 +12609,7 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
 				iCost = GET_PLAYER(ePlayer).getProductionNeeded(eProject);
 			else
 			{
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const int iPROJECT_PRODUCTION_PERCENT = GC.getDefineINT("PROJECT_PRODUCTION_PERCENT");
 
 				// <advc.251>
@@ -13647,7 +13647,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 	}
 	if (kCity.getHappinessTimer() > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iTEMP_HAPPY = GC.getDefineINT("TEMP_HAPPY");
 
 		int iHappy = iTEMP_HAPPY;
@@ -15428,7 +15428,7 @@ void CvGameTextMgr::buildBridgeString(CvWStringBuffer &szBuffer,
 	}
 }
 
-// <!-- custom: add the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial anyways etc -->
+// <!-- custom: add the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial -->
 void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer,
 	TechTypes eTech, bool bList, bool bPlayerContext)
 {
@@ -15441,7 +15441,7 @@ void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer,
 	}
 }
 
-// <!-- custom: quite similarly but displaying the positive condition this time (not negative one like in bTrade but anyways etc) also add the <bRepeat> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial anyways etc -->
+// <!-- custom: quite similarly but displaying the positive condition this time (not negative one like in bTrade) also add the <bRepeat> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial -->
 void CvGameTextMgr::buildBRepeatString(CvWStringBuffer &szBuffer,
 	TechTypes eTech, bool bList, bool bPlayerContext)
 {
@@ -16401,7 +16401,7 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
 	CvWString szTempBuffer;
 	CvWStringBuffer szBreakdown; // advc.sha
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const bool bShowHiddenAttitudeDefine = GC.getDefineBOOL("SHOW_HIDDEN_ATTITUDE");
 
 	// <advc.sha>
@@ -18224,7 +18224,7 @@ void CvGameTextMgr::setVassalRevoltHelp(CvWStringBuffer& szBuffer, TeamTypes eMa
 	// advc.112: Lower bound added
 	int iVassalLand = std::max(10, kVassal.getTotalLand(false));
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iFREE_VASSAL_LAND_PERCENT = GC.getDefineINT("FREE_VASSAL_LAND_PERCENT");
 	static const bool bFREE_VASSAL_LAND_PERCENT = (iFREE_VASSAL_LAND_PERCENT >= 0);
 
@@ -18236,7 +18236,7 @@ void CvGameTextMgr::setVassalRevoltHelp(CvWStringBuffer& szBuffer, TeamTypes eMa
 	int iMasterPop = kMaster.getTotalPopulation(false);
 	int iVassalPop = kVassal.getTotalPopulation(false);
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iFREE_VASSAL_POPULATION_PERCENT = GC.getDefineINT("FREE_VASSAL_POPULATION_PERCENT");
 	static const bool bFREE_VASSAL_POPULATION_PERCENT = (iFREE_VASSAL_POPULATION_PERCENT >= 0);
 
@@ -18245,7 +18245,7 @@ void CvGameTextMgr::setVassalRevoltHelp(CvWStringBuffer& szBuffer, TeamTypes eMa
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_VASSAL_POPULATION_STATS", (iVassalPop * 100) / iMasterPop, iFREE_VASSAL_POPULATION_PERCENT));
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iVASSAL_REVOLT_OWN_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR");
 	static const bool bVASSAL_REVOLT_OWN_LOSSES_FACTOR = (iVASSAL_REVOLT_OWN_LOSSES_FACTOR > 0);
 
@@ -18254,7 +18254,7 @@ void CvGameTextMgr::setVassalRevoltHelp(CvWStringBuffer& szBuffer, TeamTypes eMa
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_VASSAL_AREA_LOSS", (iVassalLand * 100) / kVassal.getVassalPower(), iVASSAL_REVOLT_OWN_LOSSES_FACTOR));
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iVASSAL_REVOLT_MASTER_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR");
 	static const bool bVASSAL_REVOLT_MASTER_LOSSES_FACTOR = (iVASSAL_REVOLT_MASTER_LOSSES_FACTOR > 0);
 
@@ -18451,7 +18451,7 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
 	}
 	if (kOwner.isGoldenAge())
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iGOLDEN_AGE_GREAT_PEOPLE_MODIFIER = GC.getDefineINT("GOLDEN_AGE_GREAT_PEOPLE_MODIFIER");
 
 		int iGoldenAgeMod = iGOLDEN_AGE_GREAT_PEOPLE_MODIFIER;
@@ -18644,7 +18644,7 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
 		// BUG - Airport Icon - start
 		if (BUGOption::isEnabled("MainInterface__AirportIcon", true))
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const BuildingClassTypes eAirportClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_AIRPORT"
 			// Mod-mods that don't have an airport should set bHideAssert:
 			/*,true*/);
@@ -18774,7 +18774,7 @@ void CvGameTextMgr::buildCityBillboardCitySizeString( CvWStringBuffer& szBuffer,
 
 void CvGameTextMgr::getCityBillboardFoodbarColors(CvCity* pCity, std::vector<NiColorA>& aColors)
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorNegativeRate = (ColorTypes)GC.getColorType("NEGATIVE_RATE");
 	static const ColorTypes eColorEmpty = (ColorTypes)GC.getColorType("EMPTY");
 
@@ -18788,7 +18788,7 @@ void CvGameTextMgr::getCityBillboardFoodbarColors(CvCity* pCity, std::vector<NiC
 
 void CvGameTextMgr::getCityBillboardProductionbarColors(CvCity* pCity, std::vector<NiColorA>& aColors)
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorEmpty = (ColorTypes)GC.getColorType("EMPTY");
 
 	aColors.resize(NUM_INFOBAR_TYPES);
@@ -18808,8 +18808,8 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
-	// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate -->
+	// <!-- custom: code/performance optimization: hoist -->
 	const CvGame& kGame = GC.getGame();
 
 	int iPop = kPlayer.getPopScore();
@@ -18817,7 +18817,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
 	int iPopScore = 0;
 	if (iMaxPop > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iSCORE_POPULATION_FACTOR = GC.getDefineINT("SCORE_POPULATION_FACTOR");
 
 		iPopScore = intdiv::round( // advc.003y: round
@@ -18828,7 +18828,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
 	int iLandScore = 0;
 	if (iMaxLand > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iSCORE_LAND_FACTOR = GC.getDefineINT("SCORE_LAND_FACTOR");
 
 		iLandScore = intdiv::round( // advc.003y
@@ -18839,7 +18839,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
 	int iTechScore = 0;
 	if (iMaxTech > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iSCORE_TECH_FACTOR = GC.getDefineINT("SCORE_TECH_FACTOR");
 
 		iTechScore = intdiv::round( // advc.003y
@@ -18850,7 +18850,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
 	int iWondersScore = 0;
 	if (iMaxWonders > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iSCORE_WONDER_FACTOR = GC.getDefineINT("SCORE_WONDER_FACTOR");
 
 		iWondersScore = intdiv::round( // advc.003y
@@ -19065,8 +19065,8 @@ void CvGameTextMgr::setEventHelp(CvWStringBuffer& szBuffer,
 
 	if (kEvent.getHappyTurns() > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
 		static const int iTEMP_HAPPY = GC.getDefineINT("TEMP_HAPPY");
 
 		if (kEvent.isCityEffect() || kEvent.isOtherPlayerCityEffect())
@@ -19822,7 +19822,7 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
 	}
 	if (pCity->isConnectedToCapital())
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iCAPITAL_TRADE_MODIFIER = GC.getDefineINT("CAPITAL_TRADE_MODIFIER");
 
 		int iModifier = iCAPITAL_TRADE_MODIFIER;
@@ -19835,7 +19835,7 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
 	}
 	if (!pCity->sameArea(*pOtherCity))
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iOVERSEAS_TRADE_MODIFIER = GC.getDefineINT("OVERSEAS_TRADE_MODIFIER");
 
 		int iModifier = iOVERSEAS_TRADE_MODIFIER;
@@ -20184,7 +20184,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 		CvCity const* pCity = (pPlot == NULL ? NULL : pPlot->getPlotCity());
 		if (pCity != NULL && kMission.isTargetsCity())
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iESPIONAGE_CITY_POP_EACH_MOD = GC.getDefineINT("ESPIONAGE_CITY_POP_EACH_MOD");
 
 			iTempModifier = iESPIONAGE_CITY_POP_EACH_MOD *
@@ -20199,7 +20199,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 			}
 			if (pCity->isTradeRoute(kPlayer.getID()))
 			{
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const int iESPIONAGE_CITY_TRADE_ROUTE_MOD = GC.getDefineINT("ESPIONAGE_CITY_TRADE_ROUTE_MOD");
 
 				iTempModifier = iESPIONAGE_CITY_TRADE_ROUTE_MOD;
@@ -20220,14 +20220,14 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 				{
 					if (GET_PLAYER(eTargetPlayer).getStateReligion() != eReligion)
 					{
-						// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+						// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 						static const int iESPIONAGE_CITY_RELIGION_STATE_MOD = GC.getDefineINT("ESPIONAGE_CITY_RELIGION_STATE_MOD");
 
 						iTempModifier += iESPIONAGE_CITY_RELIGION_STATE_MOD;
 					}
 					if (kPlayer.hasHolyCity(eReligion))
 					{
-						// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+						// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 						static const int iESPIONAGE_CITY_HOLY_CITY_MOD = GC.getDefineINT("ESPIONAGE_CITY_HOLY_CITY_MOD");
 
 						iTempModifier += iESPIONAGE_CITY_HOLY_CITY_MOD;
@@ -20267,7 +20267,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 			// K-Mod. Culture Mod. (Based on plot culture rather than city culture.)
 			if (kMission.isSelectPlot() || kMission.isTargetsCity())
 			{
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const int iESPIONAGE_CULTURE_MULTIPLIER_MOD = GC.getDefineINT("ESPIONAGE_CULTURE_MULTIPLIER_MOD");
 
 				iTempModifier = - (pPlot->getCulture(kPlayer.getID()) * iESPIONAGE_CULTURE_MULTIPLIER_MOD) / std::max(1, pPlot->getCulture(eTargetPlayer) + pPlot->getCulture(kPlayer.getID()));
@@ -20304,7 +20304,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 			}
 			// <advc.140> (was maxPlotDistance)
 
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iESPIONAGE_DISTANCE_MULTIPLIER_MOD = GC.getDefineINT("ESPIONAGE_DISTANCE_MULTIPLIER_MOD");
 
 			iTempModifier = (iDistance + GC.getMap().maxTypicalDistance()) *
@@ -20322,7 +20322,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 		// Spy presence mission cost alteration
 		if (pSpyUnit != NULL)
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
 
 			iTempModifier = -(pSpyUnit->getFortifyTurns() *
@@ -21018,8 +21018,8 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
 				bool bCanAllEnter = true;
 				CvPlot const& kUnitPlot = pSelectedUnit->getPlot();
 
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-				// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				// <!-- custom: code/performance optimization: hoist -->
 				static const int iSHOW_IMPASSABLE_TECH_ERA_DIFFERENCE = GC.getDefineINT("SHOW_IMPASSABLE_TECH_ERA_DIFFERENCE");
 
 				FOR_EACH_UNIT_IN(pUnit, kUnitPlot)
@@ -21628,8 +21628,8 @@ void CvGameTextMgr::getUnitDataForAS(std::vector<CvWBData>& mapUnitList)
 	CvWStringBuffer szBuffer;
 	CvCivilization const& kCiv = kActivePlayer.getCivilization(); // advc.003w
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iADVANCED_START_MAX_UNITS_PER_CITY = GC.getDefineINT("ADVANCED_START_MAX_UNITS_PER_CITY");
 
 	for (int i = 0; i < kCiv.getNumUnits(); i++)
@@ -21921,7 +21921,7 @@ int CvGameTextMgr::getHelpFontSize() const
 		after removing it. */
 	if (isGfcThemeModified())
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iHELP_FONT_SIZE_iFontSize = ::range(GC.getDefineINT("HELP_FONT_SIZE", 16), 8, 22);
 
 		iFontSize = iHELP_FONT_SIZE_iFontSize;

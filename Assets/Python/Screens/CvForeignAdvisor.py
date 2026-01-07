@@ -32,7 +32,7 @@ class CvForeignAdvisor:
 		self.EXIT_ID = "ForeignAdvisorExitWidget"
 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
 
-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
 		# self.X_SCREEN = 500
 		# self.Y_SCREEN = 396
 		# self.W_SCREEN = 1024
@@ -42,11 +42,11 @@ class CvForeignAdvisor:
 		yHardcodedResolution = 1080
 
 		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.) -->
-		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such but anyways etc. -->
+		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such -->
 
 		wLeftSpaceForCommerceSliders = 172
 		self.X_SCREEN = wLeftSpaceForCommerceSliders
-		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
+		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least -->
 		wRightSpaceForScoreBoard = 390
 		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
 
@@ -67,8 +67,8 @@ class CvForeignAdvisor:
 		self.DX_LINK = 220
 		self.Y_LINK = 726
 		
-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
-		# <!-- custom: make it more dynamic depending on panel size, as as of now its position is fixed and around the center-left side of the panel, even though it should be at the bottom of it, as gemini 3 pro showed where to thanks anyways etc. -->
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+		# <!-- custom: make it more dynamic depending on panel size, as as of now its position is fixed and around the center-left side of the panel, even though it should be at the bottom of it, as gemini 3 pro showed where to thanks -->
 		self.H_LEGEND = 180
 		self.W_LEGEND = 160
 		self.MARGIN_LEGEND = 10
@@ -128,15 +128,15 @@ class CvForeignAdvisor:
 		#self.listSelectedLeaders.append(self.iSelectedLeader)
 
 		# Set the background and exit button, and show the screen
-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
-		# <!-- custom: see also related change that was needed it seems as well in CvExoticForeignAdvisor.py anyways etc. -->
-		# <!-- custom: update: reverting this change we added, as it doesn't seem necessary for our change to still be effective anyways etc. -->
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+		# <!-- custom: see also related change that was needed it seems as well in CvExoticForeignAdvisor.py -->
+		# <!-- custom: update: reverting this change we added, as it doesn't seem necessary for our change to still be effective -->
 		#screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
 		screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
 
 		screen.addDrawControl(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
 		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
 		# screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
 		# screen.addPanel( "BottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
@@ -226,7 +226,7 @@ class CvForeignAdvisor:
 		listPlayers = [(0,0)] * gc.getMAX_PLAYERS()
 		nNumPLayers = 0
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
-			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
+			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution -->
 			objLoopPlayer = gc.getPlayer(iLoopPlayer)
 
 			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and not objLoopPlayer.isBarbarian() and  not objLoopPlayer.isMinorCiv()):
@@ -245,8 +245,8 @@ class CvForeignAdvisor:
 		for j in range (nNumPLayers):
 			iLoopPlayer = listPlayers[j][1]
 
-			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
-			# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called anyways etc. -->
+			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution -->
+			# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called -->
 			objLoopPlayer2 = gc.getPlayer(iLoopPlayer)
 
 			# Player panel
@@ -308,10 +308,10 @@ class CvForeignAdvisor:
 				if (self.iSelectedLeader == self.iActiveLeader):
 					# loop through all players and display resources that are available to trade to at least one leader
 					for iLoopPlayer in range(gc.getMAX_PLAYERS()):
-						# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
+						# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution -->
 						objLoopPlayer = gc.getPlayer(iLoopPlayer)
 
-						# <!-- custom: replace gc.getPlayer(self.iActiveLeader) with existing playerActive variable anyways etc. Done similarly in various related places and uncommented anyways etc. -->
+						# <!-- custom: replace gc.getPlayer(self.iActiveLeader) with existing playerActive variable anyways etc. Done similarly in various related places and uncommented -->
 						if (objLoopPlayer.isAlive() and not objLoopPlayer.isBarbarian() and not objLoopPlayer.isMinorCiv() and gc.getTeam(objLoopPlayer.getTeam()).isHasMet(playerActive.getTeam())):
 							if (iLoopPlayer != self.iActiveLeader and playerActive.canTradeItem(iLoopPlayer, tradeData, False)):
 								bTradeable = True
@@ -333,8 +333,8 @@ class CvForeignAdvisor:
 				if (self.iSelectedLeader == self.iActiveLeader):
 					# loop through all players and display techs that are available to trade to at least one leader
 					for iLoopPlayer in range(gc.getMAX_PLAYERS()):
-						# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
-						# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called anyways etc. -->
+						# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution -->
+						# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called -->
 						objLoopPlayer2 = gc.getPlayer(iLoopPlayer)
 
 						if (objLoopPlayer2.isAlive() and not objLoopPlayer2.isBarbarian() and not objLoopPlayer2.isMinorCiv() and gc.getTeam(objLoopPlayer2.getTeam()).isHasMet(playerActive.getTeam())):
@@ -360,8 +360,8 @@ class CvForeignAdvisor:
 
 		# Their leaderheads		
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
-			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
-			# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called anyways etc. -->
+			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution -->
+			# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called -->
 			objLoopPlayer3 = gc.getPlayer(iLoopPlayer)
 
 			if (objLoopPlayer3.isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(objLoopPlayer3.getTeam()).isHasMet(playerActive.getTeam()) or gc.getGame().isDebugMode()) and not objLoopPlayer3.isBarbarian() and not objLoopPlayer3.isMinorCiv()):
@@ -492,7 +492,7 @@ class CvForeignAdvisor:
 				iCount = iCount + 1
 		fLeaderTop = self.Y_LEADER_CIRCLE_TOP
 
-		# <!-- custom: make radius wider so we use more of our expanded screen now to draw the leader relation's web. Now nicely also dynamically adjusts to screen resolution. Added with the help of gemini 3 pro, check if accurate anyways etc. -->
+		# <!-- custom: make radius wider so we use more of our expanded screen now to draw the leader relation's web. Now nicely also dynamically adjusts to screen resolution. Added with the help of gemini 3 pro, check if accurate -->
 		# fRadius = self.RADIUS_LEADER_ARC - self.H_LEADER
 		# Dynamic Resolution Scaling
 		# Define Dynamic Radius

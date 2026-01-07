@@ -461,7 +461,7 @@ bool KmodPathFinderLegacy::ProcessNode()
 						if (x_parent->m_apChildren[j] == child_node)
 						{
 							// found it.
-							for (j++ ; j < x_parent->m_iNumChildren; j++)
+							for (j++; j < x_parent->m_iNumChildren; j++)
 								x_parent->m_apChildren[j-1] = x_parent->m_apChildren[j];
 							x_parent->m_apChildren[j-1] = 0; // not necessary, but easy enough to keep things neat.
 

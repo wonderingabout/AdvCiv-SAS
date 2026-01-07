@@ -104,7 +104,7 @@
 					<bFreeBuildingClass>1</bFreeBuildingClass>
 				</FreeBuildingClass>
 			</FreeBuildingClasses>
-			<!-- custom: techs updated with the big and thanks a lot but of me too but anyways etc help of chatgpt 5, see readme_tech_tree.md for details; also check if accurate i mean but anyways etc -->
+			<!-- custom: techs updated with the big and thanks a lot but of me toohelp of chatgpt 5, see readme_tech_tree.md for details; also check if accurate -->
 			<FreeTechs>
 				<FreeTech>
 					<TechType>TECH_FISHING</TechType>
@@ -2892,7 +2892,7 @@
 					<BuildingType>BUILDING_NETHERLANDS_DIKE</BuildingType>
 				</Building>
 			</Buildings>
-			<!-- custom: east indiaman of class frigate now replaced with DUTCH_SWIFT_WORKER of class worker anyways etc -->
+			<!-- custom: east indiaman of class frigate now replaced with DUTCH_SWIFT_WORKER of class worker -->
 			<Units>
 				<Unit>
 					<!-- advc.905b: was GALLEON -->
@@ -3739,7 +3739,7 @@
 			<CivilizationSelectionSound>AS3D_SUMERIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_SUMERIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc ; also also remove "_CHANGED" in txt key / asset name of these units anyways etc -->
+		<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA"; also also remove "_CHANGED" in txt key / asset name of these units -->
 		<CivilizationInfo>
 			<Type>CIVILIZATION_SCANDINAVIA</Type>
 			<Description>TXT_KEY_CIV_SCANDINAVIA_DESC</Description>
@@ -4310,7 +4310,7 @@
 					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<!-- custom: note: this seemingly does nothing as barbarians still build libraries if i am not mistaken about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so anyways etc at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues i mean but anyways etc) anyways etc) as they do in autoplay at least but anyways etc -->
+				<!-- custom: note: this seemingly does nothing as barbarians still build libraries if i am not mistaken about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so anyways etc at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues) anyways etc) as they do in autoplay at least-->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
@@ -4337,7 +4337,7 @@
 
 
 
-			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv anyways etc: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such, anyways etc) if they can last long enough in this case until then but anyways etc -->
+			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv anyways etc: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such, anyways etc) if they can last long enough in this case until then-->
 			<!-- advc.303: Not sure where comments are allowed in this file;
 			demonstrably not everywhere. Added NONE entries to the Barbarians
 			starting at Monument (still called "Obelisk" internally) until
@@ -4429,7 +4429,7 @@
 					<UnitClassType>UNITCLASS_SPY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
-				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born (in a barbarian city) and (is)(too) if i am not mistaken anyways etc anyways etc -->
+				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born (in a barbarian city) and (is)(too)-->
 				<Unit>
 					<UnitClassType>UNITCLASS_GREAT_ARTIST</UnitClassType>
 					<UnitType>NONE</UnitType>

@@ -5,7 +5,7 @@
 <!-- -->
 <!-- Game Text Objects -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
+	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia -->
 	<TEXT>
 		<Tag>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Tag>
 		<English></English>
@@ -292,7 +292,7 @@
 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
 		<English>Obelisk</English>
 	</TEXT>
-	<!-- custom: rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" to match the existing "_EGYPTIAN_WAR_CHARIOT" and better match the "_EGYPTIAN_OBELISK" we renamed more clearly in the past but anyways etc (note: no idea how the better matching "egyptian_war_chariot" name was detected with old asset names (i don't know how these work it seems but anyways etc) but at least it's consistent now and hopefully clear(er too but anyways etc) if i'm not mistaken but anyways etc) -->
+	<!-- custom: rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" to match the existing "_EGYPTIAN_WAR_CHARIOT" and better match the "_EGYPTIAN_OBELISK" we renamed more clearly in the past(note: no idea how the better matching "egyptian_war_chariot" name was detected with old asset names (i don't know how these work it seems) but at least it's consistent now and hopefully clear(er too)) -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT</Tag>
 		<English>War Chariot</English>
@@ -310,17 +310,17 @@
 		<Tag>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Tag>
 		<English>Forbidden Palace</English>
 	</TEXT>
-	<!-- custom: rename GREAT_DAM to THREE_GORGES_DAM similarly than for FORBIDDEN_PALACE anyways etc -->
+	<!-- custom: rename GREAT_DAM to THREE_GORGES_DAM similarly than for FORBIDDEN_PALACE -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
 		<English>The Three Gorges Dam</English>
 	</TEXT>
-	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but anyways etc even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but anyways etc anyways etc in this case anyways etc) and we need/want a music tech wonder anyways etc -->
+	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this caseeven though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe tooin this case anyways etc) and we need/want a music tech wonder -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
 		<English>Natya Shastra</English>
 	</TEXT>
-	<!-- custom: rename "CHICHEN_ITZA" (but not the city though anyways etc) to "TEMPLE_OF_KUKULCAN" anyways etc -->
+	<!-- custom: rename "CHICHEN_ITZA" (but not the city though anyways etc) to "TEMPLE_OF_KUKULCAN" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN</Tag>
 		<English>Temple of Kukulcan</English>
@@ -417,12 +417,12 @@
 
 
 
-	<!-- custom: rename "UNIT_KNIGHT" to "UNIT_HORSE_KNIGHT" so it is distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd.. But anyways etc...) unit if i am not mistaken too but anyways etc... -->
+	<!-- custom: rename "UNIT_KNIGHT" to "UNIT_HORSE_KNIGHT" so it is distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd..) unit if i am not mistaken too... -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_HORSE_KNIGHT</Tag>
 		<English>Horse Knight</English>
 	</TEXT>
-	<!-- custom: similarly rename "UNIT_CUIRASSIER" to "UNIT_HORSE_CUIRASSIER" too as there are camel cuirassiers too now anyways etc -->
+	<!-- custom: similarly rename "UNIT_CUIRASSIER" to "UNIT_HORSE_CUIRASSIER" too as there are camel cuirassiers too now -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_HORSE_CUIRASSIER</Tag>
 		<English>Horse Cuirassier</English>
@@ -430,7 +430,7 @@
 
 
 
-	<!-- custom: add new camel units anyways etc -->
+	<!-- custom: add new camel units -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CAMEL_ARCHER</Tag>
 		<English>Camel Archer</English>
@@ -451,7 +451,7 @@
 		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN</Tag>
 		<English>Hajjan</English>
 	</TEXT>
-	<!-- custom: rename "_KESHIK" to "_KHISHIGTEN" anyways etc, name from https://www.reddit.com/r/mongolia/comments/15zd5gj/comment/jxgk8zu/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button anyways etc as it seems most accurate accurate to comment there anyways etc -->
+	<!-- custom: rename "_KESHIK" to "_KHISHIGTEN" anyways etc, name from https://www.reddit.com/r/mongolia/comments/15zd5gj/comment/jxgk8zu/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button anyways etc as it seems most accurate accurate to comment there -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_MONGOL_KHISHIGTEN</Tag>
 		<English>Khishigten</English>
@@ -494,7 +494,7 @@
 
 
 
-	<!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", see code comment at the pedia entry corresponding to this tag/unit for details anyways etc -->
+	<!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", see code comment at the pedia entry corresponding to this tag/unit for details -->
 	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
 		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
 	<TEXT> <!-- redefine -->
@@ -556,7 +556,7 @@
 
 
 
-	<!-- custom: rename "AT_INFANTRY" to "BAZOOKA" anyways etc -->
+	<!-- custom: rename "AT_INFANTRY" to "BAZOOKA" -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_BAZOOKA</Tag>
 		<English>Bazooka</English>
@@ -564,7 +564,7 @@
 
 
 
-	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc -->
+	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_SCANDINAVIA_DESC</Tag>
 		<English>Scandinavian Empire</English>
@@ -581,7 +581,7 @@
 		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST</Tag>
 		<English>Trading Post</English>
 	</TEXT>
-	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details anyways etc -->
+	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details -->
 	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
 		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
 	<TEXT> <!-- redefine -->
@@ -732,7 +732,7 @@
 
 
 
-	<!-- custom: rename "Gunpowder Units" to "Gun units" to encompass if i may say anyways etc all kind of gun units not just the early ones that use gunpowder if i am not mistaken anyways etc ; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of anyways etc smokeless powder instead anyways etc if i am not mistaken based on this website anyways etc and didn't check further but maybe is accurate or maybe not or maybe is but anyways etc -->
+	<!-- custom: rename "Gunpowder Units" to "Gun units" to encompass all kind of gun units not just the early ones that use gunpowder; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of anyways etc smokeless powder instead -->
 	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_GUN</Tag>
 		<English>Gun Units</English>
@@ -950,17 +950,17 @@
 		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS</Tag>
 		<English>Robot Rights</English>
 	</TEXT>
-	<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such -->
+	<!-- custom: replace tech_stealth in related"_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ALIEN_LIFE</Tag>
 		<English>Alien Life</English>
 	</TEXT>
-	<!-- custom: replace tech_plastics with tech_depopulation anyways etc -->
+	<!-- custom: replace tech_plastics with tech_depopulation -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_DEPOPULATION</Tag>
 		<English>Depopulation</English>
 	</TEXT>
-	<!-- custom: replace "SCIENTIFIC_METHOD" with "WATER_WHEEL" anyways etc -->
+	<!-- custom: replace "SCIENTIFIC_METHOD" with "WATER_WHEEL" -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_WATER_WHEEL</Tag>
 		<English>Water Wheel</English>
@@ -990,7 +990,7 @@
 		<Tag>TXT_KEY_TECH_BROADER_EDUCATION</Tag>
 		<English>Broader Education</English>
 	</TEXT>
-	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean if i may say but anyways etc. -->
+	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean. -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROMANTICISM</Tag>
 		<English>Romanticism</English>

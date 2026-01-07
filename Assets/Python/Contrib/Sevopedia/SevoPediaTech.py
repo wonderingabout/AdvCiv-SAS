@@ -10,7 +10,7 @@
 #
 # <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see modding ressources readme at /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md (or whichever path it may be anyways etc if changed path or modifications i did or may have done additionally or kept as is).
 #
-# Without the DLL modification, i assume it would still run fine if i am not mistaken, just you would not have the bullet point at the tech, for example Future tech, that it cannot be traded in placeSpecial, but only the summary at the end of the list of all non tradeable tech that uses the already existing in base advciv if i am not mistaken anyways etc gc.getTechInfo(iTech).isTrade() if i am not mistaken, but which info of (this tech is not tradeable) is in base advciv not displayed in the placeSpecial bullet of the currently selected tech unless you modify DLL as explained before anyways etc. -->
+# Without the DLL modification, i assume it would still run fine if i am not mistaken, just you would not have the bullet point at the tech, for example Future tech, that it cannot be traded in placeSpecial, but only the summary at the end of the list of all non tradeable tech that uses the already existing in base advcivgc.getTechInfo(iTech).isTrade() if i am not mistaken, but which info of (this tech is not tradeable) is in base advciv not displayed in the placeSpecial bullet of the currently selected tech unless you modify DLL as explained before -->
 
 
 
@@ -24,12 +24,12 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: change its value if you don't want to see this info anyways etc -->
+# <!-- custom: change its value if you don't want to see this info -->
 IS_SHOW_NON_TRADEABLE_TECHS_LIST = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST") > 0)
 
 
 
-# <!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time if i may say but anyways etc the list as string of untradeable techs anyways etc ; note also anyways etc: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak (my) (but anyways etc...) previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd if i may say but anyways etc -->
+# <!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time the list as string of untradeable techs; note also anyways etc: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak (my) (but anyways etc...) previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd -->
 def getPrecomputedUntradeableTechsText():
 	untradeableTechs = []
 
@@ -131,7 +131,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	# <!-- custom: split this more cleanly as a separate method from interfaceScreen if i am not mistaken in assessing so if i may say and also as in other parts of our code as well if i may say but anyways etc ; also Era display code bit/part in this case but anyways etc imported from rfc doc mod and adjusted or not for advciv-sas but anyways etc -->
+	# <!-- custom: split this more cleanly as a separate method from interfaceScreen if i am not mistaken in assessing so if i may say and also as in other parts of our code as well; also Era display code bit/part in this caseimported from rfc doc mod and adjusted or not for advciv-sas-->
 	def placeTechPane(self):
 		screen = self.top.getScreen()
 		techInfo = gc.getTechInfo(self.iTech)
@@ -153,7 +153,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		screen.addListBoxGFC(listBoxName, "", self.X_TECH_PANE + 92, self.Y_TECH_PANE + 14, self.W_TECH_PANE, self.H_TECH_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listBoxName, False)
-		# <!-- custom: extra space (" ") in some of these listboxstrings but anyways etc to better align with the research icon char starting more on the right anyways etc, depending on where the space is put, the text is so much better left-aligned between rows i think/feel/see or so it seems to me if i mmay say but anyways etc... -->
+		# <!-- custom: extra space (" ") in some of these listboxstringsto better align with the research icon char starting more on the right anyways etc, depending on where the space is put, the text is so much better left-aligned between rows i think/feel/see or so it seems to me if i mmay say... -->
 		screen.appendListBoxString(listBoxName, u" <font=4b>" + techInfo.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(listBoxName, u"<font=3> " + szEra + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(listBoxName, u"<font=4>" + szCostText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
@@ -290,13 +290,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
 
 		if IS_SHOW_NON_TRADEABLE_TECHS_LIST:
-			# <!-- custom: add the list as string of all untradeable techs if this tech is untradeable ; see also sevopedia main precomputing / cache building for untradeable techs text for details anyways etc -->
+			# <!-- custom: add the list as string of all untradeable techs if this tech is untradeable; see also sevopedia main precomputing / cache building for untradeable techs text for details -->
 			if (not gc.getTechInfo(self.iTech).isTrade()):
 				if szSpecialText.strip():
 					szSpecialText += u"\n\n"
 				szSpecialText += UNTRADEABLE_TECHS_TEXT
 
-		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL-10 -->
+		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking, reduce height, was self.H_SPECIAL-10 -->
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 35, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -310,7 +310,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szText += gc.getTechInfo(self.iTech).getQuote()
 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
 		szQuoteTextWidget = self.top.getNextWidgetName()
-		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it ; as for padding adjust/modify it a bit too anyways etc, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case if i may say but anyways etc -->
+		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too anyways etc, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 9, self.Y_HISTORY + 12, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<!-- custom: shriking XML comments to one line does not help performance at all even a bit it seems if i understood chatgpt's explanation, due to the parser still reading the entire line regardless, unlike with a # in python for example where rest of line is skipped if i am not mistaken anyways etc, but doing so sometimes as it improves word wrap especially if screen is split for example anyways etc, still less incentive to do so since no perfomance gain, (i anyways etc) may or not do so inconsistenly in the xml files, see main readme.md for details in the as of now fixes section. -->
-<!-- custom: maybe most likely also much faster if i ask chatgpt to do it, todo maybe later but not guaranteed though may or may not do anyways etc. -->
+<!-- custom: shriking XML comments to one line does not help performance at all even a bit it seems if i understood chatgpt's explanation, due to the parser still reading the entire line regardless, unlike with a # in python for example where rest of line is skipped, but doing so sometimes as it improves word wrap especially if screen is split for example anyways etc, still less incentive to do so since no perfomance gain, (i anyways etc) may or not do so inconsistenly in the xml files, see main readme.md for details in the as of now fixes section. -->
+<!-- custom: maybe most likely also much faster if i ask chatgpt to do it, todo maybe later but not guaranteed though may or may not do -->
 <!-- [advc.104x] This file used to be called BBAI_AI_Variables_GlobalDefines.xml; now also contains UWAI parameters. -->
 <!-- UWAI breaks down the computation of AI war utility into a sum of 28 "aspects", most of which are either in favor of war (added to the total war utility) or against war (subtracted). There are a few mixed aspects that could either increase or decrease war utility. Each aspect corresponds to one particular motivation for or against war. Through this file, a weight is assigned to each aspect. This weight is interpreted as a percentage by which the aspect utility is multiplied. The default (recommended) weights are all 100. This doesn't imply though that all aspects contribute equally by default; the weights are only a final adjustment to the (hardcoded) formulas.-->
 <!-- A weight of e.g. 50 halves the default impact of an aspect, 200 doubles it. 0 means that the aspect is entirely disregarded. A negative weight (not recommended) turns a pro-war aspect into an anti-war aspect or vice versa. In the descriptions below, "we" refers to the AI civ that is considering war. [advc.104x] -->
@@ -74,7 +74,7 @@
 		so increase it only a bit. It does currently feel that they would
 		never ever declare war even though they have reason to (according to
 		what they think/value it seems i think maybe), was 100.-->
-		<!-- custom: but it does seem like they never ever declare war when requesting tribute making it pointless, trying to increase it more anyways etc ; it's maybe also more realistic this way, as the losing side will just have to comply regardless how insensitive/senseless the request is, was 110. -->
+		<!-- custom: but it does seem like they never ever declare war when requesting tribute making it pointless, trying to increase it more; it's maybe also more realistic this way, as the losing side will just have to comply regardless how insensitive/senseless the request is, was 110. -->
 		<DefineName>UWAI_WEIGHT_REBUKE</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
@@ -168,7 +168,7 @@
 		<!-- custom: AI is unlikely to win 2+ wars at the same time, almost always
 		likely to end bad for the AI, so may help the AI to further discourage
 		it, was 100 -->
-		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate if i may say but anyways etc) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details anyways etc -->
+		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details -->
 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
@@ -286,7 +286,7 @@
 		should be very bad for the AI to fight multi wars in terms of winning,
 		as for roleplaying it is not my core concern especially as this may
 		affect AI performance/strength, was 25 last time i modified it -->
-		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate if i may say but anyways etc) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details anyways etc -->
+		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details -->
 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>

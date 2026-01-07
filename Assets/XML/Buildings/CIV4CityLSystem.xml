@@ -1012,7 +1012,7 @@
 			<Rotate>45</Rotate>
 			<Scale>2.9</Scale>
 		</ArtRef>
-		<!-- custom: removed building:BUILDING_PAGAN_MONASTERY entirely from this file as i don't know where the 2x3 would fit in this file, hopefully works fine if i am not mistaken in my hope or guess in this guess but anyways etc, added for mention/reference if need further but if works-functions fine then is for info anyways etc ; also i don't know too much about these if at all in this case i mean but anyways etc so check if what i said is accurate anyways etc -->
+		<!-- custom: removed building:BUILDING_PAGAN_MONASTERY entirely from this file as i don't know where the 2x3 would fit in this file, hopefully works fine if i am not mistaken in my hope or guess in this guess, added for mention/reference if need further but if works-functions fine then is for info; also i don't know too much about these if at all so check if what i said is accurate -->
 		<ArtRef Name="building:BUILDING_PAGAN_TEMPLE">
 			<Rotate>45</Rotate>
 			<Scale>2.5</Scale>
@@ -1380,7 +1380,7 @@
 			<Rotate>45</Rotate>
 			<!-- this needs to be the negative of the CITY_TWIST value in detail manager; note that this uses degrees but DetailManager uses radians. Sorry. -->
 		</ArtRef>
-		<!-- custom: remove seemingly duplicate <ArtRef Name="building:BUILDING_LIGHTHOUSE"> (removed 1st occurence to be safe that it is not the one used in the game, the 2nd one seems more exhaustive too from the little i can see of it but anyways etc) anyways etc -->
+		<!-- custom: remove seemingly duplicate <ArtRef Name="building:BUILDING_LIGHTHOUSE"> (removed 1st occurence to be safe that it is not the one used in the game, the 2nd one seems more exhaustive too from the little i can see of it) -->
 		<ArtRef Name="building:BUILDING_LIGHTHOUSE">
 			<Attribute Class="Scalar">szNIF:Art/Structures/Buildings/Lighthouse/LighthouseModern.nif</Attribute>
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>

@@ -299,7 +299,7 @@
 			<!-- advc.252: end -->
 			<!-- advc.910: Changed most of the turn count. Now sum up to a
 				 max turn of 335 instead of 330. -->
-			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate -->
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
 			<!--
 			Awesome—sticking with Quick = 330 turns makes sense. Here’s a clean, monotonic, integer-years-per-turn Quick calendar that mirrors your Normal/Epic/Marathon pivots (ends at 2105 CE), uses only 12-month multiples, and totals 330 turns.
 
@@ -467,7 +467,7 @@
 
 
 
-		<!-- custom: note: old bts-claimed old base advciv marathon commented out timeline removed but anyways etc as we don't use it and we in fact reduced further the number of turns in marathon as of now so no longer relevant to us, but comment kept if informative or/and for reference -->
+		<!-- custom: note: old bts-claimed old base advciv marathon commented out timeline removedas we don't use it and we in fact reduced further the number of turns in marathon as of now so no longer relevant to us, but comment kept if informative or/and for reference -->
 		<!-- advc.252: Can uncomment this (and delete the one above)
 			 to restore, by and large, the BtS Marathon modifiers.
 			 May then also want to increase the threshold for Legendary culture
@@ -518,7 +518,7 @@
 			<!-- advc.252: start -->
 			<iEventRollSidesPercent>125</iEventRollSidesPercent>
 			<iVoteIntervalPercent>150</iVoteIntervalPercent>
-			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate -->
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
 			<!--
 			ya, gotcha — your Epic should “fade fast” in Prehistory like Normal/Marathon, keep only clean integer years/turn (≥1), never speed back up, and use 0.5y/turn only at the very end. Here’s a redesigned EPIC (750 turns) block that matches that vibe. Early bands use the same coarse steps as Normal (so it fades quickly), then we add resolution from Classical → Medieval → Renaissance to land exactly at 750.
 
@@ -621,12 +621,12 @@
 			<iUnitTradePercent>200</iUnitTradePercent>
 			<iUnitGreatWorkPercent>200</iUnitGreatWorkPercent>
 			<iGoldenAgePercent>200</iGoldenAgePercent>
-			<!-- custom: was 40, not sure if we should change it too much, but now and as of now but anyways etc we are nicely double the turns of normal, so alter it to be exactly half if i am not mistaken -->
+			<!-- custom: was 40, not sure if we should change it too much, but now and as of nowwe are nicely double the turns of normal, so alter it to be exactly half if i am not mistaken -->
 			<!-- advc.252: was 33 -->
 			<iHurryPercent>50</iHurryPercent>
 			<!-- custom: was 250 -->
 			<iHurryConscriptAngerPercent>200</iHurryConscriptAngerPercent>
-			<!-- custom: not sure if we should change it but match epic game speed progression for this field if i am not mistaken but anyways etc, was 12 -->
+			<!-- custom: not sure if we should change it but match epic game speed progression for this field, was 12 -->
 			<!-- advc.252: start -->
 			<!-- was 10 -->
 			<iInflationPercent>10</iInflationPercent>
@@ -662,7 +662,7 @@
 			<iEventRollSidesPercent>200</iEventRollSidesPercent>
 			<!-- custom: not sure if we should change it too much but aim for exact double just in case anyways etc, was 250 -->
 			<iVoteIntervalPercent>200</iVoteIntervalPercent>
-			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate -->
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
 			<!--
 			love it—here’s a Marathon = 1000 turns timeline that keeps everything clean (integer years/turn whenever >1), strictly monotonic (never speeds up later), and uses 6-month steps for all sub-year pacing (no need for 4-month trimesters).
 

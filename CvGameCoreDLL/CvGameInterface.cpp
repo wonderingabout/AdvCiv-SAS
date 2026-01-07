@@ -72,7 +72,7 @@ void CvGame::updateColoredPlots()
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
 				}
 			}
-			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use CvUnitAI::AI_bestCityBuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality at least i want to do so in this case but anyways etc -->
+			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use CvUnitAI::AI_bestCityBuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality -->
 			// // Plot improvement replacement circles for debugging
 			// FOR_EACH_ENUM(PlotNum)
 			// {
@@ -99,8 +99,8 @@ void CvGame::updateColoredPlots()
 		}
 	} // BETTER_BTS_AI_MOD: END
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
@@ -246,7 +246,7 @@ void CvGame::updateColoredPlots()
 	if (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) ||
 		!GET_PLAYER(getActivePlayer()).isHuman()) // advc.127
 	{
-		// <!-- custom: also disable worker plot to improve recommendations, we save computation this way, reduce the interference of old very inefficient and perhaps needlessly computationally expensive, on top of tiles shown not necessarily being the best as well. We only want to see city sites and such and not have too many needless circles that are confusing as well on top of using needless computing power but anyways etc ; located code spot to remove thanks to claude ai after i found first one above in this function anyways etc -->
+		// <!-- custom: also disable worker plot to improve recommendations, we save computation this way, reduce the interference of old very inefficient and perhaps needlessly computationally expensive, on top of tiles shown not necessarily being the best as well. We only want to see city sites and such and not have too many needless circles that are confusing as well on top of using needless computing power; located code spot to remove thanks to claude ai after i found first one above in this function -->
 		// CvUnitAI const& kRecommendUnit = pHeadSelectedUnit->AI(); // advc.003u
 		// if (kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER ||
 		// 	kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA)
@@ -371,8 +371,8 @@ void CvGame::updateBlockadedPlots()
 	kEngine.clearAreaBorderPlots(AREA_BORDER_LAYER_BLOCKADED);
 	CvMap const& kMap = GC.getMap();
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorBlack = (ColorTypes)GC.getColorType("BLACK");
 
 	for (int i = 0; i < kMap.numPlots(); ++i)
@@ -1853,7 +1853,7 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
 	kUnit.m_strButtonHelpTag = "TXT_KEY_GLOBELAYER_UNITS";
 	kUnit.m_strButtonStyle = "Button_HUDGlobeUnit_Style";
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iNumOptionsCalculated = ((GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0 ? 0 : // advc.004z
 			NUM_UNIT_OPTION_TYPES));
 
@@ -2198,7 +2198,7 @@ ColorTypes CvGame::getPlotHighlightColor(CvPlot* pPlot) const
 {
 	if (pPlot == NULL)
 		return NO_COLOR;
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eDefaultColor = GC.getColorType("GREEN");
 	if (gDLL->GetWorldBuilderMode())
 		return eDefaultColor;
@@ -2246,7 +2246,7 @@ bool CvGame::updateNukeAreaOfEffect(CvPlot const* pCenter) const
 		return false;
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorYellow = (ColorTypes)GC.getColorType("YELLOW");
 	NiColorA const& kColor = GC.getInfo(eColorYellow).getColor();
 
@@ -2264,8 +2264,8 @@ void CvGame::updateSeaPatrolColors(CvUnit const& kSelectedUnit)
 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_PATROLLED);
 	if (!kSelectedUnit.isSeaPatrolling())
 		return;
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE");
 	for (SquareIter itPlot(kSelectedUnit, GC.getMAX_SEA_PATROL_RANGE(), false);
 		itPlot.hasNext(); ++itPlot)
@@ -2490,7 +2490,7 @@ int CvGame::getSoundtrackSpace() const
 
 bool CvGame::isSoundtrackOverride(CvString& strSoundtrack) const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const bool bVICTORY_SOUNDTRACK_AVAILABLE = (GC.getDefineINT("VICTORY_SOUNDTRACK_AVAILABLE") != 0);
 
 	if (bVICTORY_SOUNDTRACK_AVAILABLE)

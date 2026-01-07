@@ -310,8 +310,8 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 
 	if (m_pUnitInfo->isWorldUnit())
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
 		static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
 
 		for (int i = 0; i < MAX_PLAYERS; i++)
@@ -446,8 +446,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		only if our FFreeList ID gets assigned to a new unit. Unknown if this
 		ever actually happens. Don't want to loop through all groups just in case. */
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 	static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
@@ -592,7 +592,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 	{
 		CvPlayerAI& kCaptor = GET_PLAYER(eCapturingPlayer);
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bAI_CAN_DISBAND_UNITS = GC.getDefineBOOL("AI_CAN_DISBAND_UNITS");
 
 		if (kCaptor.isHuman() ||
@@ -981,7 +981,7 @@ void CvUnit::updateAirCombat(bool bQuick)
 		if (pInterceptor->getDomainType() != DOMAIN_AIR)
 			pInterceptor->setMadeInterception(true);
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -1435,7 +1435,7 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 			}
 			else
 			{
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 				PlayerTypes eAttacker = getVisualOwner(pDefender->getTeam());
@@ -1528,7 +1528,7 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 		if (!m_pUnitInfo->isHiddenNationality() &&
 			!pDefender->getUnitInfo().isHiddenNationality())
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iWW_UNIT_KILLED_ATTACKING = GC.getDefineINT("WW_UNIT_KILLED_ATTACKING");
 			static const int iWW_KILLED_UNIT_DEFENDING = GC.getDefineINT("WW_KILLED_UNIT_DEFENDING");
 
@@ -1588,7 +1588,7 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 		if (!m_pUnitInfo->isHiddenNationality() &&
 			!pDefender->getUnitInfo().isHiddenNationality())
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iWW_UNIT_KILLED_DEFENDING = GC.getDefineINT("WW_UNIT_KILLED_DEFENDING");
 			static const int iWW_KILLED_UNIT_ATTACKING = GC.getDefineINT("WW_KILLED_UNIT_ATTACKING");
 
@@ -1681,7 +1681,7 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 // advc.010: Cut from resolveCombat. Used for killed noncombatants with bFought=false.
 void CvUnit::addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -1705,7 +1705,7 @@ void CvUnit::addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) con
 // <advc> Cut from resolveCombat - just to be consistent with addAttackSuccessMessages.
 void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -1731,7 +1731,7 @@ void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
 
 void CvUnit::addWithdrawalMessages(CvUnit const& kDefender) const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -2972,7 +2972,7 @@ void CvUnit::attackForDamage(CvUnit *pDefender,
 		}
 		else
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 			PlayerTypes eAttacker = getVisualOwner(pDefender->getTeam());
@@ -3260,10 +3260,10 @@ void CvUnit::automate(AutomateTypes eAutomate)
 }
 
 
-// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50 but anyways etc, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken anyways etc), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change but anyways etc, while also not overdoing it in case it collapses our economy, here or/and in other places, see known issue as of now 52 for details anyways etc; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate, anyways etc -->
-// <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks! But anyways etc), implementing our logic here as well, check if accurate anyways etc -->
+// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken anyways etc), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or/and in other places, see known issue as of now 52 for details anyways etc; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate -->
+// <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks!), implementing our logic here as well, check if accurate -->
 // Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
-// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances anyways etc, see known issue as of now 52 for details anyways etc; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these but anyways etc, see known issue mentionned here in these code comments for details but anyways etc, and we otherwise kept function the same anyways etc -->
+// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances anyways etc, see known issue as of now 52 for details anyways etc; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, see known issue mentionned here in these code comments for details, and we otherwise kept function the same -->
 bool CvUnit::canScrap() const
 {
 	// <!-- custom: old function was a 3 liner anyways etc... -->
@@ -3271,7 +3271,7 @@ bool CvUnit::canScrap() const
 	// 	return false;
 	// return true;
 
-	// <!-- custom: update: the danger and not before turn 100 and other conditions anyways etc no scrapping gating here worked extremely great and solved the scrapping issue, see known issue as of now 52 for details anyways etc; now doing a less going overboard xd approach if i may say but anyways etc, we can just disable scrapping entirely and not waste computation, or in other cases tune it to be selectively disabled or such anyways etc, commenting-out this old code we added at first for that end since we don't need to check these now so kept as is commented-out in case if need (and note: untested or barely tested once in this case i mean but anyways etc), may remove it if uneeded, anyways etc -->
+	// <!-- custom: update: the danger and not before turn 100 and other conditions anyways etc no scrapping gating here worked extremely great and solved the scrapping issue, see known issue as of now 52 for details anyways etc; now doing a less going overboard xd approach, we can just disable scrapping entirely and not waste computation, or in other cases tune it to be selectively disabled or such anyways etc, commenting-out this old code we added at first for that end since we don't need to check these now so kept as is commented-out in case if need (and note: untested or barely tested once), may remove it if uneeded -->
 	// 		// only allow scrapping if actually over budget or burning gold
 	// 		const int iCostPerMil = kOwner.AI_unitCostPerMil();
 	// 		const int iMaxPerMil  = kOwner.AI_maxUnitCostPerMil();
@@ -3284,7 +3284,7 @@ bool CvUnit::canScrap() const
 
 	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
 	{
-		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below but anyways etc), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or/and updated info known issue as of now 52 or other related docs anyways etc)
+		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or/and updated info known issue as of now 52 or other related docs anyways etc)
 		const UnitAITypes eUnitAI = AI_getUnitAIType();
 
 		const bool bLandMilitaryUnitAIs = (
@@ -3293,7 +3293,7 @@ bool CvUnit::canScrap() const
 			(eUnitAI == UNITAI_ATTACK_CITY_LEMMING) ||
 			(eUnitAI == UNITAI_COUNTER) ||
 			(eUnitAI == UNITAI_CITY_COUNTER) ||
-			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity if i may say but anyways etc) but anyways etc -->
+			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity)-->
 			//
 			(eUnitAI == UNITAI_CITY_DEFENSE) ||
 			(eUnitAI == UNITAI_CITY_SPECIAL) ||
@@ -3306,21 +3306,21 @@ bool CvUnit::canScrap() const
 		{
 			return false;
 		}
-		// <!-- custom: if the former fails if i may say but anyways for example in some mod mod where workers are high strength or can fight or such, add an additional check faithful to our land military units first spirit and maybe helps catch more without false positives like spies (unless they can really fight again i mean in some mod mod or such (maybe our mod too but very unlikely so most likely not, as i don't have a reason to do this as of now so most likely not but anyways etc) perhaps but anyways etc) or galleons ; note: as i don't trust the canFight check in case it fires weird things at us or flags the wrong ones (didn't check but to be safe anyways etc), go with our former check first, maybe computationally more efficient although i didn't check the canFight function but anyways etc -->
+		// <!-- custom: if the former fails if i may say but anyways for example in some mod mod where workers are high strength or can fight or such, add an additional check faithful to our land military units first spirit and maybe helps catch more without false positives like spies (unless they can really fight again i mean in some mod mod or such (maybe our mod too but very unlikely so most likely not, as i don't have a reason to do this as of now so most likely not) perhaps) or galleons; note: as i don't trust the canFight check in case it fires weird things at us or flags the wrong ones (didn't check but to be safe anyways etc), go with our former check first, maybe computationally more efficient although i didn't check the canFight function-->
 		// prefer explicit AIs, but also OR with canFight() just in case
 		else if (getDomainType() == DOMAIN_LAND && canFight())
 		{
 			return false;
 		}
 
-		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in known issue as of now 23 if i'm not mistaken that we fixed, but then in known issue as of now 53 i noticed a privateer loop and AI dying because of it. Since we now handle properly max naval units among other units being produced, we don't fear overproducing them too much, at least not too hard, but we i.e. i xd but anyways etc fear invisible scrapping. There should almost never be good cases where scrapping is worth, and these should be handled as exceptions rather than the main rule. Just in known issue as of now 52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd but anyways etc). Really, i feel or it seems to me like scrapping should be handled as an exception not as a "i don't know what to do with this weird unit let's just scrap it xd". "No! Don't scrap it xd, figure out what to do with it, most often the risk of loop or such far outweigh having 1 or 2 extra units anyway i think but anyways etc), if fearing financial trouble or such, please implement it in your code, as for me as of now i consider/assume assume AIs develop well and build these formulas based on iNumCities or such for scaling but anyways etc, the benefits seem to far outweigh the risks/costs but anyways etc, and please read if i may say but anyways etc known isue as of now 53 for details anyways etc ; also, since we are only adding pre checks and not changing the logic otherwise, should be fine but anyways etc -->
-		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well but anyways etc))) but just in case anyways etc -->
+		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in known issue as of now 23 if i'm not mistaken that we fixed, but then in known issue as of now 53 i noticed a privateer loop and AI dying because of it. Since we now handle properly max naval units among other units being produced, we don't fear overproducing them too much, at least not too hard, but we i.e. i xdfear invisible scrapping. There should almost never be good cases where scrapping is worth, and these should be handled as exceptions rather than the main rule. Just in known issue as of now 52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd). Really, i feel or it seems to me like scrapping should be handled as an exception not as a "i don't know what to do with this weird unit let's just scrap it xd". "No! Don't scrap it xd, figure out what to do with it, most often the risk of loop or such far outweigh having 1 or 2 extra units anyway i think), if fearing financial trouble or such, please implement it in your code, as for me as of now i consider/assume assume AIs develop well and build these formulas based on iNumCities or such for scaling, the benefits seem to far outweigh the risks/costs, and please read known isue as of now 53 for details; also, since we are only adding pre checks and not changing the logic otherwise, should be fine-->
+		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well))) but just in case -->
 		CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
 		const bool bBarbarian = kPlayer.isBarbarian();
 
 		if (!bBarbarian)
 		{
-			// <!-- custom: note: all values here if any are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
+			// <!-- custom: note: all values here if any are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them -->
 
 			const bool bNavalFrontLineUnitAIs = (
 				(eUnitAI == UNITAI_ATTACK_SEA) ||
@@ -3373,14 +3373,14 @@ bool CvUnit::canScrap() const
 				bNavalMissionarySeaUnitAIs ||
 				bNavalSpySeaUnitAIs
 			);
-			// <!-- custom: since we now already handle in CvCityAI::AI_chooseUnit when to produce them and how much, no need to worry too much about scrapping enough units. However, as shown in known issue as of now 53 but anyways etc, it seems scrapping still happens for privateers or such, although i am not sure and AI may have just been overproducing and i didn't check too much, still generally scrapping benefits should now far outweigh costs/risks, which include infinite loop of missing a unit we just created and/or such, and as happened in known issue as of now 23 as well with workboats in the past. It seems much simpler to disable scrapping altogether for most if not all, and see what happens and if we go bankrupt or not. By meeting our quotas sooner, we can then move on to other units or buildings or anything much more efficiently/effectively than scrap reproduce again, and 1-2 lone units are not a big problem vs the global risk of scrapping messing up, so disabling it at least for these units but anyways etc; chatgpt 5 also likes this change if i may say at least it said so so the change seems fine to it at least if not more but anyways etc -->
+			// <!-- custom: since we now already handle in CvCityAI::AI_chooseUnit when to produce them and how much, no need to worry too much about scrapping enough units. However, as shown in known issue as of now 53, it seems scrapping still happens for privateers or such, although i am not sure and AI may have just been overproducing and i didn't check too much, still generally scrapping benefits should now far outweigh costs/risks, which include infinite loop of missing a unit we just created and/or such, and as happened in known issue as of now 23 as well with workboats in the past. It seems much simpler to disable scrapping altogether for most if not all, and see what happens and if we go bankrupt or not. By meeting our quotas sooner, we can then move on to other units or buildings or anything much more efficiently/effectively than scrap reproduce again, and 1-2 lone units are not a big problem vs the global risk of scrapping messing up, so disabling it at least for these units; chatgpt 5 also likes this change if i may say at least it said so so the change seems fine to it at least if not more-->
 			// asymmetric: don’t scrap existing boats
 			if (bAllHandledNavalUnitAIs)
 			{
 				return false;
 			}
 
-			// <!-- custom: as for settlers, see what happens but don't risk a loop of produce destroy again and again, very costly on city growth. Some code comment mentionned settlers confuse AIs; possibly, but we'd need to test to be sure, there is a risk AI overproduces them in the middle game then scrap and repeat. I didn't see it so far although i didn't see too much, but better not risk, disable scrapping and keep 1 lone extra settler and be done, and see what happens ingame anyways etc if needs adjustment or not (not sure i'd always be here ot make them hehe but i hope the comment helps raise awareness/info about this idea/concern i has if i may say but anyways etc) -->
+			// <!-- custom: as for settlers, see what happens but don't risk a loop of produce destroy again and again, very costly on city growth. Some code comment mentionned settlers confuse AIs; possibly, but we'd need to test to be sure, there is a risk AI overproduces them in the middle game then scrap and repeat. I didn't see it so far although i didn't see too much, but better not risk, disable scrapping and keep 1 lone extra settler and be done, and see what happens ingame anyways etc if needs adjustment or not (not sure i'd always be here ot make them hehe but i hope the comment helps raise awareness/info about this idea/concern i has) -->
 
 			const bool bLandExploreUnitAIs = (
 				(eUnitAI == UNITAI_EXPLORE)
@@ -3404,7 +3404,7 @@ bool CvUnit::canScrap() const
 				bLandMissionaryUnitAIs ||
 				bLandSpyUnitAIs
 			);
-			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap, or other issues we may not be aware of if i am not in my assessment in this case i mean but anyways etc ; also if we happen to have a few extras for some reason, (hut, unit gifted, etc), do not mind it, assume it is not excessive and don't complexify logic for a few extra units that ultimately won't change hopefully game outcome but anyways etc (note: we may want though to add a preventive patch against gifting abuse if i may say but anyways etc, say if we are above limit, scrap any gifted unit to us, but may be a bit tedious or/and i don't know how, we'd need to scrap the unit received if worse than ours else one of ours if ours are worse etc, ideally would be very nice, but maybe leave it as such if not overboard may be fine and not worth the effort if i may say, although again would be very nice, but hopefully this note/reminder helps if someone other than me (or possibly me but less likely i'd do it again but who knows but i may very well not do it though, may or not not guaranteed, anyways etc) gets the idea from this or something but anyways etc) -->
+			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap, or other issues we may not be aware of if i am not in my assessment; also if we happen to have a few extras for some reason, (hut, unit gifted, etc), do not mind it, assume it is not excessive and don't complexify logic for a few extra units that ultimately won't change hopefully game outcome(note: we may want though to add a preventive patch against gifting abuse, say if we are above limit, scrap any gifted unit to us, but may be a bit tedious or/and i don't know how, we'd need to scrap the unit received if worse than ours else one of ours if ours are worse etc, ideally would be very nice, but maybe leave it as such if not overboard may be fine and not worth the effort if i may say, although again would be very nice, but hopefully this note/reminder helps if someone other than me (or possibly me but less likely i'd do it again but who knows but i may very well not do it though, may or not not guaranteed, anyways etc) gets the idea from this or something) -->
 			if (bMostHandledLandCivilianUnitAIs)
 			{
 				return false;
@@ -3414,18 +3414,18 @@ bool CvUnit::canScrap() const
 				(eUnitAI == UNITAI_WORKER)
 			);
 
-			// <!-- custom: for workers, they are numerous and not so needed later in the game, i don't know if they cost maintenance, but since we handle max in a quite advanced way for them if i may say but anyways etc in CvCityAI::AI_chooseUnit, let's use it and reduce our workforce if i may say but anyways etc if they are unneeded as of now as we reach a certain point in the game and gradually so the later with some threshold but anyways etc -->
+			// <!-- custom: for workers, they are numerous and not so needed later in the game, i don't know if they cost maintenance, but since we handle max in a quite advanced way for them in CvCityAI::AI_chooseUnit, let's use it and reduce our workforce if they are unneeded as of now as we reach a certain point in the game and gradually so the later with some threshold-->
 			if (bLandWorkerUnitAIs)
 			{
 				const int iNumCities = kPlayer.getNumCities();
 
-				// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance but anyways etc) anyways etc -->
+				// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance) -->
 				// base: 2.5 workers per city
 				int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
-				// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time but anyways etc, but some amount is needed to grow especially early but anyways etc -->
+				// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time, but some amount is needed to grow especially early-->
 
 				const EraTypes eCurrentEra = kPlayer.getCurrentEra();
-				// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+				// <!-- custom: as of now eras are (see xml for details or/and updated version -->
 				// 18,5: 			<Type>ERA_ANCIENT</Type>
 				// 79,5: 			<Type>ERA_CLASSICAL</Type>
 				// 154,5: 			<Type>ERA_MEDIEVAL</Type>
@@ -3433,12 +3433,12 @@ bool CvUnit::canScrap() const
 				// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
 				// 401,5: 			<Type>ERA_MODERN</Type>
 				// 477,5: 			<Type>ERA_FUTURE</Type>
-				// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
+				// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure -->
 				// cache once; uses hidden-assert overload if available in your DLL
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 
-				// <!-- custom: added as recommended by chatgpt 5; as of now untested assert anyways etc. -->
+				// <!-- custom: added as recommended by chatgpt 5; as of now untested assert -->
 				FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
 
 				const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
@@ -3449,35 +3449,35 @@ bool CvUnit::canScrap() const
 				const int iCurrentEra = static_cast<int>(eCurrentEra);
 				static const int iERA_RENAISSANCE  = static_cast<int>(eERA_RENAISSANCE);
 
-				// <!-- custom: don't scrap before renaissance anyways etc -->
+				// <!-- custom: don't scrap before renaissance -->
 				if (!bRenaissancePlus)
 				{
 					return false;
 				}
 				else
 				{
-					// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply but anyways etc -->
+					// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply-->
 					// clamp to avoid negative
 					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
-					// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described suggested although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
-					// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
-					const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value but anyways etc -->
+					// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks; scale * 100 for rounding error/precision asa chatgpt 5 described suggested although i may have had or not or yes or etcsame idea or not or yes or etc -->
+					// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily) anyways etc) --> -10% per era -->
+					const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value-->
 					const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
-					// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so but anyways etc) for all anyways etc -->
+					// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so) for all -->
 					const int iMinWorkersInCase = 3 + ((iNumCities * 3) / 10);
 					iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
 
-					// <!-- custom: don't scrap existing unit just because we won't produce them (e.g. at war with some other conditions as of now but anyways etc), however track our max in all circumstances and scrap excess as game goes on but anyways etc -->
+					// <!-- custom: don't scrap existing unit just because we won't produce them (e.g. at war with some other conditions as of now), however track our max in all circumstances and scrap excess as game goes on-->
 					int iTotalUnitAIs = 0;
 					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
 
-					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks anyways etc (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly but anyways etc) -->
+					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks anyways etc (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly) -->
 					if (iTotalUnitAIs <= iMaxUnits)
 					{
 						return false;
 					}
-					// <!-- custom: else i.e. if we have too much units, go with the code and scrap if all goes as intended later before final order but anyways etc -->
+					// <!-- custom: else i.e. if we have too much units, go with the code and scrap if all goes as intended later before final order-->
 				}
 			}
 
@@ -3490,7 +3490,7 @@ bool CvUnit::canScrap() const
 				return false;
 			}
 
-			// <!-- custom: then do not scrap any unit at all before turn 150 (at normal game speed), the surplus is likely to be useful, if we go to war or get invaded, then numbers would dim at that time anyways etc -->
+			// <!-- custom: then do not scrap any unit at all before turn 150 (at normal game speed), the surplus is likely to be useful, if we go to war or get invaded, then numbers would dim at that time -->
 			CvGame const& kGame = GC.getGame();
 			const int iCurrentTurn = kGame.getGameTurn();
 
@@ -3504,13 +3504,13 @@ bool CvUnit::canScrap() const
 				return false;
 			}
 
-			// <!-- custom: no need for these below, but kept in case as they were bit tedious to make for this cvunit.cpp file but anyways etc and in case we change our rules here or use them for something else similar but anyways etc -->
+			// <!-- custom: no need for these below, but kept in case as they were bit tedious to make for this cvunit.cpp fileand in case we change our rules here or use them for something else similar-->
 			// else
 			// {
 			// 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 			// 	const CvTeamAI&   kTeam  = GET_TEAM(getTeam());
 
-			// 	// <!-- custom: we already return false and never ever scrap land military units so no need to add them here inefficiently and most importantly unneededly if i may say but anyways etc -->
+			// 	// <!-- custom: we already return false and never ever scrap land military units so no need to add them here inefficiently and most importantly unneededly -->
 
 			// 	// Situation read
 			// 	const bool bWarPlan = kOwner.AI_isFocusWar();
@@ -3549,12 +3549,12 @@ bool CvUnit::canScrap() const
 			// }
 		}
 
-		// <!-- custom: these below should happen less often, for computation saving put them at the end but anyways etc -->
+		// <!-- custom: these below should happen less often, for computation saving put them at the end-->
 
-		// <!-- custom: do not scrap anything carrying units, nice idea by chatgpt 5 i didn't even ask this but just some ideas and it found this thanks. Also nice thing is but anyways etc this is compatible i think if i'm not mistaken but anyways etc with mod mods, if some weird weird xd but anyways etc mod makes swordsmen carry cargo, then don't delete the swordsman (it has ants or ant soldiers xd (not in our mod but maybe but anyways etc), so i find this sanity check very nice if it doesn't break anything, may uncover or/and solve unknown issues too maybe hopefully or prevent some maybe who knows so i like this very much if i may say but anyways etc thanks anyways etc -->
+		// <!-- custom: do not scrap anything carrying units, nice idea by chatgpt 5 i didn't even ask this but just some ideas and it found this thanks. Also nice thing isthis is compatible i think if i'm not mistakenwith mod mods, if some weird weird xdmod makes swordsmen carry cargo, then don't delete the swordsman (it has ants or ant soldiers xd (not in our mod but maybe), so i find this sanity check very nice if it doesn't break anything, may uncover or/and solve unknown issues too maybe hopefully or prevent some maybe who knows so i like this very much thanks -->
 		// Never scrap anything carrying cargo
 		// Prevents “oops I deleted a galleon with settlers”.
-		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units if i may say but anyways etc (looks less predictable to me, perhaps needless extra care here as in not relevant to the problem maybe if i may say but anyways etc although i'm not too sure but it looks as such to be fine and suitable maybe to go and to simplify as such maybe too but anyways etc), and i hope the protection of the cargo itself is enough and most fit -->
+		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units (looks less predictable to me, perhaps needless extra care here as in not relevant to the problem maybe although i'm not too sure but it looks as such to be fine and suitable maybe to go and to simplify as such maybe too), and i hope the protection of the cargo itself is enough and most fit -->
 		if (getCargo() > 0)
 		{
 			return false;
@@ -3575,7 +3575,7 @@ bool CvUnit::canScrap() const
 			return false;
 		}
 
-		// <!-- custom: sanity check, do not scrap ICBM (just in case but anyways etc), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases anyways etc) but anyways etc -->
+		// <!-- custom: sanity check, do not scrap ICBM (just in case), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases anyways etc)-->
 		const bool bAirMissileUnitAIs = (
 			(eUnitAI == UNITAI_ICBM) ||
 			(eUnitAI == UNITAI_MISSILE_AIR)
@@ -3586,7 +3586,7 @@ bool CvUnit::canScrap() const
 		}
 	}
 
-	// <!-- custom: then after our checks, resume from old code below anyways etc -->
+	// <!-- custom: then after our checks, resume from old code below -->
 	if (getPlot().isFighting())
 		return false;
 	return true;
@@ -4381,8 +4381,8 @@ bool CvUnit::nuke(int iX, int iY)
 	int const iMissionTime = getGroup()->nukeMissionTime();
 	bool const bShortAnimation = (iMissionTime <= 8); // </advc.002m>
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 	if (SyncRandSuccess100(iBestInterception))
@@ -4429,8 +4429,8 @@ bool CvUnit::nuke(int iX, int iY)
 		gDLL->getEntityIFace()->AddMission(&kMissionDef);
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iWW_HIT_BY_NUKE = GC.getDefineINT("WW_HIT_BY_NUKE");
 	static const int iWW_ATTACKED_WITH_NUKE = GC.getDefineINT("WW_ATTACKED_WITH_NUKE");
 	static const int iWAR_SUCCESS_NUKE = GC.getDefineINT("WAR_SUCCESS_NUKE");
@@ -4558,7 +4558,7 @@ bool CvUnit::nuke(int iX, int iY)
 	// <advc.106>
 	if (pReplayCity != NULL)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_NUKED",
@@ -4884,8 +4884,8 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 		return true;
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -5088,7 +5088,7 @@ bool CvUnit::bombard()
 	setMadeAttack(true);
 	changeMoves(GC.getMOVE_DENOMINATOR());
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -5268,7 +5268,7 @@ bool CvUnit::pillageImprovement()
 		}
 		if (iPillageGold > 0)
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -5540,7 +5540,7 @@ bool CvUnit::sabotage()
 				kPlot.getOwner(), NO_TEAM, false);
 		if (pNearestCity != NULL)
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -5670,7 +5670,7 @@ bool CvUnit::destroy()
 
 		finishMoves();
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -5795,7 +5795,7 @@ bool CvUnit::stealPlans()
 
 		finishMoves();
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -5955,7 +5955,7 @@ bool CvUnit::spread(ReligionTypes eReligion)
 				removing one of the existing religions. */
 			std::vector<std::pair<int,ReligionTypes> > aieRankedReligions;
 
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
 
 			FOR_EACH_ENUM(Religion)
@@ -5980,7 +5980,7 @@ bool CvUnit::spread(ReligionTypes eReligion)
 			ReligionTypes eFailedReligion = aieRankedReligions[0].second;
 			if (eFailedReligion == eReligion)
 			{
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 				CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_RELIGION_FAILED_TO_SPREAD",
@@ -6106,7 +6106,7 @@ bool CvUnit::spreadCorporation(CorporationTypes eCorporation)
 			pCity->setHasCorporation(eCorporation, true, true, false);
 		else
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CORPORATION_FAILED_TO_SPREAD",
@@ -6534,7 +6534,7 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 			if (getPlot().isActiveVisible(false))
 				NotifyEntity(MISSION_ESPIONAGE);
 
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
 
 			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD))
@@ -6606,7 +6606,7 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 	if (pClosestCity != NULL)
 		szCityName = pClosestCity->getName();
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -7011,7 +7011,7 @@ bool CvUnit::giveExperience()
 
 int CvUnit::getStackExperienceToGive(int iNumUnits) const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iWARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT = GC.getDefineINT("WARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT");
 	static const int iWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT = GC.getDefineINT("WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT");
 
@@ -8691,14 +8691,14 @@ int CvUnit::maxXPValue() const
 	int iMaxValue = MAX_INT;
 	if (isAnimal())
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iANIMAL_MAX_XP_VALUE = GC.getDefineINT("ANIMAL_MAX_XP_VALUE");
 
 		iMaxValue = std::min(iMaxValue, iANIMAL_MAX_XP_VALUE);
 	}
 	if (isBarbarian())
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iBARBARIAN_MAX_XP_VALUE = GC.getDefineINT("BARBARIAN_MAX_XP_VALUE");
 
 		iMaxValue = std::min(iMaxValue, iBARBARIAN_MAX_XP_VALUE);
@@ -9216,8 +9216,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				oldUnits.insertAtEnd(pNode->m_data);
 			}
 
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
 			static const int iWW_UNIT_CAPTURED = GC.getDefineINT("WW_UNIT_CAPTURED");
 			static const int iWW_CAPTURED_UNIT = GC.getDefineINT("WW_CAPTURED_UNIT");
 			static const int iWAR_SUCCESS_UNIT_CAPTURING = GC.getDefineINT("WAR_SUCCESS_UNIT_CAPTURING");
@@ -9355,7 +9355,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			if (isEnemy(pNewCity->getTeam()) &&
 				!canCoexistWithEnemyUnit(pNewCity->getTeam()) && canFight())
 			{
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const int iWW_CAPTURED_CITY = GC.getDefineINT("WW_CAPTURED_CITY");
 
 				GET_TEAM(getTeam()).changeWarWeariness(pNewCity->getTeam(), *pNewPlot,
@@ -10375,8 +10375,8 @@ void CvUnit::setBlockading(bool bNewValue)
 
 void CvUnit::collectBlockadeGold()
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -10560,7 +10560,7 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
 // (code copied from setCombatUnit, above)
 bool CvUnit::showSiegeTower(CvUnit* pDefender) const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iMIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER = GC.getDefineINT("MIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER");
 
 	return getDomainType() == DOMAIN_LAND &&
@@ -11081,7 +11081,7 @@ void CvUnit::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iMadeAttacks);
 	// </advc.164>
 
-	// <!-- custom: note: lone bracket left as is as part of / while doing the old uiflag cleanup anyways etc -->
+	// <!-- custom: note: lone bracket left as is as part of / while doing the old uiflag cleanup -->
 	{
 		bool bTmp; // advc.pt: For reading bitfield members
 		pStream->Read(&bTmp);
@@ -11345,7 +11345,7 @@ void CvUnit::collateralCombat(CvPlot const* pPlot, CvUnit const* pSkipUnit)
 
 	if (iDamageCount > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -11406,8 +11406,8 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 	int iNumUnitsHit = std::min<int>(aFlankDamagePerUnit.size(),
 			collateralDamageMaxUnits());
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -11542,7 +11542,7 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
 	int iUnitDamage = std::max(pDefender->getDamage(),
 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -11641,7 +11641,7 @@ bool CvUnit::rangeStrike(int iX, int iY)
 	FAssert(pDefender != NULL);
 	FAssert(pDefender->canDefend());
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iRANGED_ATTACKS_USE_MOVES = GC.getDefineINT("RANGED_ATTACKS_USE_MOVES");
 
 	if (iRANGED_ATTACKS_USE_MOVES == 0)
@@ -11655,7 +11655,7 @@ bool CvUnit::rangeStrike(int iX, int iY)
 	int iUnitDamage = std::max(pDefender->getDamage(),
 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -12163,7 +12163,7 @@ void CvUnit::applyEvent(EventTypes eEvent)
 
 	if (kEvent.getUnitImmobileTurns() > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
 
 		changeImmobileTimer(kEvent.getUnitImmobileTurns());
@@ -12368,7 +12368,7 @@ void CvUnit::cheat(bool bCtrl, bool bAlt, bool bShift)
 
 float CvUnit::getHealthBarModifier() const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const float fHEALTH_BAR_WIDTH = GC.getDefineFLOAT("HEALTH_BAR_WIDTH");
 
 	return (fHEALTH_BAR_WIDTH /

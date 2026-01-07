@@ -3,7 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
-<!-- custom: import from (adjust to your mod path but anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo and adjusted or not for AdvCiv-SAS but anyways etc -->
+<!-- custom: import from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo and adjusted or not for AdvCiv-SAS-->
 <!-- Vote Infos -->
 <Civ4VoteInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<VoteInfos>

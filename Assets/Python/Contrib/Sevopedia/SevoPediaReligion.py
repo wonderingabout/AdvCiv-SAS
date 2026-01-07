@@ -47,7 +47,7 @@ class SevoPediaReligion:
 		self.W_RELIGION_PANE = 200
 		self.H_RELIGION_PANE = 230
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
@@ -125,7 +125,7 @@ class SevoPediaReligion:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
+		# <!-- custom: note: this doesn't seem to do anything in multilist methodsand in particular no padding so do not use this here i mean for multilists -->
 		# Additional left side padding for the button(s)
 		#screen.attachLabel(panelName, "", "  ")
 
@@ -145,7 +145,7 @@ class SevoPediaReligion:
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
-		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
+		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes... xd anyways etc...) -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			leaderInfo = gc.getLeaderHeadInfo(iLeader)
 			if leaderInfo.getFavoriteReligion() == self.iReligion:
@@ -160,14 +160,14 @@ class SevoPediaReligion:
 		screen = self.top.getScreen()
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_RELIGION_PANE, self.Y_RELIGION_PANE, self.W_RELIGION_PANE, self.H_RELIGION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
+		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
-	# <!-- custom: part of the code here (placeBuilding and placeUnit in particular is imported from Rise of Mankind (291) mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\ which may be modified or not for AdvCiv-SAS anyways etc. -->
+	# <!-- custom: part of the code here (placeBuilding and placeUnit in particular is imported from Rise of Mankind (291) mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\ which may be modified or not for AdvCiv-SAS -->
 	# Rise of Mankind 2.9
 	def placeBuilding(self):
 		screen = self.top.getScreen()
@@ -224,7 +224,7 @@ class SevoPediaReligion:
 		splitText = szSpecialText.split("\n")
 		for special in splitText:
 			if len(special) != 0:
-				# <!-- custom: use text formatting that allows for the top to have some room before we show text if i'm not mistaken but anyways etc, based on sevopedia terrain's placeSpecial rework if i'm not mistaken too but anyways etc -->
+				# <!-- custom: use text formatting that allows for the top to have some room before we show text, based on sevopedia terrain's placeSpecial rework -->
 				#screen.appendListBoxString(listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

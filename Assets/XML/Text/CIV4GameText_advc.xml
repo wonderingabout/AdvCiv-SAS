@@ -4,7 +4,7 @@
 	 Some of the Romance-language translations are based on www.deepl.com. -->
 <Civ4GameText>
 
-	<!-- custom: rename "AdvCiv mod" to "AdvCiv-SAS mod" in replay screen too but anyways etc, was [AdvCiv] anyways etc -->
+	<!-- custom: rename "AdvCiv mod" to "AdvCiv-SAS mod" in replay screen too, was [AdvCiv] -->
 	<!-- advc.106i: Mod name to be used as a prefix for replay file names and
 		 to be written into the first replay message (the DLL removes the
 		 square brackets in that context). If this text key is removed
@@ -3430,7 +3430,7 @@
 		<Spanish>Actitud hacia %s3_leader: %s1_attitude (+/- 0)</Spanish>
 	</TEXT>
 	
-	<!-- custom: rename "Amerindian Empire" back if i may say in this case at least but anyways etc to "Native American Empire" -->
+	<!-- custom: rename "Amerindian Empire" back if i may say in this case at leastto "Native American Empire" -->
 	<!-- advc.002b: Overwrites values in CIV4GameText_Objects_BTS.xml. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_NATIVE_AMERICA_DESC</Tag>
@@ -3551,7 +3551,7 @@
 		<Spanish>[ALT] para declarar la guerra</Spanish>
 	</TEXT>
 
-	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) (anyways etc) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now, anyways etc) -->
+	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now, anyways etc) -->
 	<!-- advc.004w: Based on keys in CIV4GameTextInfos.xml. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_WORLD_WONDER1</Tag>
@@ -3589,7 +3589,7 @@
 		<Italian>[ICON_BULLET]Progetto di squadra</Italian>
 		<Spanish>[ICON_BULLET]Proyecto de equipo</Spanish>
 	</TEXT>
-	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) (anyways etc) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now, anyways etc) -->
+	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now, anyways etc) -->
 	<!-- advc.004w: Put only the number in parentheses, not the wonder type -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_BUILDING_WORLD_WONDER_LEFT</Tag>
@@ -5623,18 +5623,18 @@
 
 
 
-	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too but anyways etc: also show iCollateralDamage not only max if i am not mistaken in doing so anyways etc, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly i mean but anyways etc) -->
+	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too: also show iCollateralDamage not only max if i am not mistaken in doing so anyways etc, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly) -->
 	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
 		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
-	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too but anyways etc: also show iCollateralDamage not only max if i am not mistaken in doing so anyways etc, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly i mean but anyways etc) -->
+	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too: also show iCollateralDamage not only max if i am not mistaken in doing so anyways etc, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly) -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
 		<English>[ICON_BULLET]Coll. Damage (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
-	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name ; since this shouldn't refer to iCollateralDamage if i am not mistaken in my guess, adding the word "extra", anyways etc -->
+	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name; since this shouldn't refer to iCollateralDamage if i am not mistaken in my guess, adding the word "extra" -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA</Tag>
 		<English>[ICON_BULLET]Causes Extra Collateral Damage (%D1_Amount%%)</English>
@@ -6580,7 +6580,7 @@
 
 
 
-	<!-- custom: add (new anyways etc anyways etc...) the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial, see also buildBTradeString and related or similar anyways etc in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any. -->
+	<!-- custom: add (new anyways etc...) the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial, see also buildBTradeString and related or similar anyways etc in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any. -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_TECH_CANNOT_BE_TRADED</Tag>
 		<English>[ICON_BULLET]Cannot be traded.</English>
@@ -6589,7 +6589,7 @@
 		<Tag>TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER</Tag>
 		<English>As a reminder, the following technologies cannot be traded:</English>
 	</TEXT>
-	<!-- custom: adds the <bRepeat> info similarly if i am not mistaken but anyways etc, see also similarly buildBRepeatString anyways etc -->
+	<!-- custom: adds the <bRepeat> info similarly, see also similarly buildBRepeatString -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_TECH_CAN_BE_REPEATED</Tag>
 		<English>[ICON_BULLET]Can be researched multiple times.</English>
@@ -6597,7 +6597,7 @@
 
 
 
-	<!-- custom: show this info in sevopedia unit's as of now placeSpecial for example for the robotic_infantry we added in advciv-sas anyways etc -->
+	<!-- custom: show this info in sevopedia unit's as of now placeSpecial for example for the robotic_infantry we added in advciv-sas -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST</Tag>
 		<English>No military support cost</English>

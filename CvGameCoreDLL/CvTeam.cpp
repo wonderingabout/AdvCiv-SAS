@@ -217,8 +217,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
 
 	int const iOriginalTeamSize = getNumMembers(); // K-Mod
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
@@ -1330,8 +1330,8 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		cpSponsorName = szSponsorName.GetCString();
 	} // </advc.100>
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 	
 	// advc.106o:
@@ -1433,8 +1433,8 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 	// advc.106o:
 	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
@@ -2007,7 +2007,7 @@ bool CvTeam::isLossesAllowRevolt(TeamTypes eMaster) const
 	if (isVassal(eMaster))
 	{	// advc.112: Lower bound 10 added
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iVASSAL_REVOLT_OWN_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR");
 
 		if (100 * std::max(10, getTotalLand(false)) < getVassalPower() *
@@ -2016,7 +2016,7 @@ bool CvTeam::isLossesAllowRevolt(TeamTypes eMaster) const
 			return true;
 		}
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iVASSAL_REVOLT_MASTER_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR");
 
 		if (100 * kMaster.getTotalLand() < getMasterPower() *
@@ -2287,7 +2287,7 @@ int CvTeam::getResearchCost(TechTypes eTech,
 	}
 	// <advc.251>
 	rCost *= scaled::max(rModifier, 0);
-	// <!-- custom: see known issue as of now 67 for details anyways etc -->
+	// <!-- custom: see known issue as of now 67 for details -->
 	//int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
 	const int iCost = rCost.round();
 	// </advc.251>
@@ -2441,7 +2441,7 @@ HandicapTypes CvTeam::getHandicapType() const
 	int const iDiv = it.nextIndex();
 	if (iDiv <= 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const HandicapTypes eSTANDARD_HANDICAP = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
 
 		return eSTANDARD_HANDICAP;
@@ -3241,8 +3241,8 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 	if (isActive() || GET_TEAM(eIndex).isActive())
 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	CvTeam const& kOther = GET_TEAM(eIndex); // advc
@@ -3434,8 +3434,8 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 		immediately, there could be trouble. I don't think that can happen though. */
 	GC.getGame().updatePlotGroups();
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	if (isVassal(eMaster))
@@ -3980,8 +3980,8 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 			kAIMember.AI_makeProductionDirty();
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
@@ -4273,8 +4273,8 @@ void CvTeam::resetVictoryProgress()
 	if (GC.getGame().getGameState() != GAMESTATE_ON)
 		return;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	FOR_EACH_NON_DEFAULT_KEY(m_aiVictoryCountdown, Victory) // </advc.opt>
@@ -4440,8 +4440,8 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 				but let's try. */
 			GC.getGame().isHotSeat()) && !bPartial);
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorTechText = (ColorTypes)GC.getColorType("TECH_TEXT");
 
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -4629,8 +4629,8 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 			kMember.invalidateYieldRankCache();
 		}
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		static const int iSHOW_FIRST_TO_DISCOVER_IN_REPLAY = GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY");
 
@@ -4827,7 +4827,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		if (bFirst && bFirstToDiscover && // (Note: CvGame::initFreeState uses bFirst=false)
 			iSHOW_FIRST_TO_DISCOVER_IN_REPLAY > 0)
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
 
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
@@ -5545,8 +5545,8 @@ void CvTeam::testCircumnavigated()
 
 	GC.getGame().makeCircumnavigated();
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES");
 
 	//if (GC.getGame().getElapsedGameTurns() > 0)
@@ -5555,8 +5555,8 @@ void CvTeam::testCircumnavigated()
 	{
 		changeExtraMoves(DOMAIN_SEA, iCIRCUMNAVIGATE_FREE_MOVES);
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)

@@ -2,7 +2,7 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	<!-- custom rename "Resource" to "Bonus" anyways etc. -->
+	<!-- custom rename "Resource" to "Bonus" -->
 	<!-- New label for the surplus box -->
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES</Tag>
@@ -16,7 +16,7 @@
 
 
 
-	<!-- custom: renamed from the old and now removed TXT_KEY_PEDIA_FAV_CIVIC so it shows only "Favorites" for concision and so we can show favorite religions (if any) as well anyways etc. -->
+	<!-- custom: renamed from the old and now removed TXT_KEY_PEDIA_FAV_CIVIC so it shows only "Favorites" for concision and so we can show favorite religions (if any) as well -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FAVORITES</Tag>
 		<English>Favorites</English>
@@ -106,7 +106,7 @@
 
 
 
-	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker if i am not mistaken, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details anyways etc) or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
+	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker if i am not mistaken, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details anyways etc) or/and (tranlslate to english ((following) web page) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
 	<!-- advc.004c: Based on TXT_KEY_BUILDING_DEFENSE_MOD (see below).
 		 For the DefenseRaise XML tag. Use the defense icon and refer to
 		 non-gunpowder-based units as "pre-Renaissance". "Gunpowder-based" is
@@ -318,7 +318,7 @@
 
 
 
-	<!-- custom: rename "American Empire" and such to "United States of America" and such (too long to fit empire and may be awkward semantically to have a united states empire although actually thinking of it it may fit quite well actually if i may say but anyways etc...) -->
+	<!-- custom: rename "American Empire" and such to "United States of America" and such (too long to fit empire and may be awkward semantically to have a united states empire although actually thinking of it it may fit quite well actually...) -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_AMERICA_DESC</Tag>
 		<English>
@@ -331,7 +331,7 @@
 		<Tag>TXT_KEY_CIV_AMERICA_SHORT_DESC</Tag>
 		<English>The USA</English>
 	</TEXT>
-	<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language but anyways etc, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
+	<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
 		<English>US American</English>
@@ -368,28 +368,28 @@
 		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Tag>
 		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
 	</TEXT>
-	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM"; update: now using the quote of tech_monarchy anyways etc -->
+	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM"; update: now using the quote of tech_monarchy -->
 	<!-- Not originally by Herodotus -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Tag>
 		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
 	</TEXT>
-	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
+	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
 		<English>"When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara</English>
 	</TEXT>
-	<!-- custom: rename TECH_SAILING to TECH_SEAFARING, use old tech_optics's quote instead, anyways etc -->
+	<!-- custom: rename TECH_SAILING to TECH_SEAFARING, use old tech_optics's quote instead -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SEAFARING_QUOTE</Tag>
 		<English>"One doesn't discover new lands without losing sight of the shore." - Andre Gide</English>
 	</TEXT>
-	<!-- custom: rename TECH_OPTICS to TECH_SAILING, use old tech_sailing's quote instead, anyways etc -->
+	<!-- custom: rename TECH_OPTICS to TECH_SAILING, use old tech_sailing's quote instead -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SAILING_QUOTE</Tag>
 		<English>"You can't direct the wind, but you can adjust your sails." - Unknown</English>
 	</TEXT>
-	<!-- custom: rename TECH_COMPASS to TECH_NAVIGATION anyways etc -->
+	<!-- custom: rename TECH_COMPASS to TECH_NAVIGATION -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
 		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
@@ -405,57 +405,57 @@
 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
 		<English>"You would make a ship sail against the winds and currents by lighting a bon-fire under her deck? I have no time for such nonsense." - Napoleon, on Robert Fulton's Steamship (anecdote)</English>
 	</TEXT>
-	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_BIOLOGY's quote and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_BIOLOGY's quote and audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
 		<English>"It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase)</English>
 	</TEXT>
-	<!-- custom: use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote anyways etc -->
+	<!-- custom: use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_BIOLOGY_QUOTE</Tag>
 		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
 	</TEXT>
-	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
 		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
 	</TEXT>
-	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc; update: with the quote of tech_theology (now removed) -->
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sasand audio; update: with the quote of tech_theology (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TERRAFORMING_QUOTE</Tag>
 		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
 	</TEXT>
-	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TRANSHUMANISM_QUOTE</Tag>
 		<English>"The future will be better tomorrow." - Dan Quayle</English>
 	</TEXT>
-	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such anyways etc, also use the base advciv +/- civ4's replaceable_parts's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such anyways etc, also use the base advciv +/- civ4's replaceable_parts's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Tag>
 		<English>"The whole is more than the sum of its parts." - Aristotle</English>
 	</TEXT>
-	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such anyways etc, also use the base advciv +/- civ4's paper's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such anyways etc, also use the base advciv +/- civ4's paper's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
 		<English>"I cannot live without books" - Thomas Jefferson</English>
 	</TEXT>
-	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such anyways etc, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such anyways etc, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS_QUOTE</Tag>
 		<English>"The real problem is not whether machines think, but whether men do." - B.F. Skinner</English>
 	</TEXT>
-	<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace tech_stealth in related"_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Tag>
 		<English>"Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine</English>
 	</TEXT>
-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc; also replace tech_plastics with tech_depopulation anyways etc -->
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least; also replace tech_plastics with tech_depopulation -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_DEPOPULATION_QUOTE</Tag>
 		<English>"Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein</English>
 	</TEXT>
-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc; update: with the quote of tech_guilds (now removed) -->
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least; update: with the quote of tech_guilds (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
 		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
@@ -479,42 +479,42 @@
 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
 		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_plastics (now removed) anyways etc -->
+	<!-- custom: now using the quote of tech_plastics (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMBUSTION_QUOTE</Tag>
 		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_divine_right (now removed) anyways etc -->
+	<!-- custom: now using the quote of tech_divine_right (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_FEUDALISM_QUOTE</Tag>
 		<English>"I am the state." - ascribed to Louis XIV</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_construction anyways etc -->
+	<!-- custom: now using the quote of tech_construction -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
 		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_steel (now removed) anyways etc -->
+	<!-- custom: now using the quote of tech_steel (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_METAL_CASTING_QUOTE</Tag>
 		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_metal_casting anyways etc -->
+	<!-- custom: now using the quote of tech_metal_casting -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MILITARY_TRADITION_QUOTE</Tag>
 		<English>"And them that take the sword shall perish by the sword." - The Bible, Matthew</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_archery (now removed) anyways etc -->
+	<!-- custom: now using the quote of tech_archery (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Tag>
 		<English>"Do not throw the arrow which will return against you." - Kurdish Proverb</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_military_science anyways etc -->
+	<!-- custom: now using the quote of tech_military_science -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Tag>
 		<English>"I must study politics and war that my sons may have liberty to study mathematics and philosophy." - John Adams</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_military_tradition anyways etc -->
+	<!-- custom: now using the quote of tech_military_tradition -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
 		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
@@ -529,7 +529,7 @@
 		<Tag>TXT_KEY_TECH_BROADER_EDUCATION_QUOTE</Tag>
 		<English>"There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib</English>
 	</TEXT>
-	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean if i may say but anyways etc. -->
+	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean. -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROMANTICISM_QUOTE</Tag>
 		<English>"If music be the food of love, play on." - William Shakespeare</English>
@@ -542,7 +542,7 @@
 
 
 
-	<!-- custom: from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Misc1.xml and modified or not for advciv-sas anyways etc -->
+	<!-- custom: from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Misc1.xml and modified or not for advciv-sas -->
 	<TEXT>
 		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
 		<English>Congratulations, you have trained your first Archery (Bow, Short) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
@@ -643,8 +643,8 @@
 
 
 
-	<!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
-	<!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro anyways etc. -->
+	<!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+	<!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro -->
 	<TEXT>
 		<Tag>TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY</Tag>
 		<English>[ICON_SILVER_STAR]Willing to become Vassal</English>

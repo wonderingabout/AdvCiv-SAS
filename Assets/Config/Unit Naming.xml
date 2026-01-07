@@ -5,7 +5,7 @@
 
 	Copyright (c) 2008 The BUG Mod.
 -->
-<!-- custom: add new unit combat types or/and modify existing ones anyways etc -->
+<!-- custom: add new unit combat types or/and modify existing ones -->
 <mod id="UnitNaming" 
 	 name="Unit Naming" 
 	 author="Ruff_Hi" 

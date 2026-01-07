@@ -274,10 +274,10 @@ void CvMap::setupGraphical() // graphical only setup
 			getPlotByIndex(i).setupGraphical();
 		}
 	}
-	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file if i'm not mistaken in doing so anyways etc -->
+	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file if i'm not mistaken in doing so -->
 	// <!-- custom: note: not using const as it causes a compile error: "CvMap.cpp(287): error C2662: 'CvGame::setUpdateTimer' : cannot convert 'this' pointer from 'const CvGame' to 'CvGame &'" -->
 	CvGame& kGame = GC.getGame();
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iREPLAY_TEXTURE_ERA = GC.getDefineINT("REPLAY_TEXTURE_ERA");
 
 	// <advc.106n> For games starting in a later era
@@ -1238,7 +1238,7 @@ void CvMap::read(FDataStreamBase* pStream)
 	pStream->Read(&uiFlag);
 
 	CvMapInitData defaultMapData;
-	// <!-- custom: note: uiflag check replaced with simple boolean anyways etc -->
+	// <!-- custom: note: uiflag check replaced with simple boolean -->
 	reset(&defaultMapData, /* advc.enum: */ true);
 
 	pStream->Read(&m_iGridWidth);

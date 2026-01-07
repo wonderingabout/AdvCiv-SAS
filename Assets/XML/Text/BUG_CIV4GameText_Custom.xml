@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!-- custom: includes some of the changes for AdvCiv-SAS. -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	<!-- custom: rename from "Ressources" anyways etc -->
+	<!-- custom: rename from "Ressources" -->
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
 		<English>Bonuses</English>

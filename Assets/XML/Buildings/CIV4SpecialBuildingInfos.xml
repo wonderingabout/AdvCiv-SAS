@@ -4,23 +4,23 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Special Building -->
-<!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings and modified or not for AdvCiv-SAS anyways etc -->
+<!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings and modified or not for AdvCiv-SAS -->
 <Civ4SpecialBuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<SpecialBuildingInfos>
-		<!-- custom: move the tech prereq of bomb shelter from buildinginfos to specialbuildinginfos for consistency with other special buildings (may adjust if needed(ed) else keep as is anyways etc), was none -->
+		<!-- custom: move the tech prereq of bomb shelter from buildinginfos to specialbuildinginfos for consistency with other special buildings (may adjust if neededed else keep as is anyways etc), was none -->
 		<!-- custom: also change the prereq, was electricity, should be later or/and at another more relevant tech maybe in tech though -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_BOMB_SHELTER</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_BOMB_SHELTER</Description>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: seems strictly related to nukes unlike the bunker, and not at all to tech_assembly_line which is bloated and op if i am not mistaken anyways etc, while tech_fission has some room we could use i mean more balanced if feasable in this case i mean anyways etc, was TECH_ASSEMBLY_LINE -->
+			<!-- custom: seems strictly related to nukes unlike the bunker, and not at all to tech_assembly_line which is bloated and op, while tech_fission has some room we could use i mean more balanced if feasable, was TECH_ASSEMBLY_LINE -->
 			<TechPrereq>TECH_FISSION</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>0</bValid>
 			<ProductionTraits/>
 			<Button>Art/Interface/Buttons/Buildings/BombShelters.dds</Button>
 		</SpecialBuildingInfo>
-		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not? Anyways etc) so they can be built earlier anyways etc -->
+		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not? Anyways etc) so they can be built earlier -->
 		<!-- custom: same as for the generic cathedral and monastery, use building atlas button instead (still same button, coordinates changed as is another .dds now anyways etc) -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_TEMPLE</Type>
@@ -62,7 +62,7 @@
 			<TechPrereq>TECH_MONARCHY</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
-			<!-- custom: makes it more interesting to think of them as being willing to meditate rather than going to a generic religious office maybe at least i'd want to represent it as such in advciv-sas anyways etc -->
+			<!-- custom: makes it more interesting to think of them as being willing to meditate rather than going to a generic religious office maybe at least i'd want to represent it as such in advciv-sas -->
 			<ProductionTraits>
 				<ProductionTrait>
 					<ProductionTraitType>TRAIT_SPIRITUAL</ProductionTraitType>

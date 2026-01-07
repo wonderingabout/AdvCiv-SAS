@@ -23,7 +23,7 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: change its value if you don't want to see AI information in the special abilities panel anyways etc -->
+# <!-- custom: change its value if you don't want to see AI information in the special abilities panel -->
 IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVOPEDIA_UNIT_SHOW_AI_INFORMATION") > 0)
 
 
@@ -39,22 +39,22 @@ class SevoPediaUnit:
 
 		self.X_UNIT_PANE = self.top.X_PEDIA_PAGE
 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
-		# <!-- custom: no margins to merge edges with promo pane for nicer display maybe i mean anyways etc -->
+		# <!-- custom: no margins to merge edges with promo pane for nicer display maybe -->
 		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE - self.MEDIUM_MARGIN) / 4
 		self.H_UNIT_PANE = 190
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
-		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_UNIT_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_UNIT_PANE ; same reasoning for Y position -->
+		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_UNIT_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_UNIT_PANE; same reasoning for Y position -->
 		self.X_ICON = self.X_UNIT_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
 		self.Y_ICON = self.Y_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
 
-		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer anyways etc -->
+		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer -->
 		self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN = (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
 
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
@@ -62,8 +62,8 @@ class SevoPediaUnit:
 
 		self.PROMOTION_ICON_SIZE = 32
 
-		# <!-- custom: no margins to merge edges with unit pane for nicer display maybe i mean anyways etc -->
-		# <!-- custom: merge effect by partially joining their borders, i accidentally found or/and maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases anyways etc anyways etc -->
+		# <!-- custom: no margins to merge edges with unit pane for nicer display maybe -->
+		# <!-- custom: merge effect by partially joining their borders, i accidentally found or/and maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases -->
 		self.W_MERGE_PANELS_EFFECT = 5
 
 		self.X_PROMO_PANE = self.X_UNIT_PANE + self.W_UNIT_PANE - self.W_MERGE_PANELS_EFFECT
@@ -76,7 +76,7 @@ class SevoPediaUnit:
 		self.W_STATS_PANE = self.W_UNIT_PANE - self.W_ICON - (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN) - self.STATS_PANE_LEFT_SIDE_MARGIN
 		self.H_STATS_PANE = self.H_UNIT_PANE - self.STATS_PANE_UPPER_PADDING
 
-		# <!-- custom: see sevopediabuilding's self.W_TOTAL_EFFECTIVE_BUILDING_PANE for differences in implementation anyways etc -->
+		# <!-- custom: see sevopediabuilding's self.W_TOTAL_EFFECTIVE_BUILDING_PANE for differences in implementation -->
 		self.W_TOTAL_EFFECTIVE_UNIT_PANE = self.W_UNIT_PANE + self.W_PROMO_PANE - self.W_MERGE_PANELS_EFFECT
 
 		self.X_REQUIRES = self.X_UNIT_PANE
@@ -122,7 +122,7 @@ class SevoPediaUnit:
 		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + self.MEDIUM_MARGIN
 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.W_UNIT_ANIMATION = self.W_TOTAL_EFFECTIVE_UNIT_PANE
-		# <!-- custom: make it one panel height smaller to accomodate the higher placeSpecial panel that we use to display AI information and or such if any other info displayed or/and to better display the info in cases where the placeSpecial was a bit too short in height in this case i mean but anyways etc anyways etc -->
+		# <!-- custom: make it one panel height smaller to accomodate the higher placeSpecial panel that we use to display AI information and or such if any other info displayed or/and to better display the info in cases where the placeSpecial was a bit too short in height -->
 		# self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 
@@ -174,7 +174,7 @@ class SevoPediaUnit:
 	def placeUnitPane(self):
 		screen = self.top.getScreen()
 
-		# <!-- custom: note: using self.W_UNIT_PANE at panel creation if i am not mistaken anyways etc unlike in sevopediabuilding part equivalent to this code where we use self.W_TOTAL_EFFECTIVE_BUILDING_PANE due to differences in their implementations, see sevopediabuilding for comparison or/and details anyways etc -->
+		# <!-- custom: note: using self.W_UNIT_PANE at panel creationunlike in sevopediabuilding part equivalent to this code where we use self.W_TOTAL_EFFECTIVE_BUILDING_PANE due to differences in their implementations, see sevopediabuilding for comparison or/and details -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_UNIT_PANE, self.Y_UNIT_PANE, self.W_UNIT_PANE, self.H_UNIT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		szButton = gc.getUnitInfo(self.iUnit).getButton()
@@ -189,7 +189,7 @@ class SevoPediaUnit:
 
 	def placeStats(self):
 		screen = self.top.getScreen()
-		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am anyways etc) trying to avoid redundance as long as code seems to work fine or as intended i mean anyways etc and also to avoid or/and fix the ruff warning anyways etc, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least; check if accurate and to be sure; anyways etc. -->
+		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am anyways etc) trying to avoid redundance as long as code seems to work fine or as intended and also to avoid or/and fix the ruff warning anyways etc, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least; check if accurate and to be sure; -->
 		panelName = self.top.getNextWidgetName()
 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
 
@@ -210,10 +210,10 @@ class SevoPediaUnit:
 			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szStrengthText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		eDomain = gc.getUnitInfo(self.iUnit).getDomainType()
-		# <!-- custom: don't show movement for domain immobile units (missiles and such for example, not air fighters and such if i am not mistaken anyways etc) --> 
+		# <!-- custom: don't show movement for domain immobile units (missiles and such for example, not air fighters and such) --> 
 		if eDomain != DomainTypes.DOMAIN_IMMOBILE:
 			# <!-- custom: show all stats that we want/have as they are, including 1 move air or
-			# 4 move helicopter, (hopefully helpful ,) (but) (if or not)(anyways etc) anyways etc -->
+			# 4 move helicopter, (hopefully helpful ,) (but) (if or not)(anyways etc) -->
 			## Don't show 1 move for air units
 			#elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
 			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT_CUSTOM", (gc.getUnitInfo(self.iUnit).getMoves(),))
@@ -291,7 +291,7 @@ class SevoPediaUnit:
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqReligion()
 		if iPrereq >= 0:
-			# <!-- custom: fix base advciv bug, replace WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION as is done already by base advciv and successfully in sevopedia building, anyways etc -->
+			# <!-- custom: fix base advciv bug, replace WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION as is done already by base advciv and successfully in sevopedia building -->
 			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False)
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqBuilding()
@@ -462,7 +462,7 @@ class SevoPediaUnit:
 			if iModAttack != 0 or iModDefense != 0:
 				# Column index (always 0 when numLists=1)
 				columnIndex = 0
-				# <!-- custom: as highlighted by chatgpt and provided now after asked by me that/who noticed too i mean but anyways etc, the unit widget expects unit indexes, not unit class indexes, so fetching a corresponding index to this unit class index if i am not mistaken anyways etc ; then chatgpt also helped solve the unitClass button not displaying due to being generic now solved and with my help too and idea(s) if i may say but anyways etc -->
+				# <!-- custom: as highlighted by chatgpt and provided now after asked by me that/who noticed too, the unit widget expects unit indexes, not unit class indexes, so fetching a corresponding index to this unit class index; then chatgpt also helped solve the unitClass button not displaying due to being generic now solved and with my help too and idea(s) -->
 				# Find a representative unit from this class
 				unitClassInfo = gc.getUnitClassInfo(i)
 				iRepresentativeUnit = unitClassInfo.getDefaultUnitIndex()
@@ -477,7 +477,7 @@ class SevoPediaUnit:
 				iButtonIndex += 1
 
 		# Check for UnitCombatMods
-		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index ; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i mean but anyways etc the code (ignorantly perhaps of me but good to try or not or yes but anyways etc), so making sure i mean to have a separate loop for combat type modifiers if i am not mistaken in understanding this anyways etc -->
+		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i meanthe code (ignorantly perhaps of me but good to try or not or yes), so making sure i mean to have a separate loop for combat type modifiers if i am not mistaken in understanding this -->
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
 			# Loop through all units to find those with UnitCombatMods against this combat type
@@ -487,7 +487,7 @@ class SevoPediaUnit:
 				if iModCombat != 0:
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
-					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case anyways etc, our previous code was seemingly mistaken in this case but anyways etc -->
+					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case anyways etc, our previous code was seemingly mistaken -->
 					screen.appendMultiListButton(rowListName, gc.getUnitCombatInfo(i).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
 
 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
@@ -638,7 +638,7 @@ class SevoPediaUnit:
 		iHillsAttack = unitInfo.getHillsAttackModifier()
 		iHillsDefense = unitInfo.getHillsDefenseModifier()
 
-		# <!-- custom: include negative values as well if i am not mistaken and after having asked chatgpt to be sure or quite more sure if i may say but anyways etc -->
+		# <!-- custom: include negative values as well if i am not mistaken and after having asked chatgpt to be sure or quite more sure -->
 		if iHillsAttack != 0 or iHillsDefense != 0:
 			widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
 			iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
@@ -656,7 +656,7 @@ class SevoPediaUnit:
 			iButtonIndex += 1
 	
 		# Terrain Attack/Defense bonuses
-		# <!-- custom: note peak is handled here as well if i am not mistaken (i.e. same as for the other terrains only here if i am not mistaken anyways etc), except for hills that follow a different modifier formula with getHillsAttackModifier and getHillsDefenseModifier if i am not mistaken anyways etc -->
+		# <!-- custom: note peak is handled here as well if i am not mistaken (i.e. same as for the other terrains only here), except for hills that follow a different modifier formula with getHillsAttackModifier and getHillsDefenseModifier -->
 		for i in range(gc.getNumTerrainInfos()):	
 			iTerrainAttack = unitInfo.getTerrainAttackModifier(i)
 			iTerrainDefense = unitInfo.getTerrainDefenseModifier(i)
@@ -740,7 +740,7 @@ class SevoPediaUnit:
 
 		bullet = localText.getText("[ICON_BULLET]", ())
 
-		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas anyways etc, code provided by chatgpt thanks to my prompt too etc anyways etc thanks and thanks to me too hehe if i may say in this case but anyways etc, and adjusted for advciv-sas or not by me too if i may say in this case but anyways etc -->
+		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas anyways etc, code provided with the help of chatgpt thanks etc anyways etc thanks and thanks to me too hehe if i may say in this case, and adjusted for advciv-sas or not by me too -->
 		# Get unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
 
@@ -748,7 +748,7 @@ class SevoPediaUnit:
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
 			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
 
-		# <!-- custom: if unit grants unit(s) on capture anyways etc, code added thanks to claude ai as well as my prompt and adjustments and/or such or not or yes or etc anyways etc -->
+		# <!-- custom: if unit grants unit(s) on capture anyways etc, code added thanks to claude ai as well as my prompt and adjustments and/or such or not or yes or etc -->
 		unitCaptureClassType = unitInfo.getUnitCaptureClassType()
 		if unitCaptureClassType != -1:
 			unitCaptureClassTypeInfo = gc.getUnitClassInfo(unitCaptureClassType)
@@ -756,7 +756,7 @@ class SevoPediaUnit:
 				captureText = localText.getText("TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE", ())
 				szSpecialText += u"\n%s%s: %s" % (bullet, captureText, unitCaptureClassTypeInfo.getType())
 
-		# <!-- custom: add ai info for players and me too hehe if i may say but anyways etc: should be valuable for info or balancing but anyways etc, added with the help of claude ai and my prompts and adjustments and inspect or and such but anyways etc... if players want to see it xd, as for me yes i want! In this case i mean but anyways etc -->
+		# <!-- custom: add ai info for players and me too hehe: should be valuable for info or balancing, added with the help of claude ai and my prompts and adjustments and inspect or and such... if players want to see it xd, as for me yes i want! -->
 		if IS_SHOW_AI_INFO:
 			# Add Default UnitAI
 			defaultUnitAI = unitInfo.getDefaultUnitAIType()
@@ -764,12 +764,12 @@ class SevoPediaUnit:
 				# Remove the "UNITAI_" prefix for cleaner display
 				defaultUnitAIText = str(defaultUnitAI).replace("UNITAI_", "")
 			else:
-				# <!-- custom: also show the absence of it (as of now shown as "NO_UNITAI" in sevopedia unit it seems, abbreviated as of now to "_" for visual clarity / quick scanning if i may say but anyways etc) anyways etc -->
+				# <!-- custom: also show the absence of it (as of now shown as "NO_UNITAI" in sevopedia unit it seems, abbreviated as of now to "_" for visual clarity / quick scanning) -->
 				defaultUnitAIText =	"_"
-			# <!-- custom: note: separate info from other non AI entries more cleanly / clearly if i may say but anyways etc, so on more new line for first AI entry anyways etc -->
+			# <!-- custom: note: separate info from other non AI entries more cleanly / clearly, so on more new line for first AI entry -->
 			szSpecialText += "\n\n%sDefault UnitAI: %s" % (bullet, defaultUnitAIText)
 
-			# Add all <!-- custom: UnitAIs anyways etc -->
+			# Add all <!-- custom: UnitAIs -->
 			unitAIsText = ""
 			for i in xrange(UnitAITypes.NUM_UNITAI_TYPES):
 				if unitInfo.getUnitAIType(i):
@@ -780,7 +780,7 @@ class SevoPediaUnit:
 				unitAIsText = "_"
 			szSpecialText += "\n%sUnitAIs: %s" % (bullet, unitAIsText)
 					
-			# Add all <!-- custom: NotUnitAIs anyways etc -->
+			# Add all <!-- custom: NotUnitAIs -->
 			notUnitAIsText = ""
 			for i in xrange(UnitAITypes.NUM_UNITAI_TYPES):
 				if unitInfo.getNotUnitAIType(i):
@@ -805,7 +805,7 @@ class SevoPediaUnit:
 
 
 
-	# <!-- custom: placeReplace (renamed from placeReplacements) in particular is imported from RFC DOC mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py and adjusted or not for AdvCiv-SAS anyways etc. -->
+	# <!-- custom: placeReplace (renamed from placeReplacements) in particular is imported from RFC DOC mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py and adjusted or not for AdvCiv-SAS -->
 	def placeReplace(self):
 		xPanel = self.X_REPLACE
 		yPanel = self.Y_REPLACE
@@ -878,7 +878,7 @@ class SevoPediaUnit:
 		if bIsUnique:
 			# Find which civ has this unique (i.e.civ-specific) unit
 			for iCiv in range(gc.getNumCivilizationInfos()):
-				# <!-- custom: include barbarian and perhaps other non playable civs in the display for example for the/to display the anyways etc barbarian palace, barbarian granary (so comment out the isPlayable check as Claude AI explained indeed and that i implemented in a simpler manner thanks to its explanation but anyways etc, but also unindent the below below too anyways etc), or/and other civs or not if such exist or not or and other or yes or and not or yes but anyways etc -->
+				# <!-- custom: include barbarians and perhaps other non playable civs in the display -->
 				#if gc.getCivilizationInfo(iCiv).isPlayable():
 				iCivUnit = gc.getCivilizationInfo(iCiv).getCivilizationUnits(iUnitClass)
 				if iCivUnit == self.iUnit:
@@ -918,7 +918,7 @@ class SevoPediaUnit:
 		rowListName = self.top.getNextWidgetName()
 		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, 1, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
-		# <!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments but anyways etc), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml, anyways etc -->
+		# <!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml -->
 		eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()
 		# No promotions to show for units with no combat type
 		if eUnitCombat == -1:

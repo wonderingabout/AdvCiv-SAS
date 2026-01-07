@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Effect Infos -->
-<!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Misc\CIV4EffectInfos.xml and modified or not for AdvCiv-SAS anyways etc -->
+<!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Misc\CIV4EffectInfos.xml and modified or not for AdvCiv-SAS -->
 <Civ4EffectInfos xmlns="x-schema:CIV4MiscSchema.xml">
 	<EffectInfos>
 		<!-- Interface:-->

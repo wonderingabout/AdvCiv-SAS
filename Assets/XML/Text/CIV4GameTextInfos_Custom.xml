@@ -20,7 +20,7 @@
 		<Spanish>[ICON_BULLET]Se puede construir en [NUM1:el:la:los:las] %s1_Name e inicios anteriores</Spanish>
 	</TEXT>
 	
-	<!-- custom: added here for exhaustiveness, not modified (as) for the English language('s version) (anyways etc) -->
+	<!-- custom: added here for exhaustiveness, not modified (as) for the English language('s version) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER</Tag>
 		<English>[ICON_BULLET]Provides power ([ICON_POWER])</English>
@@ -28,7 +28,7 @@
 
 
 
-	<!-- custom: generic one (english version only anyways etc) we replace one if i may say anyways etc was:
+	<!-- custom: generic one (english version only anyways etc) we replace one was:
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH</Tag>
 		<English>[ICON_BULLET]Provides Power with [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s1_BonusName[\LINK][COLOR_REVERT]</English>
@@ -61,7 +61,7 @@
 
 
 
-	<!-- custom: remove the common provides power part from the areacleanpower message, and add mention that area clean power (areacleanpower anyways etc) (all cities clean power if i am not mistaken anyways etc) also applies to all cities, (note: ) perhaps differently in terms of unhealthiness bonus or not but anyways etc -->
+	<!-- custom: remove the common provides power part from the areacleanpower message, and add mention that area clean power (areacleanpower anyways etc) (all cities clean power) also applies to all cities, (note: ) perhaps differently in terms of unhealthiness bonus or not-->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES</Tag>
 		<English>(clean power ([ICON_POWER])) for All Cities on this Continent: </English>
@@ -77,7 +77,7 @@
 
 
 
-	<!-- custom: add info that it applies only outside of cultural borders if i am not mistaken anyways etc -->
+	<!-- custom: add info that it applies only outside of cultural borders -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CANNOT_ENTER</Tag>
 		<English>[ICON_BULLET]Cannot Enter (only applies to tiles outside of cultural borders. This effect applies to these tiles even if they are roaded):</English>
@@ -90,12 +90,12 @@
 
 
 
-	<!-- custom: add info that some units are exceptions that can move even in impassable anyways etc -->
+	<!-- custom: add info that some units are exceptions that can move even in impassable -->
 	<TEXT>
 		<Tag>TXT_KEY_PLOT_IMPASSABLE</Tag>
 		<English>[COLOR_WARNING_TEXT]IMPASSABLE (except relevant units)[COLOR_REVERT]</English>
 	</TEXT>
-	<!-- custom: replace inaccurate info if i am not mistaken but anyways etc of "Impassable terrain" (that i saw in sevopedia feature for example but anyways etc) with a more general text (as ice cap is a feature for example not a terrain so the "terrain" part of the text is inaccurate, also although impassable, some units are exceptions anyways etc), hinting at exceptions anyways etc -->
+	<!-- custom: replace inaccurate info if i am not mistakenof "Impassable terrain" (that i saw in sevopedia feature for example) with a more general text (as ice cap is a feature for example not a terrain so the "terrain" part of the text is inaccurate, also although impassable, some units are exceptions anyways etc), hinting at exceptions -->
 	<TEXT>
 		<Tag>TXT_KEY_TERRAIN_IMPASSABLE</Tag>
 		<English>[NEWLINE][ICON_BULLET]Impassable (except relevant units)</English>
@@ -120,7 +120,7 @@
 		<English>SEVOPEDIA</English>
 	</TEXT>
 
-	<!-- custom: all below in this group modified to remove the	extra redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now displaying (only) as "5" much clearer and cleaner i think this way, making a separate tag in case the original one is relevant somewhere else, anyways etc -->
+	<!-- custom: all below in this group modified to remove the	extra redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now displaying (only) as "5" much clearer and cleaner i think this way, making a separate tag in case the original one is relevant somewhere else -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_COST_CUSTOM</Tag>
 		<English>%d1_Num</English>
@@ -148,7 +148,7 @@
 
 
 
-	<!-- custom: in sevopediabuilding and perhaps in other places that use our custom tag, "Happy: 5" (for example) is now "5" anyways etc -->
+	<!-- custom: in sevopediabuilding and perhaps in other places that use our custom tag, "Happy: 5" (for example) is now "5" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_HAPPY_CUSTOM</Tag>
 		<English>%D1</English>
@@ -203,7 +203,7 @@
 
 
 
-	<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot but anyways etc, check if accurate anyways etc -->
+	<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot, check if accurate -->
 	<TEXT>
 		<Tag>TXT_KEY_CIVIC_FREEDOM_ANGER</Tag>
 		<English>[ICON_BULLET]%D1_Mod iCivicPercentAnger [ICON_UNHAPPY] for civs without[SPACE]</English>
@@ -211,12 +211,12 @@
 
 
 
-	<!-- custom: was <English>U.N. Resolution #743 (Global Civic - Emancipation)</English> anyways etc -->
+	<!-- custom: was <English>U.N. Resolution #743 (Global Civic - Emancipation)</English> -->
 	<TEXT>
 		<Tag>TXT_KEY_VOTE_WAGE_LABOR</Tag>
 		<English>U.N. Resolution #743 (Global Civic - Wage Labor)</English>
 	</TEXT>
-	<!-- custom: was <English>U.N. Resolution #1190 (Global Civic - Environmentalism)</English> anyways etc -->
+	<!-- custom: was <English>U.N. Resolution #1190 (Global Civic - Environmentalism)</English> -->
 	<TEXT>
 		<Tag>TXT_KEY_VOTE_TRADE_BLOC</Tag>
 		<English>U.N. Resolution #1190 (Global Civic - Trade Bloc)</English>

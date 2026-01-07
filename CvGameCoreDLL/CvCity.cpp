@@ -176,7 +176,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
 
 	CvPlot& kPlot = getPlot();
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE");
 		if (kPlot.getCulture(getOwner()) < iFreeCityPlotCulture)
 			kPlot.setCulture(getOwner(), iFreeCityPlotCulture, bBumpUnits, false);
@@ -184,7 +184,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
 	kPlot.setOwner(getOwner(), bBumpUnits, false);
 	kPlot.setPlotCity(this);
 
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iFreeCityAdjacentCulture = GC.getDefineINT("FREE_CITY_ADJACENT_CULTURE");
 	FOR_EACH_ADJ_PLOT_VAR(getPlot())
 	{
@@ -265,7 +265,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
 				setNumRealBuilding(eBuilding, 1);
 		}
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iInitialAICityProduction = GC.getDefineINT("INITIAL_AI_CITY_PRODUCTION");
 
 		if (!isHuman() /* advc.250b: */ && !kGame.isOption(GAMEOPTION_SPAH))
@@ -379,7 +379,7 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 	kPlot.setPlotCity(NULL);
 	kPlot.setRuinsName(getName()); // advc.005c
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const bool bFloodPlainsAfterRaze = GC.getDefineBOOL("FLOODPLAIN_AFTER_RAZE");
 
 	// UNOFFICIAL_PATCH, replace floodplains after city is removed, 03/04/10, jdog5000: START
@@ -566,7 +566,7 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass)
 		clearOrderQueue();                     // hard override
 		pushOrder(ORDER_CONSTRUCT, eBuilding); // put Harbor at head
 		setChooseProductionDirty(false);       // don't clear it next turn
-		// <!-- custom: don't overwrite urgent building anyways etc -->
+		// <!-- custom: don't overwrite urgent building -->
 		return true;                           // done
 	}
 }
@@ -611,18 +611,18 @@ void CvCity::doTurn()
 
 	doProduction(!bForceProduction);
 
-	// <!-- custom: also cache these as is done in this file in other functions since we reuse them if i'm not mistaken in doing so but anyways etc -->
+	// <!-- custom: also cache these as is done in this file in other functions since we reuse them if i'm not mistaken in doing so-->
 	CvGame const& kGame = GC.getGame();
 
 	// Early-game window (scaled by game speed TrainPercent)
 	const int iCurrentTurn = kGame.getGameTurn();
 	const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
 
-	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability if i'm not mistaken but anyways etc -->
+	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability -->
 	const bool bHuman = isHuman();
 
 	bool const bDanger = AI().AI_isDanger();	// method lives on CvCityAI
-	// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+	// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
 	const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
 	const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
@@ -633,17 +633,17 @@ void CvCity::doTurn()
 	// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
 	static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 	//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
-	// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
+	// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
 	const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
 
-	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic if i'm not mistaken but anyways etc -->
+	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic -->
 	bool bEmergencyBuilding = false;
 
-	// <!-- custom: performance optimization: compute this only once if i'm not mistaken anyways etc; e.g. "BUILDINGCLASS_HARBOR", check defines for string value anyways etc. -->
+	// <!-- custom: performance optimization: compute this only once if i'm not mistaken anyways etc; e.g. "BUILDINGCLASS_HARBOR", check defines for string value -->
 	static const BuildingClassTypes eWaterFoodBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME"));
 
-	// <!-- custom: emergency harbor (or whatever the water food building is in your mod anyways etc) is top priority if city is coastal, low food per turn (stagnant coastal tundra cities in autoplay never build a harbor and stay low food for dozen turns), code added thanks to chatgpt 5 and my prompts and adjustments anyways etc and/or such, check if accurate anyways etc -->
-	// 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather but anyways etc. We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or/and low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities but anyways etc. -->
+	// <!-- custom: emergency harbor (or whatever the water food building is in your mod anyways etc) is top priority if city is coastal, low food per turn (stagnant coastal tundra cities in autoplay never build a harbor and stay low food for dozen turns), code added thanks to chatgpt 5 and my prompts and adjustments anyways etc and/or such, check if accurate -->
+	// 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather. We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or/and low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities -->
 	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
 	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
 
@@ -655,7 +655,7 @@ void CvCity::doTurn()
 		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
 		const bool bOceanCoastal = isCoastal(iOceanThresh); // excludes lakes
 
-		// <!-- custom: save some computation, don't run what's next unless we have a coastal city, which should remove most if i'm not mistaken but is just a guess so check to be sure anyways etc. -->
+		// <!-- custom: save some computation, don't run what's next unless we have a coastal city, which should remove most if i'm not mistaken but is just a guess so check to be sure -->
 		if (bOceanCoastal && !isFoodProduction())
 		{
 			// Threshold: 1 = low food or worse.
@@ -665,7 +665,7 @@ void CvCity::doTurn()
 
 			if (bLowFood)
 			{
-				// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+				// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
 				if (SASTryEmergencyBuilding(eWaterFoodBuildingClass))
 				{
 					bEmergencyBuilding = true;
@@ -711,7 +711,7 @@ void CvCity::doTurn()
 
 	if (!bEmergencyBuilding && !bHuman)
 	{
-		// <!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see custom main changes guide or code for details anyways etc), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often anyways etc. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help but anyways etc, or if you prefer/want anyways etc 0 to disable anyways etc. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken anyways etc) -->
+		// <!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see custom main changes guide or code for details anyways etc), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often anyways etc. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help, or if you prefer/want anyways etc 0 to disable anyways etc. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken anyways etc) -->
 		// Your guards use getNumBuilding(...) (not “active”), which is exactly what we want for “do we already have one?”—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
 		// --- SAS: force Walls/Castle if at war and enemy stronger ---
 		static const bool bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS = GC.getDefineBOOL("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS");
@@ -725,10 +725,10 @@ void CvCity::doTurn()
 
 		if (!bEmergencyBuilding && bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS && !bLowHammersForWaterCityEmergency && !bInnerRingMostlyWaterNonPeak)
 		{
-			// <!-- custom: note: logic applies only if these buildings are urgent: at war and we are weaker, else no need to force these buildings and it would most likely be inefficient in terms of AI strength if i may say but anyways etc to do so but anyways etc -->
+			// <!-- custom: note: logic applies only if these buildings are urgent: at war and we are weaker, else no need to force these buildings and it would most likely be inefficient in terms of AI strength to do so-->
 			const bool bShouldBuildEmergencyDefenseBuildings = (
 				bEnemyStrong ||
-				// <!-- custom: we risk being backstabbed while attacking someone, so be more cautious and build some defense if we don't have such maybe (slightly less effective offense, but much more reliable defense as a result so seems fine and good maybe but anyways etc) -->
+				// <!-- custom: we risk being backstabbed while attacking someone, so be more cautious and build some defense if we don't have such maybe (slightly less effective offense, but much more reliable defense as a result so seems fine and good maybe) -->
 				(bAtWar && !bEnemyWeakNotZero) || 
 				bDanger
 			);
@@ -748,7 +748,7 @@ void CvCity::doTurn()
 					{
 						static const BuildingClassTypes eWallsClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME"));
 
-						// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+						// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
 						if (SASTryEmergencyBuilding(eWallsClass))
 						{
 							bEmergencyBuilding = true;
@@ -768,7 +768,7 @@ void CvCity::doTurn()
 					{
 						static const BuildingClassTypes eCastleClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME"));
 
-						// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+						// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
 						if (SASTryEmergencyBuilding(eCastleClass))
 						{
 							bEmergencyBuilding = true;
@@ -779,13 +779,13 @@ void CvCity::doTurn()
 		}
 		// --- end SAS defense rule ---
 
-		// <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too (i.e. me at the time xd if i may say but anyways etc) (or maybe not something else? In this case i mean but anyways etc) vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below but anyways etc with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
+		// <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too (i.e. me at the time xd) (or maybe not something else?) vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as belowwith the help of chatgpt 5, check if accurate -->
 		// --- BEGIN: hard safety net for AI production ---
 		// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
-		// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd but anyways etc, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc but anyways etc, but if you or me or such notice issues consider adding one or both of these in this case i mean but anyways etc -->
+		// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc, but if you or me or such notice issues consider adding one or both of these -->
 		if (!bEmergencyBuilding)
 		{
-			// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
+			// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 -->
 			//const bool bNeedFallback = !isProduction();
 			const bool bQueueEmpty  = (getOrderQueueLength() == 0);
 			const bool bHeadProcess = (!bQueueEmpty && isProductionProcess());
@@ -799,7 +799,7 @@ void CvCity::doTurn()
 
 				if (!bEmergencyBuilding && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE && !bInnerRingMostlyWaterNonPeak)
 				{
-					// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+					// <!-- custom: as of now eras are (see xml for details or/and updated version -->
 					// 18,5: 			<Type>ERA_ANCIENT</Type>
 					// 79,5: 			<Type>ERA_CLASSICAL</Type>
 					// 154,5: 			<Type>ERA_MEDIEVAL</Type>
@@ -807,39 +807,39 @@ void CvCity::doTurn()
 					// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
 					// 401,5: 			<Type>ERA_MODERN</Type>
 					// 477,5: 			<Type>ERA_FUTURE</Type>
-					// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
+					// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure -->
 					// cache once; uses hidden-assert overload if available in your DLL
-					// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+					// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 					static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 
-					// <!-- custom: added as recommended by chatgpt 5; as of now untested assert anyways etc. -->
+					// <!-- custom: added as recommended by chatgpt 5; as of now untested assert -->
 					FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
 
 					const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
 
 					static const int iMaxHammerPerEra = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA");
-					// <!-- custom: note: i assume first era starts at 0 and code seems to run fine as such, but check to be sure as this is just a guess of mine, anyways etc -->
+					// <!-- custom: note: i assume first era starts at 0 and code seems to run fine as such, but check to be sure as this is just a guess of mine -->
 					const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);  // Era 0→50, 1→100, ... 6→350
 
 					static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
 
-					// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on if i'm not mistaken but anyways etc. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely but anyways etc), so add a guard against that (per era as unit costs change as the game goes on anyways etc) anyways etc. Note: we also assume here hammer cost accurately reflects overall combat ability if i may say but anyways etc. Note 2: as of now, if for some extremely unlikely reason there are no buildable units at all, or all eligible ones are beyond iMaxCost extremely unlikely (even less likely in fact but anyways etc), then among all options regardless of iMaxCost, pick the overall cheapest one to save hammer xd but anyways etc. This is an extremly unlikely case safety but just in case or if XML is weirdly tweaked in some mod mod with new weird or such units xd (1 hammer cost 1000 str or 1000 hammer 1 str xd or whatever (not in our mod so far! If i may say, but anyways etc...) but anyways etc.) -->
+					// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely), so add a guard against that (per era as unit costs change as the game goes on anyways etc) anyways etc. Note: we also assume here hammer cost accurately reflects overall combat ability. Note 2: as of now, if for some extremely unlikely reason there are no buildable units at all, or all eligible ones are beyond iMaxCost extremely unlikely (even less likely in fact), then among all options regardless of iMaxCost, pick the overall cheapest one to save hammer xd. This is an extremly unlikely case safety but just in case or if XML is weirdly tweaked in some mod mod with new weird or such units xd (1 hammer cost 1000 str or 1000 hammer 1 str xd or whatever (not in our mod so far! If i may say)) -->
 					UnitTypes eCheapestOverallUnit = NO_UNIT;      // backup if nothing under cap
 					UnitTypes eBestFallbackOverallUnit = NO_UNIT;  // track highest cost ≤ cap
-					// <!-- custom: cache once after found for efficiency anyways etc -->
+					// <!-- custom: cache once after found for efficiency -->
 					UnitAITypes eBestFallbackOverallUnitUnitAI = NO_UNITAI;
 					UnitAITypes eCheapestFallbackOverallUnitUnitAI = NO_UNITAI;
 
-					// <!-- custom: note: as for offense only and defense only best fallback units but anyways etc, no need to worry about cheapest offense only and defense only, since they are a fallback of a fallback anyway and never reached in actual games (they are just a safety), if ever reached use the overall cheapest as a fallback of fallback for all if i'm not mistaken but anyways etc; also save computation while doing so if i'm not mistaken but anyways etc -->
+					// <!-- custom: note: as for offense only and defense only best fallback units, no need to worry about cheapest offense only and defense only, since they are a fallback of a fallback anyway and never reached in actual games (they are just a safety), if ever reached use the overall cheapest as a fallback of fallback for all; also save computation while doing so -->
 					UnitTypes eBestFallbackOffenseUnit = NO_UNIT;
-					// <!-- custom: cache once after found for efficiency anyways etc -->
+					// <!-- custom: cache once after found for efficiency -->
 					UnitAITypes eBestFallbackOffenseUnitUnitAI = NO_UNITAI;
 
 					UnitTypes eBestFallbackDefenseUnit = NO_UNIT;
-					// <!-- custom: cache once after found for efficiency anyways etc -->
+					// <!-- custom: cache once after found for efficiency -->
 					UnitAITypes eBestFallbackDefenseUnitUnitAI = NO_UNITAI;
 
-					// <!-- custom: use real cost for sanity no overly expensive unit compare, but use inflated cost (e.g. egyptian war chariot would have inflated cost of 30 * 2 = 60 hammer vs 50 hammer for generic horse archer so we think as we want that war chariot is stronger (since is civ-specific unit we assume so anyways etc). However, don't overdo it, for example if we were to add a civ-specific variant of the ancient maceman / warrior but anyways etc, that would cost say 20 hammers, it would still likely be weaker than a modern horse archer else game would be broken, so 20 * 2 even after inflation is lower than 50 hammer than the horse archer, but the egyptian war chariot is strong enough already that 30 * 2 = 60 inflated hammer cost to estimate strength but anyways etc makes it worth building over the 50 hammer cost generic horse archer). While doing this, still sanity checking based on 30 hammer not 60 hammer (else 60 hammer > max 50 per era in ancient era we would reject it and never build it but anyways etc)) -->
+					// <!-- custom: use real cost for sanity no overly expensive unit compare, but use inflated cost (e.g. egyptian war chariot would have inflated cost of 30 * 2 = 60 hammer vs 50 hammer for generic horse archer so we think as we want that war chariot is stronger (since is civ-specific unit we assume so anyways etc). However, don't overdo it, for example if we were to add a civ-specific variant of the ancient maceman / warrior, that would cost say 20 hammers, it would still likely be weaker than a modern horse archer else game would be broken, so 20 * 2 even after inflation is lower than 50 hammer than the horse archer, but the egyptian war chariot is strong enough already that 30 * 2 = 60 inflated hammer cost to estimate strengthmakes it worth building over the 50 hammer cost generic horse archer). While doing this, still sanity checking based on 30 hammer not 60 hammer (else 60 hammer > max 50 per era in ancient era we would reject it and never build it)) -->
 					int iCheapestOverallCost = MAX_INT;
 					int iBestFallbackOverallCost = MIN_INT;
 
@@ -852,7 +852,7 @@ void CvCity::doTurn()
 					int iBestFallbackOffenseScore = -1;
 					int iBestFallbackDefenseScore = -1;
 
-					// <!-- custom: it seems we need to cast to CvPlayerAI (i don't know much about these so check if accurate, but chatgpt 5 recommended this after i asked it about the compile error we had before adding it, but check if accurate anyways etc) (with .AI() it seems if i understood it correctly but check if accurate or to be sure in this case i mean but anyways etc) as as of now this function is in CvPlayerAI not CvPlayer, we also seem to do .AI() in other parts of this CvCity.cpp so maybe fine as such but check if accurate or to be sure anyways etc. As for us this fixes our compile error that it was not a member of a class if i'm not mistaken so left as such as well but check if accurate or to be sure anyways etc -->
+					// <!-- custom: it seems we need to cast to CvPlayerAI (i don't know much about these so check if accurate, but chatgpt 5 recommended this after i asked it about the compile error we had before adding it, but check if accurate anyways etc) (with .AI() it seems if i understood it correctly but check if accurate or to be sure) as as of now this function is in CvPlayerAI not CvPlayer, we also seem to do .AI() in other parts of this CvCity.cpp so maybe fine as such but check if accurate or to be sure anyways etc. As for us this fixes our compile error that it was not a member of a class if i'm not mistaken so left as such as well but check if accurate or to be sure -->
 					const int iSiegesAllNonTrebuchetsLike = kOwner.AI().AI_countUnitsByCombatNoTrebuchetsLike(eUnitCombatSiege);
 					const int iSiegesAllTrebuchetsLike = kOwner.AI().AI_countTrebuchetsLike();
 
@@ -877,10 +877,10 @@ void CvCity::doTurn()
 					static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
 
 					// Situation read
-					// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+					// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
 					// change to:
 					bool const bWarPlan = kOwner.AI().AI_isFocusWar();   // method lives on CvPlayerAI
-					// <!-- custom: see/read but anyways etc code comment at CvCityAI::AI_chooseUnit corresponding code / variables' initialization for details if i may say but anyways etc -->
+					// <!-- custom: see/readcode comment at CvCityAI::AI_chooseUnit corresponding code / variables' initialization for details -->
 
 					static const int iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
 					int iCapNonTrebuchetsLikeSiegesAll = iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD;
@@ -890,7 +890,7 @@ void CvCity::doTurn()
 
 					static const int iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT");
 
-					// <!-- custom: compute everything once cleanly before the loop to avoid multi counting inside the loop but anyways etc; and as chatgpt 5 confirms after asking it; check if accurate but anyways etc -->
+					// <!-- custom: compute everything once cleanly before the loop to avoid multi counting inside the loop; and as chatgpt 5 confirms after asking it; check if accurate-->
 					if (!bRenaissancePlus)
 					{
 						static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
@@ -905,7 +905,7 @@ void CvCity::doTurn()
 							iCapTrebsPreRenaissance += (iCapTrebsPreRenaissance * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
 						}
 
-						// <!-- custom: simplified version of the AI_ChooseUnit code if i'm not mistaken in my thinking but anyways etc -->
+						// <!-- custom: simplified version of the AI_ChooseUnit code if i'm not mistaken in my thinking-->
 						// regardless of bonuses, fewer trebs if there’s no war plan
 						if (!bWarPlan)
 						{
@@ -917,8 +917,8 @@ void CvCity::doTurn()
 
 					const int iNumCities = kOwner.getNumCities();
 
-					// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
-					// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+					// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure, and if -> else if -> else is preferable anyway for clarity and/or performance as well) -->
+					// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think) -->
 					bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
 					bool bNavalHeavyMapname = false;
 					if (!bLandHeavyMapname)
@@ -926,12 +926,12 @@ void CvCity::doTurn()
 						bNavalHeavyMapname = kGame.isNavalHeavyMapnameCached();
 					}
 
-					// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
+					// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die -->
 					// <!-- If your intent is:
 					// 	- Anc/Class/Med caps only early, but
 					// 	- Renaissance+ cheap land caps always active,
 					// then you’d need to decouple the bEarly gate from the Renaissance+ branch (e.g. only wrap the Ancient/Class/Med tiers in if (bEarly) and leave the Renaissance+ tier under if (bNoExcessVeryCheapMilitaryUnits) alone). -->
-					// <!-- custom: note 2: as of now in CvCity::doTurn, renaissance plus land tier unaffected by this as nicely noted by chatgpt 5.1 thanks but anyways etc. As for CvCityAI:AI_ChooseUnit, this is never applied at all for very cheap units gates anyways etc -->
+					// <!-- custom: note 2: as of now in CvCity::doTurn, renaissance plus land tier unaffected by this as nicely noted by chatgpt 5.1 thanks. As for CvCityAI:AI_ChooseUnit, this is never applied at all for very cheap units gates -->
 					static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
 					const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
 					const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
@@ -941,7 +941,7 @@ void CvCity::doTurn()
 					static const int TH_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_TIER_THRESHOLD");
 					static const int TH_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD");
 
-					// <!-- custom: note to chatgpt 5 and other AIs and/or such: it looks like `GC.getCivilizationInfo` does not exist at all in our entire .cpp and .h codebase (but there are many in .py files though although not relevant here for our need if i'm not mistaken but anyways etc), but there are many .cpp and .h pieces of code in our mod (including which i didn't write myself at all) like `GC.getInfo(getCivilizationType())` so it may be the more correct one in our mod, although after looking at CvGlobals.h and chatgpt 5's analysis of it it seems fine to use any, sticking with the only used one in this case i mean but anyways etc, check if accurate anyways etc -->
+					// <!-- custom: note to chatgpt 5 and other AIs and/or such: it looks like `GC.getCivilizationInfo` does not exist at all in our entire .cpp and .h codebase (but there are many in .py files though although not relevant here for our need), but there are many .cpp and .h pieces of code in our mod (including which i didn't write myself at all) like `GC.getInfo(getCivilizationType())` so it may be the more correct one in our mod, although after looking at CvGlobals.h and chatgpt 5's analysis of it it seems fine to use any, sticking with the only used one, check if accurate -->
 					// Yep—that header explains it perfectly.
 					// GC.getCivilizationInfo(eCiv) is just a tiny wrapper that returns getInfo(eCiv). In AdvCiv/K-Mod it’s defined inline in CvGlobals.h:
 					// DllExport CvCivilizationInfo& getCivilizationInfo(CivilizationTypes eCivilization) { return getInfo(eCivilization); }
@@ -965,7 +965,7 @@ void CvCity::doTurn()
 						{
 							continue; // ignore noncombat here
 						}
-						// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy, no scout or anything else, etc), while we do a fallback, let it be a good one! Xd anyways etc -->
+						// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy, no scout or anything else, etc), while we do a fallback, let it be a good one! Xd -->
 						const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
 
 						const bool bOffenseDefaultUnitAI = (
@@ -979,7 +979,7 @@ void CvCity::doTurn()
 							(eLoopDefaultUnitAI == UNITAI_CITY_SPECIAL) ||
 							(eLoopDefaultUnitAI == UNITAI_RESERVE)
 						);
-						// <!-- custom: note: we don't reject defense units if offense only yet, or vice versa if offense units if defense only if i'm not mistaken as well but anyways etc, as we still want to compute and store defense units, in case we can build no offense unit at all, then we'd still want to build a defense unit rather than nothing anyways etc if i'm not mistaken but anyways etc -->
+						// <!-- custom: note: we don't reject defense units if offense only yet, or vice versa if offense units if defense only if i'm not mistaken as well, as we still want to compute and store defense units, in case we can build no offense unit at all, then we'd still want to build a defense unit rather than nothing -->
 						const bool bSuitableDefaultUnitAI = (bOffenseDefaultUnitAI || bDefenseDefaultUnitAI);
 
 						if (!bSuitableDefaultUnitAI)
@@ -987,8 +987,8 @@ void CvCity::doTurn()
 							continue;
 						}
 
-						// <!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons anyways etc), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative, but trebuchets are not versatile enough so do not allow them. Defense difference is not big if just for a few units, but these few catapults can many times be decisive so build a few in fallback code but not lot anyways etc. See known issue as of now 53.3 for info related to previous version of these changes anyways etc -->
-						// <!-- custom: only valid for pre-renaissance units, later on cannons are good enough as defenders as well optionally, especially if we have nothing better else to build, do not overstack pikemen when cannons are a valid option, and pikemen are obsolete due to gun units being onlnie if i may say but anyways etc -->
+						// <!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons anyways etc), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative, but trebuchets are not versatile enough so do not allow them. Defense difference is not big if just for a few units, but these few catapults can many times be decisive so build a few in fallback code but not lot anyways etc. See known issue as of now 53.3 for info related to previous version of these changes -->
+						// <!-- custom: only valid for pre-renaissance units, later on cannons are good enough as defenders as well optionally, especially if we have nothing better else to build, do not overstack pikemen when cannons are a valid option, and pikemen are obsolete due to gun units being onlnie -->
 						const bool bLoopUnitCombatSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
 						if (bLoopUnitCombatSiege)
 						{
@@ -1034,19 +1034,19 @@ void CvCity::doTurn()
 									}
 								}
 							}
-							// <!-- custom: else no restriction, facilitate cannons+ as we have a bit too few generally and they are strong enough to be considered for both defense and offense especially if we have nothing better like pikes and no muskets yet anyways etc. -->
+							// <!-- custom: else no restriction, facilitate cannons+ as we have a bit too few generally and they are strong enough to be considered for both defense and offense especially if we have nothing better like pikes and no muskets yet -->
 						}
 
 						// Stable classification by XML base cost
 						// (keeps behavior stable if a modmod has odd XML)
 						// const int iLoopCost = getProductionNeeded(eLoopUnit);
 						const int iLoopXMLCost = kU.getProductionCost();     // from XML (unscaled)
-						// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
+						// <!-- custom: don't deal with garbage or very unexpected XML -->
 						if (iLoopXMLCost < 0)
 						{
 							continue;
 						}
-						// <!-- custom: also eliminate very cheap units as we do in CvCityAI::AI_chooseUnit as we now have many early ancient macemen early (19 ancient macemen at turn 100 with the new offense unit only code, which makes sense since longbows or archers are no longer an option, and very cheap units are uncapped (before adding it here now) if i'm not mistaken, but anyways etc -->
+						// <!-- custom: also eliminate very cheap units as we do in CvCityAI::AI_chooseUnit as we now have many early ancient macemen early (19 ancient macemen at turn 100 with the new offense unit only code, which makes sense since longbows or archers are no longer an option, and very cheap units are uncapped (before adding it here now) if i'm not mistaken -->
 						if (bNoExcessVeryCheapMilitaryUnits)
 						{
 							// Classify tier (exclusive)
@@ -1054,12 +1054,12 @@ void CvCity::doTurn()
 							const bool bTierCla = (bEarly && (!bTierAnc && iLoopXMLCost <= TH_CLA));
 							const bool bTierMed = (bEarly && (!bTierAnc && !bTierCla && iLoopXMLCost <= TH_MED));
 							const bool bTierRendLandPlus = (
-								// <!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot but anyways etc -->
+								// <!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot-->
 								bRenaissancePlus && // only after we actually reach Renaissance
 								(!bTierAnc && !bTierCla && !bTierMed && iLoopXMLCost <= TH_REN_LAND_PLUS)
 							);
 
-							// <!-- custom: note: we already check domain_land and combat > 0 so no need to check it here again in this implementation of the very cheap code now in CvCity::doTurn if i'm not mistaken but added note for exhaustiveness if i may say in this case i mean but anyways etc -->
+							// <!-- custom: note: we already check domain_land and combat > 0 so no need to check it here again in this implementation of the very cheap code now in CvCity::doTurn if i'm not mistaken but added note for exhaustiveness -->
 
 							if (bTierAnc || bTierCla || bTierMed || bTierRendLandPlus)
 							{
@@ -1068,21 +1068,21 @@ void CvCity::doTurn()
 								// Do you really need the “min across tiers”?
 								// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
 								// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
-								// <!-- custom: answer to chatgpt 5: yes i promise xd thanks :) if i may say but anyways etc -->
+								// <!-- custom: answer to chatgpt 5: yes i promise xd thanks :) -->
 
 								if (bTierAnc)
 								{
-									// <!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or such but anyways etc a modmod might additionally add but anyways etc -->
+									// <!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or sucha modmod might additionally add-->
 									// Per-tier knobs
 									static const int CM_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER");
 									static const int EX_ANC_NAV  = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP");
 									static const int EX_ANC_LAND = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NOT_NAVAL_HEAVY_MAP");
 
-									// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really but anyways etc). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so in this case i mean but anyways etc, prevent it by keeping cap in this case i mean but anyways etc -->
+									// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so, prevent it by keeping cap -->
 									// Style caps (independent of current era)
 									iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMapname ? EX_ANC_NAV : EX_ANC_LAND);
 
-									// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units i mean but anyways etc)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous but anyways etc, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is but anyways etc) but anyways etc) -->
+									// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is)) -->
 									static const int VERY_EARLY_TURN_ANCIENT_TIER_END = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END");
 									const int iTurnVeryEarlyThresholdScaled = (VERY_EARLY_TURN_ANCIENT_TIER_END * iTrainPct) / 100;
 									const bool bVeryEarly = (iCurrentTurn < iTurnVeryEarlyThresholdScaled);
@@ -1108,8 +1108,8 @@ void CvCity::doTurn()
 								}
 								else if (bTierRendLandPlus)
 								{
-									// <!-- custom: make extra sure here that it applies only to domain_land units only in case we change logic later to for example include naval units in naval heavy maps or such (as of now is not the case but anyways etc), as frigates or galleons or such are still useful later in the game even though they are as of now fairly cheap but anyways etc. -->
-									// <!-- custom: see code comment in as of now sas defines at SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD anyways etc -->
+									// <!-- custom: make extra sure here that it applies only to domain_land units only in case we change logic later to for example include naval units in naval heavy maps or such (as of now is not the case), as frigates or galleons or such are still useful later in the game even though they are as of now fairly cheap -->
+									// <!-- custom: see code comment in as of now sas defines at SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD -->
 									if (bLoopUnitDomainLand)
 									{
 										static const int CM_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_RENAISSANCE_PLUS_LAND_TIER");
@@ -1119,7 +1119,7 @@ void CvCity::doTurn()
 									}
 								}
 
-								// <!-- custom: here we don't change unit unlike in ::AI_ChooseUnit as of now if i'm not mistaken so no need to use a pointer if i'm not mistaken but anyways etc -->
+								// <!-- custom: here we don't change unit unlike in ::AI_ChooseUnit as of now if i'm not mistaken so no need to use a pointer -->
 								const UnitClassTypes eUnitClass = kU.getUnitClassType();
 								const int iHaveVeryCheapThisUnits = kOwner.getUnitClassCountPlusMaking(eUnitClass);
 
@@ -1135,10 +1135,10 @@ void CvCity::doTurn()
 
 						if (bSAS_INFLATE_CIV_SPECIFIC_UNIT)
 						{
-							// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+							// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
 							// prefer the civilization's unique unit (war chariot over horse archer, etc.)
 							const UnitClassTypes eClass = kU.getUnitClassType();
-							// <!-- custom: explanation and code below by/from chatgpt 5 but anyways etc, check if accurate as i don't know for sure but it is maybe correct or not or etc but check to be sure anyways etc -->
+							// <!-- custom: explanation and code below by/from chatgpt 5, check if accurate as i don't know for sure but it is maybe correct or not or etc but check to be sure -->
 							// To prevent inflating default units for civs without unique units (UU), add the check eLoopUnit != GC.getUnitClassInfo(eClass).getDefaultUnit()
 							// <!-- custom: see code in CvCityAI::AI_chooseUnit (and see known issue as of now 53.2.2 for related info anyways etc): assume civ-specific units are best (e.g. pick an egyptian war chariot over a longbow anyways etc) -->
 							const UnitTypes eCivUnitForClass = (UnitTypes)kCivInfo.getCivilizationUnits(eClass);
@@ -1147,9 +1147,9 @@ void CvCity::doTurn()
 							// Then use bIsUUOverride for the inflation.
 							if (bIsUUOverride)
 							{
-								// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
+								// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit -->
 								// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
-								// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+								// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them -->
 								if (bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT || (eLoopDefaultUnitAI != UNITAI_COUNTER))
 								{
 									iLoopScore = ((iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT * iLoopScore) / iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV) + iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD;
@@ -1157,12 +1157,12 @@ void CvCity::doTurn()
 							}
 						}
 
-						// <!-- custom: use iLoopXMLCost for sanity not overly expensive unit check, but use inflated cost for which unit is strongest as per cost indicates check anyways etc; note: <= handles for iLoopXMLCost handles ties if i am not mistaken anyways etc -->
-						// prefer the most expensive unit ≤ cap; <!-- custom: this also avoids producing tons of high maintenance cost low unit overall strength (e.g. ancient maceman especially later in the game anyways etc) units that would cripple our economy. For this reason, it may be better to have no production especially later in the game, but it is only a hypothetical concern as our iMaxHammerPerEra should accomodate all units as of now (or almost all if we somehow mod them to add very expensive ones, not planned as of now but anyways), so this is more hypothetical but an extra information in case chatgpt or whoever reads it is wondering about it in this case i mean but anyways etc. -->
+						// <!-- custom: use iLoopXMLCost for sanity not overly expensive unit check, but use inflated cost for which unit is strongest as per cost indicates check anyways etc; note: <= handles for iLoopXMLCost handles ties -->
+						// prefer the most expensive unit ≤ cap; <!-- custom: this also avoids producing tons of high maintenance cost low unit overall strength (e.g. ancient maceman especially later in the game anyways etc) units that would cripple our economy. For this reason, it may be better to have no production especially later in the game, but it is only a hypothetical concern as our iMaxHammerPerEra should accomodate all units as of now (or almost all if we somehow mod them to add very expensive ones, not planned as of now but anyways), so this is more hypothetical but an extra information in case chatgpt or whoever reads it is wondering about it. -->
 						if (iLoopXMLCost <= iMaxCost)
 						{
 							// <!-- custom: e.g. egyptian war chariot (30 hammer 5 str, 60 score) better than generic horse archer (50 hammer 6 str, 50 score); also an imaginary civ-specific ancient maceman (20 hammer, 3 str, 40 score still loses vs generic horse archer that is much stronger and hammer efficient (50 hammer, 6 str, 50 score) so all good to not pick the outdated and overall weaker ancient maceman anyways etc) -->
-							// <!-- custom: note: the == is flipped as compared to what is in cheapest unit checks, as cheapest means best cheapest, vs best fallback means highest score one is best, so tie breaking and edge cases are bit different as done in the checks we did if i am not mistaken but anyways etc -->
+							// <!-- custom: note: the == is flipped as compared to what is in cheapest unit checks, as cheapest means best cheapest, vs best fallback means highest score one is best, so tie breaking and edge cases are bit different as done in the checks we did -->
 							// Track overall best ≤ cap AND per-bucket bests ≤ cap
 							if ((iLoopScore > iBestFallbackOverallScore) || (iLoopScore == iBestFallbackOverallScore && iLoopXMLCost > iBestFallbackOverallCost))
 							{
@@ -1216,7 +1216,7 @@ void CvCity::doTurn()
 						}
 					}
 
-					// <!-- custom: attempt offense only units or defense only units first, and if fails overall units, and if fails cheapest units if i'm not mistaken but anyways etc -->
+					// <!-- custom: attempt offense only units or defense only units first, and if fails overall units, and if fails cheapest units -->
 					// Final pick: primary bucket first; if none, secondary; else global backups
 					UnitTypes   ePick = NO_UNIT;
 					UnitAITypes ePickAI = NO_UNITAI;
@@ -1238,7 +1238,7 @@ void CvCity::doTurn()
 						}
 					}
 
-					// <!-- custom: fallback in case we have no offense only or no defense only units, we still want to check our overall units instead before checking the cheapest one fallback of the fallback anyways etc; note: use this as a way to sanity check corrupt or missing unitai so we check overalls as a fallback then (and then cheapest if fails if i'm not mistaken but anyways etc) -->
+					// <!-- custom: fallback in case we have no offense only or no defense only units, we still want to check our overall units instead before checking the cheapest one fallback of the fallback anyways etc; note: use this as a way to sanity check corrupt or missing unitai so we check overalls as a fallback then (and then cheapest if fails) -->
 					// fallback to overall-best ≤ cap
 					const bool bNoOffenseOnlyNorDefenseOnlyUnit = ((ePick == NO_UNIT) || (ePickAI == NO_UNITAI));
 					if (bNoOffenseOnlyNorDefenseOnlyUnit)
@@ -1249,7 +1249,7 @@ void CvCity::doTurn()
 							ePickAI = eBestFallbackOverallUnitUnitAI;
 						}
 					}
-					// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unlikely but just in case anyways etc)), add a little safety but anyways etc that unitai needs to not be no_unitai anyways etc; note: same code but different value than no offense only nor defense only unit, as we recompute this after fetching overall unit pick as well if i'm not mistaken but anyways etc -->
+					// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unlikely but just in case anyways etc)), add a little safetythat unitai needs to not be no_unitai anyways etc; note: same code but different value than no offense only nor defense only unit, as we recompute this after fetching overall unit pick as well -->
 					// fallback to absolute cheapest (global backup)
 					const bool bNoOverallUnit = ((ePick == NO_UNIT) || (ePickAI == NO_UNITAI));
 					if (bNoOverallUnit)
@@ -1284,12 +1284,12 @@ void CvCity::doTurn()
 						setChooseProductionDirty(false);
 					}
 				}
-				// <!-- custom: lean more on economy, in particular on hammer for these watery cities that may benefit more from these buildings as fallback buildings if we have a no production (rather than a unit or such but anyways etc.) anyways etc. -->
-				// <!-- custom: note: to reply to chatgpt 5.1's question thanks: it seems to me these watery cities are not so encircled or threatened for it to be worth it to be as focused on building tons of units, so maybe don't fallback unit if no watery fallback water building but anyways etc. -->
-				// <!-- custom: note 2: also to reply to chatgpt 5.1's suggestion thanks: "food is key" + "lighthouse is sooner, but with more hammer we'll build more lighthouses or such anwyay right? And hammer may be more urgent as well maybe too" but anyways etc. -->
+				// <!-- custom: lean more on economy, in particular on hammer for these watery cities that may benefit more from these buildings as fallback buildings if we have a no production (rather than a unit or such) -->
+				// <!-- custom: note: to reply to chatgpt 5.1's question thanks: it seems to me these watery cities are not so encircled or threatened for it to be worth it to be as focused on building tons of units, so maybe don't fallback unit if no watery fallback water building -->
+				// <!-- custom: note 2: also to reply to chatgpt 5.1's suggestion thanks: "food is key" + "lighthouse is sooner, but with more hammer we'll build more lighthouses or such anwyay right? And hammer may be more urgent as well maybe too" -->
 				else if (!bEmergencyBuilding && bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE && bInnerRingMostlyWaterNonPeak)
 				{
-					// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+					// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
 					if (!bEmergencyBuilding)
 					{
 						if (SASTryEmergencyBuilding(eWaterFoodBuildingClass))
@@ -1299,7 +1299,7 @@ void CvCity::doTurn()
 					}
 
 					static const BuildingClassTypes eWaterHammerBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_HAMMER_BUILDING_BUILDINGCLASS_FULL_NAME"));
-					// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+					// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
 					if (!bEmergencyBuilding)
 					{
 						if (SASTryEmergencyBuilding(eWaterHammerBuildingClass))
@@ -1309,7 +1309,7 @@ void CvCity::doTurn()
 					}
 
 					static const BuildingClassTypes eWaterGoldBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_GOLD_BUILDING_BUILDINGCLASS_FULL_NAME"));
-					// <!-- custom: note: this helper also pushes an emergency building if it returns true if i'm not mistaken but anyways etc. -->
+					// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
 					if (!bEmergencyBuilding)
 					{
 						if (SASTryEmergencyBuilding(eWaterGoldBuildingClass))
@@ -1346,16 +1346,16 @@ void CvCity::doTurn()
 			// "No BFC yet" = still at the initial culture level (pre-10 culture)
 			static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
 			const bool bNoCultureLevelReqYet = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
-			// <!-- custom: also give the option for human players to have it for their convenience anyways etc. -->
+			// <!-- custom: also give the option for human players to have it for their convenience -->
 			static const bool bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
 
 			if (!bHuman)
 			{
-				// <!-- custom: save some computation, only run this if we are in no BFC anyways etc -->
+				// <!-- custom: save some computation, only run this if we are in no BFC -->
 				if (bNoCultureLevelReqYet)
 				{
 					const int iCpt = getCommerceRate(COMMERCE_CULTURE);
-					// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases if i'm not mistaken but anyways etc -->
+					// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases -->
 					if (iCpt <= iLowCpt)
 					{
 						const int iForcedArtists = getForceSpecialistCount(eArtist);
@@ -1368,18 +1368,18 @@ void CvCity::doTurn()
 						}
 					}
 				}
-				// <!-- custom: else let CvCityAI::AI_jobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these but anyways etc) easier as such anyways etc. -->
+				// <!-- custom: else let CvCityAI::AI_jobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these) easier as such -->
 			}
 			else if (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
 			{
-				// <!-- custom: simplify and strengthen formula for the human player, as we don't want this to fire mid game needlessly after we have our BFC if i'm not mistaken in my thinking of how to do this but anyways etc. -->
+				// <!-- custom: simplify and strengthen formula for the human player, as we don't want this to fire mid game needlessly after we have our BFC if i'm not mistaken in my thinking of how to do this -->
 				const int iForcedArtists = getForceSpecialistCount(eArtist);
 
-				// <!-- custom: save some computation, only run this if we are in no BFC anyways etc -->
+				// <!-- custom: save some computation, only run this if we are in no BFC -->
 				if (bNoCultureLevelReqYet)
 				{
 					const int iCpt = getCommerceRate(COMMERCE_CULTURE);
-					// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases if i'm not mistaken but anyways etc -->
+					// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases -->
 					if (iCpt <= iLowCpt)
 					{
 						if (iForcedArtists < 1)
@@ -1394,10 +1394,10 @@ void CvCity::doTurn()
 				// <!-- custom: remove artist specialist after we have our BFC, in a way that does not conflict with human player's choices. Autoplay results show AI CvCityAI::AI_jobChangeValue is ineffective in doing that. Credit: ChatGPT 5.1. (Claude code Sonnet 4.5 (summarized)) -->
 				else
 				{
-					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure anyways etc.) so do not prevent that here anyways etc), i.e. very early for BFC and if artist was forced anyways etc. -->
+					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure anyways etc.) so do not prevent that here anyways etc), i.e. very early for BFC and if artist was forced -->
 					const int iCityCulture = getCulture(getOwner());
 					// Culture needed to *reach* that level
-					// <!-- custom: this way we're adjusted to game speed such as BFC being as of now at 10 in normal, 20 in marathon, 6 in quick, if i'm not mistaken in my thinking/understanding. Check if accurate anyways etc. -->
+					// <!-- custom: this way we're adjusted to game speed such as BFC being as of now at 10 in normal, 20 in marathon, 6 in quick, if i'm not mistaken in my thinking/understanding. Check if accurate -->
 					// That automatically incorporates:
 					// 	- Game speed,
 					// 	- Start era,
@@ -1412,7 +1412,7 @@ void CvCity::doTurn()
 					//   - If we are clearly past BFC (culture > BFC + margin)
 					//   - but not *too* far (culture <= 2*BFC + margin)
 					// then assume that forced Artist is our auto-BFC helper and unforce it once.
-					// After that window, we never touch forced Artists in this city again. <!-- custom: for this part of the code (else we don't handle it anyways etc) anyways etc. -->
+					// After that window, we never touch forced Artists in this city again. <!-- custom: for this part of the code (else we don't handle it anyways etc) -->
 					const bool bFarEnoughFromBFC = (iCityCulture > iBFCThreshold + iEnoughSanity);
 					const bool bTooFarFromBFC = (iCityCulture > (2 * iBFCThreshold) + iEnoughSanity);
 					if (bFarEnoughFromBFC && !bTooFarFromBFC)
@@ -1494,7 +1494,7 @@ void CvCity::doTurn()
 
 	updateSurroundingHealthHappiness(); // advc.901
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iWeLoveTheKingMinPop = GC.getDefineINT("WE_LOVE_THE_KING_POPULATION_MIN_POPULATION");
 	static const int iWeLoveTheKingRand = GC.getDefineINT("WE_LOVE_THE_KING_RAND");
 
@@ -1631,7 +1631,7 @@ void CvCity::doRevolt()
 		This is just what I need now that the occupation timer decreases
 		probabilistically, but it wasn't committed to the K-Mod repository;
 		so I'm adding it here. */
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iBaseRevoltOccupationTurns = GC.getDefineINT("BASE_REVOLT_OCCUPATION_TURNS");
 	int iTurnsOccupation = iBaseRevoltOccupationTurns +
 			getNumRevolts(eCulturalOwner); // </advc.023>
@@ -5043,7 +5043,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
 	rSecondPartyModifier.clamp(0, 1);
 	rStrength *= rSecondPartyModifier;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iForeignCultureStrengthExponent = GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_EXPONENT");
 
 	/*	Culture strength too low in the late game - or garrison strength too high, but
@@ -5056,7 +5056,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
 	rStrength *= per100(GC.getInfo(kOwner.getHandicapType()).get(
 			CvHandicapInfo::ForeignCultureStrength));
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iRevoltOffenseStateReligionModifier = GC.getDefineINT("REVOLT_OFFENSE_STATE_RELIGION_MODIFIER");
 	static const int iRevoltDefenseStateReligionModifier = GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER");
 	static const int iTotalCultureModifier = GC.getDefineINT("REVOLT_TOTAL_CULTURE_MODIFIER");
@@ -7509,7 +7509,7 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
 	if (GC.getGame().isFinalInitialized() && getCultureLevel() > eOldValue &&
 		getCultureLevel() > 1)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_BORDERS_EXPANDED", getNameKey()));
@@ -9012,7 +9012,7 @@ scaled CvCity::getRevoltTestProbability() const // advc.101: Return type was int
 	if (isBarbarian() && kGame.getGameTurn() - getGameTurnAcquired() < 8 * rSpeedFactor)
 		return 0; // </advc.101>
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iRevoltTestProb = GC.getDefineINT("REVOLT_TEST_PROB");
 
 	static scaled const rREVOLT_TEST_PROB = per100(iRevoltTestProb); // advc.opt
@@ -9045,7 +9045,7 @@ void CvCity::addRevoltFreeUnits()
 
 	if (eBestUnit != NO_UNIT)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iBaseRevoltFreeUnits = GC.getDefineINT("BASE_REVOLT_FREE_UNITS");
 		static const int iRevoltFreeUnitsPercent = GC.getDefineINT("REVOLT_FREE_UNITS_PERCENT");
 
@@ -9553,7 +9553,7 @@ void CvCity::setSpecialistCount(SpecialistTypes eSpecialist, int iNewValue)
 void CvCity::changeSpecialistCount(SpecialistTypes eSpecialist, int iChange)
 {
 	#ifdef _DEBUG
-	// <!-- custom: add debug info here to be sure or sure enough we do it correctly anyways etc. -->
+	// <!-- custom: add debug info here to be sure or sure enough we do it correctly -->
 	// SAS debug: catch any unexpected citizen assignment
 	if (iChange > 0)
 	{
@@ -9618,8 +9618,8 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
 	}
 	else
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
 		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 		for (int i = 0; i < -iChange; i++)
@@ -9656,7 +9656,7 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
 
 bool CvCity::isSpecialistValid(SpecialistTypes eSpecialist, int iExtra) const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 	return (getSpecialistCount(eSpecialist) + iExtra <= getMaxSpecialistCount(eSpecialist) ||
@@ -9895,7 +9895,7 @@ void CvCity::alterWorkingPlot(CityPlotTypes ePlot)
 	setCitizensAutomated(false);
 	if (isWorkingPlot(ePlot))
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 		setWorkingPlot(ePlot, false);
@@ -10038,8 +10038,8 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, boo
 			}
 			if (kBuilding.isWorldWonder())
 			{
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-				// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				// <!-- custom: code/performance optimization: hoist -->
 				static const ColorTypes eColorBuildingText = (ColorTypes)GC.getColorType("BUILDING_TEXT");
 				szBuffer = gDLL->getText(  // <advc.008e>
 						kBuilding.nameNeedsArticle() ?
@@ -10180,7 +10180,7 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
 	// <advc.106e>
 	int const iOwnerEra = kOwner.getCurrentEra();
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iEraThresh = GC.getDefineINT("STOP_RELIGION_SPREAD_ANNOUNCE_ERA");
 	static const int iAnnounceStateReligionSpread = GC.getDefineINT("ANNOUNCE_STATE_RELIGION_SPREAD");
 
@@ -10242,8 +10242,8 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
 	{
 		if (bAnnounce)
 		{	// <advc.106e> Announce removed religion to other civs as well
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
 			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
@@ -11208,7 +11208,7 @@ void CvCity::setWallOverridePoints(const std::vector< std::pair<float, float> >&
 // <advc.310>
 void CvCity::addGreatWall(int iAttempt)
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iGreatWallGraphicMode = GC.getDefineINT("GREAT_WALL_GRAPHIC_MODE");
 
 	if (iGreatWallGraphicMode != 1)
@@ -11454,7 +11454,7 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
 	scaled rCultureToMaster = 1;
 	if (GET_TEAM(getTeam()).isCapitulated())
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iCapitulatedToMasterCulturePercent = GC.getDefineINT("CAPITULATED_TO_MASTER_CULTURE_PERCENT");
 
 		static scaled const rCAPITULATED_TO_MASTER_CULTURE_PERCENT = per100(
@@ -11840,8 +11840,8 @@ void CvCity::doReligion()
 			religion_grips.end(), std::greater<std::pair<int,ReligionTypes> >());
 
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iReligionSpreadRand = GC.getDefineINT("RELIGION_SPREAD_RAND");
 
 	for (int i = 0; i < iChances; i++)
@@ -12647,12 +12647,12 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible,
 	// general rule: no more than fPercentUnique percent of a city can be uniques
 	int iTotalVisibleBuildings;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const bool bGAME_CITY_SIZE_METHOD_With_METHOD_EXPONENTIAL_Equal_To_Zero = (::stricmp(GC.getDefineSTRING("GAME_CITY_SIZE_METHOD"), "METHOD_EXPONENTIAL") == 0);
 
 	if (bGAME_CITY_SIZE_METHOD_With_METHOD_EXPONENTIAL_Equal_To_Zero)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const float fGAME_CITY_SIZE_EXP_MODIFIER = GC.getDefineFLOAT("GAME_CITY_SIZE_EXP_MODIFIER");
 
 		int iCityScaleMod = (int)(std::pow((float)getPopulation(),
@@ -12661,7 +12661,7 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible,
 	}
 	else
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const float fLo = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_0");
 		//static const float fHi = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_50");
 		static const float fHiFLo = ((GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_50") - fLo) / 50.0f);
@@ -12669,7 +12669,7 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible,
 		iTotalVisibleBuildings = (int)(fHiFLo * getPopulation() + fLo);
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const float fMaxUniquePercent = GC.getDefineFLOAT("GAME_CITY_SIZE_MAX_PERCENT_UNIQUE");
 
 	int iMaxNumUniques = (int)(fMaxUniquePercent * iTotalVisibleBuildings);
@@ -13139,7 +13139,7 @@ void CvCity::applyEvent(EventTypes eEvent,
 			int iNumPillage = kEvent.getMinPillage() +
 					SyncRandNum(kEvent.getMaxPillage() - kEvent.getMinPillage());
 
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 			int iNumPillaged = 0;
@@ -13310,7 +13310,7 @@ void CvCity::doPartisans()
 	if (getNumPartisanUnits(kPartisanPlayer.getID()) <= 0)
 		return;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const EventTriggerTypes eTrigger = (EventTriggerTypes)GC.getInfoTypeForString("EVENTTRIGGER_PARTISANS");
 	FAssert(eTrigger != NO_EVENTTRIGGER);
 	if (!GC.getGame().isEventActive(eTrigger) ||
@@ -13491,7 +13491,7 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
 				kLiberationTeam.getTotalLand(false));
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_LIBERATED", getNameKey(),
@@ -13747,7 +13747,7 @@ void CvCity::getBuildQueue(std::vector<std::string>& astrQueue) const
 // <advc.004b> See CvCity.h
 int CvCity::initialPopulation()
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iInitialCityPopulation = GC.getDefineINT("INITIAL_CITY_POPULATION");
 
 	return iInitialCityPopulation +
@@ -13987,7 +13987,7 @@ void CvCity::failProduction(int iOrderData, int iInvestedProduction, bool bProje
 	if (iGoldPercent <= 0)
 		return;
 	int iProductionGold = (iInvestedProduction * iGoldPercent) / 100;
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 	GET_PLAYER(getOwner()).changeGold(iProductionGold);
 	CvWString szMsg = gDLL->getText("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED",
@@ -14007,7 +14007,7 @@ int CvCity::failGoldPercent(OrderTypes eOrder) const // Fail and overflow gold
 		fail gold to the Wealth process. */
 	int r = GC.getInfo((ProcessTypes)0).getProductionToCommerceModifier(COMMERCE_GOLD);
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iMaxedUnitGoldPercent = GC.getDefineINT("MAXED_UNIT_GOLD_PERCENT");
 	static const int iMaxedBuildingGoldPercent = GC.getDefineINT("MAXED_BUILDING_GOLD_PERCENT");
 	static const int iMaxedProjectGoldPercent = GC.getDefineINT("MAXED_PROJECT_GOLD_PERCENT");

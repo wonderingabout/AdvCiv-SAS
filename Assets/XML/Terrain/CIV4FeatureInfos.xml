@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- -->
 <!-- Feature -->
-<!-- custom: note: be careful when/if renaming some of these features but anyways etc, as one or several of these are now also hardcoded in advciv-sas in the DLL as part of AI settling/founding/planting cities optimization, as well as optimizing AI worker improvement choice, if you want to rename it, rename it there as well and recompile the DLL, anyways etc -->
+<!-- custom: note: be careful when/if renaming some of these features, as one or several of these are now also hardcoded in advciv-sas in the DLL as part of AI settling/founding/planting cities optimization, as well as optimizing AI worker improvement choice, if you want to rename it, rename it there as well and recompile the DLL -->
 <Civ4FeatureInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<FeatureInfos>
 		<FeatureInfo>
@@ -133,7 +133,7 @@
 			<HillsYieldChange/>
 			<iMovement>2</iMovement>
 			<iSeeThrough>1</iSeeThrough>
-			<!-- custom: (now and as of now i mean anyways etc same as of the forest health positive modifier but negative here anyways etc), was -25 -->
+			<!-- custom: (now and as of now same as of the forest health positive modifier but negative here anyways etc), was -25 -->
 			<iHealthPercent>-50</iHealthPercent>
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #27 -->
 			<!-- advc.012: was 50 -->
@@ -375,7 +375,7 @@
 			<HillsYieldChange/>
 			<iMovement>1</iMovement>
 			<iSeeThrough>0</iSeeThrough>
-			<!-- custom: this feature is a bit op so fine to nerf it bit, no reason not to increase the health penalty even outside of this as seems more realistic if i am not mistaken in my guess but or not but or yes but anyways etc, was -40 -->
+			<!-- custom: this feature is a bit op so fine to nerf it bit, no reason not to increase the health penalty even outside of this as seems more realistic if i am not mistaken in my guess but or not but or yes, was -40 -->
 			<iHealthPercent>-50</iHealthPercent>
 			<iDefense>0</iDefense>
 			<iAppearance>10000</iAppearance>

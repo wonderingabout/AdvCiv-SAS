@@ -198,8 +198,8 @@ protected:
 	// BULL - Leaderhead Relations:
 	void parseLeaderheadRelationsHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer &szBuffer);
 
-	// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
-	// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+	// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+	// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate -->
 	// Helper for Vassal Willingness Tooltip
 	void parseVassalWillingnessHelp(CvWStringBuffer &szBuffer, PlayerTypes eRival, PlayerTypes ePlayer);
 

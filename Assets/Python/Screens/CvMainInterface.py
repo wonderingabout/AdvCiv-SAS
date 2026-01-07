@@ -580,7 +580,7 @@ class CvMainInterface:
 		gSetSquare("GlobeToggle", "Top", 0, 0, BTNSZ(36))
 		self.setMiniMapRects()
 
-		# <!-- custom: enlarge the bottom panels now that we increased self.SIDE_PANELS_WIDTH to fit more info, so that the bottom panel is aligned with the enlarged side panels (that have bonuses, etc.), as chatgpt 5.2 confirmed thanks a lot anyways etc. Note: somehow width is slightly too low and not enough with just self.SIDE_PANELS_WIDTH, so adding some extra manual adjustment anyways etc. Doing it this way i could confirm chatgpt 5.2's explanation seems correct (check if accurate) anyways etc. -->
+		# <!-- custom: enlarge the bottom panels now that we increased self.SIDE_PANELS_WIDTH to fit more info, so that the bottom panel is aligned with the enlarged side panels (that have bonuses, etc.), as chatgpt 5.2 confirmed thanks a lot anyways etc. Note: somehow width is slightly too low and not enough with just self.SIDE_PANELS_WIDTH, so adding some extra manual adjustment anyways etc. Doing it this way i could confirm chatgpt 5.2's explanation seems correct (check if accurate) -->
 		# also ensure CenterBottomPanel starts to the right of CityLeftPanel (needs +8 because LowerLeftCorner trims -8).
 		iEstimatedBottomPanelsExtraWidth = 8
 		iEstimatedBottomPanelsWidth = self.SIDE_PANELS_WIDTH + iEstimatedBottomPanelsExtraWidth
@@ -611,7 +611,7 @@ class CvMainInterface:
 
 		gSetRect("CityLeftPanel", "Top",
 				0, 0,
-				# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks but anyways etc. -->
+				# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks -->
 				# HLEN(258), -gRect("LowerLeftCorner").height())
 				HLEN(self.SIDE_PANELS_WIDTH), -gRect("LowerLeftCorner").height())
 		gSetRect("CityRightPanel", "Top",
@@ -1141,7 +1141,7 @@ class CvMainInterface:
 			gSetPoint(szPrefix + "BUG", PointLayout(
 					gRect("CommerceSliderBtns3").xRight() + HSPACE(3), iY))
 
-			# <!-- custom after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui but anyways etc. thanks anyways etc.) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically anyways etc. -->
+			# <!-- custom after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui. thanks anyways etc.) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically -->
 			# iEstimatedCommerceRightMargin = 16
 			iEstimatedCommerceRightMargin = 20
 			iEstimatedLeftSideSize = 152
@@ -1187,7 +1187,7 @@ class CvMainInterface:
 		iRowH = 24
 		iHeightForRows = VLEN(4 * iRowH, 2)
 
-		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks -->
 		# Step 2: Move the Tables Up (Reclaim Space)
 		# 1. Trade Routes List Search for def setTradeRouteRects. Find the line defining TradeRouteTable. We will change .yBottom() to .y() so it starts at the top of the (now hidden) header space.
 		gSetRect("TradeRouteTable", "CityLeftPanelContents",
@@ -1235,7 +1235,7 @@ class CvMainInterface:
 		gOffSetPoint("BuildingListLabel", "BuildingListBackground",
 				RectLayout.CENTER, self.cityScreenHeadingOffset())
 		
-		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks -->
 		# Step 2: Move the Tables Up (Reclaim Space)
 		# 2. Buildings List Search for def setBuildingListRects. We need to change .yBottom() to .y() in two places here (one for position, one for height calculation).
 		gSetRect("BuildingListTable", "CityLeftPanelContents",
@@ -1385,13 +1385,13 @@ class CvMainInterface:
 		iBigHSpace = HSPACE(4)
 
 		# This value needs to be consistent with the FirstFreeSpecialist and AngryCitizenButtons rects
-		# <!-- custom: make room for a new specialist breakdown, with the help of gemini 3 pro thanks anyways etc. -->
+		# <!-- custom: make room for a new specialist breakdown, with the help of gemini 3 pro thanks -->
 		# This is a great idea. Since you want to insert a "Specialist Breakdown" later, you need to create a gap between the Citizen Buttons and the Great Person Bar at the bottom.
 		# To do this, we simply tell the game to position the Citizen/Specialist buttons higher up (further away from the bottom). This will naturally push them up towards the Bonus panel and leave empty space below them.
 		# Add + self.cityScreenHeadingBackgrHeight() to the end of the calculation.
 		# By adding self.cityScreenHeadingBackgrHeight() (which is the height of the gray bar you removed, ~30 pixels), you lift the entire specialist section up by that amount.
 		# Since you hid the Specialist Header but didn't expand the Bonus Panel (Step 2.3), there was a "gap" at the top. Moving the specialists up will fill that top gap and open up a new 30-pixel gap at the bottom, right above the Great Person Bar, which is perfect for your future breakdown widget.
-		# <!-- custom: add a bit more for beautification and nicer spacing anyways etc. -->
+		# <!-- custom: add a bit more for beautification and nicer spacing -->
 		iHeightRoomForSpecialistBreakdown = self.cityScreenHeadingBackgrHeight() + 10
 		iNonAdjustablesOffset = (3 * iSmallVSpace + 2 * iCitizenBtnSize +
 				# gRect("GreatPeopleBar").height())
@@ -1419,7 +1419,7 @@ class CvMainInterface:
 				lIncreaseSpecialistButtons.height())
 
 		# Only a placeholder; the free-specialist row gets placed later.
-		# <!-- custom: make room for a new specialist breakdown, with the help of gemini 3 pro thanks anyways etc. -->
+		# <!-- custom: make room for a new specialist breakdown, with the help of gemini 3 pro thanks -->
 		# Since you moved the sliders up by adding self.cityScreenHeadingBackgrHeight() to iNonAdjustablesOffset, you need to apply that same vertical shift to the Free Specialists and Angry Citizens so they move up with the rest of the group.
 		# Update the .move() commands for both FirstFreeSpecialist and lAngryCitizenButtons by subtracting self.cityScreenHeadingBackgrHeight().
 		gSetSquare("FirstFreeSpecialist", "CityRightPanelContents",
@@ -1483,7 +1483,7 @@ class CvMainInterface:
 		iBonusBackrOverhang = min(VSPACE(16),
 				gRect("SpecialistLabelBackground").height())
 
-		# <!-- custom: make it even between the 3 bonus columns, since we have more room and cleaner as such and in case the strategy bonuses use some effects or such, they'd need some room to show them anyways etc. Done with the help of gemini 3 pro, check if accurate anyways etc. Also use a variable so it dynamically adjusts to total side width in case we want to change it later anyways etc. Also account for the margins, the total width seems to be effectively quite a bit less than max, empirically reduce it a bit to adjust for that but anyways etc. Note: i tried 15 instead of 2 * 8 but it seems to give same result than 2 * 7 (i.e. 14 and 15 are not different somehow if i'm not mistaken, only 14 or 16 show a difference visually ingame but anyways etc.) so went with 2 * 8 rather than 2 * 7 as it seems prettier to me as such even though a bit too wide but the other is too tight but anyways etc. -->
+		# <!-- custom: make it even between the 3 bonus columns, since we have more room and cleaner as such and in case the strategy bonuses use some effects or such, they'd need some room to show them anyways etc. Done with the help of gemini 3 pro, check if accurate anyways etc. Also use a variable so it dynamically adjusts to total side width in case we want to change it later anyways etc. Also account for the margins, the total width seems to be effectively quite a bit less than max, empirically reduce it a bit to adjust for that. Note: i tried 15 instead of 2 * 8 but it seems to give same result than 2 * 7 (i.e. 14 and 15 are not different somehow if i'm not mistaken, only 14 or 16 show a difference visually ingame) so went with 2 * 8 rather than 2 * 7 as it seems prettier to me as such even though a bit too wide but the other is too tight -->
 		iBonusTableTableWidth = self.SIDE_PANELS_WIDTH - (2 * 8)
 		iBonusTableColumnWidth = iBonusTableTableWidth / 3
 		gSetRect("BonusPane0", "CityRightPanelContents",
@@ -1580,7 +1580,7 @@ class CvMainInterface:
 		xResolution = self.xResolution
 		yResolution = self.yResolution
 
-		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper but anyways etc. -->
+		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper -->
 		if self.iBarExtraRows is None:
 			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
@@ -2176,7 +2176,7 @@ class CvMainInterface:
 		iTMargin = min(VSPACE(iTMarginThresh), iVMargin / 2)
 		iBMargin = iVMargin - iTMargin
 
-		# <!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+		# <!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks -->
 		# City screen: show more build rows in production chooser
 		if self.iBarExtraRows > 0:
 			if CyInterface().isCityScreenUp():
@@ -2524,7 +2524,7 @@ class CvMainInterface:
 				else:
 					self.updateCitizenButtons(pHeadSelectedCity)
 				# <advc.004> Show the SpecialistLabel regardless of BUG options
-				# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+				# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks -->
 				# Step 1: Hide the Header Widgets (Gray Bars)
 				# if self.isShowSpecialistLabel():
 				# 	# Cut from updateCitizenButtons_Stacker ...
@@ -2577,7 +2577,7 @@ class CvMainInterface:
 			# </advc.004z>
 		return 0
 
-	# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+	# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks -->
 	# # advc.004:
 	# def isShowSpecialistLabel(self):
 	# 	# Not quite enough space on low res. (Fixme: The Stacker layout does leave
@@ -3574,9 +3574,9 @@ class CvMainInterface:
 						iCount += 1
 						bFound = True
 
-				# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
+				# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks -->
 				# 3) Replace the selectMultiList(...getCityTabSelectionRow()) in the city-screen block
-				# <!-- custom: note: after applying all the 3 steps of this fix, when clicking on lower rows while we are in the top rows sections, we successfully prevent auto-scrolling down as we want, however it seems that when we click on the upper rows while we are in the bottom rows sections, then we auto-scroll back to top. It may not be ideal; or, maybe this is a nice side effect we can keep, as bottom rows mostly only have wonders and processes, and we don't want to build too many of them anyway, so kept as such anyways etc. -->
+				# <!-- custom: note: after applying all the 3 steps of this fix, when clicking on lower rows while we are in the top rows sections, we successfully prevent auto-scrolling down as we want, however it seems that when we click on the upper rows while we are in the bottom rows sections, then we auto-scroll back to top. It may not be ideal; or, maybe this is a nice side effect we can keep, as bottom rows mostly only have wonders and processes, and we don't want to build too many of them anyway, so kept as such -->
 				# screen.selectMultiList("BottomButtonList", CyInterface().getCityTabSelectionRow())
 				if self.iBarExtraRows > 0:
 					if self.iCityBuildBarPinnedRow is None:
@@ -4655,7 +4655,7 @@ class CvMainInterface:
 		screen.hide("CultureText")
 		screen.hide("GreatPeopleText")
 
-		# <!-- custom: fix the new specialist breakdown not disappearing after we exit the city screen, with the help of chatgpt 5.2 thanks anyways etc. -->
+		# <!-- custom: fix the new specialist breakdown not disappearing after we exit the city screen, with the help of chatgpt 5.2 thanks -->
 		# Specialist Breakdown widget (city screen only)
 		screen.hide("SpecBreakdownLabel1")
 		screen.hide("SpecBreakdownLabel2")
@@ -5232,7 +5232,7 @@ class CvMainInterface:
 				(iColW2 * iAvailW) / 236)
 		screen.setTableColumnRightJustify("BuildingListTable", 1)
 
-		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks -->
 		# Step 1: Hide the Header Widgets (Gray Bars)
 		# screen.show("BuildingListBackground")
 		# screen.show("TradeRouteListBackground")
@@ -5261,7 +5261,7 @@ class CvMainInterface:
 			screen.setState("RawYieldsOwnedTiles6",
 					g_iYieldTiles == RawYields.OWNED_TILES)
 			screen.show("RawYieldsOwnedTiles6")
-		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
+		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks -->
 		# Step 1: Hide the Header Widgets (Gray Bars)
 		# else:
 		# 	screen.show("TradeRouteListLabel")
@@ -5361,7 +5361,7 @@ class CvMainInterface:
 							szRightBuffer = szRightBuffer + szTempBuffer
 						self.yields.addBuilding(iYield, iChange) # BUG - Raw Yields
 
-					# <!-- custom: add the +1 great person icon in buildings list as it is handy to have and tedious to check everytime, with the help of gemini 3 pro thanks anyways etc. -->
+					# <!-- custom: add the +1 great person icon in buildings list as it is handy to have and tedious to check everytime, with the help of gemini 3 pro thanks -->
 					# --- Start: Add Great Person Rate to Building List ---
 					iGPRate = gc.getBuildingInfo(iBuilding).getGreatPeopleRateChange()
 					if iGPRate > 0:
@@ -5995,7 +5995,7 @@ class CvMainInterface:
 		screen.setBarPercentage("CultureBar", InfoBarTypes.INFOBAR_RATE, fProgress)
 		screen.show("CultureBar")
 
-		# <!-- custom: add a new specialist breakdown. We have removed a few elements and moved up the specialists panel, so now we can use this space for that. Code added with the help of gemini 3 pro thanks anyways etc. -->
+		# <!-- custom: add a new specialist breakdown. We have removed a few elements and moved up the specialists panel, so now we can use this space for that. Code added with the help of gemini 3 pro thanks -->
 		# To add the Specialist Breakdown in the empty space you created on the bottom right (below the specialists), we will add a block of code to updateCityScreen.
 		# This code will:
 		# 	- Calculate the GP points coming from Buildings vs Specialists.
@@ -6150,7 +6150,7 @@ class CvMainInterface:
 			for i in range(iOrders):
 				szLeftBuffer = u""
 				szRightBuffer = u""
-				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 anyways etc. -->
+				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
 				szButton = ""
 				if (CyInterface().getOrderNodeType(i) == OrderTypes.ORDER_TRAIN):
 					szLeftBuffer = gc.getUnitInfo(
@@ -6236,7 +6236,7 @@ class CvMainInterface:
 						szButton = gc.getProcessInfo(CyInterface().getOrderNodeData1(i)).getButton()
 				screen.appendTableRow("SelectedCityText")
 
-				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 anyways etc. -->
+				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
 				screen.setTableText("SelectedCityText", 0, iRow, szLeftBuffer, szButton, WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)  
 
 				screen.setTableText("SelectedCityText", 1, iRow, szRightBuffer, "", WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
@@ -7420,7 +7420,7 @@ class CvMainInterface:
 				return self.MainInterfaceInputMap.get(inputClass.getFunctionName() + "1")(inputClass)
 # BUG - PLE - end
 
-			# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
+			# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks -->
 			# 2) Update that pin only when the user clicks the city tab / scroll arrows
 			# Prevent BottomButtonList from auto-jumping when showing multiple build rows
 			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:

@@ -578,7 +578,7 @@ void CvPlot::updateSymbols()
 
 	if (iMaxYieldRate > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK"); // advc.opt: static
 		int iLayers = iMaxYieldRate / iMAX_YIELD_STACK + 1;
 
@@ -833,10 +833,10 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	std::vector<NukeEffect> aCitizensKilled;
 	// </advc.650>
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const int iNUKE_FEATURE = GC.getDefineINT("NUKE_FEATURE");
-	// <!-- custom: also static const the enum as it shouldn't change if i'm not mistaken and as chatgpt 5 agrees as well after i asked it but check if accurate as i don't know too much about these but it does seem so but check to be sure but anyways etc -->
+	// <!-- custom: also static const the enum as it shouldn't change if i'm not mistaken and as chatgpt 5 agrees as well after i asked it but check if accurate as i don't know too much about these but it does seem so but check to be sure-->
 	static const FeatureTypes eNUKE_FEATURE = (FeatureTypes)iNUKE_FEATURE;
 
 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
@@ -4104,8 +4104,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 	CvCity* pOldCity = getPlotCity();
 	if (pOldCity != NULL)  // advc: Removed some assertions and NULL/NO_... checks in this block
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
 		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
 		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
@@ -7314,7 +7314,7 @@ void CvPlot::read(FDataStreamBase* pStream)
 	pStream->Read(&m_eTeam);
 	// </advc.opt>
 
-	// <!-- custom: the base advciv comment note initial tag seems to be missing, i didn't remove it, not adding it either just in case, and is if i am not mistaken too hehe but anyways etc-->
+	// <!-- custom: the base advciv comment note initial tag seems to be missing, i didn't remove it, not adding it either just in case, and is if i am not mistaken too hehe-->
 	// </advc.opt>
 	pStream->Read(&m_ePlotType);
 	pStream->Read(&m_eTerrainType);
@@ -7558,14 +7558,14 @@ void CvPlot::getVisibleImprovementState(ImprovementTypes& eType, bool& bWorked)
 			{
 				if (isWater())
 				{
-					// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+					// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 					static const ImprovementTypes eWATER_IMPROVEMENT = (ImprovementTypes)GC.getDefineINT("WATER_IMPROVEMENT");
 
 					eType = eWATER_IMPROVEMENT;
 				}
 				else
 				{
-					// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+					// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 					static const ImprovementTypes eLAND_IMPROVEMENT = (ImprovementTypes)GC.getDefineINT("LAND_IMPROVEMENT");
 
 					eType = eLAND_IMPROVEMENT;
@@ -8223,7 +8223,7 @@ float CvPlot::getAqueductSourceWeight() const
 {
 	PROFILE_FUNC(); // (advc: Fine - EXE seems to call this only a few times per turn)
 	// <advc.002p> Imperfect workaround for a missing same-area check in the EXE
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static BuildingClassTypes const eAqueduct = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_AQUEDUCT", true);
 
 	for (CityPlotIter itPlot(*this, false); itPlot.hasNext(); ++itPlot)

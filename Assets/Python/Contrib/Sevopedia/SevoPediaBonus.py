@@ -21,7 +21,7 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: change its value if you don't want to see AI information in the special abilities panel anyways etc -->
+# <!-- custom: change its value if you don't want to see AI information in the special abilities panel -->
 IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVOPEDIA_BONUS_SHOW_AI_INFORMATION") > 0)
 
 
@@ -40,18 +40,18 @@ class SevoPediaBonus:
 		self.W_BONUS_PANE = (self.top.R_PEDIA_PAGE - self.X_BONUS_PANE - self.MEDIUM_MARGIN) / 2
 		self.H_BONUS_PANE = 250
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
 		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
-		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_BONUS_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_BONUS_PANE ; same reasoning for Y position -->
+		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_BONUS_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_BONUS_PANE; same reasoning for Y position -->
 		self.X_ICON = self.X_BONUS_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
 		self.Y_ICON = self.Y_BONUS_PANE + (self.H_BONUS_PANE - self.H_ICON) / 2
 
-		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer anyways etc -->
+		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer -->
 		self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN = (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
 
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
@@ -62,7 +62,7 @@ class SevoPediaBonus:
 		self.W_STATS_PANE = self.W_BONUS_PANE - self.W_ICON - (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN) - self.STATS_PANE_LEFT_SIDE_MARGIN
 		self.H_STATS_PANE = self.H_BONUS_PANE - self.STATS_PANE_UPPER_PADDING
 
-		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation anyways etc -->
+		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation -->
 		self.W_TOTAL_EFFECTIVE_BONUS_PANE = self.W_BONUS_PANE
 
 		self.X_IMPROVEMENTS = self.X_BONUS_PANE
@@ -102,7 +102,7 @@ class SevoPediaBonus:
 		self.Z_ROTATION_BONUS_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
-		# <!-- custom: since we split this right side width in 3 panels, (each) and it is separated by 2 self.MEDIUM_MARGINS, substract these before diving (anyways etc), anyways etc -->
+		# <!-- custom: since we split this right side width in 3 panels, (each) and it is separated by 2 self.MEDIUM_MARGINS, substract these before diving -->
 		self.X_REVEALED_BY = self.X_BONUS_ANIMATION
 		self.Y_REVEALED_BY = self.Y_BONUS_ANIMATION + self.H_BONUS_ANIMATION + self.SMALL_MARGIN
 		self.W_REVEALED_BY = (self.W_BONUS_PANE - (2 * self.MEDIUM_MARGIN)) / 3
@@ -151,7 +151,7 @@ class SevoPediaBonus:
 		self.placeFeatures()
 		self.placeFeatureTerrainBooleans()
 		self.placeSpecial()
-		# <!-- custom: split the former/old placeRequires, into 2 functions/methods now instead, placeRevealedBy and placeTradeableSince (which is hopefully more accurate this way too), anyways etc -->
+		# <!-- custom: split the former/old placeRequires, into 2 functions/methods now instead, placeRevealedBy and placeTradeableSince (which is hopefully more accurate this way too) -->
 		self.placeRevealedBy()
 		self.placeTradeableSince()
 		self.placeObsoleteWith()
@@ -175,7 +175,7 @@ class SevoPediaBonus:
 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
 		
-		# <!-- custom: handle multiple potential yield changes anyways etc by separating the header from yield stats display anyways etc --> 
+		# <!-- custom: handle multiple potential yield changes anyways etc by separating the header from yield stats display --> 
 		szTextHeader = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES", ()) + "\n" + u"</b></font>"
 		screen.appendListBoxString(panelName, szTextHeader, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -210,7 +210,7 @@ class SevoPediaBonus:
 		
 		# Add vertical spacing at top to help center content
 		# We estimate about 40% of panel height as top margin to achieve vertical centering
-		# <!-- custom: note: currently vertical button above label doesn't work so code should be cleaned up and solved, but this is good enough so keeping it as is as it working and functional and an improvement over previous vertical scrolling code anyways etc -->
+		# <!-- custom: note: currently vertical button above label doesn't work so code should be cleaned up and solved, but this is good enough so keeping it as is as it working and functional and an improvement over previous vertical scrolling code -->
 		#verticalSpacerName = self.top.getNextWidgetName()
 		#verticalMargin = int(self.H_IMPROVEMENTS * 0.2)  # 20% of panel height as top margin
 		#screen.attachLabel(rowPanelName, verticalSpacerName, "\n" * int(verticalMargin/10))
@@ -249,7 +249,7 @@ class SevoPediaBonus:
 					spacerText = " " * buttonSpacing
 					screen.attachLabel(rowPanelName, spacerName, spacerText)
 				
-				# <!-- custom: note: currently vertical button above label doesn't work so code should be cleaned up and solved, but this is good enough so keeping it as is as it working and functional and an improvement over previous vertical scrolling code anyways etc -->
+				# <!-- custom: note: currently vertical button above label doesn't work so code should be cleaned up and solved, but this is good enough so keeping it as is as it working and functional and an improvement over previous vertical scrolling code -->
 				# Create a column panel for vertical arrangement (button above label)
 				colPanelName = self.top.getNextWidgetName()
 				screen.attachPanel(rowPanelName, colPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
@@ -323,7 +323,7 @@ class SevoPediaBonus:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# advc.004y: txt key was TXT_KEY_PEDIA_CATEGORY_BUILDING
-		# <!-- custom: note: Now the buildings panel is larger as the units panel (is) (anyways etc), useful for ressources like marble that could not fit all -->
+		# <!-- custom: note: Now the buildings panel is larger as the units panel (is), useful for ressources like marble that could not fit all -->
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		# <!-- custom: placeAllows is now renamed to placeUnits -->
@@ -359,7 +359,7 @@ class SevoPediaBonus:
 				bAnyDisplayed = True
 				screen.attachImageButton( panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False )
 
-		# <!-- custom: in the aluminium bonus, all projects show the apostolic palace in the tooltip, and redirect to the apostolic palace instead of the correct project. Fixed with the help of chatgpt 5.2 thanks anyways etc. -->
+		# <!-- custom: in the aluminium bonus, all projects show the apostolic palace in the tooltip, and redirect to the apostolic palace instead of the correct project. Fixed with the help of chatgpt 5.2 thanks -->
 		# <advc.004y>
 		for iProject in range(gc.getNumProjectInfos()):
 			info = gc.getProjectInfo(iProject)
@@ -392,7 +392,7 @@ class SevoPediaBonus:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
+		# <!-- custom: note: this doesn't seem to do anything in multilist methodsand in particular no padding so do not use this here i mean for multilists -->
 		# Additional left side padding for the button(s)
 		#screen.attachLabel(panelName, "", "  ")
 
@@ -450,7 +450,7 @@ class SevoPediaBonus:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
+		# <!-- custom: note: this doesn't seem to do anything in multilist methodsand in particular no padding so do not use this here i mean for multilists -->
 		# Additional left side padding for the button(s)
 		#screen.attachLabel(panelName, "", "  ")
 
@@ -493,7 +493,7 @@ class SevoPediaBonus:
 
 
 
-	# <!-- custom: also show Bonuses available through FeatureTerrainBooleans, such as as of now bonus_gemstones being available in grassland forest, but not in TerrainBooleans (no grassland entry there if i may say but anyways etc), so show this info here as well ; code provided by chatgpt thanks to my prompt too and such etc but anyways etc -->
+	# <!-- custom: also show Bonuses available through FeatureTerrainBooleans, such as as of now bonus_gemstones being available in grassland forest, but not in TerrainBooleans (no grassland entry there), so show this info here as well; code provided with the help of chatgpt thanks and such etc-->
 	def placeFeatureTerrainBooleans(self):
 		xPanel = self.X_FEATURE_TERRAIN_BOOLEANS
 		yPanel = self.Y_FEATURE_TERRAIN_BOOLEANS
@@ -509,7 +509,7 @@ class SevoPediaBonus:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
+		# <!-- custom: note: this doesn't seem to do anything in multilist methodsand in particular no padding so do not use this here i mean for multilists -->
 		# Additional left side padding for the button(s)
 		#screen.attachLabel(panelName, "", "  ")
 
@@ -555,7 +555,7 @@ class SevoPediaBonus:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
-		# <!-- custom: code added with the help of claude ai thanks anyways etc based on our existing code on advciv-sas and my prompt too and/or such anyways etc -->
+		# <!-- custom: code added with the help of claude ai thanks anyways etc based on our existing code on advciv-sas and my prompt too and/or such -->
 		if IS_SHOW_AI_INFO:
 			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION"
 		else:
@@ -575,7 +575,7 @@ class SevoPediaBonus:
 			# Add iAIObjective
 			aiObjective = bonusInfo.getAIObjective()
 
-			# <!-- custom: note: separate info from other non AI entries more cleanly / clearly if i may say but anyways etc, so on more new line for first AI entry anyways etc -->
+			# <!-- custom: note: separate info from other non AI entries more cleanly / clearly, so on more new line for first AI entry -->
 			if szSpecialText.strip():
 				szSpecialText += "\n\n"
 			szSpecialText += "%siAIObjective: %d" % (bullet, aiObjective)
@@ -620,7 +620,7 @@ class SevoPediaBonus:
 		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()
 		if iTech > -1:
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
-			# <!-- custom: same as in placeRevealedBy anyways etc -->
+			# <!-- custom: same as in placeRevealedBy -->
 			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
 		else:
 			yPanelCenter = self.Y_TRADEABLE_SINCE + (self.H_TRADEABLE_SINCE / 2)

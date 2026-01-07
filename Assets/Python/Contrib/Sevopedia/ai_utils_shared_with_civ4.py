@@ -5,7 +5,7 @@
 
 
 # <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
-# <!-- custom: 11 entries total if i am not mistaken anyways etc -->
+# <!-- custom: 11 entries total -->
 def get_positive_memory_indexes_to_types():
 	return {
 		8: "MEMORY_GIVE_HELP",
@@ -46,16 +46,16 @@ def get_negative_memory_indexes_to_types():
 	# "
 	# 🧠 What it does
 	# Each time any contacted civilization receives a technology via trade, all other AI civilizations that have met them (including the trading partner itself) increase a hidden memory counter called MEMORY_RECEIVED_TECH_FROM_ANY by 1 
-	# modiki.civfanatics.com +8 ; groups.google.com +8 ; civ4wiki.com +8.
+	# modiki.civfanatics.com +8; groups.google.com +8; civ4wiki.com +8.
 	#
 	# This doesn't directly adjust diplomatic attitude; instead, it's a "tech‑overexposure" counter influencing whether AI will trade techs with you later .
 	#
 	# 🕰️ How it operates
 	# When one AI gets a tech from you, every AI that knows them—including the one receiving it—gets this memory += 1 
-	# kirk.zulan.net +5 ; groups.google.com +5 ; forum.gamer.com.tw +5.
+	# kirk.zulan.net +5; groups.google.com +5; forum.gamer.com.tw +5.
 	#
 	# Over time, the counter randomly decays, with the <iMemoryRand>20</iMemoryRand> tag setting the rate (i.e., each turn there's a chance to decrease by 1) 
-	# modiki.civfanatics.com +3 ; forums.civfanatics.com +3 ; gforestshade.github.io +3.
+	# modiki.civfanatics.com +3; forums.civfanatics.com +3; gforestshade.github.io +3.
 	#
 	# ⚙️ Effect in gameplay
 	# It functions as a throttle: after trading techs a bunch, your "received from any" memory builds up, making AI increasingly reluctant to trade with you until it decays enough.
@@ -66,7 +66,7 @@ def get_negative_memory_indexes_to_types():
 	# based on this, if the higher it is, the higher no tech trade can happen, then i would classify it as negative memory even though is not strictly a memory it seems but maybe is strictly a memory
 	#
 	# <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
-	# <!-- custom: 26 entries total if i am not mistaken anyways etc -->
+	# <!-- custom: 26 entries total -->
 
 	return {
 		0: "MEMORY_DECLARED_WAR",
@@ -235,7 +235,7 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 		raise ValueError("[FATAL] For attr_name=%s, distribution has not shifted to a shifted_min of 0 before normalization: shifted_min=%d, shifted_value=%d, shifted_max=%d, min_val=%d, value=%d, max_val=%d" % (attr_name, shifted_min, shifted_value, shifted_max, min_val, value, max_val))
 	if shifted_value < 0:
 		raise ValueError("[FATAL] For attr_name=%s, shifted_value cannot be negative (as shifted_min should always be 0) before normalization: shifted_min=%d, shifted_value=%d, shifted_max=%d, min_val=%d, value=%d, max_val=%d" % (attr_name, shifted_min, shifted_value, shifted_max, min_val, value, max_val))
-	# <!-- custom: no need to handle division by 0 as, if shifted_max is 0, this would mean that shifted_min is 0 too since we shifted_min to 0, so in other words that min == 50 case that we already cover(ed) before anyways etc so no need to cover again here but mention for exhaustiveness anyways etc... -->
+	# <!-- custom: no need to handle division by 0 as, if shifted_max is 0, this would mean that shifted_min is 0 too since we shifted_min to 0, so in other words that min == 50 case that we already covered before anyways etc so no need to cover again here but mention for exhaustiveness anyways etc... -->
 
 	norm = float(shifted_value) / float(shifted_max)
 
@@ -341,9 +341,9 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 
 
 def get_contact_rand_and_delay_invert_flags():
-	# <!-- custom: the higher the contact rand (say 200 > 50 anyways etc), the lower the 1/n = 1/200 vs 1/50 chance if i am not mistaken of contact event / prob from my memory of the terminology if i may say or words used in kujira about memory fields or such but anyways etc, so we invert -->
+	# <!-- custom: the higher the contact rand (say 200 > 50 anyways etc), the lower the 1/n = 1/200 vs 1/50 chance if i am not mistaken of contact event / prob from my memory of the terminology if i may say or words used in kujira about memory fields or such, so we invert -->
 	b_invert_contact_rands = True
-	# <!-- custom: also, the higher the delay (say 100 > 5 (turns? If i am not mistaken too but anyways etc)), the longer until next contact, so the lower the contact event / prob, so we invert anyways etc delays too if i may say or not or yes or etc anyways etc -->
+	# <!-- custom: also, the higher the delay (say 100 > 5 (turns? If i am not mistaken too)), the longer until next contact, so the lower the contact event / prob, so we invert anyways etc delays too if i may say or not or yes or etc -->
 	b_invert_contact_delays = True
 	return b_invert_contact_rands, b_invert_contact_delays
 
@@ -372,7 +372,7 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
 
 
 
-# <!-- custom: the adjust formula for memory fields is different than the contact adjust system we use in advciv-sas too for contacts anyways etc, because memory fields use a positive/negative memory field while there are no positive/negative contacts (all contacts are handled the same way computationally (only displayed as offers or demands but the values are computationally treated the same between all contact types if i am not mistaken anyways etc, unlike memory types that are aggregated differently based on whether they fit in positive or in negative memory types, so the adjust formula is different read after bracket(s) anyways etc for rest of the explanation anyways etc)), so we don't hardcode aggregated values to extremes like 0 or 999 in contact fields, and use instead a different kind of adjustment, of raw memory attitude percents and memory decays, if i'm not mistaken anyways etc -->
+# <!-- custom: the adjust formula for memory fields is different than the contact adjust system we use in advciv-sas too for contacts anyways etc, because memory fields use a positive/negative memory field while there are no positive/negative contacts (all contacts are handled the same way computationally (only displayed as offers or demands but the values are computationally treated the same between all contact types, unlike memory types that are aggregated differently based on whether they fit in positive or in negative memory types, so the adjust formula is different read after bracket(s) anyways etc for rest of the explanation anyways etc)), so we don't hardcode aggregated values to extremes like 0 or 999 in contact fields, and use instead a different kind of adjustment, of raw memory attitude percents and memory decays, if i'm not mistaken -->
 def get_adjusted_memory_values(raw_attitude_percent, raw_decay, is_affection, is_debug, mem_type):
 	# Step 1: Clamp invalid affection/resentment signs to 0
 	adjusted_attitude_percent = raw_attitude_percent
@@ -392,7 +392,7 @@ def get_adjusted_memory_values(raw_attitude_percent, raw_decay, is_affection, is
 	# Step 2: Adjust decay (decay must be non-negative)
 	adjusted_decay = max(0, raw_decay)
 	
-	# <!-- custom: Step 3: (also was it my code comment originally or not but anyways etc) we --> never force aggregation to 0 for memories unlike in contact code, despite their similarities, so just one False here should be enough hopefully maybe anyways.
+	# <!-- custom: Step 3: (also was it my code comment originally or not) we --> never force aggregation to 0 for memories unlike in contact code, despite their similarities, so just one False here should be enough hopefully maybe anyways.
 	force_zero_adjusted_values = False
 
 	return adjusted_attitude_percent, adjusted_decay, force_zero_adjusted_values
@@ -408,7 +408,7 @@ def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection
 			return False, False
 		else:
 			# <!-- custom: lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI even for (presumably) good deeds), closer to 0 means AI cares less (0 should be		- maximum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI also, as in positive affection, for this value 0 (after adjustment) attitude, cares the least (at least we model it a such))), so we should invert indeed.
-			# More detail on why and to be careful since these are negative values unlike most civ4 data (a good fail check too maybe to review or learn for me at least anyways etc anyways), is that since our normalize_to_100 function shifts to 0 distribution before normalizing (i.e. -350 is now -350 + 350 = 0, and -200 is now -200 + 350 = 150 if i'm not mistaken anyways) then the lower the score is (0 vs 150 before normalization, which is (after normalization) 0 / 150 * 100 = 0 vs 100 / 150 * 100 = 100, then -350 (now 0) which was more intense(ly negative feeling (resentment)) is the lowest, while -200 (now 100) with the lowest (in comparison relatively) feeling is now the highest in score, so the atititude score should indeed be inverted, hopefully safe now but anyways etc anyways.
+			# More detail on why and to be careful since these are negative values unlike most civ4 data (a good fail check too maybe to review or learn for me at least anyways etc anyways), is that since our normalize_to_100 function shifts to 0 distribution before normalizing (i.e. -350 is now -350 + 350 = 0, and -200 is now -200 + 350 = 150 if i'm not mistaken anyways) then the lower the score is (0 vs 150 before normalization, which is (after normalization) 0 / 150 * 100 = 0 vs 100 / 150 * 100 = 100, then -350 (now 0) which was more intense(ly negative feeling (resentment)) is the lowest, while -200 (now 100) with the lowest (in comparison relatively) feeling is now the highest in score, so the atititude score should indeed be inverted, hopefully safe nowanyways.
 			# -->
 			# As for decay it should be the same as above unless i'm mistaken but shouldn't be but anyways, anyways. -->
 			return True, False

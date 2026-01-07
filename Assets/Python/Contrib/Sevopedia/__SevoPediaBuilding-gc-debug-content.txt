@@ -6,7 +6,7 @@ Note:
 
 
 
-[DEBUG] Beginning of show obj inner fields if i am not mistaken anyways etc.
+[DEBUG] Beginning of show obj inner fields.
 
 IsGraphicsInitialized
 
@@ -518,4 +518,4 @@ setDefineSTRING
 
 updateCameraStartDistance
 
-[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.
+[DEBUG] End of show show obj inner fields.

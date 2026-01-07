@@ -10,7 +10,7 @@
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Civics.h"
 #include "BBAILog.h"
-// <!-- custom: added to use our bonusspecific helpers as recommended by chatgpt 5 thanks a lot hehe if i may say but anyways etc, check if accurate, anyways etc -->
+// <!-- custom: added to use our bonusspecific helpers as recommended by chatgpt 5 thanks a lot hehe, check if accurate -->
 #include "CvUnitAI.h"
 
 // advc: New file; see comment in the header.
@@ -379,7 +379,7 @@ short AIFoundValue::evaluate()
 	int iLandTiles = 0; // advc.031
 	// <advc.040>
 
-	// <!-- custom: add support for counting water tiles in starting locations anyways etc -->
+	// <!-- custom: add support for counting water tiles in starting locations -->
 	// int const iElapsedTurns = GC.getGame().getElapsedGameTurns();
 	int const iNumCities = kPlayer.getNumCities();
 	bool const bStartPhase = (iNumCities == 0);
@@ -390,11 +390,11 @@ short AIFoundValue::evaluate()
 	// int iTileCountWaterNoBonus = 0;
 	int iTileCountNoPeakLand = 0;
 	int iTileCountPeak = 0;
-	// <!-- custom: these are also bad as they don't yield anything so same as peak, we should definitely count them to help choose better/optimal or at least ebtter / more optimal sites if i may say but anyways etc -->
+	// <!-- custom: these are also bad as they don't yield anything so same as peak, we should definitely count them to help choose better/optimal or at least ebtter / more optimal sites -->
 	int iTileCountIceCap = 0;
-	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert if i may say but anyways etc that is really bad and should strongly be ignored without overdoing it if site is otherwise good if i'm not mistaken but anyways etc. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 26.2 of AI not going for a nearby site better in all regards with less desert and more hill grassland if i am not mistaken anyways etc -->
+	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert that is really bad and should strongly be ignored without overdoing it if site is otherwise good. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 26.2 of AI not going for a nearby site better in all regards with less desert and more hill grassland -->
 	int iTileCountVeryBadDesertNoBonus = 0;
-	// <!-- custom: again worse than tundra as has no food and no meaningful improvement if i'm not mistaken but anyways etc; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail anyways etc), and even if we could/can, the food penalty on these tiles is really high if i'm not mistaken but anyways etc. We could count 0 food tiles that are not hills, but maybe do as such for clarity or/and such although is less flexible but maybe fine as such anyways etc. We need to count these tiles and deter founding there if there are too much and no other conditions are met if i am not mistaken but anyways etc -->
+	// <!-- custom: again worse than tundra as has no food and no meaningful improvement; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail anyways etc), and even if we could/can, the food penalty on these tiles is really high. We could count 0 food tiles that are not hills, but maybe do as such for clarity or/and such although is less flexible but maybe fine as such anyways etc. We need to count these tiles and deter founding there if there are too much and no other conditions are met -->
 	int iTileCountVeryBadSnowNoBonus = 0;
 
 	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START");
@@ -405,7 +405,7 @@ short AIFoundValue::evaluate()
 
 	int iCautiousHealthPercent = 0;
 
-	// <!-- custom: attempt to support terrains and feature(s) conditional settling/founding city logic anyways etc -->
+	// <!-- custom: attempt to support terrains and feature(s) conditional settling/founding city logic -->
 	static const TerrainTypes eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
 	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
 	static const TerrainTypes eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
@@ -479,8 +479,8 @@ short AIFoundValue::evaluate()
 
 	static const int iExtraValueHomeFreshWaterRiver = GC.getDefineINT("SAS_EVALUATE_EXTRA_VALUE_HOME_FRESH_WATER_RIVER");
 
-	// <!-- custom: no need to make the cached CvGlobals defines into static const according to chatgpt 5, but hoist them as recommended by chatgpt 5 if i am not mistaken but anyways etc, check if accurate anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: no need to make the cached CvGlobals defines into static const according to chatgpt 5, but hoist them as recommended by chatgpt 5, check if accurate -->
+	// <!-- custom: code/performance optimization: hoist -->
 	// Hoist once per call; no need for static
 	const bool bGlobalsOwnExclusiveRadius = GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS);
 	const int iGlobalsExtraYield = GC.getDefineINT(CvGlobals::EXTRA_YIELD);
@@ -529,7 +529,7 @@ short AIFoundValue::evaluate()
 
 	FOR_EACH_ENUM(CityPlot)
 	{
-		// <!-- custom: refactor below and adding our new logic(s? But anyways etc) anyways etc -->
+		// <!-- custom: refactor below and adding our new logics -->
 		// <advc.031>
 		// CvPlot const* pLoopPlot = plotCity(iX, iY, eLoopCityPlot);
 		// if (pLoopPlot != NULL && pLoopPlot->isGoody() &&
@@ -547,7 +547,7 @@ short AIFoundValue::evaluate()
 				iGoody++;
 			}
 
-			// <!-- custom: regardless of coastal status if i am not mistaken and if i may say but anyways etc if starting site, we want land tiles, not water tiles, as they we can work them and have better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details but anyways etc -->
+			// <!-- custom: regardless of coastal status if i am not mistaken and if starting site, we want land tiles, not water tiles, as they we can work them and have better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details-->
 			const bool bHomePlot = isHome(*pLoopPlot);
 
 			if (!bHomePlot)
@@ -557,7 +557,7 @@ short AIFoundValue::evaluate()
 				TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
 				FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
 
-				// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
+				// <!-- custom: optimization as recommended by chatgpt 5 thanks -->
 				const bool pLoopPlotIsHills = pLoopPlot->isHills();
 				const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
 
@@ -567,7 +567,7 @@ short AIFoundValue::evaluate()
 					{
 						++iTileCountNoPeakLand;
 
-						// <!-- custom: do not count camel desert tiles, and do not count to simplify for example stone or any bonus tiles; although camel is more worthwhile, we simply want to get a general estimate of how many very bad tiles we have here if i may say but anyways etc, so simplify as such should be accurate enough for our needs in this case i mean but anyways etc -->
+						// <!-- custom: do not count camel desert tiles, and do not count to simplify for example stone or any bonus tiles; although camel is more worthwhile, we simply want to get a general estimate of how many very bad tiles we have here, so simplify as such should be accurate enough for our needs -->
 						if (eBonusPlot == NO_BONUS)
 						{
 							if (eTerrainPlot == eTerrainDesert)
@@ -617,19 +617,19 @@ short AIFoundValue::evaluate()
 						iLowFoodLocationCount += 1;
 					}
 				}
-				// <!-- note: also accounting for peak, as 4 grass + 8 peak is not better than 1 grass + 11 plains if i am not mistaken but anyways etc -->
+				// <!-- note: also accounting for peak, as 4 grass + 8 peak is not better than 1 grass + 11 plains -->
 				else if ((eTerrainPlot == eTerrainSnow) || pLoopPlotIsPeak)
 				{
 					iLowFoodLocationCount += 2;
 				}
-				// <!-- custom: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much if i am not mistaken but anyways etc -->
+				// <!-- custom: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much -->
 				else if (eTerrainPlot == eTerrainDesert)
 				{
 					if ((eFeaturePlot == eFeatureFloodPlains) || (eFeaturePlot == eFeatureOasis))
 					{
 						iLowFoodLocationCount -= 1;
 					}
-					// <!-- custom: no flood plains, no oasis, most likely this is a "naked" if i may say and if i am not mistaken and in this case but anyways etc terrain (0 food as of now if i am not mistaken but anyways etc), so count as such anyways etc; note: hill or not treated the same -->
+					// <!-- custom: no flood plains, no oasis, most likely this is a "naked" if i may say and if i am not mistaken and in this caseterrain (0 food as of now), so count as such anyways etc; note: hill or not treated the same -->
 					else
 					{
 						iLowFoodLocationCount += 2;
@@ -650,7 +650,7 @@ short AIFoundValue::evaluate()
 		CvPlot const& p = *pLoopPlot;
 		bool const bHome = isHome(p);
 
-		// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
+		// <!-- custom: optimization as recommended by chatgpt 5 thanks -->
 		const bool pIsHills = p.isHills();
 
 		// advc.035: The own-exclusive-radius rule only helps if the radii don't overlap
@@ -730,7 +730,7 @@ short AIFoundValue::evaluate()
 			iSpecialFoodPlus += std::max(0, aiNatureYield[YIELD_FOOD] -
 					GC.getFOOD_CONSUMPTION_PER_POPULATION());
 
-			// <!-- custom: add home plot health valorization of fresh water, as it seems to be missing if i am not mistaken anyways etc; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value if i may say in this case but anyways etc, so opening its eyes or trying to without going overboard and in this case i mean too if i may say but anyways etc -->
+			// <!-- custom: add home plot health valorization of fresh water, as it seems to be missing; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value if i may say in this case, so opening its eyes or trying to without going overboard and in this case i mean too -->
 			if (!p.isWater())
 			{
 				iPlotValue += ((p.isRiver() || p.isFreshWater()) ? iExtraValueHomeFreshWaterRiver : 0);
@@ -775,19 +775,19 @@ short AIFoundValue::evaluate()
 				rBaseProduction += estimateImprovementProduction(p, bPersistentFeature);
 			if (!p.isWater())
 			{
-				// <!-- custom: this is most likely a lie or an omission, i checked other functions and this one for fresh water calls or such, no mention of this for home plot, so added ourselves if i am not mistaken anyways etc -->
+				// <!-- custom: this is most likely a lie or an omission, i checked other functions and this one for fresh water calls or such, no mention of this for home plot, so added ourselves -->
 				// freshwater health (home plot) will be counted later
 				iPlotValue += evaluateFreshWater(p, aiNatureYield, bSteal, iRiverTiles, iGreenTiles);
 			}
 		}
 		iPlotValue += evaluateYield(aiNatureYield, &p, bCanNeverImprove); // (K-Mod: iTempValue in BtS)
-		// <!-- custom: note: if i'm not mistaken bHome means it is the tile where we'll plant our city anyways etc, which chatgpt 5 confirmed too as the "home plot" but check to be sure anyways etc -->
+		// <!-- custom: note: if i'm not mistaken bHome means it is the tile where we'll plant our city anyways etc, which chatgpt 5 confirmed too as the "home plot" but check to be sure -->
 		if (bHome)
 		{
 			// <advc.031> Count home plot yield twice b/c it's immediately available
 			iPlotValue *= 2;
 			iValue += iPlotValue;
-			// <!-- custom: removed foundOnResourceValue, now code added directly here anyways etc; and if i'm not mistaken this is the place where we can tell AI to not settle on bonuses and how so, anyways etc; also merging the bonus has improvement vs no improvement logic at the common part of penalty calculation and using aiNatureYield instead for it rather than aiBonusImprovementYield as in old code as advised by chatgpt 5 anyways etc, splitting it only later at the finer calculation (with fixp and such quite similarly to how it was in the old code anyways etc); also nature yield shouldn't be that much to begin with, what we want most is to count improved yields and the base +1 are quite minor, if they are hard or tricky to take into account at least for me and in this case i mean but anyways etc i'd rather avoid it, we have our yields here xd if i may say anyways etc -->
+			// <!-- custom: removed foundOnResourceValue, now code added directly here anyways etc; and if i'm not mistaken this is the place where we can tell AI to not settle on bonuses and how so, anyways etc; also merging the bonus has improvement vs no improvement logic at the common part of penalty calculation and using aiNatureYield instead for it rather than aiBonusImprovementYield as in old code as advised by chatgpt 5 anyways etc, splitting it only later at the finer calculation (with fixp and such quite similarly to how it was in the old code anyways etc); also nature yield shouldn't be that much to begin with, what we want most is to count improved yields and the base +1 are quite minor, if they are hard or tricky to take into account at least for me and i'd rather avoid it, we have our yields here xd -->
 			// if (eBonus != NO_BONUS)
 			// {
 			// 	// Replacing K-Mod code that had adjusted the home plot yield
@@ -803,20 +803,20 @@ short AIFoundValue::evaluate()
 			{
 				const bool bVeryLowFoodBonusPlot = (eTerrain == eTerrainSnow || ((eTerrain == eTerrainDesert) && (eFeature != eFeatureFloodPlains)) || (pIsHills && (eTerrain != eTerrainGrass)));
 
-				// <!-- custom: was -5 for some reason in old code, chatgpt 5 used 0 so going with it anyways etc -->
+				// <!-- custom: was -5 for some reason in old code, chatgpt 5 used 0 so going with it -->
 				//int r = -5;
 				int r = 0;
 
-				// <!-- custom: new code by chatgpt 5 using our bonusspecific helpers, which i adjusted a bit, check if accurate anyways etc -->
+				// <!-- custom: new code by chatgpt 5 using our bonusspecific helpers, which i adjusted a bit, check if accurate -->
 				// 1) What improvement would we build on this bonus? (tech-agnostic)
 				ImprovementTypes const eBonusSpecificImprovement = CvUnitAI::getBonusSpecificLandImprovement(eBonus);
 
 				// 2) Bonus-specific improved yields (no city-center bump, no base imp extras)
-				// <!-- custom: may be more reliable than aiBonusImprovementYield just in case it does some weird stuff as we had issues with AI settling on camel desert or sometimes before deer tundra when penalties were not high enough (and even if very high for desert camel), so trying to rework and see if we can fix the issue anyways etc -->
+				// <!-- custom: may be more reliable than aiBonusImprovementYield just in case it does some weird stuff as we had issues with AI settling on camel desert or sometimes before deer tundra when penalties were not high enough (and even if very high for desert camel), so trying to rework and see if we can fix the issue -->
 				int fImp = 0, hImp = 0, cImp = 0;
 				if (eBonusSpecificImprovement != NO_IMPROVEMENT)
 				{
-					// <!-- custom: note to chatgpt 5 or other AIs or such anywyas etc: GC.getImprovementInfo doesn't seem to exist in .cpp files only .py files, while we have plenty instances of using code like `CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);` in the mod's code, code that i did not add myself as well anyways etc, so use this rather if i'm not mistaken but anyways etc -->
+					// <!-- custom: note to chatgpt 5 or other AIs or such anywyas etc: GC.getImprovementInfo doesn't seem to exist in .cpp files only .py files, while we have plenty instances of using code like `CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);` in the mod's code, code that i did not add myself as well anyways etc, so use this rather -->
 					// You’re right — in your C++ DLL (AdvCiv/AdvCiv-SAS) the correct accessor is the templated:
 					// C++: GC.getInfo(ImprovementTypes) → CvImprovementInfo&
 					// Python: gc.getImprovementInfo(i) → Python wrapper
@@ -825,13 +825,13 @@ short AIFoundValue::evaluate()
 					hImp = impInfo.getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
 					cImp = impInfo.getImprovementBonusYield(eBonus, YIELD_COMMERCE);
 
-					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i understood got the idea to do of it too i mean if i may say but anyways etc -->
+					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little i understood of it, check if accurate anyways etc; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i understood got the idea to do of it too i mean -->
 					if (fImp >= iMinOnBonusFoodImproveWorth)
 					{
-						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know but anyways etc) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much more attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->
-						// <!-- custom: be careful we return short which is very constraining, it seems we convert negative values to -1 as a safety, but just in case don't make the penalty extremely extremely high xd if i may say but anyways etc, for now i'm investigating why we over settle on food bonuses when penalty is so high (like 1500 * food), could it be overflow with an early return that was before the final return 1 safety, then our value would be positive i guess in some cases (like -33 000 becomes a positive int or something hence the issue of AIs suddenly loving to settle on any food bonus maybe?), reducing it a bit because of that risk and weird behaviour we had anyways etc -->
+						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much more attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->
+						// <!-- custom: be careful we return short which is very constraining, it seems we convert negative values to -1 as a safety, but just in case don't make the penalty extremely extremely high xd, for now i'm investigating why we over settle on food bonuses when penalty is so high (like 1500 * food), could it be overflow with an early return that was before the final return 1 safety, then our value would be positive i guess in some cases (like -33 000 becomes a positive int or something hence the issue of AIs suddenly loving to settle on any food bonus maybe?), reducing it a bit because of that risk and weird behaviour we had -->
 						int const iOnBonusFoodPenalty = iBaseValueOnBonusFood * fImp;
-						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract -->
 						r += iOnBonusFoodPenalty;
 						IFLOG logBBAI("%d penalty for founding on food bonus", iOnBonusFoodPenalty);
 					}
@@ -840,14 +840,14 @@ short AIFoundValue::evaluate()
 					{
 						int iOnBonusProductionPenalty = iBaseValueOnBonusProduction;
 
-						// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill, but the higher the yields, the more we'd rather hve low food and high yields than settle on the bonus to save food anyways etc -->
+						// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill, but the higher the yields, the more we'd rather hve low food and high yields than settle on the bonus to save food -->
 						if (bVeryLowFoodBonusPlot)
 						{
 							iOnBonusProductionPenalty += iValueVeryLowFoodOnBonusProduction;
 							iOnBonusProductionPenalty += iBaseValueVeryLowFoodOnBonusProduction * hImp;
 						}
 
-						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract -->
 						r += iOnBonusProductionPenalty;
 						IFLOG logBBAI("%d penalty for founding on production bonus", iOnBonusProductionPenalty);
 					}
@@ -855,14 +855,14 @@ short AIFoundValue::evaluate()
 					{
 						int iOnBonusCommercePenalty = iBaseValueOnBonusCommerce;
 
-						// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill; note: although a bit redundant, it gives flexibility to tweak values anyways etc -->
+						// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill; note: although a bit redundant, it gives flexibility to tweak values -->
 						if (bVeryLowFoodBonusPlot)
 						{
 							iOnBonusCommercePenalty += iValueVeryLowFoodOnBonusCommerce;
 							iOnBonusCommercePenalty += iBaseValueVeryLowFoodOnBonusCommerce * cImp;
 						}
 
-						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract -->
 						r += iOnBonusCommercePenalty;
 						IFLOG logBBAI("%d penalty for founding on commerce bonus", iOnBonusCommercePenalty);
 					}
@@ -872,8 +872,8 @@ short AIFoundValue::evaluate()
 					IFLOG logBBAI("Warning: no mapped improvement for bonus %S", GC.getInfo(eBonus).getDescription());
 				}
 
-				// <!-- custom: we now fetch bonusspecific improvement directly from our ideal map, regardless of if available or not for better or worse, but assume AI can always improve bonuses so it doesn't discard/dismiss those it can't improve yet if i'm not mistaken in my understanding so disable this (can probably remove but check if accurate anyways etc) anyways etc -->
-				// // <!-- custom: improvement specific logic here only, as in old code of the now merged here and removed there but anyways etc AIFoundValue::foundOnResourceValue anyways etc -->
+				// <!-- custom: we now fetch bonusspecific improvement directly from our ideal map, regardless of if available or not for better or worse, but assume AI can always improve bonuses so it doesn't discard/dismiss those it can't improve yet if i'm not mistaken in my understanding so disable this (can probably remove but check if accurate anyways etc) -->
+				// // <!-- custom: improvement specific logic here only, as in old code of the now merged here and removed thereAIFoundValue::foundOnResourceValue -->
 				// // Improvement-specific penalty for lost yield potential
 				// if (eBonusImprovement != NO_IMPROVEMENT)
 				// {
@@ -890,11 +890,11 @@ short AIFoundValue::evaluate()
 				// 	r -= 13;
 				// iValue -= r;
 				// IFLOG logBBAI("Penalty (substracted to iValue) %d for founding on bonus", r);
-				// <!-- custom: note: opposite sign now, adding a negative value is clearer than substracting then guessing or constantly checking if we're substracting or not if i'm not mistaken in my guess/thinking (no pun but anyways etc...) -->
+				// <!-- custom: note: opposite sign now, adding a negative value is clearer than substracting then guessing or constantly checking if we're substracting or not if i'm not mistaken in my guess/thinking (no pun) -->
 				iValue += r;
 				IFLOG logBBAI("Penalty (added to iValue) %d for founding on bonus", r); // adds a negative -> penalty ✅
 			}
-			// <!-- custom: for non-bonus for home plot (i.e. the exact tile where we settle our city if i'm not mistaken anyways etc) tiles, also add home plot optimization, low-food is juicy (e.g. desert or hill plains better than floodplains or hill grass if i am not mistaken anyways etc) -->
+			// <!-- custom: for non-bonus for home plot (i.e. the exact tile where we settle our city if i'm not mistaken anyways etc) tiles, also add home plot optimization, low-food is juicy (e.g. desert or hill plains better than floodplains or hill grass) -->
 			else
 			{
 				if (eTerrain == eTerrainDesert)
@@ -903,7 +903,7 @@ short AIFoundValue::evaluate()
 					{
 						iValue += iValueHomeFloodPlains;
 					}
-					// <!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code if i'm not mistaken but anyways etc), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it but anyways etc) but anyways etc -->
+					// <!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it)-->
 					else 
 					{
 						if (pIsHills)
@@ -1010,14 +1010,14 @@ short AIFoundValue::evaluate()
 				//int const iPenalty = 165;
 				// IFLOG logBBAI("-%d from water resource near non-coastal site", iPenalty);
 				// iValue -= iPenalty;
-				// <!-- custom: note: opposite sign here (addition vs substraction before anyways etc) unlike in base advciv but anyways etc, so value as of now also has opposite sign in global defines anyways etc -->
+				// <!-- custom: note: opposite sign here (addition vs substraction before anyways etc) unlike in base advciv, so value as of now also has opposite sign in global defines -->
 				iValue += iValueHomeWaterBonusNoCoast;
 				IFLOG logBBAI("%d from water resource near non-coastal site", iValueHomeWaterBonusNoCoast);
 			} // </advc.031>
 		}
 		else
 		{
-			// <!-- custom: do not count flood plains as the good outweights the bad, it can be considered neutral in terms of health vs unhealthiness overall benefits for this calculation but anyways, but to be strictly fair we'd still grow even accounting for unhealthiness anyways etc however simpler to just nullify it as it is about as good as bad to simplify if i am not mistaken, but anyways etc-->
+			// <!-- custom: do not count flood plains as the good outweights the bad, it can be considered neutral in terms of health vs unhealthiness overall benefits for this calculation but anyways, but to be strictly fair we'd still grow even accounting for unhealthiness anyways etc however simpler to just nullify it as it is about as good as bad to simplify if i am not mistaken-->
 			if (eFeature == eFeatureJungle)
 			{
 				iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
@@ -1030,8 +1030,8 @@ short AIFoundValue::evaluate()
 
 		if (!bHome) // (Home plot was handled upfront)
 		{
-			// <!-- custom: for non-bonus tiles and not for home plot but instead which environment to settle near if i am not mistaken but anyways etc, add our own logic to also tell the AI other than just valuing any tile as we do for bonuses as long as tile has a bonus, here even if tile doesn't have a bonus, we tell the AI to value local environment specifically (if not already done by the code i mean but helps to do as well maybe to improve settling further if not optimal or close to it but anyways etc maybe if i am not mistaken but anyways etc; note: this does not apply to home plot, where we use a different logic in this function (for example settling near flood plains or flatland grass is good, but settling on home plot floodplains or flatland grass is bad and not done here if i am not mistaken anyways etc) -->
-			// <!-- custom: note: does not apply to bonus tiles, as any bonus tile is good even if on desert anyways etc -->
+			// <!-- custom: for non-bonus tiles and not for home plot but instead which environment to settle near, add our own logic to also tell the AI other than just valuing any tile as we do for bonuses as long as tile has a bonus, here even if tile doesn't have a bonus, we tell the AI to value local environment specifically (if not already done by the code i mean but helps to do as well maybe to improve settling further if not optimal or close to itmaybe; note: this does not apply to home plot, where we use a different logic in this function (for example settling near flood plains or flatland grass is good, but settling on home plot floodplains or flatland grass is bad and not done here) -->
+			// <!-- custom: note: does not apply to bonus tiles, as any bonus tile is good even if on desert -->
 			if (eBonus == NO_BONUS)
 			{
 				if (eTerrain == eTerrainDesert)
@@ -1053,7 +1053,7 @@ short AIFoundValue::evaluate()
 						else
 						{
 							// iValue += (-75);
-							// <!-- custom: note: now handled by the verybadtiles code rather as we handle the tolerance for a certain number of tiles and other such things like ice cap, peak that may not possibly be accounted for in this loop there rather directly, so left as 0 here instead as of now anyways etc -->
+							// <!-- custom: note: now handled by the verybadtiles code rather as we handle the tolerance for a certain number of tiles and other such things like ice cap, peak that may not possibly be accounted for in this loop there rather directly, so left as 0 here instead as of now -->
 							iValue += iValueNotHomeFlatlandDesert;
 						}
 					}
@@ -1100,16 +1100,16 @@ short AIFoundValue::evaluate()
 					else
 					{
 						// iValue -= 75;
-						// <!-- custom: same as flatland desert for this very bad tile anyways etc -->
+						// <!-- custom: same as flatland desert for this very bad tile -->
 						iValue += iValueNotHomeFlatlandSnow;
 					}
 				}
-				// <!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now anyways etc -->
-				// <!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such and is if i'm not mistaken i mean but anyways etc but in all cases anyways etc -->
+				// <!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now -->
+				// <!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such and is if i'm not mistaken i meanbut in all cases -->
 			}
 			else
 			{
-				// <!-- custom: value iAIObjective bonuses especially more to settle on first, could be critical for our life and death (ideally check if obsolete too but anyways etc). Not having copper or iron may make us die, so really value it more anyways etc -->
+				// <!-- custom: value iAIObjective bonuses especially more to settle on first, could be critical for our life and death (ideally check if obsolete too). Not having copper or iron may make us die, so really value it more -->
 				const int iAIObjectiveBonus = GC.getBonusInfo(eBonus).getAIObjective(); // e.g. 10 for iron
 
 				iValue += (iExtraValueNotHomeAIObjectiveBonusExtraValueMultiplier * iAIObjectiveBonus);
@@ -1128,7 +1128,7 @@ short AIFoundValue::evaluate()
 	iValue += sumUpPlotValues(aiPlotValues);
 	// A sensible order (CITY_HOME_PLOT first) isn't guaranteed anymore, hence:
 	aiPlotValues.clear();
-	// <!-- custom: disabled as part of the change there as well where this variable is used anyways etc -->
+	// <!-- custom: disabled as part of the change there as well where this variable is used -->
 	// advc.031: Preserve this for later
 	// int iNonYieldResourceVal = std::max(0, iResourceValue);
 	if (iSpecialYieldTiles > 0) // advc.031
@@ -1163,7 +1163,7 @@ short AIFoundValue::evaluate()
 				iLandTiles); // </advc.031>
 	}
 
-	// <!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
+	// <!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal -->
 	else
 	{
 		static const int iMaxToleratedNotCoastalLowFoodTiles = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_TILES");
@@ -1177,29 +1177,29 @@ short AIFoundValue::evaluate()
 		}
 	}
 
-	// <!-- custom: regardless of start phase, some tiles are very bad (can't be improved at all, worse that coast or such that give food and gold at least), but don't overdo it for non-capital i.e. starting sites if i'm not mistaken but anyways etc, as we could easily maybe throw off the computation of the overall site and reject an otherwise nice one, so take it into account but more midly in that case, especially considering we already added compute in our mod to compute these i think in this function but anyways etc -->
-	// <!-- custom: peak in non home plot devalue local plot anyways etc, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible anyways etc but not too strongly may skew iValue too much for an otherwise good site anyways etc -->
-	// <!-- custom: update: also count very bad desert and very bad snow, the more we the worse, but giving a small leeway if site is otherwise great to not dismiss it or devalue it needlessl,y as we don't need all tiles to be good especially early at low pop, but if enough are bad, start to take it into accoutn and icnrementally for all very bad tiles so if i may say but anyways etc -->
+	// <!-- custom: regardless of start phase, some tiles are very bad (can't be improved at all, worse that coast or such that give food and gold at least), but don't overdo it for non-capital i.e. starting sites, as we could easily maybe throw off the computation of the overall site and reject an otherwise nice one, so take it into account but more midly in that case, especially considering we already added compute in our mod to compute these i think in this function-->
+	// <!-- custom: peak in non home plot devalue local plot anyways etc, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible anyways etc but not too strongly may skew iValue too much for an otherwise good site -->
+	// <!-- custom: update: also count very bad desert and very bad snow, the more we the worse, but giving a small leeway if site is otherwise great to not dismiss it or devalue it needlessl,y as we don't need all tiles to be good especially early at low pop, but if enough are bad, start to take it into accoutn and icnrementally for all very bad tiles so -->
 	const int iTotalVeryBadTiles = iTileCountPeak + iTileCountIceCap + iTileCountVeryBadDesertNoBonus + iTileCountVeryBadSnowNoBonus;
 
 	if (bStartPhase)
 	{
-		// <!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
+		// <!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site -->
 		const int iGoodBFCTiles = iTileCountNoPeakLand + iTileCountWaterWithBonus;
 
 		static const int iMinRequiredGoodBFCTilesStart = GC.getDefineINT("SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START");
 
 		if (iGoodBFCTiles < iMinRequiredGoodBFCTilesStart)
 		{
-			// <!-- custom: attempt to prevent overflow if any while still sorting our values and by extension if i may say but anyways etc settling spots form worst lowest value to least worst highest or not lowest value if i am not mistaken anyways etc -->
-			// <!-- custom: finally some code fixed it, so now doing it cleaner, and since iValue modifying seems to not work for moscow AI (see known issue as of now 44 for details anyways etc, early return rather anyways etc, to not settle here unless really hard worst if i am not mistaken but anyways etc -->
+			// <!-- custom: attempt to prevent overflow if any while still sorting our values and by extension settling spots form worst lowest value to least worst highest or not lowest value -->
+			// <!-- custom: finally some code fixed it, so now doing it cleaner, and since iValue modifying seems to not work for moscow AI (see known issue as of now 44 for details anyways etc, early return rather anyways etc, to not settle here unless really hard worst -->
 			// return -2;
-			// <!-- custom: this works too, try a cleaner return, positive value as chatgpt 5 advised just in case anyways etc -->
+			// <!-- custom: this works too, try a cleaner return, positive value as chatgpt 5 advised just in case -->
 			//return std::max<short>(-100, truncIntCast<short>(-100 + iGoodBFCTiles));
-			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them if i may say but anyways etc. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but better mess the code anyways etc... Hopefully this improves things if i am not mistaken and thanks to chatgpt 5, without messing everything up but anyways etc; return a positive value just in case anyways etc; below example given by chatgpt 5, check if accurate, anyways etc -->
+			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but better mess the code anyways etc... Hopefully this improves things if i am not mistaken and thanks to chatgpt 5, without messing everything up; return a positive value just in case anyways etc; below example given by chatgpt 5, check if accurate -->
 			//return 0;
 			// Example:
-			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 if i'm not mistaken anyways etc -->.
+			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 if i'm not mistaken -->.
 			// “8 snow here” → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
 			// A truly good inland site just returns, e.g., iValue=1800 (>> <!-- custom:44 -->), so it wins.
 			// <!-- custom: update: i tried this code to enhance it for archipelago or such very rare land starts but then moscow (see known issue as of now 44 for details anyways etc) goes back to settling on its water location again, then just disabling it, dig it if you want to improve it, i believe our results are in most if not all cases much better and it was just an extra polish. -->
@@ -1225,11 +1225,11 @@ short AIFoundValue::evaluate()
 		}
 	}
 
-	// <!-- custom: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc -->
+	// <!-- custom: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases -->
 	// iValue += evaluateDefense();
 	// IFLOG logBBAI("=%d in total before modifiers", iValue);
 
-	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->
+	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results -->
 	// if (!kSet.isStartingLoc() /* advc.031f: */ || kSet.isScenario())
 	// {
 	// 	/*  <advc.031> Moved down to the other modifiers. But don't adjust the
@@ -1241,7 +1241,7 @@ short AIFoundValue::evaluate()
 
 	rBaseProduction += aiSpecialYield[YIELD_PRODUCTION]; // K-Mod
 
-	// <!-- custom: see code comment there for details anyways etc -->
+	// <!-- custom: see code comment there for details -->
 	// iValue = adjustToProduction(iValue, rBaseProduction);
 
 	// <advc.031>
@@ -1279,24 +1279,24 @@ short AIFoundValue::evaluate()
 		else // </advc.027>
 			iValue = adjustToStartingSurroundings(iValue); // (advc: Moved down a bit)
 	}
-	// <!-- custom: see code comment there for details anyways etc -->
+	// <!-- custom: see code comment there for details -->
 	// if (bBarbarian)
 	// 	iValue = adjustToBarbarianSurroundings(iValue);
 	// else if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 
-	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences if i may say but anyways etc, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details anyways etc -->
+	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details -->
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	if (!kSet.isStartingLoc() && !kSet.isNormalizing())
 	{
-		// <!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too if i may say but anyways etc) -->
+		// <!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too) -->
 		// --- SAS inline distance shaping (simple & bounded) ---
 		// C++03-safe, integer math only, overflow-safe via percent scaling.
 		// Notes
 		// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope” at extreme distances.
 		// I left the “too close” branch clamped at 50% so proximity never kills a locally amazing site.
 		// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire” philosophy.
-		// <!-- custom: added const* for efficiency but then chatgpt 5 said to add another one xd, check if accurate and thanks anyways etc -->
+		// <!-- custom: added const* for efficiency but then chatgpt 5 said to add another one xd, check if accurate and thanks -->
 		// const on the left (CvCity const*) means you won’t mutate the city via this pointer.
 		// const on the right (* const) means you won’t reassign pNearest.
 		CvCity const* const pNearest = GC.getMap().findCity(iX, iY, ePlayer, eTeam, false);
@@ -1307,7 +1307,7 @@ short AIFoundValue::evaluate()
 			// Derive from city radius so mods changing radius stay sane.
 			static const int CITYR_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CITYR_ADD");
 			static const int CITYR_DIVIDE = std::max(1, GC.getDefineINT("SAS_EVALUATE_DISTANCE_CITYR_DIVIDE"));
-			static const int CITYR   = (CITYR_ADD + CITY_PLOTS_DIAMETER) / CITYR_DIVIDE; // default 5 <!-- custom: or so claims chatgpt.. 5.. could be accurate though i really don't know, its code helped me lot in all cases thanks if i may say but anyways etc-->
+			static const int CITYR   = (CITYR_ADD + CITY_PLOTS_DIAMETER) / CITYR_DIVIDE; // default 5 <!-- custom: or so claims chatgpt.. 5.. could be accurate though i really don't know, its code helped me lot in all cases thanks-->
 			static const int MIN_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MIN_OK_ADD");
 			static const int MAX_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MAX_OK_ADD");
 			static const int MIN_OK  = CITYR + MIN_OK_ADD; // ≤ MIN_OK-1 = “too close”
@@ -1349,7 +1349,7 @@ short AIFoundValue::evaluate()
 		}
 		// --- end SAS distance shaping ---
 
-		// <!-- custom: 2) anyways etc -->
+		// <!-- custom: 2) -->
 		// --- SAS: super-simple culture pressure gate (no cheat, cheap) ---
 		// Goal: it's fine if a site is a *little* pressed, but skip it if it's *too* pressed.
 		// Notes
@@ -1421,19 +1421,19 @@ short AIFoundValue::evaluate()
 	if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 		iValue = adjustToBonusCount(iValue, aiBonusCount);
 
-	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->
+	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results -->
 	// iValue = adjustToBadTiles(iValue, iBadTiles /* advc.031: */ + (4 * iTakenTiles) / 10
 	// 		-(bBarbarian ? 2 : (4 + iGreenTiles + iSpecialFoodPlus)) // advc.303
 	// 		/ (kSet.isStartingLoc() && !kSet.isScenario() ? 2 : 1)); // advc.108, advc.031f
 
-	// <!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and if i may say but anyways etc; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5 but anyways etc; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine -->
+	// <!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine -->
 	// iValue = adjustToBadHealth(iValue, iHealth);
 	// // <advc.031>
-	// <!-- custom: our code instead but anyways etc -->
+	// <!-- custom: our code instead-->
 	// Bad-health dampener (pure integer math; no floats)
 	if (bStartPhase)
 	{
-		// <!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 if i am not mistaken anyways etc -->
+		// <!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 -->
 		static const int UNHEALTH_THRESH = GC.getDefineINT("SAS_EVALUATE_MIN_UNHEALTH_THRESH_START");
 
 		// Apply only if city-area health is bad enough
@@ -1493,9 +1493,9 @@ short AIFoundValue::evaluate()
 	// advc: BtS code (iDifferentAreaTile) deleted
 	// (disabled by K-Mod. This kind of stuff is already taken into account.)
 
-	// <!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too if i may say but anyways etc, check if accurate anyways etc; also refactored a bit otherwise our already changed code as commented below anyways etc -->
+	// <!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too, check if accurate anyways etc; also refactored a bit otherwise our already changed code as commented below -->
 	static const int kMaxFound = GC.getDefineINT("SAS_EVALUATE_GUARD_KMAXFOUND"); // leave headroom under 32767
-	// // <!-- custom: move this below to attempt to / in case it better avoid / avoids (but anyways etc) overflow, as chatgpt 5 seems to rightfully if i may say but anyways etc be concerned about it but check if accurate i mean, i also refactored it a bit, anyways etc -->
+	// // <!-- custom: move this below to attempt to / in case it better avoid / avoids (but anyways etc) overflow, as chatgpt 5 seems to rightfully be concerned about it but check if accurate i mean, i also refactored it a bit -->
 	// if (iValue <= 0)
 	// 	return 1;
 	if (iValue <= 0)
@@ -1608,8 +1608,8 @@ bool AIFoundValue::computeOverlap()
 		!kSet.isDebug() && // advc.007
 		!bBarbarian) // advc.303: Barbarians don't have city sites
 	{
-		// <!-- custom: no need to make the cached CvGlobals defines static const according to chatgpt 5, but hoist them as recommended by chatgpt 5 if i am not mistaken but anyways etc, check if accurate anyways etc -->
-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// <!-- custom: no need to make the cached CvGlobals defines static const according to chatgpt 5, but hoist them as recommended by chatgpt 5, check if accurate -->
+		// <!-- custom: code/performance optimization: hoist -->
 		// Hoist once per call; no need for static
 		const int iGlobalsMinCityRange = GC.getDefineINT(CvGlobals::MIN_CITY_RANGE);
 
@@ -2152,7 +2152,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 			bCanTrade = true;
 			bCanImprove = true;
 		}
-		// <!-- custom: based on my understanding of this code thanks to gemini ai's help as well, that is quite different from what gemini ai seems to say about it that it is related to workers or such if i understood it correctly but anyways etc, which i also asked as this code seemed weird so i asked it about it, this may explain why we are happy to count an improvement as good enough, say a farm, even if a plantation is better in terms of yield, so don't bother calculating the rest. I assume this is done for computational effiency, but may lead to other problems down the line. I'd rather prefer it be accurate and see what happens and if for example AI settles better or worse on tiles. I also want to see if this somehow affects AI building farms on grapes plains instead of waiting for plantations, so commenting it out. And i want to see if it's really much faster with it, although we should not have too much settlers or bonuses, except at turn 1, and even then it doesn't seem like it would cost a lot of extra computation to run this, so if it can help in other ways, try to do the full calculation/bonus yield evaluation rather and not just of first eligible found build if i am not mistaken, but anyways etc -->
+		// <!-- custom: based on my understanding of this code thanks to gemini ai's help as well, that is quite different from what gemini ai seems to say about it that it is related to workers or such if i understood it correctly, which i also asked as this code seemed weird so i asked it about it, this may explain why we are happy to count an improvement as good enough, say a farm, even if a plantation is better in terms of yield, so don't bother calculating the rest. I assume this is done for computational effiency, but may lead to other problems down the line. I'd rather prefer it be accurate and see what happens and if for example AI settles better or worse on tiles. I also want to see if this somehow affects AI building farms on grapes plains instead of waiting for plantations, so commenting it out. And i want to see if it's really much faster with it, although we should not have too much settlers or bonuses, except at turn 1, and even then it doesn't seem like it would cost a lot of extra computation to run this, so if it can help in other ways, try to do the full calculation/bonus yield evaluation rather and not just of first eligible found build if i am not mistaken -->
 		// else if (bCanTrade) // Prefer currently available build - regardless of yield
 		// 	continue;
 		int iYieldValue = 0;
@@ -2192,7 +2192,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 	} // </advc.108>
 	if (eBestImprovement == NO_IMPROVEMENT)
 		return NO_IMPROVEMENT;
-	// <!-- custom: attempted improvement with chatgpt's help, as an extension of base advciv's commit https://github.com/f1rpo/AdvCiv/commit/1a372d417a6001e2afe2b40e69824b45fa375907 and approach i (actually yes was me but anyways etc... Hello youtube xd or whoever but not xd but anyways etc...) asked f1rpo who kindly gave this partial fix, now trying to improve it, in particular with(/in? But anyways etc...) regards to food yields being underestimated, but also the AI still planting (cities but anyways etc) on metals and often on food as well but anyways etc so trying to fix or/and improve that at least but anyways etc. Again i don't know too much about these but this is a tentative approach with chatgpt's help and quite cautiously, hopefully safe perhaps even ideally and as intended in this case etc but anyways etc would fix/improve the yield issue in this case i mean but anyways etc -->
+	// <!-- custom: attempted improvement with chatgpt's help, as an extension of base advciv's commit https://github.com/f1rpo/AdvCiv/commit/1a372d417a6001e2afe2b40e69824b45fa375907 and approach i (actually yes was me... Hello youtube xd or whoever but not xd) asked f1rpo who kindly gave this partial fix, now trying to improve it, in particular with(/in?) regards to food yields being underestimated, but also the AI still planting (cities) on metals and often on food as wellso trying to fix or/and improve that at least. Again i don't know too much about these but this is a tentative approach with chatgpt's help and quite cautiously, hopefully safe perhaps even ideally and as intended in this case etcwould fix/improve the yield issue -->
 
 	// Step 2: Add weighted yield scoring with food preference
 	// Still inside the FOR_EACH_ENUM(Yield) loop, calculate a weighted total yield score:
@@ -2217,7 +2217,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 		// Still assign aiYield (used elsewhere)
 		aiYield[eLoopYield] += iYield;
 
-		// <!-- custom: comment out old code now that we have refactored it and added our own logic to it if i may say and if i am not mistaken but anyways etc -->
+		// <!-- custom: comment out old code now that we have refactored it and added our own logic to it -->
 		// aiYield[eLoopYield] = GC.getInfo(eBestImprovement).getImprovementBonusYield(eBonus, eLoopYield);
 		// /*	Open issue: We don't count the improvement's YieldChange and
 		// 	IrrigatedYieldChange, i.e. we treat wet farms, dry farms and
@@ -2513,7 +2513,7 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p,
 			r += 8 * (aiYield[YIELD_COMMERCE] + aiYield[YIELD_PRODUCTION]);
 		}
 		else r /= 3;
-		// <!-- custom: disable non coastal penalty, let ai decide if it wants coast or not and not induce a bias in it. With our changes to how ai evaluate terrains and features in evaluate function if i am not mistaken but anyways etc, AIs should be able to properly assess is coast is better (as of now for low-food environments or if there are water bonuses nearby which they were not so good if not at all able to do before but anyways etc), and if not able we'd better do it there rather than here and complexify formula. Also, generally coastal start is a bit weaker, so give AI a chance to go for land starter with more plots to grow, perhaps more forests to chop, unless it assesses it best to not do otherwise, anyways etc. -->
+		// <!-- custom: disable non coastal penalty, let ai decide if it wants coast or not and not induce a bias in it. With our changes to how ai evaluate terrains and features in evaluate function, AIs should be able to properly assess is coast is better (as of now for low-food environments or if there are water bonuses nearby which they were not so good if not at all able to do before), and if not able we'd better do it there rather than here and complexify formula. Also, generally coastal start is a bit weaker, so give AI a chance to go for land starter with more plots to grow, perhaps more forests to chop, unless it assesses it best to not do otherwise. -->
 		// if (kSet.isStartingLoc() && !bCoastal)
 		// {
 		// 	r -= 75; // advc.031: was -400 in BtS, -120 in K-Mod
@@ -2968,14 +2968,14 @@ bool AIFoundValue::isTooManyTakenTiles(int iTaken, int iResourceValue) const
 	{
 		return (iTaken > NUM_CITY_PLOTS / 6);
 	}
-	// <!-- custom: compete for bonuses by having a bit tighter placement, but still overall do not like to crowd cities too close to each other, is very inefficient, look for best tiels rather in other parts of the code if handled there i mean such as where we refactored/reworked logic or/and in other places if any but anyways etc, and aim for later big city size anyways etc -->
+	// <!-- custom: compete for bonuses by having a bit tighter placement, but still overall do not like to crowd cities too close to each other, is very inefficient, look for best tiels rather in other parts of the code if handled there i mean such as where we refactored/reworked logic or/and in other places if any, and aim for later big city size -->
 	else
 	{
 		return (iTaken > NUM_CITY_PLOTS / 4);
 	}
 }
 
-// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->
+// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results -->
 /*	advc.031: Unlike the food modifier in evaluateSpecialYields, this modifier applies
 	to all yields and takes into account grassland farms.*/
 // int AIFoundValue::adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoodMinus,
@@ -3127,7 +3127,7 @@ int AIFoundValue::evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionMod
 	return iR;
 }
 
-// <!-- custom: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc -->
+// <!-- custom: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases -->
 // /*  advc: Should perhaps merge this with the diploFactor code in adjustToCivSurroundings.
 // 	Could then also add a chokepoint evaluation. */
 // int AIFoundValue::evaluateDefense() const
@@ -3385,7 +3385,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // }
 
 
-// <!-- custom: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI anyways etc -->
+// <!-- custom: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI -->
 // int AIFoundValue::adjustToBarbarianSurroundings(int iValue) const
 // {
 // 	int r = iValue;
@@ -3422,7 +3422,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // }
 
 
-// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it (including our changes in it but anyways etc) since it is so complicated and who knows where the bug(s? But anyways etc) is(/are? But anyways etc) and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate anyways etc -->
+// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it (including our changes in it) since it is so complicated and who knows where the bugs is(/are?) and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate -->
 // int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
 // {
 // 	// K-Mod. Adjust based on proximity to other players, and the shape of our empire.
@@ -3593,7 +3593,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 
 // 	if (pOurNearestCity != NULL)
 // 	{
-// 		// <!-- custom: disabled as part of the change where this variable is (was, in this case i mean but anyways etc) used in this function if i am not mistaken anyways etc -->
+// 		// <!-- custom: disabled as part of the change where this variable is (was,) used in this function -->
 // 		// int const iTempValue = iValue; // advc.031c
 // 		int const iDistance = plotDistance(&kPlot, pOurNearestCity->plot());
 // 		/*  advc: BtS code dealing with iDistance deleted;
@@ -3622,7 +3622,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		} // </advc.031>
 // 		// K-Mod.
 
-// 		// <!-- custom: remove long distance penalties in this case i mean but anyways etc, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar anyways etc) but anyways etc --> 
+// 		// <!-- custom: remove long distance penalties, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar anyways etc)--> 
 // 		/*  advc.031: Make expansive leaders indifferent about distance 5 vs. 6,
 // 			but don't encourage greater distances. */
 // 		// if (iNearestDistance > iTargetRange +
@@ -3649,8 +3649,8 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		// IFLOG if(iTempValue!=iValue) logBBAI("%d from %d distance to %S",
 // 		// 		iValue - iTempValue, iDistance, cityName(*pOurNearestCity));
 
-// 		// <!-- custom: replace long distances penalty with our own, not too long, not too short distance system anyways etc -->
-// 		// <!-- custom: try to spread cities more as they are too crowded as of now anyways etc and simplify formula as well if i am not mistaken in doing so anyways etc, as advised as a general idea by claude ai when i asked it about this code thanks anyways etc thanks but anyways etc -->
+// 		// <!-- custom: replace long distances penalty with our own, not too long, not too short distance system -->
+// 		// <!-- custom: try to spread cities more as they are too crowded as of now anyways etc and simplify formula as well if i am not mistaken in doing so anyways etc, as advised as a general idea by claude ai when i asked it about this code thanks anyways etc thanks-->
 // 		// <!-- custom: attempt to increase distance penalties as with flat 1000 with our change, cities are a bit too far as of now with this change anyways etc, but try not to make them crowded again either anyways etc, try to make first cities closer to each other, less important for later ones -->
 
 // 		int const iDistanceToOurNearestCity = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
@@ -3684,8 +3684,8 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		{
 // 			// The penalty is less severe for larger empires, as they can afford to stretch.
 // 			int iExcessDistanceToOurNearestCity = iDistanceToOurNearestCity - iMaxDistanceToNearestCity;
-// 			// <!-- custom: make it scale slower with city num, as it seems AI is a bit/sometimes too adventurous with more cities anyways etc -->
-// 			// <!-- custom: with 600 they are still a bit too far from core cities some times (high yields), so penalize these far locations a bit more anyways etc, trying not to make them too close again anyways etc; adjusting old 1500 + 600 * d formula i made but anyways etc in an attempt to space cities a little bit more but also reduce them sometimes going a bit too far but trying not to overdo it either anyways etc -->
+// 			// <!-- custom: make it scale slower with city num, as it seems AI is a bit/sometimes too adventurous with more cities -->
+// 			// <!-- custom: with 600 they are still a bit too far from core cities some times (high yields), so penalize these far locations a bit more anyways etc, trying not to make them too close again anyways etc; adjusting old 1500 + 600 * d formula i madein an attempt to space cities a little bit more but also reduce them sometimes going a bit too far but trying not to overdo it either -->
 // 			// iMinMaxDistanceToNearestCityModifier = -600 * iExcessDistanceToOurNearestCity / (1 + iCities);
 // 			iMinMaxDistanceToNearestCityModifier = -1700 * iExcessDistanceToOurNearestCity / (1 + (iCities / 3));
 // 		}
@@ -3731,7 +3731,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 	if (pOurNearestCity == NULL)
 // 		return iValue;
 
-// 	// <!-- custom: disable distance to capital, use distance to nearest city rather now anyways etc, see nearest city block in this function for details anyways etc -->
+// 	// <!-- custom: disable distance to capital, use distance to nearest city rather now anyways etc, see nearest city block in this function for details -->
 // 	// int iDistance = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
 // 	// 		::plotDistance(iX, iY, pOurNearestCity->getX(), pOurNearestCity->getY()));
 // 	// // <advc.031> Don't discourage settling on small nearby landmasses
@@ -3825,7 +3825,7 @@ int AIFoundValue::adjustToBonusCount(int iValue,
 }
 
 
-// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->
+// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results -->
 // int AIFoundValue::adjustToBadTiles(int iValue, int iBadTiles) const
 // {
 // 	scaled r = iValue;
@@ -3848,7 +3848,7 @@ int AIFoundValue::adjustToBonusCount(int iValue,
 // 	return r.round();
 // }
 
-// <!-- custom: go for yield potential not immediate bad health, also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time in this case i mean but anyways etc, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change anyways etc -->
+// <!-- custom: go for yield potential not immediate bad health, also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change -->
 // // advc.031: Stifling bad health needs to be discouraged rigorously
 // int AIFoundValue::adjustToBadHealth(int iValue, int iGoodHealth) const
 // {

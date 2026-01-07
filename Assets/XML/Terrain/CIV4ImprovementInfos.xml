@@ -5,7 +5,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Improvement -->
-<!-- custom: note: be careful when renaming the improvementinfo types, we use them in CvUnitAI::AI_bestCityBuild as a way to optimize worker improvement choice, so if you change it, also change it there as well and then recompile DLL, among other places that may or not need the change as well but this is the one we specifically implemented in advciv-sas as of now that would require a recompile anyways etc ; see also related code comment at CIV4BonusInfos.xml for details anyways etc -->
+<!-- custom: note: be careful when renaming the improvementinfo types, we use them in CvUnitAI::AI_bestCityBuild as a way to optimize worker improvement choice, so if you change it, also change it there as well and then recompile DLL, among other places that may or not need the change as well but this is the one we specifically implemented in advciv-sas as of now that would require a recompile; see also related code comment at CIV4BonusInfos.xml for details -->
 <Civ4ImprovementInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<ImprovementInfos>
 		<ImprovementInfo>
@@ -320,7 +320,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
-			<!-- custom: currently fish is unfairly to me at least and undesirably too strong, other ressources/bonuses have other assets/qualities too, anyways etc -->
+			<!-- custom: currently fish is unfairly to me at least and undesirably too strong, other ressources/bonuses have other assets/qualities too -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_MOLLUSCS</BonusType>
@@ -488,20 +488,20 @@
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
-					<!-- custom: remove negative yields as can be confusing and no strong reason to change the base yield, anyways etc -->
+					<!-- custom: remove negative yields as can be confusing and no strong reason to change the base yield -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>4</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
-					<!-- custom: remove negative yields as can be confusing and no strong reason to change the base yield, anyways etc -->
+					<!-- custom: remove negative yields as can be confusing and no strong reason to change the base yield -->
 				<BonusTypeStruct>
 					<BonusType>BONUS_GOLD</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
-					<!-- custom: for gold specifically, useful to craft items too and such anyways etc -->
+					<!-- custom: for gold specifically, useful to craft items too and such -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>0</iYieldChange>
@@ -524,7 +524,7 @@
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
-					<!-- custom: for silver specifically, useful to craft items too and such anyways etc, from a balance standpoint, since we can't make units with silver, buff it by giving gold (i.e. gpt (commerce) anyways etc) too instead anyways etc -->
+					<!-- custom: for silver specifically, useful to craft items too and such anyways etc, from a balance standpoint, since we can't make units with silver, buff it by giving gold (i.e. gpt (commerce) anyways etc) too instead -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>1</iYieldChange>
@@ -597,7 +597,7 @@
 			<iHappiness>0</iHappiness>
 			<iPillageGold>5</iPillageGold>
 			<bOutsideBorders>0</bOutsideBorders>
-			<!-- custom: add terrain_tundra as well as no reason no to, to buff and make tundra more viable as well if i am not mistaken, anyways etc -->
+			<!-- custom: add terrain_tundra as well as no reason no to, to buff and make tundra more viable as well -->
 			<TerrainMakesValids>
 				<TerrainMakesValid>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
@@ -615,7 +615,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: nerf the workshop a bit as it was a bit too op, was as of now first PrereqTech TECH_GUILDS (now removed) and TECH_CHEMISTRY anyways etc; also add more hammer at fusion or similar tech, idea i got from rfc doc mod anyways etc -->
+			<!-- custom: nerf the workshop a bit as it was a bit too op, was as of now first PrereqTech TECH_GUILDS (now removed) and TECH_CHEMISTRY anyways etc; also add more hammer at fusion or similar tech, idea i got from rfc doc mod -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -953,7 +953,7 @@
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: food can quickly become op, give it at most food related improvements except the farm ; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least anyways etc, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this case but anyways etc in a way that is hopefully not op anyways etc and that maybe thematically makes sense if i may say but anyways etc -->
+			<!-- custom: food can quickly become op, give it at most food related improvements except the farm; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least anyways etc, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this casein a way that is hopefully not op anyways etc and that maybe thematically makes sense -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
@@ -1128,7 +1128,7 @@
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+			<!-- custom: see code comment at plantation 's techyieldchanges -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
@@ -1142,7 +1142,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<!-- custom: venison/deer seems super healthy and nutritious, great because in tundra we want more food, increasing food output then: https://www.hunter-ed.com/blog/venison-vs-beef-which-is-healthier/ crossed checked quick here for example https://www.tasteofhome.com/article/ground-venison/ anyways etc -->
+		<!-- custom: venison/deer seems super healthy and nutritious, great because in tundra we want more food, increasing food output then: https://www.hunter-ed.com/blog/venison-vs-beef-which-is-healthier/ crossed checked quick here for example https://www.tasteofhome.com/article/ground-venison/ -->
 		<ImprovementInfo>
 			<Type>IMPROVEMENT_CAMP</Type>
 			<Description>TXT_KEY_IMPROVEMENT_CAMP</Description>
@@ -1174,7 +1174,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
-			<!-- custom: commerce of the horns, or its carrying trucks or such ability, or the fact that it's cheaper seemingly than beef or such, or such other causes or examples or not as long as we can buff deer and that indeed it seems nicely relevant anyways etc -->
+			<!-- custom: commerce of the horns, or its carrying trucks or such ability, or the fact that it's cheaper seemingly than beef or such, or such other causes or examples or not as long as we can buff deer and that indeed it seems nicely relevant -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_DEER</BonusType>
@@ -1558,7 +1558,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage>IMPROVEMENT_VILLAGE</ImprovementPillage>
 			<ImprovementUpgrade/>
-			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+			<!-- custom: see code comment at plantation 's techyieldchanges -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
@@ -1693,7 +1693,7 @@
 			</FeatureMakesValids>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+			<!-- custom: see code comment at plantation 's techyieldchanges -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>

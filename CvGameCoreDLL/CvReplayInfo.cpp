@@ -179,7 +179,7 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
 	FAssert(m_listReplayMessages.empty()); // advc: The above would leak memory
 	// <advc.106h>
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iSETTINGS_IN_REPLAYS = GC.getDefineINT("SETTINGS_IN_REPLAYS");
 
 	if(kGame.getGameState() == GAMESTATE_OVER &&
@@ -246,7 +246,7 @@ void CvReplayInfo::addSettingsMsg()
 	if(ePlayer == NO_PLAYER)
 		return;
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
 
 	CvReplayMessage* pSettingsMsg = new CvReplayMessage(0,
@@ -691,12 +691,12 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 		stream.Read(&iVersion);
 		// <advc.106i> Unpack mod id and version
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iAdvCivID = GC.getDefineINT("SAVE_VERSION");
 
 		int iModID = -1;
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iHOF_DISPLAY_OTHER_MOD_REPLAYS = GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS");
 
 		m->bDisplayOtherMods = (iHOF_DISPLAY_OTHER_MOD_REPLAYS > 0);
@@ -864,7 +864,7 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 			}
 			if(m_szModName.empty())
 			{
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const int iHOF_DISPLAY_BTS_REPLAYS = GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS");
 
 				if(iModID < 0 && iHOF_DISPLAY_BTS_REPLAYS <= 0)
@@ -896,7 +896,7 @@ void CvReplayInfo::write(FDataStreamBase& stream)
 	//stream.Write(REPLAY_VERSION);
 	// <advc.106i> Fold AdvCiv's (hopefully) globally unique id into the replay version
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iSAVE_VERSION = GC.getDefineINT("SAVE_VERSION");
 
 	stream.Write(iSAVE_VERSION * 100 + REPLAY_VERSION);

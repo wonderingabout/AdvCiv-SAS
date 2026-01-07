@@ -429,8 +429,8 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 		If I'd just set everything to NO_..., I'd have to set proper values at
 		some later point though. */
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		// <!-- custom: doesn't seem safe to static const these if XML is not loaded as per the base advciv code comment, so using an if else instead anyways etc; done with the help of chatgpt 5, check if accurate anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: doesn't seem safe to static const these if XML is not loaded as per the base advciv code comment, so using an if else instead anyways etc; done with the help of chatgpt 5, check if accurate -->
 		// bool cd = GC.isCachingDone();
 		// m_eClimate = cd ? (ClimateTypes)GC.getDefineINT("STANDARD_CLIMATE") : NO_CLIMATE;			// NO_ option?
 		// m_eSeaLevel = cd ? (SeaLevelTypes)GC.getDefineINT("STANDARD_SEALEVEL") : NO_SEALEVEL;		// NO_ option?
@@ -631,8 +631,8 @@ void CvInitCore::resetPlayer(PlayerTypes eID,
 	// </advc.190c>
 	m_aeTeam.set(eID, static_cast<TeamTypes>(eID));
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: doesn't seem safe to static const these if XML is not loaded as per the base advciv code comment, so using an if else instead anyways etc; done with the help of chatgpt 5, check if accurate anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: doesn't seem safe to static const these if XML is not loaded as per the base advciv code comment, so using an if else instead anyways etc; done with the help of chatgpt 5, check if accurate -->
 	// <advc.003c> See comment in resetGame
 	// m_aeHandicap.set(eID, GC.isCachingDone() ?
 	// 		(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP") : NO_HANDICAP);

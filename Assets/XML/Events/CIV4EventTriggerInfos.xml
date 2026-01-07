@@ -288,7 +288,7 @@
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute instead, TECH_ECOLOGY in this case anyways etc -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute instead, TECH_ECOLOGY in this case -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
@@ -378,7 +378,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: replaced TECH_PRIESTHOOD (now removed), replaced with TECH_MONARCHY anyways etc -->
+			<!-- custom: replaced TECH_PRIESTHOOD (now removed), replaced with TECH_MONARCHY -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
@@ -1091,7 +1091,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY anyways etc -->
+			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
@@ -2934,7 +2934,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY anyways etc -->
+			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
@@ -6076,7 +6076,7 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
@@ -7543,7 +7543,7 @@
 				<Event>EVENT_ANCIENTOLYMPICS_2</Event>
 			</PrereqEvents>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD (now removed anyways etc) has been moved in tech tree anyways etc -->
+			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD (now removed anyways etc) has been moved in tech tree -->
 			<OrPreReqs>
 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			</OrPreReqs>
@@ -8058,7 +8058,7 @@
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace with a substitute, here TECH_MILITARY_SCIENCE anyways etc -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace with a substitute, here TECH_MILITARY_SCIENCE -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
@@ -8578,7 +8578,7 @@
 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD (now removed anyways etc) here and ideally in places where it is not relevant anymore with reworked tech tree anyways etc -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD (now removed anyways etc) here and ideally in places where it is not relevant anymore with reworked tech tree -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
@@ -9102,7 +9102,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, also remove TECH_SCIENTIFIC_METHOD (now removed anyways etc) as it has been moved in tech tree anyways etc, use another closer or/and more relevant tech in our reworked tech tree anyways etc -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, also remove TECH_SCIENTIFIC_METHOD (now removed anyways etc) as it has been moved in tech tree anyways etc, use another closer or/and more relevant tech in our reworked tech tree -->
 			<OrPreReqs>
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
@@ -10432,7 +10432,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, but since it was the only tech, use TECH_COMBUSTION as a substitute anyways etc -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, but since it was the only tech, use TECH_COMBUSTION as a substitute -->
 			<OrPreReqs>
 				<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			</OrPreReqs>
@@ -11929,7 +11929,7 @@
 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<!-- custom: changed to another/account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc -->
+			<!-- custom: changed to another/account for anyways etc tech to accomodate reworked tech tree -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
@@ -13260,7 +13260,7 @@
 			<MinDifficulty>NONE</MinDifficulty>
 			<iAngry>0</iAngry>
 			<iUnhealthy>0</iUnhealthy>
-			<!-- custom: caravel removed, remove UNITCLASS_CARAVEL from here too i mean anyways etc -->
+			<!-- custom: caravel removed, remove UNITCLASS_CARAVEL from here too -->
 			<UnitsRequired>
 				<UnitClass>UNITCLASS_GALLEY</UnitClass>
 				<UnitClass>UNITCLASS_TRIREME</UnitClass>

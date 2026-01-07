@@ -4,7 +4,7 @@ returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs
 
 
 
-[DEBUG] Beginning of show obj inner fields if i am not mistaken anyways etc.
+[DEBUG] Beginning of show obj inner fields.
 
 __class__
 
@@ -112,4 +112,4 @@ isTerrain
 
 isVisibleAlways
 
-[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.
+[DEBUG] End of show show obj inner fields.

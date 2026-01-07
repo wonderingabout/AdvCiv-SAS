@@ -6719,7 +6719,7 @@ Can't pillage routes on unowned tiles that contain a (non-Spy) unit of a differe
 Rationale	Not an important change. Yanking out roads from under other civs' stacks is pretty bizarre, and occasionally exploitable.
 
 
-112	AI changes for voluntary vassal agreements (VVA ; "peace vassalage")
+112	AI changes for voluntary vassal agreements (VVA; "peace vassalage")
 Tbd.	The VVA code was already messy in K-Mod, and it's worse now. Should be rewritten based on a utility value that replaces the dozens of exclusive clauses.
 See also	037: Rule changes to prevent masters from sabotaging voluntary vassals.
 AdvCiv	K-Mod
@@ -10978,7 +10978,7 @@ CFC post by me laying out rationales and explaining why I'm not quite happy with
 The mod component Scaling Garrison Unhappiness by Imp. Knoedel uses culture garrison values instead of defensive strength. (But in my estimation, culture garrison strength increases too slowly over the course of a game, and it's another value to be displayed by the UI.)
 Tbd.	Defense from obsolete buildings shouldn't count. Will have to add a data member CvCity::m_iNonObsoleteBuildingDefense for this because building defense is cached in m_iBuildingDefense.
 Need to show "Garrison strength x.x, population: y" in help text when there is anger. Otherwise it's too difficult to learn.
-Performance was slightly problematic until I disabled the check for outdated units. Should check sometime if there is still any issue now. If so, then the result of CvCity::getNoMilitaryPercentAnger should be cached. That cache will have to be updated once per turn (sufficient for dealing with defensive buildings and unit obsoletion); and in CvUnit::setXY, CvCity::setPopulation ; and after assigning a promotion.
+Performance was slightly problematic until I disabled the check for outdated units. Should check sometime if there is still any issue now. If so, then the result of CvCity::getNoMilitaryPercentAnger should be cached. That cache will have to be updated once per turn (sufficient for dealing with defensive buildings and unit obsoletion); and in CvUnit::setXY, CvCity::setPopulation; and after assigning a promotion.
 I've been thinking about making unit upgrades mandatory (if not upgraded in time, units refuse to fight with outdated equipment and defect). Then this change will be important because otherwise players could try to play around unit obsoletion (e.g. don't get Hunting so that Warriors can be trained indefinitely) so that they don't have to upgrade their city garrisons.
 	
 500c	Nationalism tech disables “we fear for our safety” anger

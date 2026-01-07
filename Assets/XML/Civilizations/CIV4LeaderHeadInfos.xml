@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Leader Infos and AI Settings -->
-<!-- custom: remember or/and be careful anyways etc to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown if i am not mistaken too anyways etc -->
+<!-- custom: remember or/and be careful anyways etc to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown if i am not mistaken too -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<LeaderHeadInfos>
 		<LeaderHeadInfo> <!-- custom: Barbarian (add leader name here too for easier vs code tree read while in the file) -->
@@ -51,7 +51,7 @@
 			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
 			<!-- advc.114d: was 16 -->
 			<iAttackOddsChangeRand>16</iAttackOddsChangeRand>
-			<!-- custom: make them pick up on the weak is smart and more realistic too, they wouldn't attack someone they can't win against ideally i think, even if a bit less hopefully more accurate this way maybe or not or yes but anyways etc, anyways etc -->
+			<!-- custom: make them pick up on the weak is smart and more realistic too, they wouldn't attack someone they can't win against ideally i think, even if a bit less hopefully more accurate this way maybe -->
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
@@ -110,7 +110,7 @@
 			<MemoryDecays/>
 			<MemoryAttitudePercents/>
 			<NoWarAttitudeProbs/>
-			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, but anyways etc, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
+			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
 			Make sure to build enough workers and early enough to develop the land too.
 			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend.
 			It seems also 25 (for UNITAI_WORKER) is not enough to make enough workers and fast/soon enough, trying a higher number.
@@ -905,7 +905,7 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -1138,11 +1138,11 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<!-- custom: favourite civics reworked similarly to the traits rebalancing, with the very nice help of chatgpt 5.1 and me xd too but anyways etc, and reviewed with other ais like claude sonnet 4.5 and grok 4.1 or/and such, see as of now README_Assets_Rebalancing.md for details anyways etc -->
+			<!-- custom: favourite civics reworked similarly to the traits rebalancing, with the very nice help of chatgpt 5.1 and me xd too, and reviewed with other ais like claude sonnet 4.5 and grok 4.1 or/and such, see as of now README_Assets_Rebalancing.md for details -->
 			<!-- Asoka: was CIVIC_FREE_RELIGION (BtS / AdvCiv 1.12) -->
 			<FavoriteCivic>CIVIC_PACIFISM</FavoriteCivic>
 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
-			<!-- custom: traits reworked with the very nice help of chatgpt 5 and my prompts and ideas and/or such, see docs (in particular as of now README_Assets_Rebalancing.md (or the custom main changes guide if filename changed since then or/and git commit or/and such but anyways etc) but anyways etc) for details anyways etc -->
+			<!-- custom: traits reworked with the very nice help of chatgpt 5 and my prompts and ideas and/or such, see docs (in particular as of now README_Assets_Rebalancing.md (or the custom main changes guide if filename changed since then or/and git commit or/and such)) for details -->
 			<!-- Asoka — was TRAIT_SPIRITUAL and TRAIT_ORGANIZED -->
 			<Traits>
 				<Trait>
@@ -1354,7 +1354,7 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -1570,7 +1570,7 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -1781,7 +1781,7 @@
 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>20</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<!-- custom: was 30 -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
@@ -1988,7 +1988,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<!-- custom: was 30 -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
@@ -2019,7 +2019,7 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<!-- custom: see also assets_rebalancing.md doc for rationale about change to his favourite civic anyways etc. -->
+			<!-- custom: see also assets_rebalancing.md doc for rationale about change to his favourite civic -->
 			<!-- Brennus: old favourite civic = CIVIC_ORGANIZED_RELIGION -->
 			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
 			<!-- custom: none, not religion_paganism for brennus, see notes_about_religious_design.txt in the mod's google drive for details -->
@@ -2199,7 +2199,7 @@
 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<!-- custom: was 25 -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
@@ -2438,7 +2438,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -2647,7 +2647,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -2860,7 +2860,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -3081,7 +3081,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -3306,7 +3306,7 @@
 			<iDemandRebukedSneakProb>10</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -3521,7 +3521,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -3738,7 +3738,7 @@
 			<!-- custom: seems especially vengeful, especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) (check if accurate), was 0 in cyrus among other uncommented changes in ewuare's xml -->
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -3783,7 +3783,7 @@
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
-			<!-- custom: rebalanced according to and with the help of chatgpt o3 much later anyways etc to follow civ4 original format, i had done 5 military 3 growth 2 religion originally anyways etc, hopefully more accurate this way and civ4 compliant and also reliable for ai personality panel display and compare too if i am not mistaken but anyways etc -->
+			<!-- custom: rebalanced according to and with the help of chatgpt o3 much later anyways etc to follow civ4 original format, i had done 5 military 3 growth 2 religion originally anyways etc, hopefully more accurate this way and civ4 compliant and also reliable for ai personality panel display and compare too -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -3870,7 +3870,7 @@
 					<iWeightModifier>60</iWeightModifier>
 				</UnitAIWeightModifier>
 			</UnitAIWeightModifiers>
-			<!-- custom: add workshop as per chatgpt's recommendation after it did a web search plus i mean anyways etc feeding it our pedia entry that is wiki based anyways etc if it remembered it quite accurately since the quite many prompts we did but anyways etc if i may say but anyways etc, among other uncommented xml changes anyways etc -->
+			<!-- custom: add workshop as per chatgpt's recommendation after it did a web search plus feeding it our pedia entry that is wiki based anyways etc if it remembered it quite accurately since the quite many prompts we did, among other uncommented xml changes -->
 			<ImprovementWeightModifiers>
 				<ImprovementWeightModifier>
 					<ImprovementType>IMPROVEMENT_TOWN</ImprovementType>
@@ -3964,7 +3964,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -4180,7 +4180,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>25</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -4444,7 +4444,7 @@
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>75</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -4475,7 +4475,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>50</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<!-- custom: not strictly daoist, but closest and seems accurate, see notes in docs or/and mod's google drive if there as well for details anyways etc -->
+			<!-- custom: not strictly daoist, but closest and seems accurate, see notes in docs or/and mod's google drive if there as well for details -->
 			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -4665,7 +4665,7 @@
 			<iDemandRebukedSneakProb>25</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -4697,7 +4697,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<!-- custom: not sure and quick read but (this)(paganism) seems accurate enough anyways etc -->
+			<!-- custom: not sure and quick read but (this)(paganism) seems accurate enough -->
 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -4871,7 +4871,7 @@
 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>15</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -5073,7 +5073,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -5278,7 +5278,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -5516,7 +5516,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -5741,7 +5741,7 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -5983,7 +5983,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -6192,8 +6192,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: increase julius caesar war tendency/profile a bit, asking chatgpt it seems that he has such a profile from little or not or quite bit or not i know about him, chatgpt also says augustus caesar would be a bit less anyways etc, it does seem they don't wage war enough anyways etc in base advciv at least (+/- civ4?) but anyways etc, so increasing it quite a bit if not cautiosuly but quite decisively more if i may say but anyways etc... to see and maybe accurate, also asked it to double check no web search on search and try to balance it with other leaders, this value of 40 seems a better fit anwyays etc, was 30 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: increase julius caesar war tendency/profile a bit, asking chatgpt it seems that he has such a profile from little or not or quite bit or not i know about him, chatgpt also says augustus caesar would be a bit less anyways etc, it does seem they don't wage war enough anyways etc in base advciv at least (+/- civ4?), so increasing it quite a bit if not cautiosuly but quite decisively more... to see and maybe accurate, also asked it to double check no web search on search and try to balance it with other leaders, this value of 40 seems a better fit anwyays etc, was 30 -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -6402,7 +6402,7 @@
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -6616,7 +6616,7 @@
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -6874,7 +6874,7 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -7083,7 +7083,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -7307,7 +7307,7 @@
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -7512,7 +7512,7 @@
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -7721,7 +7721,7 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -7925,7 +7925,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-3</iWorseRankDifferenceAttitudeChange>
@@ -8155,7 +8155,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>6</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -8372,7 +8372,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -8405,7 +8405,7 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<!-- Pacal: was CIVIC_HEREDITARY_RULE -->
 			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
-			<!-- custom: did not find much info for pacal (2) so going with the very succint wiki mention that i could not refute or investigate further in short time and quick data sample (if need else not necessary to explictly refute anwyays etc.) hopefully accurate enough anyways etc. -->
+			<!-- custom: did not find much info for pacal (2) so going with the very succint wiki mention that i could not refute or investigate further in short time and quick data sample (if need else not necessary to explictly refute anwyays etc.) hopefully accurate enough -->
 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<!-- Pacal — was TRAIT_FINANCIAL and TRAIT_EXPANSIVE -->
 			<Traits>
@@ -8586,7 +8586,7 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -8796,7 +8796,7 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -9038,7 +9038,7 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 20 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -9071,7 +9071,7 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<!-- Qin Shi Huang: was CIVIC_BUREAUCRACY -->
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems but anyways etc.) in a wiki external source, so may or not be related but hopefully accurate enough anyways etc. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or/and some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough anyways etc. -->
+			<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may or not be related but hopefully accurate enough anyways etc. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or/and some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
 			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -9269,7 +9269,7 @@
 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>6</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -9475,7 +9475,7 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 20 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -9712,7 +9712,7 @@
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- advc.005a: was 20 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -9934,7 +9934,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -10173,7 +10173,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -10369,7 +10369,7 @@
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>20</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -10577,7 +10577,7 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
 			<!-- custom: was 30 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-3</iWorseRankDifferenceAttitudeChange>
@@ -10817,7 +10817,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>5</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -11025,7 +11025,7 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -11265,7 +11265,7 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
 			<!-- custom: was 30 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -11520,7 +11520,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -11719,7 +11719,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -11931,7 +11931,7 @@
 			<iDemandRebukedSneakProb>100</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -12171,7 +12171,7 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<!-- advc.130c: Swapped the values for WorseRank and
@@ -12381,7 +12381,7 @@
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>5</iRazeCityProb>
 			<!-- custom: was 30 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>

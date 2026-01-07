@@ -5,7 +5,7 @@
 <!-- -->
 <!-- Bonus Class -->
 
-<!-- custom: added class "disabled" for functionally removed bonuses (hit ressources), see among top comments at CIV4BonusInfos.xml for details anyways etc -->
+<!-- custom: added class "disabled" for functionally removed bonuses (hit ressources), see among top comments at CIV4BonusInfos.xml for details -->
 <!-- advc.129: Added class "Precious" for Gold, Silver and Gems. -->
 
 <Civ4BonusClassInfos xmlns="x-schema:CIV4TerrainSchema.xml">

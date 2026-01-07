@@ -2025,7 +2025,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
 		if(rDiscountModifier < 1)
 			rValue *= rDiscountModifier;
 
-		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal anyways etc. -->
+		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
 		// SAS techTradePowerDanger: bias trade valuation toward key military techs when we're clearly outgunned
 		// Yeah, this is exactly the place I meant: CvTeamAI::AI_techTradeVal is the right hook for “how much do we think this tech is worth in trades”, so it’s the natural spot to add a danger-biased military weighting.
 		// Given what you’ve already done in AI_techValue and how well #81 behaved, I’d mirror that idea here, but in a single, clean block inside AI_techTradeVal, with a separate toggle/knobs for trades.
@@ -2059,7 +2059,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
 		// End - SAS techTradePowerDanger
 	} // </advc.550a>
 
-	// <!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate anyways etc. -->
+	// <!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate -->
 	// Right, nice next step – this is basically the “backup sanity check” in case an outsider does get to the trade table with a tech your locus already has.
 	// Conceptually:
 	// If any team in our master–vassal cluster already knows eTech, and the offering team is not part of that cluster, then we value the tech less from them, because we have (or could have) an internal source.

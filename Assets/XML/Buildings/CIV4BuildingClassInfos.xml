@@ -915,7 +915,7 @@
 			<!-- custom: now a world wonder, was -1 -->
 			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<!-- custom: was a national wonder if i am not mistaken anyways etc that this indicates a wonder was national if value is 1 anyways etc, was 1 -->
+			<!-- custom: was a national wonderthat this indicates a wonder was national if value is 1 anyways etc, was 1 -->
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
@@ -929,7 +929,7 @@
 			<!-- custom: now a world wonder, was -1 -->
 			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<!-- custom: was a national wonder if i am not mistaken anyways etc that this indicates a wonder was national if value is 1 anyways etc, was 1 -->
+			<!-- custom: was a national wonderthat this indicates a wonder was national if value is 1 anyways etc, was 1 -->
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>

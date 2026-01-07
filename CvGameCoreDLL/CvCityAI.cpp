@@ -137,7 +137,7 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 			if (getForceSpecialistCount(e) > getMaxSpecialistCount(e))
 				setForceSpecialistCount(e, getMaxSpecialistCount(e));
 
-			// <!-- custom: adding a more detailed assert here just in case if it helps or if it fires too but anyways etc -->
+			// <!-- custom: adding a more detailed assert here just in case if it helps or if it fires too-->
 			// FAssert(isSpecialistValid(e));
 			FAssertMsg(isSpecialistValid(e),
 				CvString::format("T%d city=%S owner=%S type=%s e=%d value=%d",
@@ -204,8 +204,8 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 		{
 			int iForcedSpecialistCount = getForceSpecialistCount(e);
 
-			// <!-- custom: since it is always the artist that is being forced early when invalid, adding this fix thanks to chatgpt 5, check if accurate anyways etc -->
-			// <!-- custom: update: it seems that in some cases we lose the artist bfc ability we had, gating it with an xml define/toggle to see if it selectively loses/restores the bfc ability anyways etc, recommended to disable it until/unless it is determined safe if at all to enable anyways etc; update 2: tested in autoplay and we indeed selectively lose the ability to force an artist for bfc after enabling this, so disabling this entirely, kept a toggle if want to experiement or test it i mean but anyways etc. Recommended to keep this disabled anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not but anyways etc. -->
+			// <!-- custom: since it is always the artist that is being forced early when invalid, adding this fix thanks to chatgpt 5, check if accurate -->
+			// <!-- custom: update: it seems that in some cases we lose the artist bfc ability we had, gating it with an xml define/toggle to see if it selectively loses/restores the bfc ability anyways etc, recommended to disable it until/unless it is determined safe if at all to enable anyways etc; update 2: tested in autoplay and we indeed selectively lose the ability to force an artist for bfc after enabling this, so disabling this entirely, kept a toggle if want to experiement or test it. Recommended to keep this disabled anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not -->
 			static const bool bSAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST = GC.getDefineBOOL("SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST");
 			if (bSAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST)
 			{
@@ -419,7 +419,7 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
 		{
 			static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING");
 
-			// <!-- custom: performance optimization: compute this only once if i'm not mistaken anyways etc; e.g. "BUILDINGCLASS_HARBOR", check defines for string value anyways etc. -->
+			// <!-- custom: performance optimization: compute this only once if i'm not mistaken anyways etc; e.g. "BUILDINGCLASS_HARBOR", check defines for string value -->
 			static const BuildingClassTypes eHeroicEpicEffectBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME"));
 			static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING");
 			const CvCivilizationInfo& kCivInfo = GC.getInfo(kPlayer.getCivilizationType());
@@ -541,7 +541,7 @@ void CvCityAI::AI_chooseProduction()
 			// /*BuildingTypes eProductionBuilding = getProductionBuilding();
 			// if (!bDanger && eProductionBuilding != NO_BUILDING && CvBuildingInfo::isLimited(eProductionBuilding))
 			// 	return;*/ // BtS
-			// <!-- custom: we definitely want to tighten this, if we are weak, don't build wonders for our ennemies when they conquer us, ditch current building production and try to produce a few longbowmen or such rather, and if strong and at war, maybe urgency is not world wonders as well but making sure we are effective in our war, so adjust thresholds for this anyways etc ; code written by chatgpt 5 with my adjustments or such, check if accurate anyways etc -->
+			// <!-- custom: we definitely want to tighten this, if we are weak, don't build wonders for our ennemies when they conquer us, ditch current building production and try to produce a few longbowmen or such rather, and if strong and at war, maybe urgency is not world wonders as well but making sure we are effective in our war, so adjust thresholds for this; code written by chatgpt 5 with my adjustments or such, check if accurate -->
 			// // K-Mod. same idea, but with a few more conditions
 			BuildingTypes eProductionBuilding = getProductionBuilding();
 			if (eProductionBuilding != NO_BUILDING && GC.getInfo(eProductionBuilding).isLimited())
@@ -563,15 +563,15 @@ void CvCityAI::AI_chooseProduction()
 
 				// Situation read
 				bool const bWarPlan = kPlayer.AI_isFocusWar();
-				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
 				const bool bAtWar = (kTeam.getNumWars() > 0);
 				const int iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 				static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 				const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
-				// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
+				// <!-- custom: note: if i remember it correctly, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such -->
 				static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 				const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
-				// <!-- custom: redundant given below checks but for clarity if i may say but anyways etc (ideally should apply it elsewhere it is used but didn't do so so far as bit tedious and would need to test it to be sure if better results as such or if relevant for relevant parts of the code although not checking war seems a mistake based on the info i found while solving known issue as of now 53.3 but check to be sure and left as such at least as of now in other places anyways etc) -->
+				// <!-- custom: redundant given below checks but for clarity (ideally should apply it elsewhere it is used but didn't do so so far as bit tedious and would need to test it to be sure if better results as such or if relevant for relevant parts of the code although not checking war seems a mistake based on the info i found while solving known issue as of now 53.3 but check to be sure and left as such at least as of now in other places anyways etc) -->
 				const bool bAtWarAndEnemyWeak = (bAtWar && bEnemyWeak);
 
 				// Keep a baseline threshold so peaceful wonder builds don’t auto-stick at 0%. 
@@ -581,7 +581,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (bAtWar)
 					{
-						// <!-- custom: don't build the world wonder for our enemy when they conquer us (as for national wonders, more generally read after bracket as well anyways etc), attempt to build a few longbowmen with the hammer rather or anything else anyways etc -->
+						// <!-- custom: don't build the world wonder for our enemy when they conquer us (as for national wonders, more generally read after bracket as well anyways etc), attempt to build a few longbowmen with the hammer rather or anything else -->
 						if (bEnemyStrong)
 						{
 							iThreshold = 80;
@@ -595,23 +595,23 @@ void CvCityAI::AI_chooseProduction()
 							iThreshold = 60;
 						}
 					}
-					// <!-- custom: similar reasoning than if at war and enemy is strong anyways etc -->
+					// <!-- custom: similar reasoning than if at war and enemy is strong -->
 					else if (bDanger)
 					{
 						iThreshold = 70;
 					}
-					// <!-- custom: this assumes we're strong i guess, but not sure this is just a guess from me, check if accurate anyways etc ; in all cases we don't want to build too long a world wonder if we're plotting an invasion, consider ditching it quite strongly if i may say anyways etc -->
+					// <!-- custom: this assumes we're strong i guess, but not sure this is just a guess from me, check if accurate; in all cases we don't want to build too long a world wonder if we're plotting an invasion, consider ditching it quite strongly -->
 					else if (bWarPlan)
 					{
 						iThreshold = 50;
 					}
 				}
-				// <!-- custom: be a more lenient towards national wonders, they should cost a bit less, and finish a bit faster expectedly anyways etc -->
+				// <!-- custom: be a more lenient towards national wonders, they should cost a bit less, and finish a bit faster expectedly -->
 				else if (GC.getInfo(eProductionBuilding).isNationalWonder())
 				{
 					if (bAtWar)
 					{
-						// <!-- custom: don't build the world wonder for our enemy when they conquer us (as for national wonders, more generally read after bracket as well anyways etc), attempt to build a few longbowmen with the hammer rather or anything else anyways etc -->
+						// <!-- custom: don't build the world wonder for our enemy when they conquer us (as for national wonders, more generally read after bracket as well anyways etc), attempt to build a few longbowmen with the hammer rather or anything else -->
 						if (bEnemyStrong)
 						{
 							iThreshold = 65;
@@ -625,12 +625,12 @@ void CvCityAI::AI_chooseProduction()
 							iThreshold = 45;
 						}
 					}
-					// <!-- custom: similar reasoning than if at war and enemy is strong anyways etc -->
+					// <!-- custom: similar reasoning than if at war and enemy is strong -->
 					else if (bDanger)
 					{
 						iThreshold = 55;
 					}
-					// <!-- custom: this assumes we're strong i guess, but not sure this is just a guess from me, check if accurate anyways etc ; in all cases we don't want to build too long a world wonder if we're plotting an invasion, consider ditching it quite strongly if i may say anyways etc -->
+					// <!-- custom: this assumes we're strong i guess, but not sure this is just a guess from me, check if accurate; in all cases we don't want to build too long a world wonder if we're plotting an invasion, consider ditching it quite strongly -->
 					else if (bWarPlan)
 					{
 						iThreshold = 35;
@@ -698,7 +698,7 @@ void CvCityAI::AI_chooseProduction()
 	bool const bFinancialTrouble = kPlayer.AI_isFinancialTrouble();
 
 	int const iNumCitiesInArea = kArea.getCitiesPerPlayer(getOwner());
-	// <!-- custom: store this once since we use it many times then reference the cached variable rather as chatgpt 5 usually advices hehe but anyways etc -->
+	// <!-- custom: store this once since we use it many times then reference the cached variable rather as chatgpt 5 usually advices hehe-->
 	const int iNumCities = kPlayer.getNumCities();
 
 	// advc: Renamed from bImportantCity
@@ -1190,7 +1190,7 @@ void CvCityAI::AI_chooseProduction()
 				minimal naval force. */
 			std::vector<UnitAITypes> aeSeaAttackTypes;
 			aeSeaAttackTypes.push_back(UNITAI_ATTACK_SEA);
-			// <!-- custom: stop bypassing our code ffs if i may say xd but anyways etc... ; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details if i am not mistaken but anyways etc -->
+			// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details -->
 			if (bMinor || bBarbarian)
 			{
 				aeSeaAttackTypes.push_back(UNITAI_PIRATE_SEA);
@@ -1366,7 +1366,7 @@ void CvCityAI::AI_chooseProduction()
 	floatingDefenderWeight.set(UNITAI_CITY_COUNTER, 100);
 	//floatingDefenderWeight.set(UNITAI_CITY_SPECIAL, 0);
 	floatingDefenderWeight.set(UNITAI_RESERVE, 100);
-	// <!-- custom: stop bypassing our code ffs if i may say xd but anyways etc... ; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too if i am not mistaken for details for details or additional/related info, but anyways etc -->
+	// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too if i am not mistaken for details for details or additional/related info -->
 	if (bMinor || bBarbarian)
 	{
 		floatingDefenderWeight.set(UNITAI_COLLATERAL, 80); // K-Mod, down from 100.
@@ -1402,7 +1402,7 @@ void CvCityAI::AI_chooseProduction()
 		defensiveWeight.set(UNITAI_ATTACK, 100);
 		defensiveWeight.set(UNITAI_RESERVE, 60);
 		//defensiveWeight.push_back(std::make_pair(UNITAI_COLLATERAL, 60));
-		// <!-- custom: stop bypassing our code ffs if i may say xd but anyways etc... ; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too if i am not mistaken for details for details or additional/related info, but anyways etc -->
+		// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too if i am not mistaken for details for details or additional/related info -->
 		if (bMinor || bBarbarian)
 		{
 			defensiveWeight.set(UNITAI_COLLATERAL, 80);
@@ -1635,7 +1635,7 @@ void CvCityAI::AI_chooseProduction()
 		// K-Mod. Don't do this if there is any war at all.
 		if (kArea.getAreaAIType(getTeam()) == AREAAI_NEUTRAL)
 		{
-			// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details anyways etc -->
+			// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details -->
 			// Assert Failed
 			// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
 			// Line:  48
@@ -1710,7 +1710,7 @@ void CvCityAI::AI_chooseProduction()
 		iSpreadUnitRoll *= (200 + std::max(iProjectValue, iBestBuildingValue));
 		iSpreadUnitRoll /= (100 + 3 * std::max(iProjectValue, iBestBuildingValue));
 		// K-Mod end
-		// <!-- custom: the assert in parent caller fails sometimes, move it a bit sooner in this block, as recommended by chatgpt 5 after asking it about this point in general i mean but anyways etc, check if accurate anyways etc -->
+		// <!-- custom: the assert in parent caller fails sometimes, move it a bit sooner in this block, as recommended by chatgpt 5 after asking it about this point in general, check if accurate -->
 		// Assert Failed
 		// File: ..\.\CvCityAI.cpp
 		// Line: 1717
@@ -1724,7 +1724,7 @@ void CvCityAI::AI_chooseProduction()
 			&eBestSpreadUnit, &iBestSpreadUnitValue) &&
 			iBestSpreadUnitValue > iSpreadUnitThreshold)
 		{
-			// <!-- custom: while we're at it, make the assert prettier with more info i mean but anyways etc -->
+			// <!-- custom: while we're at it, make the assert prettier with more info -->
 			// FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
 			// Contract check: if function said "true", we expect a concrete unit
 			FAssertMsg(eBestSpreadUnit != NO_UNIT,
@@ -1801,32 +1801,32 @@ void CvCityAI::AI_chooseProduction()
 		}
 	} // </advc.650>
 
-	// <!-- custom: the below code doesn't apply to barbarians, as they have no settler, produce no naval units as a result on pangea so they don't pirate anymore as they should, and should still be focused on their usual invade and such routine if i am not mistaken anyways etc, but this is also proof our logic is working as intended nicely if i may say which is a good thing if i may say too but anyways etc -->
+	// <!-- custom: the below code doesn't apply to barbarians, as they have no settler, produce no naval units as a result on pangea so they don't pirate anymore as they should, and should still be focused on their usual invade and such routine, but this is also proof our logic is working as intended nicely if i may say which is a good thing if i may say too-->
 	bool bNoSettler = false;
 	bool bWorkerReplacesSettler = false;
 
 	if (!bMinor && !bBarbarian)
 	{
-		// <!-- custom: add bNoSettler checks here rather than hardcoded in bestUnitAI with the old bNoGrow logic of base advciv +/- civ4 code, hopefully cleaner and we can contorl it better as well if i am not mistaken but anyways etc -->
+		// <!-- custom: add bNoSettler checks here rather than hardcoded in bestUnitAI with the old bNoGrow logic of base advciv +/- civ4 code, hopefully cleaner and we can contorl it better as well -->
 		//int const iFoodDifference = foodDifference(true, true);
 		bool const bStagnant = (!isFoodProduction() && foodDifference() <= 0);
 
 		// CvArea* pWaterArea = waterArea(true);
 
-		// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+		// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
 		bool const bWarPlan = GET_PLAYER(getOwner()).AI_isFocusWar(); // advc.105
 				//(kTeam.getAnyWarPlanCount(true) > 0);
 		bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
 		bLandWar = (bDefense || (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getArea().getAreaAIType(getTeam()) == AREAAI_MASSING));
 		// bool const bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
-		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
+		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here-->
 		// //bool const bAssault = (getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT);
 		// bool const bPrimaryArea = kOwner.AI_isPrimaryArea(getArea());
 		// bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
 		// bool const bFinancialTrouble = kOwner.AI_isFinancialTrouble();
 		// <!-- custom: be careful, do not use this bWarPossible, this is always true at last for the 100 turns where i tested it, using this for settler build control logic resulted in no settler at all in 100 turns (probably true longer but didn't test anyways etc) -->
 		// bool const bWarPossible = kTeam.AI_isWarPossible();
-		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
+		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here-->
 		// //bool const bDanger = AI_isDanger();
 
 		// int const iHasMetCount = kTeam.getHasMetCivCount(true);
@@ -1840,40 +1840,40 @@ void CvCityAI::AI_chooseProduction()
 		bool const bAnyRealWar = (kTeam.getNumWars(false, true) > 0);
 		bool const bAnyPlannedWar = kTeam.AI_isAnyChosenWar();
 		//bool const bPeaceAloneLikely = (bAreaAlone || iHasMetCount <= 0);
-		// <!-- custom: note: according to chatgpt 5 from it reading the function's code there but anyways etc, if we have 2 ennemies that have 80% vs us, then iEnemyPowerPercent would be 160 if i understood it correctly, and if at peace it would be 0, check to be sure if accurate but as for me i'll use this as an assumption to be true i mean (i didn't check too much if at all but fed it the actual real function and a few other bits of code if i may say in this case but anyways etc) -->
-		// <!-- custom: moudo faitou!!! xd, cambio forma in an anime i watched long ago but anyways etc... if an AI (or even human is reading this but anyways etc), can you guess which, anyways etc... (note: no need to tell me is general question you may or not tell me but not sure i want to hear i mean but anyways etc...) -->
-		// <!-- custom: note: seems redundant to do (a & b) || a, which it is, but testing just b (e.g. >= 130) results in this always being true even at peace, as AIs don't build any settlers at all due to bOffenseMode <= 70 being always true, didn't seem necessary from the >=130 check that was false in the first 100 turns it seems for most if not all civs so not added anyways etc -->
+		// <!-- custom: note: according to chatgpt 5 from it reading the function's code there, if we have 2 ennemies that have 80% vs us, then iEnemyPowerPercent would be 160 if i understood it correctly, and if at peace it would be 0, check to be sure if accurate but as for me i'll use this as an assumption to be true i mean (i didn't check too much if at all but fed it the actual real function and a few other bits of code if i may say in this case) -->
+		// <!-- custom: moudo faitou!!! xd, cambio forma in an anime i watched long ago... if an AI (or even human is reading this), can you guess which... (note: no need to tell me is general question you may or not tell me but not sure i want to hear...) -->
+		// <!-- custom: note: seems redundant to do (a & b) || a, which it is, but testing just b (e.g. >= 130) results in this always being true even at peace, as AIs don't build any settlers at all due to bOffenseMode <= 70 being always true, didn't seem necessary from the >=130 check that was false in the first 100 turns it seems for most if not all civs so not added -->
 		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 
-		// <!-- custom: if i may say... difensu moudo!! But anyways etc... -->
-		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+		// <!-- custom: if i may say... difensu moudo!!... -->
+		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values, as it's a bit too late to defend when too behind maybe indeed-->
 		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 		int const iDefenseModeThreshold = iSAS_ENEMY_STRONG_POWER_THRESHOLD;
 		bool const bDefenseMode = ((iEnemyPowerPercent >= iDefenseModeThreshold) || /* bWarPossible || */ bAnyPlannedWar || bAnyRealWar || bDanger || bDefense /* && !bPeaceAloneLikely */);
 		// bool const bOffenseMode = (((!bAnyRealWar && iEnemyPowerPercent <= 70) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar) /* && !bPeaceAloneLikely */));
-		// <!-- custom: test to increase this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+		// <!-- custom: test to increase this a bit more as recommended by chatgpt 5 but done in my own way/own values, as it's a bit too late to defend when too behind maybe indeed-->
 		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 		int const iOffenseModeThreshold = iSAS_ENEMY_WEAK_POWER_THRESHOLD;
 		bool const bOffenseMode = ((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar) /* && !bPeaceAloneLikely */);
 
 		// int const iNumCities = kOwner.getNumCities();
-		// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure but anyways etc ; each city needs maximum 2 workers before it's too much -->
+		// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure; each city needs maximum 2 workers before it's too much -->
 		bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * iNumCities);
 
-		// <!-- custom: try our luck expanding blindly in the early game (then later we'll consider if we go expansion mode or on guard mode no settler we'll consider it after this delay anyways etc) ; 75 turns allow for a few cities but from a more delayed start and stornger cities, less barbarian captures too due to being less thin before expanding based on autoplay results anyways etc -->
+		// <!-- custom: try our luck expanding blindly in the early game (then later we'll consider if we go expansion mode or on guard mode no settler we'll consider it after this delay anyways etc); 75 turns allow for a few cities but from a more delayed start and stornger cities, less barbarian captures too due to being less thin before expanding based on autoplay results -->
 		const int iBaseFreeTurns = 75; // @NORMAL speed
 		const int iFreeTurns = iBaseFreeTurns * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
 		const bool bFreeSettlerEarlyWindow = (kGame.getElapsedGameTurns() < iFreeTurns);
 
-		// <!-- custom: only capital can produce settler as of now, but in case we change it, safer to put these at common tree/logic (i.e. with non capital cities too anyways etc) ; note: it is intended that this applies regardless of free window, as even in first 75 or so turns (see below for updated value if any but anyways etc), we want to grow first still before producing settlers, see below for reasons, that include more efficient food is production due to higher pop, as well as stronger military or such so less barbarian captures than with a bunch of 1 size cities thinly/weakly guarded at turn 50-75 then recaptured at turn 75-100 by a rival :( So take a bit slower growth for higher efifciency and see below for details anyways etc -->
+		// <!-- custom: only capital can produce settler as of now, but in case we change it, safer to put these at common tree/logic (i.e. with non capital cities too anyways etc); note: it is intended that this applies regardless of free window, as even in first 75 or so turns (see below for updated value if any), we want to grow first still before producing settlers, see below for reasons, that include more efficient food is production due to higher pop, as well as stronger military or such so less barbarian captures than with a bunch of 1 size cities thinly/weakly guarded at turn 50-75 then recaptured at turn 75-100 by a rival :( So take a bit slower growth for higher efifciency and see below for details -->
 		if (iCityPopulation <= 4)
 		{
-			// <!-- custom: keep growing as in same old code that was now deleted, i start to understand maybe how they felt writing it, but it was way too permissive or and inaccurate or ineffective or not enough i think, i hope AI is more competitive with this one but there could be a better way ofc but i hope this is not too bad and better than previous one too i think as well if i am not mistaken but.. open to feedback xd, in this code at least not that i would necessarily reply though if i may say but open about being wrong or mistaken in this case i mean but anyways etc... (t.l.d.r don't contact me but i can be wrong xd but anyways etc) -->
+			// <!-- custom: keep growing as in same old code that was now deleted, i start to understand maybe how they felt writing it, but it was way too permissive or and inaccurate or ineffective or not enough i think, i hope AI is more competitive with this one but there could be a better way ofc but i hope this is not too bad and better than previous one too i think as well if i am not mistaken but.. open to feedback xd, in this code at least not that i would necessarily reply though if i may say but open about being wrong or mistaken... (t.l.d.r don't contact me but i can be wrong xd) -->
 			if (!bStagnant)
 			{
 				bNoSettler = true;
 			}
-			// <!-- custom: small city stagnant (and not food is production that would alter the calculation if i am not mistaken to 0 or some other value but anyways etc), build a worker rather (but be careful of the chain loop endless worker though) -->
+			// <!-- custom: small city stagnant (and not food is production that would alter the calculation if i am not mistaken to 0 or some other value), build a worker rather (but be careful of the chain loop endless worker though) -->
 			else 
 			{
 				if (iCityPopulation <= 2 && !bTooMuchWorkers)
@@ -1888,7 +1888,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			bNoSettler = true;
 		}
-		// <!-- custom: much more efficient and stronger to grow a bit then use our food to produce settlers faster later, even though it comes at a cost of losing 1-2 early spots, we are also less thin so good long term, stronger economy and military and less city captured, and we make up the gap if our strategy allows us to, else we prepare militarily quite soon anyways etc ; but if stagnating, produce anyway, better than do nothing -->
+		// <!-- custom: much more efficient and stronger to grow a bit then use our food to produce settlers faster later, even though it comes at a cost of losing 1-2 early spots, we are also less thin so good long term, stronger economy and military and less city captured, and we make up the gap if our strategy allows us to, else we prepare militarily quite soon; but if stagnating, produce anyway, better than do nothing -->
 		else {
 			if (!bFreeSettlerEarlyWindow)
 			{
@@ -1900,7 +1900,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					bNoSettler = true;
 				}
-				// <!-- custom: now we don't have a settler at all even at turn 100 (i.e. only one city for all AIs, but it shows our code is working as intended at least anyways etc), as for now, trying to fix it by making it more lax as advised by chatgpt 5 but check to be sure anyways etc -->
+				// <!-- custom: now we don't have a settler at all even at turn 100 (i.e. only one city for all AIs, but it shows our code is working as intended at least anyways etc), as for now, trying to fix it by making it more lax as advised by chatgpt 5 but check to be sure -->
 				// else if (kTeam.AI_isWarPossible())
 				// {
 				// 	bNoSettler = true;
@@ -1967,7 +1967,7 @@ void CvCityAI::AI_chooseProduction()
 				// <advc.031b> Store the result for "build settler 2"
 				iSettlerPriority = AI_calculateSettlerPriority(iNumAreaCitySites,
 						iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue);
-				// <!-- custom: add a no barbarian check and also add our no settler check as well too here cleanly but anyways etc, as first parameter for computational efficiency but anyways etc -->
+				// <!-- custom: add a no barbarian check and also add our no settler check as well too here cleanly, as first parameter for computational efficiency-->
 				if (!isBarbarian() && !bNoSettler && AI_chooseUnit(UNITAI_SETTLE, //bLandWar ? 50 : -1))
 				// // </advc.031b>
 				// if (AI_chooseUnit(UNITAI_SETTLE, //bLandWar ? 50 : -1))
@@ -2077,7 +2077,7 @@ void CvCityAI::AI_chooseProduction()
 			UnitAIWeightMap panicDefenderWeight; // advc: Was vector of pairs "defensiveTypes"
 			panicDefenderWeight.set(UNITAI_RESERVE, 100);
 			panicDefenderWeight.set(UNITAI_COUNTER, 100);
-			// <!-- custom: stop bypassing our code ffs if i may say xd but anyways etc... ; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too if i am not mistaken for details for details or additional/related info, but anyways etc -->
+			// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too if i am not mistaken for details for details or additional/related info -->
 			if (bMinor || bBarbarian)
 			{
 				panicDefenderWeight.set(UNITAI_COLLATERAL, 100);
@@ -2145,7 +2145,7 @@ void CvCityAI::AI_chooseProduction()
 		// For civ at war, don't build wonders if losing
 		if (!bTotalWar && (!bLandWar || iWarSuccessRating > 0)) // was -30
 		{
-			// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details anyways etc -->
+			// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details -->
 			// Assert Failed
 			// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
 			// Line:  48
@@ -2214,7 +2214,7 @@ void CvCityAI::AI_chooseProduction()
 			int iOurWarships = 0;
 			std::vector<UnitAITypes> aeSeaAttackTypes;
 			aeSeaAttackTypes.push_back(UNITAI_ATTACK_SEA);
-			// <!-- custom: stop bypassing our code ffs if i may say xd but anyways etc... ; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details if i am not mistaken but anyways etc -->
+			// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details -->
 			if (bMinor || bBarbarian)
 			{
 				aeSeaAttackTypes.push_back(UNITAI_PIRATE_SEA);
@@ -2240,7 +2240,7 @@ void CvCityAI::AI_chooseProduction()
 	} // </advc.081>
 	if (!bDanger)
 	{
-		// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate anyways etc. Note: according to chatgpt 5, about the issue related to AI_bestSpreadUnit, we don't need an assert here since we're only reusing previously computed values if i understood it correctly, check if accurate anyways etc -->
+		// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate anyways etc. Note: according to chatgpt 5, about the issue related to AI_bestSpreadUnit, we don't need an assert here since we're only reusing previously computed values if i understood it correctly, check if accurate -->
 		// The second block is a follow-up gate; it doesn’t recompute eBestSpreadUnit. If the first block didn’t run (or returned false), eBestSpreadUnit will be NO_UNIT by design. Asserting here just creates false positives.
 		// Assert Failed
 		// File:  ..\.\CvCityAI.cpp
@@ -2788,7 +2788,7 @@ void CvCityAI::AI_chooseProduction()
 			invaderWeight.set(UNITAI_PARADROP,
 					(kPlayer.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ) ? 30 : 20) /
 					(bAssault ? 2 : 1));
-			// <!-- custom: stop bypassing our code ffs if i may say xd but anyways etc... ; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details if i am not mistaken but anyways etc -->
+			// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details -->
 			if (bMinor || bBarbarian)
 			{
 				if (!bAssault)
@@ -2853,8 +2853,8 @@ void CvCityAI::AI_chooseProduction()
 		}
 	}
 
-	// <!-- custom: stop bypassing our code ffs if i may say xd but anyways etc... ; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details if i am not mistaken but anyways etc ; update: exception is barbarians as they may need to to pilage and such if i am not mistaken i mean check to be sure but anyways etc -->
-	// <!-- custom: since barbarians are seemingly handled in AI_barbChooseProduction (but this is just a guess based on what it seems to be at a quick glance but anyways etc, check if accurate anyways etc), we can probably disable this entirely rather than add a barbarian check, but keep the check just in case anyways etc -->
+	// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details if i am not mistaken; update: exception is barbarians as they may need to to pilage and such if i am not mistaken i mean check to be sure-->
+	// <!-- custom: since barbarians are seemingly handled in AI_barbChooseProduction (but this is just a guess based on what it seems to be at a quick glance, check if accurate anyways etc), we can probably disable this entirely rather than add a barbarian check, but keep the check just in case -->
 	// Don't build pirates in financial trouble as they'll be disbanded with high probability
 	if (bMinor || bBarbarian)
 	{
@@ -2893,7 +2893,7 @@ void CvCityAI::AI_chooseProduction()
 			return;
 	}
 
-	// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate anyways etc. Note: according to chatgpt 5, about the issue related to AI_bestSpreadUnit, we don't need an assert here since we're only reusing previously computed values if i understood it correctly, check if accurate anyways etc -->
+	// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate anyways etc. Note: according to chatgpt 5, about the issue related to AI_bestSpreadUnit, we don't need an assert here since we're only reusing previously computed values if i understood it correctly, check if accurate -->
 	// The second block is a follow-up gate; it doesn’t recompute eBestSpreadUnit. If the first block didn’t run (or returned false), eBestSpreadUnit will be NO_UNIT by design. Asserting here just creates false positives.
 	// Assert Failed
 	// File:  ..\.\CvCityAI.cpp
@@ -2939,7 +2939,7 @@ void CvCityAI::AI_chooseProduction()
 					if (gCityLogLevel >= 2) logBBAI("      City %S uses build settler 2", sCityName);
 					return;
 				}
-				// <!-- custom: also add a barbarian check here (with also our worker replaces settler new logic too if i may say but anyways etc) as our logic doesn't apply to barbarians as well if i am not mistaken at least not as of now but anyways etc -->
+				// <!-- custom: also add a barbarian check here (with also our worker replaces settler new logic too) as our logic doesn't apply to barbarians as well if i am not mistaken at least not as of now-->
 				else if (!isBarbarian() && bWorkerReplacesSettler && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
 				{
 					if (gCityLogLevel >= 2)
@@ -2954,7 +2954,7 @@ void CvCityAI::AI_chooseProduction()
 	// Ideally we'd look at relative production, not just rank.
 	if (iProductionRank <= iNumCities / 9 + 2 && iCityPopulation > 3)
 	{
-		// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details anyways etc -->
+		// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details -->
 		// Assert Failed
 		// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
 		// Line:  48
@@ -3248,7 +3248,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	// BETTER_BTS_AI_MOD, City AI, 11/30/08, jdog5000: bNoImpassable=true
 	CvArea* pWaterArea = waterArea(true);
 
-	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
 	bool const bWarPlan = kOwner.AI_isFocusWar(); // advc.105
 			//(kTeam.getAnyWarPlanCount(true) > 0);
 	bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
@@ -3272,7 +3272,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 	int aiUnitAIVal[NUM_UNITAI_TYPES] = { 0 };
 
-	// <!-- custom: info if helps in this mess, here about most unitais not all (those i had plus not some like great person unitais as not relevant here i think but check to be sure if i were to be mistaken maybe i mean or not or yes or etc but anyways etc) see modding ressouces in our docs for details if i may say i.e. mine but anyways etc and source there and check if this is accurate too anyways etc -->
+	// <!-- custom: info if helps in this mess, here about most unitais not all (those i had plus not some like great person unitais as not relevant here i think but check to be sure if i were to be mistaken maybe i mean or not or yes or etc) see modding ressouces in our docs for details if i may say i.e. mineand source there and check if this is accurate too -->
 	// - UNITAI_ATTACK: General purpose; unit prioritizes joining an attack stack, but also may wander off on search and destroy/explore, sit in a city and defend it, etc.
 	// UNITAI_ATTACK_CITY: Join an attack stack -> If in an attack stack, lead assault on a city once the AI decides the stack should attack a city
 	// - UNITAI_COLLATERAL: Similar to UNITAI_ATTACK_CITY, but may also attack enemy stacks in the field
@@ -3353,10 +3353,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				(kGame.countFreeTeamsAlive() + 1));
 	}
 
-	// <!-- custom: update this doesn't seem to do too much in the early game, code at chooseProduction we added there too is much more effective it seems, but kept just in case it helps too but anyways etc, i don't know if it applies similarly to all unit ais but doing as such for now anyways etc -->
+	// <!-- custom: update this doesn't seem to do too much in the early game, code at chooseProduction we added there too is much more effective it seems, but kept just in case it helps too, i don't know if it applies similarly to all unit ais but doing as such for now -->
 	// <!-- custom: do not build any settler at all if war likely, prepare for war, the hammer is very precious and can make us win the war with more units, but having an extra city to defend would make us even thinner, having split military, on top of having less units, see known issue 36 for details -->
 	aiUnitAIVal[UNITAI_SETTLE] = 0;
-	// <!-- custom: not sure this one is necessary nor exactly what it does but just in case anyways etc -->
+	// <!-- custom: not sure this one is necessary nor exactly what it does but just in case -->
 	aiUnitAIVal[UNITAI_SETTLER_SEA] = 0;
 	// }
 
@@ -3369,7 +3369,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 		if (pWaterArea != NULL)
 		{
-			// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate, anyways etc; since they are in different scopes, fine to redefine it later when we use it again (after null check) if i understood it correctly and after asking chatgpt 5, check if accurate anyways etc -->
+			// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate, anyways etc; since they are in different scopes, fine to redefine it later when we use it again (after null check) if i understood it correctly and after asking chatgpt 5, check if accurate -->
 			const int iPWaterAreaGetNumTiles = pWaterArea->getNumTiles();
 
 			aiUnitAIVal[UNITAI_WORKER_SEA] += AI_neededSeaWorkers();
@@ -3463,15 +3463,15 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) *
 						iNumCities + 1;
 
-				// <!-- custom: add a check `&& isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")` here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
+				// <!-- custom: add a check `&& isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")` here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc); note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing is relevant for our check of city being landlocked, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate(if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too). -->
 				// if (pWaterArea != NULL)
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
 				const bool bOceanCoastal = isCoastal(iOceanThresh);
 
 				if (pWaterArea != NULL && bOceanCoastal)
 				{
-					// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate, anyways etc -->
+					// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate -->
 					const int iPWaterAreaGetNumTiles = pWaterArea->getNumTiles();
 
 					if (iNumCities > 3 || getArea().getNumUnownedTiles() < 10)
@@ -3622,28 +3622,28 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 	if (!bMinor && !bBarbarian)
 	{
-		// <!-- custom: this is computationally (a bit but anyways etc) inefficient, but to not mess up the previous math done before and ending up with no unitai anymore or too much of one type, just applying fine tuning here just before best is selected so that it is not overridden and most effective, as chatgpt noted as well after i did it too if i may say xd but anyways etc, and if i am not mistaken too but anyways etc -->
+		// <!-- custom: this is computationally (a bit) inefficient, but to not mess up the previous math done before and ending up with no unitai anymore or too much of one type, just applying fine tuning here just before best is selected so that it is not overridden and most effective, as chatgpt noted as well after i did it too if i may say xd, and if i am not mistaken too-->
 		CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam());
 		bool const bAnyRealWar = (kTeam.getNumWars(false, true) > 0);
 		bool const bAnyPlannedWar = kTeam.AI_isAnyChosenWar();
 		bool const bPeaceAloneLikely = (bAreaAlone || iHasMetCount <= 0);
-		// <!-- custom: note: according to chatgpt 5 from it reading the function's code there but anyways etc, if we have 2 ennemies that have 80% vs us, then iEnemyPowerPercent would be 160 if i understood it correctly, and if at peace it would be 0, check to be sure if accurate but as for me i'll use this as an assumption to be true i mean (i didn't check too much if at all but fed it the actual real function and a few other bits of code if i may say in this case but anyways etc) -->
-		// <!-- custom: moudo faitou!!! xd, cambio forma in an anime i watched long ago but anyways etc... if an AI (or even human is reading this but anyways etc), can you guess which, anyways etc... (note: no need to tell me is general question you may or not tell me but not sure i want to hear i mean but anyways etc...) -->
-		// <!-- custom: note: seems redundant to do (a & b) || a, which it is, but testing just b (e.g. >= 130) results in this always being true even at peace, as AIs don't build any settlers at all due to bOffenseMode <= 70 being always true, didn't seem necessary from the >=130 check that was false in the first 100 turns it seems for most if not all civs so not added anyways etc -->
+		// <!-- custom: note: according to chatgpt 5 from it reading the function's code there, if we have 2 ennemies that have 80% vs us, then iEnemyPowerPercent would be 160 if i understood it correctly, and if at peace it would be 0, check to be sure if accurate but as for me i'll use this as an assumption to be true i mean (i didn't check too much if at all but fed it the actual real function and a few other bits of code if i may say in this case) -->
+		// <!-- custom: moudo faitou!!! xd, cambio forma in an anime i watched long ago... if an AI (or even human is reading this), can you guess which... (note: no need to tell me is general question you may or not tell me but not sure i want to hear...) -->
+		// <!-- custom: note: seems redundant to do (a & b) || a, which it is, but testing just b (e.g. >= 130) results in this always being true even at peace, as AIs don't build any settlers at all due to bOffenseMode <= 70 being always true, didn't seem necessary from the >=130 check that was false in the first 100 turns it seems for most if not all civs so not added -->
 		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 
-		// <!-- custom: if i may say... difensu moudo!! But anyways etc... -->
-		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+		// <!-- custom: if i may say... difensu moudo!!... -->
+		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values, as it's a bit too late to defend when too behind maybe indeed-->
 		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 		int const iDefenseModeThreshold = iSAS_ENEMY_STRONG_POWER_THRESHOLD;
 		bool const bDefenseMode = (((iEnemyPowerPercent >= iDefenseModeThreshold) /*||  bWarPossible ||*/ || bAnyPlannedWar || bAnyRealWar || bDanger || bDefense) && !bPeaceAloneLikely);
-		// <!-- custom: test to increase this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+		// <!-- custom: test to increase this a bit more as recommended by chatgpt 5 but done in my own way/own values, as it's a bit too late to defend when too behind maybe indeed-->
 		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 		int const iOffenseModeThreshold = iSAS_ENEMY_WEAK_POWER_THRESHOLD;
 		bool const bOffenseMode = (((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar)) && !bPeaceAloneLikely);
 
-		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
-		// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure, and if -> else if -> else is preferable anyway for clarity and/or performance as well) -->
+		// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think) -->
 		bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
 		bool bNavalHeavyMapname = false;
 		if (!bLandHeavyMapname)
@@ -3689,16 +3689,16 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_EXPLORE_SEA] = 0;
 				aiUnitAIVal[UNITAI_ASSAULT_SEA] = 0;
 				
-				// // <!-- custom: don't waste time or hammer with this, focus on effective offense anyways etc -->
+				// // <!-- custom: don't waste time or hammer with this, focus on effective offense -->
 				// aiUnitAIVal[UNITAI_PIRATE_SEA] = 0;
 
-				// <!-- custom: assume our enemy is on land, don't focus on time / no time for this / not efficient if i'm not mistaken but anyways etc -->
+				// <!-- custom: assume our enemy is on land, don't focus on time / no time for this / not efficient -->
 				aiUnitAIVal[UNITAI_SPY_SEA] = 0;
 
 				// <!-- custom: don't count too much on this to win the war -->
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] /= 2;
 			}
-			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were to be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or computational performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were to be true which i think isn't even with 2 if but check to be sure, and if -> else if -> else is preferable anyway for clarity and/or computational performance as well) -->
 			else if (bNavalHeavyMapname)
 			{
 				// <!-- custom: note by chatgpt 5 on percentage reductions (check if accurate anyways etc) -->
@@ -3709,17 +3709,17 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 				// Adjust sea unit priorities in offense mode with integer-safe scaling -->
 				// *= 0.8 → multiply by 8/10
-				// <!-- custom: note: not wrapping in std::max(1, aiUnitAIVal[UNITAI_ATTACK_SEA] * 8 / 10) as even if they reach 0 due to rounding as chatgpt 5 taught me and warned and advised against hehe, it's still fine because they would be too low to be chosen anyway, as it agreed too hehe thanks, and then finally as it added below in reply to my prompt too and as it did first but anyways etc: -->
+				// <!-- custom: note: not wrapping in std::max(1, aiUnitAIVal[UNITAI_ATTACK_SEA] * 8 / 10) as even if they reach 0 due to rounding as chatgpt 5 taught me and warned and advised against hehe, it's still fine because they would be too low to be chosen anyway, as it agreed too hehe thanks, and then finally as it added below in reply to my prompt too and as it did first: -->
 				// "And yes, I’d also wrap the multiplication/division in parentheses for safety so operator precedence is crystal clear."
 				aiUnitAIVal[UNITAI_ATTACK_SEA] = (aiUnitAIVal[UNITAI_ATTACK_SEA] * 8) / 10;
-				// <!-- custom: focus on attack not defense, but while attacking maybe these can help just in case, still not our core focus so don't produce unless already too favoured already somehow then fine maybe but anyways etc -->
+				// <!-- custom: focus on attack not defense, but while attacking maybe these can help just in case, still not our core focus so don't produce unless already too favoured already somehow then fine maybe-->
 
 				aiUnitAIVal[UNITAI_RESERVE_SEA] = (aiUnitAIVal[UNITAI_RESERVE_SEA] * 6) / 10;
-				// <!-- custom: i don't know what this does, from name looks like it can be reduced maybe in an offense context but check to be sure anyways etc -->
+				// <!-- custom: i don't know what this does, from name looks like it can be reduced maybe in an offense context but check to be sure -->
 				aiUnitAIVal[UNITAI_ESCORT_SEA] = (aiUnitAIVal[UNITAI_ESCORT_SEA] * 3) / 10;
-				// <!-- custom: no time for this anyways etc -->
+				// <!-- custom: no time for this -->
 				aiUnitAIVal[UNITAI_EXPLORE_SEA] = 0;
-				// <!-- custom: maybe this is what we need here but not sure about what or how it does it exactly so a bit cautious and need other unitais too if i am not mistaken but anyways etc -->
+				// <!-- custom: maybe this is what we need here but not sure about what or how it does it exactly so a bit cautious and need other unitais too -->
 				aiUnitAIVal[UNITAI_ASSAULT_SEA] = aiUnitAIVal[UNITAI_ASSAULT_SEA] * 2;
 				// <!-- custom: don't hope too much from this or lose efficiency capitalizing on this unless really stronger favoured -->
 
@@ -3729,18 +3729,18 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] = (aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] * 8) / 10;
 				// <!-- custom: don't count too much on this to win the war -->
 			}
-			// <!-- custom: else map clear not immediately clear if it is more land or water heavy, keep options open just in case but anyways etc but still lean more land as should help us the most or most often, plus considering current 10 galleon issue, attempt to patch it a bit still here if i am not mistaken but don't overdo it in case map is naval xd and we barely have war naval units or such if i am not mistaken in being a bit cautious to do so but check to be sure but anyways etc -->
-			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: else map clear not immediately clear if it is more land or water heavy, keep options open just in casebut still lean more land as should help us the most or most often, plus considering current 10 galleon issue, attempt to patch it a bit still here if i am not mistaken but don't overdo it in case map is naval xd and we barely have war naval units or such if i am not mistaken in being a bit cautious to do so but check to be sure-->
+			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well) -->
 			else
 			{
-				// <!-- custom: map type unclear or unknown, assume a bit of land at least but anyways etc -->
+				// <!-- custom: map type unclear or unknown, assume a bit of land at least-->
 				aiUnitAIVal[UNITAI_ATTACK] *= 2;
 				aiUnitAIVal[UNITAI_ATTACK_CITY] *= 2;
 				aiUnitAIVal[UNITAI_COUNTER] *= 2;
 				aiUnitAIVal[UNITAI_CITY_COUNTER] *= 2;
 
 				aiUnitAIVal[UNITAI_SETTLER_SEA] = (aiUnitAIVal[UNITAI_SETTLER_SEA] * 6) / 10;
-				// <!-- custom: don't spend too much time with these as we are at war or about to be anyways etc -->
+				// <!-- custom: don't spend too much time with these as we are at war or about to be -->
 				aiUnitAIVal[UNITAI_MISSIONARY_SEA] = (aiUnitAIVal[UNITAI_MISSIONARY_SEA] * 4) / 10;
 
 				aiUnitAIVal[UNITAI_ATTACK_SEA] = (aiUnitAIVal[UNITAI_ATTACK_SEA] * 6) / 10;
@@ -3748,55 +3748,55 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_ESCORT_SEA] = (aiUnitAIVal[UNITAI_ESCORT_SEA] * 2) / 10;
 				aiUnitAIVal[UNITAI_EXPLORE_SEA] = (aiUnitAIVal[UNITAI_EXPLORE_SEA] * 6) / 10;
 
-				// // <!-- custom: think map is mostly land maybe, unlikely to be too useful statistically if i am not mistaken but anyways etc, make AI more efficient as much as possible with most likely to be useful unitais if i am not mistaken too i mean but anyways etc -->
+				// // <!-- custom: think map is mostly land maybe, unlikely to be too useful statistically, make AI more efficient as much as possible with most likely to be useful unitais if i am not mistaken too -->
 				// aiUnitAIVal[UNITAI_PIRATE_SEA] = (aiUnitAIVal[UNITAI_PIRATE_SEA] * 2) / 10;
 
-				// <!-- custom: assume our enemy is on land, don't focus on time / no time for this too much, but map could be more water focused, just reduce the probability for it to be best instead if i am not mistaken but anyways etc -->
+				// <!-- custom: assume our enemy is on land, don't focus on time / no time for this too much, but map could be more water focused, just reduce the probability for it to be best instead -->
 				aiUnitAIVal[UNITAI_SPY_SEA] = (aiUnitAIVal[UNITAI_SPY_SEA] * 3) / 10;
 
 				// <!-- custom: don't count too much on this to win the war -->
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] = (aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] * 6) / 10;
 			}
 
-			// <!-- custom: maximize attack anyways etc, and since offensive units can defend too, no need to bother further for simplified strategy hopefully effective anyways etc, i hope the remaning defenders or reserve force are enough xd hehe but anyways etc, as for us focus on how to win the war and/or not lose xd, even though we could defend as well but not effective, hope the war is short and focused as well but anyways etc, hopefully most often focused for AIs but anyways etc -->
+			// <!-- custom: maximize attack anyways etc, and since offensive units can defend too, no need to bother further for simplified strategy hopefully effective anyways etc, i hope the remaning defenders or reserve force are enough xd hehe, as for us focus on how to win the war and/or not lose xd, even though we could defend as well but not effective, hope the war is short and focused as well, hopefully most often focused for AIs-->
 			aiUnitAIVal[UNITAI_CITY_DEFENSE] = 0;
 			aiUnitAIVal[UNITAI_CITY_SPECIAL] = 0;
 		}
 
-		// <!-- custom: war strategy, for defense it is about the same, we are at war or about to be after all, but more focus on defense anyways etc. In particular, don't get baited during invasion, defend our cities as best as we can rather ; was an especially big problem in base advciv where AI abandonned defense of big or even small cities too if i am not mistaken but anyways etc, just to attack one or a few or a stack outside its comfortable city tile and most important tile to defend with defense modifiers as well anyways etc -->
+		// <!-- custom: war strategy, for defense it is about the same, we are at war or about to be after all, but more focus on defense anyways etc. In particular, don't get baited during invasion, defend our cities as best as we can rather; was an especially big problem in base advciv where AI abandonned defense of big or even small cities too, just to attack one or a few or a stack outside its comfortable city tile and most important tile to defend with defense modifiers as well -->
 		else if (bDefenseMode)
 		{
 			aiUnitAIVal[UNITAI_SETTLE] = 0;
 			aiUnitAIVal[UNITAI_WORKER] = 0;
 
-			// // <!-- custom: same or equivalent anyways etc -->
+			// // <!-- custom: same or equivalent -->
 			// aiUnitAIVal[UNITAI_PILLAGE] = 0;
 
-			// // <!-- custom: same or equivalent anyways etc -->
+			// // <!-- custom: same or equivalent -->
 			// aiUnitAIVal[UNITAI_COLLATERAL] = 0;
-			// <!-- custom: same or equivalent anyways etc -->
+			// <!-- custom: same or equivalent -->
 			aiUnitAIVal[UNITAI_ATTACK_CITY_LEMMING] = 0;
 
-			// <!-- custom: we'll need some attackers in case, but no city attackers anyways etc -->
+			// <!-- custom: we'll need some attackers in case, but no city attackers -->
 			aiUnitAIVal[UNITAI_ATTACK] *= 2;
 			aiUnitAIVal[UNITAI_ATTACK_CITY] = 0;
 			// <!-- custom: don't get baited, defend cities as best as we can, the inner city tiles, with specialized defense units or units more likely to be so and not roam and die, making our remaining core weaker as a result -->
 			aiUnitAIVal[UNITAI_COUNTER] = 0;
 			aiUnitAIVal[UNITAI_CITY_COUNTER] = 0;
 
-			// // <!-- custom: don't waste time or hammer with this, we're trying not to die anyways etc -->
+			// // <!-- custom: don't waste time or hammer with this, we're trying not to die -->
 			// aiUnitAIVal[UNITAI_PIRATE_SEA] = 0;
 
-			// <!-- custom: no time for this, we are trying not to die, anyways etc -->
+			// <!-- custom: no time for this, we are trying not to die -->
 			aiUnitAIVal[UNITAI_PARADROP] = 0;
 
-			// <!-- custom: same or equivalent anyways etc -->
+			// <!-- custom: same or equivalent -->
 			if (bLandHeavyMapname)
 			{
-				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
+				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd-->
 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 50;
 				aiUnitAIVal[UNITAI_CITY_SPECIAL] *= 50;
-				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
+				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this casemultiplication will not make them be 2nd bets and be overlooked, but in other cases maybe favour core defense unitais-->
 				aiUnitAIVal[UNITAI_RESERVE] *= 40;
 
 				// <!-- custom: no time for naval settlers/missionaries; we are at war or about to be. (Claude code Sonnet 4.5 (summarized)) -->
@@ -3809,61 +3809,61 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_EXPLORE_SEA] = 0;
 				aiUnitAIVal[UNITAI_ASSAULT_SEA] = 0;
 				
-				// <!-- custom: not the focus or most likely way to affect our enemy on a land heavy map war, so better be more efficient/effective and avoid it anyways etc -->
+				// <!-- custom: not the focus or most likely way to affect our enemy on a land heavy map war, so better be more efficient/effective and avoid it -->
 				aiUnitAIVal[UNITAI_SPY_SEA] = 0;
 
 				// <!-- custom: don't count too much on this to win the war -->
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] /= 2;
 			}
-			// <!-- custom: same or equivalent anyways etc -->
+			// <!-- custom: same or equivalent -->
 			else if (bNavalHeavyMapname)
 			{
-				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
+				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd-->
 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 5;
 				aiUnitAIVal[UNITAI_CITY_SPECIAL] *= 5;
-				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
+				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this casemultiplication will not make them be 2nd bets and be overlooked, but in other cases maybe favour core defense unitais-->
 				aiUnitAIVal[UNITAI_RESERVE] *= 4;
 
-				// <!-- custom: no time or not too much time for these, although could be useful to slow down our ennemies that are attacking us, but by the time we produce them or/and do anything of use with them, most of the war would have happened already, so don't capitalize or bet too much on these, except if some units are already existing, not handled here by this best unitai to produce code if i am not mistaken but anyways etc, so still devaluing them here when it comes to best to produce but anyways etc-->
+				// <!-- custom: no time or not too much time for these, although could be useful to slow down our ennemies that are attacking us, but by the time we produce them or/and do anything of use with them, most of the war would have happened already, so don't capitalize or bet too much on these, except if some units are already existing, not handled here by this best unitai to produce code, so still devaluing them here when it comes to best to produce-->
 				aiUnitAIVal[UNITAI_SETTLER_SEA] = 0;
 				aiUnitAIVal[UNITAI_MISSIONARY_SEA] = (aiUnitAIVal[UNITAI_MISSIONARY_SEA] * 2) / 10;
 
-				// <!-- custom: much lower priority on these, we are attacked, so top priority is to defend our cities, assuming the land attack on our coast has already started or about to, count on our remaining water units to hold the water coast/line protected, and capitalize and invest now rather on land defense if i am not mistaken in thinking so but anyways etc -->
+				// <!-- custom: much lower priority on these, we are attacked, so top priority is to defend our cities, assuming the land attack on our coast has already started or about to, count on our remaining water units to hold the water coast/line protected, and capitalize and invest now rather on land defense if i am not mistaken in thinking so-->
 				aiUnitAIVal[UNITAI_ATTACK_SEA] = (aiUnitAIVal[UNITAI_ATTACK_SEA] * 4) / 10;
 				aiUnitAIVal[UNITAI_RESERVE_SEA] = (aiUnitAIVal[UNITAI_RESERVE_SEA] * 4) / 10;
 				aiUnitAIVal[UNITAI_ESCORT_SEA] = (aiUnitAIVal[UNITAI_ESCORT_SEA] * 4) / 10;
 				aiUnitAIVal[UNITAI_EXPLORE_SEA] = (aiUnitAIVal[UNITAI_EXPLORE_SEA] * 4) / 10;
 				aiUnitAIVal[UNITAI_ASSAULT_SEA] = (aiUnitAIVal[UNITAI_ASSAULT_SEA] * 4) / 10;
 
-				// <!-- custom: could be useful to weaken enemy cities, but since this is about production when the war has already started or close to it, don't lean too much on this in case we have a full spy sea army and weak defenses, plus if too high may overshadow the other few sea attack units we chose anyways etc -->
+				// <!-- custom: could be useful to weaken enemy cities, but since this is about production when the war has already started or close to it, don't lean too much on this in case we have a full spy sea army and weak defenses, plus if too high may overshadow the other few sea attack units we chose -->
 				aiUnitAIVal[UNITAI_SPY_SEA] = (aiUnitAIVal[UNITAI_SPY_SEA] * 4) / 10;
 
 				// <!-- custom: don't count too much on this to win the war -->
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] /= 2;
 			}
-			// <!-- custom: same or equivalent anyways etc -->
+			// <!-- custom: same or equivalent -->
 			else
 			{
-				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
+				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd-->
 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 20;
 				aiUnitAIVal[UNITAI_CITY_SPECIAL] *= 20;
-				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
+				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this casemultiplication will not make them be 2nd bets and be overlooked, but in other cases maybe favour core defense unitais-->
 				aiUnitAIVal[UNITAI_RESERVE] *= 16;
 
 				// <!-- custom: no time for these -->
 				aiUnitAIVal[UNITAI_SETTLER_SEA] = 0;
 				aiUnitAIVal[UNITAI_MISSIONARY_SEA] = (aiUnitAIVal[UNITAI_MISSIONARY_SEA] * 1) / 10;
 
-				// <!-- custom: map type unclear, but still same general rule to not count too much on these nor focus on them when core and urgent priroity is defend and not die anyways etc -->
+				// <!-- custom: map type unclear, but still same general rule to not count too much on these nor focus on them when core and urgent priroity is defend and not die -->
 				aiUnitAIVal[UNITAI_ATTACK_SEA] = 0;
 				// <!-- custom: if we have to produce any, this would be most useful -->
 				aiUnitAIVal[UNITAI_RESERVE_SEA] = (aiUnitAIVal[UNITAI_RESERVE_SEA] * 4) / 10;
-				// <!-- custom: not sure what this does so just reduced instead anyways etc -->
+				// <!-- custom: not sure what this does so just reduced instead -->
 				aiUnitAIVal[UNITAI_ESCORT_SEA] = (aiUnitAIVal[UNITAI_ESCORT_SEA] * 2) / 10;
 				aiUnitAIVal[UNITAI_EXPLORE_SEA] = 0;
 				aiUnitAIVal[UNITAI_ASSAULT_SEA] = (aiUnitAIVal[UNITAI_ASSAULT_SEA] * 2) / 10;
 
-				// <!-- custom: don't count too much on this to win the war statistically in most maps and most likely to be effective but anyways etc -->
+				// <!-- custom: don't count too much on this to win the war statistically in most maps and most likely to be effective-->
 				aiUnitAIVal[UNITAI_SPY_SEA] = (aiUnitAIVal[UNITAI_SPY_SEA] * 2) / 10;
 
 				// <!-- custom: don't count too much on this to win the war -->
@@ -3873,28 +3873,28 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 		// <!-- custom: general rules regardless -->
 
-		// <!-- custom: make the AI more calculated and avoid suicides or inefficient actions, hopefully helps with suicides, getting baited, or/and other inefficiency or often suboptimal strategies other players, especially humans, could punish, or that may cause weird inconsistency (like declaring war, pillaging, going back home xd, then 10 turns later coming to attack, hopefully these help reduce these even if we lose a bit of versatiltiy (maybe for the better here) but anyways etc, (and that happened often in base advciv to me at least but anyways etc, and were extremely frustrating of AI ruining its chances or/and behaving erratically or such but anyways etc, hopefully fixed or enhanced/addressed now but untested so check to be sure but anyways etc) plus these actions always have risked, a pillager could get ambused, same for collateral, etc, so avoid these as a general rule i'd say for example anyways etc) ; also keep both in case we change our mind (unlikely, or some modder wants to, then they could reuse our preferred roles for these unitais above maybe but anyways etc, for efficiency we can comment them out above then) ; or as chatgpt 5 calls these and those below the "universal sanity filter" hehe thanks saying they may sense too hehe if i got it right from quick glance in this case i mean but or not but or yes but thanks but anyways etc ; and "the benefits of disabling these outweigh" the risks and "complexity of keeping rare exceptions" as well i think so and it agrees or it thinks so and i agree or both but anyways etc -->
+		// <!-- custom: make the AI more calculated and avoid suicides or inefficient actions, hopefully helps with suicides, getting baited, or/and other inefficiency or often suboptimal strategies other players, especially humans, could punish, or that may cause weird inconsistency (like declaring war, pillaging, going back home xd, then 10 turns later coming to attack, hopefully these help reduce these even if we lose a bit of versatiltiy (maybe for the better here), (and that happened often in base advciv to me at least, and were extremely frustrating of AI ruining its chances or/and behaving erratically or such, hopefully fixed or enhanced/addressed now but untested so check to be sure) plus these actions always have risked, a pillager could get ambused, same for collateral, etc, so avoid these as a general rule i'd say for example anyways etc); also keep both in case we change our mind (unlikely, or some modder wants to, then they could reuse our preferred roles for these unitais above maybe, for efficiency we can comment them out above then); or as chatgpt 5 calls these and those below the "universal sanity filter" hehe thanks saying they may sense too hehe if i got it right from quick glance in this case i mean but or not but or yes but thanks; and "the benefits of disabling these outweigh" the risks and "complexity of keeping rare exceptions" as well i think so and it agrees or it thinks so and i agree or both-->
 		aiUnitAIVal[UNITAI_PILLAGE] = 0;
 		aiUnitAIVal[UNITAI_COLLATERAL] = 0;
-		// <!-- custom: i know we have allowed this to some extent before, but after all more often than not this is not going to be useful or significant, avoid wasting hammer or precious time on these as well and focus on most likely strategies to help us win or not lose anyways etc ; as a side effect, this makes a bit more peaceful as this is annoying to rebuild a workboat for no real or serious military gain or critical effect, so hopefully convenient too as well enve tohugh core goal was really to make AI more efficient and reliable and effective if i may say but anyways etc-->
+		// <!-- custom: i know we have allowed this to some extent before, but after all more often than not this is not going to be useful or significant, avoid wasting hammer or precious time on these as well and focus on most likely strategies to help us win or not lose; as a side effect, this makes a bit more peaceful as this is annoying to rebuild a workboat for no real or serious military gain or critical effect, so hopefully convenient too as well enve tohugh core goal was really to make AI more efficient and reliable and effective-->
 		aiUnitAIVal[UNITAI_PIRATE_SEA] = 0;
 
 		// <!-- custom: then attempt to fix the issue of cities size 1 building a settler for 50 turns instead of growing fast and allowing bigger cities to produce settlers (or workers is needed) super fast, especially more efficient if they have stopped growing and don't use the food anyway -->
 		int const iCityPopulation = getPopulation();
 		bool const bCapital = isCapital();
 
-		// <!-- custom: for capital city, we need workers and settlers more leniently  (i.e. do not disallow settlers and workers exceptfor strong exceptions but anyways etc) -->
+		// <!-- custom: for capital city, we need workers and settlers more leniently  (i.e. do not disallow settlers and workers exceptfor strong exceptions) -->
 		if (iCityPopulation <= 4 && !bCapital)
 		{
 			aiUnitAIVal[UNITAI_SETTLE] = 0; // Don't build Settlers in small cities
 
-			// <!-- custom: if this small city is stagnant (indirectly also check excessive unhealthiness, without the risk of worker loop maybe but anyways etc, and more flexible as well to cover other causes of stagnation, as well as allowing city to stop producing workers sooner even if some unhealthiness remains if i am not mistaken (e.g. we have a lot of excess food maybe which is core concern to fix if i am not mistaken but anyways etc)), a worker would be of great use, perhaps to chop jungle or such or grow the city in some other way maybe, but anyways etc -->
-			// <!-- custom: make pop requirement quite a bit tighter if i may say in this case but anyways etc pop check to avoid worker spam / loop trap, as chatgpt noted that could happen so i had the idea to add this but anyways etc-->
+			// <!-- custom: if this small city is stagnant (indirectly also check excessive unhealthiness, without the risk of worker loop maybe, and more flexible as well to cover other causes of stagnation, as well as allowing city to stop producing workers sooner even if some unhealthiness remains if i am not mistaken (e.g. we have a lot of excess food maybe which is core concern to fix)), a worker would be of great use, perhaps to chop jungle or such or grow the city in some other way maybe -->
+			// <!-- custom: make pop requirement quite a bit tighter if i may say in this casepop check to avoid worker spam / loop trap, as chatgpt noted that could happen so i had the idea to add this-->
 			bool const bStagnant = (!isFoodProduction() && foodDifference() <= 0);
-			// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure but anyways etc ; each city needs maximum 2 workers before it's too much -->
+			// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure; each city needs maximum 2 workers before it's too much -->
 			bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * iNumCities);
 
-			if (bStagnant && iCityPopulation <= 2 && !bTooMuchWorkers) // <!-- custom: stagnant or about to be, which would be unusual at such a small size so try to find how/why and if tiles could be fixed or enhanced maybe but anyways etc (if not worker would still be useful otherwise for the whole empire maybe so favour this as well but anyways etc, even if this city would grow slower individually as a result, in most cases i hope it will help AI a lot switch to workers sooner when needed in small or stagnating cities, on top of having an uneeded settler, if it doesn't cause issues with unitai selection otherwise in other parts of the code like it being pruned if AI thinks it has too much workers or such; this is just a guess but mabe it is effective in most cases and perhaps also helpful to the AI cities stagnating in jungle which is now a rich potential feature to exploit (and remove unhealthiness while doing so too as well) so build workers); we are not using the food anyway so better use food as production if i am not mistaken in my thinking. -->
+			if (bStagnant && iCityPopulation <= 2 && !bTooMuchWorkers) // <!-- custom: stagnant or about to be, which would be unusual at such a small size so try to find how/why and if tiles could be fixed or enhanced maybe(if not worker would still be useful otherwise for the whole empire maybe so favour this as well, even if this city would grow slower individually as a result, in most cases i hope it will help AI a lot switch to workers sooner when needed in small or stagnating cities, on top of having an uneeded settler, if it doesn't cause issues with unitai selection otherwise in other parts of the code like it being pruned if AI thinks it has too much workers or such; this is just a guess but mabe it is effective in most cases and perhaps also helpful to the AI cities stagnating in jungle which is now a rich potential feature to exploit (and remove unhealthiness while doing so too as well) so build workers); we are not using the food anyway so better use food as production if i am not mistaken in my thinking. -->
 			{
 				aiUnitAIVal[UNITAI_WORKER] += 20000;
 			}
@@ -3906,7 +3906,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			aiUnitAIVal[UNITAI_SETTLE] = 0;
 		}
 
-		// <!-- custom: other idea by chatgpt 5 that i had too to a more or lesser extent if i may say maybe but anyways etc ; seems to be handled already but just in case anyways etc ; and also that i formatted if i may say too from chatgpt 5's message but anyways etc -->
+		// <!-- custom: other idea by chatgpt 5 that i had too to a more or lesser extent if i may say maybe; seems to be handled already but just in case; and also that i formatted if i may say too from chatgpt 5's message-->
 		// if expansion is too costly, chill on settlers
 		if (bFinancialTrouble)
 		{
@@ -3949,9 +3949,9 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
 	PROFILE_FUNC();
 	FAssertMsg(eUnitAI != NO_UNITAI, "UnitAI is not assigned a valid value");
 
-	// <!-- custom: it seems that sometimes the settler or such bestunits are forced and bypass our new logic that is simpler in bestunit( , and that is also an attempt to fix ai producing settlers in small sizes cities, that currently take +/- 50 turns to complete and ruin AI growth and potential, instead of big cities that could produce them fast (see code comments at bestUnit for details). Instead of rewriting everything tediously, try to fix current issue(s) instead/rather by making the below GrowMore logic closer to ours if i am not mistaken but anyways etc ; also rewrite this below to be our economy rather than workers or such, assume there are always good cities to settle, and let workers handle best tiles, and settlers handle best found value, focus only on if we should produce a settler or not based on our economy or such rather but anyways etc ; see code comments we added in AI_chooseProduction as well where logic was moved for details (change parent callers rather then hack this one in a not clean not reliable way anyways etc) -->
+	// <!-- custom: it seems that sometimes the settler or such bestunits are forced and bypass our new logic that is simpler in bestunit( , and that is also an attempt to fix ai producing settlers in small sizes cities, that currently take +/- 50 turns to complete and ruin AI growth and potential, instead of big cities that could produce them fast (see code comments at bestUnit for details). Instead of rewriting everything tediously, try to fix current issue(s) instead/rather by making the below GrowMore logic closer to ours if i am not mistaken; also rewrite this below to be our economy rather than workers or such, assume there are always good cities to settle, and let workers handle best tiles, and settlers handle best found value, focus only on if we should produce a settler or not based on our economy or such rather; see code comments we added in AI_chooseProduction as well where logic was moved for details (change parent callers rather then hack this one in a not clean not reliable way anyways etc) -->
 
-	// <!-- custom: old code now commented out anyways etc -->
+	// <!-- custom: old code now commented out -->
 	// bool bGrowMore = false;
 	// int const iFoodDiff = /* K-Mod: */ foodDifference(true, true);
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
@@ -4025,7 +4025,7 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
 		if (eIgnoreAdvisor != NO_ADVISOR && kUnit.getAdvisorType() == eIgnoreAdvisor)
 			continue;
 
-		// <!-- custom: disabled and replaced with as of now NoSettler new logic in Ai_chooseProduction, see above as well for details in this function anyways etc ; note: in case we replace it with a worker, then don't continue and keep the worker instead if i am not mistaken but anyways etc -->
+		// <!-- custom: disabled and replaced with as of now NoSettler new logic in Ai_chooseProduction, see above as well for details in this function; note: in case we replace it with a worker, then don't continue and keep the worker instead -->
 		// if (bGrowMore && isFoodProduction(eUnit))
 		// 	continue;
 
@@ -4433,7 +4433,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 		{
 			if (iProductionRank <= std::min(3, ((kOwner.getNumCities() + 2) / 3)))
 			{
-				// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details anyways etc -->
+				// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details -->
 				// Assert Failed
 				// File: c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
 				// Line: 48
@@ -4517,7 +4517,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 }
 
 
-// <!-- custom: we have an issue of building a theatre in an unhappy cities (and possibly many) instead of a hindu temple (which would have provided actual happiness rather than culture based that we don't use since we don't want culture slider or reliably do so early in particular where we're more focused on survival), so fix this mistake in this case i mean but anyways etc by being stricter than in getAdditionalHealthByBuilding about which buildings we consider to be happiness buildings anyways etc; code provided by chatgpt 5, check if accurate anyways etc -->
+// <!-- custom: we have an issue of building a theatre in an unhappy cities (and possibly many) instead of a hindu temple (which would have provided actual happiness rather than culture based that we don't use since we don't want culture slider or reliably do so early in particular where we're more focused on survival), so fix this mistake by being stricter than in getAdditionalHealthByBuilding about which buildings we consider to be happiness buildings anyways etc; code provided by chatgpt 5, check if accurate -->
 // Strict, reliable happy: flat, class, player, area, state religion (if applicable),
 // and resource-based IF connected (or granted by this building).
 // Excludes commerce/slider happiness and WW-modifier side-effects.
@@ -4593,7 +4593,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 	BuildingClassTypes const eBuildingClass = kBuilding.getBuildingClassType();
 
-	// <!-- custom: store this once since we check it many times anyways etc -->
+	// <!-- custom: store this once since we check it many times -->
 	const bool bWorldWonder = kBuilding.isWorldWonder();
 	const bool bNationalWonder = kBuilding.isNationalWonder();
 	const bool bWonder = (bWorldWonder || bNationalWonder);
@@ -4602,7 +4602,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		so that building value is not distorted by that effect. */
 	int const iFoodDifference = foodDifference(false, true);
 
-	// <!-- custom: add these by chatgpt 5 and refactor formatting or such a bit anyways etc ; also short term is fine anyways etc -->
+	// <!-- custom: add these by chatgpt 5 and refactor formatting or such a bit; also short term is fine -->
 	const int iHappinessSurplus = happyLevel() - unhappyLevel();
 
 	// Reduce reaction to temporary happy/health problems
@@ -4612,13 +4612,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 	int const iNumCities = kOwner.getNumCities();
 
-	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
 	// bool const bWarPlan = kOwner.AI_isFocusWar(area()); // advc.105
 	bool const bWarPlan = kOwner.AI_isFocusWar();
 			//kTeam.getAnyWarPlanCount(true) > 0; // K-Mod
 
 	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
-	// <!-- custom: update: but after all as per chatgpt 5's review, may be inaccurate due to doubling count of food difference, use something else instead in an attempt to not over or understimate our expected growth anyways etc ; note: not changing previously defined iEstGrowth to keep old code working as intended, but as for us using this new var rather for our purpose as advised by chatgpt 5 (from another thread xd but thanks lot still but anyways etc, also check if accurate anyways etc) -->
+	// <!-- custom: update: but after all as per chatgpt 5's review, may be inaccurate due to doubling count of food difference, use something else instead in an attempt to not over or understimate our expected growth; note: not changing previously defined iEstGrowth to keep old code working as intended, but as for us using this new var rather for our purpose as advised by chatgpt 5 (from another thread xd but thanks lot still, also check if accurate anyways etc) -->
 
 	// Example scenarios for the growth signal:
 	// Inputs: iFoodDifference (food surplus/turn), iHealthLevel (good-bad), iHappinessSurplus
@@ -4663,7 +4663,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 	bool bForeignTrade = false;
 
-	// <!-- custom: removed extra scope, and reused it in this function since we do reuse it several times and even outside our advciv-sas added code but anyways etc -->
+	// <!-- custom: removed extra scope, and reused it in this function since we do reuse it several times and even outside our advciv-sas added code-->
 	int const iNumTradeRoutes = getTradeRoutes();
 	for (int i = 0; i < iNumTradeRoutes; i++)
 	{
@@ -4678,11 +4678,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		}
 	}
 
-	// <!-- custom: moved here and added const, for reuse anyways etc -->
+	// <!-- custom: moved here and added const, for reuse -->
 	const int iPop = getPopulation();
 	const int iMilitaryProductionModifier = kBuilding.getMilitaryProductionModifier();
 	const int iHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION);
-	// <!-- custom: rename iOwnerEra to iCurrentEra for consistency with other parts of our code anyways etc -->
+	// <!-- custom: rename iOwnerEra to iCurrentEra for consistency with other parts of our code -->
 	int const iCurrentEra = kOwner.getCurrentEra();
 	// <!-- custom: renamed iExistingUpkeep to iMaintenanceTimes100 -->
 	const int iMaintenanceTimes100 = getMaintenanceTimes100();
@@ -4691,7 +4691,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	const int iFreeExperience = kBuilding.getFreeExperience();
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
 
-	// <!-- custom: add some sanity / optimization rules of when to not build and sometimes when to always build some buildings rather than others. For example, walls are a waste of hammer at peace, or we are stronger than our ennemies, these could be used to produce almost 2 more axemen or half a settler or a worker as of now more or less, and similarly for many buildings there is a time when they are most relevant and other times when they really aren't yet AI inefficiently builds them anyway. Added these rules with chatgpt 5 thanks to my prompts and adjustments too if i may say but anyways etc, check if accurate, it somehow seems strongly passionate if i may say in these/its code comments hehe, sometimes mentionning K-Mod when i am not sure it is K-Mod, check if accurate xd and maybe enjoy or not or yes or etc but anyways etc, hopefully this makes AI a lot stronger or/and sharper but anyways etc with its best building management, and is similarly done to how we fine-tuned with a set or pre-rules the promotions AI would choose in CvUnitAI::AI_promotionValue anyways etc -->
+	// <!-- custom: add some sanity / optimization rules of when to not build and sometimes when to always build some buildings rather than others. For example, walls are a waste of hammer at peace, or we are stronger than our ennemies, these could be used to produce almost 2 more axemen or half a settler or a worker as of now more or less, and similarly for many buildings there is a time when they are most relevant and other times when they really aren't yet AI inefficiently builds them anyway. Added these rules with chatgpt 5 thanks to my prompts and adjustments too, check if accurate, it somehow seems strongly passionate if i may say in these/its code comments hehe, sometimes mentionning K-Mod when i am not sure it is K-Mod, check if accurate xd and maybe enjoy or not or yes or etc, hopefully this makes AI a lot stronger or/and sharperwith its best building management, and is similarly done to how we fine-tuned with a set or pre-rules the promotions AI would choose in CvUnitAI::AI_promotionValue -->
 	const bool bMinor = kOwner.isMinorCiv();
 	const bool bBarbarian = kOwner.isBarbarian();
 
@@ -4725,8 +4725,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		static int  s_aiSecondBestM100[MAX_PLAYERS];
 		static int  s_aiNumCitiesHighM100[MAX_PLAYERS];
 
-		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
-		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
+		// <!-- custom: always pick these first if in this specific case especially relevant-->
+		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure) -->
 		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
 		// Why I’m confident:
 		// - EIP is inside CvGameCoreDLL at +0x4E043 and WinDbg labels it CvCity::cheat+0x15B3, but the instruction is mov eax, [ebp+eax*4]. That pattern is classic for indexing a small local jump/lookup table with eax. Your eax is 0x618063D8 (!), so the index is astronomically out of range → AV.
@@ -4746,7 +4746,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 		// Tunables
 		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
-		const int iDefenseModeThreshold = iSAS_ENEMY_STRONG_POWER_THRESHOLD; // ≥120 => they’re scary <!-- custom: or strong rather xd, clearer what it means, and weak one can be scary maybe too, is less clear, but funny as in humorous if i may say but anyways etc -->; prefer defense
+		const int iDefenseModeThreshold = iSAS_ENEMY_STRONG_POWER_THRESHOLD; // ≥120 => they’re scary <!-- custom: or strong rather xd, clearer what it means, and weak one can be scary maybe too, is less clear, but funny as in humorous -->; prefer defense
 		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 		const int iOffenseModeThreshold = iSAS_ENEMY_WEAK_POWER_THRESHOLD; // ≤80 => we’re strong enough to skip walls
 
@@ -4764,7 +4764,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			(kBuilding.getDomainProductionModifier(DOMAIN_LAND) >= 20)
 		);
 
-		// <!-- custom: general modifier not significant enough to consider it but anyways etc -->
+		// <!-- custom: general modifier not significant enough to consider it-->
 		const bool bLandUnitsBuilding = (bLandXp || bLandProd);
 
 		const int iElapsedTurns = kGame.getElapsedGameTurns();
@@ -4777,7 +4777,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 		const int iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent(); // 100, 150, 200...
 
-		// <!-- custom: then after considering building time, let's consider our expected gains, hammer modifiers (e.g forge gives +25% hammer after it is built), this is not related to modifiers that reduce time to build the forge for example, but modifiers we gain in city after city is built, as chatgpt 5 explained to me after i made the mistake so i hope this comment is helpful but anyways etc -->
+		// <!-- custom: then after considering building time, let's consider our expected gains, hammer modifiers (e.g forge gives +25% hammer after it is built), this is not related to modifiers that reduce time to build the forge for example, but modifiers we gain in city after city is built, as chatgpt 5 explained to me after i made the mistake so i hope this comment is helpful-->
 		// 1) Identify “ironworks-like”: sum BonusYieldModifiers for PRODUCTION
 		int iTotalBonusHammersModifier = 0;
 		FOR_EACH_ENUM(Bonus)
@@ -4790,12 +4790,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 		}
 
-		// <!-- custom: also account for the base production modifiers (e.g. that the forge or factory has if i'm not mistaken but anyways etc) to asses the building's worth/value as a production modifier building (here national wonder) type but anyways etc -->
+		// <!-- custom: also account for the base production modifiers (e.g. that the forge or factory has) to asses the building's worth/value as a production modifier building (here national wonder) type-->
 		const int iTotalHammersModifier = iHammersModifier + iTotalBonusHammersModifier;
 
 		static const bool bSAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
-		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options anyways etc. -->
+		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options -->
 		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE");
@@ -4806,7 +4806,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		if (!bWonder && bSAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE)
 		{
 			const bool bCoastalBuilding = isCoastal();
-			// <!-- custom: 0) but anyways etc; always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly but anyways etc, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now if i'm not mistaken but anyways etc) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case but anyways etc. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go bankrupt too soon with unit excess but anyways etc -->
+			// <!-- custom: 0); always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go bankrupt too soon with unit excess-->
 			// --- Fast path: water-food buildings (Harbor in AdvCiv-SAS) always first ---
 			const bool bWaterFoodBuilding = (
 				bCoastalBuilding &&
@@ -4821,7 +4821,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 			// --- end fast path ---
 
-			// Is this building primarily defensive in cities (local or global) <!-- custom: e.g. walls, castle, chichen itza of the base civ4 for example too if i am not mistaken anyways etc ; also use a value threshold of 25 or such anyways etc to remove false positives, in case a building gives small defense modifier but is not actually a defense building (e.g. not directly related to this but similar but anyways etc: ikhanda gives maybe like 10-15% maintenance reduction but is a military building, and skipping it based on economic criteria may be bad, so using a similar logic here with a quite high base threshold to make sure we flag actually defensive buildings if i am not mistaken anyways etc) --> ?
+			// Is this building primarily defensive in cities (local or global) <!-- custom: e.g. walls, castle, chichen itza of the base civ4 for example too; also use a value threshold of 25 or such anyways etc to remove false positives, in case a building gives small defense modifier but is not actually a defense building (e.g. not directly related to this but similar: ikhanda gives maybe like 10-15% maintenance reduction but is a military building, and skipping it based on economic criteria may be bad, so using a similar logic here with a quite high base threshold to make sure we flag actually defensive buildings) --> ?
 			const bool bDefenseBuilding = (
 				(kBuilding.getDefenseModifier() >= 25) ||
 				(kBuilding.getBombardDefenseModifier() >= 20) ||
@@ -4829,7 +4829,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				(kBuilding.getAllCityDefenseModifier() >= 10)
 			);
 
-			// 1) Defense-ish buildings: skip in peacetime; also skip in war if we <!-- custom: are stronger anyways etc -->
+			// 1) Defense-ish buildings: skip in peacetime; also skip in war if we <!-- custom: are stronger -->
 			if (bDefenseBuilding)
 			{
 				// No immediate pressure? Don’t sink hammers into static defense.
@@ -4844,7 +4844,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						return 0;
 					}
-					// If they’re actually scary (≥120%), <!-- custom: build walls with highest priority, we are likely to get attacked, walls or castle or such would help a lot more than any other building, but not for wonders unfortunately if i may say but anyways etc as it is unlikely we complete them on time before war ends or we die or we make any advantage of them anyways etc (worst case we'd be building it for them, invest that hammer in units or last ditch efforts rather that may help more maybe i would say in this case i mean but anyways etc) ; note: the else if is a bit redundant if i am not mistaken but anyways etc hopefully clearer as such maybe or not or yes or etc but anyways etc -->
+					// If they’re actually scary (≥120%), <!-- custom: build walls with highest priority, we are likely to get attacked, walls or castle or such would help a lot more than any other building, but not for wonders unfortunately as it is unlikely we complete them on time before war ends or we die or we make any advantage of them anyways etc (worst case we'd be building it for them, invest that hammer in units or last ditch efforts rather that may help more maybe i would say); note: the else if is a bit redundant if i am not mistakenhopefully clearer as such maybe or not or yes or etc-->
 					else if (bEnemyStrong)
 					{
 						return AI_BUILDING_ALWAYS_PICK_FIRST;
@@ -4863,32 +4863,32 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				{
 					if (bAtWar)
 					{
-						// <!-- custom: no time or hammer for this, try to build an extra or 2 units rather, may save our city, especially if we build a longbowman rather or such similar defensive unit if i am not mistaken anyways etc, pointless to build barracks or such similar building if we're dead anyway anyways etc -->
+						// <!-- custom: no time or hammer for this, try to build an extra or 2 units rather, may save our city, especially if we build a longbowman rather or such similar defensive unit, pointless to build barracks or such similar building if we're dead anyway -->
 						if (bEnemyStrong)
 						{
 							return 0;
 						}
-						// <!-- custom: i don't know if we can trust this boolean's corresponding function, but assuming it is, if we're threatened, prepare units rather in case or something else, no point if we get surprised attacked while building this and get captured without ever barely any units xd if i may say but anyways etc, build units rather in such cases at least simplify as such here, should most often help AI if i'm not mistaken and hopefully but anyways etc -->
+						// <!-- custom: i don't know if we can trust this boolean's corresponding function, but assuming it is, if we're threatened, prepare units rather in case or something else, no point if we get surprised attacked while building this and get captured without ever barely any units xd, build units rather in such cases at least simplify as such here, should most often help AI if i'm not mistaken and hopefully-->
 						if (bDanger)
 						{
 							return 0;
 						}
-						// <!-- custom: planning war warrants building barrack like buildings as well, since we're going to pump units anyway, and i assume guessedly that we'd only plan war if we're stronger, so build the barracks or similar building first and profit on having stronger units, it shouldn't be too expensive at this stage of the game but should make a big difference anyways etc -->
+						// <!-- custom: planning war warrants building barrack like buildings as well, since we're going to pump units anyway, and i assume guessedly that we'd only plan war if we're stronger, so build the barracks or similar building first and profit on having stronger units, it shouldn't be too expensive at this stage of the game but should make a big difference -->
 						else if (bWarPlan)
 						{
 							return AI_BUILDING_ALWAYS_PICK_FIRST;
 						}
-						// <!-- custom: spend the time to build this instead of pumping units, we are already strong, and would rather have stronger land units as well as not cripple our unit cost further short term anyways etc -->
+						// <!-- custom: spend the time to build this instead of pumping units, we are already strong, and would rather have stronger land units as well as not cripple our unit cost further short term -->
 						else if (bAtWarAndEnemyWeak)
 						{
 							return AI_BUILDING_ALWAYS_PICK_FIRST;
 						}
 					}
 				}
-				// <!-- custom: else let city handle what it wants, it is unclear that going early for barracks is the better choice, especially if low on hammer, we won't produce any units with it if i'm not mistaken or barely any units if i may say and if i am not mistaken too but anyways etc, so leave free choice rather here in this case i mean but anyways etc (e.g. a granary could be better, as we grow faster so more tiles to work so more units indirectly stronger army as we want if we can grow or we'd slow more, or a library could be better so we unlock next offensive or defensive unit that will save us or make us win or gain big advantage or gain a longtemr scientific advantage/gain overall maybe too anyways etc), so don't always favour barracks-like buildings, except in cases where we expect significant and quite reliable gains in this case at least i mean if i may say but anyways etc -->
+				// <!-- custom: else let city handle what it wants, it is unclear that going early for barracks is the better choice, especially if low on hammer, we won't produce any units with it if i'm not mistaken or barely any units if i may say and if i am not mistaken too, so leave free choice rather here (e.g. a granary could be better, as we grow faster so more tiles to work so more units indirectly stronger army as we want if we can grow or we'd slow more, or a library could be better so we unlock next offensive or defensive unit that will save us or make us win or gain big advantage or gain a longtemr scientific advantage/gain overall maybe too anyways etc), so don't always favour barracks-like buildings, except in cases where we expect significant and quite reliable gains in this case at least i mean -->
 			}
 
-			// --- Hard rule: don't build Stables without horses/camels <!-- custom: or elephants as it noticed and suggested itself while i had forgotten as in overlooked it rather as i didn't think of it at all xd in this case if i may say but anyways etc -->--------------------
+			// --- Hard rule: don't build Stables without horses/camels <!-- custom: or elephants as it noticed and suggested itself while i had forgotten as in overlooked it rather as i didn't think of it at all xd in this case -->--------------------
 			static const BuildingClassTypes eBuildingClassStable = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_AI_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME"));
 
 			const bool bBuildingClassStable = (eBuildingClassStable != NO_BUILDINGCLASS && eBuildingClass == eBuildingClassStable);
@@ -4898,7 +4898,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				static const BonusTypes B_HORSE  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_1"));
 				static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_2"));
 				static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_3"));
-				// <!-- custom: note: using city's `hasBonus(` instead of `getNumAvailableBonuses(` in other places in the code, as recommended by chatgpt 5, check if accurate anyways etc -->
+				// <!-- custom: note: using city's `hasBonus(` instead of `getNumAvailableBonuses(` in other places in the code, as recommended by chatgpt 5, check if accurate -->
 				//
 				// pCity->hasBonus(eBonus)
 				// - City-level connectivity: “Is this specific city’s plot-group connected to ≥1 of eBonus?”
@@ -4923,7 +4923,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 				if (eTechMountedCombat != NO_TECH && kTeam.isHasTech(eTechMountedCombat))
 				{
-					// No mounts<!-- custom: -unlocking bonuses anyways etc -->connected to this city ⇒ Stable is wasted; skip it.
+					// No mounts<!-- custom: -unlocking bonuses -->connected to this city ⇒ Stable is wasted; skip it.
 					if (!bCityHasHorse && !bCityHasCamel && !bCityHasElephants)
 					{
 						return 0;
@@ -4932,17 +4932,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						if (bEnemyStrong)
 						{
-							// <!-- custom: even if we can build advanced mounted units like the horse archer or such, we probably don't have the hammer to spare and simply don't want to die, go for short term immediate units / benefits in this case if i may say but anyways etc, at least value lowly such a building but anyways etc (i hope this is interpreted elsewhere as not building it rather than last else may be worse xd but anyways etc) -->
+							// <!-- custom: even if we can build advanced mounted units like the horse archer or such, we probably don't have the hammer to spare and simply don't want to die, go for short term immediate units / benefits in this case, at least value lowly such a building(i hope this is interpreted elsewhere as not building it rather than last else may be worse xd) -->
 							return 0;
 						}
 						else if (bAtWarAndEnemyWeak || bWarPlan)
 						{
-							// <!-- custom: if we're strong (i.e. if ennemy(ies if i may say but anyways etc) is weak but anyways etc) and we can build advanced mounted units like the horse archer or the war elephant (if not more advanced ones, maybe a check on has tech tech_mounted_combat is simplest?), consider urgently/strongly going/to go but anyways etc for a stable first, we can afford to spend the time doing so, and can expect higher benefits short-mid and long term but anyways etc, should be much better than not building it if i'm not mistaken but anyways etc -->
+							// <!-- custom: if we're strong (i.e. if ennemy(ies) is weak) and we can build advanced mounted units like the horse archer or the war elephant (if not more advanced ones, maybe a check on has tech tech_mounted_combat is simplest?), consider urgently/strongly going/to gofor a stable first, we can afford to spend the time doing so, and can expect higher benefits short-mid and long term, should be much better than not building it -->
 							return AI_BUILDING_ALWAYS_PICK_FIRST;
 						}
 					}
 				}
-				// <!-- custom: no point to build it at least not yet, reevaluate later in this case but anyways etc and use the hammer for more meaningful and/or relevant tasks anyways etc -->
+				// <!-- custom: no point to build it at least not yet, reevaluate later in this caseand use the hammer for more meaningful and/or relevant tasks -->
 				else
 				{
 					return 0;
@@ -4957,8 +4957,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			if (bNavalUnitsBuilding)
 			{
-				// <!-- custom: be careful to not make this static in case reloads would cause us to treat old pangea map of last save to a pangea in new archipelago loaded or started map if i am not mistaken but check to be sure, anyways etc -->
-				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+				// <!-- custom: be careful to not make this static in case reloads would cause us to treat old pangea map of last save to a pangea in new archipelago loaded or started map if i am not mistaken but check to be sure -->
+				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think) -->
 				bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
 				// bool bNavalHeavyMapname = false;
 				// if (!bLandHeavyMapname)
@@ -4968,14 +4968,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 				if (bLandHeavyMapname)
 				{
-					// <!-- custom: a coastal check as originally done by chatgpt 5 but anyways etc may cause weird issues with maps that are only coast separated from other land parts/pieces but anyways etc, but we still want to block lake drydocks as they should be quite pointless, unless weird map with giant lake. Take a probability approach, let's build it even in lakes to cover most cases, especially giant lakes xd if i may say but anyways etc, as for coastal check i assume/hope the function or something handles it so we don't build an impossible building somehow, as for us just skip this check, if i am not mistaken, check if accurate as this is just a guess from me and is also to simplify if i may say, as we cover enough edge cases below to save hammer in most cases anyway, leave some leeway otherwise in this case i mean but anyways etc -->
+					// <!-- custom: a coastal check as originally done by chatgpt 5may cause weird issues with maps that are only coast separated from other land parts/pieces, but we still want to block lake drydocks as they should be quite pointless, unless weird map with giant lake. Take a probability approach, let's build it even in lakes to cover most cases, especially giant lakes xd, as for coastal check i assume/hope the function or something handles it so we don't build an impossible building somehow, as for us just skip this check, if i am not mistaken, check if accurate as this is just a guess from me and is also to simplify if i may say, as we cover enough edge cases below to save hammer in most cases anyway, leave some leeway otherwise -->
 
-					// <!-- custom: otherwise super simple check if i may say but anyways etc, don't build it, save the hammer, we don't want to wate or spend too much hammer and can just build naval units slower, we want to build less of them on these maps anyway. If map is unclear, assume is not land heavy and proceed normally without this rule instead for versatility and safety if i may say but anyways etc, otherwise most maps should be properly excluded if our code works as intended. We'd have +/- 1 extra tank almost or 1.5 rifleman equivalent of extra hammers, in all affected cities, not negligible and nice to have, plus less as in no as of now but anyways etc unhealthiness which is very important but anyways etc -->
+					// <!-- custom: otherwise super simple check, don't build it, save the hammer, we don't want to wate or spend too much hammer and can just build naval units slower, we want to build less of them on these maps anyway. If map is unclear, assume is not land heavy and proceed normally without this rule instead for versatility and safety, otherwise most maps should be properly excluded if our code works as intended. We'd have +/- 1 extra tank almost or 1.5 rifleman equivalent of extra hammers, in all affected cities, not negligible and nice to have, plus less as in no as of nowunhealthiness which is very important-->
 					return 0;
 				}
 			}
 
-			// <!-- custom: not 0 (but higher value instead in this case i mean but anyways etc) to exclude false positives like ikhanda or such, see as of now above code comments for details anyways etc -->
+			// <!-- custom: not 0 (but higher value instead) to exclude false positives like ikhanda or such, see as of now above code comments for details -->
 			const bool bCityMaintenanceBuilding = (kBuilding.getMaintenanceModifier() >= 25);
 
 			if (bCityMaintenanceBuilding)
@@ -4984,7 +4984,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				{
 					return 0;
 				}
-				// <!-- custom: if at war and threatened, no question to stop this if i am not mistaken anyways etc -->
+				// <!-- custom: if at war and threatened, no question to stop this -->
 				else if (bAtWar)
 				{
 					if (bEnemyStrong)
@@ -4994,28 +4994,28 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: extra rules in case as we still sometimes do not build much needed health buildings when we need, or build them when we shouldn't or/and not urgently and should rather invest our hammer elsewhere but anyways etc -->
+			// <!-- custom: extra rules in case as we still sometimes do not build much needed health buildings when we need, or build them when we shouldn't or/and not urgently and should rather invest our hammer elsewhere-->
 			const bool bFoodKeptBuilding = (iFoodKept >= 25);
 
 			if (bFoodKeptBuilding)
 			{
-				// <!-- custom: if we don't have enough happiness reserve, no point to build it, the food stored won't be much used (but be careful to not overdo it as with slavery we still want the combo even if seemingly close to end of city growth due to unhappiness, the granary would still help slave better / faster, but hopefully the rule is narrow enough already as in it applies to so few cities already that this simplification is most likely and hopefully fine anyways etc ; we only want for most to add hard rules, not the full logic, to patch cases where it's in most cases better not to build these or on the contrary highly so to do anyways etc -->
+				// <!-- custom: if we don't have enough happiness reserve, no point to build it, the food stored won't be much used (but be careful to not overdo it as with slavery we still want the combo even if seemingly close to end of city growth due to unhappiness, the granary would still help slave better / faster, but hopefully the rule is narrow enough already as in it applies to so few cities already that this simplification is most likely and hopefully fine; we only want for most to add hard rules, not the full logic, to patch cases where it's in most cases better not to build these or on the contrary highly so to do -->
 				const int iFoodKeptMinLowHappinessSurplus = 2;
-				// <!-- custom: on the contrary, if we expect a high growth, fine to give a nudge towards building it asap anyways etc -->
+				// <!-- custom: on the contrary, if we expect a high growth, fine to give a nudge towards building it asap -->
 				const int iFoodKeptMaxHighHappinessSurplus = 3;
 				const int iFoodKeptMaxHighHappinessEffectiveFoodSurplus = 3;
 				if (iHappinessSurplus < iFoodKeptMinLowHappinessSurplus)
 				{
 					return 0;
 				}
-				// <!-- custom: if at war and threatened, no question to stop this if i am not mistaken anyways etc -->
+				// <!-- custom: if at war and threatened, no question to stop this -->
 				else if (bAtWar)
 				{
 					if (bEnemyStrong)
 					{
 						return 0;
 					}
-					// <!-- custom: else even if enemy is weak, food kept buildings could be useful to slave or grow so we have more tiles to work, either for our military goals, or simply to grow since we have no reason to go hard on war but anyways etc, so no reason to hard reject here in this case if i may say but anyways etc -->
+					// <!-- custom: else even if enemy is weak, food kept buildings could be useful to slave or grow so we have more tiles to work, either for our military goals, or simply to grow since we have no reason to go hard on war, so no reason to hard reject here in this case -->
 				}
 				else if ((iHappinessSurplus > iFoodKeptMaxHighHappinessSurplus) && iEffectiveFood > iFoodKeptMaxHighHappinessEffectiveFoodSurplus)
 				{
@@ -5023,8 +5023,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: i have noticed cities low in health, high or medium in happiness so growth potential, overlooking critical happiness buildings for much less relevant things like a customs house or such. To address this, if we have too much health, don't waste time building this and use the hammer for more important and urgent/effective tasks (at least other buildings maybe if i'm not mistaken but anyways etc), and inversely if i'm not mistaken if we badly need the health and can grow or can grow enough at least, rush as in favour heavily as in for us force it as best to simplify, but try to not overdo it to not kill versatility or most importantly versatility in case other strategies (war, etc) are locally better but anyways etc (e.g. aqueduct as of now buffed in our mod so quite good in helping a city grow quite a bit more but anyways etc, grocer, etc if any more anyways etc) -->
-			// <!-- custom: note: if i'm not mistaken, as per chatgpt 5's explanation, iGood and iBad are returned as outer parameters by the below function, check if accurate, anyways etc -->
+			// <!-- custom: i have noticed cities low in health, high or medium in happiness so growth potential, overlooking critical happiness buildings for much less relevant things like a customs house or such. To address this, if we have too much health, don't waste time building this and use the hammer for more important and urgent/effective tasks (at least other buildings maybe), and inversely if i'm not mistaken if we badly need the health and can grow or can grow enough at least, rush as in favour heavily as in for us force it as best to simplify, but try to not overdo it to not kill versatility or most importantly versatility in case other strategies (war, etc) are locally better(e.g. aqueduct as of now buffed in our mod so quite good in helping a city grow quite a bit more, grocer, etc if any more anyways etc) -->
+			// <!-- custom: note: if i'm not mistaken, as per chatgpt 5's explanation, iGood and iBad are returned as outer parameters by the below function, check if accurate -->
 			int iHealthGood = 0, iHealthBad = 0;
 			// NOTE: getAdditionalHealthByBuilding returns the NET health this building would give
 			// *for THIS city*, considering local bonuses, power penalties (bFuture=true), etc.
@@ -5044,8 +5044,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// 2) Badly need health OR about to use it → build first (unless it’s a wonder).
 				//   - current unhealth (<= -1) → urgent
 				//   - or we have headroom to grow and the building gives meaningful health (>=2)
-				// <!-- custom: hopefully this is not too strict to be too exxcesive(ly built but anyways etc) nor too lax to not be relevant when needed anyways etc: we want health when needed, else we don't want it and do something else in short as explained before if i may say but anyways etc -->
-				// <!-- custom: if at war and threatened, no question to stop this if i am not mistaken anyways etc -->
+				// <!-- custom: hopefully this is not too strict to be too exxcesive(ly built) nor too lax to not be relevant when needed anyways etc: we want health when needed, else we don't want it and do something else in short as explained before -->
+				// <!-- custom: if at war and threatened, no question to stop this -->
 				else if (bAtWar)
 				{
 					if (bEnemyStrong)
@@ -5053,7 +5053,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						return 0;
 					}
 				}
-				// <!-- custom: note: the pick first cause is "always" after the return 0, no pun if i may say or maybe yes in this case i mean but anyways etc... -->
+				// <!-- custom: note: the pick first cause is "always" after the return 0, no pun if i may say or maybe yes... -->
 				else if (iHealthLevel <= 1 && iHappinessSurplus >= 2 && iEffectiveFood >= 2)
 				{
 					return AI_BUILDING_ALWAYS_PICK_FIRST;
@@ -5061,21 +5061,21 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 
 			const bool bProductionBuilding = (
-				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anyways etc -->
-				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think but anyways etc, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences in this case i mean but anyways etc -->
+				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well -->
+				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences -->
 				//kBuilding.isPower() ||                                  // Plant gives power
 				//kBuilding.isAreaCleanPower()
 			);
 
-			// <!-- custom: don't build a theatre instead of a much better hindu temple if city is unhappy (generic theatre (i.e. non-civ-specific ones anyways etc) doesn't give reliable happiness) see code comment at AI_strictAdditionalHappy for details anyways etc -->
+			// <!-- custom: don't build a theatre instead of a much better hindu temple if city is unhappy (generic theatre (i.e. non-civ-specific ones anyways etc) doesn't give reliable happiness) see code comment at AI_strictAdditionalHappy for details -->
 			// // Expected local happiness the building would add (includes resource synergies).
 			// int iHappyGood=0, iHappyBad=0;
 			// const int iHappinessGain = getAdditionalHappinessByBuilding(eBuilding, iHappyGood, iHappyBad);
 			//
 			const int iStrictHappinessGain = AI_strictAdditionalHappy(*this, eBuilding);
 
-			// <!-- custom: now also account for unhappy citizens that would become happy after the building is built (inspired from our code in bestcitybuild (with variable as of now named iFoodConsumedBySpecialistOrAngryCitizens anyways etc) that uncounts food consumed by unhappy citizens anyways etc), as kish city was unhappy and stagnant so the effective food check as of now >= 2 would block the happiness building being built, even if we'd gain food from freeing unhappiness into more workable happy citizen tiles (not guaranteed to be grass land or 2 food tiles but assumed as such to simplify and favour a bit happiness buildings when relevant at least not prevent it in this case i mean but anyways etc), so remove from food effective food the food consumed by unhappy citizens which would then become happy after the happiness building is built anyways etc -->
-			// <!-- custom: results: extremely good!!! Now resuming from same save file at turn 100, Kish city of gilgamesh ai is now pop 13 at turn 150 instead of pop 10, and has built walls (that give 1 happiness in our mod since gilgamesh is protective if i'm not mistaken anyways etc, so it's great AIs can now dynamically (i.e. they adapt to this xml change we made not in hardcoded way hehe super nice but anyways etc) leverage this!!), which is great too because we sent a signal to not build walls if stronger, which gilgamesh ai is (strongest military power at turn 150 so i'd guess so at turn 100 although i didn't check but anyways etc), as well as a colosseum and a market (since gilgamesh has some of the matching bonuses i guess). His military power didn't suffer too much as he is still strongest after these changes now but with more mid and late game potential (so the small short term cost is probably much less important than long term gain anyways etc), see known issue as of now 48.2 for details anyways etc -->
+			// <!-- custom: now also account for unhappy citizens that would become happy after the building is built (inspired from our code in bestcitybuild (with variable as of now named iFoodConsumedBySpecialistOrAngryCitizens anyways etc) that uncounts food consumed by unhappy citizens anyways etc), as kish city was unhappy and stagnant so the effective food check as of now >= 2 would block the happiness building being built, even if we'd gain food from freeing unhappiness into more workable happy citizen tiles (not guaranteed to be grass land or 2 food tiles but assumed as such to simplify and favour a bit happiness buildings when relevant at least not prevent it), so remove from food effective food the food consumed by unhappy citizens which would then become happy after the happiness building is built -->
+			// <!-- custom: results: extremely good!!! Now resuming from same save file at turn 100, Kish city of gilgamesh ai is now pop 13 at turn 150 instead of pop 10, and has built walls (that give 1 happiness in our mod since gilgamesh is protective if i'm not mistaken anyways etc, so it's great AIs can now dynamically (i.e. they adapt to this xml change we made not in hardcoded way hehe super nice) leverage this!!), which is great too because we sent a signal to not build walls if stronger, which gilgamesh ai is (strongest military power at turn 150 so i'd guess so at turn 100 although i didn't check), as well as a colosseum and a market (since gilgamesh has some of the matching bonuses i guess). His military power didn't suffer too much as he is still strongest after these changes now but with more mid and late game potential (so the small short term cost is probably much less important than long term gain anyways etc), see known issue as of now 48.2 for details -->
 			// ---- Effective food AFTER curing anger with this building -------------------
 			const int iFoodPerPop   = GC.getFOOD_CONSUMPTION_PER_POPULATION();
 			const int iAngryNow     = angryPopulation(); // (= max(0, -iHappinessSurplus)) in practice
@@ -5085,7 +5085,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			if (bProductionBuilding)
 			{
-				// <!-- custom: don't build a forge early if our city has low hammer and can't be expected to grow, except if a lot of happiness can be gained from it and we have enough food to make it matter ; else don't be too strict, this only to prevent early stunting growth builds anyways etc, and early game is the critical part to best optimize in order to have an as smooth as possible late game if i may say but anyways etc ; the 3 extra swordsmen and some more hammer can be a matter of life and death, do not give them up unless strong reward otherwise in this case i mean but anyways etc -->
+				// <!-- custom: don't build a forge early if our city has low hammer and can't be expected to grow, except if a lot of happiness can be gained from it and we have enough food to make it matter; else don't be too strict, this only to prevent early stunting growth builds anyways etc, and early game is the critical part to best optimize in order to have an as smooth as possible late game; the 3 extra swordsmen and some more hammer can be a matter of life and death, do not give them up unless strong reward otherwise -->
 				// Early window (scaled to speed)
 				const int iEarlyTurnsProductionNormal = 100; // @Normal
 				const int iEarlyTurnsProductionAdjusted = iEarlyTurnsProductionNormal * iGameSpeedMultiplier / 100;
@@ -5112,7 +5112,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					}
 					// <!-- custom: else/otherwise anyways etc no strong rule, just prevent city from building it if really not best move -->
 				}
-				// <!-- custom: if at war and threatened, no question to stop this if i am not mistaken anyways etc -->
+				// <!-- custom: if at war and threatened, no question to stop this -->
 				else if (bAtWar)
 				{
 					if (bEnemyStrong)
@@ -5122,7 +5122,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: if a building gives happiness to all cities, purposely let it slip through our net, perhaps it is good to build it, especially and here only handling it if it is not a wonder (so would be fast to build in this case i mean if i may say but anyways etc) in this case i mean but anyways etc -->
+			// <!-- custom: if a building gives happiness to all cities, purposely let it slip through our net, perhaps it is good to build it, especially and here only handling it if it is not a wonder (so would be fast to build in this case i mean) -->
 			const bool bHappinessBuilding = (
 				(iStrictHappinessGain > 0)
 			);
@@ -5130,14 +5130,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			if (bHappinessBuilding)
 			{
 				// If we’re already comfortably happy and not growing fast, skip the extra happy.
-				// (Prevents monuments/temples/colosseums <!-- custom: and etc as really it's a rule we can apply the whole game but anyways etc, always better to have one more rifleman than uneeded happiness building but anyways etc --> when we have plenty of headroom.)
+				// (Prevents monuments/temples/colosseums <!-- custom: and etc as really it's a rule we can apply the whole game, always better to have one more rifleman than uneeded happiness building--> when we have plenty of headroom.)
 				const int iHappinessBuildingEnoughHappinessSurplus = 2;
 				const int iHappinessBuildingEnoughFoodDiff = 2;
 				if (iHappinessSurplus > iHappinessBuildingEnoughHappinessSurplus && (iFoodDifference < iHappinessBuildingEnoughFoodDiff))
 				{
 					return 0;
 				}
-				// <!-- custom: a bit harder to tell if short term would unlock us much needed yields, but favour survivability rather, should be better and more efficient for AIs in most cases if i am not mistaken anyways etc, but upon further consideration if i may say but anyways etc, if we are strong enough we probably don't need it as much and may be fine developping our cities rather as per previous rule of happiness buildings, also not to sink our unit costs xd if i may say but anyways etc, however if we're losing it's no question to skip everything else not giga or ultra mandatory if i may say in this case but anyways etc to build more units ideally so we don't die (at least not more buildings), we can look at / worry about happiness later after the war (if we don't die), else commit all efforts into surviving if i may say in this case but anyways etc, don't build a colosseum xd, hopefully helps AI be more efficient and strategic at handling war if not already done but anyways etc -->
+				// <!-- custom: a bit harder to tell if short term would unlock us much needed yields, but favour survivability rather, should be better and more efficient for AIs in most cases, but upon further consideration, if we are strong enough we probably don't need it as much and may be fine developping our cities rather as per previous rule of happiness buildings, also not to sink our unit costs xd, however if we're losing it's no question to skip everything else not giga or ultra mandatory if i may say in this caseto build more units ideally so we don't die (at least not more buildings), we can look at / worry about happiness later after the war (if we don't die), else commit all efforts into surviving if i may say in this case, don't build a colosseum xd, hopefully helps AI be more efficient and strategic at handling war if not already done-->
 				else if (bAtWar)
 				{
 					if (bEnemyStrong)
@@ -5168,22 +5168,22 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				(kBuilding.getFreeSpecialistCount(eScientist) > 0)
 			);
 
-			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or/and help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders but anyways etc. Do not limit this too hard, as it is unclear if opening with a granary is always better than say a library, let the function or whichever code(s? But anyways etc) is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct but anyways etc...) or about to be or something similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush but anyways etc
+			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or/and help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders. Do not limit this too hard, as it is unclear if opening with a granary is always better than say a library, let the function or whichever codes is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct) or about to be or something similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush
 			if (bScienceBuilding)
 			{
 				if (bAtWar)
 				{
-					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean if i may say but anyways etc -->
+					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
 					return 0;
 				}
-				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it but anyways etc -->
+				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
 				else
 				{
 					if (bDanger)
 					{
 						return 0;
 					}
-					// <!-- custom: else it is hard to tell really but consider delaying, should help especially early let's try that and see how our AI behave, hopefully it would improve early rushing potential at the cos tfo slightly slower science prgoession mid game, but maybe gaining an extra city or not losing one offsets that especially long term, and not just in science gains terms but anyways etc -->
+					// <!-- custom: else it is hard to tell really but consider delaying, should help especially early let's try that and see how our AI behave, hopefully it would improve early rushing potential at the cos tfo slightly slower science prgoession mid game, but maybe gaining an extra city or not losing one offsets that especially long term, and not just in science gains terms-->
 					else if (bWarPlan)
 					{
 						return 0;
@@ -5191,7 +5191,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: note: among remaining buildings, the effects get more often intertwinned if i may say in this case but anyways etc, so i mean but anyways etc execute this before last such buildings (but before the final unknown or/and uncovered buildings tail after it) so that we don't classify other buildings as cultural ones for example (e.g. as of now the spain civ-specific castle) if they happen to have culture in them as many buildings do but it would not be their main function and may interfere with our previous rules, so do these last and excluding previously covered ones just to be safe about this if i may say but anyways etc -->
+			// <!-- custom: note: among remaining buildings, the effects get more often intertwinned if i may say in this case, so i meanexecute this before last such buildings (but before the final unknown or/and uncovered buildings tail after it) so that we don't classify other buildings as cultural ones for example (e.g. as of now the spain civ-specific castle) if they happen to have culture in them as many buildings do but it would not be their main function and may interfere with our previous rules, so do these last and excluding previously covered ones just to be safe about this -->
 			const bool bPreviousBuildings = (
 				bWaterFoodBuilding ||
 				bDefenseBuilding ||
@@ -5203,7 +5203,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				bNavalUnitsBuilding ||
 				bLandUnitsBuilding ||
 				bScienceBuilding ||
-				// <!-- custom: even if is building class we can still check the boolean i think for our purpose of excluding previously processed buildings if i may say and if i am not mistaken but anyways etc -->
+				// <!-- custom: even if is building class we can still check the boolean i think for our purpose of excluding previously processed buildings -->
 				bBuildingClassStable
 			);
 
@@ -5228,22 +5228,22 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				!bPreviousBuildings
 			);
 
-			// <!-- custom: similarly hard to tell long term effects of which, especially if these have nested effects like health or such, but we handled excluding misclassified e.g. health buildings like the grocer that happen to give gold, and we treated them as health buildings to assess their importance to build or reject them but anyways etc, so now i mean for economy buildings not handled before but anyways etc, use an about same logic as for/in but anyways etc science ones, but with a bit more leeway, as short term is a bit stronger to consider as an alternative vs only more gold right now (unlike vs science which is stronger i'm not mistaken but anyways etc) -->
+			// <!-- custom: similarly hard to tell long term effects of which, especially if these have nested effects like health or such, but we handled excluding misclassified e.g. health buildings like the grocer that happen to give gold, and we treated them as health buildings to assess their importance to build or reject them, so now i mean for economy buildings not handled before, use an about same logic as for/inscience ones, but with a bit more leeway, as short term is a bit stronger to consider as an alternative vs only more gold right now (unlike vs science which is stronger) -->
 			if (bEconomyOnlyBuilding)
 			{
 				if (bAtWar)
 				{
-					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean if i may say but anyways etc -->
+					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
 					return 0;
 				}
-				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it but anyways etc -->
+				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
 				else
 				{
 					if (bDanger)
 					{
 						return 0;
 					}
-					// <!-- custom: else it is hard to tell really but consider delaying, should help especially early let's try that and see how our AI behave, hopefully it would improve early rushing potential at the cos tfo slightly slower science prgoession mid game, but maybe gaining an extra city or not losing one offsets that especially long term, and not just in science gains terms but anyways etc -->
+					// <!-- custom: else it is hard to tell really but consider delaying, should help especially early let's try that and see how our AI behave, hopefully it would improve early rushing potential at the cos tfo slightly slower science prgoession mid game, but maybe gaining an extra city or not losing one offsets that especially long term, and not just in science gains terms-->
 					else if (bWarPlan)
 					{
 						return 0;
@@ -5255,23 +5255,23 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							// City’s actual gold/turn (slider + tiles + specialists etc.)
 							const int iCityGoldRate = getCommerceRate(COMMERCE_GOLD);
 
-							// <!-- custom: low ROI expected if i may say but anyways etc, go for something else at least for now then reevaluate later (note: the happiness part, e.g. of the market, or the health part for example, e.g. of the grocer, have been evaluated before but anyways etc, now we're only evaluating remaining building on economic criteria if i may say but anyways etc), let this function or others hadnle more fine-grained if i may say but anyways etc cases, as for us we only want to cover most blatant ones but anyways (building a bank with 1 city gold rate for example), hopefully helps the AI while being versatile and reliable, to be stronger and sharper in its building choices but anyways etc -->
+							// <!-- custom: low ROI expected, go for something else at least for now then reevaluate later (note: the happiness part, e.g. of the market, or the health part for example, e.g. of the grocer, have been evaluated before, now we're only evaluating remaining building on economic criteria), let this function or others hadnle more fine-grained cases, as for us we only want to cover most blatant ones but anyways (building a bank with 1 city gold rate for example), hopefully helps the AI while being versatile and reliable, to be stronger and sharper in its building choices-->
 							const int iMinCityGoldRate = 6;
 							if (iCityGoldRate < iMinCityGoldRate)
 							{
 								return 0;
 							}
 						}
-						// <!-- custom: else flat gold per turn is fine if all other/previous conditions don't make it low priority anyways etc -->
+						// <!-- custom: else flat gold per turn is fine if all other/previous conditions don't make it low priority -->
 					}
 				}
 			}
 
 			// --- Trade-route economy (Customs House / <!-- custom: Lighthouse with our changes as of now anyways etc-->-like) --------------------
 
-			// <!-- custom: a bit weird coding if i may say but anyways etc but i think is simple and effective in making sure we don't forget to check previous ones from not being checked again at the ambiguous remaining buildings stage such as below as well but anyways etc -->
+			// <!-- custom: a bit weird coding but i think is simple and effective in making sure we don't forget to check previous ones from not being checked again at the ambiguous remaining buildings stage such as below as well-->
 			const bool bPreviousBuildings2 = (
-				// <!-- custom: note: bNot etc... is already a negative boolean, don't renegae it unless needed anyways etc -->
+				// <!-- custom: note: bNot etc... is already a negative boolean, don't renegae it unless needed -->
 				bPreviousBuildings ||
 				bEconomyBuilding
 			);
@@ -5308,7 +5308,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 				// 1) Foreign % only helps if we actually have foreign trade in THIS city <!-- custom: and if no routes are added otherwise as chatgpt 5 added after i asked it about it hehe thanks still but really i mean thanks anwyays etc hehe anyways etc thanks -->
 				// ...but don't veto here if the building ALSO adds routes; let ROI check handle it.
-				// <!-- custom: reuse bForeignTrade as recommended by chatgpt 5 (in another thread but thanks still in this case i mean but anyways etc), as indeed we can know people but not have open borders with them, so no trade then. I'm a bit reluctant to use it in case it is inaccurate, but may as well do so and whatever happens xd, at worse we won't reject the building so shouldn't harm too much if i'm not mistaken and ideally in this case i mean but anyways etc -->
+				// <!-- custom: reuse bForeignTrade as recommended by chatgpt 5 (in another thread but thanks still), as indeed we can know people but not have open borders with them, so no trade then. I'm a bit reluctant to use it in case it is inaccurate, but may as well do so and whatever happens xd, at worse we won't reject the building so shouldn't harm too much if i'm not mistaken and ideally -->
 				// Right now you use iHasMetCount > 0. That doesn’t guarantee foreign trade (you still need connection / open borders). You already computed bForeignTrade earlier—use it.
 				if (bHasAnyForeignTradeRouteModifier && !bForeignTrade && !bTradeRouteAdder)
 				{
@@ -5322,11 +5322,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					(bHasAnyForeignTradeRouteModifier && bForeignTrade)
 				);
 
-				// <!-- custom: low ROI, better skip, anyways etc -->
+				// <!-- custom: low ROI, better skip -->
 				// pure % mods with tiny base are weak
-				// <!-- custom: update: also take to be added by this building trade yield as part of the ROI calculation as well as recommended nicely thanks if i may say but anyways etc by chatgpt 5 (from another thread xd but thanks still anyways etc, also check if accurate anyways etc) -->
+				// <!-- custom: update: also take to be added by this building trade yield as part of the ROI calculation as well as recommended nicely thanks by chatgpt 5 (from another thread xd but thanks still anyways etc, also check if accurate anyways etc) -->
 				// If the building adds routes (bTradeRouteAdder), a low current iTradeYield is precisely when it can be good.
-				// <!-- custom: small correction if i'm not mistaken but anyways etc, beyond >= 3 (say from 4+ anyways etc), we are already beyond ROI so no need to early reject the building here anymore if i am not mistaken anyways etc -->
+				// <!-- custom: small correction, beyond >= 3 (say from 4+ anyways etc), we are already beyond ROI so no need to early reject the building here anymore -->
 				const int iMinTradeYield = 4;
 				if (iTradeYield < iMinTradeYield)
 				{
@@ -5354,7 +5354,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			// --- Espionage (Jail / Intelligence Agency / Security Bureau) ----------------
 
 			const bool bPreviousBuildings3 = (
-				// <!-- custom: note: bNot etc... is already a negative boolean, don't renegae it unless needed anyways etc -->
+				// <!-- custom: note: bNot etc... is already a negative boolean, don't renegae it unless needed -->
 				bPreviousBuildings2 ||
 				bTradeOnlyBuilding
 			);
@@ -5388,15 +5388,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				!bPreviousBuildings3
 			);
 
-			// <!-- custom: similar reasoning than for economy buildings but with more leeway, as espionage and here espionage buildings are less important relatively, and may be valuable in different times but anyways etc ; as for AI at higher difficulties they don't need to spend so much on spying, they can just coast ahead if i may say but anyways etc due to their handicap advantages at higher difficulties anyways etc, but at lower difficulties, they may have to -->
+			// <!-- custom: similar reasoning than for economy buildings but with more leeway, as espionage and here espionage buildings are less important relatively, and may be valuable in different times; as for AI at higher difficulties they don't need to spend so much on spying, they can just coast ahead due to their handicap advantages at higher difficulties anyways etc, but at lower difficulties, they may have to -->
 			if (bEspionageOnlyBuilding)
 			{
 				if (bAtWar)
 				{
-					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean if i may say but anyways etc -->
+					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
 					return 0;
 				}
-				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it but anyways etc -->
+				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
 				else
 				{
 					if (bDanger)
@@ -5407,7 +5407,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						return 0;
 					}
-					// <!-- custom: at higher difficulties (from say immortal+, as emperor is maybe doable without relying too much if at all (source: me xd but anyways etc) on spying but anyways etc), AIs don't need to worry too much about espionage as they have handicap advantages, but they need to thwart human espionage attempts and perhaps of other AI players to a bigger extent as well maybe too anyways etc so to have good espionage defense buildings if i may say but anyways etc ; as for lower difficulties (say chieftain and below), AIs need to engage more in spying to compensate their penalties so no spy defense buildings (nothing to steal xd they should be behind in tech for most at least not urgent or skip entirely to simplify but anyways etc) but spy offensive buildings should help but anyways etc -->
+					// <!-- custom: at higher difficulties (from say immortal+, as emperor is maybe doable without relying too much if at all (source: me xd) on spying), AIs don't need to worry too much about espionage as they have handicap advantages, but they need to thwart human espionage attempts and perhaps of other AI players to a bigger extent as well maybe too anyways etc so to have good espionage defense buildings; as for lower difficulties (say chieftain and below), AIs need to engage more in spying to compensate their penalties so no spy defense buildings (nothing to steal xd they should be behind in tech for most at least not urgent or skip entirely to simplify) but spy offensive buildings should help-->
 					else
 					{
 						// --- Difficulty skew (research cost gap: human% - this AI%) --------------------
@@ -5431,7 +5431,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						{
 							if (bHighEnoughEspionageDefenseModifier)
 							{
-								// <!-- custom: in case other buildings are tied e.g. the acqueduct and we need it just as much, then build the acqueduct first if i may say but anyways etc -->
+								// <!-- custom: in case other buildings are tied e.g. the acqueduct and we need it just as much, then build the acqueduct first -->
 								return AI_BUILDING_ALWAYS_PICK_FIRST - 1000 ;
 							}
 						}
@@ -5439,7 +5439,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						{
 							if (bEspionageSourceBuilding)
 							{
-								// <!-- custom: in case other buildings are tied e.g. the acqueduct and we need it just as much, then build the acqueduct first if i may say but anyways etc -->
+								// <!-- custom: in case other buildings are tied e.g. the acqueduct and we need it just as much, then build the acqueduct first -->
 								return AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
 							}
 						}
@@ -5447,7 +5447,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: then for culture buildings (e.g. monument, theatre, coliseum, etc if any more anyways etc), we only want to strongly discourage and tell the AI to really not build thme i case it is clearly detrimental to do so but anyways etc. In other cases, being too harsh with these may result in too low culture, or/and it is uncertain whether other buildings are better. We only want, here, to reserve the hammer for more urgent buildings, and perhaps units incases where it is more urgent to do so, especially early but anyways etc. A collosseum is +/- 3 swordsmen if i am not mistaken, so if we don't strongly need it, consider ditching it for efficiency for example anyways etc. If we have have our BFC already, we're about good for the early game, look at other priorities or better use of the hammer when relevant or more urgent to do so if i may say but anyways etc -->
+			// <!-- custom: then for culture buildings (e.g. monument, theatre, coliseum, etc if any more anyways etc), we only want to strongly discourage and tell the AI to really not build thme i case it is clearly detrimental to do so. In other cases, being too harsh with these may result in too low culture, or/and it is uncertain whether other buildings are better. We only want, here, to reserve the hammer for more urgent buildings, and perhaps units incases where it is more urgent to do so, especially early. A collosseum is +/- 3 swordsmen if i am not mistaken, so if we don't strongly need it, consider ditching it for efficiency for example anyways etc. If we have have our BFC already, we're about good for the early game, look at other priorities or better use of the hammer when relevant or more urgent to do so -->
 
 			const bool bPreviousBuildings4 = (
 				bPreviousBuildings3 ||
@@ -5469,7 +5469,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			if (bCultureOnlyBuilding)
 			{
-				// <!-- custom: use a larger window than some previous buildings as culture buildings can be more often and longer in terms of game turns not urgent, and freeing the hammer in such cases may be more important for more turns, especially if we're not chasing a cultural victory, nor are we badly pressed at our borders, consider the short term value of the hammers as well hehe if i may say but anyways etc -->
+				// <!-- custom: use a larger window than some previous buildings as culture buildings can be more often and longer in terms of game turns not urgent, and freeing the hammer in such cases may be more important for more turns, especially if we're not chasing a cultural victory, nor are we badly pressed at our borders, consider the short term value of the hammers as well hehe -->
 				const int iEarlyMidTurnsCultureNormal = 125; // @Normal
 				const int iEarlyMidTurnsCultureAdjusted = iEarlyMidTurnsCultureNormal * iGameSpeedMultiplier / 100;
 				const bool bEarlyMidTurnsCulture = (iElapsedTurns < iEarlyMidTurnsCultureAdjusted);
@@ -5491,10 +5491,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					}
 				}
 			}
-			// <!-- custom: unknown or/and uncovered building (no wonders here, they are below, anyways etc), assume it's a useless building, at least in terms of war, skip it during war or war-like times ; note: this doesn't handle previously covered buildings which should have their own war rules for better flexibility (some buildings are very good at war, some not at all, some so so, some depend, so adjust there rather and keep the final war-tail here as chatgpt 5 calls it and which i like the name of xd if i may say but anyways etc -->
+			// <!-- custom: unknown or/and uncovered building (no wonders here, they are below, anyways etc), assume it's a useless building, at least in terms of war, skip it during war or war-like times; note: this doesn't handle previously covered buildings which should have their own war rules for better flexibility (some buildings are very good at war, some not at all, some so so, some depend, so adjust there rather and keep the final war-tail here as chatgpt 5 calls it and which i like the name of xd -->
 			else
 			{
-				// <!-- custom: military rules in particular may even ovveride our BFC needs in times of urgency (being at war, on the defensive in particular, and even more so if we are weaker, but even just being at war is enough to warrant skipping these i would say but anyways etc if i may say but anyways etc, strongly redirect towards unit or such, at least do not value this building here if it also excludes it from choosing it at all (i didn't check if it does but anyways etc) -->
+				// <!-- custom: military rules in particular may even ovveride our BFC needs in times of urgency (being at war, on the defensive in particular, and even more so if we are weaker, but even just being at war is enough to warrant skipping these i would say, strongly redirect towards unit or such, at least do not value this building here if it also excludes it from choosing it at all (i didn't check if it does) -->
 				if (bAtWar || bEnemyStrong || bDanger)
 				{
 					return 0;
@@ -5505,10 +5505,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 		}
-		// <!-- custom: wonders (i.e. world + national) if i'm not mistaken anyways etc -->
+		// <!-- custom: wonders (i.e. world + national) if i'm not mistaken -->
 		else if (bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
-			// <!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then anyways etc. -->
+			// <!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then -->
 			// Barbarian-barrier WW special-case (Great Wall: bBorderObstacle=1)
 			static const bool bSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE");
 			if (!kGame.isOption(GAMEOPTION_NO_BARBARIANS) && !bSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE)
@@ -5526,12 +5526,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			const int iCost = getProductionNeeded(eBuilding);
 
-			// <!-- custom: save some computation by processing this early-on anyways etc -->
+			// <!-- custom: save some computation by processing this early-on -->
 			// too weak to justify any wonder now
-			// <!-- custom: see SAS defines to specifically tune its suboptions rather anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+			// <!-- custom: see SAS defines to specifically tune its suboptions rather anyways etc. Code added with the help of chatgpt 5.2 thanks -->
 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable). Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+				// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable). Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks -->
 				// Cheap World Wonder grab policy: per-era iCost caps (Normal).
 				// If iCost <= cap(for current era) scaled by game speed, treat the WW as "cheap".
 				// Era index assumed: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future.
@@ -5564,7 +5564,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// If cheap, push it hard (so it doesn't get ignored by other builds).
 				if (bCheapWorldWonder)
 				{
-					// <!-- custom: minimal danger check since the risk is worth it as the wonder is so cheap anyways etc. -->
+					// <!-- custom: minimal danger check since the risk is worth it as the wonder is so cheap -->
 					if (!bDanger)
 					{
 						return AI_BUILDING_ALWAYS_PICK_FIRST + 3000;
@@ -5600,7 +5600,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: e.g. building our build 25% faster with stone (not related to yields/hammers gained after building is completed! But anyways etc) -->
+			// <!-- custom: e.g. building our build 25% faster with stone (not related to yields/hammers gained after building is completed!) -->
 			// Full production modifier (traits, resources, state religion, etc.)
 			const int iProductionModifier = getProductionModifier(eBuilding);
 			// “Can we realistically <!-- custom: build as i assume this is about starting new buildings --> it?” (turn cap)
@@ -5623,11 +5623,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			*/
 			int const iTurnsWW = (iCost * 100 + iBaseHammersPerTurn * iWWMul100 - 1) / (std::max(1, iBaseHammersPerTurn) * iWWMul100);
 			// Window scales by speed a bit
-			// <!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it anyways etc -->
+			// <!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it -->
 			static const int iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD");  // @Normal
 			int iSoftTurnCapNormal = iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD; // @Normal
-			// <!-- custom: adjust based on game difficulty: on lower difficulties, we have penalties, so unlikely we compete with the human player(s?), so use our hammers conservatively and more towards self-preservation anyways etc, so do not increase turn time allowed to complete this, but at higher difficulties, we have more leeway and enough discounts, unlikely the human can compete with us, however it would be strange that we would spend too much time on wonders despite our discounts, which would mean most likely we are doing something inefficient or wrong, so don't build the wonder with a tighter window if is beyond this window if i may say in this case but anyways etc -->
-			// AdvCiv: no human WCP <!-- custom: at least i didn't find it easily with a global search vs code so hopefully accurate enough as such as provided by chatgpt 5 but check if accurate and if my guess of doing as such as well is fine as i didn't check further but anyways etc -->; treat as 100%
+			// <!-- custom: adjust based on game difficulty: on lower difficulties, we have penalties, so unlikely we compete with the human players, so use our hammers conservatively and more towards self-preservation anyways etc, so do not increase turn time allowed to complete this, but at higher difficulties, we have more leeway and enough discounts, unlikely the human can compete with us, however it would be strange that we would spend too much time on wonders despite our discounts, which would mean most likely we are doing something inefficient or wrong, so don't build the wonder with a tighter window if is beyond this window -->
+			// AdvCiv: no human WCP <!-- custom: at least i didn't find it easily with a global search vs code so hopefully accurate enough as such as provided by chatgpt 5 but check if accurate and if my guess of doing as such as well is fine as i didn't check further-->; treat as 100%
 			const int iHumanWCPDefine = 100;
 			int const iHumanWCP = iHumanWCPDefine;
 			int const iAIWCP    = hAI.getAIWorldConstructPercent();
@@ -5641,22 +5641,22 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			{
 				iSoftTurnCapNormal = (iSoftTurnCapNormal * iMaxConstructGapMult) / iMaxConstructGapDiv;
 			}
-			// <!-- custom: then in all cases adjust based on game speed anyways etc -->
+			// <!-- custom: then in all cases adjust based on game speed -->
 			int const iSoftTurnCapAdjusted = iSoftTurnCapNormal * iGameSpeedMultiplier / 100;
-			// <!-- custom: note: this also handles turn to build calculation for production bonus based wonders if i'm not mistaken but anyways etc such as the ironworks -->
+			// <!-- custom: note: this also handles turn to build calculation for production bonus based wonders if i'm not mistakensuch as the ironworks -->
 			// If it's going to sit in the queue forever, skip.
 			if (iTurnsWW > iSoftTurnCapAdjusted)
 			{
 				return 0;
 			}
 
-			// <!-- custom: may save a lot of computation by checking this early and forwarding the early rejects (note: make sure to not push ahead / forward the always pick first blocks else it may alter history (unless is as you want it i mean but anyways etc)), since we'll reject anyway later (especialyl for the loop code). -->
-			// <!-- custom: more early checks to save computation before the loop computation anyways etc -->
-			// <!-- custom: especially if losing, don't build wonder for our ennemies, do something else instead useful to help us survive. Note: there is a code somewhere that i saw that tells the AI to not ditch a wonder being built if >= a certain percentage of completion, which i think is 50%, if i find it heavily tighten it as well anyways etc, even at 50% completion, we can still produce several longbowmen or such instead that may increase our odds a lot, ideally don't start the wonder at all, but if didn't see it (surprise war, etc), then don't continue building it somewhere as well if i find where again in this case i mean but anyways etc, as for this code only handles new buildings to start if i'm not mistaken but anyways etc, and tightening it heavily here in war or war-related context but anyways etc ; update: i found it and tweaked it there as well, it's as of now in CvCityAI::AI_chooseProduction (ctrl+f "completion" to find it xd luckily found it again thankfully maybe rather i should say to myself xd or chatgpt 5 i'm tlaking to in this case if i may say but anyways etc) -->
+			// <!-- custom: may save a lot of computation by checking this early and forwarding the early rejects (note: make sure to not push ahead / forward the always pick first blocks else it may alter history (unless is as you want it)), since we'll reject anyway later (especialyl for the loop code). -->
+			// <!-- custom: more early checks to save computation before the loop computation -->
+			// <!-- custom: especially if losing, don't build wonder for our ennemies, do something else instead useful to help us survive. Note: there is a code somewhere that i saw that tells the AI to not ditch a wonder being built if >= a certain percentage of completion, which i think is 50%, if i find it heavily tighten it as well anyways etc, even at 50% completion, we can still produce several longbowmen or such instead that may increase our odds a lot, ideally don't start the wonder at all, but if didn't see it (surprise war, etc), then don't continue building it somewhere as well if i find where again, as for this code only handles new buildings to start, and tightening it heavily here in war or war-related context; update: i found it and tweaked it there as well, it's as of now in CvCityAI::AI_chooseProduction (ctrl+f "completion" to find it xd luckily found it again thankfully maybe rather i should say to myself xd or chatgpt 5 i'm tlaking to in this case) -->
 			// hard skips: don’t throw the game to build a shiny thing
 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
+				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such -->
 				if (!bLandUnitsBuilding)
 				{
 					if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
@@ -5666,29 +5666,29 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 				else
 				{
-					// <!-- custom: world wonders are generally costlier, so don't build them if danger but also if at war anyways etc -->
+					// <!-- custom: world wonders are generally costlier, so don't build them if danger but also if at war -->
 					if (bAtWar || bDanger)
 					{
 						return 0;
 					}
 				}
 
-				// <!-- custom: even if we don't have bonuses early, we may get a lucky stonehenge if rivals have not connected their stone yet or/and we got lucky with our start that would have high production maybe so give it a try in these early turns for wonders cases but anyways etc, else don't risk wasting precious early hammer on incompleted wonder vs say units or anything else instead (a granary + barracks + worker for example more or less if i may say but anyways etc) ; note: modifiers are not only bonuses, a civic or religion modifier may be equal or even stronger than the bonus one, even if we don't have the bonus, so look rather at the final modifier no matetr where it comes from -->
+				// <!-- custom: even if we don't have bonuses early, we may get a lucky stonehenge if rivals have not connected their stone yet or/and we got lucky with our start that would have high production maybe so give it a try in these early turns for wonders cases, else don't risk wasting precious early hammer on incompleted wonder vs say units or anything else instead (a granary + barracks + worker for example more or less); note: modifiers are not only bonuses, a civic or religion modifier may be equal or even stronger than the bonus one, even if we don't have the bonus, so look rather at the final modifier no matetr where it comes from -->
 				// Early window (scaled to speed)
 				const int iEarlyTurnsNoModifierNormal = 35; // @Normal
 				const int iEarlyTurnsNoModifierAdjusted = iEarlyTurnsNoModifierNormal * iGameSpeedMultiplier / 100;
 				const bool bEarlyTurnsNoModifier = (iElapsedTurns < iEarlyTurnsNoModifierAdjusted);
 				if (!bEarlyTurnsNoModifier)
 				{
-					// <!-- custom: our rivals will beat us (most likely, but assume so for efficiency anyways etc) to it, better build something else than end up with a lot of wasted hammer anyways etc -->
+					// <!-- custom: our rivals will beat us (most likely, but assume so for efficiency anyways etc) to it, better build something else than end up with a lot of wasted hammer -->
 					if (iProductionModifier < 25) // no stone/marble/trait/religion oomph? skip
 					{
 						return 0;
 					}
-					// <!-- custom: else don't incentivize it either, wonders are not necessarily the better choice, keep as is as per AI selection in other parts of the code wherever it is handled at least as of now but anyways etc -->
+					// <!-- custom: else don't incentivize it either, wonders are not necessarily the better choice, keep as is as per AI selection in other parts of the code wherever it is handled at least as of now-->
 				}
 
-				// <!-- custom: note: cannot try to save computation by checking bCoastalBuilding, as in some weird xml mod mods or such (or maybe we would too or would not but anyways etc), maybe a non-coastal city would give a coastal cities scaling effect, so do not check bCoastalBuilding to avoid overlooking these as chatgpt 5 advised/noted if i understood it correctly i mean but anyways etc -->
+				// <!-- custom: note: cannot try to save computation by checking bCoastalBuilding, as in some weird xml mod mods or such (or maybe we would too or would not), maybe a non-coastal city would give a coastal cities scaling effect, so do not check bCoastalBuilding to avoid overlooking these as chatgpt 5 advised/noted if i understood it correctly -->
 				// --- Naval / Coastal-scaling WW: require a real coastline -----------------
 				// // 1) City-local coastal wonders (benefit tied to THIS city’s water/naval use)
 				// const bool bCoastalLeaningWonder = (
@@ -5708,10 +5708,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					(kBuilding.getGlobalSeaPlotYieldChange(YIELD_PRODUCTION) > 0) ||
 					(kBuilding.getGlobalSeaPlotYieldChange(YIELD_COMMERCE) > 0))
 				);
-				// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if coastal leaning if i understand it correctly but anyways etc -->
+				// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if coastal leaning if i understand it correctly-->
 				if (bCoastalScalingWonder && !bLandUnitsBuilding)
 				{
-					// Flat rule: need at least 3 coastal cities empire-wide <!-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefully overlaps fine or fine enough with this but anyways etc ; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later anyways etc -->.
+					// Flat rule: need at least 3 coastal cities empire-wide <!-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefully overlaps fine or fine enough with this; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later -->.
 					const int iCoastalCities = kOwner.countNumCoastalCities();
 					const int iMinCoastalCitiesCoastalWonder = 3;
 					if (iCoastalCities < iMinCoastalCitiesCoastalWonder)
@@ -5722,8 +5722,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
-				// <!-- custom: as a side effect i mean but anyways etc, may indirectly reduce early spam in favour of betting on a higher unit production late game, where multipliers help more, economy is stronger to sustain it, tech lead higher to not fall behind if we produce a bit more units maybe, and scaling is important to face rivals but anyways etc. It may also indirectly slightly improve early economy and reduce bankruptcy risk / imrpvoe economical performance but anyways etc. If one AI is running away, it may give it an extra lead while rivals build heroic epics, possibly (i guess and happened in autoplay map i tried it on it seems), however if the game is closer, this should improve mid and late game performance and competitiveness of the AI (i think/guess). And if an AI is running away, not sure avoiding the heroic epic would ultimately help prevent that, although a short term patch-up strategy may help salvage things sometimes possibly, but generally i think encouraging AIs to build more often and earlier heroic epics (or whichever wonder in your xml) should generally, in theory help, but i didn't test it too much to be sure, check if accurate anyways etc. -->
+				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such -->
+				// <!-- custom: as a side effect, may indirectly reduce early spam in favour of betting on a higher unit production late game, where multipliers help more, economy is stronger to sustain it, tech lead higher to not fall behind if we produce a bit more units maybe, and scaling is important to face rivals. It may also indirectly slightly improve early economy and reduce bankruptcy risk / imrpvoe economical performance. If one AI is running away, it may give it an extra lead while rivals build heroic epics, possibly (i guess and happened in autoplay map i tried it on it seems), however if the game is closer, this should improve mid and late game performance and competitiveness of the AI (i think/guess). And if an AI is running away, not sure avoiding the heroic epic would ultimately help prevent that, although a short term patch-up strategy may help salvage things sometimes possibly, but generally i think encouraging AIs to build more often and earlier heroic epics (or whichever wonder in your xml) should generally, in theory help, but i didn't test it too much to be sure, check if accurate -->
 				// Short version: I agree with the direction. Earlier HE in the right city usually improves mid-/late-game military tempo and doesn’t hurt runaways (your war/danger caps already prevent self-sabotage). I’d just tone down a couple causal claims in the comment.
 				// What I agree with
 				// 	- Tradeoff is real: a short early tempo dip (hammers into HE) for higher sustained unit throughput later. That’s the key benefit.
@@ -5732,7 +5732,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// 	- Closer games: more AIs placing HE early in real pump cities raises their floor. Net effect: tougher midgame wars.
 				// What I’d soften in the comment
 				// 	- “tech lead higher” and “economy stronger to sustain it” aren’t direct effects of HE; they’re contingent on building fewer early units or getting safer growth windows. I’d state those as may and keep the mechanism explicit: fewer early units → lower upkeep → sometimes more budget for research.
-				// <!-- custom: after testing it ingame, it seems effect is very good and impressive: despite being behind early, we still build an early heroic epic, and stay relevant despite enemy being stronger, until they win, but our empire didnt collapse and bounced back multiple times (they delayed a bit their heroic epics but there are enough among other rivals' empires). I don't know how much randomness influences this, but in this other autoplay map i autoplayed (redundant but anyways etc), it seems to greatly help so left as such, hopefully helps other AIs as well but anyways etc -->
+				// <!-- custom: after testing it ingame, it seems effect is very good and impressive: despite being behind early, we still build an early heroic epic, and stay relevant despite enemy being stronger, until they win, but our empire didnt collapse and bounced back multiple times (they delayed a bit their heroic epics but there are enough among other rivals' empires). I don't know how much randomness influences this, but in this other autoplay map i autoplayed (redundant), it seems to greatly help so left as such, hopefully helps other AIs as well-->
 				if (!bLandUnitsBuilding)
 				{
 					// Don’t invest if we’re about to get rolled
@@ -5768,12 +5768,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: common logic for unhealthiness removing wonders (world + national) anyways etc -->
+			// <!-- custom: common logic for unhealthiness removing wonders (world + national) -->
 			// --- National Park style (skip when already healthy / too small ) -------------
 			// Detect NP by either “no pop unhealthiness”
 			const bool bUnhealthinessReducerWonder = kBuilding.getUnhealthyPopulationModifier() <= -50;
 
-			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that but anyways etc) but anyways etc -->
+			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that)-->
 			if (bUnhealthinessReducerWonder && !bLandUnitsBuilding)
 			{
 				// Don’t do this under pressure
@@ -5782,13 +5782,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					return 0;
 				}
 
-				// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate anyways etc -->
+				// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
 				// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control. It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
 				const int iPopulationRank = findPopulationRank();
 				const bool bTop2Population = (iPopulationRank <= 2);
 
-				// <!-- custom: worth considering the health gains if city is big enough and has enough unhealthiness from population already anyways etc ; also note anyways etc: as clarified to chatgpt 5, this logic is a bit too simplistic in case population doesn't provide enough some unheathiness in some mod or scenairo or such to justify building this, but htis should still be a fine approximation, as high enough pop cities should generally have other sources of unheathiness that may make this a recommendable building to build. As for us not suggesting such here, but making sure we don't build it if not efficient, else let other functions handle that anyways etc -->
-				// <!-- custom: unlikely to have enough gains if we build this in our city size 12 when we have a city size 20 that could build it instead, at least in most cases so go with this anyways etc ; also note: < not <= so if city 3 or city 4 exactly have same pop as city 2 or/and city 1, then build in any as i clarified to chatgpt 5 hehe if i may say but anyways etc, don't reject these cities anyways etc -->
+				// <!-- custom: worth considering the health gains if city is big enough and has enough unhealthiness from population already; also note anyways etc: as clarified to chatgpt 5, this logic is a bit too simplistic in case population doesn't provide enough some unheathiness in some mod or scenairo or such to justify building this, but htis should still be a fine approximation, as high enough pop cities should generally have other sources of unheathiness that may make this a recommendable building to build. As for us not suggesting such here, but making sure we don't build it if not efficient, else let other functions handle that -->
+				// <!-- custom: unlikely to have enough gains if we build this in our city size 12 when we have a city size 20 that could build it instead, at least in most cases so go with this; also note: < not <= so if city 3 or city 4 exactly have same pop as city 2 or/and city 1, then build in any as i clarified to chatgpt 5 hehe, don't reject these cities -->
 				const int iUnhealthinessReducerWonderMinPop = 12;
 				if ((iPop < iUnhealthinessReducerWonderMinPop) || !bTop2Population)
 				{
@@ -5803,7 +5803,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// else: let normal scoring handle it <!-- custom: (don't prioritize here, just make sure we don't build it when inefficient anyways etc) -->
 			}
 
-			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate anyways etc -->
+			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
 			// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control. It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
 			// const bool bTop1Hammer = (iProductionRank == 1);
 			const bool bTop2Hammer = (iProductionRank <= 2);
@@ -5849,43 +5849,43 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 			// const bool bTop2Hammer = (iBaseHammersPerTurn >= iSecondBestHpt);
-			// <!-- custom: note: if we have only one city, second best is 0, handle that as per your own logic depending on what you want to do anyways etc -->
+			// <!-- custom: note: if we have only one city, second best is 0, handle that as per your own logic depending on what you want to do -->
 
-			// <!-- custom: if we have top 1 hammer city at 200 hammers somehow for example, and top 2 city at 90 hammers + top 3 city at 85 hammers, then top 4 city at 84 hammers, then the top 4 city is still good enough, so use the leeway formula of a top as an alternative anyways etc (frees top city for unit production if it is busy or prioritizing doing so or unavailable for some reason or another anyways etc (helps versatiltiy i guess / would say but anyways etc)) -->
+			// <!-- custom: if we have top 1 hammer city at 200 hammers somehow for example, and top 2 city at 90 hammers + top 3 city at 85 hammers, then top 4 city at 84 hammers, then the top 4 city is still good enough, so use the leeway formula of a top as an alternative anyways etc (frees top city for unit production if it is busy or prioritizing doing so or unavailable for some reason or another anyways etc (helps versatiltiy i guess / would say)) -->
 			const int iTopHammerLeeway = 5;
 			// <!-- custom: min percent of top1hammer -->
 			const int iMinPercentOfTop1HammerSlack = 70;
-			// <!-- custom: cover the case where cities are less than iHammerLeeway from best to worst, don't reject good cities if they are just 1-2 hammer apart, use an alternative condition for that case as well anyways etc -->
+			// <!-- custom: cover the case where cities are less than iHammerLeeway from best to worst, don't reject good cities if they are just 1-2 hammer apart, use an alternative condition for that case as well -->
 			// <!-- custom: e.g. if top city is 60 hammers, then our city candidate needs to have at least 60 hammers * 70 / 100  = 42 hammers (i.e. 70% of best hammer city hammers anyways etc) strictly, so at least 43 hammers, which is good enough to replace our best cities if previous fail -->
 			const bool bEnoughHammersVsTop1Hammers = ((iBaseHammersPerTurn * 100) > (iBestHpt * iMinPercentOfTop1HammerSlack));
 			const bool bTop2HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iSecondBestHpt) || bEnoughHammersVsTop1Hammers);
 			const bool bTop3HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iThirdBestHpt) || bEnoughHammersVsTop1Hammers);
 
-			// <!-- custom: for production modifier wonders (e.g city increases by +25% hammer or such but anyways etc), only do so in top cities. Note: could handle other yields but would be tedious and we don't necessarily have too many if at all such wonders -->
+			// <!-- custom: for production modifier wonders (e.g city increases by +25% hammer or such), only do so in top cities. Note: could handle other yields but would be tedious and we don't necessarily have too many if at all such wonders -->
 			const bool bProductionWonder = (
-				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anyways etc -->
-				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think but anyways etc, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences in this case i mean but anyways etc -->
+				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well -->
+				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences -->
 				//kBuilding.isPower() ||                                  // Plant gives power
 				//kBuilding.isAreaCleanPower()
 			);
-			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that but anyways etc) but anyways etc -->
+			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that)-->
 			if (bProductionWonder && !bLandUnitsBuilding)
 			{
-				// <!-- custom: for scaling hammer wonders (world and national anyways etc), pick best or among best hammer cities for best scaling of benefits if i am not mistaken anyways etc -->
+				// <!-- custom: for scaling hammer wonders (world and national anyways etc), pick best or among best hammer cities for best scaling of benefits -->
 				if (!bTop2HammerLeeway)
 				{
 					return 0;
 				}
 			}
 
-			// <!-- custom: note: ideally should handle commerce modifier wonders, but hopefully the hammer minimum requirements filter out most of the cities, still it is possible that a city is low hammer and high gold for example or vice versa, in such case it would be bad to build the wrong of each but anyways etc, but left as is for now if not always or not as bit tedious but anyways etc; there is also a risk they may never be built since we are already restricting enough, hopefully commerce and hammer overlap nicely or nicely enough, else maybe fine all in all considered to leave as such but in all cases anyways etc -->
+			// <!-- custom: note: ideally should handle commerce modifier wonders, but hopefully the hammer minimum requirements filter out most of the cities, still it is possible that a city is low hammer and high gold for example or vice versa, in such case it would be bad to build the wrong of each, but left as is for now if not always or not as bit tedious; there is also a risk they may never be built since we are already restricting enough, hopefully commerce and hammer overlap nicely or nicely enough, else maybe fine all in all considered to leave as such but in all cases -->
 
-			// <!-- custom: note: cultural wonders (world and national) not handled, let AI decide if it wants them or not; may skew too much the balance or gameplay otherwise, and is less code to code (repetition but anyways etc) too if i may say but anyways etc (not that i would mind too much had purpose in this case i mean if i may say but anyways etc) -->
+			// <!-- custom: note: cultural wonders (world and national) not handled, let AI decide if it wants them or not; may skew too much the balance or gameplay otherwise, and is less code to code (repetition) too (not that i would mind too much had purpose in this case i mean) -->
 
 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base anyways etc -->
-				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks but anyways etc.). -->
+				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base -->
+				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
 				static const int iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL");
 				const int iTurnExpansionPhaseAdjusted = (iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL * iGameSpeedMultiplier) / 100;
 				const bool bExpansionPhaseAdjusted = (iElapsedTurns < iTurnExpansionPhaseAdjusted);
@@ -5895,11 +5895,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					return 0;
 				}
 
-				// <!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time anyways etc, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code anyways etc ; note: in autoplay i did notice wonder races, i don't know if far from completing them rivals would attempt them or if it's only for close calls, but adding an extra safety to prevent inefficient ones just in case if i may say but anyways etc -->
+				// <!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time anyways etc, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code; note: in autoplay i did notice wonder races, i don't know if far from completing them rivals would attempt them or if it's only for close calls, but adding an extra safety to prevent inefficient ones just in case -->
 				// “Race pressure” (how many rivals can build it?)
 				// Super-simple "are rivals eligible already?" gate.
 				// If >=3 MET rival teams have the core (AND) tech, assume a hot race and skip.
-				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks but anyways etc.). -->
+				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
 				static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH");
 				if (bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH)
 				{
@@ -5908,7 +5908,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 					if (eAndTech != NO_TECH)
 					{
-						// <!-- custom: to simplify don't check if the or additional prereqs if i am not mistaken in the XML's TechTypes in tech info is/are met or not, check if accurate or is best or satisfying enough and effective enough approach, it was simplest for me to write with chatgpt 5's help hehe and my limited understanding or rather as well knowledge of this if i may say for most in this case i mean but anyways etc -->
+						// <!-- custom: to simplify don't check if the or additional prereqs if i am not mistaken in the XML's TechTypes in tech info is/are met or not, check if accurate or is best or satisfying enough and effective enough approach, it was simplest for me to write with chatgpt 5's help hehe and my limited understanding or rather as well knowledge of this if i may say for most -->
 						int iRivalsWhoCanStart = 0;
 						static const int iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM");
 						// Only teams we've actually met (cheap + avoids false positives)
@@ -5927,16 +5927,16 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: for national wonders, no risk to lose the race, use top 2 or top 3 as base or such depending on if the national wonder is a scaling one or not anyways etc -->
+				// <!-- custom: for national wonders, no risk to lose the race, use top 2 or top 3 as base or such depending on if the national wonder is a scaling one or not -->
 				if (!bTop3HammerLeeway)
 				{
 					return 0;
 				}
 
-				// <!-- custom: military national wonders, in particular heroic epic, etc if any more anyways etc -->
+				// <!-- custom: military national wonders, in particular heroic epic, etc if any more -->
 				if (bLandUnitsBuilding)
 				{
-					// <!-- custom: this is one of the scaling national wonders where we really want top hammer to take best benefits from it if i may say but anyways etc, so use tighter requirement with some leeway but anyways etc -->
+					// <!-- custom: this is one of the scaling national wonders where we really want top hammer to take best benefits from it, so use tighter requirement with some leeway-->
 					if (!bTop2HammerLeeway)
 					{
 						return 0;
@@ -5946,7 +5946,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						if (bTop2Hammer)
 						{
-							// commit when pressing <!-- custom: with a positive nudge to really motivate for it as we expect nice rewards from it anyways etc -->
+							// commit when pressing <!-- custom: with a positive nudge to really motivate for it as we expect nice rewards from it -->
 							return AI_BUILDING_ALWAYS_PICK_FIRST + 1000;
 						}
 					}
@@ -5954,12 +5954,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					// otherwise, let normal scoring decide
 				}
 
-				// --- Government Center (Forbidden Palace <!-- custom: etc if any more anyways etc (as of now versailles is a world wonder and does not even have this effect anymore so not included here if i am not mistaken but anyways etc -->) -----------------------
-				// <!-- custom: cover the one city empire case as chatgpt 5 nicely advised and that i thought of hehe but then forgot xd or/and didn't know how to easily do or forgot to do it but anyways etc thanks; in that case no need to move our government center since we only have one city and are already at government center unless mod mods change the logic/buildings somehow then they should also change this as well if i'm not mistaken but anyways etc -->
+				// --- Government Center (Forbidden Palace <!-- custom: etc if any more anyways etc (as of now versailles is a world wonder and does not even have this effect anymore so not included here -->) -----------------------
+				// <!-- custom: cover the one city empire case as chatgpt 5 nicely advised and that i thought of hehe but then forgot xd or/and didn't know how to easily do or forgot to do itthanks; in that case no need to move our government center since we only have one city and are already at government center unless mod mods change the logic/buildings somehow then they should also change this as well -->
 				if (iNumCities > 1)
 				{
 					const bool bGovCenter = kBuilding.isGovernmentCenter();
-					// <!-- custom: note: this is not the barbarian block so fine if i am not mistaken but check to be sure anyways etc -->
+					// <!-- custom: note: this is not the barbarian block so fine if i am not mistaken but check to be sure -->
 					static const BuildingClassTypes eBuildingClassPalace = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME"));
 					const bool bPalaceBuildingClass = (eBuildingClass == eBuildingClassPalace);
 
@@ -5974,7 +5974,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							{
 								return 0;
 							}
-							// <!-- custom: note since chatgpt 5 asks about it many times: the code seems to not/never at least sometimes not check for null here so we don't, no need to complicate in this case, if there is an error they'll run into it as well, if not fine, and we don't risk causing any weird behavioru as such maybe anyways etc -->
+							// <!-- custom: note since chatgpt 5 asks about it many times: the code seems to not/never at least sometimes not check for null here so we don't, no need to complicate in this case, if there is an error they'll run into it as well, if not fine, and we don't risk causing any weird behavioru as such maybe -->
 							// don’t drop it in the capital; almost no benefit
 							if (isCapital())
 							{
@@ -5986,7 +5986,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 								return 0;
 							}
 
-							// <!-- custom: save computation by computing this only when/where we need it, as of now only in this block, anyways etc -->
+							// <!-- custom: save computation by computing this only when/where we need it, as of now only in this block -->
 							// Yep—smartest path is to compute heavy stuff only when a candidate actually needs it, and only for the duration of the single AI_buildingValue call (no cross-call cache).
 							// Minimal patch sketch (lazy, per-call only)
 							// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
@@ -6032,17 +6032,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 							if (iNumCitiesHighM100 > iMinNumCitiesHighM100)
 							{
-								// <!-- custom: don't build in highest hammer cities, they may already be low maintenance so no need especially if capital, build instead in highest maintenance city anyways etc -->
-								// <!-- custom: note: capital not in these checks as should be naturally excluded due to having lowest maintenance but just in case, and also as advised by chatgpt 5 as well, we could have handled mods reverting logic (e.g. capital causing higher costs) but maybe tedious, so i hope if some mod someday is based on ours and somehow implements this, they remember to change building picking logic or rather pre-picking logic if i may say but anyways etc -->
+								// <!-- custom: don't build in highest hammer cities, they may already be low maintenance so no need especially if capital, build instead in highest maintenance city -->
+								// <!-- custom: note: capital not in these checks as should be naturally excluded due to having lowest maintenance but just in case, and also as advised by chatgpt 5 as well, we could have handled mods reverting logic (e.g. capital causing higher costs) but maybe tedious, so i hope if some mod someday is based on ours and somehow implements this, they remember to change building picking logic or rather pre-picking logic -->
 								if (iMaintenanceTimes100 >= iSecondBestM100)
 								{
-									// <!-- custom: small negative nudge as tie breaker as this is a long to build building (redundant word but anyways etc) -->
+									// <!-- custom: small negative nudge as tie breaker as this is a long to build building (redundant word) -->
 									return AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
 								}
 							}
 						}
 					}
-					// <!-- custom: palace moving logic: if a city has >= 1.5x base hammers per turn or >= 1.5x base beakers per turn, we should maybe move our palace there, but there is a risk of oscillation if city A is higher hammer while city B is higher beaker, so require both conditions rather. To begin with if i may say but anyways etc, capital locations are gnerally very good, and if not as of now we told AI settlers to move to a better location even if takes several turns, so the new capital needs to be significantly better on both ends, else probably not so worth it to move anyway (considering the cost of such as well and possible unintended consequences but anyways etc) -->
+					// <!-- custom: palace moving logic: if a city has >= 1.5x base hammers per turn or >= 1.5x base beakers per turn, we should maybe move our palace there, but there is a risk of oscillation if city A is higher hammer while city B is higher beaker, so require both conditions rather. To begin with, capital locations are gnerally very good, and if not as of now we told AI settlers to move to a better location even if takes several turns, so the new capital needs to be significantly better on both ends, else probably not so worth it to move anyway (considering the cost of such as well and possible unintended consequences) -->
 					else
 					{
 						if (bAtWar || bWarPlan || bDanger || bEnemyStrong)
@@ -6050,7 +6050,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							return 0; // don’t mess with this under pressure
 						}
 
-						// <!-- custom: don't build palace too early, focus on early invasion or growth rather ; also it should be way faster to build later, use the hammer early for something else anyways etc -->
+						// <!-- custom: don't build palace too early, focus on early invasion or growth rather; also it should be way faster to build later, use the hammer early for something else -->
 						// Early window (scaled to speed)
 						const int iEarlyTurnsPalaceNormal = 100; // @Normal
 						const int iEarlyTurnsPalaceAdjusted = iEarlyTurnsPalaceNormal * iGameSpeedMultiplier / 100;
@@ -6081,7 +6081,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 								}
 								else
 								{
-									// Gentle <!-- custom: negative anyways etc --> nudge so it can win ties without steamrolling urgent stuff
+									// Gentle <!-- custom: negative --> nudge so it can win ties without steamrolling urgent stuff
 									return AI_BUILDING_ALWAYS_PICK_FIRST - 500;
 								}
 							}
@@ -6089,16 +6089,16 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					}
 				}
 
-				// <!-- custom: note: ironworks like buildings (bonus based production modifiers) already handled as part of the generic all wonders (world + national) production modifier calculation as of now above in the common wonder scope/block anyways etc -->
-				// <!-- custom: note 2 anyways etc: same for national park anyways etc so not handled here see before/above anyways etc -->
+				// <!-- custom: note: ironworks like buildings (bonus based production modifiers) already handled as part of the generic all wonders (world + national) production modifier calculation as of now above in the common wonder scope/block -->
+				// <!-- custom: note 2 anyways etc: same for national park anyways etc so not handled here see before/above -->
 			}
 			// <!-- custom: if we somehow still don't know what this unidentified building is, not a normal building that is not a world wonder nor a national wonder, nor a world wonder, nor a national wonder, and somehow still have to decide about this unidentified building, then proceed with base war heuristics just in case i.e. to not build it if in danger or and such, i don't think we should ever land here or extremely rarely if at all, but just in case; i may be mistaken about the need for this as i don't know too much about these, check if accurate. -->
 			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such anyways etc. -->
+				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness anyways etc. Chatgpt 5 also suggests this or something similar so doing as such -->
 				if (!bLandUnitsBuilding)
 				{
-					// <!-- custom: fallback to war heuristics general checks otherwise anyways etc -->
+					// <!-- custom: fallback to war heuristics general checks otherwise -->
 					if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
 					{
 						return 0;
@@ -6106,7 +6106,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 				else
 				{
-					// <!-- custom: this code should never be reached if i'm not mistaken, i think i mean but anyways etc, but just in case but anyways etc -->
+					// <!-- custom: this code should never be reached if i'm not mistaken, i think, but just in case-->
 					if (bAtWar || bDanger)
 					{
 						return 0;
@@ -6137,7 +6137,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	bool const bHighProductionCity = (iProductionRank <=
 			std::max(3, iNumCities / 2));
 
-	// <!-- custom: renamed iCultureRank to iCultureRateRank for consistency with other variables in this function anyways etc -->
+	// <!-- custom: renamed iCultureRank to iCultureRateRank for consistency with other variables in this function -->
 	const int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
 	// <!-- custom: performance optimizations -->
 	const int iGoldRateRank = findCommerceRateRank(COMMERCE_GOLD);
@@ -6227,15 +6227,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 	bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
 	int const iHasMetCount = kTeam.getHasMetCivCount(true);
-	// <!-- custom: end of moved block anyways etc -->
+	// <!-- custom: end of moved block -->
 
 	// Reduce reaction to temporary happy/health problems
 	// K-Mod
 	int const iHappinessLevel = iHappinessSurplus + getEspionageHappinessCounter()/2 - getMilitaryHappiness()/2;
 	// K-Mod end
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 	int iValue = 0;
@@ -7005,7 +7005,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					/*  It's hard to measure an instant boost with units of
 						commerce per turn... So I'm just going to divide it by
 						(k146) ~12.5, scaled by game speed */
-					// <!-- custom: use cached kGame for performance optimization or/and such if i am not mistaken i mean but anyways etc. -->
+					// <!-- custom: use cached kGame for performance optimization or/and such if i am not mistaken i mean -->
 					iValue += iTechValue * 8 / GC.getInfo(kGame.getGameSpeedType()).
 							getResearchPercent();
 				}
@@ -7137,7 +7137,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					if (kLoopBuilding.isBuildingClassNeededInCity(eBuildingClass) &&
 						getNumBuilding(eBuilding) == 0 && iPrereqBuildings <= 0)
 					{
-						// <!-- custom: also cache later calls in this function for performance optimization or/and clarity or/and such if i am not mistaken i mean but anyways etc. -->
+						// <!-- custom: also cache later calls in this function for performance optimization or/and clarity or/and such if i am not mistaken i mean -->
 						const int iLoopXMLCost = kLoopBuilding.getProductionCost(); // XML base cost (unscaled)
 
 						if (iXMLCost > 0 &&
@@ -8056,7 +8056,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							kBuilding.getGlobalCorporationCommerce());
 					if (iExpectedSpread > 0)
 					{
-						// <!-- custom: note: be careful, this is from another loop so increment variable name and redefine it as a new variable if i'm not mistaken in my thinking but anyways etc -->
+						// <!-- custom: note: be careful, this is from another loop so increment variable name and redefine it as a new variable if i'm not mistaken in my thinking-->
 						const int iLoopCommerceRateRank2 = findCommerceRateRank(eLoopCommerce);
 						FOR_EACH_ENUM(Commerce)
 						{
@@ -8370,7 +8370,7 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
 	bool bAreaAlone, bool bWarPlan, int iNumCities, int iNumCitiesInArea,
 	bool bRemove, bool bObsolete) const
 {
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 	
 	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
@@ -8506,7 +8506,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 		return NO_PROJECT;
 	// </advc.014>
 
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
@@ -8656,7 +8656,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam());
 	CvProjectInfo const& kProject = GC.getInfo(eProject);
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	int iValue = 0;
@@ -9058,7 +9058,7 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
 }
 
 
-// <!-- custom: currently we produce a few more workboats than we need (and workers a bit too but that's another issue if i may say but anyways etc), we need to check how much water bonuses are unimproved in our cultural borders (for the health or such we gain even if not in city radius, but careful to not overlap with other cities too but anyways etc), and among them how much are within reach (e.g. ocean fish not until tech_astronomy as of now if i'm not mistaken anyways etc, but coast fish at tech_fishing can be improved (and already reachable before or if not very soon if i'm not mistaken but anyways etc)). Count only the workboats we need right now, not all workboats we'll need when we can navigate ocean and whatnot i mean if i am not mistaken but anyways etc ; fixed with chatgpt 5's help and my prompts and ideas too of feeding it code sample of other functions listed here or not but anyways etc, check to be sure if accurate anyways etc -->
+// <!-- custom: currently we produce a few more workboats than we need (and workers a bit too but that's another issue), we need to check how much water bonuses are unimproved in our cultural borders (for the health or such we gain even if not in city radius, but careful to not overlap with other cities too), and among them how much are within reach (e.g. ocean fish not until tech_astronomy as of now if i'm not mistaken anyways etc, but coast fish at tech_fishing can be improved (and already reachable before or if not very soon)). Count only the workboats we need right now, not all workboats we'll need when we can navigate ocean and whatnot i mean if i am not mistaken; fixed with chatgpt 5's help and my prompts and ideas too of feeding it code sample of other functions listed here or not, check to be sure if accurate -->
 int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 {
 	int iNeededSeaWorkers = 0;
@@ -9082,7 +9082,7 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 		return iNeededSeaWorkers;
 	} // </advc.305>
 
-	// <!-- custom: info by chatgpt 5, check if accurate anyways etc, replace old values in the code below from 5 to 0 and refactor a bit to make it a iLookAhead variable and such if any other change but anyways etc ; udpate: i showed AI_isUnimprovedBonus 's code and this function's code to claude ai as well which agrees with it if my understanding of it is not mistaken, so changing it from 5 to 0 as they both advise and see, we now have 1 extra workboat in city to ideally avoid producing anyways etc, check if accurate still though their / these AIs info i mean (or my observation maybe too but anyways etc...) but anyways etc -->
+	// <!-- custom: info by chatgpt 5, check if accurate anyways etc, replace old values in the code below from 5 to 0 and refactor a bit to make it a iLookAhead variable and such if any other change; udpate: i showed AI_isUnimprovedBonus 's code and this function's code to claude ai as well which agrees with it if my understanding of it is not mistaken, so changing it from 5 to 0 as they both advise and see, we now have 1 extra workboat in city to ideally avoid producing anyways etc, check if accurate still though their / these AIs info i mean (or my observation maybe too)-->
 	// Key detail: AI_countUnimprovedBonuses(..., iLookAhead) uses AI_isUnimprovedBonus which, when iLookAhead > 0, sets bCheckPath = false and calls canBuild(..., /*bTestVisible=*/true, ...). That ignores tech/prereqs and pathing (used for UI “you’ll be able to later” style checks). That’s why you were getting boats for ocean whales you can’t reach yet.
 	// So the minimal, C++03-safe fix is just: stop looking ahead. Pass 0 instead of 5 in both calls. That makes it count only bonuses that are owned, reachable (path exists), and buildable now (tech/prereqs satisfied).
 	// If you still want a touch of lookahead (e.g., first ring pop only), use 1 instead of 0, but be aware that any positive value switches canBuild into “testVisible” mode and will again allow some future-tech tiles to sneak in. So for strict “buildable now”, 0 is the correct value.
@@ -9090,7 +9090,7 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 	// Yep—switching iLookAhead to 0 still counts all owned tiles in the same water area, not just the city’s workable radius
 	// <!-- custom: etc skip explanation until this anyways etc: -->
 	// So: coast fish that are already inside your borders (even if outside the city radius) will be counted and get boats. Fish in the ocean ring you don’t own yet won’t be counted until borders/tech make them actually buildable—which is exactly the behavior you wanted.
-	// <!-- custom: setting it to 0, no more excess workboats in (some but anyways etc) cities yay! Or at least less it seems as some cities still have, but i hope this helps AI be more efficient with its production if i am not mistaken, but check to be sure, anyways etc. -->
+	// <!-- custom: setting it to 0, no more excess workboats in (some) cities yay! Or at least less it seems as some cities still have, but i hope this helps AI be more efficient with its production if i am not mistaken, but check to be sure. -->
 	const int iLookAhead = 0;
 
 	// BETTER_BTS_AI_MOD, Worker AI, 01/01/09, jdog5000: START
@@ -9307,7 +9307,7 @@ int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac,
 
 int CvCityAI::AI_minDefenders() const
 {
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	/*	advc: Could afford to check CvPlayerAI::AI_feelsSafe here and
@@ -9344,12 +9344,12 @@ int CvCityAI::AI_minDefenders() const
 		iDefenders++;
 	}
 
-	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose anyways etc ; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig but anyways etc ; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that? Although we could lose the benefit of it better guarding cities possibly maybe but anyways etc, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses but anyways etc, chatgpt 5 said it's also fine, check if accurate to be sure anyways etc -->
+	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that? Although we could lose the benefit of it better guarding cities possibly maybe, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses, chatgpt 5 said it's also fine, check if accurate to be sure -->
 	const int iMaxTurnDefendWeakerCitiesHarderNormal = 120;
 	const int iMaxTurnDefendWeakerCitiesHarderAdjusted = (iMaxTurnDefendWeakerCitiesHarderNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent()) / 100;
 	if (kGame.getElapsedGameTurns() <= iMaxTurnDefendWeakerCitiesHarderAdjusted)
 	{
-		// <!-- custom: not sure how exactly this works or effective it is, but in autoplay it doesn't seem worse at least, maybe even a bit better although may be fluctuation so kept as such, code provided thanks to chatgpt 5 also too anyways etc and my prompts too but anyways etc, as for its notes/explaantions check if accurate, and thanks for them too if i may say in this case but anyways etc ; see known issue as of now 49 for details anyways etc -->
+		// <!-- custom: not sure how exactly this works or effective it is, but in autoplay it doesn't seem worse at least, maybe even a bit better although may be fluctuation so kept as such, code provided thanks to chatgpt 5 also too anyways etc and my prompts too, as for its notes/explaantions check if accurate, and thanks for them too if i may say in this case; see known issue as of now 49 for details -->
 		// It raises the need only where it actually helps, so overstocked cities feel a pull from frontier/new cities.
 		// --- Early anti-barb buffer: conditional 3rd defender where it matters ---
 		if (!kGame.isOption(GAMEOPTION_NO_BARBARIANS))
@@ -9380,7 +9380,7 @@ int CvCityAI::AI_neededFloatingDefenders(/* <advc.139> */ bool bIgnoreEvac,
 	if(!bIgnoreEvac && AI_isEvacuating())
 		return 0; // </advc.139>
 
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	int iR = m_iNeededFloatingDefenders;
@@ -9395,7 +9395,7 @@ int CvCityAI::AI_neededFloatingDefenders(/* <advc.139> */ bool bIgnoreEvac,
 int CvCityAI::AI_calculateNeededFloatingDefenders(bool bConstCache,
 	bool bIgnoreCulture) const // advc.099c
 {
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
@@ -9582,7 +9582,7 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 	// Only bail if they can take the city in one turn or almost
 	if (iAttackers + 1 >= iDefenders)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iAIEvacuationThresh = GC.getDefineINT("AI_EVACUATION_THRESH");
 
 		static scaled const rAI_EVACUATION_THRESH = per100(
@@ -9614,12 +9614,12 @@ int CvCityAI::AI_culturePressureFactor() const
 	int iAnswer = 0;
 	const int iDivisor = 60;
 
-	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
+	// <!-- custom: very nice optimization with the help of chatgpt 5 -->
 	// Inside the nested player/plot loop, pull PlayerTypes eOwner = getOwner(); TeamTypes eTeam = getTeam(); once outside the loops, and reuse int ourPlotCulture = kPlot.getCulture(eOwner); inside—then you do one getCulture per rival instead of two per rival. It’s minor, but this is an O(numTiles × numPlayers) routine.
 	const PlayerTypes eOwner = getOwner();
 	const TeamTypes eTeam = getTeam();
 
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	for (CityPlotIter itPlot(*this); itPlot.hasNext(); ++itPlot)
@@ -9628,7 +9628,7 @@ int CvCityAI::AI_culturePressureFactor() const
 		if (!kPlot.isWithinCultureRange(eOwner))
 			continue;
 
-		// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
+		// <!-- custom: very nice optimization with the help of chatgpt 5 -->
 		const int ourPlotCulture = kPlot.getCulture(eOwner);
 
 		for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eTeam); it.hasNext(); ++it)
@@ -9826,7 +9826,7 @@ int CvCityAI::AI_totalBestBuildValue(CvArea const& kArea) /* advc:  */ const
 
 int CvCityAI::AI_clearFeatureValue(CityPlotTypes ePlot) const
 {
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	CvPlot const& kPlot = *plotCity(getX(), getY(), ePlot);
@@ -10333,21 +10333,21 @@ namespace
 	}
 }
 
-// <!-- custom: update: disabling it entirely throws off workboats that use this too, then they stay parked in city, so updated this to disable it functionally only for land workers as we want them to use our optimized AI worker logic, but as for sea workers, fine if they do as such as long as works-functions anyways etc ; added thanks to claude ai and my prompt too etc anyways etc -->
-// <!-- custom: since we handle all this ourselves now in CvUnitAI::AI_bestCityBuild, we don't want any interference, disabled as part of trying to solve spices plains forcibly irrigated despite our code controlling most of the ai worker build decisions now, as well as flood plains or flatland grass as well very inefficiently farmed when city is not even starved, let us handle it ourselves rather there as we seem to already do for most but anyways etc, added by chatgpt o3 anyways etc and adjusted or not or yes or etc by me too if i may say but anyways etc ; update: this solved the farm on spices plains issue and also unwanted as well farm on flood plains, AI workers chose to go for production economy for some reason xd, but our best improvements are still chosen reliably it seems (e.g. cottage on flood plains or nothing unless we are starved, see CvUnitAI::AI_bestCityBuild for details anyways etc) -->
+// <!-- custom: update: disabling it entirely throws off workboats that use this too, then they stay parked in city, so updated this to disable it functionally only for land workers as we want them to use our optimized AI worker logic, but as for sea workers, fine if they do as such as long as works-functions; added thanks to claude ai and my prompt too etc -->
+// <!-- custom: since we handle all this ourselves now in CvUnitAI::AI_bestCityBuild, we don't want any interference, disabled as part of trying to solve spices plains forcibly irrigated despite our code controlling most of the ai worker build decisions now, as well as flood plains or flatland grass as well very inefficiently farmed when city is not even starved, let us handle it ourselves rather there as we seem to already do for most, added by chatgpt o3 anyways etc and adjusted or not or yes or etc by me too; update: this solved the farm on spices plains issue and also unwanted as well farm on flood plains, AI workers chose to go for production economy for some reason xd, but our best improvements are still chosen reliably it seems (e.g. cottage on flood plains or nothing unless we are starved, see CvUnitAI::AI_bestCityBuild for details anyways etc) -->
 // advc (note): K-Mod function based on AI_updateBestBuild
 int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement,
 	int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange,
 	int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
 {
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
-	// <!-- custom: add this as a conditional early exit check for land plots only rather anyways etc, this also saves computing power by not using it for land plots which are most if i am not mistaken while not removing it for water units that use/need it it seems but anyways etc -->
+	// <!-- custom: add this as a conditional early exit check for land plots only rather anyways etc, this also saves computing power by not using it for land plots which are most if i am not mistaken while not removing it for water units that use/need it it seems-->
 	if (!kPlot.isWater())
 	{
 		// This is a land plot - disable the vanilla evaluator for land workers
@@ -11758,7 +11758,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 		eBestUnit = AI_bestUnitAI(eUnitAI);
 	else eBestUnit = AI_bestUnit(false, NO_ADVISOR, &eUnitAI);
 
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	if (eBestUnit != NO_UNIT)
@@ -11783,7 +11783,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			(250 * getUnitProduction(eBestUnit)) /
 			std::max(1, getProductionNeeded(eBestUnit)))) // K-Mod end
 		{
-			// <!-- custom: avoid redundance, call same function instead anyways etc, also so we can tweak it there only once, much cleaner anyways etc ; also note: chatgpt 5 recommeneded to add a return here (i.e. in next code, not comment, line as of now below anyways etc), i thought it was not necessary, but maybe chatgpt 5 is right and i don't know too much about these, check if accurate anyways etc -->
+			// <!-- custom: avoid redundance, call same function instead anyways etc, also so we can tweak it there only once, much cleaner; also note: chatgpt 5 recommeneded to add a return here (i.e. in next code, not comment, line as of now below anyways etc), i thought it was not necessary, but maybe chatgpt 5 is right and i don't know too much about these, check if accurate -->
 			// pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
 			// return true;
 			// Funnel through the (UnitTypes, UnitAITypes) overload and propagate success/failure.
@@ -11798,9 +11798,9 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 {
 	if (eUnit != NO_UNIT)
 	{
-		// <!-- custom: see known issue 53.2.2 for related info or/and related code in this function on why we'd want to change unit here but anyways etc -->
+		// <!-- custom: see known issue 53.2.2 for related info or/and related code in this function on why we'd want to change unit here-->
 		// Try to pick a concrete offensive alternative and COMMIT to it
-		// <!-- custom: also make a copy of our unit right now so we don't have to recheck everytime later if we changed it or not anyways etc -->
+		// <!-- custom: also make a copy of our unit right now so we don't have to recheck everytime later if we changed it or not -->
 		UnitTypes   eChangedUnit   = eUnit;
 		UnitAITypes eChangedUnitAI = eUnitAI;
 
@@ -11808,30 +11808,30 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 		if (bSAS_AI_CHOOSE_UNIT_OPTIMIZE)
 		{
-			// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anyways etc), check if accurate anyways etc -->
+			// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anyways etc), check if accurate -->
 			// CvUnitInfo& kUnitInfo = GC.getInfo(eChangedUnit);
 			const CvUnitInfo* pUnitInfo = &GC.getInfo(eChangedUnit);
-			// <!-- custom: info below by chatgpt 5 for reminder, check if accurate anyways etc -->
+			// <!-- custom: info below by chatgpt 5 for reminder, check if accurate -->
 			// Cheatsheet:
 			// T& = reference (alias, cannot be reseated).
 			// T* = pointer (can be reseated; use -> to access).
 			// &expr = address-of operator (produces a pointer).
 
-			// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well but anyways etc))) but just in case anyways etc -->
+			// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well))) but just in case -->
 			CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
 			// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 			CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam()); // kekm.16
 
-			// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+			// <!-- custom: performance optimization: cache repetitive calls -->
 			CvGame const& kGame = GC.getGame();
 
 			const bool bBarbarian = kPlayer.isBarbarian();
 
-			// <!-- custom: note: all values here are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
+			// <!-- custom: note: all values here are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them -->
 			if (!bBarbarian)
 			{
 				const EraTypes eCurrentEra = kPlayer.getCurrentEra();
-				// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+				// <!-- custom: as of now eras are (see xml for details or/and updated version -->
 				// 18,5: 			<Type>ERA_ANCIENT</Type>
 				// 79,5: 			<Type>ERA_CLASSICAL</Type>
 				// 154,5: 			<Type>ERA_MEDIEVAL</Type>
@@ -11839,12 +11839,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
 				// 401,5: 			<Type>ERA_MODERN</Type>
 				// 477,5: 			<Type>ERA_FUTURE</Type>
-				// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
+				// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure -->
 				// cache once; uses hidden-assert overload if available in your DLL
-				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 
-				// <!-- custom: added as recommended by chatgpt 5; as of now untested assert anyways etc. -->
+				// <!-- custom: added as recommended by chatgpt 5; as of now untested assert -->
 				FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
 
 				const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
@@ -11856,16 +11856,16 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				static const int iERA_RENAISSANCE  = static_cast<int>(eERA_RENAISSANCE);
 
 				// Situation read
-				// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+				// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
 				bool const bWarPlan = kPlayer.AI_isFocusWar();
 				bool const bDanger = AI_isDanger();
-				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
 				const bool bAtWar = (kTeam.getNumWars() > 0);
 				const int iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 				static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 				const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
-				// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
-				// <!-- custom: update: to be sure i asked chatgpt 5 again about this while implementing known issue as of now 53.3 but anyways etc's related fixes and/or tweaks but anyways etc, if iEnemyPowerPercent is valid/relaible if at peace or if we have an unreliable 0 making us misleadedly think that you potentially strong rivals are very weak, or how it works, here is what it replied (i edited and formatted it a bit but is mostly the same otherwise anyways etc) when fed the code sample, check if accurate anyways etc -->
+				// <!-- custom: note: if i remember it correctly, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such -->
+				// <!-- custom: update: to be sure i asked chatgpt 5 again about this while implementing known issue as of now 53.3's related fixes and/or tweaks, if iEnemyPowerPercent is valid/relaible if at peace or if we have an unreliable 0 making us misleadedly think that you potentially strong rivals are very weak, or how it works, here is what it replied (i edited and formatted it a bit but is mostly the same otherwise anyways etc) when fed the code sample, check if accurate -->
 				// Short answer: it’s solid during war or when a war is already “chosen”, but it’s not meaningful in generic peacetime.
 				//
 				// Why:
@@ -11887,12 +11887,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
 				static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 				//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
-				// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
+				// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
 				const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
 
 				const int iNumCities = kPlayer.getNumCities();
 
-				// <!-- custom: trim excess trebuchet and siege unit orders when not relevant (not attacking cities for trebuchets, being weaker, etc; defending cities for siege units in general which AIs with catapults don't do well i think but anyways etc), as AI produces way too much of them especially when not relevant and detrimental to it, see known issue as of now 53.3 for details anyways etc -->
+				// <!-- custom: trim excess trebuchet and siege unit orders when not relevant (not attacking cities for trebuchets, being weaker, etc; defending cities for siege units in general which AIs with catapults don't do well i think), as AI produces way too much of them especially when not relevant and detrimental to it, see known issue as of now 53.3 for details -->
 				static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
 
 				const bool bUnitCombatSiege = (pUnitInfo->getUnitCombatType() == eUnitCombatSiege);
@@ -11923,12 +11923,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					{
 						int iCapTrebs = 20;
 
-						// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
+						// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant -->
 						if (bAtWar && bEnemyStrong)
 						{
 							return false; // don’t add more narrow-purpose siege when not stronger
 						}
-						// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
+						// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met) but i didn't check, check if accurate -->
 						if (bDanger)
 						{
 							return false; // don’t add more narrow-purpose siege when not stronger
@@ -11937,7 +11937,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						{
 							iCapTrebs = 15;
 						}
-						// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
+						// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units -->
 						if (bEnemyStrong)
 						{
 							return false;
@@ -11945,7 +11945,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (!bRenaissancePlus)
 						{
-							// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
+							// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities, so save some computation if we can; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean)-->
 							const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
 
 							if (!bHaveAnyKeyEarlyStrategicBonuses)
@@ -11954,7 +11954,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							}
 						}
 
-						// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
+						// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility -->
 						static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP");
 
 
@@ -11968,12 +11968,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 					if (bNoExcessSiegesAll)
 					{
-						// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
+						// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits -->
 						// Simple caps:
 						int iCapSiegesAll;
 						int iTotalMainUnits;
 
-						// <!-- custom: a few catapults are a valid alternative if we have nothing else to build but longbows, these can help our rush or versatility, just don't overdo it anyways etc -->
+						// <!-- custom: a few catapults are a valid alternative if we have nothing else to build but longbows, these can help our rush or versatility, just don't overdo it -->
 						if (!bRenaissancePlus)
 						{
 							iCapSiegesAll = 40;
@@ -11985,10 +11985,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							}
 							if (bDanger)
 							{
-								iCapSiegesAll = 10; // <!-- custom: avoid adding too much but anyways etc --> narrow-purpose siege when not stronger
+								iCapSiegesAll = 10; // <!-- custom: avoid adding too much--> narrow-purpose siege when not stronger
 							}
 
-							// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
+							// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities, so save some computation if we can; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean)-->
 							const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
 
 							if (!bHaveAnyKeyEarlyStrategicBonuses)
@@ -11996,10 +11996,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								iCapSiegesAll += (iCapSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
 							}
 
-							// <!-- custom: pre renaissance, be wary to not overproduce siege, they are not useful at defense for AIs if i am not mistaken anyways etc -->
+							// <!-- custom: pre renaissance, be wary to not overproduce siege, they are not useful at defense for AIs -->
 							iTotalMainUnits = iMainAttackers;
 						}
-						// <!-- custom: cannons are strong enough to not limit them so heavily, sometimes they may be our only option except from pikemen if we don't have muskets yet, and pikemen are useless against cuirassiers units, so definitely go for cannon more aggressively or generously if i may say but anyways etc -->
+						// <!-- custom: cannons are strong enough to not limit them so heavily, sometimes they may be our only option except from pikemen if we don't have muskets yet, and pikemen are useless against cuirassiers units, so definitely go for cannon more aggressively or generously -->
 						else
 						{
 							iCapSiegesAll = 60;
@@ -12019,8 +12019,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
-				// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
-				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+				// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure, and if -> else if -> else is preferable anyway for clarity and/or performance as well) -->
+				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think) -->
 				bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
 				bool bNavalHeavyMapname = false;
 				if (!bLandHeavyMapname)
@@ -12030,7 +12030,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 				// Early-game window (scaled by game speed TrainPercent)
 				const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
-				// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
+				// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die -->
 				// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
 				static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
 				const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
@@ -12039,7 +12039,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 				if (bEarly)
 				{
-					// <!-- custom: does not include UNITAI_CITY_COUNTER so we make sure we have enough pure defenders per city on average anyways etc -->
+					// <!-- custom: does not include UNITAI_CITY_COUNTER so we make sure we have enough pure defenders per city on average -->
 					const bool bStrictLandDefenderUnitAI = (
 						(eChangedUnitAI == UNITAI_CITY_DEFENSE) ||
 						(eChangedUnitAI == UNITAI_CITY_SPECIAL) ||
@@ -12051,30 +12051,30 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					if (bStrictLandDefenderUnitAI && bNoExcessStrictDefendersUnitAIs)
 					{
 						// 2) Don’t starve defenders if there’s immediate danger
-						// <!-- custom: update: the unitai swap to unitai_counter is not working anymore ingame it seems, so make it less strict to see if solves anyways etc -->
+						// <!-- custom: update: the unitai swap to unitai_counter is not working anymore ingame it seems, so make it less strict to see if solves -->
 						// if (!bDanger && !(bAtWar && bEnemyStrong))
 						if (!(bAtWar && bEnemyStrong))
 						{
-							// // <!-- custom: be careful to not be to aggressive, i had tried 25 and it seems we have too many longbowmen converted to counter, for an AI that had enough cities, make sure this is aggressive enough so AIs switch to offense units more, but not too much so that it would make a regularly defended and expanded AI grow thin due to going attack if i am not mistaken but anyways etc (especially considering this steals from our real defenders sohandle with caution, and mostly for AIs likely to have few cities, and thus many extra defenders to convert from if i am not mistaken but anyways etc) -->
+							// // <!-- custom: be careful to not be to aggressive, i had tried 25 and it seems we have too many longbowmen converted to counter, for an AI that had enough cities, make sure this is aggressive enough so AIs switch to offense units more, but not too much so that it would make a regularly defended and expanded AI grow thin due to going attack if i am not mistaken(especially considering this steals from our real defenders sohandle with caution, and mostly for AIs likely to have few cities, and thus many extra defenders to convert from) -->
 							// // 1) “Lagging expansion”: ~1 city per 30 turns (scaled the same way)
 							// const int iTurnsPerCity = std::max(1, (30 * iTrainPct) / 100);
 							// const int iExpectedCities = std::max(1, iCurrentTurn / iTurnsPerCity);
 							// const bool bLaggingBehindNumCities = (iNumCities < iExpectedCities);
-							// <!-- custom: update: what matters is not that we are lagging behind, but whether we are overall strong and have met unit requriements to defend cities, which is generally the case when we have less cities than our rivals, so more units per city generally. However sometimes we have both many cities, but also many cities if we get a very good run. In such cases, the same logic of not overdefending early applies, although we should be bit more concerned about not losing our empire and consolidating it rather, still, if somehow we are much stronger than our rivals, it is useless to over defend, as happened in known issue as of now 53.2.2 in autoplay anyways etc. In that case, favour offense more, after all offensive units can defend as well if we are attacked, and generally offense is defense, so we are not too likely to be targeted if we are strong, as human players would do perhaps in some games as well and not overbuild longbows for example especially at higher difficulties where it would most likely cause us to lose the game due to handicap setting penalties especially if not in advciv-sas as their penalties are harsher generally. Still, in our mod we'd want AI to react well to overproduction of defensive units, and block it before it happens in this case i mean but anyways etc, so add this logic regardless of if we are lagging behind in cities or not, purpose is the same, see known issue as of now 53.2.2 for details or/and related info anyways etc -->
+							// <!-- custom: update: what matters is not that we are lagging behind, but whether we are overall strong and have met unit requriements to defend cities, which is generally the case when we have less cities than our rivals, so more units per city generally. However sometimes we have both many cities, but also many cities if we get a very good run. In such cases, the same logic of not overdefending early applies, although we should be bit more concerned about not losing our empire and consolidating it rather, still, if somehow we are much stronger than our rivals, it is useless to over defend, as happened in known issue as of now 53.2.2 in autoplay anyways etc. In that case, favour offense more, after all offensive units can defend as well if we are attacked, and generally offense is defense, so we are not too likely to be targeted if we are strong, as human players would do perhaps in some games as well and not overbuild longbows for example especially at higher difficulties where it would most likely cause us to lose the game due to handicap setting penalties especially if not in advciv-sas as their penalties are harsher generally. Still, in our mod we'd want AI to react well to overproduction of defensive units, and block it before it happens, so add this logic regardless of if we are lagging behind in cities or not, purpose is the same, see known issue as of now 53.2.2 for details or/and related info -->
 
 							static const int iEarlyTurnNoNeedYetExtraDefendersNormal = 100;
 							const int iEarlyNoNeedYetCutoff = (iEarlyTurnNoNeedYetExtraDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
 							const bool bEarlyNoNeedYetExtraDefenders = (iCurrentTurn <= iEarlyNoNeedYetCutoff);
 
-							// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
-							// cap = 2 …then +1 at ~T100, <!-- custom: may need, as of now removed but anyways etc: --> +1 at ~T150 (and you can add ~T200 too)
+							// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early -->
+							// cap = 2 …then +1 at ~T100, <!-- custom: may need, as of now removed: --> +1 at ~T150 (and you can add ~T200 too)
 							int iMaxDefendersPerCityEarlyAdjusted = 2;
 							if (!bEarlyNoNeedYetExtraDefenders)
 							{
 								iMaxDefendersPerCityEarlyAdjusted += 1;
 							}
 
-							// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else but anyways etc, but i thought in all cases but anyways etc it's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine anyways etc; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation anyways etc -->
+							// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else, but i thought in all casesit's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine anyways etc; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation -->
 							// Guard against div-by-zero and define a very simple “defense overweight” signal:
 							const bool bDefenseOverweight = (3 * iMainDefenders > 4 * iMainAttackers);
 
@@ -12082,13 +12082,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							const bool bEnoughEarlyDefendersPerCityGuessedly = (iMainDefenders >= iEnoughEarlyDefendersPerCityGuessedly);
 
 							// 3) Empire composition check: are we defender-heavy?
-							// <!-- custom: reuse bEnoughDefenders anyways etc -->
+							// <!-- custom: reuse bEnoughDefenders -->
 
 							// 4) If we’re about to add another pure defender while boxed/lagging, reroll to offense.
-							// <!-- custom: reused bStrictLandDefenderUnitAI rather than recomputing as it is more efficient i think anyways etc -->
+							// <!-- custom: reused bStrictLandDefenderUnitAI rather than recomputing as it is more efficient i think -->
 
-							// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe but anyways etc) -->
-							// <!-- custom: use an or here to favour versatility and focus on offense when we are defended enough in the early game. For example if we have 5 cities (at as of now turn 100+ anyways etc) and 2 longbowmen and 1 spearman in our city, or 2 spearmen and 1 longbow or something simlar, we may consider ourselves safe enough when it comes to the early game for this part of the city's computation (if it has more units count the excess as well as virtually belonging to other cities instead, only look at total defenders in all empires in the end to simplify and they could maybe move if needed anyways etc) also remaining attackers could be used as defense, and there shouldn't be too much differences early, so try to grab any offensive edge we can rather as soon / as long as we are safe enough in the early game and if i am not mistaken but anyways etc -->
+							// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe) -->
+							// <!-- custom: use an or here to favour versatility and focus on offense when we are defended enough in the early game. For example if we have 5 cities (at as of now turn 100+ anyways etc) and 2 longbowmen and 1 spearman in our city, or 2 spearmen and 1 longbow or something simlar, we may consider ourselves safe enough when it comes to the early game for this part of the city's computation (if it has more units count the excess as well as virtually belonging to other cities instead, only look at total defenders in all empires in the end to simplify and they could maybe move if needed anyways etc) also remaining attackers could be used as defense, and there shouldn't be too much differences early, so try to grab any offensive edge we can rather as soon / as long as we are safe enough in the early game and -->
 							// Short answer: yes—use OR between your two simple signals. It’s safe and matches your intent.
 							// You already gate on “safe to flip” with
 							// !bDanger && !(bAtWar && bEnemyStrong), so you won’t starve defenders when things look bad.
@@ -12103,28 +12103,28 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 								if (bNoExcessStrictDefendersUnitAIsRejectUnit)
 								{
-									// <!-- custom: update: actually add a reject all excess defenders check and knob/tunable anyways etc, useful in itself as an option i mean in this case i mean if i may say but anyways etc but/and but anyways etc also to help debug the cases where we have excess early defenders anyways etc -->
+									// <!-- custom: update: actually add a reject all excess defenders check and knob/tunable anyways etc, useful in itself as an option i mean in this case i mean but/andalso to help debug the cases where we have excess early defenders -->
 									return false;
 								}
 								else if (bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit)
 								{
 									// <!-- custom: if we can produce better, more offense or versatile focused units, abandon current defense unit project -->
-									// <!-- custom: a catapult rush could work if we have nothing better at all, better than a longbow rush! Just don't overbuild anyways etc; we already processed if we should build siege and trebuchets in particular or not but anyways etc, so use a simplified version here for the "enough defenders but checking if siege are good if we have nothing better part of the code" if i am not mistaken but anyways etc, is bit redundant, ideally should be merged there if i am not mistaken but maybe not too bad as such, as we are not looping over units there in siege checks but are doing so here, so maybe fine as such or not too bad as i said but anyways etc -->
+									// <!-- custom: a catapult rush could work if we have nothing better at all, better than a longbow rush! Just don't overbuild anyways etc; we already processed if we should build siege and trebuchets in particular or not, so use a simplified version here for the "enough defenders but checking if siege are good if we have nothing better part of the code", is bit redundant, ideally should be merged there if i am not mistaken but maybe not too bad as such, as we are not looping over units there in siege checks but are doing so here, so maybe fine as such or not too bad as i said-->
 									const bool bEnoughSiegeAlready = (iSiegesAll >= iNumCities);
-									// <!-- custom: as for trebuchets, be stricter as they are even less versatile, however if we really have absolutely nothing better, a few of them could help us win our rush of longbows + trebuchets xd, so allow some minimally as they are otherwise not efficient and best not produced if not for specific role. Do not implement all checks here again, use a very simple approximation of it here anyways etc. -->
+									// <!-- custom: as for trebuchets, be stricter as they are even less versatile, however if we really have absolutely nothing better, a few of them could help us win our rush of longbows + trebuchets xd, so allow some minimally as they are otherwise not efficient and best not produced if not for specific role. Do not implement all checks here again, use a very simple approximation of it here -->
 									const bool bEnoughTrebsLikeAlready = (iTrebsLike >= 3);
 
 									const bool bNoNewSiegeRightNow = (
 										(bAtWar && !bEnemyWeakNotZero) ||
-										// <!-- custom: try to be a bit more versatile and not too restrictive, as we don't produce enough siege units as of now anyways etc -->
+										// <!-- custom: try to be a bit more versatile and not too restrictive, as we don't produce enough siege units as of now -->
 										// !bWarPlan ||
 										bDanger
-										// <!-- custom: try to not restrict new siege units too much as we have a bit too few now after our changes although it's a lot better than trebuchets insanity of before but trying to increase it bit more now, as well as also trying to do so in other uncommented changes if i may say in this case i mean but anyways etc -->
+										// <!-- custom: try to not restrict new siege units too much as we have a bit too few now after our changes although it's a lot better than trebuchets insanity of before but trying to increase it bit more now, as well as also trying to do so in other uncommented changes -->
 										// bEnemyStrong
 									);
 
 									// “Can we build any generic offensive land unit right now?”
-									// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be anyways etc. Based on the code in CvCity::doTurn anyways etc -->
+									// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be anyways etc. Based on the code in CvCity::doTurn -->
 									UnitTypes   eBestCandidateUnit = NO_UNIT;
 									UnitAITypes eBestCandidateUnitAI = NO_UNITAI;
 									int         iBestScore = -1;
@@ -12147,7 +12147,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 									FOR_EACH_ENUM(Unit)
 									{
 										if (!canTrain(eLoopUnit, false)) continue;
-										// <!-- custom: note: this is eLoopUnit's pointer, not currently chosen to be produced eChangedUnit anyways etc -->
+										// <!-- custom: note: this is eLoopUnit's pointer, not currently chosen to be produced eChangedUnit -->
 										const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
 										if (kU.getDomainType() != DOMAIN_LAND) continue;
 										if (kU.getCombat() <= 0) continue;
@@ -12157,18 +12157,18 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 										const bool bLoopUnitIsSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
 										if (bLoopUnitIsSiege)
 										{
-											// keep siege out of the “simple offense” bucket <!-- custom: unless we have nothing better and not too much of these as explained/said in above anyways etc -->
+											// keep siege out of the “simple offense” bucket <!-- custom: unless we have nothing better and not too much of these as explained/said in above -->
 											if (bEnoughSiegeAlready || bEnoughTrebsLikeAlready || bNoNewSiegeRightNow)
 											{
 												continue;
 											}
 										}  
 
-										// <!-- custom: be careful, cost can greatly vary based on gamespeed, map size (maybe?), handicap settings, use XML costs rather as a much more reliable cost indicator anyways etc -->
+										// <!-- custom: be careful, cost can greatly vary based on gamespeed, map size (maybe?), handicap settings, use XML costs rather as a much more reliable cost indicator -->
 										// // sanity cap by era on REAL cost (don’t use inflated for the cap)
 										// const int iLoopCost = getProductionNeeded(eLoopUnit);
 										const int iLoopCost = GC.getInfo(eLoopUnit).getProductionCost(); // XML base
-										// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
+										// <!-- custom: don't deal with garbage or very unexpected XML -->
 										if (iLoopCost < 0)
 										{
 											continue;
@@ -12183,7 +12183,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 										const bool bMainOffenseDefaultUnitAIUnit = (
 											(eLoopDefaultUnitAI == UNITAI_ATTACK) ||
 											(eLoopDefaultUnitAI == UNITAI_ATTACK_CITY) ||
-											// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
+											// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities -->
 											(eLoopDefaultUnitAI == UNITAI_COUNTER)
 										);
 
@@ -12191,10 +12191,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 										{
 											continue;
 										}
-										// <!-- custom: if we can build an offensive unitAI unit instead, then switch to it here manually rather anyways etc, then later if all good it would be the final order if i am not mistaken but anyways etc -->
+										// <!-- custom: if we can build an offensive unitAI unit instead, then switch to it here manually rather anyways etc, then later if all good it would be the final order -->
 										else
 										{
-											// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+											// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
 											// prefer the civilization's unique unit (war chariot over horse archer, etc.)
 											// score = cost, with a UU override bump (2*cost + 1)
 											int iLoopScore = iLoopCost;
@@ -12207,7 +12207,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 												const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
 												if (bIsUUOverride)
 												{
-													// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+													// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them -->
 													if (bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT || (eLoopDefaultUnitAI != UNITAI_COUNTER))
 													{
 														iLoopScore = ((iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT * iLoopScore) / iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV) + iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD;
@@ -12230,19 +12230,19 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 									{
 										eChangedUnit   = eBestCandidateUnit;
 										eChangedUnitAI = eBestCandidateUnitAI;
-										// <!-- custom: if we change the unit, also refresh the pointer if i am not mistaken anyways etc -->
+										// <!-- custom: if we change the unit, also refresh the pointer -->
 										// refresh
 										pUnitInfo = &GC.getInfo(eChangedUnit);
-										// <!-- custom: be very careful!!! we are not recomputing our booleans that check unitais later, so if any land unit were to change, we would need to either recompute the booleans, or directly check in the check itself (much cleaner i think), as nicely noted by chatgpt 5 thanks a lot, is todo ideally to be safe but anyways etc -->
+										// <!-- custom: be very careful!!! we are not recomputing our booleans that check unitais later, so if any land unit were to change, we would need to either recompute the booleans, or directly check in the check itself (much cleaner i think), as nicely noted by chatgpt 5 thanks a lot, is todo ideally to be safe-->
 									}
 								}
-								// <!-- custom: else if no unit was found, fallback to alternative unitai types for this defensive unit that had a strict or heavily defensive unitai, now instead focusing on most reliable unitais we can most likely always build for simplicty and no error ideally although we could check this but i don't know how but anyways etc; what matters most here is we switch to offense soon enough so that we have enough offense units later in the game where it matters most (joao ai having 36 longbowmen at turn 130 for example is way too much as most of these were city_defense or city_counter or something similar anyways etc), see known issue as of now 53.2 for related info anyways etc -->
+								// <!-- custom: else if no unit was found, fallback to alternative unitai types for this defensive unit that had a strict or heavily defensive unitai, now instead focusing on most reliable unitais we can most likely always build for simplicty and no error ideally although we could check this but i don't know how; what matters most here is we switch to offense soon enough so that we have enough offense units later in the game where it matters most (joao ai having 36 longbowmen at turn 130 for example is way too much as most of these were city_defense or city_counter or something similar anyways etc), see known issue as of now 53.2 for related info -->
 								else if (bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI && (pUnitInfo->getDomainType() == DOMAIN_LAND) && (pUnitInfo->getCombat() > 0))
 								{
 									// preconditions already true: bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI
 									// and we're in the strict-defender branch
 
-									// <!-- custom: maybe (hypothetically/guessedly of me but i have no idea is just a hunch or random or rather blind or rather intutition but anyways etc / guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
+									// <!-- custom: maybe (hypothetically/guessedly of me but i have no idea is just a hunch or random or rather blind or rather intutition/ guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
 									// Prefer COUNTER, then ATTACK, then ATTACK_CITY.
 									if (pUnitInfo->getUnitAIType(UNITAI_COUNTER))
 									{
@@ -12260,7 +12260,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 									{
 										eChangedUnitAI = UNITAI_ATTACK_CITY;
 									}
-									// <!-- custom: if offensive roles fail, prefer defensive but more versatile ones, anything is better than overstacking excess defense without using our advantage of unit count (or desperate position but anyways etc then dying later anyways etc) -->
+									// <!-- custom: if offensive roles fail, prefer defensive but more versatile ones, anything is better than overstacking excess defense without using our advantage of unit count (or desperate positionthen dying later anyways etc) -->
 									else if (pUnitInfo->getUnitAIType(UNITAI_RESERVE))
 									{
 										eChangedUnitAI = UNITAI_RESERVE;
@@ -12268,7 +12268,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 									// else: leave as is (keeps defender AI)
 								}
 								// else: keep original defender AI (can’t sensibly attack)
-								// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is anyways etc -->
+								// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is -->
 								// notes
 								// This doesn’t push orders or re-run best-unit logic; it just tweaks eChangedUnitAI if the already-picked eChangedUnit supports the offensive role.
 								// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
@@ -12277,7 +12277,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
-				// <!-- custom: do not overproduce very cheap (limit ourselves to combat units as is most likely to bankrupt us and we don't have cheap civilian (especially not that we overproduce if i am not mistaken but anyways etc) units as of now if i am not mistaken but anyways etc) units, for example and in particular ancient macemen early, they are so cheap so it's very easy to go bankrupt carelessly anyways etc, add some sanity limits to prevent that, especially considering they won't be too useful later in the game anyways etc; but since there are so many train percent modifiers (game speed, handicap, possibly eras or whatever although we disabled them so far but a chore to remember them everytime, use xml values rather as nicely suggested thanks if i may say but anyways etc by chatgpt 5, check if accurate anyways etc); note: we don't have air units so early and they are not check so ignored air check by chatgpt 5, could be useful in some mod mod but not for us anyways etc; note: the way code is written as of now but anyways etc, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well if i'm not mistaken but anyways etc). -->
+				// <!-- custom: do not overproduce very cheap (limit ourselves to combat units as is most likely to bankrupt us and we don't have cheap civilian (especially not that we overproduce) units as of now) units, for example and in particular ancient macemen early, they are so cheap so it's very easy to go bankrupt carelessly anyways etc, add some sanity limits to prevent that, especially considering they won't be too useful later in the game anyways etc; but since there are so many train percent modifiers (game speed, handicap, possibly eras or whatever although we disabled them so far but a chore to remember them everytime, use xml values rather as nicely suggested thanks by chatgpt 5, check if accurate anyways etc); note: we don't have air units so early and they are not check so ignored air check by chatgpt 5, could be useful in some mod mod but not for us anyways etc; note: the way code is written as of now, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well). -->
 
 				static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
 
@@ -12285,12 +12285,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// Stable classification by XML base cost
 					const int iXMLCost = pUnitInfo->getProductionCost();     // from XML (unscaled)
-					// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
+					// <!-- custom: don't deal with garbage or very unexpected XML -->
 					// weird/placeholder cost: skip the cap rather than vetoing the choice
 					// (keeps behavior stable if a modmod has odd XML)
 					if (iXMLCost > 0)
 					{
-						// <!-- custom: make sure to not overproduce them and risk going bankrupt or hindering our early progression, but build enough for our immediate early or defense needs anyways etc. Note: in our mod as of now archers are available at TECH_HUNTING and they are more versatile and stronger at city defense (also a bit more expensive) and require as of now no bonus, only the tech. If all else fails (then longbows), build these rather than stacking very cheap units that would be bit inefficient, but don't overdo it, as ancient macemen are better at combat outside of cities anyways etc, just they would be produced too much which would cripple our economy. Gating them early also helps us meet our quota of defenders sooner indirectly by focusing more on archers or whatever else we want to build, so that we hopefully maybe can move sooner to our no excess defender code in next productions so all in all should hopefully be good and helpful if i am not mistaken but anyways etc -->
+						// <!-- custom: make sure to not overproduce them and risk going bankrupt or hindering our early progression, but build enough for our immediate early or defense needs anyways etc. Note: in our mod as of now archers are available at TECH_HUNTING and they are more versatile and stronger at city defense (also a bit more expensive) and require as of now no bonus, only the tech. If all else fails (then longbows), build these rather than stacking very cheap units that would be bit inefficient, but don't overdo it, as ancient macemen are better at combat outside of cities anyways etc, just they would be produced too much which would cripple our economy. Gating them early also helps us meet our quota of defenders sooner indirectly by focusing more on archers or whatever else we want to build, so that we hopefully maybe can move sooner to our no excess defender code in next productions so all in all should hopefully be good and helpful -->
 						// Tier thresholds
 						static const int TH_ANC           = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
 						static const int TH_CLA           = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
@@ -12302,7 +12302,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						const bool bTierCla = (!bTierAnc && iXMLCost <= TH_CLA);
 						const bool bTierMed = (!bTierAnc && !bTierCla && iXMLCost <= TH_MED);
 						const bool bTierRendLandPlus = (
-							// <!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot but anyways etc -->
+							// <!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot-->
 							bRenaissancePlus && // only after we actually reach Renaissance
 							(!bTierAnc && !bTierCla && !bTierMed && iXMLCost <= TH_REN_LAND_PLUS)
 						);
@@ -12314,21 +12314,21 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							// Do you really need the “min across tiers”?
 							// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
 							// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
-							// <!-- custom: answer to chatgpt 5: yes i promise xd thanks :) if i may say but anyways etc -->
+							// <!-- custom: answer to chatgpt 5: yes i promise xd thanks :) -->
 
 							if (bTierAnc)
 							{
-								// <!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or such but anyways etc a modmod might additionally add but anyways etc -->
+								// <!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or sucha modmod might additionally add-->
 								// Per-tier knobs
 								static const int CM_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER");
 								static const int EX_ANC_NAV  = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP");
 								static const int EX_ANC_LAND = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NOT_NAVAL_HEAVY_MAP");
 
-								// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really but anyways etc). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so in this case i mean but anyways etc, prevent it by keeping cap in this case i mean but anyways etc -->
+								// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so, prevent it by keeping cap -->
 								// Style caps (independent of current era)
 								iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMapname ? EX_ANC_NAV : EX_ANC_LAND);
 
-								// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units i mean but anyways etc)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous but anyways etc, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is but anyways etc) but anyways etc) -->
+								// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is)) -->
 								static const int VERY_EARLY_TURN_ANCIENT_TIER_END = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END");
 								const int iTurnVeryEarlyThresholdScaled = (VERY_EARLY_TURN_ANCIENT_TIER_END * iTrainPct) / 100;
 								const bool bVeryEarly = (iCurrentTurn < iTurnVeryEarlyThresholdScaled);
@@ -12352,17 +12352,17 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 								iVeryCheapUnitsCap = (CM_MED * iNumCities) + EX_MED;
 							}
-							// <!-- custom: make extra sure here that it applies only to domain_land units only in case we change logic later to for example include naval units in naval heavy maps or such, as frigates or galleons or such are still useful later in the game even though they are as of now fairly cheap but anyways etc. -->
-							// <!-- custom: see code comment in as of now sas defines at SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD anyways etc -->
+							// <!-- custom: make extra sure here that it applies only to domain_land units only in case we change logic later to for example include naval units in naval heavy maps or such, as frigates or galleons or such are still useful later in the game even though they are as of now fairly cheap -->
+							// <!-- custom: see code comment in as of now sas defines at SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD -->
 							else if (bTierRendLandPlus)
 							{
-								// <!-- custom: be careful to include only land direct combat units (not spies, scouts, etc.), and to use the variable that had the pointer refreshed if it changed since then but anyways etc -->
+								// <!-- custom: be careful to include only land direct combat units (not spies, scouts, etc.), and to use the variable that had the pointer refreshed if it changed since then-->
 								const bool bDirectCombatLandUnitAI = (
 									(pUnitInfo->getDomainType() == DOMAIN_LAND) &&
 									(
 										(eChangedUnitAI == UNITAI_ATTACK) ||
 										(eChangedUnitAI == UNITAI_ATTACK_CITY) ||
-										// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
+										// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities -->
 										(eChangedUnitAI == UNITAI_COUNTER) ||
 										(eChangedUnitAI == UNITAI_CITY_COUNTER) ||
 										(eChangedUnitAI == UNITAI_CITY_DEFENSE) ||
@@ -12380,7 +12380,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								}
 							}
 
-							// <!-- custom: use a reference only in this scope in case we change the unit again later (reuse reference as needed maybe but anyways etc) if i am not mistaken, check if accurate anyways etc -->
+							// <!-- custom: use a reference only in this scope in case we change the unit again later (reuse reference as needed maybe) if i am not mistaken, check if accurate -->
 							const UnitClassTypes eUnitClassSoFar = pUnitInfo->getUnitClassType();
 							const int iHaveVeryCheapThisUnits = kPlayer.getUnitClassCountPlusMaking(eUnitClassSoFar);
 
@@ -12393,7 +12393,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
-				// <!-- custom: add our pre-checks to help improve the naval dementia of overproducing naval units and pangea or/and scrapping them as well possibly, then being invaded and losing top city while having spent needlessly hammers on 20+ mix of galleons/privateers on pangea, fixing the overproducing part of the issue here by setting sanity gates / pre-checks before we push the final order, and so we can control here all order if i'm not mistaken but anyways etc -->
+				// <!-- custom: add our pre-checks to help improve the naval dementia of overproducing naval units and pangea or/and scrapping them as well possibly, then being invaded and losing top city while having spent needlessly hammers on 20+ mix of galleons/privateers on pangea, fixing the overproducing part of the issue here by setting sanity gates / pre-checks before we push the final order, and so we can control here all order -->
 				const bool bNavalFrontLineUnitAIs = (
 					(eChangedUnitAI == UNITAI_ATTACK_SEA) ||
 					(eChangedUnitAI == UNITAI_RESERVE_SEA) ||
@@ -12446,26 +12446,26 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					bNavalSpySeaUnitAIs
 				);
 
-				// <!-- custom: do not limit naval units on naval heavy maps, it seems we have way too few units as a result in archipelago, after all if a frigate defeats an invading galleon it counts same as having more units than all land cargo invaders, so do not limit it anyways etc, also maybe this allows for more versatile naval games, let AI decide its own strategy in this case i mean but anyways etc (hopefully not nonsensical one else we could tweak it, but naval maps could go many ways and with various approaches perhaps, so let AI handle it and keep versatility here rather if i am not mistaken in my thinking and based on previous results that were bad when nerfing naval production way too hard as of now on archipelago for example anyways etc but anyways etc) -->
+				// <!-- custom: do not limit naval units on naval heavy maps, it seems we have way too few units as a result in archipelago, after all if a frigate defeats an invading galleon it counts same as having more units than all land cargo invaders, so do not limit it anyways etc, also maybe this allows for more versatile naval games, let AI decide its own strategy (hopefully not nonsensical one else we could tweak it, but naval maps could go many ways and with various approaches perhaps, so let AI handle it and keep versatility here rather if i am not mistaken in my thinking and based on previous results that were bad when nerfing naval production way too hard as of now on archipelago for example anyways etc) -->
 				if (!bNavalHeavyMapname && bAllHandledNavalUnitAIs)
 				{
 					if (bNavalFrontLineUnitAIs)
 					{
-						// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
+						// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops, we hopefully maybe also save computation by implementing our check here before code is executed); code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too) -->
 						int iMaxUnits = iNumCities;
 						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 * iNumCities;
 						// }
 
-						// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+						// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							// When you halve naval caps under danger/war, iNumCities == 1 would drop to 0 and hard-block all builds. If that’s not what you want, clamp to at least 1.
 							iMaxUnits = std::max(1, iMaxUnits / 2);
 						}
 
-						// <!-- custom: this counts existing and being produced units if i'm not mistaken, which is perfect to avoid overproducing (e.g. if we 5 units, limit is 6, but cities C D E are producing one unit each, they all think limit is not reached so fine, but if they finish production we'll/'d end up with 5+3 = 8 units above what we want by 2, so to produce, check the total being produced + existing already, as pointed by chatgpt 5 as well, check if accurate anyways etc -->
+						// <!-- custom: this counts existing and being produced units if i'm not mistaken, which is perfect to avoid overproducing (e.g. if we 5 units, limit is 6, but cities C D E are producing one unit each, they all think limit is not reached so fine, but if they finish production we'll/'d end up with 5+3 = 8 units above what we want by 2, so to produce, check the total being produced + existing already, as pointed by chatgpt 5 as well, check if accurate -->
 						// Sum current empire-wide SEA combat AIs (exclude workers / settlers / explorers)
 						const int iTotalUnitAIs = (
 							kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_SEA)
@@ -12478,18 +12478,18 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						{
 							return false;
 						}
-						// <!-- custom: else continue and if all good otherwise produce the unit at the end of this function if i'm not mistaken but anyways etc -->
+						// <!-- custom: else continue and if all good otherwise produce the unit at the end of this function -->
 					}
 					else if (bNavalExploreSeaUnitAIs)
 					{
-						// <!-- custom: we don't need too many explore units, especially on land heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
+						// <!-- custom: we don't need too many explore units, especially on land heavy maps, so make sure we don't overproduce (unless they all die or something then replenish) them and waste hammer -->
 						int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
 						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
 						// }
 
-						// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+						// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							iMaxUnits = std::max(1, iMaxUnits / 2);
@@ -12504,27 +12504,27 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bNavalSupportOffenseFrontUnitAIs)
 					{
-						// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
+						// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation, otherwise falling back with the as of now below default -->
 						int iMaxUnits = iNumCities;
 						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 * iNumCities;
 						// }
 
-						// // <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+						// // <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely -->
 						// if (bEnemyStrong || bDanger || bWarPlan)
-						// <!-- custom: was too strict according to chatgpt 5 and probably is so, reduce it a bit if planning war to have at least 1 or 2 available or something without sacrificing land warfare anyways etc -->
+						// <!-- custom: was too strict according to chatgpt 5 and probably is so, reduce it a bit if planning war to have at least 1 or 2 available or something without sacrificing land warfare -->
 						if (bEnemyStrong || bDanger)
 						{
-							// <!-- custom: no time for these, focus is on defense atm not offense if i may say anyways etc -->
+							// <!-- custom: no time for these, focus is on defense atm not offense -->
 							return false;
 						}
 						else if (bWarPlan)
 						{
-							// <!-- custom: no time for these, focus is on defense atm not offense if i may say anyways etc -->
+							// <!-- custom: no time for these, focus is on defense atm not offense -->
 							iMaxUnits = 2;
 						}
-						// <!-- custom: else if bEnemyStrong stay the same, fine as such anyways etc -->
+						// <!-- custom: else if bEnemyStrong stay the same, fine as such -->
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA);
 
@@ -12535,14 +12535,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bNavalSupportDefenseFrontUnitAIs)
 					{
-						// <!-- custom: the needed amount will be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
+						// <!-- custom: the needed amount will be influenced by our war strategy or situation, otherwise falling back with the as of now below default -->
 						int iMaxUnits = iNumCities;
 						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 * iNumCities;
 						// }
 
-						// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
+						// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							iMaxUnits = std::max(1, (iMaxUnits * 6 / 10));
@@ -12557,19 +12557,19 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bNavalAirExtraUnitAIs)
 					{
-						// <!-- custom: i don't know too much about these units so allow some quite conservatively and in a sane manner without going overboard on restriction nor in unrestricting them but anyways etc -->
+						// <!-- custom: i don't know too much about these units so allow some quite conservatively and in a sane manner without going overboard on restriction nor in unrestricting them-->
 						int iMaxUnits = iNumCities;
 						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 * iNumCities;
 						// }
 
-						// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
+						// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							iMaxUnits = std::max(1, (iMaxUnits * 6 / 10));
 						}
-						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
 
 						const int iTotalUnitAIs = (
 							kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA)
@@ -12583,14 +12583,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bNavalSettlerSeaUnitAIs)
 					{
-						// <!-- custom: don't overbuild these especially early, we won't found too many cities all at the same time (else something may be wrong with our economy or something xd i would guess at least with base/current settings of maintenance / city cost / settler cost but anyways etc) -->
+						// <!-- custom: don't overbuild these especially early, we won't found too many cities all at the same time (else something may be wrong with our economy or something xd i would guess at least with base/current settings of maintenance / city cost / settler cost) -->
 						int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
 						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
 						// }
 
-						// <!-- custom: if at war or such danger or threat, don't die, don't expand, but since this is about founding cities, allow one for naval heavy maps anyways etc -->
+						// <!-- custom: if at war or such danger or threat, don't die, don't expand, but since this is about founding cities, allow one for naval heavy maps -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							// if (bNavalHeavyMapname)
@@ -12603,7 +12603,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							// }
 							return false;
 						}
-						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA);
 
@@ -12633,7 +12633,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							// }
 						}
 
-						// <!-- custom: the limits are sane, and at war, especially if pilalged, we may need more workboats, plus they are cheap anyway, so just make sure to not overbuild which we do then all fine i would say/guess but anyways etc, so no threat/war or such change for this unitai anyways etc -->
+						// <!-- custom: the limits are sane, and at war, especially if pilalged, we may need more workboats, plus they are cheap anyway, so just make sure to not overbuild which we do then all fine i would say/guess, so no threat/war or such change for this unitai -->
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_WORKER_SEA);
 
@@ -12663,12 +12663,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							// }
 						}
 
-						// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
+						// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough to not overbuild or at all maybe) -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							return false;
 						}
-						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_MISSIONARY_SEA);
 
@@ -12679,14 +12679,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bNavalSpySeaUnitAIs)
 					{
-						// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
+						// <!-- custom: allow AI to be quite versatile with these, just don't overdo it -->
 						int iMaxUnits = iNumCities;
 						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = (iNumCities * 3) / 2;
 						// }
 
-						// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
+						// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer -->
 						if (bAtWar || bEnemyStrong || bDanger)
 						{
 							return false;
@@ -12695,12 +12695,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						{
 							if (!bNavalHeavyMapname)
 							{
-								// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
+								// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken -->
 								return false;
 							}
-							// <!-- custom: else keep as is most likely fine but anyways etc -->
+							// <!-- custom: else keep as is most likely fine-->
 						}
-						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SPY_SEA);
 
@@ -12743,14 +12743,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					if (bLandExploreUnitAIs)
 					{
-						// <!-- custom: we don't need too many explore units, especially on naval heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
+						// <!-- custom: we don't need too many explore units, especially on naval heavy maps, so make sure we don't overproduce (unless they all die or something then replenish) them and waste hammer -->
 						int iMaxUnits = 2;
 						if (bNavalHeavyMapname)
 						{
 							iMaxUnits = 1;
 						}
 
-						// <!-- custom: adjust based on danger, squeeze every last bit of hammer xd we can save if i may say but anyways etc -->
+						// <!-- custom: adjust based on danger, squeeze every last bit of hammer xd we can save -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							return false;
@@ -12765,10 +12765,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bLandSettlerUnitAIs)
 					{
-						// <!-- custom: only one settler at a time and for efficiency anyways etc -->
+						// <!-- custom: only one settler at a time and for efficiency -->
 						int iMaxUnits = 1;
 
-						// <!-- custom: no time for expansion at war or danger or similar anyways etc -->
+						// <!-- custom: no time for expansion at war or danger or similar -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							return false;
@@ -12783,32 +12783,32 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bLandWorkerUnitAIs)
 					{
-						// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance but anyways etc) anyways etc -->
+						// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance) -->
 						// base: 2.5 workers per city
 						int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
-						// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time but anyways etc, but some amount is needed to grow especially early but anyways etc -->
+						// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time, but some amount is needed to grow especially early-->
 
 						if (bRenaissancePlus)
 						{
-							// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply but anyways etc -->
+							// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply-->
 							// clamp to avoid negative
 							const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
-							// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described suggested although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
-							// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
-							const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value but anyways etc -->
+							// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks; scale * 100 for rounding error/precision asa chatgpt 5 described suggested although i may have had or not or yes or etcsame idea or not or yes or etc -->
+							// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily) anyways etc) --> -10% per era -->
+							const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value-->
 							const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
-							// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so but anyways etc) for all anyways etc -->
+							// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so) for all -->
 							const int iMinWorkersInCase = 3 + ((iNumCities * 3) / 10);
 							iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
 						}
 
-						// <!-- custom: no time for expansion at war or danger or similar anyways etc, but the worker is so important we'll be a bit more lenient, we may unlock more hammers for example if i may say but anyways etc by producing a worker that would then chop or build a mine or workshop or anything useful so don't be too harsh here as advised by chatgpt 5 thanks but anyways etc -->
+						// <!-- custom: no time for expansion at war or danger or similar anyways etc, but the worker is so important we'll be a bit more lenient, we may unlock more hammers for example by producing a worker that would then chop or build a mine or workshop or anything useful so don't be too harsh here as advised by chatgpt 5 thanks-->
 						if (bAtWar && bEnemyStrong)
 						{
 							return false;
 						}
-						// <!-- custom: else if planning war and otherwise no danger or such (e.g. enemy is weak or no danger but anyways etc), still continue to grow anyways etc ; as for bDanger and bEnemyStrong and such if any more maybe but anyways etc, they may be a bit too strong signals so we'll ignore them as well here for workers, hopefully AI handles these well and doesn't overproduce them but anyways etc (workers are also not that expensive like wonders that we'd need so bad to avoid them, and benefits may be immediate so go with a more lenient check or rather maybe gate if i may say but anyways etc) -->
+						// <!-- custom: else if planning war and otherwise no danger or such (e.g. enemy is weak or no danger), still continue to grow; as for bDanger and bEnemyStrong and such if any more maybe, they may be a bit too strong signals so we'll ignore them as well here for workers, hopefully AI handles these well and doesn't overproduce them(workers are also not that expensive like wonders that we'd need so bad to avoid them, and benefits may be immediate so go with a more lenient check or rather maybe gate) -->
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
 
@@ -12819,7 +12819,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bLandMissionaryUnitAIs)
 					{
-						// <!-- custom: peacetime or early: spread religion (capped as they are national units if i am not mistaken but adding an extra check here just in case anyways etc), and also with more conditions and fine tuning but anyways etc, so else don't or do less anyways etc -->
+						// <!-- custom: peacetime or early: spread religion (capped as they are national units if i am not mistaken but adding an extra check here just in case anyways etc), and also with more conditions and fine tuning, so else don't or do less -->
 						int iMaxUnits;
 						if (!bRenaissancePlus)
 						{
@@ -12830,12 +12830,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							iMaxUnits = 2;
 						}
 
-						// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
+						// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough to not overbuild or at all maybe) -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
 							return false;
 						}
-						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_MISSIONARY);
 
@@ -12846,29 +12846,29 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bLandSpyUnitAIs)
 					{
-						// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
+						// <!-- custom: allow AI to be quite versatile with these, just don't overdo it -->
 						int iMaxUnits = iNumCities;
 						if (bNavalHeavyMapname)
 						{
 							iMaxUnits = (iNumCities * 3) / 2;
 						}
 
-						// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
+						// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer -->
 						if (bAtWar || bEnemyStrong || bDanger)
 						{
 							return false;
 						}
-						// <!-- custom: else if bWarPlan, don't interfere, they could help with our offense, e.g. weakening our target or spying on it to gather data or steal info or such but anyways etc -->
+						// <!-- custom: else if bWarPlan, don't interfere, they could help with our offense, e.g. weakening our target or spying on it to gather data or steal info or such-->
 						else if (bWarPlan)
 						{
 							if (!bNavalHeavyMapname)
 							{
-								// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
+								// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken -->
 								return false;
 							}
-							// <!-- custom: else keep as is most likely fine but anyways etc -->
+							// <!-- custom: else keep as is most likely fine-->
 						}
-						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SPY);
 
@@ -12879,15 +12879,15 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
-				// <!-- custom: i didn't check, but just in case we have the issue with air units, manage in a very straightforward and simple max units just in case, these are not critical if i'm not mistaken, but we want to avoid preemptively if exists dementia of destroy produce infinite loop, or excess producing at the cost of cities being weakly guarded or/and newer (mostly land but anyways etc) units not build especially when hammer is plenty but anyways etc, give some leeway for versatility but not too much for efficiency anyways etc -->
+				// <!-- custom: i didn't check, but just in case we have the issue with air units, manage in a very straightforward and simple max units just in case, these are not critical if i'm not mistaken, but we want to avoid preemptively if exists dementia of destroy produce infinite loop, or excess producing at the cost of cities being weakly guarded or/and newer (mostly land) units not build especially when hammer is plenty, give some leeway for versatility but not too much for efficiency -->
 				const bool bAirCombatUnitAIs = (
 					(eChangedUnitAI == UNITAI_ATTACK_AIR) ||
 					(eChangedUnitAI == UNITAI_DEFENSE_AIR)
 				);
 				if (bAirCombatUnitAIs)
 				{
-					// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
-					// <!-- custom: combined total shared between air fighters and air bombers if i'm not mistaken but anyways etc -->
+					// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops, we hopefully maybe also save computation by implementing our check here before code is executed); code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too) -->
+					// <!-- custom: combined total shared between air fighters and air bombers -->
 					const int iMaxUnits = 3 * iNumCities;
 
 					const int iTotalUnitAIs = (
@@ -12901,7 +12901,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
-				// <!-- custom: note: as of now unhandled unitais here mean free production or let AI decide, the more the better: military land units, air units but anyways etc, see canScrap function for the handling of these produced units anyways etc -->
+				// <!-- custom: note: as of now unhandled unitais here mean free production or let AI decide, the more the better: military land units, air units, see canScrap function for the handling of these produced units -->
 			}
 		}
 
@@ -13263,7 +13263,7 @@ bool CvCityAI::AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist)
 	// if we are using more specialists than the free ones we get
 	if (extraFreeSpecialists() < 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 		// does generic 'citizen' specialist exist?
@@ -13375,7 +13375,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 
 	// work out how much food deficit would be acceptable
 	int iStarvingAllowance = 0;
-	// <!-- custom: cities starve too often, on top of failing to allocate best food tiles ; make it stricter by not allowing any allowance, as advised by claude ai when asking it thanks to my prompts and or such or not contributions or not too if i may say but anyways etc -->
+	// <!-- custom: cities starve too often, on top of failing to allocate best food tiles; make it stricter by not allowing any allowance, as advised by claude ai when asking it thanks to my prompts and or such or not contributions or not too -->
 	// {
 	// 	int iFoodLevel = getFood();
 	// 	int iFoodToGrow = growthThreshold();
@@ -13485,7 +13485,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 				? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworked_it->second.second, YIELD_FOOD)
 				: getCityIndexPlot((CityPlotTypes)unworked_it->second.second)->getYield(YIELD_FOOD);
 
-			// <!-- custom: seemingly a bug found by claude ai ; i am not sure this is really a bug, but in all cases indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs anyways etc with screenshots there in the google drive anyways etc) -->
+			// <!-- custom: seemingly a bug found by claude ai; i am not sure this is really a bug, but in all cases indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs anyways etc with screenshots there in the google drive anyways etc) -->
 			// OLD: Only avoid starvation if we're not already starving
 			// if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
 			// NEW: Always check if job change improves/worsens food situation
@@ -14030,24 +14030,24 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 			iGrowthValue += 8 // in addition to other effects.
 					+ (AI_isStrongEmphasis() ? 3 : 0); // advc.131d
 		} // </k146>
-		// <!-- custom: we have a major bug or/and suboptimal behaviour of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs anyways etc), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34 but anyways etc) ; both seem to come down to cities choosing production over food. Attempt for now in this change to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd -->
+		// <!-- custom: we have a major bug or/and suboptimal behaviour of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs anyways etc), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34); both seem to come down to cities choosing production over food. Attempt for now in this change to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd -->
 		// Add a small boost for non-emphasized food to make it more valuable than production
 		else if (iFoodYield > 0 && !AI_isEmphasizeAvoidGrowth()) {
 			iGrowthValue += 2;
 		}
 
-		// <!-- custom: moved up if i may say in this case too at least if i may say but anyways etc so we can use these in our checks anyways etc -->
+		// <!-- custom: moved up if i may say in this case too at least so we can use these in our checks -->
 		int iHealthLevel = goodHealth() - badHealth();
 		int iHappinessLevel = (isNoUnhappiness() ?
 				std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
 
-		// <!-- custom: actually even if food is production, food is just as valuable, i noticed in tundra cities workers would go before our reworked workers (didn't check since since they also settle elsewhere now but i assume would be different with the new priority system of builds but anyways etc) 4 food is just as good as 4 hammer to produce a settler, no reason to negate here i think if i understood it correctly but anyways etc ; i seem to have solved the issue of 1 hammer being preferred over 5 food even if city has to starve for it (see known issue 34 for details with screenshots and documentation about it too i mean anyways etc), now ulundi is growing big, not starving while unallocating the food, and high food tiles are all allocated although production is a bit low though now so need to reduce the crazy * 100 multiplier i put as well as a test on top of removing the foodisproduction check to fix / enhance things -->
+		// <!-- custom: actually even if food is production, food is just as valuable, i noticed in tundra cities workers would go before our reworked workers (didn't check since since they also settle elsewhere now but i assume would be different with the new priority system of builds) 4 food is just as good as 4 hammer to produce a settler, no reason to negate here i think if i understood it correctly; i seem to have solved the issue of 1 hammer being preferred over 5 food even if city has to starve for it (see known issue 34 for details with screenshots and documentation about it too), now ulundi is growing big, not starving while unallocating the food, and high food tiles are all allocated although production is a bit low though now so need to reduce the crazy * 100 multiplier i put as well as a test on top of removing the foodisproduction check to fix / enhance things -->
 		// tiny food factor, to ensure that even when we don't want to grow,
 		// we still prefer more food if everything else is equal
 		// iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
-		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production but anyways etc) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state if i may say but anyways etc: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated anyways etc ; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances but anyways etc, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing and glance anyways etc -->
+		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing -->
 		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
-		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile anyways etc ; note 2: the issue happens still with this change but fixed itself right away the next turn, so i'd tend or like to think this is ideally solved, see known issue 34 appendix for details anyways etc.
+		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile; note 2: the issue happens still with this change but fixed itself right away the next turn, so i'd tend or like to think this is ideally solved, see known issue 34 appendix for details anyways etc.
 		if (iHappinessLevel >= 0)
 		{
 			iValue += ((iFoodYieldTimes100+50)/100) * 3;
@@ -14459,27 +14459,27 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 		iValue += std::max(1, iCommerceValue);
 	}
 
-	// <!-- custom: weird code comment above but anyways etc, adding here a patch/fix by chatgpt 3-o as well thanks to my prompt and adjustments or not or yes or etc or/and such too but anyways etc, to attempt to fix as of now known issue 40 of a china AI city in this example staying pop 1 for 50 turns seemingly due to one or a few high production tiles, and producting archers, walls, workers etc (which is maybe not bad, but favour growth rather at least more, as city is pop 3 at turn 100 while it could grow so fast instead if it could do this still, seems really bad as city is very happy so could have grown a lot. So make food value a function of happiness vs unhappiness ratio, so that the closer we are to hapiness vs unhappiness cap (i.e. 0, equal hapyp vs unhappy, the less we value foodn, and also meaning if we are very happy, favour growth), hopefully not going overboard of having size 10 cities with 1 hammer and max pop and many unhappy citizens but anyways etc ; note: chatgpt 3-o went with +6% food increase per happy if i am not mistaken, but i felt it's too conservative, grow if we can, so although i have no idea of actual values trying other values experimentally and we see but anyways etc -->
+	// <!-- custom: weird code comment above, adding here a patch/fix by chatgpt 3-o as well thanks to my prompt and adjustments or not or yes or etc or/and such too, to attempt to fix as of now known issue 40 of a china AI city in this example staying pop 1 for 50 turns seemingly due to one or a few high production tiles, and producting archers, walls, workers etc (which is maybe not bad, but favour growth rather at least more, as city is pop 3 at turn 100 while it could grow so fast instead if it could do this still, seems really bad as city is very happy so could have grown a lot. So make food value a function of happiness vs unhappiness ratio, so that the closer we are to hapiness vs unhappiness cap (i.e. 0, equal hapyp vs unhappy, the less we value foodn, and also meaning if we are very happy, favour growth), hopefully not going overboard of having size 10 cities with 1 hammer and max pop and many unhappy citizens; note: chatgpt 3-o went with +6% food increase per happy if i am not mistaken, but i felt it's too conservative, grow if we can, so although i have no idea of actual values trying other values experimentally and we see-->
 	// ------------------------------------------------------------------
 	// boost food if there is spare happiness
 	// ------------------------------------------------------------------
 	// Zero change if happiness ≤ unhappiness, so starving / angry cities stay cautious.
 	int const iHappySurplus = happyLevel() - unhappyLevel(0);      // >0 means room to grow
-	// <!-- custom: exception to this rule: if food is production (worker, settler, etc if any if i am not mistaken anyways etc), then 6 hammer is fine and better than 2 or 3 food. I just don't know if AI would swap its tiles later or not but anyways etc -->
+	// <!-- custom: exception to this rule: if food is production (worker, settler, etc if any), then 6 hammer is fine and better than 2 or 3 food. I just don't know if AI would swap its tiles later or not-->
 	if (iHappySurplus > 0 && !isFoodProduction())
 	{
 		/*  Each surplus happy point increases food’s weight.
-			Pop-1 cities with +5 happy <!-- custom: increase quite a lot / significantly if i may say but anyways etc --> the attractiveness of food.   */
-		// <!-- custom: for example if i'm not mistaken with 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example but anyways etc) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other mulitplicative calculations if i may say but anyways etc in this function but only glanced and from my memory of it so check to be sure but anyways etc) but still encouraging growth if i may say but anyways etc, testing it to see if excessive or not ingame or/and if solves known issue as of now 40 among other issues or not but anyways etc ; in short favour growth if we are happy (i.e and have room to grow if i'm not mistaken in this case at least but anyways etc), and the happier we are the more we want to use it to grow (even if production is lower as a result short term but anyways etc) if i may say but anyways etc -->
-		// <!-- custom: update: this change seems very effective, china ai grows its city very fast, although at another spot, and has 3 cities at turn 50 now not just 2 with high pop. These cities opt for high food at low pop, then at high pop they seem to successfully switch or focus on hammer a lot more, i am very happy of these changes, i think AI is stronger and reacts more dynamically to its environment now, without being too food focused. At turn 60, China AI has a 4th city growing as well already, very nice, if i am not mistaken, anyways etc ; i did another run in autoplay as well but anyways etc and the results seem even better. China AI settled its city C at same location, improved the copper, although a bit later, then continuously ignored it, grew, and slaved a few times, while still favouring growth and being way over happiness cap in this cap ; at turn 100 it has a few more buildings than when it stayed passively low pop on copper. It seemed also as said before to adopt a produciton profile again at hgiher pop, beijing would produce the great wall :) looking inside beijing the hammer production is decent: most high hammer tiles are worked, while most are still food tiles, but this seems very efficient or nice :) i am very happy of these changes and result, and i think AI is quite a lot stronger now if i'm not mistaken but anyways etc, see also known issue as of now 40 for details or/and additional info anyways etc -->
-		// <!-- custom: note: if happiness surplus is exactly 1, this seems to do nothing as noted by chatgpt 3-o if i may say and if i'm not mistaken which although it annoyed me bit with math xd it helped me lot so thanks a lot chagpt 3-o too if i may say but anyways etc (:) anyways etc), as we multiply by 1, but since i'm satisfied with these results, leaving it as such, probably not too bad or maybe even fine as such as 1 happiness is about full no happy almost anyways if i'm not mistaken if i may say but anyways etc -->
+			Pop-1 cities with +5 happy <!-- custom: increase quite a lot / significantly --> the attractiveness of food.   */
+		// <!-- custom: for example if i'm not mistaken with 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other mulitplicative calculations in this function but only glanced and from my memory of it so check to be sure) but still encouraging growth, testing it to see if excessive or not ingame or/and if solves known issue as of now 40 among other issues or not; in short favour growth if we are happy (i.e and have room to grow if i'm not mistaken in this case at least), and the happier we are the more we want to use it to grow (even if production is lower as a result short term) -->
+		// <!-- custom: update: this change seems very effective, china ai grows its city very fast, although at another spot, and has 3 cities at turn 50 now not just 2 with high pop. These cities opt for high food at low pop, then at high pop they seem to successfully switch or focus on hammer a lot more, i am very happy of these changes, i think AI is stronger and reacts more dynamically to its environment now, without being too food focused. At turn 60, China AI has a 4th city growing as well already, very nice, if i am not mistaken; i did another run in autoplay as welland the results seem even better. China AI settled its city C at same location, improved the copper, although a bit later, then continuously ignored it, grew, and slaved a few times, while still favouring growth and being way over happiness cap in this cap; at turn 100 it has a few more buildings than when it stayed passively low pop on copper. It seemed also as said before to adopt a produciton profile again at hgiher pop, beijing would produce the great wall :) looking inside beijing the hammer production is decent: most high hammer tiles are worked, while most are still food tiles, but this seems very efficient or nice :) i am very happy of these changes and result, and i think AI is quite a lot stronger now, see also known issue as of now 40 for details or/and additional info -->
+		// <!-- custom: note: if happiness surplus is exactly 1, this seems to do nothing as noted by chatgpt 3-o if i may say and if i'm not mistaken which although it annoyed me bit with math xd it helped me lot so thanks a lot chagpt 3-o too (:) anyways etc), as we multiply by 1, but since i'm satisfied with these results, leaving it as such, probably not too bad or maybe even fine as such as 1 happiness is about full no happy almost anyways if i'm not mistaken -->
 		iFoodValue *= iHappySurplus;
 
 		/*  Optional: nudge hammers downward when the city is very happy
 			so a lone 6-hammer hill won’t override a 3-food pasture.           */
 		if (iHappySurplus >= 3)
 		{
-			// <!-- custom: so for example if i'm not mistaken with 9 happy and 1 unhappy, we'd have 9 - 1 = 8 happy surplus, so we'd want to reduce hammer value a lot and capitalize on our happiness to grow if i may say at least in this case but anyways etc, and so it production value would be divided by 8 - 1 = 7 so we'd have iProductionValue reduced to 1 / 7 = 14.3 % (approximately but anyways etc) of its former value, so we'd grow much more ideally, but if happiness suprplus is say only 3 (for example 9 happy and 6 unhappy), the extra divider would be 3 - 1 = 2, so we'd have iProductionValue reduced to = 1 / 2 = 50% of its former value which is fine i think, we still have some room to grow after all, better use that and capitalize on long term -->
+			// <!-- custom: so for example if i'm not mistaken with 9 happy and 1 unhappy, we'd have 9 - 1 = 8 happy surplus, so we'd want to reduce hammer value a lot and capitalize on our happiness to grow, and so it production value would be divided by 8 - 1 = 7 so we'd have iProductionValue reduced to 1 / 7 = 14.3 % (approximately) of its former value, so we'd grow much more ideally, but if happiness suprplus is say only 3 (for example 9 happy and 6 unhappy), the extra divider would be 3 - 1 = 2, so we'd have iProductionValue reduced to = 1 / 2 = 50% of its former value which is fine i think, we still have some room to grow after all, better use that and capitalize on long term -->
 			iProductionValue /= (iHappySurplus - 1);
 		}
 	}
@@ -14529,22 +14529,22 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 	static const bool bSAS_AI_JOB_CHANGE_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_JOB_CHANGE_VALUE_OPTIMIZE");
 
-	// <!-- custom: note: it seems based on autoplay results i mean if i may say but anyways etc that this block and function only apply to non-human players when trying to relax this and play manually the behaviour seemingly does not happen as implemented here vs if i autoplay with my player ai player in autoplay, but added the human check just to be safe and in case. Check if accurate as i don't know too much about these anyways etc. -->
+	// <!-- custom: note: it seems based on autoplay results i mean that this block and function only apply to non-human players when trying to relax this and play manually the behaviour seemingly does not happen as implemented here vs if i autoplay with my player ai player in autoplay, but added the human check just to be safe and in case. Check if accurate as i don't know too much about these -->
 	if (bSAS_AI_JOB_CHANGE_VALUE_OPTIMIZE)
 	{
-		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
+		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here -->
 		static const int iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN = GC.getDefineINT("SAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN");
 
 		const bool bHuman = kOwner.isHuman();
 
-		// <!-- custom: code provided with the help of gemini ai and then chatgpt thanks, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue if i'm not mistaken but anyways etc, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case -->
-		// <!-- custom: it seems we deleted the no citizen logic or it is missing here for some reason, adding it again anyways etc as recommended by chatgpt 5.1; i adjusted its code by removing some extra other stuff, anyways etc -->
+		// <!-- custom: code provided with the help of gemini ai and then chatgpt thanks, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case -->
+		// <!-- custom: it seems we deleted the no citizen logic or it is missing here for some reason, adding it again anyways etc as recommended by chatgpt 5.1; i adjusted its code by removing some extra other stuff -->
         // -----------------------------------------------------------------
         // 0) Citizen guard – only as LAST RESORT
         //     - AI: always active
@@ -14562,10 +14562,10 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 				if (bNoAutoHumanCitizen)
 				{
-					// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate anyways etc. -->
+					// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate -->
 					// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden” using the same strong negative value that worked so well for AI cities.
 					// Manual specialist changes are untouched (still allowed to create Citizens).
-					// <!-- custom: fires often (very often actually xd but anyways etc) so is noisy but at least works fine it seems. From t300 to t301 it fires like 10+ times just this turn more or less (didn't count exactly but seems as such anyways etc). But it is useful, to make sure we effectively block citizen specialists as intended, even though most of it is just the AI considering it and not actually going for it or choosing it. Would need more testing to be sure though, but considering it worked fine for AI players, it might also work as well for human players, but check to be sure and see known issue as of now 44.6 for details anyways etc. -->
+					// <!-- custom: fires often (very often actually xd) so is noisy but at least works fine it seems. From t300 to t301 it fires like 10+ times just this turn more or less (didn't count exactly but seems as such anyways etc). But it is useful, to make sure we effectively block citizen specialists as intended, even though most of it is just the AI considering it and not actually going for it or choosing it. Would need more testing to be sure though, but considering it worked fine for AI players, it might also work as well for human players, but check to be sure and see known issue as of now 44.6 for details -->
 					// 2. Why does it fire “a big lot”?
 					// That’s expected with where you put it.
 					// 	- AI_jobChangeValue is called a lot from AI_juggleCitizens and AI_addBestCitizen, for every candidate job (plot or specialist) during each juggling cycle.
@@ -14649,7 +14649,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 			}
 		}
 
-		// <!-- custom: before the no specialist at low pop rule, and regardless of city population, handle the exception where we absolutely need an artist to get our BFC, if city has low or no culture. Code provided by chatgpt 5 and thanks to my prompts and/or such and that i adjusted and/or such, check if accurate anyways etc -->
+		// <!-- custom: before the no specialist at low pop rule, and regardless of city population, handle the exception where we absolutely need an artist to get our BFC, if city has low or no culture. Code provided by chatgpt 5 and thanks to my prompts and/or such and that i adjusted and/or such, check if accurate -->
 		// --- Simple BFC Artist precheck ---------------------------------------------
 		// If we don't have BFC yet (level < 1) and city culture is very low (<3),
 		// force-pick exactly one Artist; and don't drop it until BFC is reached.
@@ -14664,7 +14664,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		{
 			const int iCityPopulation = getPopulation();
 
-			// <!-- custom: AIs often misassign specialists especially when their city is still small and perhaps low food too, resulting in pop 2 cities being stagnant. Sometimes even 2 specialists were assigned in said cities. Happened to barbarians too. It would be amazing to retweak all, but i believe a simple sanity/safe patch of preventing cities <= 4 to use a specialist of any kind would help a lot, see known issue as of now 45 for details anyways etc, also code by chatgpt 5 that i adjusted or not or yes or etc but anyways etc, check if accurate and thanks for help chatgpt 5 hehe anyways etc -->
+			// <!-- custom: AIs often misassign specialists especially when their city is still small and perhaps low food too, resulting in pop 2 cities being stagnant. Sometimes even 2 specialists were assigned in said cities. Happened to barbarians too. It would be amazing to retweak all, but i believe a simple sanity/safe patch of preventing cities <= 4 to use a specialist of any kind would help a lot, see known issue as of now 45 for details anyways etc, also code by chatgpt 5 that i adjusted or not or yes or etc, check if accurate and thanks for help chatgpt 5 hehe -->
 			if (iCityPopulation <= 4)
 			{
 				if (new_job.first /* hiring any specialist */)
@@ -14672,13 +14672,13 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 					return iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 				}
 			}
-			// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
-			// <!-- custom: update: generalizing the previous is "grow when you can instead of assigning any specialist" policy below now to all bigger sized cities without population cap anymore if i am not mistaken but anyways etc, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
-			// <!-- custom: also note if i may say but anyways etc: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lot or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure but anyways etc)-->
+			// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility -->
+			// <!-- custom: update: generalizing the previous is "grow when you can instead of assigning any specialist" policy below now to all bigger sized cities without population cap anymore, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots -->
+			// <!-- custom: also note: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lot or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure)-->
 			// strict growth-first rule for small-but-not-tiny cities with headroom
 			// Block *hiring* specialists when: pop >= 7, net happy ≥ 1, food surplus ≥ 2,
 			// and we're NOT in food→production mode (Settlers/Workers).
-			// <!-- custom: update: generalizing this "grow when you can instead of assigning any specialist" policy, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
+			// <!-- custom: update: generalizing this "grow when you can instead of assigning any specialist" policy, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots -->
 			// else if (iCityPopulation <= 7 && !isFoodProduction() && (iHappySurplus >= 1))
 			else
 			{
@@ -14696,7 +14696,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 			}
 		}
 		
-		// <!-- custom: for barbarians, do not allow any other specialist than the scientist, they would die or if not really don't need the other types for efficiency as well, keeping the scientist for versatility and utility, and in case we make some changes later where they last a big longer as a result in this case i mean but anyways etc ; note: for performance optimization, put this check last so all other conditions apply to other non-barbarian AI players first without checking this uneededly if i am not mistaken and if this is a word xd but anyways etc, as well as to barbarians as well, then only if not check barbarians specifically for remaining conditions if i am not mistaken but anyways etc -->
+		// <!-- custom: for barbarians, do not allow any other specialist than the scientist, they would die or if not really don't need the other types for efficiency as well, keeping the scientist for versatility and utility, and in case we make some changes later where they last a big longer as a result; note: for performance optimization, put this check last so all other conditions apply to other non-barbarian AI players first without checking this uneededly if i am not mistaken and if this is a word xd, as well as to barbarians as well, then only if not check barbarians specifically for remaining conditions -->
 		// Barbarian rule: allow only Scientist as a specialist target.
 		// Applies to both hires (plot->spec) and switches (spec->spec). Removals (spec->plot) unaffected.
         // ---------------------------------------------------------------------
@@ -15152,8 +15152,8 @@ int CvCityAI::AI_growthValuePerFood() const
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 	FOR_EACH_ENUM2(Specialist, eSpec)
@@ -15803,7 +15803,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 	setChooseProductionDirty(false);
 	clearOrderQueue();
 
-	// <!-- custom: add these to match code in our other functions and why not if is more efficient, check if accurate anyways etc -->
+	// <!-- custom: add these to match code in our other functions and why not if is more efficient, check if accurate -->
 	CvGame const& kGame = GC.getGame();
 
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -15922,7 +15922,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 							}
 						}
 					}
-					// <!-- custom: although this pushes a unit order outside of our AI_chooseUnit rewritten code, it seems caller outside (i.e. of AI_buildGovernorChooseProduction if i am not mistaken but anyways etc) is only applied if player is human, so does not affect other AI players so fine to keep as such i'd say if i'm not mistaken as this shouldn't interfere with our logic there if i understood it correctly, and chatgpt 5 confirms it xd if i may say but anyways etc, but check to be sure as this is just from a quite quick glance and i don't know too much about these although in this case i mean i mean if i may say but anyways etc it seems accurate/correct of me if i may say but anyways etc but check to be sure anyways etc -->
+					// <!-- custom: although this pushes a unit order outside of our AI_chooseUnit rewritten code, it seems caller outside (i.e. of AI_buildGovernorChooseProduction) is only applied if player is human, so does not affect other AI players so fine to keep as such i'd say if i'm not mistaken as this shouldn't interfere with our logic there if i understood it correctly, and chatgpt 5 confirms it xd, but check to be sure as this is just from a quite quick glance and i don't know too much about these although in this case i mean i mean it seems accurate/correct of me but check to be sure -->
 					// You’re right: AI_buildGovernorChooseProduction() is the human city-governor routine. It only runs when a human city has production automation on. For AI civs (Japan in your save), production flows through the regular AI_chooseProduction(), which then calls your AI_chooseUnit(...) paths. So the “governor pushOrder bypass” isn’t what’s creating AI longbows.
 					//
 					// otherwise, we're ready to build the unit
@@ -15969,9 +15969,9 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 		int iBestSpreadUnitValue = -1;
 		if (AI_bestSpreadUnit(true, true, iSpreadUnitOdds, &eBestSpreadUnit, &iBestSpreadUnitValue))
 		{
-			// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate anyways etc -->
+			// <!-- custom: also fix this preemptively as if i recall it correctly, this assert failed did happen in several code lines, so as it's harmless, better fix it as well as chatgpt 5 advises as well, check if accurate -->
 			// Yep—treat this second block the same way: don’t assert on AI_chooseUnit failure; just guard and fall through.
-			// <!-- custom: while we're at it, make the assert prettier with more info i mean but anyways etc -->
+			// <!-- custom: while we're at it, make the assert prettier with more info -->
 			// FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
 			// Contract check: if function said "true", we expect a concrete unit
 			FAssertMsg(eBestSpreadUnit != NO_UNIT,
@@ -16032,7 +16032,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 	The only reason I've moved it is to reduce clutter in the other function. */
 void CvCityAI::AI_barbChooseProduction()
 {
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
 	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -16057,7 +16057,7 @@ void CvCityAI::AI_barbChooseProduction()
 	int const iWaterPercent = AI_calculateWaterWorldPercent();
 	bool const bDanger = AI_isDanger();
 	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
-	// <!-- custom: store this once since we use it many times then reference the cached variable rather as chatgpt 5 usually advices hehe but anyways etc -->
+	// <!-- custom: store this once since we use it many times then reference the cached variable rather as chatgpt 5 usually advices hehe-->
 	const int iNumCities = kPlayer.getNumCities();
 	int const iExistingWorkers = kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
 	int const iNeededWorkers = kPlayer.AI_neededWorkers(getArea());
@@ -16081,7 +16081,7 @@ void CvCityAI::AI_barbChooseProduction()
 	// advc.305:
 	int iCityAge = kGame.getGameTurn() - getGameTurnAcquired();
 
-	// <!-- custom: optimization i found myself but anyways etc; done with the help of chatgpt 5 and that i then adjusted or not or yes or etc but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: optimization i found myself; done with the help of chatgpt 5 and that i then adjusted or not or yes or etc, check if accurate -->
 	// use sCityName (or kCityName) multiple times in this function
 	// My advice here is to avoid binding a pointer to a temporary object. If getName() doesn’t return const CvWString&, we can store a local copy, like so:
 	// Overhead of calling getName() or .GetCString() is minimal, but if repeated often, I could store it to save on performance. However, I must be cautious about pointer invalidation if name changes within the function (though rare). A better approach might be using const CvWString& szCityName = getName() to store it safely before passing .GetCString() when needed. If it’s only used once—没必要! For performance, it’s okay to use getName().GetCString() directly in formatting.
@@ -16377,8 +16377,8 @@ int CvCityAI::AI_countGoodSpecialists(bool bHealthy) const
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 	int iCount = 0;
@@ -16793,7 +16793,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
 	FAssert(bLand || bWater); // advc
 	int iCount = 0;
 
-	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
+	// <!-- custom: very nice optimization with the help of chatgpt 5 -->
 	// Inside the nested player/plot loop, pull PlayerTypes eOwner = getOwner(); TeamTypes eTeam = getTeam(); once outside the loops, and reuse int ourPlotCulture = kPlot.getCulture(eOwner); inside—then you do one getCulture per rival instead of two per rival. It’s minor, but this is an O(numTiles × numPlayers) routine.
 	const PlayerTypes eOwner = getOwner();
 	const TeamTypes eTeam = getTeam();
@@ -16815,7 +16815,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
 		if (eBonus != NO_BONUS && eBonus != eLoopBonus)
 			continue;
 
-		// <!-- custom: optimization i found myself but anyways etc; done with the help of chatgpt 5 and that i then adjusted or not or yes or etc but anyways etc, check if accurate anyways etc -->
+		// <!-- custom: optimization i found myself; done with the help of chatgpt 5 and that i then adjusted or not or yes or etc, check if accurate -->
 		// Good eye—there are a couple more tiny hoists you can do here. Your eOwner/eTeam locals are already the main win. The next cheap gains:
 		// - Cache the plot owner once per iteration (used twice).
         const PlayerTypes ePlotOwner = kPlot.getOwner();
@@ -16846,7 +16846,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
 int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtraTech, bool bLand,
 	bool bWater) /* advc: */ const
 {
-	// <!-- custom: very nice optimization with the help of chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it bit or not, based on an existing name to make sure pattern indeed exists but anyways etc but anyways etc -->
+	// <!-- custom: very nice optimization with the help of chatgpt 5 -->
 	// Inside the nested player/plot loop, pull PlayerTypes eOwner = getOwner(); TeamTypes eTeam = getTeam(); once outside the loops, and reuse int ourPlotCulture = kPlot.getCulture(eOwner); inside—then you do one getCulture per rival instead of two per rival. It’s minor, but this is an O(numTiles × numPlayers) routine.
 	const PlayerTypes eOwner = getOwner();
 	const TeamTypes eTeam = getTeam();
@@ -17030,7 +17030,7 @@ int CvCityAI::AI_cityThreat(/*bool bDangerPercent*/) const // advc: param unused
 {
 	PROFILE_FUNC();
 
-	// <!-- custom: cache repetitive calls for performance optimization or/and such anyways etc. -->
+	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->

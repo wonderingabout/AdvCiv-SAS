@@ -1402,7 +1402,7 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
 		return false;
 	}
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const bool bPlayerAlwaysRazesCities = (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0);
 
 	if (bPlayerAlwaysRazesCities)
@@ -2666,7 +2666,7 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
 		CvPlot* pPlot = GC.getMap().plot(pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY);
 		if (NULL != pPlot)
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 			gDLL->getEngineIFace()->addColoredPlot(pPlot->getX(), pPlot->getY(),
 					GC.getInfo(eColorWarningText).getColor(),

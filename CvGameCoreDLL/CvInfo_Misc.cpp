@@ -1192,7 +1192,7 @@ bool CvGameText::read(CvXMLLoadUtility* pXML, const std::string& language_name)
 		int iNumLanguages = getNumLanguages();
 		if (iNumLanguages <= 0)
 		{
-			// <!-- custom: doesn't seem safe or easy or worth changing this, as also discussed with chatgpt 5 but anyways etc, so not changing this, check if accurate anyways etc -->
+			// <!-- custom: doesn't seem safe or easy or worth changing this, as also discussed with chatgpt 5, so not changing this, check if accurate -->
 			iNumLanguages = std::min(gDLL->getXMLIFace()->GetNumSiblings(pXML->GetXML()), GC.getDefineINT("MAX_NUM_LANGUAGES"));
 			setNumLanguages(iNumLanguages);
 		}

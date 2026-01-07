@@ -61,7 +61,7 @@ class SevoPediaTerrain:
 		self.W_BONUSES_ONLY_WITH_FEATURE = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
 		self.H_BONUSES_ONLY_WITH_FEATURE = self.H_FEATURES
 
-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
 		self.X_RELEVANT_UNITS = self.X_FEATURES
@@ -154,12 +154,12 @@ class SevoPediaTerrain:
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
-		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now anyways etc ; the peak info is also incomplete, not mentioning for example the impassable info if i am not mistaken so also not displaying it for peak if i am not mistaken in doing so but anyways etc -->
+		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now; the peak info is also incomplete, not mentioning for example the impassable info if i am not mistaken so also not displaying it for peak if i am not mistaken in doing so-->
 		if self.iTerrain == iPeak or self.iTerrain == iHill:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
-			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun but anyways etc.) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe if i am not mistaken in my guess, check if accurate, so to solve this start a bit higher than the center instead. -->
+			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe if i am not mistaken in my guess, check if accurate, so to solve this start a bit higher than the center instead. -->
 			#yPanelCenter = yPanel + (hPanel / 2)
 			yPanelCenter = yPanel + int(0.42 * hPanel)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -184,7 +184,7 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or/and for consistency, also exclude from display here anyways etc -->
+		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or/and for consistency, also exclude from display here -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
@@ -218,7 +218,7 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc, as for peak exclude it as well as it shouldn't have improvements at least as of now anyways etc -->
+		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc, as for peak exclude it as well as it shouldn't have improvements at least as of now -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 		if self.iTerrain == iPeak or self.iTerrain == iHill:
@@ -262,7 +262,7 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: not applicable for this plot type / terrain if i am not mistaken, so show an alternative text instead anyways etc -->
+		# <!-- custom: not applicable for this plot type / terrain if i am not mistaken, so show an alternative text instead -->
 		if self.iTerrain == iPeak:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
 			textName = self.top.getNextWidgetName()
@@ -275,13 +275,13 @@ class SevoPediaTerrain:
 				bonusInfo = gc.getBonusInfo(iBonus)
 				if bonusInfo.isGraphicalOnly():
 					continue
-				# <!-- custom: minor refactor fromr rfc doc mod since output seems to be the same, check for both all terrains and then specifically for hill anyways etc (with the more general check first so it is executed faster even if a micro bit in this case (but still! If i may say too (reference to baten kaitos's kalas line if i may say but anyways etc...) but anyways etc...) but anyways etc...) -->
+				# <!-- custom: minor refactor fromr rfc doc mod since output seems to be the same, check for both all terrains and then specifically for hill anyways etc (with the more general check first so it is executed faster even if a micro bit in this case (but still! If i may say too (reference to baten kaitos's kalas line...))) -->
 				elif (bonusInfo.isTerrain(self.iTerrain)) or (self.iTerrain == iHill and bonusInfo.isHills()):
 					screen.attachImageButton(panel, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
 
 
 
-	# <!-- custom: code provided by chatgpt thanks to my prompts too and adjustments too but anyways etc -->
+	# <!-- custom: code provided by chatgpt thanks to my prompts too and adjustments too-->
 	def placeBonusesOnlyWithFeature(self):
 		xPanel = self.X_BONUSES_ONLY_WITH_FEATURE
 		yPanel = self.Y_BONUSES_ONLY_WITH_FEATURE
@@ -318,7 +318,7 @@ class SevoPediaTerrain:
 
 
 
-	# <!-- custom: code provided by chatgpt thanks to my prompt too and adjusted or not for advciv-sas anyways etc -->
+	# <!-- custom: code provided with the help of chatgpt thanks and adjusted or not for advciv-sas -->
 	def placeRelevantUnits(self):
 		xPanel = self.X_RELEVANT_UNITS
 		yPanel = self.Y_RELEVANT_UNITS
@@ -335,7 +335,7 @@ class SevoPediaTerrain:
 
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
 		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
 
 		# Create the MultiList control
@@ -356,9 +356,9 @@ class SevoPediaTerrain:
 		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative anyways etc -->
+		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
-		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well anyways etc, so handle its display separately anyways etc -->
+		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well anyways etc, so handle its display separately -->
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 		iCoast = getInfoTypeOrFail("TERRAIN_COAST", gc)
 		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
@@ -370,13 +370,13 @@ class SevoPediaTerrain:
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure but anyways etc -->
+				# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure-->
 				# inside placeRelevantUnits(), in the if self.iTerrain == iPeak: loop
 				unitInfoDomain = unitInfo.getDomainType()
 				passTech = (unitInfo.getTerrainPassableTech(iPeak) != -1)
 
-				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too if i am not mistaken but anyways etc), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
-				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc but anyways etc -->
+				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
+				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc-->
 				# Peak — Relevant Units (includes “boat with legs”; All-Terrain short-circuits)
 				can_walk_on_peak = (
 					unitInfo.isCanMoveAllTerrain() or
@@ -503,7 +503,7 @@ class SevoPediaTerrain:
 					#isButtonFound = True
 					iButtonIndex += 1
 
-	# <!-- custom: code provided by chatgpt thanks to my prompt too and adjusted or not for advciv-sas anyways etc -->
+	# <!-- custom: code provided with the help of chatgpt thanks and adjusted or not for advciv-sas -->
 	def placeUnitsImpassable(self):
 		xPanel = self.X_UNITS_IMPASSABLE
 		yPanel = self.Y_UNITS_IMPASSABLE
@@ -542,7 +542,7 @@ class SevoPediaTerrain:
 		iCoast = getInfoTypeOrFail("TERRAIN_COAST", gc)
 		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
 
-		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative anyways etc -->
+		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative -->
 		if self.iTerrain == iPeak:
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
@@ -550,12 +550,12 @@ class SevoPediaTerrain:
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure but anyways etc -->
+				# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure-->
 				# inside placeUnitsImpassable(), in the if self.iTerrain == iPeak: loop
 				unitInfoDomain = unitInfo.getDomainType()
 				passTech = (unitInfo.getTerrainPassableTech(iPeak) != -1)
 
-				# <!-- custom: "boat with legs" edge case handled in as of now relevant units if i'm not mistaken and as chatgpt 5 says as well, if no boat unit at all has legs, as is as of now in advciv-sas, then they would instead be displayed in this units impassable panel for exhaustiveness and notsimply omitted if i understood it correctly and if i'm not mistaken i mean but anyways etc, check if accurate but anyways etc -->
+				# <!-- custom: "boat with legs" edge case handled in as of now relevant units if i'm not mistaken and as chatgpt 5 says as well, if no boat unit at all has legs, as is as of now in advciv-sas, then they would instead be displayed in this units impassable panel for exhaustiveness and notsimply omitted if i understood it correctly, check if accurate-->
 				# Peak — Units Impassable (show land w/out bypass; all sea unless All-Terrain)
 				blocked = (
 					(not unitInfo.isCanMoveAllTerrain()) and (
@@ -584,7 +584,7 @@ class SevoPediaTerrain:
 						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 		else:
-			# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure but anyways etc -->
+			# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure-->
 			info = gc.getTerrainInfo(self.iTerrain)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):

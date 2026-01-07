@@ -102,7 +102,7 @@
 			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
 			<Civilopedia>TXT_KEY_TRAIT_CREATIVE_PEDIA</Civilopedia>
 		</NewConceptInfo>
-		<!-- custom: removed CONCEPT_TRAIT_EXPANSIVE as the trait is now as of now but anyways etc removed in our mod but anyways etc -->
+		<!-- custom: removed CONCEPT_TRAIT_EXPANSIVE as the trait is now as of nowremoved in our mod-->
 		<NewConceptInfo>
 			<Type>CONCEPT_TRAIT_FINANCIAL</Type>
 			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>

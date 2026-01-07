@@ -28,7 +28,7 @@ or/and modify existing ones, for example, archery units would become:
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
 		</UnitCombatInfo>
-		<!-- custom: art import from FFH2 mod's UNITCOMBAT_ARCHER 's button anyways etc -->
+		<!-- custom: art import from FFH2 mod's UNITCOMBAT_ARCHER 's button -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_ARCHER_BOW_LONG</Type>
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Description>
@@ -43,7 +43,7 @@ or/and modify existing ones, for example, archery units would become:
 
 
 
-		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc; as for the button art import anyways etc from ri mod anyways etc -->
+		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc; as for the button art import anyways etc from ri mod -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MOUNTED_MELEE</Type>
 			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Description>
@@ -57,7 +57,7 @@ or/and modify existing ones, for example, archery units would become:
 
 
 
-		<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK so knight units are not strong against pikemen, and chariots are not strong against spearmen or/and such anyways etc; button import from c2c mod anyways etc -->
+		<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK so knight units are not strong against pikemen, and chariots are not strong against spearmen or/and such anyways etc; button import from c2c mod -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MELEE_POLEARM</Type>
 			<Description>TXT_KEY_UNITCOMBAT_MELEE_POLEARM</Description>
@@ -84,7 +84,7 @@ or/and modify existing ones, for example, archery units would become:
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_ARMOR</Type>
 			<Description>TXT_KEY_UNITCOMBAT_ARMOR</Description>
-			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case if i may say but anyways etc -->
+			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case -->
 			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Armored_Units/armored_units.dds</Button>
 		</UnitCombatInfo>
 		<UnitCombatInfo>
@@ -100,7 +100,7 @@ or/and modify existing ones, for example, archery units would become:
 
 
 
-		<!-- custom: art import from COM mod's rom_promotion_atlas2.dds atlas (their UNITCOMBAT_BOMBERS button that i extracted from the atlas with Paint.NET as we don't need all the atlas anyways etc) anyways etc -->
+		<!-- custom: art import from COM mod's rom_promotion_atlas2.dds atlas (their UNITCOMBAT_BOMBERS button that i extracted from the atlas with Paint.NET as we don't need all the atlas anyways etc) -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_AIR_BOMBER</Type>
 			<Description>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Description>

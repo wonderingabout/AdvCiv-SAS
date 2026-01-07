@@ -83,12 +83,12 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 	// 	1>..\CvDLLWidgetData.cpp(89): error C2360: initialization of 'iMaxPlotListSize' is skipped by 'case' label
 	// 	1>          ..\CvDLLWidgetData.cpp(83) : see declaration of 'iMaxPlotListSize'
  	// 
-	// So i  added braces here as recommended by chatgpt 5, check if accurate as i don't know a lot about these errors if at all i mean but anyways etc -->
+	// So i  added braces here as recommended by chatgpt 5, check if accurate as i don't know a lot about these errors if at all -->
 	// You hit the classic MSVC “switch-init” rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip” the initialization → C2360.
 	//
 	// Fix (wrap the case in braces)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
 
 		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CTRL_SHIFT",
@@ -654,7 +654,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 	{
 		parseLeaderheadHelp(widgetDataStruct, szBuffer);
 
-		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
 		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 		// Vassal Check for Leaderhead Widget (Column Headers / General)
 		// eRival = m_iData1 (The face we are hovering), ePlayer = Us
@@ -670,7 +670,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		//parseLeaderheadHelp(widgetDataStruct, szBuffer);
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer); // BULL - Leaderhead Relations
 
-		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
 		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 		// Vassal Check for Glance Screen
 		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
@@ -684,7 +684,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 	{
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer);
 
-		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
 		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 		// The issue is that the Glance screen uses two different widget types depending on your BUG Mod settings ("Show War Trades").
 		// 	1. WIDGET_LH_GLANCE: Used when "Show War Trades" is ON.
@@ -1177,11 +1177,11 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_HELP_YIELD_CHANGE:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Improvement");
 		break;
-	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel bonuses at tech_animal_husbandry anyways etc) generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only anyways etc; result: fixed the issue it seems! So left as such anyways etc. -->
+	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel bonuses at tech_animal_husbandry anyways etc) generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only anyways etc; result: fixed the issue it seems! So left as such -->
 	case WIDGET_HELP_BONUS_REVEAL:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");
 		break;
-	// <!-- custom: fix the obsolete bonus error known issue number 22 in advciv-sas (see known issues readme for details), replace line `py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");` with one using iData1 as obsolete buildings in tech advisor don't have the id bug, as advised by chatgpt also thanks to my prompt too but anyways etc, and it indeed fixed the issue now anyways etc -->
+	// <!-- custom: fix the obsolete bonus error known issue number 22 in advciv-sas (see known issues readme for details), replace line `py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");` with one using iData1 as obsolete buildings in tech advisor don't have the id bug, as advised by chatgpt also thanks to my prompt too, and it indeed fixed the issue now -->
 	case WIDGET_HELP_OBSOLETE_BONUS:
 		py.jumpToPedia(iData1, "Bonus");
 		break;
@@ -1319,7 +1319,7 @@ void CvDLLWidgetData::doPlotListShift(int iChange, bool bMaxStep)
 	int iStep = 10;
 	if (gDLL->UI().isCityScreenUp())
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
 
 		// (Not sure that this is really a maximal limit of anything)
@@ -2036,7 +2036,7 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
 		}
 	}
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iConscriptMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
 
 		int iMinCulturePercent = iConscriptMinCulturePercent;
@@ -3422,7 +3422,7 @@ void CvDLLWidgetData::parseChangeSpecialistHelp(
 	int const iChange = widgetDataStruct.m_iData2;
 	if (iChange > 0)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 		GAMETEXT.parseSpecialistHelp(szBuffer, eSpecialist, pHeadSelectedCity);
@@ -5824,7 +5824,7 @@ void CvDLLWidgetData::parseLeaderheadRelationsHelp(CvWidgetDataStruct &widgetDat
 			(PlayerTypes)widgetDataStruct.m_iData2);
 } // BULL - Leaderhead Relations - end
 
-// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
 // <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 // Helper for Vassal Willingness Tooltip
 // eRival  = The Foreign Leader we are hovering over (Potential Vassal)
@@ -6279,7 +6279,7 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 
 	if (eFlags & CvPlayer::POLLUTION_POPULATION)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iGlobalWarmingPopulationWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
 		
 		szBuffer.append(NEWLINE);
@@ -6288,7 +6288,7 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 	}
 	if (eFlags & CvPlayer::POLLUTION_BUILDINGS)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iGlobalWarmingBuildingWeight = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
 
 		szBuffer.append(NEWLINE);
@@ -6297,7 +6297,7 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 	}
 	if (eFlags & CvPlayer::POLLUTION_BONUSES)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iGlobalWarmingBonusWeight = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
 
 		szBuffer.append(NEWLINE);
@@ -6306,7 +6306,7 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 	}
 	if (eFlags & CvPlayer::POLLUTION_POWER)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iGlobalWarmingPowerWeight = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
 
 		szBuffer.append(NEWLINE);

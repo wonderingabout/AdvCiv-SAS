@@ -64,8 +64,8 @@ void AdvCiv4lert::check(bool bSilent)
 // <advc.210a>
 void WarTradeAlert::check()
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization. as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const bool bAlertOnNoLongerWarTrade = GC.getDefineBOOL("ALERT_ON_NO_LONGER_WAR_TRADE");
 
 	CvPlayer const& kOwner = GET_PLAYER(m_eOwner);
@@ -157,7 +157,7 @@ void WarTradeAlert::showMessage(TeamTypes eHireling, bool bNowTooManyWars) const
 
 void WarTradeAlert::showMessage(CvWString szMsg, TeamTypes eHireling) const
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorWarTradeAlert = (ColorTypes)GC.getColorType("WAR_TRADE_ALERT");
 	AdvCiv4lert::showMessage(szMsg, NULL,
 			// <advc.127b>
@@ -513,7 +513,7 @@ void CityTradeAlert::msgWilling(std::vector<CvCity const*> const& kCities,
 		szMsg.append(L" ");
 		szMsg.append(kCities[i]->getName());
 	}
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getColorType("CITY_BLUE");
 	showMessage(szMsg, NULL,
 			kCities.size() == 1 ? kCities[0]->getX() : - 1,
@@ -539,7 +539,7 @@ void CityTradeAlert::msgLiberate(std::vector<CvCity const*> const& kCities,
 	CvWString szName(GET_PLAYER(ePlayer).getName());
 	szMsg.append(gDLL->getText("TXT_KEY_CAN_LIBERATE", szName.c_str()));
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getColorType("CITY_BLUE");
 	showMessage(szMsg, NULL,
 			kCities.size() == 1 ? kCities[0]->getX() : - 1,

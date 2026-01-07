@@ -1,4 +1,4 @@
-# <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game if i may say anyways etc), especially the very nice i mean if i may say but anyways etc debug leaderheadinfo one but not only, (another) other functions(function) as well anyways etc, moving them here as it would be heavy and unclean in this case anyways etc and would also clutter needlessly the other helpers. -->
+# <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game if i may say anyways etc), especially the very nice i mean debug leaderheadinfo one but not only, (another) other functions(function) as well anyways etc, moving them here as it would be heavy and unclean in this case anyways etc and would also clutter needlessly the other helpers. -->
 
 
 
@@ -37,10 +37,10 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 
 	print("\n\n[DEBUG] For iLeader=%d, leader head info debugged as such:" % iLeader)
 
-	# <!-- custom: more computationally efficient to store closest pointer since we have many/multiple calls to make anyways etc if i am not mistaken as chatgpt had done before and i was too dumb or rather maybe uninformed to understand/know, anyways etc, even if difference is minimal or not, and even if we don't use this except when debugging, no reason to not implement it as well. I (had) wanted for method call for clarity, but if this is more efficient better do it as so then maybe anyways etc if i am not mistaken anyways etc. -->
+	# <!-- custom: more computationally efficient to store closest pointer since we have many/multiple calls to make anyways etc if i am not mistaken as chatgpt had done before and i was too dumb or rather maybe uninformed to understand/know, anyways etc, even if difference is minimal or not, and even if we don't use this except when debugging, no reason to not implement it as well. I (had) wanted for method call for clarity, but if this is more efficient better do it as so then maybe. -->
 	info = gc.getLeaderHeadInfo(iLeader)
 
-	# <!-- custom: try to follow XML order as much as possible and to be sure we have all fields too anyways etc -->
+	# <!-- custom: try to follow XML order as much as possible and to be sure we have all fields too -->
 	print("\n\n==== FIRST XML FIELDS PART 1 (from XML order) ====")
 	print("iWonderConstructRand: %d" % info.getWonderConstructRand())
 	print("iBaseAttitude: %d" % info.getBaseAttitude())
@@ -54,7 +54,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	print("iMaxGoldTradePercent: %d" % info.getMaxGoldTradePercent())
 	print("iMaxGoldPerTurnTradePercent: %d" % info.getMaxGoldPerTurnTradePercent())
 
-	# <!-- custom: also add BBAI Victory weights now that we have exposed them / expose them to python as well, see todo docs for details and todo add .cpp code comment filename anyways etc -->
+	# <!-- custom: also add BBAI Victory weights now that we have exposed them / expose them to python as well, see todo docs for details and todo add .cpp code comment filename -->
 	print("\n\n==== BBAI VICTORY WEIGHTS ====")
 	print("Culture Victory Weight: %d" % info.getCultureVictoryWeight())
 	print("Space Victory Weight: %d" % info.getSpaceVictoryWeight())
@@ -62,7 +62,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	print("Domination Victory Weight: %d" % info.getDominationVictoryWeight())
 	print("Diplomacy Victory Weight: %d" % info.getDiplomacyVictoryWeight())
 
-	# <!-- custom: then war fields continue anyways etc as per XML order anyways etc -->
+	# <!-- custom: then war fields continue anyways etc as per XML order -->
 	print("\n\n==== WAR XML FIELDS (from XML order) ====")
 	print("iMaxWarRand: %d" % info.getMaxWarRand())
 	print("iMaxWarNearbyPowerRatio: %d" % info.getMaxWarNearbyPowerRatio())
@@ -108,7 +108,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	print("iFavoriteCivicAttitudeDivisor: %d" % info.getFavoriteCivicAttitudeDivisor())
 	print("iFavoriteCivicAttitudeChangeLimit: %d" % info.getFavoriteCivicAttitudeChangeLimit())
 
-	# <!-- custom: there are "AttitudeThreshold" and "RefuseAttitudeThreshold", handle the most common case, they seem to all be about refusing something or not being able to do it if threshold is not met if i am not mistaken, handle them as such, anyways etc -->
+	# <!-- custom: there are "AttitudeThreshold" and "RefuseAttitudeThreshold", handle the most common case, they seem to all be about refusing something or not being able to do it if threshold is not met if i am not mistaken, handle them as such -->
 	print("\n\n==== ATTITUDE THRESHOLDS ====")
 	# <!-- custom: if i am not mistaken, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in leader_ragnar anyways etc), here is the table conversion map if i am not mistaken of attitude to num: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
 	#
@@ -171,7 +171,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 		print("Flavor %d (%s): %d" % (i, name, value))
 
 	print("\n\n==== CONTACTS ====")
-	# <!-- custom: 15th (0 to 13 is 14 values in total anyways etc) value has seemingly junk code (for example for leader gandhi Contact 14 (): Delay 1117701140, Rand 1110361188), stop at this last one anyways etc -->
+	# <!-- custom: 15th (0 to 13 is 14 values in total anyways etc) value has seemingly junk code (for example for leader gandhi Contact 14 (): Delay 1117701140, Rand 1110361188), stop at this last one -->
 	NUM_CONTACT_TYPES_ASSESSED = 14
 	for i in range(NUM_CONTACT_TYPES_ASSESSED):
 		name = gc.getContactTypes(i)
@@ -183,7 +183,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	# <!-- custom: 38th (0 to 36 is 37 values in total anyways etc) value results in an error:
 	# AttributeError: 'NoneType' object has no attribute 'getType'
 	# ERR: Python function pediaJumpToLeader failed, module CvScreensInterface
-	# , so stop at this last one anyways etc -->
+	# , so stop at this last one -->
 	# <!-- custom: note: here no positive/negative different memory type or index handling, as we are simply debugging and directly displaying the XML as it is, no aggregation, no adjustment of any value, anyways etc, so we can use range and loop over all NUM_MEMORY_TYPES_ASSESSED instead of using positive_or_negative_memory_indexes specifically instead depending on if memory index is of a positive or of a negative memory in sevopedia leader, so here in debugging (i.e. sevopedia_helpers py file anyways etc) we can respect and be consistent with the contact approach more strictly/reliably.. -->
 	NUM_MEMORY_TYPES_ASSESSED = 37
 	for i in range(NUM_MEMORY_TYPES_ASSESSED):
@@ -193,10 +193,10 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 		print("Memory %d (%s): AttitudePercent %d, Decay %d" % (i, name, value_attitude_percent, value_decay))
 
 	print("\n\n==== NOWARATTITUDEPROBS ====")
-	# <!-- custom: stop at 4 because there are only 5 attitudes (0 furious to 4 friendly anyways etc is a total of 5 values anyways etc), and trying to access the 6th non-existent in this case anyways etc value returns this error if i am not mistaken anyways etc:
+	# <!-- custom: stop at 4 because there are only 5 attitudes (0 furious to 4 friendly anyways etc is a total of 5 values anyways etc), and trying to access the 6th non-existent in this case anyways etc value returns this error:
 	# AttributeError: 'NoneType' object has no attribute 'getDescription'
 	# ERR: Python function pediaJumpToLeader failed, module CvScreensInterface
-	# , so stop at last value value/one etc anyways etc but anyways etc anyways etc -->
+	# , so stop at last value value/one  -->
 	NUM_ATTITUDE_TYPES_ASSESSED = 5
 	for i in range(NUM_ATTITUDE_TYPES_ASSESSED):
 		name = gc.getAttitudeInfo(i).getDescription()
@@ -334,7 +334,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	#
 	# and we have reached end of a leader info's xml if i am not mistaken, hopefully we parsed all we needed -->
 
-	# <!-- custom: example of output for example for leader gandhi anyways etc with lineskip/extra newlines removed anyways etc for concision anyways etc, for example for Gandhi anyways etc -->
+	# <!-- custom: example of output for example for leader gandhi anyways etc with lineskip/extra newlines removed anyways etc for concision anyways etc, for example for Gandhi -->
 
 
 

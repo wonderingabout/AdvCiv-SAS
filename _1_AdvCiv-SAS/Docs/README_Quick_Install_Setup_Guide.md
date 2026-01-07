@@ -28,7 +28,7 @@ First you need to install (or have it installed already) Civilization 4 Beyond t
 
 If you don't have the game, i recommend buying it from GOG rather than Steam (i have no affiliation with either xd, although i have the steam version myself for convenience and such, as the executable or whatever they call it is cleaner and closer if not entirely unmodified unlike the Steam one if i am not mistaken, but check to be sure).
 
-It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide in this case i mean but anyways etc, check if i am not mistaken i mean too or for extra or updated info if any change has been made since maybe.
+It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide, check if i am not mistaken i mean too or for extra or updated info if any change has been made since maybe.
 
 ## Download this mod AdvCiv-SAS
 
@@ -76,7 +76,7 @@ Finally, add a shortcut to your desktop which link is, for example for Steam:
 
 For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game anyways etc), ready to use, (AdvCiv-SAS - Steam shortcut.lnk: see [Windows_shortcuts](/_1_AdvCiv-SAS/Windows_shortcuts/)). You can just move it to the desktop for your convenience.
 
-Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer if i'm not mistaken but anyways etc) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken anyways etc, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken anyways etc, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
 
 ## Version number
 
@@ -88,7 +88,7 @@ If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer ver
 
 ## If you have trouble downloading/installing/using/upgrading/downgrading the mod
 
-Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd but anyways etc, although it is a non-financial profit mod if i may say too but anyways etc...) and reply in case they encounter same issue or/and such, but do as you prefer and hopefully i or/and others can provide some help if i may say i mean but anyways etc).
+Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or/and such, but do as you prefer and hopefully i or/and others can provide some help).
 
 ### Full Development version (to modify it yourself)
 
@@ -100,9 +100,9 @@ You'd need to git clone this repo or some similar method so that the exclusion l
 
 ### General ideas
 
-Recommended, change your config as you prefer. For example as for me, i play at 1920x1080 (seems to display best ingame, even though i have a larger screen actually (4K but anyways etc) i also optimized sevopedia features like the AI personality panel for 1920x1080 (but may work as well for higher resolutions although i didn't test it but anyways etc)) in full screen, but when i need to debug or test the windowed mode is so much more practical.
+Recommended, change your config as you prefer. For example as for me, i play at 1920x1080 (seems to display best ingame, even though i have a larger screen actually (4K) i also optimized sevopedia features like the AI personality panel for 1920x1080 (but may work as well for higher resolutions although i didn't test it)) in full screen, but when i need to debug or test the windowed mode is so much more practical.
 
-There are some options i use personally xd but anyways etc in ingame settings then like if i'm not mistaken (from memory since i can't find the txt files where i stored it if i ever did (which i think i did but anyways etc)), so do as you prefer, but as for me i use these civ4 options for example if not already enabled before anyways etc (non-exhaustive in case i forgot / didn't show some anyways etc):
+There are some options i use personally xdin ingame settings then like if i'm not mistaken (from memory since i can't find the txt files where i stored it if i ever did (which i think i did)), so do as you prefer, but as for me i use these civ4 options for example if not already enabled before anyways etc (non-exhaustive in case i forgot / didn't show some anyways etc):
 
 - wait at end of turn
 - quick attack
@@ -135,13 +135,13 @@ Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so 
 
 If you're developping a mod, or simply want to run some autoplays or such yourself, you'd most likely want to enable debug mode as well as do autoplay runs yourself. See [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc) for details on how to do it and such anyways etc.
 
-Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in CivilizationIV.ini file (or maybe in ingame settings although i didn't test it but anyways etc)), as this is so much more convenient in order to do screenshots and browse them easily, as well as go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game, etc. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing etc.
+Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in CivilizationIV.ini file (or maybe in ingame settings although i didn't test it)), as this is so much more convenient in order to do screenshots and browse them easily, as well as go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game, etc. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing etc.
 
 ## Where to download more/other mods
 
 If you want to try/play other mods than AdvCiv-SAS or browse them (but you may already know if you downloaded this, still, or if not, maybe this can help you too), consider visiting, among other possible sources/websites:
 
 - CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website's civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/) or the [civfanatics website's civ4 modpacks downloads section](https://forums.civfanatics.com/resources/categories/civ4-modpacks.2/)
-- ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd but anyways etc) mod maybe as interesting maybe as AdvCiv)): [ModDB website (Civilization 4 Mods)](https://www.moddb.com/games/civilization-iv/mods) anyways etc.
+- ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd) mod maybe as interesting maybe as AdvCiv)): [ModDB website (Civilization 4 Mods)](https://www.moddb.com/games/civilization-iv/mods) anyways etc.
 
 But i say it just for exhaustiveness, even though i am (quite) friendly i think, i prefer to stay alone and relax and do my own things, so i might get stressed if you contact me.. Still, if this project would help you reader or even those who don't read, i may be quite happy of it, especially as i contribute(d) to it.

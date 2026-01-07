@@ -3,7 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- --><!-- Promotion Infos -->
-<!-- custom: note: be careful if you change these to also change/reflect them/these if i may say but anyways etc in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them anyways etc) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or/and the code there in as of now the .cpp corresponding file(s) anyways etc -->
+<!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them anyways etc) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or/and the code there in as of now the .cpp corresponding file(s) -->
 <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<PromotionInfos>
 
@@ -1268,7 +1268,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case if i may say but anyways etc -->
+			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case -->
 			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Armored_Units/armored_units.dds</Button>
 		</PromotionInfo>
 
@@ -1849,7 +1849,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: replaced with a button i made based on the medic 3 button from ri mod (thankfully found it easily there without having to browse through atlas or wherever it was so thanks for this .dds ready to use but anyways etc) then edited with paint.net to add the 4th medic level but anyways etc -->
+			<!-- custom: replaced with a button i made based on the medic 3 button from ri mod (thankfully found it easily there without having to browse through atlas or wherever it was so thanks for this .dds ready to use) then edited with paint.net to add the 4th medic level-->
 			<Button>Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -1857,7 +1857,7 @@
 			<Description>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: it is a tiny bit in this case i mean but anyways etc op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or/and related DLL code changes but anyways etc). It is also not nonsensical, perhaps even strategically interesting in this case i mean if i may say but anyways etc, to link the concept as in idea of/to moving/mvoe fast in this case i mean but anyways etc with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or/and first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or/and relevant in this case i mean if i may say but anyways etc -->
+			<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or/and related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or/and first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or/and relevant in this case i mean -->
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_MEDIC1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_LOGISTICS</PromotionPrereqOr2>
@@ -2674,7 +2674,7 @@
 			<Description>TXT_KEY_PROMOTION_CITYRAIDER3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hopefully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate startegies as well rather, was NONE -->
 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
@@ -2909,7 +2909,7 @@
 			<Description>TXT_KEY_PROMOTION_GARRISON3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hopefully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate startegies as well rather, was NONE -->
 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_CITY_GARRISON2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
@@ -2959,7 +2959,7 @@
 			<FeatureDefenses/>
 			<!-- custom: since more units have access to this promotion now, make it a bit weaker,
 			not only for balance, also because defenders can be good against all invaders, not only
-			a specific type, i think it's more realistic this way, was UNITCOMBAT_MELEE_POLEARM 10 and UNITCOMBAT_MELEE_SHOCK 10 anyways etc -->
+			a specific type, i think it's more realistic this way, was UNITCOMBAT_MELEE_POLEARM 10 and UNITCOMBAT_MELEE_SHOCK 10 -->
 			<UnitCombatMods/>
 			<DomainMods/>
 			<TerrainDoubleMoves/>
@@ -3084,7 +3084,7 @@
 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -3109,7 +3109,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod anyways etc -->
+			<!-- custom: button import from ri mod -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_1/barrage1.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3208,7 +3208,7 @@
 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -3233,7 +3233,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod anyways etc -->
+			<!-- custom: button import from ri mod -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_2/barrage2.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3312,7 +3312,7 @@
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -3333,7 +3333,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod anyways etc -->
+			<!-- custom: button import from ri mod -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_3/barrage3.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3410,7 +3410,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image) but anyways etc) from the ri mod's button anyways etc -->
+			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image)) from the ri mod's button -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_4/barrage4.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3499,7 +3499,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image) but anyways etc) from the ri mod's button anyways etc -->
+			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image)) from the ri mod's button -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_5/barrage5.dds</Button>
 		</PromotionInfo>
 
@@ -3720,7 +3720,7 @@
 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hopefully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far; hopefully that/this also encourages a variety of alternate startegies as well rather, was NONE -->
 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
@@ -3999,7 +3999,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod then modified with paint.net to remove the star part of the image anyways etc -->
+			<!-- custom: button import from ri mod then modified with paint.net to remove the star part of the image -->
 			<Button>Art/AdvCiv_SAS/Promotions/City_Bombard_Damage/bombarding1_no_star.dds</Button>
 		</PromotionInfo>
 
@@ -4269,7 +4269,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod anyways etc -->
+			<!-- custom: button import from ri mod -->
 			<Button>Art/AdvCiv_SAS/Promotions/Sentry/observer.dds</Button>
 		</PromotionInfo>
 
@@ -4341,7 +4341,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case if i may say but anyways etc -->
+			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case -->
 			<Button>Art/AdvCiv_SAS/Promotions/Navigator/navigator.dds</Button>
 		</PromotionInfo>
 
@@ -4830,7 +4830,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from c2c mod anyways etc ; old button/promotion was very confusing both in name and button image hopefully clearer if i may say but anyways etc ; it also meshes so much better now with all mobility related promotions (including as of now retreat but anyways etc) now having an arrow in their button which i think is much more clear and consistent if i may say but anyways etc -->
+			<!-- custom: button import from c2c mod; old button/promotion was very confusing both in name and button image hopefully clearer; it also meshes so much better now with all mobility related promotions (including as of now retreat) now having an arrow in their button which i think is much more clear and consistent -->
 			<Button>Art/AdvCiv_SAS/Promotions/Mobility_Range/backdown1promotion.dds</Button>
 		</PromotionInfo>
 
@@ -4840,7 +4840,7 @@
 		we don't get air units before air flight, but may help the AI not
 		pick this promotion too soon for gun units. Also maybe helps to
 		make it	more visible in the tech tree view. May clutter a bit but
-		worth it if more visible especially to new(er) players, i think,
+		worth it if more visible especially to new players, i think,
 		but even experienced ones. -->
 		<PromotionInfo>
 			<Type>PROMOTION_AIR_RANGE1</Type>
@@ -5198,7 +5198,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net by myself hehe if i may say but anyways etc from rfc doc atlas's (wherever i found it the fastest anyways etc) air intercept button but anyways etc -->
+			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest anyways etc) air intercept button-->
 			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_3/air_interception_3.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -5266,7 +5266,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net by myself hehe if i may say but anyways etc from rfc doc atlas's (wherever i found it the fastest anyways etc) air intercept button but anyways etc -->
+			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest anyways etc) air intercept button-->
 			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_4/air_interception_4.dds</Button>
 		</PromotionInfo>
 
@@ -5345,7 +5345,7 @@
 		</PromotionInfo>
 
 
-		<!-- custom: since this seems unused in DLL due to #if 0 if i am not mistaken and understood correctly chatgpt 5's explanation of it but anyways etc, and since it is and was also commented out here already in the XML as well if i'm not mistaken but anyways etc, also commented it out in the DLL as well, see there for details in corresponding as of now .cpp file(s) anyways etc (can be found with a global search with vs code for example if i am not mistaken but anyways etc), and done as approved to be possible by chatgpt 5, check if accurate, anyways etc -->
+		<!-- custom: since this seems unused in DLL due to #if 0 if i am not mistaken and understood correctly chatgpt 5's explanation of it, and since it is and was also commented out here already in the XML as well, also commented it out in the DLL as well, see there for details in corresponding as of now .cpp file(s) anyways etc (can be found with a global search with vs code for example), and done as approved to be possible by chatgpt 5, check if accurate -->
 		<!-- K-Mod, special penalty promotion.
 			 advc.905a: iMovesChange set to -1
 			 advc.313: Replaced with handicap-based modifiers.

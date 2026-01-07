@@ -1,4 +1,4 @@
-# <!-- custom: unclutter the player zip; keep only for cloning or/and such thanks to chatgpt 5.1's help but anyways etc. -->
+# <!-- custom: unclutter the player zip; keep only for cloning or/and such thanks to chatgpt 5.1's help -->
 # Example: keep in repo, exclude from Download ZIP / archives
 
 # Common image formats (global archive exclude)
@@ -24,7 +24,7 @@
 *.AVIF  export-ignore
 *.heic  export-ignore
 *.HEIC  export-ignore
-# <!-- custom: Paint.NET files in capitalization as well if i'm not mistaken and as chatgpt 5.1 confirms and corrected me too thanks anyways etc. -->
+# <!-- custom: Paint.NET files in capitalization as well if i'm not mistaken and as chatgpt 5.1 confirms and corrected me too thanks -->
 # Paint.NET files in any casing
 *.pdn  export-ignore
 *.PDN  export-ignore

@@ -744,7 +744,7 @@ bool PUF_makeInfoBarDirty(CvUnit* pUnit, int iDummy1, int iDummy2)
 // advc.003j (comment): Unused
 int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack)
 {
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK");
 
 	return iNumYieldTypes * iMAX_YIELD_STACK + iYieldStack;
@@ -805,8 +805,8 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 	{
 	case CALENDAR_DEFAULT:
 	{
-		// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate anyways etc -->
-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate -->
+		// <!-- custom: code/performance optimization: hoist -->
         const CvGameSpeedInfo& kSpeed = GC.getInfo(eSpeed);
         int const n = kSpeed.getNumTurnIncrements();
 
@@ -855,7 +855,7 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 
 	case CALENDAR_WEEKS:
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iWEEKS_PER_MONTHS = GC.getDefineINT("WEEKS_PER_MONTHS");
 
 		iTurnMonth += iGameTurn /

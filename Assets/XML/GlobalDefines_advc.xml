@@ -297,7 +297,7 @@
 	human player too, also since now (some) ressources are hidden until
 	required tech and such, it may be a pleasant find to notice at
 	ressource reveal we had spawned just at the right spot maybe, was 100 -->
-	<!-- custom: i also want to try to increase this (further) more and see what happens (anyways etc), now that our terrain/map is more balanced as in less unfairly skewed towards starting cities or map having too many ressources in general (at least is the goal anyways etc), having a nice starter should feel nicer and be more pleasant, anyways etc, was 250 -->
+	<!-- custom: i also want to try to increase this (further) more and see what happens, now that our terrain/map is more balanced as in less unfairly skewed towards starting cities or map having too many ressources in general (at least is the goal anyways etc), having a nice starter should feel nicer and be more pleasant, anyways etc, was 250 -->
 	<Define>
         <DefineName>SPI_TIME_LIMIT_PERCENT</DefineName>
         <iDefineIntVal>1000</iDefineIntVal>
@@ -906,7 +906,7 @@
 		 The BtS routine for protecting noncombatants isn't affected by
 		 this. Set to 0 or less for BtS behavior: combat units never
 		 evacuate. -->
-	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner i mean, as there is a good chance attacker would lose out too much, or/and be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive that is high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe anyways etc, so reduce it a bit to evacuate sooner but not too much to not over evacuate i mean anyways etc, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more startegic in this case at least anyways etc, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
+	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner i mean, as there is a good chance attacker would lose out too much, or/and be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive that is high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe anyways etc, so reduce it a bit to evacuate sooner but not too much to not over evacuate, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more startegic in this case at least anyways etc, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
     <Define>
         <DefineName>AI_EVACUATION_THRESH</DefineName>
         <iDefineIntVal>138</iDefineIntVal>
@@ -1045,7 +1045,7 @@
 		 0 or less means that MADE_DEMAND_RECENT remains unchanged (but won't
 		 fully restore the BtS behavior).
 		 Recommended: 8 (for an expected 80 turns of rejection) -->
-	<!-- custom: this is interesting, but it would make sense for AI to be more bitter of having being declared war on despite the tribute being paid to the human player, increase this more anyways etc ; but if they are just weaker it is just their fault maybe and they can blame only themselves as sad and unfair it is for being treated as such, so maybe do not increase it too much as it may be a bit unrealistic to best preserve the AI's interests anyways etc, was 8 -->
+	<!-- custom: this is interesting, but it would make sense for AI to be more bitter of having being declared war on despite the tribute being paid to the human player, increase this more; but if they are just weaker it is just their fault maybe and they can blame only themselves as sad and unfair it is for being treated as such, so maybe do not increase it too much as it may be a bit unrealistic to best preserve the AI's interests anyways etc, was 8 -->
 	<Define>
 		<DefineName>WAR_DESPITE_TRIBUTE_MEMORY</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
@@ -1079,7 +1079,7 @@
 	<!-- [advc.025] Culture that spreads from a capitulated vassal to its
 		 master is multiplied by this percentage. 100 for BtS behavior
 		 (normal spread); recommended: 50. -->
-	<!-- custom: gain less culture from capitulation, after all it's more like the loser civ is assimilated than merging (even though some exchange may happen, mostly they'd have to give up their cultural habits in favor of the empire/winner's one if i am not mistaken too to be part of their empire anyways etc), plus it would be too easy of a way to gain culture through military/conquest if i am not mistaken too anyways etc, but no need to make it too drastic either as some culture is most likely transfered as well if i am not mistaken anyways etc, was 50 -->
+	<!-- custom: gain less culture from capitulation, after all it's more like the loser civ is assimilated than merging (even though some exchange may happen, mostly they'd have to give up their cultural habits in favor of the empire/winner's one if i am not mistaken too to be part of their empire anyways etc), plus it would be too easy of a way to gain culture through military/conquest if i am not mistaken too anyways etc, but no need to make it too drastic either as some culture is most likely transfered as well, was 50 -->
 	<Define>
 		<DefineName>CAPITULATED_TO_MASTER_CULTURE_PERCENT</DefineName>
 		<iDefineIntVal>30</iDefineIntVal>
@@ -1088,7 +1088,7 @@
 	<!-- [advc.026] When the AI offers a trade to a human player, it's willing
 		 to offer AI_OFFER_EXTRA_GOLD_PERCENT% more gold (lump sum or per turn)
 		 than it normally would. 0 for BtS behavior; recommended: 25. -->
-	<!-- custom: no need to give too much to the human player if it doesn't agree to its terms, but give some leeway too in case there is a good deal for the AI especially longterm effects and such but anyways etc, was 25 -->
+	<!-- custom: no need to give too much to the human player if it doesn't agree to its terms, but give some leeway too in case there is a good deal for the AI especially longterm effects and such, was 25 -->
 	<Define>
 		<DefineName>AI_OFFER_EXTRA_GOLD_PERCENT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
@@ -1193,7 +1193,7 @@
 		 Barbarian creation also won't be affected by the adjustment.
 		 Changes to this parameter won't properly take effect in an ongoing game,
 		 will have to start a new one. -->
-	<!-- custom: i'd want handicap settings to be more reliable, if there is/i have a setting to rebalance, i'd rather do it there, so inverting this back to 0 if it was the value, not sure what this does or if it does what i intend/as intended (of me but anyways etc), but maybe it does if i may say i mean anyways etc, anyways etc, at least i want to do it this way or/and try it for handicap settings, anyways etc, was 1 -->
+	<!-- custom: i'd want handicap settings to be more reliable, if there is/i have a setting to rebalance, i'd rather do it there, so inverting this back to 0 if it was the value, not sure what this does or if it does what i intend/as intended (of me), but maybe it does if i may say, anyways etc, at least i want to do it this way or/and try it for handicap settings, anyways etc, was 1 -->
 	<Define>
 		<DefineName>RF_PLAYER_HANDICAP_ADJUSTMENT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1310,7 +1310,7 @@
 		 percentage points. Recommended: -10 to penalize researching the same
 		 tech; use 0 for BtS behavior.
 		 Related: TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER (50) -->
-	<!-- custom: no reason to penalize research if they research the same tech, in fact it could probably and most likely be reduced due to synergies and cooperation in this case anyways etc, but to simplify it, use/restore the 0 value in Bts behavior if not mistaken from reading base advciv code comment i am still thankful that was there and informative though but anyways etc, was -10 -->
+	<!-- custom: no reason to penalize research if they research the same tech, in fact it could probably and most likely be reduced due to synergies and cooperation in this case anyways etc, but to simplify it, use/restore the 0 value in Bts behavior if not mistaken from reading base advciv code comment i am still thankful that was there and informative though, was -10 -->
 	<Define>
 		<DefineName>RESEARCH_MODIFIER_EXTRA_TEAM_MEMBER</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1527,7 +1527,7 @@
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
-	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say and/or if accurate but anyways etc, see also (adjust to your mod path anyways etc) CIV4GameSpeedInfo.xml for details, anyways etc -->
+	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say and/or if accurate, see also (adjust to your mod path anyways etc) CIV4GameSpeedInfo.xml for details -->
 	<Define>
 		<DefineName>START_YEAR</DefineName>
 		<iDefineIntVal>-50000</iDefineIntVal>

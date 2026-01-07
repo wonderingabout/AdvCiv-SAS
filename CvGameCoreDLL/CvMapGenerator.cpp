@@ -183,7 +183,7 @@ void CvMapGenerator::addLakes()
 
 	gDLL->NiTextOut("Adding Lakes...");
 	// <advc.129e>
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iLAKE_PLOT_RAND = GC.getDefineINT("LAKE_PLOT_RAND");
 	int iLakeRollSides = iLAKE_PLOT_RAND;
 	static const TerrainTypes eDesert = (TerrainTypes)GC.getDefineINT("BARREN_TERRAIN");
@@ -239,11 +239,11 @@ void CvMapGenerator::addRivers()
 
 	gDLL->NiTextOut("Adding Rivers...");
 
-	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file if i'm not mistaken in doing so anyways etc -->
+	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file if i'm not mistaken in doing so -->
 	// <!-- custom: note: not using const as it causes a compile error: "CvMapGenerator.cpp(287): error C2662: 'CvMap::findWater' : cannot convert 'this' pointer from 'const CvMap' to 'CvMap &'" -->
 	CvMap& kMap = GC.getMap();
 	const int nPlots = kMap.numPlots();
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iRiverSourceRange = GC.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
 	static const int iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
 	static const int iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
@@ -1103,7 +1103,7 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
 				iNumPossible++;
 		}
 
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bSublinearBonusQuantities = GC.getDefineBOOL("SUBLINEAR_BONUS_QUANTITIES");
 
 		// <advc.129>

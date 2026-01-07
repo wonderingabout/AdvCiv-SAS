@@ -103,7 +103,7 @@ class SevoPediaCivic:
 	#			lRect.x(), lRect.y(), lRect.width(), lRect.height(),
 	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
 	#			TableStyles.TABLE_STYLE_STANDARD)
-	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc -->
+	# if it helps us adapt/use the addMultiListControlGFC method -->
 	def placeLeaders(self):
 		xPanel = self.X_LEADERS
 		yPanel = self.Y_LEADERS
@@ -118,7 +118,7 @@ class SevoPediaCivic:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
+		# <!-- custom: note: this doesn't seem to do anything in multilist methodsand in particular no padding so do not use this here i mean for multilists -->
 		# Additional left side padding for the button(s)
 		#screen.attachLabel(panelName, "", "  ")
 
@@ -153,7 +153,7 @@ class SevoPediaCivic:
 		screen = self.top.getScreen()
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_CIVIC_PANE, self.Y_CIVIC_PANE, self.W_CIVIC_PANE, self.H_CIVIC_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
+		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCivicInfo(self.iCivic).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -166,7 +166,7 @@ class SevoPediaCivic:
 		screen.addListBoxGFC(panelName, "", self.X_STATS, self.Y_STATS, self.W_STATS, self.H_STATS, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
 		iCivicOptionType = gc.getCivicInfo(self.iCivic).getCivicOptionType()
-		# <!-- custom: make text a bit bigger/wider in this case i mean but anyways etc, was font=4 anyways etc -->
+		# <!-- custom: make text a bit bigger/wider, was font=4 -->
 		if (iCivicOptionType != -1):
 			screen.appendListBoxString(panelName, u"<font=4>" + gc.getCivicOptionInfo(iCivicOptionType).getDescription().upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		pUpkeepInfo = gc.getUpkeepInfo(gc.getCivicInfo(self.iCivic).getUpkeep())
@@ -183,7 +183,7 @@ class SevoPediaCivic:
 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
 		szSpecialText = CyGameTextMgr().parseCivicInfo(self.iCivic, True, False, True)
-		# <!-- custom: leave some room on top, based on placeSpecial in sevopedia terrain anyways etc -->
+		# <!-- custom: leave some room on top, based on placeSpecial in sevopedia terrain -->
 		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

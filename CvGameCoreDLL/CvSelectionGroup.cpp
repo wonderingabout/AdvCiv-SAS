@@ -292,14 +292,14 @@ void CvSelectionGroup::doTurn()
 		if (GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
 			&& GET_TEAM(getTeam()).hasMetHuman()) // K-Mod
 		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
 			static const int iMIN_TIMER_UNIT_DOUBLE_MOVES = GC.getDefineINT("MIN_TIMER_UNIT_DOUBLE_MOVES");
 
 			int iBestWaitTurns = 0;
 			FOR_EACH_UNIT_IN(pUnit, *this)
 			{
-				// <!-- custom: seems like this can be made const if i'm not mistaken anyways etc -->
+				// <!-- custom: seems like this can be made const if i'm not mistaken -->
 				const int iWaitTurns = (iMIN_TIMER_UNIT_DOUBLE_MOVES -
 						(GC.getGame().getTurnSlice() - pUnit->getLastMoveTurn()));
 				if (iWaitTurns > iBestWaitTurns)
@@ -3055,8 +3055,8 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 	// K-Mod end
 	bool bStopOtherWorkers = false; // advc.011c
 
-	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE"/*"COLOR_BUILDING_TEXT"*/);
 
 	FOR_EACH_UNIT_VAR_IN(pUnit, *this)

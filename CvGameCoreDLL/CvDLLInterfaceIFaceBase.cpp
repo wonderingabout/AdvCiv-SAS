@@ -20,7 +20,7 @@ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
 	// Perhaps the EXE does that anyway; let's make sure.
 	if (eFlashColor == NO_COLOR)
 	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
 		eFlashColor = eColorWhite; // </advc>
 	}

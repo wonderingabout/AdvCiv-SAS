@@ -93,7 +93,7 @@ class SevoPediaPromotion:
 		screen = self.top.getScreen()
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_PROMOTION_PANE, self.Y_PROMOTION_PANE, self.W_PROMOTION_PANE, self.H_PROMOTION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
+		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getPromotionInfo(self.iPromotion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -184,7 +184,7 @@ class SevoPediaPromotion:
 		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc anyways etc, check if accurate anyways etc -->
+		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc anyways etc, check if accurate -->
 		# Loop through all units to find those with this promotion
 		for iUnit in xrange(gc.getNumUnitInfos()):
 			unitInfo = gc.getUnitInfo(iUnit)
@@ -243,7 +243,7 @@ class SevoPediaPromotion:
 		## <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc anyways etc, check if accurate anyways etc -->
+		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc anyways etc, check if accurate -->
 		# Loop through all buildings to find those that grant this promotion
 		for iBuilding in range(gc.getNumBuildingInfos()):
 			buildingInfo = gc.getBuildingInfo(iBuilding)

@@ -153,7 +153,7 @@ bool CvSelectionGroupAI::AI_update()
 			before it terminates. Debugger stops in CvSelectionGroup::pushMission,
 			startMission and in CvUnitAI::AI_update have been helpful to me. */
 		
-		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate anyways etc -->
+		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
 		// 1) Snapshot state at the start of each loop iteration
 		// Place this right after setForceUpdate(false); and the iAttempts++; line, before any attack/AI_update logic:
 		// --- SAS no-progress snapshot (begin) ---
@@ -166,12 +166,12 @@ bool CvSelectionGroupAI::AI_update()
 	#ifdef _DEBUG
 		iMaxAttempts -= 4; // Trigger assert early
 	#endif
-		// <!-- custom: make assert more informative as it fires and we'd want info on what is causing it anyways etc, done with the help of chatgpt 5, check if accurate anyways etc -->
+		// <!-- custom: make assert more informative as it fires and we'd want info on what is causing it anyways etc, done with the help of chatgpt 5, check if accurate -->
 		// FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
-		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate anyways etc, so i moved the assert so it is inside the debug flag as it advised, check if accurate i mean but anyways etc -->
+		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate anyways etc, so i moved the assert so it is inside the debug flag as it advised, check if accurate -->
 	#ifdef _DEBUG
 		// Do it lazily and safely like this (drop-in):
-		// <!-- custom: added an extra layer with this assert condition we check first to not do it for each and every unit or such (i don't know too much so check if accurate, but seems much more efficient as such even in debug, anyways etc). Note: i didn't test if the assert fires correctly again, but since our fix is unchanged by this extra condition i added by moving it out of the assert, hopefully fine as such to save computation, but check if accurate as i don't know too much about these anyways etc -->
+		// <!-- custom: added an extra layer with this assert condition we check first to not do it for each and every unit or such (i don't know too much so check if accurate, but seems much more efficient as such even in debug). Note: i didn't test if the assert fires correctly again, but since our fix is unchanged by this extra condition i added by moving it out of the assert, hopefully fine as such to save computation, but check if accurate as i don't know too much about these -->
 		const bool bAssertCondition = (iAttempts != iMaxAttempts);
 		if (!bAssertCondition)
 		{
@@ -196,7 +196,7 @@ bool CvSelectionGroupAI::AI_update()
 				(int)isForceUpdate(), (int)AI_isGroupAttack(), (int)AI_isForceSeparate(),
 				iAttempts, iMaxAttempts
 			).c_str());
-			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well i mean but anyways etc -->
+			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well -->
 			// Assert Failed
 			// File:  ..\.\CvSelectionGroupAI.cpp
 			// Line:  180
@@ -246,7 +246,7 @@ bool CvSelectionGroupAI::AI_update()
 			}
 		}
 
-		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate anyways etc -->
+		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
 		// 2) Tripwire right after the action block
 		// insert the no-progress check before the existing if (doDelayedDeath()):
 		// --- SAS no-progress tripwire (begin) ---

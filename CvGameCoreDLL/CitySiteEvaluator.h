@@ -168,7 +168,7 @@ private:
 			bool bCanNeverImprove = false) const;
 	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal,
 			int& iRiverTiles, int& iGreenTiles) const;
-	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think anyways etc -->
+	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think -->
 	//int foundOnResourceValue(int const* aiBonusImprovementYield) const;
 	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier,
 			bool bShare) const;
@@ -198,20 +198,20 @@ private:
 	int adjustToLandAreaBoundary(int iValue) const;
 	int adjustToStartingSurroundings(int iValue) const;
 	int adjustToStartingChoices(int iValue) const;
-	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->
+	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results -->
 	// int adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoodMinus,
 	// 		int iGreenTiles) const;
-	// <!-- custom: see code comment there for details anyways etc -->
+	// <!-- custom: see code comment there for details -->
 	// int adjustToProduction(int iValue, scaled rBaseProduction) const;
-	// <!-- custom: same anyways etc -->
+	// <!-- custom: same -->
 	//int adjustToBarbarianSurroundings(int iValue) const;
-	// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it since it is so complicated and who knows where the bug(s? But anyways etc) is(/are? But anyways etc) and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate anyways etc, see known issue as of now 54 for details anyways etc -->
+	// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it since it is so complicated and who knows where the bugs is(/are?) and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate anyways etc, see known issue as of now 54 for details -->
 	// int adjustToCivSurroundings(int iValue, int iStealPercent) const;
 	int adjustToCitiesPerArea(int iValue) const;
 	int adjustToBonusCount(int iValue, std::vector<int> const& aiBonusCount) const;
-	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->
+	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results -->
 	// int adjustToBadTiles(int iValue, int iBadTiles) const;
-	// <!-- custom: same anyways etc -->
+	// <!-- custom: same -->
 	//int adjustToBadHealth(int iValue, int iGoodHealth) const;
 	int countDeadlockedBonuses() const;
 	bool isDeadlockedBonus(CvPlot const& kBonusPlot, int iMinRange) const;

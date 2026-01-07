@@ -177,7 +177,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod anyways etc if i am not mistaken anyways etc) and based on this import art then adjusted or not for advciv-sas anyways etc taking base advciv's ART_DEF_UNIT_WORKER as a base anyways etc, kfm is base civ4 or/and advciv one if i am not mistaken anyways etc -->
+		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod) and based on this import art then adjusted or not for advciv-sas anyways etc taking base advciv's ART_DEF_UNIT_WORKER as a base anyways etc, kfm is base civ4 or/and advciv one -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds</Button>
@@ -491,7 +491,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd if i may say but anyways etc... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for exampel anyways etc, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such anyways etc) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas anyways etc -->
+		<!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for exampel anyways etc, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such anyways etc) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_PAGAN_MISSIONARY</Type>
 			<Button>Art/AdvCiv_SAS/Units/Pagan_Missionary/Button_Magi.dds</Button>
@@ -686,7 +686,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: immortal reworked now based on the swordsman at least as of now anyways etc ; art import from RFC DOC mod's very very nice really i mean anyways etc fpk, art def based on RFC DOC's ART_DEF_UNIT_PERSIAN_IMMORTAL in particular anyways etc ; kfm is base civ4 one's if i am not mistaken anyways etc -->
+		<!-- custom: immortal reworked now based on the swordsman at least as of now; art import from RFC DOC mod's very very nice really fpk, art def based on RFC DOC's ART_DEF_UNIT_PERSIAN_IMMORTAL in particular; kfm is base civ4 one's -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_PERSIA_IMMORTAL</Type>
 			<Button>Art/AdvCiv_SAS/Units/Persia_Immortal/button_immortal.dds</Button>
@@ -711,7 +711,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: rename CELTIC_BARBARIAN to CELTIC_GALLIC_WARRIOR anyways etc -->
+		<!-- custom: rename CELTIC_BARBARIAN to CELTIC_GALLIC_WARRIOR -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CELTIC_GALLIC_WARRIOR</Type>
 			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,10</Button>
@@ -736,7 +736,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod anyways etc -->
+		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ROMAN_LEGIONARY</Type>
 			<Button>Art/AdvCiv_SAS/Units/Roman_Legionary/swordsman_rome.dds</Button>
@@ -882,7 +882,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod anyways etc -->
+		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_GREEK_HOPLITE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds</Button>
@@ -1101,7 +1101,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from ri mod's ART_DEF_UNIT_ENGLISH_LONGBOWMAN (from their svn version nicely thanks but anyways etc so no need to go painfully through fpks and now very very easy to fetch assets thanks lot if i may say in this case i mean but anyways etc) anyways etc; note: the .kfm is the base advciv +/- civ4 one if i'm not mistaken but anyways etc; as for the bag arrows they were missing, and in nifskope i found they were in the shared folder (thanks to wiztree much much easier to use in their svn version of their ri mod i mean if i may say but anyways etc) at longbowman.dds so added to our own unit much cleaner as in easier to find as such in this case i mean but anyways etc -->
+		<!-- custom: art import from ri mod's ART_DEF_UNIT_ENGLISH_LONGBOWMAN (from their svn version nicely thanksso no need to go painfully through fpks and now very very easy to fetch assets thanks lot) anyways etc; note: the .kfm is the base advciv +/- civ4 one; as for the bag arrows they were missing, and in nifskope i found they were in the shared folder (thanks to wiztree much much easier to use in their svn version of their ri mod i mean) at longbowman.dds so added to our own unit much cleaner as in easier to find as such -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ENGLISH_YEOMAN_ARCHER</Type>
 			<Button>Art/AdvCiv_SAS/Units/English_Yeoman_Archer/Longbowman_england.dds</Button>
@@ -1394,7 +1394,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: import from c2c mod's ART_DEF_UNIT_SENTROID_INFANTRY (and some missing files based on nif from unit "androidinfantry"), as a result there may be a bit more .dds or such extra files than needed or maybe not but at least the unit is functionnal and overhead if i may say and am not mistaken in saying/thinking (that is) so but anyways etc should be overall minimal if any and if i am not mistaken but anyways etc,  and adjusted or not for advciv-sas anyways etc -->
+		<!-- custom: import from c2c mod's ART_DEF_UNIT_SENTROID_INFANTRY (and some missing files based on nif from unit "androidinfantry"), as a result there may be a bit more .dds or such extra files than needed or maybe not but at least the unit is functionnal and overhead if i may say and am not mistaken in saying/thinking (that is) soshould be overall minimal if any,  and adjusted or not for advciv-sas -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ROBOTIC_INFANTRY</Type>
 			<Button>Art/AdvCiv_SAS/Units/Robotic_Infantry/sentroid_infantry.dds</Button>
@@ -1816,7 +1816,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from ri mod's ART_DEF_UNIT_KNIGHT_MONGOL, from their svn version so thankfully no need to painfully go through fpks and/but instead nicely able to download and find assets super fast thanks! But anyways etc; note: be careful the kfm is actually base civ4 one as i found it to be the case in other mods xd thanks but anyways etc -->
+		<!-- custom: art import from ri mod's ART_DEF_UNIT_KNIGHT_MONGOL, from their svn version so thankfully no need to painfully go through fpks and/but instead nicely able to download and find assets super fast thanks!; note: be careful the kfm is actually base civ4 one as i found it to be the case in other mods xd thanks-->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_MONGOL_KHISHIGTEN</Type>
 			<Button>Art/AdvCiv_SAS/Units/Mongol_Khishigten/knight_mongol.dds</Button>
@@ -1841,7 +1841,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it anyways etc, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" anyways etc) with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot, anyways etc -->
+		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it anyways etc, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" anyways etc) with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_KNIGHT</Type>
 			<Button>Art/AdvCiv_SAS/Units/Camel_Knight/CamelRider.dds</Button>
@@ -1916,7 +1916,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod anyways etc, as was in base advciv +/- civ4 anyways etc way too close to the unit_explorer's button, hoopefully much clearer now anyways etc -->
+		<!-- custom: button art import from ri mod anyways etc, as was in base advciv +/- civ4 anyways etc way too close to the unit_explorer's button, hoopefully much clearer now -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SPANISH_CONQUISTADOR</Type>
 			<Button>Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds</Button>
@@ -1967,7 +1967,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from RFC DOC mod's ART_DEF_UNIT_DRAGOON thanks anyways etc. Note: .kfm is base advciv +/- civ4's one if i'm not mistaken as per rfc doc mod's unitartinfo in xml if i'm not mistaken anyways etc -->
+		<!-- custom: art import from RFC DOC mod's ART_DEF_UNIT_DRAGOON thanks anyways etc. Note: .kfm is base advciv +/- civ4's one if i'm not mistaken as per rfc doc mod's unitartinfo in xml if i'm not mistaken -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DRAGOON</Type>
 			<Button>Art/AdvCiv_SAS/Units/Dragoon/Dragoon.dds</Button>
@@ -2016,7 +2016,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc; import / based on the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) and adjusted or not for advciv-sas anyways etc; some assets like kfm or such being base civ4 ones if i am not mistaken anyways etc -->
+		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc; import / based on the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) and adjusted or not for advciv-sas anyways etc; some assets like kfm or such being base civ4 ones -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_GERMAN_HUSSAR</Type>
 			<Button>Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds</Button>
@@ -2113,7 +2113,7 @@
 			<SelectionSound>AS3D_UN_MOD_ARMOUR_HEAL</SelectionSound>
 			<ActionSound>AS3D_UN_MOD_ARMOUR_HEAL</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: import from c2c mod's "stealth_armor" and adjusted or not for advciv-sas anyways etc -->
+		<!-- custom: import from c2c mod's "stealth_armor" and adjusted or not for advciv-sas -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ROBOTIC_TANK</Type>
 			<Button>Art/AdvCiv_SAS/Units/Robotic_Tank/stealth_armor.dds</Button>
@@ -2280,7 +2280,7 @@
 				<AudioRunTypeEnd>ENDSTEP_WHEELS</AudioRunTypeEnd>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: note: about this unit's sound assets but anyways etc: i can't find the korean unit audio file nor the corresponding asset, in audiodefines; i don't know too much how these work in this case i mean but anyways etc, but changing it to be safe or consistent with other units, but really i have no idea how it works and your best may be to check or ask to be sure in this case i mean but anyways etc, at least we're more likely (i guess, i don't know! But anyways etc xd but anyways etc) to get the generic as of now cannon (i hope in this case i mean but anyways etc) rather than no sound but anyways etc. (Didn't want to make the comment too long inside the info asset in case it breaks something (but is just a guess of mine too check to be sure in this case i mean but anyways etc) in this case i mean but anyways etc) -->
+		<!-- custom: note: about this unit's sound assets: i can't find the korean unit audio file nor the corresponding asset, in audiodefines; i don't know too much how these work, but changing it to be safe or consistent with other units, but really i have no idea how it works and your best may be to check or ask to be sure, at least we're more likely (i guess, i don't know!xd) to get the generic as of now cannon (i hope) rather than no sound. (Didn't want to make the comment too long inside the info asset in case it breaks something (but is just a guess of mine too check to be sure)) -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_KOREAN_HWACHA</Type>
 			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,10</Button>
@@ -2317,13 +2317,13 @@
 			<SelectionSound>AS3D_UN_CATAPULT_HEAL</SelectionSound>
 			<ActionSound>AS3D_UN_CATAPULT_HEAL</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: art import from ri mod (their svn version so no fpk nice much easier if i may say thanks but anyways etc)'s ART_DEF_UNIT_CANNON_VIKING, adjusted or not for AdvCiv-SAS but anyways etc -->
+		<!-- custom: art import from ri mod (their svn version so no fpk nice much easier if i may say thanks)'s ART_DEF_UNIT_CANNON_VIKING, adjusted or not for AdvCiv-SAS-->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_HOLY_ROMAN_HOUFNICE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/cannon.dds</Button>
 			<!-- advc.002j: was 0.53 -->
 			<fScale>0.52</fScale>
-			<!-- custom: was 0.8 in the generic cannon in base advciv anyways etc -->
+			<!-- custom: was 0.8 in the generic cannon in base advciv -->
 			<fInterfaceScale>0.85</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>
 			<bActAsAir>0</bActAsAir>
@@ -2419,7 +2419,7 @@
 				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: import from c2c mod's "levitation_artillery" (and also some files in "nlos_artillery" according to the nif as they were not directly in the "levitation_artillery" folder, and adjusted or not for advciv-sas anyways etc -->
+		<!-- custom: import from c2c mod's "levitation_artillery" (and also some files in "nlos_artillery" according to the nif as they were not directly in the "levitation_artillery" folder, and adjusted or not for advciv-sas -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_LEVITATION_ARTILLERY</Type>
 			<Button>Art/AdvCiv_SAS/Units/Levitation_Artillery/levitation_artillery.dds</Button>
@@ -2649,7 +2649,7 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod anyways etc -->
+		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_PRIVATEER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Privateer/privateer_light.dds</Button>
@@ -2690,7 +2690,7 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod anyways etc -->
+		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_FRIGATE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Frigate/frigate.dds</Button>
@@ -2731,7 +2731,7 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod anyways etc -->
+		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SHIP_OF_THE_LINE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds</Button>
@@ -2929,7 +2929,7 @@
 			<SelectionSound>AS3D_UN_DESTROYER_FORT</SelectionSound>
 			<ActionSound>AS3D_UN_DESTROYER_FORT</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod anyways etc -->
+		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SUBMARINE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Attack_Submarine/submarine.dds</Button>
@@ -4043,7 +4043,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: rename ART_DEF_UNIT_ARCHER_CHINESE to ART_DEF_UNIT_ARCHER_ASIAN anyways etc -->
+		<!-- custom: rename ART_DEF_UNIT_ARCHER_CHINESE to ART_DEF_UNIT_ARCHER_ASIAN -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ARCHER_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>
@@ -4092,7 +4092,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: rename ART_DEF_UNIT_SWORDSMAN_CHINESE to ART_DEF_UNIT_SWORDSMAN_ASIAN anyways etc -->
+		<!-- custom: rename ART_DEF_UNIT_SWORDSMAN_CHINESE to ART_DEF_UNIT_SWORDSMAN_ASIAN -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SWORDSMAN_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,5</Button>
@@ -4117,7 +4117,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: rename ART_DEF_UNIT_CHARIOT_CHINESE to ART_DEF_UNIT_CHARIOT_ASIAN anyways etc -->
+		<!-- custom: rename ART_DEF_UNIT_CHARIOT_CHINESE to ART_DEF_UNIT_CHARIOT_ASIAN -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CHARIOT_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>

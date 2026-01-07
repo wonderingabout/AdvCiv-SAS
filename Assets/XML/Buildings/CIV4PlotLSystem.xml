@@ -5,8 +5,8 @@
 <!-- -->
 <!-- When debugging LSystems, refer to Civ4/Logs/LSystem.log for help -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #15 -->
-<!-- custom: imported (cleanly but anyways etc whatever that means or not or yes or etc or other or etc but anyways etc...) from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings\CIV4PlotLSystem.xml and modified or not for advciv-sas anyways etc -->
-<!-- custom: note: i am not sure if this file is useful or read by our mod or not, but tried to implement it with our changes as well in case it helps or is necessary i mean (check if accurate) but anyways etc. -->
+<!-- custom: imported from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings\CIV4PlotLSystem.xml and modified or not for advciv-sas -->
+<!-- custom: note: i am not sure if this file is useful or read by our mod or not, but tried to implement it with our changes as well in case it helps or is necessary i mean (check if accurate) -->
 <LSystemInfos xmlns="x-schema:CIV4LSystemSchema.xml">
 	<!-- ******************************************************************************************** -->
 	<!-- Modders: this might help you understand what is going on ... -->
