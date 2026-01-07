@@ -318,11 +318,22 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			pass
 
 	# <!-- custom: type-to-filter search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->
-	def SAS_deleteSearchWidgets(self):
-		screen = self.getScreen()
+	def SAS_deleteSearchWidgets(self, screen):
 		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_PANEL_ID)
 		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_LABEL_ID)
 		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_CLEAR_ID)
+
+	# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
+	def SAS_prepareSpecialPageDeletingItemList(self, screen):
+		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+		# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
+		self.SAS_szSearchString = u""
+		self.SAS_lastItemsWidget = None
+		self.SAS_lastItemsInfo = None
+		self.SAS_deleteSearchWidgets(screen)
+		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+
+		screen.deleteWidget(self.ITEM_LIST_ID)
 
 	# <!-- custom: type-to-filter search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_isSearchActive(self):
@@ -333,7 +344,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen = self.getScreen()
 
 		# Recreate each time: simple + safe (mirrors the approach used in other mod(s)).
-		self.SAS_deleteSearchWidgets()
+		self.SAS_deleteSearchWidgets(screen)
 
 		iX = self.X_ITEMS
 		iY = self.Y_ITEMS
@@ -640,7 +651,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_lastItemsInfo = None
 		self.SAS_szSearchString = u""
 		self.SAS_keyDebounceByKey = {}
-		self.SAS_deleteSearchWidgets()
+		self.SAS_deleteSearchWidgets(screen)
 		self.SAS_safeDeleteWidget(screen, self.ITEM_LIST_ID)
 		self.pediaIndex.interfaceScreen(True)
 	
@@ -929,16 +940,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def placeUnitUpgrades(self):
-		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
-		# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
-		self.SAS_szSearchString = u""
-		self.SAS_lastItemsWidget = None
-		self.SAS_lastItemsInfo = None
-		self.SAS_deleteSearchWidgets()
-		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
-
 		screen = self.getScreen()
-		self.getScreen().deleteWidget("PediaMainItemList")
+		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		self.UPGRADES_GRAPH_ID = self.getNextWidgetName()
 		screen.addScrollPanel(self.UPGRADES_GRAPH_ID, u"", self.X_ITEMS, self.Y_PEDIA_PAGE - 13, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 2, PanelStyles.PANEL_STYLE_STANDARD)
 		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)
@@ -954,30 +957,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		upgradesGraph.drawGraph()
 
 	def placeHandicapChart(self):
-		self.SAS_szSearchString = u""
-		self.SAS_lastItemsWidget = None
-		self.SAS_lastItemsInfo = None
-		self.SAS_deleteSearchWidgets()
-
-		self.getScreen().deleteWidget("PediaMainItemList")
+		screen = self.getScreen()
+		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		self.pediaHandicapChart.interfaceScreen()
 
 	def placeGameSpeedChart(self):
-		self.SAS_szSearchString = u""
-		self.SAS_lastItemsWidget = None
-		self.SAS_lastItemsInfo = None
-		self.SAS_deleteSearchWidgets()
-
-		self.getScreen().deleteWidget("PediaMainItemList")
+		screen = self.getScreen()
+		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		self.pediaGameSpeedChart.interfaceScreen()
 
 	def placeWorldSizeChart(self):
-		self.SAS_szSearchString = u""
-		self.SAS_lastItemsWidget = None
-		self.SAS_lastItemsInfo = None
-		self.SAS_deleteSearchWidgets()
-
-		self.getScreen().deleteWidget("PediaMainItemList")
+		screen = self.getScreen()
+		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		self.pediaWorldSizeChart.interfaceScreen()
 
 
@@ -998,16 +989,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def placePromotionTree(self):
-		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
-		# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
-		self.SAS_szSearchString = u""
-		self.SAS_lastItemsWidget = None
-		self.SAS_lastItemsInfo = None
-		self.SAS_deleteSearchWidgets()
-		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
-
 		screen = self.getScreen()
-		self.getScreen().deleteWidget("PediaMainItemList")
+		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		self.UPGRADES_GRAPH_ID = self.getNextWidgetName()
 		screen.addScrollPanel(self.UPGRADES_GRAPH_ID, u"", self.X_ITEMS, self.Y_PEDIA_PAGE - 13, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 2, PanelStyles.PANEL_STYLE_STANDARD)
 		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)
@@ -2048,16 +2031,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def placeHints(self):
-		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
-		# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
-		self.SAS_szSearchString = u""
-		self.SAS_lastItemsWidget = None
-		self.SAS_lastItemsInfo = None
-		self.SAS_deleteSearchWidgets()
-		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
-
 		screen = self.getScreen()
-		self.getScreen().deleteWidget("PediaMainItemList")
+		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		# <advc.004y> Put a Blue50-styled panel behind the ListBox below, using the same dimensions.
 		screen.addPanel(self.getNextWidgetName(), "", "", false, false,
 			self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, PanelStyles.PANEL_STYLE_BLUE50)
@@ -2379,7 +2354,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.deleteWidget("PediaMainItemList")
 		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 		# <!-- custom: also delete search widgets when deleting list widgets (chatgpt 5.2 + claude opus 4.5) -->
-		self.SAS_deleteSearchWidgets()
+		self.SAS_deleteSearchWidgets(screen)
 		self.pediaIndex.SAS_indexDeleteSearchWidgets()
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 

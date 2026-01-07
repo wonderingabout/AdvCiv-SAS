@@ -354,18 +354,28 @@ class SevoPediaGameSpeedChart:
 
 			iNumInc = info.getNumTurnIncrements()
 			cum_months = 0
+			# Era display (per speed): show "BC" only once (first BC date), and
+			# show "AD" only once (first AD date). After that, omit the era suffix
+			# to save horizontal space in the calendar table.
+			era_seen = {"BC": False, "AD": False}
 			for iInc in xrange(iNumInc):
 				turn_info = info.getGameTurnInfo(iInc)
 				iTurns = turn_info.iNumGameTurnsPerIncrement
 				iMonthInc = turn_info.iMonthIncrement
 
 				iSegMonths = iTurns * iMonthInc
-				iStartYear = start_year + (cum_months // 12)
-				iEndYear   = start_year + ((cum_months + iSegMonths) // 12)
-				szCell = self._format_calendar_segment(iStartYear, iEndYear, iTurns, iMonthInc)
+				iStartTotal = cum_months
+				iEndTotal = cum_months + iSegMonths
+
+				iStartYear = start_year + (iStartTotal / 12)
+				iStartMonth = (iStartTotal % 12) + 1
+				iEndYear = start_year + (iEndTotal / 12)
+				iEndMonth = (iEndTotal % 12) + 1
+
+				szCell = self._format_calendar_segment(iStartYear, iStartMonth, iEndYear, iEndMonth, iTurns, iMonthInc, era_seen)
 
 				parsed_data[speed_type][calendar_fields[iInc]] = szCell
-				cum_months += iSegMonths
+				cum_months = iEndTotal
 
 		# Display order:
 		# - base rows (row_specs order)
@@ -426,13 +436,31 @@ class SevoPediaGameSpeedChart:
 			return "%dk" % (iAbsYear / 1000)
 		return str(iAbsYear)
 
-	def _format_year_label(self, iYear):
-		# Compact: "50kBC" / "1900AD" (treat year 0 as AD for readability)
+	def _era_suffix(self, iYear):
+		# Calendar eras: negative years are BC, year 0+ is AD.
 		if iYear < 0:
-			return "%sBC" % self._format_year_magnitude(-iYear)
-		return "%sAD" % self._format_year_magnitude(iYear)
+			return "BC"
+		return "AD"
 
+	def _format_year_label(self, iYear, bIncludeEra=True):
+		# Compact year label. If bIncludeEra is False, omit the "BC"/"AD" suffix to save space.
+		# Examples: "50kBC", "1900AD", "2076"
+		if iYear < 0:
+			szYear = self._format_year_magnitude(-iYear)
+		else:
+			szYear = self._format_year_magnitude(iYear)
+		if bIncludeEra:
+			return "%s%s" % (szYear, self._era_suffix(iYear))
+		return szYear
 
+	def _format_date_label(self, iYear, iMonth, bIncludeEra):
+		# Date label for calendar cells.
+		# - Era suffix is optional (caller enforces: show each era only once per speed).
+		# - Month is shown only when it adds information: m2..m11 (omit m1 and m12 for concision).
+		sz = self._format_year_label(iYear, bIncludeEra)
+		if iMonth == 1 or iMonth == 12:
+			return sz
+		return "%sm%d" % (sz, iMonth)
 
 	def _format_years_per_turn(self, iYearsPerTurn):
 		# Compact: 80 -> "80", 1250 -> "1.2k", 10000 -> "10k"
@@ -464,13 +492,22 @@ class SevoPediaGameSpeedChart:
 		szYears = self._format_years_per_turn(years_per_turn)
 		return ("*", "%sm%d" % (szYears, rem_months))
 
-	def _format_calendar_segment(self, start_year, end_year, turns, month_inc):
-		# Examples:
-		# - "50kBC+2*10k=30kAD"
-		# - "1900AD+3*m6=1901AD" (months < 12)
-		# - "4000BC+2*187m6=3625BC" (year+month)
-		szStart = self._format_year_label(start_year)
-		szEnd = self._format_year_label(end_year)
+	def _format_calendar_segment(self, start_year, start_month, end_year, end_month, turns, month_inc, era_seen):
+		# Examples (month suffix is shown only for m2..m11; we omit m1/m12 for concision):
+		# - "50kBC+2*10k=30k"         (BC shown once per speed; later BC dates omit "BC")
+		# - "10+3*m6=0AD"             (first AD date shows "AD" once; later AD dates omit "AD")
+		# - "1900+3*m6=1901m7"        (after AD has appeared, both sides omit "AD"; months can still show)
+		# Era display rule (per speed): show each era suffix ("BC"/"AD") only on its first appearance.
+		era_start = self._era_suffix(start_year)
+		bShowStartEra = (not era_seen.get(era_start, False))
+		szStart = self._format_date_label(start_year, start_month, bShowStartEra)
+		era_seen[era_start] = True
+
+		era_end = self._era_suffix(end_year)
+		bShowEndEra = (not era_seen.get(era_end, False))
+		szEnd = self._format_date_label(end_year, end_month, bShowEndEra)
+		era_seen[era_end] = True
+
 		(szOp, szRate) = self._format_rate_per_turn(month_inc)
 		return "%s+%d%s%s=%s" % (szStart, turns, szOp, szRate, szEnd)
 

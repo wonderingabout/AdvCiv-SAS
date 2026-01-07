@@ -106,7 +106,7 @@ Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown
 
 Extending on the Handicap Chart, with the help of GPT-Codex-5.2 and ChatGPT 5.2 (web) i added a Game Speed Chart category in sevopedia to show gamespeed info.
 
-Especially useful to see the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m4"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+Especially useful to see the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m5"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
 
 Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
 
