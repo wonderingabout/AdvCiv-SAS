@@ -397,7 +397,6 @@
 
 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
 			<!-- advc.910: Changed all of the turn counts -->
-			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #19 -->
 			<GameTurnInfos>
 				<!-- -50,000 to -30,000 (20,000y) -> 4 turns @ 5,000 y/turn (60,000 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
@@ -456,12 +455,8 @@
 				<!-- 2,080 to 2,105 (25y) -> 50 turns @ 0.5 y/turn (6 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
 				<!-- custom: old code from base advciv timeline kept for info -->
-				<!--<GameTurnInfo>-->
-				<!--	<iMonthIncrement>60</iMonthIncrement>-->
-					<!-- Avoid an odd number here - otherwise all the year numbers
-						 in the next period (2 years per turn) will be odd. -->
-				<!--	<iTurnsPerIncrement>26</iTurnsPerIncrement>-->
-				<!--</GameTurnInfo>-->
+				<!-- Avoid an odd number here - otherwise all the year numbers in the next period (2 years per turn) will be odd. -->
+				<!--<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>26</iTurnsPerIncrement></GameTurnInfo>-->
 			</GameTurnInfos>
 		</GameSpeedInfo>
 

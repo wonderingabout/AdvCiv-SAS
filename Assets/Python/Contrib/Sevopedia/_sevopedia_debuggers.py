@@ -212,124 +212,16 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	# 		<UnitAIWeightModifiers/>
 	# 		<ImprovementWeightModifiers/>
 	# 		<DiplomacyIntroMusicPeace>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_ANCIENT</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_CLASSICAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_MEDIEVAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_RENAISSANCE</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_INDUSTRIAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_MODERN</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_FUTURE</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
+	# 			etc.
 	# 		</DiplomacyIntroMusicPeace>
 	# 		<DiplomacyMusicPeace>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_ANCIENT</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_CLASSICAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_MEDIEVAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_RENAISSANCE</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_INDUSTRIAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_MODERN</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
-	# 			<DiploMusicPeaceEra>
-	# 				<EraType>ERA_FUTURE</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicPeaceEra>
+	# 			etc.
 	# 		</DiplomacyMusicPeace>
 	# 		<DiplomacyIntroMusicWar>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_ANCIENT</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_CLASSICAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_MEDIEVAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_RENAISSANCE</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_INDUSTRIAL</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_MODERN</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_FUTURE</EraType>
-	# 				<DiploScriptId></DiploScriptId>
-	# 			</DiploMusicWarEra>
+	# 			etc.
 	# 		</DiplomacyIntroMusicWar>
 	# 		<DiplomacyMusicWar>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_ANCIENT</EraType>
-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_EARLY</DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_CLASSICAL</EraType>
-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_EARLY</DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_MEDIEVAL</EraType>
-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_MIDDLE</DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_RENAISSANCE</EraType>
-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_MIDDLE</DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_INDUSTRIAL</EraType>
-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_LATE</DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_MODERN</EraType>
-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_LATE</DiploScriptId>
-	# 			</DiploMusicWarEra>
-	# 			<DiploMusicWarEra>
-	# 				<EraType>ERA_FUTURE</EraType>
-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_LATE</DiploScriptId>
-	# 			</DiploMusicWarEra>
+	# 			etc.
 	# 		</DiplomacyMusicWar>
 	#
 	# and we have reached end of a leader info's xml, hopefully we parsed all we needed -->

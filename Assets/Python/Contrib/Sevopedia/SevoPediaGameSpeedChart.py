@@ -354,28 +354,27 @@ class SevoPediaGameSpeedChart:
 
 			iNumInc = info.getNumTurnIncrements()
 			cum_months = 0
-			# Era display (per speed): show "BC" only once (first BC date), and
-			# show "AD" only once (first AD date). After that, omit the era suffix
-			# to save horizontal space in the calendar table.
-			era_seen = {"BC": False, "AD": False}
+			# Era labels are omitted for compactness (BC is implied before the transition, AD after).
+			# To still make the BC->AD boundary obvious, we mark the *first* segment that reaches AD
+			# with an arrow ("->") instead of "=".
+			bReachedAD = (start_year >= 0)
 			for iInc in xrange(iNumInc):
 				turn_info = info.getGameTurnInfo(iInc)
 				iTurns = turn_info.iNumGameTurnsPerIncrement
 				iMonthInc = turn_info.iMonthIncrement
 
 				iSegMonths = iTurns * iMonthInc
-				iStartTotal = cum_months
+				iStartYear = start_year + (cum_months / 12)
 				iEndTotal = cum_months + iSegMonths
-
-				iStartYear = start_year + (iStartTotal / 12)
-				iStartMonth = (iStartTotal % 12) + 1
 				iEndYear = start_year + (iEndTotal / 12)
 				iEndMonth = (iEndTotal % 12) + 1
 
-				szCell = self._format_calendar_segment(iStartYear, iStartMonth, iEndYear, iEndMonth, iTurns, iMonthInc, era_seen)
-
+				bEraFlip = (not bReachedAD) and (iStartYear < 0) and (iEndYear >= 0)
+				szCell = self._format_calendar_segment(iEndYear, iEndMonth, iTurns, iMonthInc, bEraFlip)
 				parsed_data[speed_type][calendar_fields[iInc]] = szCell
 				cum_months = iEndTotal
+				if iEndYear >= 0:
+					bReachedAD = True
 
 		# Display order:
 		# - base rows (row_specs order)
@@ -436,29 +435,23 @@ class SevoPediaGameSpeedChart:
 			return "%dk" % (iAbsYear / 1000)
 		return str(iAbsYear)
 
-	def _era_suffix(self, iYear):
-		# Calendar eras: negative years are BC, year 0+ is AD.
+	def _format_year_label(self, iYear):
+		# Compact year label without era text.
+		# In the calendar table we omit "BC"/"AD" everywhere:
+		# - Before the BC->AD transition, years are implicitly BC.
+		# - The first segment that reaches AD is marked with "->" in the cell.
+		# - After that, years are implicitly AD.
 		if iYear < 0:
-			return "BC"
-		return "AD"
+			return self._format_year_magnitude(-iYear)
+		return self._format_year_magnitude(iYear)
 
-	def _format_year_label(self, iYear, bIncludeEra=True):
-		# Compact year label. If bIncludeEra is False, omit the "BC"/"AD" suffix to save space.
-		# Examples: "50kBC", "1900AD", "2076"
-		if iYear < 0:
-			szYear = self._format_year_magnitude(-iYear)
-		else:
-			szYear = self._format_year_magnitude(iYear)
-		if bIncludeEra:
-			return "%s%s" % (szYear, self._era_suffix(iYear))
-		return szYear
-
-	def _format_date_label(self, iYear, iMonth, bIncludeEra):
-		# Date label for calendar cells.
-		# - Era suffix is optional (caller enforces: show each era only once per speed).
-		# - Month is shown only when it adds information: m2..m11 (omit m1 and m12 for concision).
-		sz = self._format_year_label(iYear, bIncludeEra)
-		if iMonth == 1 or iMonth == 12:
+	def _format_date_label(self, iYear, iMonth):
+		# Date label: <year>[m2..m12]
+		# Month is shown only when it adds information.
+		# We omit m1 (January) for concision, but we KEEP m12 (December)
+		# because <year>m12 is not the same as <year+1>.
+		sz = self._format_year_label(iYear)
+		if iMonth == 1:
 			return sz
 		return "%sm%d" % (sz, iMonth)
 
@@ -492,25 +485,35 @@ class SevoPediaGameSpeedChart:
 		szYears = self._format_years_per_turn(years_per_turn)
 		return ("*", "%sm%d" % (szYears, rem_months))
 
-	def _format_calendar_segment(self, start_year, start_month, end_year, end_month, turns, month_inc, era_seen):
-		# Examples (month suffix is shown only for m2..m11; we omit m1/m12 for concision):
-		# - "50kBC+2*10k=30k"         (BC shown once per speed; later BC dates omit "BC")
-		# - "10+3*m6=0AD"             (first AD date shows "AD" once; later AD dates omit "AD")
-		# - "1900+3*m6=1901m7"        (after AD has appeared, both sides omit "AD"; months can still show)
-		# Era display rule (per speed): show each era suffix ("BC"/"AD") only on its first appearance.
-		era_start = self._era_suffix(start_year)
-		bShowStartEra = (not era_seen.get(era_start, False))
-		szStart = self._format_date_label(start_year, start_month, bShowStartEra)
-		era_seen[era_start] = True
-
-		era_end = self._era_suffix(end_year)
-		bShowEndEra = (not era_seen.get(era_end, False))
-		szEnd = self._format_date_label(end_year, end_month, bShowEndEra)
-		era_seen[era_end] = True
-
+	def _format_calendar_segment(self, end_year, end_month, turns, month_inc, bEraFlip):
+		# Calendar cell format is intentionally compact:
+		#   "+<turns>*<rate><sep><endDate>"
+		# We omit the segment start date entirely to save horizontal space.
+		# (The start date is implied by the previous segment; for the first segment,
+		#  players already know START_YEAR / can look it up in XML.)
+		#
+		# Era handling:
+		# - We omit "BC"/"AD" text entirely (BC is implied before the transition, AD after).
+		# - We mark the *first* segment that reaches AD with "->" (instead of "=") so the
+		#   BC->AD boundary is obvious without repeating era text in every cell.
+		#   (This is also where years are shortest, so the marker doesn't bloat the row.)
+		#
+		# Month handling:
+		# - Month suffix is shown for m2..m12 (omit m1 only).
+		#   We keep m12 (December) because it is meaningfully different from <year+1>.
+		#
+		# Examples:
+		# - "+2*10k=30k"              (still BC; era implied)
+		# - "+3*m6->0"                (first segment that reaches AD)
+		# - "+3*m6=1901m7"            (later AD; era implied)
+		# - "+1*m3=2069m12"           (December is shown; it is not the same as 2070)
+		szEnd = self._format_date_label(end_year, end_month)
 		(szOp, szRate) = self._format_rate_per_turn(month_inc)
-		return "%s+%d%s%s=%s" % (szStart, turns, szOp, szRate, szEnd)
-
+		if bEraFlip:
+			szSep = "->"
+		else:
+			szSep = "="
+		return "+%d%s%s%s%s" % (turns, szOp, szRate, szSep, szEnd)
 
 	def _beautify_field_name(self, raw_name):
 		# Keep field labels readable; only shorten trailing "Percent" to "%".
@@ -529,7 +532,6 @@ class SevoPediaGameSpeedChart:
 			name = name[:-len("Percent")] + "%"
 
 		return name
-
 
 	def _beautify_enum_name(self, raw_name):
 		name = raw_name

@@ -224,7 +224,7 @@ Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved 
 
 New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart, Game Speed Chart, World Sizes Chart. Added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and ChatGPT 5.2 (web) based on the Middle-earth's Platypedia code.
 
-They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m5"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>

@@ -183,45 +183,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 
 ===== .\Assets\XML\GameInfo\CIV4GameSpeedInfo.xml =====
 ----- Comment #19 -----
-<!-- custom:
-
-			then resumes/starts here now:
-														- turn 0 [START] -
-			For from -50 000  to  -30 000	;	Month increment: 12 * 5 000  years = 60 000  months		;	Turns: 4
-			For from -30 000  to  -20 000	;	Month increment: 12 * 2 500  years = 30 000  months		;	Turns: 4
-			For from -20 000  to  -15 000	;	Month increment: 12 * 1 000  years = 12 000  months		;	Turns: 5
-			For from -15 000  to  -12 000	;	Month increment: 12 * 750    years = 9 000   months		;	Turns: 4
-			For from -12 000  to  -7 500	;	Month increment: 12 * 500    years = 6 000   months		;	Turns: 9
-			For from  -7 500  to  -4 500	;	Month increment: 12 * 250    years = 3 000   months		;	Turns: 12
-			For from  -4 500  to  -3 000	;	Month increment: 12 * 125    years = 1 500   months		;	Turns: 12
-														- end of turn 50 -
-			For from  -3 000  to  -2 200	;	Month increment: 12 * 50     years = 600     months		;	Turns: 16
-			For from  -2 200  to  -1 480	;	Month increment: 12 * 40     years = 480     months		;	Turns: 18
-			For from  -1 480  to  -1 000	;	Month increment: 12 * 30     years = 360     months		;	Turns: 16
-														- end of turn 100 -
-			For from  -1 000  to  500		;	Month increment: 12 * 30     years = 360     months		;	Turns: 50
-														- end of turn 150 -
-			For from  500     to  1300		;	Month increment: 12 * 20     years = 240     months		;	Turns: 40
-			For from  1300    to  1400		;	Month increment: 12 * 10     years = 120     months		;	Turns: 10
-														- end of turn 200 -
-			For from  1400    to  1600		;	Month increment: 12 * 10     years = 120     months		;	Turns: 20
-			For from  1600    to  1750		;	Month increment: 12 * 5      years = 60      months		;	Turns: 30
-														- end of turn 250 -
-			For from  1750    to  1790		;	Month increment: 12 * 4      years = 48      months		;	Turns: 10
-			For from  1790    to  1880		;	Month increment: 12 * 3      years = 36      months		;	Turns: 30
-			For from  1880    to  1900		;	Month increment: 12 * 2      years = 24      months		;	Turns: 10
-														- end of turn 300 -
-			For from  1900    to  1980		;	Month increment: 12 * 2      years = 24      months		;	Turns: 40
-			For from  1980    to  1990		;	Month increment: 12 * 1      years = 12      months		;	Turns: 10
-														- end of turn 350 -
-			For from  1990    to  2040		;	Month increment: 12 * 1      years = 12      months		;	Turns: 50
-														- end of turn 400 -
-			For from  2040    to  2070		;	Month increment: 12 * 1      years = 12      months		;	Turns: 30									
-			For from  2070    to  2080		;	Month increment: 12 * 0.5    years = 6       months		;	Turns: 20
-														- end of turn 450 -
-			For from  2080    to  2105		;	Month increment: 12 * 0.5    years = 6       months		;	Turns: 50
-														- end of turn 500 [END] -
-			-->
+<!-- custom: removed since we as of now now have the sevopedia gamespeedchart -->
 
 ===== .\Assets\XML\GameInfo\CIV4HandicapInfo.xml =====
 ----- Comment #20 -----
