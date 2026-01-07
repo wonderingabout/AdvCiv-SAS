@@ -723,6 +723,11 @@ public:
 	int getColonyMaintenancePercent() const;
 	int getCorporationMaintenancePercent() const;
 	int getNumCitiesAnarchyPercent() const;
+
+	// <!-- custom: expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
+	int getUnitCostPercent() const { return get(UnitCostPercent); }
+	// <!-- custom: End - expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
+
 	int getAdvancedStartPointsMod() const;
 
 	bool read(CvXMLLoadUtility* pXML);

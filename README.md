@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, Handicap Chart category, AI Personality Panel, etc.), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
+Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g. Handicap Chart, Game Speed Chart, World Sizes, etc.), AI Personality Panel), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and for mechanics such as new Game Speeds (Nitro, Turbo, etc., Slow, Very Slow); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
@@ -35,8 +35,8 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 &emsp;[City Screen rework](/README.md#city-screen-rework)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-index-as-category-etc)  
-&emsp;[Other new categories (Handicap Chart, Game Speed Chart, etc.)](/README.md#other-new-categories-handicap-chart-game-speed-chart-etc)  
-&emsp;[Some higher level reworks (AI Personality Panel, etc.)](/README.md#some-higher-level-reworks-ai-personality-panel-etc)  
+&emsp;[Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart)](/README.md#other-new-categories-eg-handicap-chart-game-speed-chart-world-sizes-chart)  
+&emsp;[Some higher level reworks (e.g. AI Personality Panel)](/README.md#some-higher-level-reworks-eg-ai-personality-panel)  
 &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
 [UI (Common)](/README.md#ui-common)  
 &emsp;[Images as buttons](/README.md#images-as-buttons)  
@@ -220,16 +220,17 @@ Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
 
-### Other new categories (Handicap Chart, Game Speed Chart, etc.)
+### Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart)
 
-New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, the Game Speed Chart, etc. Added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and ChatGPT 5.2 (web) based on the Middle-earth's Platypedia code.
+New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart, Game Speed Chart, World Sizes Chart. Added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and ChatGPT 5.2 (web) based on the Middle-earth's Platypedia code.
 
-They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30kAD"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m4"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG" alt="0.626_sevopedia_game_speed_chart (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
 
-### Some higher level reworks (AI Personality Panel, etc.)
+### Some higher level reworks (e.g. AI Personality Panel)
 
 One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature.
 
@@ -730,19 +731,19 @@ Note: see also [AGENTS.md](/AGENTS.md).
 
 #### Create a new Sevopedia category (e.g. Handicap Chart)
 
-Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories (Handicap Chart, Game Speed Chart, etc.)](/README.md#other-new-categories-handicap-chart-game-speed-chart-etc)).
+Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart)](/README.md#other-new-categories-eg-handicap-chart-game-speed-chart-world-sizes-chart)).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG" alt="codex_ gpt_5.2_handicap_chart (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG" alt="codex_ gpt_5.2_handicap_chart (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG" alt="codex_ gpt_5.2_handicap_chart (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (1).PNG" alt="codex_ gpt_5.2_handicaps_chart (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (2).PNG" alt="codex_ gpt_5.2_handicaps_chart (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (3).PNG" alt="codex_ gpt_5.2_handicaps_chart (3).PNG" width="250"></img>
 
 #### Long_Comments extracting
 
 GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (1).PNG" alt="gpt_codex (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (2).PNG" alt="gpt_codex (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (3).PNG" alt="gpt_codex (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG" alt="gpt_codex_summarizing (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG" alt="gpt_codex_summarizing (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG" alt="gpt_codex_summarizing (3).PNG" width="250"></img>
 
 #### code comments summarizing
 

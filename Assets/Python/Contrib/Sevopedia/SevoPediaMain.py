@@ -26,6 +26,7 @@ import SevoPediaPromotion
 import SevoPediaUnitChart
 import SevoPediaHandicapChart
 import SevoPediaGameSpeedChart
+import SevoPediaWorldSizeChart
 import SevoPediaBonus
 import SevoPediaTerrain
 import SevoPediaFeature
@@ -235,6 +236,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
 		# <!-- custom: keep a shared game speed chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
 		self.pediaGameSpeedChart = SevoPediaGameSpeedChart.SevoPediaGameSpeedChart(self)
+		self.pediaWorldSizeChart = SevoPediaWorldSizeChart.SevoPediaWorldSizeChart(self)
 
 		# <!-- custom: category list refactor: previously category order, list generators, screen handlers, and link keys
 		# lived in separate maps and hardcoded blocks, so reordering or adding a category required edits in multiple places
@@ -263,6 +265,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_INDEX, "TXT_KEY_PEDIA_SCREEN_INDEX", iconHint, "placeIndexCategory", None, None),
 			(SevoScreenEnums.PEDIA_HANDICAP_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", iconSas, "placeHandicapChart", self.pediaHandicapChart, None),
 			(SevoScreenEnums.PEDIA_GAME_SPEED_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART", iconSas, "placeGameSpeedChart", self.pediaGameSpeedChart, None),
+			(SevoScreenEnums.PEDIA_WORLD_SIZE_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_WORLD_SIZE_CHART", iconSas, "placeWorldSizeChart", self.pediaWorldSizeChart, None),
 			(SevoScreenEnums.PEDIA_TERRAINS, "TXT_KEY_PEDIA_CATEGORY_TERRAIN", iconTerrain, "placeTerrains", SevoPediaTerrain.SevoPediaTerrain, "PEDIA_MAIN_TERRAIN"),
 			(SevoScreenEnums.PEDIA_FEATURES, "TXT_KEY_PEDIA_CATEGORY_FEATURE", iconTerrain, "placeFeatures", SevoPediaFeature.SevoPediaFeature, "PEDIA_MAIN_FEATURE"),
 			(SevoScreenEnums.PEDIA_BONUSES, "TXT_KEY_PEDIA_CATEGORY_BONUS", iconTerrain, "placeBonuses", SevoPediaBonus.SevoPediaBonus, "PEDIA_MAIN_BONUS"),
@@ -298,7 +301,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if szListMethod:
 				self.mapListGenerators[iEnum] = getattr(self, szListMethod)
 			if screenSpec:
-				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart):
+				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart, self.pediaWorldSizeChart):
 					self.mapScreenFunctions[iEnum] = screenSpec
 				else:
 					self.mapScreenFunctions[iEnum] = screenSpec(self)
@@ -967,6 +970,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.getScreen().deleteWidget("PediaMainItemList")
 		self.pediaGameSpeedChart.interfaceScreen()
+
+	def placeWorldSizeChart(self):
+		self.SAS_szSearchString = u""
+		self.SAS_lastItemsWidget = None
+		self.SAS_lastItemsInfo = None
+		self.SAS_deleteSearchWidgets()
+
+		self.getScreen().deleteWidget("PediaMainItemList")
+		self.pediaWorldSizeChart.interfaceScreen()
 
 
 	def placeUnitCategories(self):

@@ -296,6 +296,11 @@ void CyInfoPythonInterface3()
 		.def("getColonyMaintenancePercent", &CvWorldInfo::getColonyMaintenancePercent, "int ()")
 		.def("getCorporationMaintenancePercent", &CvWorldInfo::getCorporationMaintenancePercent, "int ()")
 		.def("getNumCitiesAnarchyPercent", &CvWorldInfo::getNumCitiesAnarchyPercent, "int ()")
+
+		// <!-- custom: expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
+		.def("getUnitCostPercent", &CvWorldInfo::getUnitCostPercent, "int ()")
+		.def("getAdvancedStartPointsMod", &CvWorldInfo::getAdvancedStartPointsMod, "int ()")
+		// <!-- custom: End - expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
 		;
 
 	python::class_<CvClimateInfo, boost::noncopyable, python::bases<CvInfoBase> >("CvClimateInfo")
