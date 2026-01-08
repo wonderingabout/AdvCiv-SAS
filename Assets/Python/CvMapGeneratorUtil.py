@@ -985,7 +985,30 @@ class MultilayeredFractal:
 			}
 		# You can add as many grain entries as you like.
 		# Seed them all from the matrix using the following type of line:
-		(iGrainOne, iGrainTwo, iGrainThree, iGrainFour) = sizevalues[sizekey]
+
+		# <!-- custom: Fallback for unknown world sizes in CvMapGeneratorUtil.py to avoid KeyError: base map scripts might still need XXL-aware getGridSize handling; the fallback only helps scripts that rely on CvMapGeneratorUtil. If you want, I can bring in the XXL map scripts from the add-on folder and wire them up. (GPT-5.2-Codex). -->
+		values = sizevalues.get(sizekey)
+		# <!-- custom: WorldSizeTypes only includes the 6 hardcoded sizes; extra XML world sizes
+		# (e.g. WORLDSIZE_ARENA / WORLDSIZE_SAS*) should map to the closest hardcoded size
+		# by tile count so they don't silently fall back to Huge parameters. (ChatGPT-5.2 Thinking) -->
+		# <!-- custom: check if accurate as i don't know too much about these. -->
+		if values is None:
+			try:
+				wi = gc.getWorldInfo(sizekey)
+				iTiles = wi.getGridWidth() * wi.getGridHeight()
+				bestKey = WorldSizeTypes.WORLDSIZE_HUGE
+				bestDiff = 1 << 30
+				for k in sizevalues.keys():
+					wiK = gc.getWorldInfo(k)
+					diff = abs(iTiles - (wiK.getGridWidth() * wiK.getGridHeight()))
+					if diff < bestDiff:
+						bestDiff = diff
+						bestKey = k
+				values = sizevalues[bestKey]
+			except:
+				values = sizevalues[WorldSizeTypes.WORLDSIZE_HUGE]
+		(iGrainOne, iGrainTwo, iGrainThree, iGrainFour) = values
+
 		# The example is for four grain values. You may not need that many.
 		# Check scripts that use MultilayeredFractal for more examples.
 

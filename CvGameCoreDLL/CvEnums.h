@@ -62,13 +62,24 @@ DEFINE_INCREMENT_OPERATORS(CivTeamTypes);
 // This generates most of the enums with associated XML data
 DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
 
-/*  The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
-	info enums are generated upfront and enums that don't support FOR_EACH_ENUM
-	have been moved to the end. */ // </advc.enum>
+// The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
+// info enums are generated upfront and enums that don't support FOR_EACH_ENUM
+// have been moved to the end. // </advc.enum>
 
-/*  advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
-	still possible to add values through XML only.
-	(The harcoded world sizes are used by map scripts and random events.) */
+// advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
+// still possible to add values through XML only.
+// (The harcoded world sizes are used by map scripts and random events.)
+
+// <!-- custom: as per ChatGPT-5.2 Thinking's recommendation, not adding the new world sizes we added in AdvCiv-SAS here (like Arena, SAS24, SAS32, SAS40, SAS48) with the below rationale. It seems to work fine ingame btw so maybe fine to leave as such. I don't know too much about these, check if accurate, and thanks chatgpt xd thanks -->
+// CvEnums.h: do we need to add world sizes there?
+// Recommendation: no.
+// Keep WorldSizeTypes as the original 6 entries (Duel..Huge). Your extra world sizes are already supported via XML (that’s how Civ4 mods normally do it). If you extend the enum, you risk:
+// 	- breaking assumptions in existing code/scripts,
+// 	- shifting indices if anything gets reordered,
+// 	- causing subtle save/compat issues.
+// If you need to detect Arena/SAS sizes in Python/C++:
+// 	- Python: gc.getWorldInfo(CyMap().getWorldSize()).getType()
+// 	- C++: compare against GC.getInfoTypeForString("WORLDSIZE_ARENA") / "WORLDSIZE_SAS24" etc.
 enum WorldSizeTypes
 {
 	NO_WORLDSIZE = -1,

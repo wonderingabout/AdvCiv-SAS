@@ -135,30 +135,37 @@ class SevoPediaWorldSizeChart:
 
 	def _buildTableFromGameData(self):
 		row_specs = (
-			("GridSize",                    None,                          "glyph:map"),
-			("GridTiles",                   None,                          "glyph:map"),
-			("iDefaultPlayers",             "getDefaultPlayers",           "glyph:citizen"),
-			("iTargetNumCities",            "getTargetNumCities",          "glyph:citizen"),
-			("iNumFreeBuildingBonuses",     "getNumFreeBuildingBonuses",   "glyph:prod"),
-			("iBuildingClassPrereqModifier","getBuildingClassPrereqModifier","glyph:prod"),
-			("iUnitNameModifier",           "getUnitNameModifier",         "btn:swords"),
-			("iMaxConscriptModifier",       "getMaxConscriptModifier",     "btn:swords"),
-			("iWarWearinessModifier",       "getWarWearinessModifier",     "glyph:unhappy"),
-			("iUnitCostPercent",            "getUnitCostPercent",          "btn:swords"),
-			("iTerrainGrainChange",         "getTerrainGrainChange",       "btn:herb"),
-			("iFeatureGrainChange",         "getFeatureGrainChange",       "btn:herb"),
-			("iResearchPercent",            "getResearchPercent",          "glyph:research"),
-			("iTradeProfitPercent",         "getTradeProfitPercent",       "glyph:gold"),
-			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent","glyph:gold"),
-			("iNumCitiesMaintenancePercent","getNumCitiesMaintenancePercent","glyph:gold"),
-			("iColonyMaintenancePercent",   "getColonyMaintenancePercent", "glyph:gold"),
-			("iCorporationMaintenancePercent","getCorporationMaintenancePercent","glyph:gold"),
-			("iNumCitiesAnarchyPercent",    "getNumCitiesAnarchyPercent",  "btn:fire"),
-			("iAdvancedStartPointsMod",     "getAdvancedStartPointsMod",   "glyph:defense"),
+			# NOTE: Some rows are direct XML fields, others are convenience composites.
+			# Use a trailing '*' in the *display label* when the displayed value is not a single XML tag.
+			# Example: "Grid Tiles*" is computed as GridWidth * GridHeight, while "Grid Size (W x H)" just formats the XML GridWidth/GridHeight.
+			# (field_name, display_label_or_None, getter_name_or_None, icon_token)
+			("GridSize",                       "Grid Size (W x H)",         None,                               "glyph:map"),
+			("GridTiles",                      "Grid Tiles*",               None,                               "glyph:map"),
+			("RatioToStandard",                "Ratio to Standard*",        None,                               "glyph:map"),
+			("TilesPerDefaultPlayer",          "Tiles Per Default Player*", None,                               "glyph:map"),
+			("iDefaultPlayers",                "Default Players",           "getDefaultPlayers",                "glyph:citizen"),
+			("iTargetNumCities",               "Target Num Cities",         "getTargetNumCities",               "glyph:citizen"),
+			("iNumFreeBuildingBonuses",        "Free Building Bonuses",     "getNumFreeBuildingBonuses",        "glyph:prod"),
+			("iBuildingClassPrereqModifier",   "Building Class Prereq Mod", "getBuildingClassPrereqModifier",   "glyph:prod"),
+			("iUnitNameModifier",              "Unit Name Modifier",        "getUnitNameModifier",              "btn:swords"),
+			("iMaxConscriptModifier",          "Max Conscript Mod",         "getMaxConscriptModifier",          "btn:swords"),
+			("iWarWearinessModifier",          "War Weariness Mod",         "getWarWearinessModifier",          "glyph:unhappy"),
+			("iUnitCostPercent",               None,                        "getUnitCostPercent",               "btn:swords"),
+			("iTerrainGrainChange",            None,                        "getTerrainGrainChange",            "btn:herb"),
+			("iFeatureGrainChange",            None,                        "getFeatureGrainChange",            "btn:herb"),
+			("iResearchPercent",               None,                        "getResearchPercent",               "glyph:research"),
+			("iTradeProfitPercent",            None,                        "getTradeProfitPercent",            "glyph:gold"),
+			("iDistanceMaintenancePercent",    None,                        "getDistanceMaintenancePercent",    "glyph:gold"),
+			("iNumCitiesMaintenancePercent",   None,                        "getNumCitiesMaintenancePercent",   "glyph:gold"),
+			("iColonyMaintenancePercent",      None,                        "getColonyMaintenancePercent",      "glyph:gold"),
+			("iCorporationMaintenancePercent", None,                        "getCorporationMaintenancePercent", "glyph:gold"),
+			("iNumCitiesAnarchyPercent",       None,                        "getNumCitiesAnarchyPercent",       "btn:fire"),
+			("iAdvancedStartPointsMod",        "Advanced Start Points Mod", "getAdvancedStartPointsMod",        "glyph:defense"),
+			("RecommendedDLL",                 "Recommended DLL*",          None,                               "glyph:defense"),
 		)
 
 		field_getters_list = []
-		for field_name, getter_name, _icon_token in row_specs:
+		for field_name, _display_label, getter_name, _icon_token in row_specs:
 			if getter_name:
 				field_getters_list.append((field_name, getter_name))
 		field_getters = tuple(field_getters_list)
@@ -225,9 +232,14 @@ class SevoPediaWorldSizeChart:
 		def _sort_key(iGroup, iRowIndex):
 			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
 		icon_token_by_key = {}
-		for field_name, _getter_name, icon_token in row_specs:
+		for field_name, _display_label, _getter_name, icon_token in row_specs:
 			if icon_token:
 				icon_token_by_key[field_name] = icon_token
+
+		display_label_by_key = {}
+		for field_name, display_label, _getter_name, _icon_token in row_specs:
+			if display_label:
+				display_label_by_key[field_name] = display_label
 
 		def icon_cell_for_key(icon_key, iRowIndex):
 			# Always return a stable invisible tie-breaker, even if no icon is found.
@@ -276,6 +288,57 @@ class SevoPediaWorldSizeChart:
 
 			parsed_data[world_type] = world_dict
 
+
+		# -----------------------------------------------------------------
+		# Derived rows (AdvCiv-SAS: XXL-inspired extra world sizes, adjusted for SAS; e.g. SAS24/SAS32/SAS40/SAS48)
+		# Computed fields are marked in the UI with a trailing \"*\".
+		# Added with help from ChatGPT (GPT-5.2 Thinking)
+		# -----------------------------------------------------------------
+		iStandardTiles = None
+		if parsed_data.has_key("WORLDSIZE_STANDARD"):
+			try:
+				iStandardTiles = int(parsed_data["WORLDSIZE_STANDARD"].get("GridTiles", "0"))
+			except:
+				iStandardTiles = None
+
+		# Ratio to Standard: GridTiles / Standard GridTiles (3 decimals).
+		# Tiles Per Default Player: GridTiles / iDefaultPlayers (rounded to int).
+		for world_type in world_types:
+			# Ratio
+			if iStandardTiles is not None and iStandardTiles > 0:
+				try:
+					iTiles = int(parsed_data.get(world_type, {}).get("GridTiles", "0"))
+					parsed_data[world_type]["RatioToStandard"] = ("%.3f" % (float(iTiles) / float(iStandardTiles)))
+				except:
+					parsed_data[world_type]["RatioToStandard"] = ""
+			else:
+				parsed_data[world_type]["RatioToStandard"] = ""
+
+			# Tiles per default player
+			try:
+				iTiles = int(parsed_data.get(world_type, {}).get("GridTiles", "0"))
+			except:
+				iTiles = 0
+			try:
+				iDefaultPlayers = int(parsed_data.get(world_type, {}).get("iDefaultPlayers", "0"))
+			except:
+				iDefaultPlayers = 0
+			if iTiles > 0 and iDefaultPlayers > 0:
+				parsed_data[world_type]["TilesPerDefaultPlayer"] = str(int(round(float(iTiles) / float(iDefaultPlayers))))
+			else:
+				parsed_data[world_type]["TilesPerDefaultPlayer"] = ""
+
+		# Recommended DLL: show "48 civs" when iDefaultPlayers exceeds the base DLL cap (18).
+		for world_type in world_types:
+			try:
+				iDefaultPlayers = int(parsed_data.get(world_type, {}).get("iDefaultPlayers", "0"))
+			except:
+				iDefaultPlayers = 0
+			if iDefaultPlayers > 18:
+				parsed_data[world_type]["RecommendedDLL"] = "48 civs"
+			else:
+				parsed_data[world_type]["RecommendedDLL"] = "Base"
+
 		header = []
 		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
 			header.append(u"")
@@ -288,8 +351,8 @@ class SevoPediaWorldSizeChart:
 		table = [header]
 
 		row_index = 0
-		for field_name, _getter_name, _icon_token in row_specs:
-			szFieldName = self._display_field_name(field_name)
+		for field_name, display_label, _getter_name, _icon_token in row_specs:
+			szFieldName = display_label_by_key.get(field_name, self._beautify_field_name(field_name))
 
 			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key(field_name, row_index), _font2(szFieldName)]
@@ -303,24 +366,6 @@ class SevoPediaWorldSizeChart:
 			row_index += 1
 
 		return table
-
-	def _display_field_name(self, field_name):
-		field_map = {
-			"GridSize": "Grid Size (W x H)",
-			"GridTiles": "Grid Tiles",
-			"iDefaultPlayers": "Default Players",
-			"iTargetNumCities": "Target Num Cities",
-			"iNumFreeBuildingBonuses": "Free Building Bonuses",
-			"iBuildingClassPrereqModifier": "Building Class Prereq Mod",
-			"iUnitNameModifier": "Unit Name Modifier",
-			"iMaxConscriptModifier": "Max Conscript Mod",
-			"iWarWearinessModifier": "War Weariness Mod",
-			"iAdvancedStartPointsMod": "Advanced Start Points Mod",
-		}
-		name = field_map.get(field_name, "")
-		if name:
-			return name
-		return self._beautify_field_name(field_name)
 
 	def _beautify_field_name(self, raw_name):
 		name = raw_name

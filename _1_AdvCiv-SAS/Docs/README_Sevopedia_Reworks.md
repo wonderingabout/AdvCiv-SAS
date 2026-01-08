@@ -108,7 +108,9 @@ Extending on the Handicap Chart, with the help of GPT-Codex-5.2 and ChatGPT 5.2 
 
 Especially useful to see the full calendar/timeline info in compact rows such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
 
-Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+Note: computed or manually added fields such as `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro), that don't exist in XML are provided for convenience. They are marked with an `*` at the end of the field name to help distinguish them from regular XML info fields.
+
+Note 2 : similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
 
 <img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (1).JPG" alt="0.626_sevopedia_game_speeds_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
@@ -117,7 +119,9 @@ Note: similarly to how the handicap chart does, in the game speed chart you also
 
 Extending on the Handicap Chart similarly, with the help of GPT-Codex-5.2, i also added a World Sizes Sevopedia category.
 
-Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+Note: computed or manually added fields such as `Ratio to Standard*` (e.g. "3.640" for the SAS24 World Size), `Recommended DLL*` (e.g. "48 Civs" for the SAS24 World Size), that don't exist in XML are provided for convenience. They are marked with an `*` at the end of the field name (e.g. `Ratio to Standard*` or `Recommended DLL*`).
+
+Note 2: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
 
 <img src="../Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
 

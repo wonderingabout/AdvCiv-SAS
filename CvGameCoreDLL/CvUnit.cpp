@@ -7110,7 +7110,7 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
 		if (kOwner.getGold() < iPrice)
 			return false;
 
-		// <!-- custom: AI upgrade economic checks (gold vs strength gain) (chatgpt 5.2) -->
+		// <!-- custom: AI upgrade economic checks (gold vs strength gain) (ChatGPT 5.2 Thinking) -->
 		// <!-- custom: note: war gates not implemented as it is not always certain they would be beneficial and may backfire, see for details known issue of as now 88 for details. -->
 		if (!isHuman())
 		{
@@ -7167,7 +7167,7 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
 				}
 			}
 		}
-		// <!-- custom: end AI upgrade economic checks (chatgpt 5.2) -->
+		// <!-- custom: end AI upgrade economic checks (ChatGPT 5.2 Thinking) -->
 	}
 
 	if (hasUpgrade(eUnit))

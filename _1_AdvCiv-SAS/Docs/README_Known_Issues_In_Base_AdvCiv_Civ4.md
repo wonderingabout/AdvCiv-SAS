@@ -3683,7 +3683,7 @@ Not knowing anything about what the DLL change may be other than a DLL change wa
 >
 > If you want, paste the old (pre-change) selection block call sites you care about (where else `AI_getBestGroupAttacker` is called), and I can tell you exactly where this new behavior will and will not apply (and where it might be unexpectedly bypassing LFB).
 
-#### About siege (ChatGPT 5.2)
+#### About siege (ChatGPT 5.2 Thinking)
 
 > ### Siege and collateral units
 >

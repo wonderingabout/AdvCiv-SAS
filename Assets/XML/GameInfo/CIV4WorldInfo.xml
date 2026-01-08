@@ -3,10 +3,37 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
+<!-- custom: new world sizes based on the XXL Word (BtS) mod (https://forums.civfanatics.com/resources/xxl-world-bts.6708/)'s approach, with values adjusted for AdvCiv-SAS with the help of GPT-Codex-5.2 and then ChatGPT 5.2 Thinking thanks. For details, see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\XXL_World_SAS_Modified.xml and docs. -->
 <!-- World Infos -->
 <!-- NOTE: If you remove any of these you need to update Interface/WorldPickerInfos.xml -->
 <Civ4WorldInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<WorldInfos>
+		<WorldInfo>
+			<Type>WORLDSIZE_ARENA</Type>
+			<Description>TXT_KEY_WORLD_ARENA</Description>
+			<Help>TXT_KEY_WORLD_ARENA_HELP</Help>
+			<iDefaultPlayers>2</iDefaultPlayers>
+			<iUnitNameModifier>50</iUnitNameModifier>
+			<iTargetNumCities>4</iTargetNumCities>
+			<iNumFreeBuildingBonuses>1</iNumFreeBuildingBonuses>
+			<iBuildingClassPrereqModifier>0</iBuildingClassPrereqModifier>
+			<iMaxConscriptModifier>-30</iMaxConscriptModifier>
+			<iWarWearinessModifier>30</iWarWearinessModifier>
+			<iUnitCostPercent>109</iUnitCostPercent>
+			<!-- custom: Smaller-than-Duel size for fast 2-player games (14x10). -->
+			<iGridWidth>14</iGridWidth>
+			<iGridHeight>10</iGridHeight>
+			<iTerrainGrainChange>-1</iTerrainGrainChange>
+			<iFeatureGrainChange>-1</iFeatureGrainChange>
+			<iResearchPercent>85</iResearchPercent>
+			<iTradeProfitPercent>70</iTradeProfitPercent>
+			<iDistanceMaintenancePercent>55</iDistanceMaintenancePercent>
+			<iNumCitiesMaintenancePercent>42</iNumCitiesMaintenancePercent>
+			<iColonyMaintenancePercent>67</iColonyMaintenancePercent>
+			<iCorporationMaintenancePercent>400</iCorporationMaintenancePercent>
+			<iNumCitiesAnarchyPercent>11</iNumCitiesAnarchyPercent>
+			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+		</WorldInfo>
 		<WorldInfo>
 			<Type>WORLDSIZE_DUEL</Type>
 			<Description>TXT_KEY_WORLD_DUEL</Description>
@@ -225,8 +252,108 @@
 			<!-- advc.250c: was 120 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 		</WorldInfo>
+
+		<WorldInfo>
+			<Type>WORLDSIZE_SAS24</Type>
+			<Description>TXT_KEY_WORLD_SAS24</Description>
+			<Help>TXT_KEY_WORLD_SAS24_HELP</Help>
+			<iDefaultPlayers>24</iDefaultPlayers>
+			<iUnitNameModifier>0</iUnitNameModifier>
+			<iTargetNumCities>7</iTargetNumCities>
+			<iNumFreeBuildingBonuses>7</iNumFreeBuildingBonuses>
+			<iBuildingClassPrereqModifier>100</iBuildingClassPrereqModifier>
+			<iMaxConscriptModifier>60</iMaxConscriptModifier>
+			<iWarWearinessModifier>-35</iWarWearinessModifier>
+			<iUnitCostPercent>91</iUnitCostPercent>
+			<iGridWidth>71</iGridWidth>
+			<iGridHeight>49</iGridHeight>
+			<iTerrainGrainChange>2</iTerrainGrainChange>
+			<iFeatureGrainChange>2</iFeatureGrainChange>
+			<iResearchPercent>115</iResearchPercent>
+			<iTradeProfitPercent>26</iTradeProfitPercent>
+			<iDistanceMaintenancePercent>109</iDistanceMaintenancePercent>
+			<iNumCitiesMaintenancePercent>18</iNumCitiesMaintenancePercent>
+			<iColonyMaintenancePercent>23</iColonyMaintenancePercent>
+			<iCorporationMaintenancePercent>40</iCorporationMaintenancePercent>
+			<iNumCitiesAnarchyPercent>5</iNumCitiesAnarchyPercent>
+			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+		</WorldInfo>
+		<WorldInfo>
+			<Type>WORLDSIZE_SAS32</Type>
+			<Description>TXT_KEY_WORLD_SAS32</Description>
+			<Help>TXT_KEY_WORLD_SAS32_HELP</Help>
+			<iDefaultPlayers>32</iDefaultPlayers>
+			<iUnitNameModifier>0</iUnitNameModifier>
+			<iTargetNumCities>8</iTargetNumCities>
+			<iNumFreeBuildingBonuses>8</iNumFreeBuildingBonuses>
+			<iBuildingClassPrereqModifier>125</iBuildingClassPrereqModifier>
+			<iMaxConscriptModifier>75</iMaxConscriptModifier>
+			<iWarWearinessModifier>-45</iWarWearinessModifier>
+			<iUnitCostPercent>88</iUnitCostPercent>
+			<iGridWidth>83</iGridWidth>
+			<iGridHeight>58</iGridHeight>
+			<iTerrainGrainChange>2</iTerrainGrainChange>
+			<iFeatureGrainChange>2</iFeatureGrainChange>
+			<iResearchPercent>120</iResearchPercent>
+			<iTradeProfitPercent>19</iTradeProfitPercent>
+			<iDistanceMaintenancePercent>118</iDistanceMaintenancePercent>
+			<iNumCitiesMaintenancePercent>14</iNumCitiesMaintenancePercent>
+			<iColonyMaintenancePercent>15</iColonyMaintenancePercent>
+			<iCorporationMaintenancePercent>30</iCorporationMaintenancePercent>
+			<iNumCitiesAnarchyPercent>4</iNumCitiesAnarchyPercent>
+			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+		</WorldInfo>
+		<WorldInfo>
+			<Type>WORLDSIZE_SAS40</Type>
+			<Description>TXT_KEY_WORLD_SAS40</Description>
+			<Help>TXT_KEY_WORLD_SAS40_HELP</Help>
+			<iDefaultPlayers>40</iDefaultPlayers>
+			<iUnitNameModifier>0</iUnitNameModifier>
+			<iTargetNumCities>9</iTargetNumCities>
+			<iNumFreeBuildingBonuses>9</iNumFreeBuildingBonuses>
+			<iBuildingClassPrereqModifier>150</iBuildingClassPrereqModifier>
+			<iMaxConscriptModifier>90</iMaxConscriptModifier>
+			<iWarWearinessModifier>-55</iWarWearinessModifier>
+			<iUnitCostPercent>85</iUnitCostPercent>
+			<iGridWidth>92</iGridWidth>
+			<iGridHeight>63</iGridHeight>
+			<iTerrainGrainChange>2</iTerrainGrainChange>
+			<iFeatureGrainChange>2</iFeatureGrainChange>
+			<iResearchPercent>125</iResearchPercent>
+			<iTradeProfitPercent>12</iTradeProfitPercent>
+			<iDistanceMaintenancePercent>127</iDistanceMaintenancePercent>
+			<iNumCitiesMaintenancePercent>10</iNumCitiesMaintenancePercent>
+			<iColonyMaintenancePercent>8</iColonyMaintenancePercent>
+			<iCorporationMaintenancePercent>20</iCorporationMaintenancePercent>
+			<iNumCitiesAnarchyPercent>3</iNumCitiesAnarchyPercent>
+			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+		</WorldInfo>
+		<WorldInfo>
+			<Type>WORLDSIZE_SAS48</Type>
+			<Description>TXT_KEY_WORLD_SAS48</Description>
+			<Help>TXT_KEY_WORLD_SAS48_HELP</Help>
+			<iDefaultPlayers>48</iDefaultPlayers>
+			<iUnitNameModifier>0</iUnitNameModifier>
+			<iTargetNumCities>10</iTargetNumCities>
+			<iNumFreeBuildingBonuses>10</iNumFreeBuildingBonuses>
+			<iBuildingClassPrereqModifier>175</iBuildingClassPrereqModifier>
+			<iMaxConscriptModifier>105</iMaxConscriptModifier>
+			<iWarWearinessModifier>-65</iWarWearinessModifier>
+			<iUnitCostPercent>82</iUnitCostPercent>
+			<iGridWidth>102</iGridWidth>
+			<iGridHeight>73</iGridHeight>
+			<iTerrainGrainChange>2</iTerrainGrainChange>
+			<iFeatureGrainChange>2</iFeatureGrainChange>
+			<iResearchPercent>130</iResearchPercent>
+			<iTradeProfitPercent>5</iTradeProfitPercent>
+			<iDistanceMaintenancePercent>136</iDistanceMaintenancePercent>
+			<iNumCitiesMaintenancePercent>6</iNumCitiesMaintenancePercent>
+			<iColonyMaintenancePercent>2</iColonyMaintenancePercent>
+			<iCorporationMaintenancePercent>10</iCorporationMaintenancePercent>
+			<iNumCitiesAnarchyPercent>2</iNumCitiesAnarchyPercent>
+			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+		</WorldInfo>
 		<!-- advc.test: For testing MAX_CIV_PLAYERS > 18 -->
 		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #23 -->
-		
 	</WorldInfos>
 </Civ4WorldInfo>

@@ -2098,7 +2098,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		setShowListIdx = None
 		self.SAS_listIdxToRow = None
 
-		# <!-- custom: rebuild arrow-navigation selectable caches every time we rebuild the list (fixes stale indices / out-of-range) (chatgpt 5.2) -->
+		# <!-- custom: rebuild arrow-navigation selectable caches every time we rebuild the list (fixes stale indices / out-of-range) (ChatGPT 5.2 Thinking) -->
 		self.SAS_selectableListIdx = []
 		self.SAS_itemToSelectablePos = {}
 
