@@ -20,7 +20,7 @@
 		<Spanish>[ICON_BULLET]Se puede construir en [NUM1:el:la:los:las] %s1_Name e inicios anteriores</Spanish>
 	</TEXT>
 	
-	<!-- custom: added here for exhaustiveness, not modified (as) for the English language('s version) -->
+	<!-- custom: added here for exhaustiveness -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER</Tag>
 		<English>[ICON_BULLET]Provides power ([ICON_POWER])</English>

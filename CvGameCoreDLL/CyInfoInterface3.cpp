@@ -407,6 +407,9 @@ void CyInfoPythonInterface3()
 		.def("getStartingDefenseUnits", &CvEraInfo::getStartingDefenseUnits, "int () -")
 		.def("getStartingWorkerUnits", &CvEraInfo::getStartingWorkerUnits, "int () -")
 		.def("getStartingExploreUnits", &CvEraInfo::getStartingExploreUnits, "int () -")
+		// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+		.def("getAdvancedStartPoints", &CvEraInfo::getAdvancedStartPoints, "int () -")
+		// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 		.def("getStartingGold", &CvEraInfo::getStartingGold, "int () -")
 		.def("getFreePopulation", &CvEraInfo::getFreePopulation, "int () -")
 		.def("getStartPercent", &CvEraInfo::getStartPercent, "int () -")
@@ -415,9 +418,15 @@ void CyInfoPythonInterface3()
 		.def("getConstructPercent", &CvEraInfo::getConstructPercent, "int () -")
 		.def("getCreatePercent", &CvEraInfo::getCreatePercent, "int () -")
 		.def("getResearchPercent", &CvEraInfo::getResearchPercent, "int () -")
+		// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+		.def("getTechCostModifier", &CvEraInfo::getTechCostModifier, "int () -")
+		// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 		.def("getBuildPercent", &CvEraInfo::getBuildPercent, "int () -")
 		.def("getImprovementPercent", &CvEraInfo::getImprovementPercent, "int () -")
 		.def("getGreatPeoplePercent", &CvEraInfo::getGreatPeoplePercent, "int () -")
+		// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+		.def("getCulturePercent", &CvEraInfo::getCulturePercent, "int () -")
+		// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 		.def("getAnarchyPercent", &CvEraInfo::getAnarchyPercent, "int () -")
 		.def("getEventChancePerTurn", &CvEraInfo::getEventChancePerTurn, "int () -")
 		.def("getSoundtrackSpace", &CvEraInfo::getSoundtrackSpace, "int () -")
@@ -430,6 +439,18 @@ void CyInfoPythonInterface3()
 		.def("isNoAnimals", &CvEraInfo::isNoAnimals, "bool () -")
 		.def("isNoBarbUnits", &CvEraInfo::isNoBarbUnits, "bool () -")
 		.def("isNoBarbCities", &CvEraInfo::isNoBarbCities, "bool () -")
+		// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+		.def("isAllGoodyTechs", &CvEraInfo::isAllGoodyTechs, "bool () -")
+		.def("getAIMaxGroundbreakingPenalty", &CvEraInfo::getAIMaxGroundbreakingPenalty, "int () -")
+		.def("getHumanMaxGroundbreakingPenalty", &CvEraInfo::getHumanMaxGroundbreakingPenalty, "int () -")
+		.def("isAIAgeOfExploration", &CvEraInfo::isAIAgeOfExploration, "bool () -")
+		.def("isAIAgeOfPestilence", &CvEraInfo::isAIAgeOfPestilence, "bool () -")
+		.def("isAIAgeOfPollution", &CvEraInfo::isAIAgeOfPollution, "bool () -")
+		.def("isAIAgeOfFertility", &CvEraInfo::isAIAgeOfFertility, "bool () -")
+		.def("isAIAgeOfGuns", &CvEraInfo::isAIAgeOfGuns, "bool () -")
+		.def("isAIAtomicAge", &CvEraInfo::isAIAtomicAge, "bool () -")
+		.def("isAIAgeOfProduction", &CvEraInfo::isAIAgeOfProduction, "bool () -")
+		// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 
 		// Arrays
 

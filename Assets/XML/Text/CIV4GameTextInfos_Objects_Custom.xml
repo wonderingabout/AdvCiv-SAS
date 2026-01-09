@@ -732,11 +732,38 @@
 
 
 
-	<!-- custom: rename "Gunpowder Units" to "Gun units" to encompass all kind of gun units not just the early ones that use gunpowder; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of smokeless powder instead -->
+	<!-- custom: rename for concision, was "Recon Units" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_RECON</Tag>
+		<English>Recon</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_SIEGE</Tag>
+		<English>Siege</English>
+	</TEXT>
+	<!-- custom: was "Armored Units" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARMOR</Tag>
+		<English>Armor</English>
+	</TEXT>
+	<!-- custom: was "Helicopter Units" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_HELICOPTER</Tag>
+		<English>Helicopters</English>
+	</TEXT>
+	<!-- custom: was "Naval Units" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_NAVAL</Tag>
+		<English>Naval</English>
+	</TEXT>
+	<!-- custom: rename "Gunpowder Units" to "Gun" to encompass all kind of gun units not just the early ones that use gunpowder and for concision; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of smokeless powder instead -->
 	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_GUN</Tag>
-		<English>Gun Units</English>
+		<English>Gun</English>
 	</TEXT>
+
+
+
 
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_MEDIC1</Tag>

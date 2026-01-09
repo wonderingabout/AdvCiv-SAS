@@ -16,7 +16,7 @@ As said in main readme.md in relevant section there as well, as of now the milit
 <img src="../Images/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
 <img src="../Images/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
 
-Significant changes have been made to upgrade paths, unit costs, stats and such, some units were removed and a few new were added (mostly to replace some removed ones, sometimes as an entirely new unit (as of now only for the kingdom of benin's civ-specific unit (the disciplined crossbow as of now))), please view docs, in particular [README_Custom_Main_Changes_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details) or/and sevopedia ingame or/and other relevant places if any more are there.
+Significant changes have been made to upgrade paths, unit costs, stats and such, some units were removed and a few new were added (mostly to replace some removed ones, sometimes as an entirely new unit (as of now only for the kingdom of benin's civ-specific unit (the disciplined crossbow as of now))), see docs or sevopedia.
 
 ## Info about a more advanced prototype military tree
 

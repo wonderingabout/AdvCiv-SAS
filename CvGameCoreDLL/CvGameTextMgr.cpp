@@ -5976,8 +5976,9 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
 }
 
 
+// <!-- custom: pass bCivilopediaText through so Civilopedia can render free promotions in a single compact line; the old multi-line bullets remain elsewhere, while this avoids needless vertical sprawl on the leader page. (GPT-5.2-Codex) -->
 void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait,
-	CivilizationTypes eCivilization, bool bDawnOfMan)
+	CivilizationTypes eCivilization, bool bDawnOfMan, bool bCivilopediaText)
 {
 	PROFILE_FUNC();
 
@@ -6169,7 +6170,9 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
 	} // </advc.908b>
 	{
 		CvWString szTempBuffer;
+		CvWString szUnitCombatBuffer;
 		bool bFoundPromotion = false;
+		bool bFoundUnitCombat = false;
 		FOR_EACH_ENUM(Promotion)
 		{
 			if (kTrait.isFreePromotion(eLoopPromotion))
@@ -6181,14 +6184,32 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
 				bFoundPromotion = true;
 			}
 		}
+		// <!-- custom: pass bCivilopediaText through so Civilopedia can render free promotions in a single compact line; the old multi-line bullets remain elsewhere, while this avoids needless vertical sprawl on the leader page. (GPT-5.2-Codex) -->
+		FOR_EACH_ENUM(UnitCombat)
+		{
+			if (kTrait.isFreePromotionUnitCombat(eLoopUnitCombat))
+			{
+				if (bFoundUnitCombat)
+					szUnitCombatBuffer += L", ";
+				szUnitCombatBuffer += CvWString::format(L"<link=literal>%s</link>",
+						GC.getInfo(eLoopUnitCombat).getDescription());
+				bFoundUnitCombat = true;
+			}
+		}
 		if (bFoundPromotion)
 		{
+			if (bCivilopediaText && bFoundUnitCombat)
+			{
+				szTempBuffer += L" (";
+				szTempBuffer += szUnitCombatBuffer;
+				szTempBuffer += L")";
+			}
 			szHelpString.append(gDLL->getText("TXT_KEY_TRAIT_FREE_PROMOTIONS",
 					szTempBuffer.GetCString()));
 
 			FOR_EACH_ENUM(UnitCombat)
 			{
-				if (kTrait.isFreePromotionUnitCombat(eLoopUnitCombat))
+				if (!bCivilopediaText && kTrait.isFreePromotionUnitCombat(eLoopUnitCombat))
 				{
 					szTempBuffer.Format(L"\n        %c<link=literal>%s</link>",
 							gDLL->getSymbolID(BULLET_CHAR),
@@ -6361,9 +6382,13 @@ void CvGameTextMgr::parseLeaderTraits(CvWStringBuffer &szHelpString, LeaderHeadT
 			{
 				if (bDawnOfMan)
 					szHelpString.append(L", ");
+				// <!-- custom: add a blank line between Civilopedia trait blocks to improve readability in the Sevopedia leader panel. (GPT-5.2-Codex) -->
+				else if (bCivilopediaText)
+					szHelpString.append(NEWLINE);
 			}
 			else bFirst = false;
-			parseTraits(szHelpString, eLoopTrait, eCivilization, bDawnOfMan);
+			// <!-- custom: pass bCivilopediaText through so Civilopedia can render free promotions in a single compact line; the old multi-line bullets remain elsewhere, while this avoids needless vertical sprawl on the leader page. (GPT-5.2-Codex) -->
+			parseTraits(szHelpString, eLoopTrait, eCivilization, bDawnOfMan, bCivilopediaText);
 		}
 	}
 	else

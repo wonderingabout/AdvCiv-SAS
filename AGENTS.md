@@ -1,6 +1,10 @@
 # AGENTS
 
+This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv 1.12.
+
 These rules apply to me GPT-Codex Guidelines or other agents now and later (future me too). Append the following instructions as we agree on them. You can expand this freely as you see fit.
+
+Note: our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS) if needed.
 
 ## Comment Editing Rules (for me, now and later)
 
@@ -21,10 +25,16 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
 - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
 - When adding new comments, use the format `<!-- custom: ... (GPT-5.2-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
+- Do not use `/*` or `"""` or `'''` or such docstrings or variants. Prefer `//` or `#` or similar so they are easierto manage/uncomment and less costly computationally. Keep existing ones as they are, as some `"""` docstrings seem functionally used in tests (do not modify these, only the new ones we create).
 - Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` or similar depending on which model is doing the summarization.
+- When writing new code, do not use other credentials than our custom ones, e.g. no `// advc.`, as these help identify other maintainers than us. Keep old existing ones as much as possible for traceability unless clearly obsolete or not relevant anymore.
 - **Do NOT commit changes without explicit user approval** - wait for review at the end.
 - When committing, add a `Co-authored-by:` trailer with the model identifier unless the user requests otherwise.
 - When user feedback adds a new rule, update this file proactively.
+- Preserve all credits (ChatGPT, ChatGPT 5, ChatGPT 5.1, ChatGPT 5.2, ChatGPT o3, Gemini AI, Gemini 2.5 Pro, Gemini 3 Pro, Claude Sonnet 4.5, Claude AI)
+- Use suffix with your model name/credential: `(Claude code Sonnet 4.5 (summarized)) -->`
+- Preserv problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
+- Pattern: Keep technical details and "why" verbose, remove conversational filler
 
 ## Comment Style Example
 
@@ -36,12 +46,6 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 // and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
 // Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
 ```
-
-## Current Scope (2026-01-02)
-
-- **Focus on:** Python (.py) files with lengthy verbose comments
-- **Ignore for now:** Markdown (.md) files and git commit messages
-  - These may be handled later or manually, or left as-is
 
 ## Examples of Good Summarization
 
@@ -69,33 +73,6 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 # <!-- custom: expand the screen like Foreign Advisor/Sevopedia so crowded player lists require less scrolling. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
 ```
 
-## Model Work Logs
-
-### GPT-5.2-Codex
-
-- 2026-01-02: Summarized Python comments across 36 files (commit 8d980497)
-  - Files: BUG utilities, Screens (Military/Domestic/Tech advisors, etc.), Python scripts
-  - Applied all comment editing rules consistently
-  - Preserved all credits (ChatGPT, Gemini 3 Pro, Claude Sonnet 4.5)
-
-### Claude Sonnet 4.5
-
-- 2026-01-03: Summarized **ALL** C++ comments across entire CvGameCoreDLL directory (commit TBD)
-  - **Session 1 (manual)**: 11 files with "with help" pattern (~55 comments)
-    - CvCityAI.cpp (~15), CvUnitAI.cpp (~20), CvGameTextMgr.cpp (3), CvDLLWidgetData.cpp (4), CvCity.cpp (2), CitySiteEvaluator.cpp (3), CvPlayerAI.cpp (4), CvInfo_Unit.cpp (4), CvInitCore.cpp (2), CvSelectionGroupAI.cpp (1), CvTeamAI.cpp (1)
-  - **Session 2 (batch + agent)**: All remaining files (~600+ comments)
-    - Batch processed common patterns (static const, cache calls, hoist, etc.) across 26 files
-    - Agent processed unique verbose comments in CvCityAI.cpp (235), CvUnitAI.cpp (122), CitySiteEvaluator.cpp (44), CvCity.cpp (38), CvPlayerAI.cpp (27), CvUnit.cpp (24), CvGameTextMgr.cpp (17), and 340+ other files
-  - **Total**: 650+ comments summarized across 348 C++ source and header files
-  - **Verification**: 0 "anyways etc" remaining in CvGameCoreDLL directory
-  - Applied all comment editing rules consistently, with emphasis on preserving rationales and "why" behind changes
-  - Preserved all credits (ChatGPT, ChatGPT 5, ChatGPT 5.1, ChatGPT 5.2, ChatGPT o3, Gemini AI, Gemini 2.5 Pro, Gemini 3 Pro, Claude Sonnet 4.5, Claude AI)
-  - Uses suffix: `(Claude code Sonnet 4.5 (summarized)) -->`
-  - Removed conversational filler: "anyways etc", "check if accurate", "if i may say", "xd", "hehe", redundant phrases
-  - Key improvements: Preserved problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
-  - Pattern: Keep technical details and "why" verbose, remove conversational filler
-  - **Status**: Complete - all C++ files in CvGameCoreDLL now have concise, professional comments
-
 ## Coding Preferences
 
 These are general guidelines, not irrevocable requirements; adjust based on task needs.
@@ -108,6 +85,48 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
 - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
 - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+
+### Indentation level: avoid no indent where an indentation is expected or parent
+
+- Do not do no-indent code or comments inside functions or scope where we generally expect an indent, because adding an indent allows to easily toggle the function to hide it with VS Code.
+
+Example 1:
+
+```cpp
+void CvPlayerAI::AI_advancedStartRouteTerritory()
+{
+//	//This uses a heuristic to create a road network
+//	//which is at least efficient if not all inclusive
+```
+
+fixed:
+
+```cpp
+void CvPlayerAI::AI_advancedStartRouteTerritory()
+{
+	// //This uses a heuristic to create a road network
+	// //which is at least efficient if not all inclusive
+```
+
+Example 2:
+
+```cpp
+	FAssert(techs_to_depth.size() == iMaxPathLength+1);
+	//FAssert(techs.size() == values.size());
+
+#ifdef USE_OLD_TECH_STUFF
+	bool bPathways = false && getID() < GC.getGame().getCivPlayersEverAlive()/2; // testing (temp)
+```
+
+fixed:
+
+```cpp
+	FAssert(techs_to_depth.size() == iMaxPathLength+1);
+	//FAssert(techs.size() == values.size());
+
+	#ifdef USE_OLD_TECH_STUFF
+	bool bPathways = false && getID() < GC.getGame().getCivPlayersEverAlive()/2; // testing (temp)
+```
 
 ### Python (Civ4)
 
@@ -129,6 +148,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
 - When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
 - Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions. Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
+- When doing performance optimizations, such as caching to `CvTeamAI const& kTeam = GET_TEAM(getTeam());` redundant definitions in a function, reuse existing variable names unless not relevant for our needs. It is fine if some functions have `kTeam` while others have `kOurTeam` in the same file, what matters is same function is consistent when using the same variable. This avoids errors too. Same reasoning with `kPlayer` and `kOwner`, etc.
 
 ### Docs
 

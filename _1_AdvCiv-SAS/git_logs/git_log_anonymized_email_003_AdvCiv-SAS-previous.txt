@@ -902,7 +902,7 @@ Author: wonderingabout <hidden>
 Date:   2025-11-30 14:35:22 +0100
 
 (Improved) for watery cities, attempt to build key water buildings instead of the no production unit fallback and of the emergency defense buildings patch
-- "Update 2: Instead, for watery cities, try to build fallback some of the key water buildings (for food, hammer, gold) rather than unit fallback, as this should/may be economically and also for food/growth more efficient cities than fallback units, plus generally the risk of them being land attacked is not as high. See also [Buildings (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#buildings-non-exhaustive-see-sevopedia-orand-xml-for-details) for related buildings info or/and Sevopedia/XML."
+- "Update 2: Instead, for watery cities, try to build fallback some of the key water buildings (for food, hammer, gold) rather than unit fallback, as this should/may be economically and also for food/growth more efficient cities than fallback units, plus generally the risk of them being land attacked is not as high."
 - "Update 2: this emergency-defense path is disabled for water-heavy cities (see related update 2 below)."
 - update docs.
 
@@ -1039,7 +1039,7 @@ Author: wonderingabout <hidden>
 Date:   2025-11-27 14:13:39 +0100
 
 (Tremendously Improved) value researching key military techs much more when we are weaker
-- value researching key military techs much more when we are weaker, as economy or such techs are useless at best, or at worst we'd just be researching them for our ennemies after they conquer us. Change in `CvPlayerAI::AI_techValue`. In autoplay, this seemingly results in Ewuare not winning anymore as he usually did even if it was quite hardly so at turn 386, to now getting caught up and defeated by Saladin and Rameses (even though Ewuare has an earlier lead), and the game being a stalemate between these 2 until late into the game where Saladin eventually wins at turn 469. See [KI#81](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#diplomacy-ai).
+- value researching key military techs much more when we are weaker, as economy or such techs are useless at best, or at worst we'd just be researching them for our ennemies after they conquer us. Change in `CvPlayerAI::AI_techValue`. In autoplay, this seemingly results in Ewuare not winning anymore as he usually did even if it was quite hardly so at turn 386, to now getting caught up and defeated by Saladin and Rameses (even though Ewuare has an earlier lead), and the game being a stalemate between these 2 until late into the game where Saladin eventually wins at turn 469. See KI#81.
 
 commit f43ea2be6f15404a50b1ebd1257989931aa19490
 Author: wonderingabout <hidden>
@@ -1085,14 +1085,14 @@ Author: wonderingabout <hidden>
 Date:   2025-11-25 09:17:01 +0100
 
 (Tremendously Improved) Implemented preferrential master<->vassal(s) tech trading (heavily more and for all techs, not just the ones that overlap with what our master/vassal(s) already knows)
-- Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just ones we would devalue researching if our master/vassal(s) already knows them. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51).
+- Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change and expands on it, not just ones we would devalue researching if our master/vassal(s) already knows them. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51).
 
 commit 673bfc82b6d10408e28aa7b8b709b0261740ada1
 Author: wonderingabout <hidden>
 Date:   2025-11-24 07:57:20 +0100
 
 (Improved) devalue researching techs our vassal(s) or master already knows as this is inefficient, in `CvPlayerAI::AI_techValue`
-- update docs for missing entries from the custom main changes guide thanks to chatgpt 5.1's help which doubled checked it thanks a lot.
+- update docs for missing entries from the main changes guide thanks to chatgpt 5.1's help which doubled checked it thanks a lot.
 
 commit f5d96ce5c18b1a02b8250dd295e0b42075a2d047
 Author: wonderingabout <hidden>
@@ -2667,7 +2667,7 @@ Date:   2025-08-20 19:21:23 +0200
 - BUILDING_HERMITAGE: now a world wonder
 - BUILDING_BROADWAY: rebalanced now as a hybrid economy/culture building, and moved to TECH_LIBERALISM
 - BUILDING_FORBIDDEN_PALACE: "<!-- custom: added so it appears in tech tree (tech advisor), is also historically accurate if i am not mistaken according to quick glances i made at in this casehttps://en.wikipedia.org/wiki/Forbidden_City, was NONE -->"
-- Handicap `Goodies`: "removed as of now all `GOODY_WORKER` and `GOODY_SETTLER` entries, meaning if i'm not mistaken that now goody huts can't pop a settler or worker almost never, which goes well with me intending them to be playable challenging difficulties as well. These were breaking balance as well, so hopefully these difficulties are more playable now." + as for GOODY_BARBARIANS "barbarians weak and strong: rebalanced barbarian goodies as well at higher difficulties, so we have more weak ones and less strong ones. I feel this is not where the difficulty/tediousness should be, plus barbarians are stronger in our mod anyway and will spawn more regardless, so no need to make it harder here and annoying/painful so early in the game." + for `Goodies` experience "increase GOODY_EXPERIENCE at higher difficulties so it matches the other difficulty having more of them the harder they are, and no reason not to."
+- Handicap `Goodies`: "removed as of now all `GOODY_WORKER` and `GOODY_SETTLER` entries, meaning if i'm not mistaken that now goody huts can't pop a settler or worker almost never, which goes well with me intending them to be playable challenging difficulties as well. These were breaking balance as well, so hopefully these difficulties are more playable now." + as for GOODY_BARBARIANS "barbarians weak and strong: rebalanced barbarian goodies as well at higher difficulties, so we have more weak ones and less strong ones. I feel this is not where the difficulty/tediousness should be, plus barbarians are stronger in our mod anyway and will spawn more regardless, so early in the game." + for `Goodies` experience "increase GOODY_EXPERIENCE at higher difficulties so it matches the other difficulty having more of them the harder they are, and no reason not to."
 - BUILDING_PALACE: "<!-- custom: hopefully helps the AI not pick these too soon, also not nonsensical thematically and perhaps in terms of gameplay as well(note: as of now not the barbarian_palace that can be built anytime still), was NONE -->"
 - UNIT_NATIVE_AMERICA_DOG_SOLDIER: change free promotion from PROMOTION_HILLS_MASTER1 to PROMOTION_CITY_GARRISON1: "<!-- custom: maybe goes quite well with the overall pacifist protective profile of sitting bull if i am not mistaken in assessing this + also historically it seems this unit tried to defend their cities hard if i am not mistaken from quick glances too on wikipedia or such, also as this unit is a bit weaker compared to the other axemen variants, fine to buff it as such i think, upgraded units would also keep the promotion if i'm not mistaken which is nice and goes well with protective theme of the unit and leader, was empty -->"
 -rename UNIT_WORKER_BARBARIAN to UNIT_BARBARIAN_WORKER
@@ -3216,7 +3216,7 @@ Author: wonderingabout <hidden>
 Date:   2025-07-21 16:42:18 +0200
 
 add future era techs, add BuildingClassNeededs in sevopedia unit's placeRequiredFor, add iCollateralDamage info in the DLL, rename/replace some civ or/and building or such names, update docs, and other changes or not or yes or etc
-- "add `BuildingClassNeededs` (i.e. building classes required in city in order to be able to build this building) to some buildings so that AIs build them less and focus more on production of military units or wonders or any generally if not in most casesmore relevant efficient thing to build. Is also culturally or thematically more consistent. For example, the drydock, a naval unit production boosting for mostbuilding now requires the building_port (see water tiles or such change or sevopedia ingame about this new as of now production-based building for details) to be built in the city. I tried to limit these new additions to buildings where it is relevant and does not cripple or needlessly slow the game or make building buildings (no pun) tedious or painful or not worth it economically in this case i mean as well."
+- "add `BuildingClassNeededs` (i.e. building classes required in city in order to be able to build this building) to some buildings so that AIs build them less and focus more on production of military units or wonders or any generally if not in most casesmore relevant efficient thing to build. Is also culturally or thematically more consistent. For example, the drydock, a naval unit production boosting for mostbuilding now requires the building_port (see water tiles or such change or sevopedia ingame about this new as of now production-based building for details) to be built in the city. I tried to limit these new additions to buildings where it is relevant and does not cripple or needlessly slow the game or make building buildings (no pun) tedious or not worth it economically."
 - "<!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time the list as string of untradeable techs; note also: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak my previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd -->"
 - "<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sasand audio -->" + "<!-- custom: button art import from c2c mod -->"
 - Add era information in sevopedia tech and beautify it (import from rfc doc mod adjusted or not for advciv-sas)
@@ -3523,7 +3523,6 @@ finished modifying global defines and such for advciv-sas (mostly at least), upd
 - reduced PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT from 20 to 0, meaning each civ has an equal roll chance when leader selection is random (read/see GlobalDefines_advc.xml for extra details and conditions), so a civ with say 3 leaders will not or not as often be more likely to be picked randomly vs civs with only one leader. This means for example rome or france (examples of civs with multiple/many leaders as of now) will not get a higher overall chance of being randomly chosen than say mali or carthage (examples of civs with 1 leader as of now).
 - DOW_UNIT_CAPTURE_CHANCE: "increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anywyas etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn."
 - BBAI_DEFENSIVE_PACT_BEHAVIOR: "<!-- custom: not sure what this is about exactly, cancelling defensive pacts if war is declared on them seems to make sense though, whatever peace or not happens after war if any would need to be redefined, does not seem to make much sense unless i am mistaken that a player A at war with player B can convince/compell player B at all to attack player C while player A is still at war with player B. The default BTS behavior, if i understood it correctly, seems to make much more sense unless i'm mistaken. But just like a peace treaty being enforced unbreakably, it is maybe also nice to have some kidn of rules that make agreements be enforced, but in the case of defensive pacts, it seems a bit too far fetched, and maybe coudl be abused by human players to manipulate AIs, or affect AI vs AI negatively to the profit of the human player as well (or maybe also AI affecting the human player negatively to a quite forced defensive pact, but if such were the case the game would probably be lost even though not sure, still it is an inconvenience as well), so make these based on trust rather if i may say rather than hard enforced obligatory obligation. As for the opposite possibility of farming defensive pacts then cancelling them (like giving defensive pact vs defensive pact + X where W is any thing in a trade) by declaring war would be too tedious and not worth the hassle or not enjoyable, i have not tried it myself so i don't know, so just mentioning this hypothetical possibility. In short,, restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding, was 1 -->"
-- updated quick starter guide, very painful to delete all these past parts of myself i see again in this case and like, but they are not accurate anymore, plus too lengthy; also separated todos vs actual features, and organized them in other categories in general too which is nice, 10 million times easier to read if not more like a certain dr would say...
 - reworked most traits
 - add info about the seemingly base advciv +/- civ4 bug of a barbarian city being stuck producing a 1 hammer barbarian workboat for few dozen turns several times in same autoplay, see known README_Known_Issues_In_Base_AdvCiv_Civ4.md at issue number 23 as of now at least is this number
 - other minor or not related or changes
@@ -4303,7 +4302,7 @@ rework bonuses heavily (buff water ressources and make them less rare, nerf land
 - updated docs
 - minor or not other changes or not
 
-Overall and in general and in details, i am very pleased with these changes as (re)buffing the tundra and water tiles vs land was one of my goals and i was not sure exactly how to do, i was also not aware of how it could affect land general experience and enjoyment and i am glad after a few tests i found these seemingly optimal or close to it values, similarly to how barbarian cities work, i hope it is both accurate and more enjoyable this way, and all strategies could be explored, not just ignoring land cities or ignoring water ones, or ignoring barbarians or playing around them, i hope there will be both versatility and challenge but no tediousness or painfulyl hard either, jsut i don't want it too merciful either, just the right level of tension at least to me ideally if i may say but is about civ4('s barbarians and tundra and water planting)anywyas etc...
+Overall and in general and in details, i am very pleased with these changes as (re)buffing the tundra and water tiles vs land was one of my goals and i was not sure exactly how to do.
 
 commit 4cbe67a509d7aa1f308c551c24ee03c6eb0e845c
 Author: wonderingabout <hidden>
@@ -4431,7 +4430,7 @@ refactor and enhance sevopedia categories (mostly building, unit, bonus/ressourc
 			- BUILDING_MARKET: reduced cost
 			World wonders:
 			- BUILDING_EIFFEL_TOWER: reworked, no longer gives a free BUILDINGCLASS_BROADCAST_TOWER now NONE (see code comment in civ4 building infos xml file for reasoning), no longer gives GP change +2 UNITCLASS_GREAT_MERCHANT, now gives instead gives +4 UNITCLASS_GREAT_ARTIST, increased iGlobalHappiness from 0 to 1, now gives more flat culture, now also gives culture % and gold % (may be adjusted in the future or not, is a tentative rework of the building for now if not for always or not), also now gives 2 free SPECIALIST_ARTIST
-			- add project buttons in placeRequires of sevopediabuilding and sevopediaunit, "or" separated", also thanks to Claude AI's big help and code and my adjustments too. Note: some special units like nukes (ICBM, tactical nuke as of now), and not the guided missile for example too, seem to still depend on project manhattan project (yes is the namewhy not, if i may say too now relaizing it hehe but why not too if i may say too too, so for these the project button placement is (more) hardcoded if the unitInfo.getNukeRange() > 0 check is true (which while writing this i noticed a very similar check of unitInfo.getNukeRange() was seemingly already implemented in base advciv code in sevopedia unit as well so maybe our approach/assumption that these are hardcoded dependencies between manhattan project and nuke units is accurate or correct perhaps maybe indeed (and) (it is also)).
+			- add project buttons in placeRequires of sevopediabuilding and sevopediaunit, "or" separated", also thanks to Claude AI's big help and code and my adjustments too. Note: some special units like nukes (ICBM, tactical nuke as of now), and not the guided missile for example too, seem to still depend on project manhattan project (yes is the namewhy not, if i may say too now relaizing it hehe but why not too if i may say too too, so for these the project button placement is (more) hardcoded if the unitInfo.getNukeRange() > 0 check is true (which while writing this i noticed a very similar check of unitInfo.getNukeRange() was seemingly already implemented in base advciv code in sevopedia unit as well so maybe our approach/assumption that these are hardcoded dependencies between manhattan project and nuke units is accurate or correct maybe indeed perhaps.
 			- removed (commented-out) old DLL messages related to all these (and the in general that i/we/ais with me added in advciv-sas maybe too) new added features that are redundant now that we have buttons and that don't seem to cover extra edge cases (like buidings like the castle being partially obsoleted ("except for defensive bonus" or something similar if i am not mistaken))
 			- renamed GREAT_WONDER to WORLD_WONDER and quite similarly in a few places in AdvCiv and base civ4 docs (not outdated or old concept ones for example), as it (i.e. renaming great to world) may refelct the unique one in the world concept (i.e. idea not civ4 concept itself in particular or general).
 			- beautified and added a placeObsoleteWith panel in sevopedia bonus thanks to claude ai and/or my prompts and/or adjustments or and not
@@ -4798,7 +4797,7 @@ modified from wiki or and other places or maybe not here in this
 case or not in this case or not or yes or not or and other or and
 not
 - added an empty TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY txt key
-to not clutter with uneeded (and) unused, not sure it is necessary as we don't use the fields at
+to not clutter with uneeded and unused, not sure it is necessary as we don't use the fields at
 all, but maybe we respect the xml architecture this way (of civ4 i
 mean), i did not check if we applied it eveyrwhere needed
 if it is even needed but etc
@@ -6655,28 +6654,6 @@ Author: wonderingabout <hidden>
 Date:   2025-04-12 23:26:50 +0200
 
 add more screenshots and update docs
-i am thankful for the kindness i appreciate and that i don't take for
-granted i think or at least try not to (consciously or not ((unconsciously?),
-anyways)), what i mean is i am very thankful of feedback, even the one that
-may hurt and have hurt me in several occasions in a short or distant past,
-some of these hurts were just painful and needless (except teaching me the
-painful lesson to avoid these or similar or not teaching me or other or not
-anyways), while some others that were also painful in the moment lead to better
-future outcomes including for this mod, such as not obstinating too much on
-something not working, but trying a bit if i want to, may obstinate or not as
-i see fit or not in future or not, is just an example, anyways,
-
-so i wanted to say i am thankful for the kindness or/and rather maybe effort
-made to explain to me such things when there is not much gain (at least direct
-i think maybe but i don't know or not anyways) in doing so and potential risk,
-thanks,
-
-with that being said i don't overstress myself and focus on my mod or not
-or not focus or do other things or not if i want or not or do or not,
-anyways, thanks if interested in this mod i am doing, it is not guaranteed
-nor anything but i do what i do if i want to do or not or do or not etc,
-anyways, thanks, with that bieng said i continue coding or nto as i want or not
-or do or not etc... anyways, thanks,
 
 commit 21cadeb89a782948a8ef3074376ebde28c63e69a
 Author: wonderingabout <hidden>

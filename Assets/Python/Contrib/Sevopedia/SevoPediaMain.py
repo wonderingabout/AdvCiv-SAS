@@ -27,6 +27,7 @@ import SevoPediaUnitChart
 import SevoPediaHandicapChart
 import SevoPediaGameSpeedChart
 import SevoPediaWorldSizeChart
+import SevoPediaEraChart
 import SevoPediaBonus
 import SevoPediaTerrain
 import SevoPediaFeature
@@ -237,6 +238,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: keep a shared game speed chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
 		self.pediaGameSpeedChart = SevoPediaGameSpeedChart.SevoPediaGameSpeedChart(self)
 		self.pediaWorldSizeChart = SevoPediaWorldSizeChart.SevoPediaWorldSizeChart(self)
+		self.pediaEraChart = SevoPediaEraChart.SevoPediaEraChart(self)
 
 		# <!-- custom: category list refactor: previously category order, list generators, screen handlers, and link keys
 		# lived in separate maps and hardcoded blocks, so reordering or adding a category required edits in multiple places
@@ -246,53 +248,54 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Icons are computed once here and embedded in the tuple, so they are not global state and don't depend on later setup.
 		# To add or reorder, edit SAS_CATEGORY_DEFS only; maps, list generators, and PEDIA_MAIN links update automatically.
 		# (GPT-5.2-Codex (summarized)) -->
-		iconTech = u"%c  " % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
-		iconUnit = u"%c  " % (CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
-		iconPromo = u"%c  " % (CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
-		iconBldg = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
-		iconSpec = u"%c  " % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
-		iconTerrain = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar())
-		iconCiv = u"%c  " % (CyGame().getSymbolID(FontSymbols.MAP_CHAR))
-		iconCivic = u"%c  " % (gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar())
-		iconHint = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
-		iconSas = u"%c  " % (CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR))
+		iconCommerceResearch = u"%c  " % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
+		iconStrength = u"%c  " % (CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
+		iconSilverStar = u"%c  " % (CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
+		iconYieldProduction = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
+		iconGreatPeople = u"%c  " % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
+		iconCitizen = u"%c  " % (CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
+		iconMap = u"%c  " % (CyGame().getSymbolID(FontSymbols.MAP_CHAR))
+		iconCommerceCulture = u"%c  " % (gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar())
+		iconYieldCommerce = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
+		iconDefense = u"%c  " % (CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR))
+		iconGreatGeneral = u"%c  " % (CyGame().getSymbolID(FontSymbols.GREAT_GENERAL_CHAR))
 
 		# <!-- custom: central category wiring for list generators, screen handlers, and PEDIA_MAIN links.
 		# To add a category, insert one row in SAS_CATEGORY_DEFS: (PEDIA_ENUM, TXT_KEY, icon, listMethodName, screenClassOrInstance, PEDIA_MAIN_LINK_KEY or None).
-		# Example: (SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconTech, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH")
+		# Example: (SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH")
 		# Reorder by moving rows here; no other maps or link tables need edits. (GPT-5.2-Codex) -->
 		self.SAS_CATEGORY_DEFS = (
-			(SevoScreenEnums.PEDIA_INDEX, "TXT_KEY_PEDIA_SCREEN_INDEX", iconHint, "placeIndexCategory", None, None),
-			(SevoScreenEnums.PEDIA_HANDICAP_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", iconSas, "placeHandicapChart", self.pediaHandicapChart, None),
-			(SevoScreenEnums.PEDIA_GAME_SPEED_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART", iconSas, "placeGameSpeedChart", self.pediaGameSpeedChart, None),
-			(SevoScreenEnums.PEDIA_WORLD_SIZE_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_WORLD_SIZE_CHART", iconSas, "placeWorldSizeChart", self.pediaWorldSizeChart, None),
-			(SevoScreenEnums.PEDIA_TERRAINS, "TXT_KEY_PEDIA_CATEGORY_TERRAIN", iconTerrain, "placeTerrains", SevoPediaTerrain.SevoPediaTerrain, "PEDIA_MAIN_TERRAIN"),
-			(SevoScreenEnums.PEDIA_FEATURES, "TXT_KEY_PEDIA_CATEGORY_FEATURE", iconTerrain, "placeFeatures", SevoPediaFeature.SevoPediaFeature, "PEDIA_MAIN_FEATURE"),
-			(SevoScreenEnums.PEDIA_BONUSES, "TXT_KEY_PEDIA_CATEGORY_BONUS", iconTerrain, "placeBonuses", SevoPediaBonus.SevoPediaBonus, "PEDIA_MAIN_BONUS"),
-			(SevoScreenEnums.PEDIA_IMPROVEMENTS, "TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", iconTerrain, "placeImprovements", SevoPediaImprovement.SevoPediaImprovement, "PEDIA_MAIN_IMPROVEMENT"),
-			(SevoScreenEnums.PEDIA_UNITS, "TXT_KEY_PEDIA_CATEGORY_UNIT", iconUnit, "placeUnits", SevoPediaUnit.SevoPediaUnit, "PEDIA_MAIN_UNIT"),
-			(SevoScreenEnums.PEDIA_UNIT_UPGRADES, "TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", iconUnit, "placeUnitUpgrades", None, None),
-			(SevoScreenEnums.PEDIA_UNIT_CATEGORIES, "TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT", iconUnit, "placeUnitCategories", SevoPediaUnitChart.SevoPediaUnitChart, "PEDIA_MAIN_UNIT_GROUP"),
-			(SevoScreenEnums.PEDIA_PROMOTIONS, "TXT_KEY_PEDIA_CATEGORY_PROMOTION", iconPromo, "placePromotions", SevoPediaPromotion.SevoPediaPromotion, "PEDIA_MAIN_PROMOTION"),
-			(SevoScreenEnums.PEDIA_PROMOTION_TREE, "TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE", iconPromo, "placePromotionTree", None, None),
-			(SevoScreenEnums.PEDIA_BUILDINGS, "TXT_KEY_PEDIA_CATEGORY_BUILDING", iconBldg, "placeBuildings", self.pediaBuilding, "PEDIA_MAIN_BUILDING"),
-			(SevoScreenEnums.PEDIA_NATIONAL_WONDERS, "TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS", iconBldg, "placeNationalWonders", SevoPediaBuilding.SevoPediaBuilding, None),
-			(SevoScreenEnums.PEDIA_WORLD_WONDERS, "TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS", iconBldg, "placeWorldWonders", SevoPediaBuilding.SevoPediaBuilding, None),
-			(SevoScreenEnums.PEDIA_PROJECTS, "TXT_KEY_PEDIA_CATEGORY_PROJECT", iconBldg, "placeProjects", SevoPediaProject.SevoPediaProject, "PEDIA_MAIN_PROJECT"),
-			(SevoScreenEnums.PEDIA_SPECIALISTS, "TXT_KEY_PEDIA_CATEGORY_SPECIALIST", iconSpec, "placeSpecialists", SevoPediaSpecialist.SevoPediaSpecialist, "PEDIA_MAIN_SPECIALIST"),
-			(SevoScreenEnums.PEDIA_CIVS, "TXT_KEY_PEDIA_CATEGORY_CIV", iconCiv, "placeCivs", SevoPediaCivilization.SevoPediaCivilization, "PEDIA_MAIN_CIV"),
-			(SevoScreenEnums.PEDIA_LEADERS, "TXT_KEY_PEDIA_CATEGORY_LEADER", iconCiv, "placeLeaders", self.pediaLeader, "PEDIA_MAIN_LEADER"),
-			# advc.004y: Restored (comment this out to remove traits)
-			(SevoScreenEnums.PEDIA_TRAITS, "TXT_KEY_PEDIA_TRAITS", iconCiv, "placeTraits", SevoPediaTrait.SevoPediaTrait, "PEDIA_MAIN_TRAIT"),
-			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconCivic, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
-			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconCivic, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
-			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconCivic, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
-			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconTech, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
-			(SevoScreenEnums.PEDIA_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT", iconHint, "placeConcepts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_CONCEPT"),
-			(SevoScreenEnums.PEDIA_BTS_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", iconHint, "placeBTSConcepts", SevoPediaHistory.SevoPediaHistory, None),
-			(SevoScreenEnums.PEDIA_HINTS, "TXT_KEY_PEDIA_CATEGORY_HINTS", iconHint, "placeHints", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_HINTS"),
-			(SevoScreenEnums.PEDIA_SHORTCUTS, "TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", iconHint, "placeShortcuts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_SHORTCUTS"),
-			)
+			(SevoScreenEnums.PEDIA_INDEX, "TXT_KEY_PEDIA_SCREEN_INDEX", iconYieldCommerce, "placeIndexCategory", None, None),
+			(SevoScreenEnums.PEDIA_BTS_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", iconYieldCommerce, "placeBTSConcepts", SevoPediaHistory.SevoPediaHistory, None),
+			(SevoScreenEnums.PEDIA_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT", iconYieldCommerce, "placeConcepts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_CONCEPT"),
+			(SevoScreenEnums.PEDIA_HINTS, "TXT_KEY_PEDIA_CATEGORY_HINTS", iconYieldCommerce, "placeHints", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_HINTS"),
+			(SevoScreenEnums.PEDIA_SHORTCUTS, "TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", iconYieldCommerce, "placeShortcuts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_SHORTCUTS"),
+			(SevoScreenEnums.PEDIA_ERA_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_ERA_CHART", iconDefense, "placeEraChart", self.pediaEraChart, None),
+			(SevoScreenEnums.PEDIA_HANDICAP_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", iconDefense, "placeHandicapChart", self.pediaHandicapChart, None),
+			(SevoScreenEnums.PEDIA_GAME_SPEED_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART", iconDefense, "placeGameSpeedChart", self.pediaGameSpeedChart, None),
+			(SevoScreenEnums.PEDIA_WORLD_SIZE_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_WORLD_SIZE_CHART", iconDefense, "placeWorldSizeChart", self.pediaWorldSizeChart, None),
+			(SevoScreenEnums.PEDIA_TERRAINS, "TXT_KEY_PEDIA_CATEGORY_TERRAIN", iconMap, "placeTerrains", SevoPediaTerrain.SevoPediaTerrain, "PEDIA_MAIN_TERRAIN"),
+			(SevoScreenEnums.PEDIA_FEATURES, "TXT_KEY_PEDIA_CATEGORY_FEATURE", iconMap, "placeFeatures", SevoPediaFeature.SevoPediaFeature, "PEDIA_MAIN_FEATURE"),
+			(SevoScreenEnums.PEDIA_BONUSES, "TXT_KEY_PEDIA_CATEGORY_BONUS", iconMap, "placeBonuses", SevoPediaBonus.SevoPediaBonus, "PEDIA_MAIN_BONUS"),
+			(SevoScreenEnums.PEDIA_IMPROVEMENTS, "TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", iconMap, "placeImprovements", SevoPediaImprovement.SevoPediaImprovement, "PEDIA_MAIN_IMPROVEMENT"),
+			(SevoScreenEnums.PEDIA_UNITS, "TXT_KEY_PEDIA_CATEGORY_UNIT", iconStrength, "placeUnits", SevoPediaUnit.SevoPediaUnit, "PEDIA_MAIN_UNIT"),
+			(SevoScreenEnums.PEDIA_UNIT_UPGRADES, "TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", iconStrength, "placeUnitUpgrades", None, None),
+			(SevoScreenEnums.PEDIA_UNIT_CATEGORIES, "TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT", iconSilverStar, "placeUnitCategories", SevoPediaUnitChart.SevoPediaUnitChart, "PEDIA_MAIN_UNIT_GROUP"),
+			(SevoScreenEnums.PEDIA_PROMOTIONS, "TXT_KEY_PEDIA_CATEGORY_PROMOTION", iconGreatGeneral, "placePromotions", SevoPediaPromotion.SevoPediaPromotion, "PEDIA_MAIN_PROMOTION"),
+			(SevoScreenEnums.PEDIA_PROMOTION_TREE, "TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE", iconGreatGeneral, "placePromotionTree", None, None),
+			(SevoScreenEnums.PEDIA_SPECIALISTS, "TXT_KEY_PEDIA_CATEGORY_SPECIALIST", iconGreatPeople, "placeSpecialists", SevoPediaSpecialist.SevoPediaSpecialist, "PEDIA_MAIN_SPECIALIST"),
+			(SevoScreenEnums.PEDIA_CIVS, "TXT_KEY_PEDIA_CATEGORY_CIV", iconCitizen, "placeCivs", SevoPediaCivilization.SevoPediaCivilization, "PEDIA_MAIN_CIV"),
+			(SevoScreenEnums.PEDIA_LEADERS, "TXT_KEY_PEDIA_CATEGORY_LEADER", iconCitizen, "placeLeaders", self.pediaLeader, "PEDIA_MAIN_LEADER"),
+			(SevoScreenEnums.PEDIA_TRAITS, "TXT_KEY_PEDIA_TRAITS", iconCitizen, "placeTraits", SevoPediaTrait.SevoPediaTrait, "PEDIA_MAIN_TRAIT"),
+			(SevoScreenEnums.PEDIA_BUILDINGS, "TXT_KEY_PEDIA_CATEGORY_BUILDING", iconYieldProduction, "placeBuildings", self.pediaBuilding, "PEDIA_MAIN_BUILDING"),
+			(SevoScreenEnums.PEDIA_NATIONAL_WONDERS, "TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS", iconYieldProduction, "placeNationalWonders", SevoPediaBuilding.SevoPediaBuilding, None),
+			(SevoScreenEnums.PEDIA_WORLD_WONDERS, "TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS", iconYieldProduction, "placeWorldWonders", SevoPediaBuilding.SevoPediaBuilding, None),
+			(SevoScreenEnums.PEDIA_PROJECTS, "TXT_KEY_PEDIA_CATEGORY_PROJECT", iconYieldProduction, "placeProjects", SevoPediaProject.SevoPediaProject, "PEDIA_MAIN_PROJECT"),
+			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconCommerceCulture, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
+			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconCommerceCulture, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
+			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconCommerceCulture, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
+			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
+		)
 
 		self.mapListGenerators = {}
 		self.mapScreenFunctions = {}
@@ -301,7 +304,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if szListMethod:
 				self.mapListGenerators[iEnum] = getattr(self, szListMethod)
 			if screenSpec:
-				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart, self.pediaWorldSizeChart):
+				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart, self.pediaWorldSizeChart, self.pediaEraChart):
 					self.mapScreenFunctions[iEnum] = screenSpec
 				else:
 					self.mapScreenFunctions[iEnum] = screenSpec(self)
@@ -970,6 +973,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen = self.getScreen()
 		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		self.pediaWorldSizeChart.interfaceScreen()
+
+	def placeEraChart(self):
+		screen = self.getScreen()
+		self.SAS_prepareSpecialPageDeletingItemList(screen)
+		self.pediaEraChart.interfaceScreen()
 
 
 	def placeUnitCategories(self):

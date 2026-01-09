@@ -13994,7 +13994,7 @@
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
-			<!-- custom: remove hit bonuses/ressources from building_american_mall too, rework building instead by giving more gold which may be fine for a building so late in the game as compensation if i/one or not may say or notand other changes or not (and) -->
+			<!-- custom: remove hit bonuses/ressources from building_american_mall too, rework building instead by giving more gold which may be fine for a building so late in the game -->
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>

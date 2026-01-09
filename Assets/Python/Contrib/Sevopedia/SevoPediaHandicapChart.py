@@ -369,19 +369,20 @@ class SevoPediaHandicapChart:
 
 			goody_rows = grouped_goody_rows
 
+		# <!-- custom: keep FreeTechs/AIFreeTechs at the end to avoid long multi-row blocks splitting the chart; goody rows keep the anchor placement. (GPT-5.2-Codex) -->
 		new_rows = []
+		inserted_goody = False
 		for row in before:
 			new_rows.append(row)
 			if row["Field"] == anchor_field:
 				for grow in goody_rows:
 					new_rows.append(grow)
-				for nrow in nested:
-					new_rows.append(nrow)
-		if new_rows == before:
+				inserted_goody = True
+		if not inserted_goody:
 			for grow in goody_rows:
 				new_rows.append(grow)
-			for nrow in nested:
-				new_rows.append(nrow)
+		for nrow in nested:
+			new_rows.append(nrow)
 
 		rows = self._expandTechRows(new_rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names)
 
@@ -672,14 +673,15 @@ class SevoPediaHandicapChart:
 				if len(chunks) > max_chunks:
 					max_chunks = len(chunks)
 
+			# <!-- custom: use numbered field labels so sorting by the Field column keeps tech rows together; blank labels can jump on sort. (GPT-5.2-Codex) -->
 			for i in xrange(max_chunks):
 				new_row = {}
-				if i == 0:
-					new_row["Field"] = field
-					new_row["IconKey"] = field
+				if field == "AIFreeTechs":
+					label_base = "AI Free Tech"
 				else:
-					new_row["Field"] = ""
-					new_row["IconKey"] = ""
+					label_base = "Free Tech"
+				new_row["Field"] = "%s %02d" % (label_base, (i + 1))
+				new_row["IconKey"] = field
 				for difficulty in difficulty_types:
 					chunks = per_diff_chunks[difficulty]
 					if i < len(chunks):

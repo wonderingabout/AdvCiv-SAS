@@ -135,6 +135,18 @@ public:
 	bool isNoBarbUnits() const;
 	bool isNoBarbCities() const;
 	bool isFirstSoundtrackFirst() const;
+	// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+	bool isAllGoodyTechs() const { return (get(AllGoodyTechs) != 0); }
+	int getAIMaxGroundbreakingPenalty() const { return get(AIMaxGroundbreakingPenalty); }
+	int getHumanMaxGroundbreakingPenalty() const { return get(HumanMaxGroundbreakingPenalty); }
+	bool isAIAgeOfExploration() const { return (get(AIAgeOfExploration) != 0); }
+	bool isAIAgeOfPestilence() const { return (get(AIAgeOfPestilence) != 0); }
+	bool isAIAgeOfPollution() const { return (get(AIAgeOfPollution) != 0); }
+	bool isAIAgeOfFertility() const { return (get(AIAgeOfFertility) != 0); }
+	bool isAIAgeOfGuns() const { return (get(AIAgeOfGuns) != 0); }
+	bool isAIAtomicAge() const { return (get(AIAtomicAge) != 0); }
+	bool isAIAgeOfProduction() const { return (get(AIAgeOfProduction) != 0); }
+	// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 
 	int getSoundtracks(int i) const;
 	int getCitySoundscapeScriptId(int i) const;

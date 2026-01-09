@@ -26,6 +26,8 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+# <!-- custom: import to display chars before Traits -->
+import TraitUtil
 
 from ai_utils_shared_with_civ4 import *
 from _sevopedia_helpers import *
@@ -39,6 +41,7 @@ localText = CyTranslator()
 IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
 IS_DISPLAY_AI_CATEGORY_HEADERS = True
 IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
+IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
 
 # <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thingbut is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible, so do as you see fit use at your own risk code is there if you want to know what it does with also a debug sample (non-exhaustive but hopefully quite plenty) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to work fine, available there if needed, for my own hard drive too. -->
 IS_DEBUG_LEADER = False
@@ -1714,6 +1717,22 @@ class SevoPediaLeader:
 		# advc.001: Civ search moved into a static method
 		szSpecialText = CyGameTextMgr().parseLeaderTraits(self.iLeader, SevoPediaLeader.getCiv(self.iLeader), False, True)
 		szSpecialText = szSpecialText[1:]
+
+		# <!-- custom: add trait icons by replacing the trait header text once per leader trait (linked or plain); avoids per-line scans and keeps only traits the leader actually has. Credit: Claude code Sonnet 4.5. (GPT-5.2-Codex (summarized)) -->
+		if IS_SHOW_TRAIT_ICONS_IN_LEADER:
+			leader = gc.getLeaderHeadInfo(self.iLeader)
+			for iTrait in xrange(gc.getNumTraitInfos()):
+				if leader.hasTrait(iTrait):
+					traitDesc = gc.getTraitInfo(iTrait).getDescription()
+					traitLink = u"<link=literal>%s</link>" % traitDesc
+					traitIcon = TraitUtil.getIcon(iTrait)
+					# <!-- custom: prefer replacing the linked trait label; if traits are plain text, replace the first matching trait name only. (GPT-5.2-Codex (summarized)) -->
+					szReplaced = szSpecialText.replace(traitLink, traitIcon + u" " + traitLink)
+					if szReplaced == szSpecialText:
+						szSpecialText = szSpecialText.replace(traitDesc, traitIcon + u" " + traitDesc, 1)
+					else:
+						szSpecialText = szReplaced
+
 		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS+5, self.Y_TRAITS+30, self.W_TRAITS-10, self.H_TRAITS-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

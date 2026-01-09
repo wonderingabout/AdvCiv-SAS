@@ -11,15 +11,17 @@ Note 2: in below sample examples, click the images to view them full size.
 ## Menu
 
 [Some Lower Level Changes or new features](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+&emsp;[example 0.0: heavily refactored Sevopedia maintain so it is much easier to maintain or customize](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize)  
 &emsp;[example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages)  
 &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
 &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
-[Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart)](/README.md#other-new-categories-eg-handicap-chart-game-speed-chart-world-sizes-chart)  
+[Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart))](/README.md#other-new-categories-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
 &emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
 &emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
 &emsp;[example 0.7: World Sizes Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category)  
+&emsp;[example 0.8: Eras Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category)  
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
-&emsp;[example 1: more AI Personality examples (in leaders category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category)  
+&emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
 &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
 &emsp;[example 3: features category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)  
 &emsp;[example 3.5: improvements category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category)  
@@ -27,7 +29,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 5: religion category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-5-religion-category)  
 &emsp;[example 6: civilization category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-6-civilization-category)  
 &emsp;[example 7: unit list category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category)  
-&emsp;[example 8: building category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-building-category)  
+&emsp;[example 8: buildings category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category)  
 &emsp;[example 9: terrains category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category)  
 &emsp;[example 10: techs category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category)  
 &emsp;[example 11: shortcuts category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
@@ -41,6 +43,14 @@ Note 2: in below sample examples, click the images to view them full size.
 Here are some lower level changes we did to the sevopedia, such as adding a search bar in many pages, keyboard navigation using the UP/DOWN arrows, etc.
 
 Note: some other changes such as caching, header groupings, etc. are not mentionned here but instead in their respective sections in this doc or/and in other docs.
+
+## example 0.0: heavily refactored Sevopedia maintain so it is much easier to maintain or customize
+
+Havily simplified Sevopedia Main that had tons of spaghetti and was super hard to maintain. Now, category creation is centralized instead of being scattered, and it is much easier to add or reorder categories. This served as the backbone for further Sevopedia expansions much easier onwards.
+
+See [commit/aca192481508a3cac3e8812dc970aebc8675b874](https://github.com/wonderingabout/AdvCiv-SAS/commit/aca192481508a3cac3e8812dc970aebc8675b874).
+
+Following this, i notably reordered categories and changed their allocated char icons to what i find prettier or more intuitive or relevant. Examples in other sevopedia screenshots.
 
 ### example 0.1: added a search bar. Used in several sevopedia pages
 
@@ -95,11 +105,10 @@ They are also sortable by emojis, which allows to group them by theme (e.g. war,
 
 Then, chatgpt 5.2 (web) helped refactor it for perf opt, clarity, and such; thanks a lot!
 
-Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
+Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs anymore.
 
 <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (2).JPG" alt="0.625_sevopedia_handicaps_chart (2).JPG" width="250"></img>
-<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicaps_chart_free_techs.JPG" alt="0.6251_sevopedia_handicaps_chart_free_techs.JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.6252_sevopedia_handicaps_chart_DLL_getters_required.JPG" alt="0.6252_sevopedia_handicaps_chart_DLL_getters_required.JPG" width="250"></img>
 
 ### example 0.6: Game Speed Chart category
@@ -125,21 +134,33 @@ Note 2: similarly to how the handicap chart does, in the game speed chart you al
 
 <img src="../Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
 
+### example 0.8: Eras Chart category
+
+Extending on the Handicap Chart similarly, with the help of GPT-Codex-5.2.
+
+Note 2: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+
+<img src="../Images/sevopedia_reworks/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
+
 ## Sevopedia Pages individual reworks
 
 This section focuses on the higher level changes we did to sevopedia, mostly about UI or such.
 
-### example 1: more AI Personality examples (in leaders category)
+### example 1: leaders category (AI Personality and other changes)
 
-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
-
-Note: images as buttons provided by chatgpt, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added or/and the mod's drive (link in main README.md or/and other places or and not)
+Note: images as buttons provided by chatgpt, but also are an approach i generalized from [claude AI's code solution in sevopedia buildings for the power button](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added or/and the mod's drive (link in main README.md or/and other places or and not)
 
 note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emoji as images
 
 note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels
+
+Also, Trait icons (chars) are now displayed before trait names in the leader's Traits section, making it easier to identify traits at a glance (similar to the Traits category). Added with the help of GPT-Codex-5.2 thanks.
+
+Free promotion's unit combats are in the same line instead of taking too much vertical space; and add a blank line between traits for readability. Change in [CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp) with the help of GPT-Codex-5.2 thanks.
+
+<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
 
 ### example 2: unit chart category
 
@@ -154,7 +175,7 @@ Based on rfc doc mod's code originally, and significantly tweaked or/and enhance
 
 Then following the sevopedia terrains rework (see for details sevopedia [terrains category rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category)), new placeRelevantUnits and placeUnitsImpassable panels corresponding to these methods/functions have also been added, so now we can see which units are stronger or weaker per feature as well as the numTxt (what i call this, meaning the textual information such as "+25/+50" for example for +25% attack and +50% defense or any promotion information that makes the unit stronger in said feature (such as woodsman for example in jungle and forest in advciv-sas)) if any.
 
-Also added the remove production and/or time (for example feature_fallout only has iTime and no iProduction as of now) information as part of the jungle rework and then of a later optimziation that moves some logic to pre-load code (similarly to the precomputing as of now in sevopedia main's placeLeaders and placeTechs) (that as of now also gives production on remove, see [README_Custom_Main_Changes_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details) for details) thanks to claude ai or/and chatgpt and my prompts and adjustments too.
+Also added the remove production and/or time (for example feature_fallout only has iTime and no iProduction as of now) information as part of the jungle rework and then of a later optimziation that moves some logic to pre-load code (similarly to the precomputing as of now in sevopedia main's placeLeaders and placeTechs) (that as of now also gives production on remove, see [README_Main_Changes_Guide.md#terrains--features-non-exhaustive](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features-non-exhaustive) for details) thanks to claude ai or/and chatgpt and my prompts and adjustments too.
 
 Also clarified the ressources (called bonuses ina advciv-sas as per the code naming if i may say too) header from rfc doc mod to explicitly name "Bonuses On Any Terrain" for clarification (see [README_Sevopedia_Reworks.md#example-4-bonuses-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-4-bonuses-category) for details about featurebooleans).
 
@@ -188,7 +209,7 @@ More recently, entries are now grouped by Land/Water (e.g. Land Improvements -> 
 
 Mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
 
-after having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-building-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-building-category), (and) also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech). Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements; although code is maybe a bit shaky and not too optimal or not or yes or other, it does seem to work-function well for a small number of improvements (didn't test for more how it would display) so i wanted to show it here as well as part of the changes.
+after having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-buildings-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech). Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements; although code is maybe a bit shaky and not too optimal or not or yes or other, it does seem to work-function well for a small number of improvements (didn't test for more how it would display) so i wanted to show it here as well as part of the changes.
 
 More recently, also added with chatgpt's help thanks the terrainbooleans, featurebooleans, and featureterrainbooleans info, see sevopedia feature screenshots or ingame for what these mean in their respective panel headers (for example featureterrainbooleans is if i'm not mistaken and as of now "Terrains only if with this bonus's features" or something similar to this abbreviated if needed for example or if updated since then and not shown in screenshot sample or also updated as well) section information or/and Main Changes Guide or/and code comments.
 
@@ -224,11 +245,11 @@ Reordered and beautified the original AdvCiv Sevopedia code while trying to keep
 
 Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool), new placeReplace (Replaced By / Replaces) addition from (for the replaced by part and idea) RFC DOC, as well as new placeCivilizations (renamed from the original name Claude AI gave to it if i am not mistaken placeExclusiveCivs) from/by Claude AI thanks to/with my prompt and small adjustments of already working code (tweaked coordinates) and adjusted or not or yes or and other or and not(note: see (if interested or not or yes or not or etc or and other or and not) also Claude AI's [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) section for details)):
 
-After having written these, combat information was added (which units is this unit strong against or weak against, in which plot types, city or not, terrains, features, etc if any more/other or not etc if not but or, placeFreePromotions, etc) largely with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details), as well as other changes or not or yes or and other or and not, see readme or code comments or code itself for details hopefully exhaustive and clear easy enough to read maybe ideally but in all caes or not or yes or and other or and not.
+After having written these, combat information was added (which units is this unit strong against or weak against, in which plot types, city or not, terrains, features, etc if any more/other or not etc if not but or, placeFreePromotions, etc) largely with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details), see readme or code comments or code.
 
 Also fixed and now added missing iCollateralDamage info as well in the collateral damage text in the DLL, for example `<iCollateralDamage>25</iCollateralDamage>` for the chinese crossbowman or `<iCollateralDamage>100</iCollateralDamage>` for the catapult is now displayed as well as of now as for example `Collateral Damage (base 25%, max 200%) to 5 Defenders` for the chinese crossbowman or `Collateral Damage (base 100%, max 200%) to 6 Defenders` for the catapult; added thanks to chatgpt's help as well and me guessing or adjusting it as well(note: changed/fixed in the the DLL the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA (this unit causes x% extra collateral damage) now being cumulatively displayed ingame (not in sevopedia, as it was) additionally to the general collateral damage text, instead of it being previously conditionally displayed instead of (`else`) the general collateral damage which would not be visible, so now (e.g. catapult) we see only the general collateral damage message if `pUnit->getExtraCollateralDamage() == 0)`, and alternatively if `(pUnit->getExtraCollateralDamage() != 0)` (e.g. cannon) we now see both the general collateral damage message and additionally also the extra collateral damage as well if i am not mistaken)
 
-Also added the "no military support cost" (`bMilitarySupport` in unit info's XML) info in sevopedia unit's placeSpecial as part of giving as of now 0 military support cost for example for the robotic_infantry we (i.e. i) added in advciv-sas; also code was added thanks to chatgpt as well although thanks to my prompt too if i may say etc thanks etc and adjustments too but its feedback too, see the [/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md) for related info as well
+Also added the "no military support cost" (`bMilitarySupport` in unit info's XML) info in sevopedia unit's placeSpecial as part of giving as of now 0 military support cost for example for the robotic_infantry we (i.e. i) added in advciv-sas; also code was added with the help of chatgpt as well thanks.
 
 Also added the AI information now of as of now the UnitAI and iAIWeight information, optionally disablable (if it's a word xd) in placeSpecial's corresponding panel, by setting `IS_SHOW_AI_INFO` to `False` in [SevoPediaUnit.py](/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py) similarly to how can be done for some leader flags in sevopedia leader (example of a similar explanation with screenshots of how to change these from `True` to `False` in [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels)), thanks to claude ai's help as well and my adjustments and such too
 
@@ -238,15 +259,22 @@ Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for 
 <img src="../Images/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG" alt="0.680_sevopedia_units_sample (2).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG" alt="0.680_sevopedia_units_sample (3).JPG" width="250"></img>
 
-### example 8: building category
+### example 8: buildings category
 
 Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (images) show now, commerce double times as well( for example that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only)), and % modifier as well (for example +25% culture, +25% espionage rate, as well as using a grid for beautification)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
 
 Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious) with chatgpt +/- claude ai i forgot who xd maybe both.
 
+In particular, added hoverable great person image links in as of now `placeStats` using `setImageButtonAt`, for example:
+
+```py
+					screen.setImageButtonAt(buttonWidget, panelName, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iGreatPersonUnit, 1)
+```
+
 <img src="../Images/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.690_sevopedia_buildings_sample (3).JPG" alt="0.690_sevopedia_buildings_sample (3).JPG" width="250"></img>
+<img src="../Images/sevopedia_reworks/0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG" alt="0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG" width="250"></img>
 
 ### example 9: terrains category
 
@@ -272,9 +300,7 @@ See also the [features category rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Rew
 
 This is a more recent refactor and beautify that adds era information and such other beautifications. The info pane (top left info of the tech, era, cost as of now) in particular is imported from rfc doc mod and modified/beautified/adjusted further or not for advciv-sas.
 
-Before that, i had also added a list of untradeable techs following the anti tech whoreism changes in advciv-sas (see the [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details) for details as well)
-
-Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) thanks to gemini ai's help and my prompt too and adjustments or nottoo; see similar precomputing logic or/and its explanation at sevoepdia reworks's sevopedia leader readme section in [README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category) for details
+Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) with the help of gemini ai thanks; see similar precomputing logic or/and its explanation at sevoepdia reworks's sevopedia leader readme section for details.
 
 <img src="../Images/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
 <img src="../Images/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG" alt="0.710_sevopedia_techs_sample (2).JPG" width="250"></img>
