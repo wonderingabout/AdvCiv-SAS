@@ -155,14 +155,15 @@ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRan
 }
 
 
-short CitySiteEvaluator::evaluate(CvPlot const& kPlot) const
+// <!-- custom: found-value evaluation now returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+int CitySiteEvaluator::evaluate(CvPlot const& kPlot) const
 {
 	AIFoundValue foundVal(kPlot, *this);
 	return foundVal.get();
 }
 
 
-short CitySiteEvaluator::evaluate(int iX, int iY) const
+int CitySiteEvaluator::evaluate(int iX, int iY) const
 {
 	CvPlot const* pPlot = GC.getMap().plot(iX, iY);
 	if (pPlot == NULL)
@@ -239,10 +240,10 @@ void CitySiteEvaluator::setDebug(bool b)
 }
 
 // <advc.031c>
-short CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
+int CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
 {
 	AIFoundValue::setLoggingEnabled(true);
-	short r = evaluate(kPlot);
+	int r = evaluate(kPlot);
 	AIFoundValue::setLoggingEnabled(false);
 	return r;
 }
@@ -355,6 +356,7 @@ AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettin
 	m_iResult = evaluate();
 }
 
+// <!-- custom: we now return int (no longer short) in AIFoundValue::evaluate, so overflow risk is much lower; keep penalties bounded but don't expect short wraparound behavior here. (GPT-5.2-Codex (summarized)) -->
 /*  Body from CvPlayerAI::AI_foundValue_bulk, split into subroutines.
 	More refactoring could be done; for one thing, some of the functions have
 	long (return) parameter lists. Should probably introduce a class CityPlot
@@ -363,7 +365,7 @@ AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettin
 	K-Mod: Heavily edited (some changes marked, others not.)
 	note, this function is called for every revealed plot for every player
 	at the start of every turn. try to not make it too slow! */
-short AIFoundValue::evaluate()
+int AIFoundValue::evaluate()
 {
 	IFLOG logSite();
 
@@ -829,7 +831,6 @@ short AIFoundValue::evaluate()
 					if (fImp >= iMinOnBonusFoodImproveWorth)
 					{
 						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much more attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate) -->
-						// <!-- custom: be careful we return short which is very constraining, it seems we convert negative values to -1 as a safety, but just in case don't make the penalty extremely extremely high xd, for now i'm investigating why we over settle on food bonuses when penalty is so high (like 1500 * food), could it be overflow with an early return that was before the final return 1 safety, then our value would be positive i guess in some cases (like -33 000 becomes a positive int or something hence the issue of AIs suddenly loving to settle on any food bonus maybe?), reducing it a bit because of that risk and weird behaviour we had -->
 						int const iOnBonusFoodPenalty = iBaseValueOnBonusFood * fImp;
 						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract -->
 						r += iOnBonusFoodPenalty;
@@ -1493,25 +1494,7 @@ short AIFoundValue::evaluate()
 	// advc: BtS code (iDifferentAreaTile) deleted
 	// (disabled by K-Mod. This kind of stuff is already taken into account.)
 
-	// <!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too, check if accurate; also refactored a bit otherwise our already changed code as commented below -->
-	static const int kMaxFound = GC.getDefineINT("SAS_EVALUATE_GUARD_KMAXFOUND"); // leave headroom under 32767
-	// // <!-- custom: move this below to attempt to / in case it better avoid / avoids overflow, as chatgpt 5 seems to rightfully be concerned about it but check if accurate i mean, i also refactored it a bit -->
-	// if (iValue <= 0)
-	// 	return 1;
-	if (iValue <= 0)
-	{
-		iValue = 1;
-	}
-	// guard high (saturate before narrowing)
-	// FAssert(iValue >= 0);
-	// IFLOG logBBAI("Bottom line (found-city value): %d\n", iValue);
-	// return std::max<short>(1, truncIntCast<short>(iValue));
-	else if (iValue > kMaxFound)
-	{
-		IFLOG logBBAI("Clamp high iValue %d -> %d", iValue, kMaxFound);
-		iValue = kMaxFound;
-	}
-	return (short)iValue;
+	return iValue;
 }
 
 

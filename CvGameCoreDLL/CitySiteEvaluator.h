@@ -18,9 +18,10 @@ class CitySiteEvaluator
 public:
 	CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRange = -1,
 			bool bStartingLoc = false, bool bNormalize = false);
-	short evaluate(CvPlot const& kPlot) const;
-	short evaluate(int iX, int iY) const;
-	short evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
+	// <!-- custom: found-value path uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+	int evaluate(CvPlot const& kPlot) const;
+	int evaluate(int iX, int iY) const;
+	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }
 	bool isStartingLoc() const { return m_bStartingLoc; }
@@ -92,7 +93,7 @@ class AIFoundValue
 {
 public:
 	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings);
-	short get() const { return m_iResult; }
+	int get() const { return m_iResult; }
 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
 
 	// <advc.031c> Will have to enable the found log in BBAILog.h in addition
@@ -100,7 +101,7 @@ public:
 	static bool isLoggingEnabled() { return bLoggingEnabled; } // </advc.031c>
 
 private:
-	short m_iResult;
+	int m_iResult;
 	/*  The rest aren't prefixed with "m_"; too awkward. Note that the order of
 		the reference members needs to match their order in the ctor initalizer list. */
 	CvPlot const& kPlot;
@@ -136,7 +137,7 @@ private:
 			bool bCanSoonImproveBonus, bool bEasyAccess,
 			int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const;
 	// </advc.031c>
-	short evaluate();
+	int evaluate();
 	// Subroutines of evaluate ...
 	bool isHome(CvPlot const& p) const { return (&p == &kPlot); }
 	bool isSiteValid() const;

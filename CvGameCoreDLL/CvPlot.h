@@ -584,7 +584,7 @@ public:
 	int getFoundValue(PlayerTypes eIndex,															// Exposed to Python
 			bool bRandomize = false) const; // advc.052
 	bool isBestAdjacentFound(PlayerTypes eIndex) const;												// Exposed to Python
-	void setFoundValue(PlayerTypes eIndex, short iNewValue); // K-Mod (was int iNewValue)
+	void setFoundValue(PlayerTypes eIndex, int iNewValue);
 	bool canFound(bool bTestVisible = false, TeamTypes eTeam = NO_TEAM) const; // advc
 	bool canEverFound() const; // advc.129d
 
@@ -910,7 +910,8 @@ protected:
 	YieldChangeMap m_aiYield;
 	ArrayEnumMap<PlayerTypes,int> m_aiCulture;
 	ArrayEnumMap<PlayerTypes,int,int,FFreeList::INVALID_INDEX> m_aiPlotGroup;
-	mutable ArrayEnumMap<PlayerTypes,short> m_aiFoundValue; // advc: mutable
+	// <!-- custom: found values stored as int (not short) to avoid overflow/underflow in site eval. (GPT-5.2-Codex (summarized)) -->
+	mutable ArrayEnumMap<PlayerTypes,int> m_aiFoundValue; // advc: mutable
 	ListEnumMap<PlayerTypes,int,char> m_aiPlayerCityRadiusCount;
 	ArrayEnumMap<TeamTypes,int,short> m_aiVisibilityCount;
 	ListEnumMap<TeamTypes,int,short> m_aiStolenVisibilityCount;

@@ -5601,13 +5601,14 @@ void CvPlot::changeCulture(PlayerTypes eIndex, int iChange, bool bUpdate)
 }
 
 
+// <!-- custom: found-value pipeline uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
 int CvPlot::getFoundValue(PlayerTypes eIndex, /* advc.052: */ bool bRandomize) const
 {
 	FAssertBounds(0, MAX_PLAYERS, eIndex);
 
 	if (m_aiFoundValue.get(eIndex) == -1)
 	{
-		short iValue = GC.getPythonCaller()->AI_foundValue(eIndex, *this);
+		int iValue = GC.getPythonCaller()->AI_foundValue(eIndex, *this);
 		if (iValue == -1)
 		{
 			// advc: Otherwise bStartingLoc=true probably isn't correct
@@ -5658,7 +5659,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex) /* advc: */ const
 }
 
 
-void CvPlot::setFoundValue(PlayerTypes eIndex, short iNewValue)
+void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
 {
 	m_aiFoundValue.set(eIndex, iNewValue);
 }

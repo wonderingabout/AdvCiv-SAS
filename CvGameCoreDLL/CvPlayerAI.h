@@ -118,7 +118,8 @@ public:
 	// <advc.035>
 	bool AI_isPlotContestedByRival(CvPlot const& kPlot,
 			PlayerTypes eRival = NO_PLAYER) const; // </advc.035>
-	short AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false,			// Exposed to Python
+	// <!-- custom: found-value evaluation returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+	int AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false,			// Exposed to Python
 			bool bNormalize = false) const; // advc.031e
 	// advc: Replaced by the CitySiteEvaluator class
 	//struct CvFoundSettings { ... } // K-Mod

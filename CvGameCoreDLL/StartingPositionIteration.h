@@ -55,7 +55,8 @@ private:
 
 	CitySiteEvaluator* createSiteEvaluator(bool bNormalize = false) const;
 	void evaluateCurrPosition(SolutionAttributes& kResult, bool bLog = false) const;
-	void computeStartValues(EagerEnumMap<PlayerTypes,short> const& kFoundValues,
+	// <!-- custom: found values stored as int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+	void computeStartValues(EagerEnumMap<PlayerTypes,int> const& kFoundValues,
 			SolutionAttributes& kResult, bool bLog = false) const;
 	scaled computeRivalDistFactors(EagerEnumMap<PlayerTypes,scaled>& kResult,
 			bool bSameArea) const;
@@ -90,17 +91,17 @@ private:
 		VoronoiCell* getCell(PlayerTypes eCurrSite) const;
 		PlotNumTypes getRemoteSite(int iIndex) const;
 		void getCurrFoundValues(
-				EagerEnumMap<PlayerTypes,short>& kFoundValuesPerPlayer) const;
+				EagerEnumMap<PlayerTypes,int>& kFoundValuesPerPlayer) const;
 
 	private:
 		CitySiteEvaluator const& m_kEval;
-		std::map<PlotNumTypes,short> m_foundValuesPerSite;
+		std::map<PlotNumTypes,int> m_foundValuesPerSite;
 		std::map<PlayerTypes,VoronoiCell*> m_sitesClosestToCurrSite;
-		EagerEnumMap<PlayerTypes,short> m_foundValuesPerCurrSite;
+		EagerEnumMap<PlayerTypes,int> m_foundValuesPerCurrSite;
 		std::vector<std::pair<int,PlotNumTypes> > m_remoteSitesByAreaSize;
 
 		scaled computeMinFoundValue();
-		void recordSite(CvPlot const& kPlot, short iFoundValue, bool bAdd,
+		void recordSite(CvPlot const& kPlot, int iFoundValue, bool bAdd,
 				EagerEnumMap<PlotNumTypes,scaled>& kVicinityPenaltiesPerPlot);
 		void closestPlayers(CvPlot const& kPlot, std::vector<PlayerTypes>& kResult) const;
 		int fewestPotentialSites() const;

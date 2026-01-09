@@ -113,7 +113,8 @@ public:
 	bool canDoCivicOverride(PlayerTypes ePlayer, CivicTypes eCivic) const;
 	bool doGold(PlayerTypes ePlayer) const;
 	bool doResearch(PlayerTypes ePlayer) const;
-	short AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const;
+	// <!-- custom: found-value callback returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+	int AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const;
 	TechTypes AI_chooseTech(PlayerTypes ePlayer, bool bFree) const;
 	bool AI_doDiplo(PlayerTypes ePlayer) const;
 

@@ -1033,7 +1033,8 @@ bool CvPythonCaller::doResearch(PlayerTypes ePlayer) const
 	return toBool(lResult);
 }
 
-short CvPythonCaller::AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const
+// <!-- custom: found-value callback returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+int CvPythonCaller::AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const
 {
 	if (!isUse(GET_CITY_FOUND_VALUE))
 		return -1;

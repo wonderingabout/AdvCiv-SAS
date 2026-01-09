@@ -1062,7 +1062,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStarting)  // advc: refactored
 			kLoopPlot.setFoundValue(getID(), 0);
 			continue;
 		}
-		short iValue = GC.getPythonCaller()->AI_foundValue(getID(), kLoopPlot);
+		int iValue = GC.getPythonCaller()->AI_foundValue(getID(), kLoopPlot);
 		if (iValue == -1)
 		{	// K-Mod:
 			iValue = citySiteEval.evaluate(kLoopPlot);
@@ -1071,7 +1071,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStarting)  // advc: refactored
 				// Unless it doesn't have fresh water
 				kLoopPlot.isFreshWater())
 			{
-				iValue = truncIntCast<short>(iValue + intdiv::round(iValue, 20));
+				iValue += intdiv::round(iValue, 20);
 			} // </advc.108>
 		}
 		kLoopPlot.setFoundValue(getID(), iValue);
@@ -2789,7 +2789,8 @@ int CvPlayerAI::AI_calculateEspionageWeight() const
 }
 
 
-short CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc,
+// <!-- custom: found-value evaluation returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc,
 	bool bNormalize) const // advc.031e
 {
 	CitySiteEvaluator eval(*this, iMinRivalRange, bStartingLoc, /* advc.031e: */ bNormalize);
@@ -29215,7 +29216,7 @@ void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int
 			p.setFoundValue(getID(), 0);
 		else if (p.isRevealed(getTeam()))
 		{
-			short iValue = GC.getPythonCaller()->AI_foundValue(getID(), p);
+			int iValue = GC.getPythonCaller()->AI_foundValue(getID(), p);
 			if (iValue == -1)
 				iValue = AI_foundValue(p.getX(), p.getY());
 			p.setFoundValue(getID(), iValue);

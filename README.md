@@ -48,6 +48,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 [48 Civs DLL](/README.md#48-civs-dll)  
 &emsp;[How to use](/README.md#how-to-use)  
 &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
+[Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
 [Long Comments Archive](/README.md#long-comments-archive)  
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
 [Python scripts](/README.md#python-scripts)  
@@ -466,6 +467,33 @@ The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For
 Note: "tiles/player" uses each file's iDefaultPlayers. XXL World sets Giant/Ultra to 34 default players; AdvCiv-SAS uses 32 and 40.
 
 See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+
+## Change from short to int the Found value pipeline
+
+Disclaimer: I don't know too much about these, check if accurate.
+
+With the help of GPT-5.2-Codex, we changed in AdvCiv-SAS a common overflow/underflow issue or weaker of `AIFoundValue::evaluate` and related code from `short` to now using `int`.
+
+From what i understand, this should heavily increase reliability, as well as possibly performance since an older version of ChatGPT told me that int may be faster than short and GPT-5.2 Code seemingly said so too from what i understood of its explanation, thanks a lot for help!
+
+Runs fine end to end on the usual 18 civs DLL, and from 0 T10 to T100 on a SAS 48 World size without any obvious issue, so looks good to merge (again check if accurate)!
+
+Below is the recap by GPT-5.2-Codex thanks.
+
+>Moved the found‑value pipeline off short and onto int end‑to‑end, and removed the short‑specific overflow clamps in that path. This keeps the logic intact but avoids short wrap/underflow and the extra casts.
+>
+>Key changes:
+>
+>- CitySiteEvaluator.h and CitySiteEvaluator.cpp: `CitySiteEvaluator::evaluate*` and `AIFoundValue::evaluate/get` now return `int`; removed the final `(short)` cast and updated the overflow‑risk comment.
+>- CvPlayerAI.h and CvPlayerAI.cpp: `AI_foundValue` returns `int`; removed `truncIntCast<short>` in the starting‑plot bump; Python fallback values now stored as `int`.
+>- CvPlot.h and CvPlot.cpp: `m_aiFoundValue` storage and `setFoundValue` now use `int`, plus the Python fallback uses `int`.
+>- CvArea.h: `m_aiBestFoundValue` storage switched to `int`.
+>- StartingPositionIteration.h and StartingPositionIteration.cpp: all found‑value containers and calculations in SPI now use `int`; removed the `safeIntCast<short>` randomization clamp.
+>- CvPythonCaller.h and CvPythonCaller.cpp: Python AI_foundValue callback now returns `int` (not short), matching the pipeline.
+>
+>Important note on saves:
+>
+>- This does change save format because CvPlot::m_aiFoundValue and CvArea::m_aiBestFoundValue are serialized. Old saves will likely be incompatible or read garbage for found values.
 
 ## Long Comments Archive
 

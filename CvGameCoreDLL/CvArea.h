@@ -223,7 +223,8 @@ protected:
 	ArrayEnumMap<PlayerTypes,int,char> m_aiTradeRoutes; // advc.310
 	ArrayEnumMap<PlayerTypes,int,char> m_aiFreeSpecialist;
 	ArrayEnumMap<PlayerTypes,int> m_aiPower;
-	ArrayEnumMap<PlayerTypes,int,short> m_aiBestFoundValue;
+	// <!-- custom: best found values stored as int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+	ArrayEnumMap<PlayerTypes,int> m_aiBestFoundValue;
 	ArrayEnumMap<TeamTypes,int,PlotNumInt> m_aiNumRevealedTiles;
 	ArrayEnumMap<TeamTypes,int,char> m_aiCleanPowerCount;
 	ArrayEnumMap<TeamTypes,int,char> m_aiBorderObstacleCount;
