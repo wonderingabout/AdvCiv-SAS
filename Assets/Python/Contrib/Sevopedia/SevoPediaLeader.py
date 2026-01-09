@@ -1712,13 +1712,14 @@ class SevoPediaLeader:
 	def placeTraits(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_TRAITS", ()), "", True, False, self.X_TRAITS, self.Y_TRAITS, self.W_TRAITS, self.H_TRAITS, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: no header for more compact and prettier display -->
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_LEADER_TRAITS", ()), "", True, False, self.X_TRAITS, self.Y_TRAITS, self.W_TRAITS, self.H_TRAITS, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 		# advc.001: Civ search moved into a static method
 		szSpecialText = CyGameTextMgr().parseLeaderTraits(self.iLeader, SevoPediaLeader.getCiv(self.iLeader), False, True)
 		szSpecialText = szSpecialText[1:]
 
-		# <!-- custom: add trait icons by replacing the trait header text once per leader trait (linked or plain); avoids per-line scans and keeps only traits the leader actually has. Credit: Claude code Sonnet 4.5. (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: add trait icons by replacing the trait header text once per leader trait (linked or plain); avoids per-line scans and keeps only traits the leader actually has. (GPT-5.2-Codex) -->
 		if IS_SHOW_TRAIT_ICONS_IN_LEADER:
 			leader = gc.getLeaderHeadInfo(self.iLeader)
 			for iTrait in xrange(gc.getNumTraitInfos()):
@@ -1726,14 +1727,16 @@ class SevoPediaLeader:
 					traitDesc = gc.getTraitInfo(iTrait).getDescription()
 					traitLink = u"<link=literal>%s</link>" % traitDesc
 					traitIcon = TraitUtil.getIcon(iTrait)
-					# <!-- custom: prefer replacing the linked trait label; if traits are plain text, replace the first matching trait name only. (GPT-5.2-Codex (summarized)) -->
+					# <!-- custom: prefer replacing the linked trait label; if traits are plain text, replace the first matching trait name only. (GPT-5.2-Codex) -->
 					szReplaced = szSpecialText.replace(traitLink, traitIcon + u" " + traitLink)
 					if szReplaced == szSpecialText:
 						szSpecialText = szSpecialText.replace(traitDesc, traitIcon + u" " + traitDesc, 1)
 					else:
 						szSpecialText = szReplaced
 
-		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS+5, self.Y_TRAITS+30, self.W_TRAITS-10, self.H_TRAITS-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: reduce top padding now that the traits header is removed (GPT-5.2-Codex). Was headerExtraHeight 30 -->
+		headerExtraHeight = 10
+		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS + 5, self.Y_TRAITS + headerExtraHeight, self.W_TRAITS - 10, self.H_TRAITS - headerExtraHeight -5, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

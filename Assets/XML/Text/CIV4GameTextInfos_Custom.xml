@@ -120,6 +120,16 @@
 		<English>SEVOPEDIA</English>
 	</TEXT>
 
+
+
+	<!-- custom: no header for more compact and prettier display -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_LEADER_TRAITS</Tag>
+		<English></English>
+	</TEXT>
+
+
+
 	<!-- custom: all below in this group modified to remove the	extra redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now displaying (only) as "5" much clearer and cleaner i think this way, making a separate tag in case the original one is relevant somewhere else -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_COST_CUSTOM</Tag>
