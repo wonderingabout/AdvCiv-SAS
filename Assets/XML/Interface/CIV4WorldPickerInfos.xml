@@ -28,7 +28,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
@@ -55,7 +55,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
@@ -93,7 +93,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
@@ -131,7 +131,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
@@ -169,7 +169,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
@@ -207,7 +207,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
@@ -245,7 +245,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
@@ -283,7 +283,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
@@ -321,7 +321,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
@@ -359,7 +359,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
@@ -389,7 +389,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
@@ -416,7 +416,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
@@ -443,7 +443,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
@@ -470,7 +470,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
@@ -497,7 +497,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
@@ -524,7 +524,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
@@ -551,7 +551,7 @@
 				<Size>3.186</Size> <!-- SAS24 -->
 				<Size>4.408</Size> <!-- SAS32 -->
 				<Size>5.308</Size> <!-- SAS40 -->
-				<Size>6.819</Size> <!-- SAS48 -->
+				<Size>6.632</Size> <!-- SAS48 -->
 			</Sizes>
 			<Climates>
 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->

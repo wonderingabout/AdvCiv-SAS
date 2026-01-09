@@ -455,16 +455,18 @@ Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Se
 
 This DLL is the recommended DLL for the new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) added in AdvCiv-SAS based on the XXL World mod's world sizes. For the larger than huge world sizes, as their Default Player number is higher than the 18 `MAX_CIV_PLAYERS` in the base DLL, it is recommended to use the 48 civs DLL to play them (else the Map may never get populated with too few players relative to world size).
 
-The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes.
+The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes, and notes, by GPT-5.2-Codex as well.
 
 | AdvCiv-SAS size | SAS Grid (W x H) | SAS Tiles | SAS Default players | SAS Ratio vs Std | XXL reference size | XXL Grid (W x H) | XXL Tiles | XXL Default players | XXL Ratio vs Std |
 | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
 | SAS24 | 71 x 49 | 3479 | 24 | 3.186 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
 | SAS32 | 83 x 58 | 4814 | 32 | 4.408 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
 | SAS40 | 92 x 63 | 5796 | 40 | 5.308 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
-| SAS48 | 102 x 73 | 7446 | 48 | 6.819 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
+| SAS48 | 102 x 71 | 7242 | 48 | 6.632 | ULTRA | 60 x 40 | 2400 | 34 | 8.791 |
 
-Note: "tiles/player" uses each file's iDefaultPlayers. XXL World sets Giant/Ultra to 34 default players; AdvCiv-SAS uses 32 and 40.
+Note: XXL/GIGA/ULTRA values come from XXL World `CIV4WorldInfo.xml`. XXL ratio vs Std uses XXL World's Standard size (21 x 13 = 273 tiles). SAS ratio vs Std uses the AdvCiv-SAS standard size in our XML.
+Note 2: XXL uses a much smaller baseline and far fewer tiles per default player. In XXL World, Standard is 21 x 13 = 273 tiles for 7 players (~39 tiles/player), and XXL is 40 x 25 = 1000 tiles for 24 players (~41.7 tiles/player). In AdvCiv-SAS, Standard is 39 x 28 = 1092 tiles for 8 players (~137 tiles/player), and SAS24 is 71 x 49 = 3479 tiles for 24 players (~145 tiles/player). That’s why SAS24 is much larger even though both list 24 default players.
+Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Pangaea uses 16 x 10 for Standard and 40 x 25 for XXL in `PrivateMaps/Pangaea.py`), so the XML sizes aren’t the only source of truth; this keeps XXL maps smaller while still advertising higher default player counts.
 
 See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
 
@@ -494,6 +496,8 @@ Below is the recap by GPT-5.2-Codex thanks.
 >Important note on saves:
 >
 >- This does change save format because CvPlot::m_aiFoundValue and CvArea::m_aiBestFoundValue are serialized. Old saves will likely be incompatible or read garbage for found values.
+
+See [commit/e8659a5e4c4afae41306dfc04e8ec62eeb77eb99](https://github.com/wonderingabout/AdvCiv-SAS/commit/e8659a5e4c4afae41306dfc04e8ec62eeb77eb99).
 
 ## Long Comments Archive
 

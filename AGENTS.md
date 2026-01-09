@@ -86,48 +86,6 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
 - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
 
-### Indentation level: avoid no indent where an indentation is expected or parent
-
-- Do not do no-indent code or comments inside functions or scope where we generally expect an indent, because adding an indent allows to easily toggle the function to hide it with VS Code.
-
-Example 1:
-
-```cpp
-void CvPlayerAI::AI_advancedStartRouteTerritory()
-{
-//	//This uses a heuristic to create a road network
-//	//which is at least efficient if not all inclusive
-```
-
-fixed:
-
-```cpp
-void CvPlayerAI::AI_advancedStartRouteTerritory()
-{
-	// //This uses a heuristic to create a road network
-	// //which is at least efficient if not all inclusive
-```
-
-Example 2:
-
-```cpp
-	FAssert(techs_to_depth.size() == iMaxPathLength+1);
-	//FAssert(techs.size() == values.size());
-
-#ifdef USE_OLD_TECH_STUFF
-	bool bPathways = false && getID() < GC.getGame().getCivPlayersEverAlive()/2; // testing (temp)
-```
-
-fixed:
-
-```cpp
-	FAssert(techs_to_depth.size() == iMaxPathLength+1);
-	//FAssert(techs.size() == values.size());
-
-	#ifdef USE_OLD_TECH_STUFF
-	bool bPathways = false && getID() < GC.getGame().getCivPlayersEverAlive()/2; // testing (temp)
-```
-
 ### Python (Civ4)
 
 - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
@@ -149,6 +107,9 @@ fixed:
 - When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
 - Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions. Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
 - When doing performance optimizations, such as caching to `CvTeamAI const& kTeam = GET_TEAM(getTeam());` redundant definitions in a function, reuse existing variable names unless not relevant for our needs. It is fine if some functions have `kTeam` while others have `kOurTeam` in the same file, what matters is same function is consistent when using the same variable. This avoids errors too. Same reasoning with `kPlayer` and `kOwner`, etc.
+- When doing performance optimizations, a good trick that may help find many entries fairly cheaply is to append `.` or `)` or ` ` or `,`, etc., to what we want to simplify. For example `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) `, or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
+- When doing performance optimizations, also optimize commented-out code for exhaustiveness.
+- When doing performance optimizations, if there are returns and they don't use our cached variable, cache after them.
 
 ### Docs
 
