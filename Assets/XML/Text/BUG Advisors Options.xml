@@ -187,27 +187,6 @@
 		<Spanish>Permite emplear el consejero militar incluído en BUG (requiere reiniciar)</Spanish>
 	</TEXT>
 
-<!-- Technology Advisor -->
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_TEXT</Tag>
-		<English>GP Research</English>
-		<French>Recherche des PI</French>
-		<German>GP-Technologien</German>
-		<Italian>Ricerche dei GP</Italian>
-		<Spanish>Investigación de GP</Spanish>
-	</TEXT>
-	
-	<!-- advc.004: Rewritten (English, German) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_HOVER</Tag>
-		<English>When checked, information about the technologies that Great People can discover is displayed in the footer of the Technology Advisor screen (tech tree).</English>
-		<French>En activant, montre la technologie que chaque Personnage Illustre peut découvrir.</French>
-		<German>Zeigt in der Fußzeile des Technologiebaums an, welche Technologien von großen Persönlichkeiten entdeckt werden können.</German>
-		<Italian>Quando è selezionato, visualizza la tecnologia ricercata da ogni Grande Personaggio nella schermata del Consigliere Tecnologico.</Italian>
-		<Spanish>Si se activa, permite mostrar la tecnología que cada tipo de Gran Persona podría investigar.</Spanish>
-	</TEXT>
-
 	<!-- advc.004: Now unused -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__WIDETECHSCREEN_TEXT</Tag>
@@ -242,25 +221,6 @@
 		<German>Zeigt im Technologiebaum für jede Technologie durch einen farbigen Schatten das zugehörige Zeitalter an. (Bewegen Sie den Mauszeiger auf den Schatten, um den Namen des Zeitalters zu sehen. Das Farbschema lässt sich auf dem Reiter "Zeit" einstellen.)</German>
 		<Italian>Quando selezionato, Mostra l'era associata alla tecnologia.</Italian>
 		<Spanish>Permite mostrar la era asociada a una tecnología dada.</Spanish>
-	</TEXT>
-
-<!-- Religion Advisor -->
-
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGRELIGIOUSTAB_TEXT</Tag>
-		<English>BUG Religion Advisor</English>
-		<German>BUG-Religionsberater</German>
-		<Italian>Consigliere Religioso</Italian>
-		<Spanish>Consejero Religioso BUG</Spanish>
-	</TEXT>
-	
-	<!-- advc.004: Rewritten (English, German) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGRELIGIOUSTAB_HOVER</Tag>
-		<English>Enables the BUG Religion Advisor, which shows your cities in a sortable table and displays information about religious buildings.</English>
-		<German>Aktiviert den BUG-Religionsberater mit einer sortierbaren Städtetabelle und Informationen über alle religiösen Gebäude.</German>
-		<Italian>Quando è selezionato, mostra informazioni aggiuntive nella schermata del Consigliere Religioso.</Italian>
-		<Spanish>Si se activa, muestra información extra en la ventana de Religión.</Spanish>
 	</TEXT>
 	
 	<!-- advc.004: Minor changes to these two -->

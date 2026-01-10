@@ -20,21 +20,7 @@
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #48 -->
 
 <!-- Ignore Harmless Barbarians -->
-	<!-- advc.004l: Unlikely to be merged -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__IGNOREHARMLESSBARBARIANS_TEXT</Tag>
-		<English>Ignore Harmless Barbarians</English>
-		<German>Harmlose Barbaren ignorieren</German>
-		<Italian>Ignore Harmless Barbarians</Italian>
-		<Spanish>Ignorar Bárbaros Inofensivos</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACTIONS__IGNOREHARMLESSBARBARIANS_HOVER</Tag>
-		<English>When checked, Barbarian units adjacent to your borders will not trigger a warning if they cannot enter.</English>
-		<German>Lässt keine Warnung erscheinen, wenn sich Barbaren nahe der eigenen Grenzen befinden, diese aber nicht überqueren können</German>
-		<Italian>When checked, barbarian units adjacent to your borders will not trigger a warning if they cannot enter.</Italian>
-		<Spanish>Si se activa, las unidades bárbaras adyacentes a tu territorio no provocarán una advertencia si no pueden entrar.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #98 -->
 
 <!-- PreChop -->
 	<!-- advc.011b: Unlikely to be merged (although having prechop always enabled

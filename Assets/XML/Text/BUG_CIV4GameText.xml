@@ -222,35 +222,7 @@
 	
 	<!-- Raw Yields -->
 	
-	<!--TEXT>
-		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
-		<English>Worked Tiles (%d1)</English>
-		<French>Cases Travaillées (%d1)</French>
-		<German>Geländefelder: %d1</German>
-		<Italian>Caselle lavorate (%d1)</Italian>
-		<Spanish>Casillas Trabajadas (%d1)</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_CITY_TILES</Tag>
-		<English>City's Tiles (%d1)</English>
-		<German>Geländefelder: %d1</German>
-		<Italian>Caselle della Città (%d1)</Italian>
-		<Spanish>Casillas de la Ciudad (%d1)</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_OWNED_TILES</Tag>
-		<English>Owned Tiles (%d1)</English>
-		<German>Geländefelder: %d1</German>
-		<Italian>Caselle possedute (%d1)</Italian>
-		<Spanish>Casillas poseídas (%d1)</Spanish>
-	</TEXT-->
-	<!-- advc.002b: The translations above are too long with the current
-		 font size, at least at screen width 1024.
-		 Alternatively, one could put the number first, e.g.
-		 "%d1 caselle lavorate". As suggested here by EmperorFool, one of the
-		 original authors:
-		 https://forums.civfanatics.com/threads/raw-yields.281724/#post-7005748
-		 -->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #96 -->
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
 		<English>Worked Tiles (%d1)</English>
@@ -372,14 +344,7 @@
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Casillas Poseídas[COLOR_REVERT][NEWLINE]Cuenta las casillas en el radio de tu ciudad que pertenezcan a tu civilización.</Spanish>
 	</TEXT>
 	<!-- unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_RAW_YIELD_TILES_ALL</Tag>
-		<English>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</English>
-		<French>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</French>
-		<German>[COLOR_HIGHLIGHT_TEXT]Alle Geländefelder[COLOR_REVERT][NEWLINE]Zur Berechnung der Roherträge werden alle Geländefelder, die sich im Einzugsgebiet der Stadt befinden, unabhängig davon, welcher Zivilisation sie gehören, herangezogen</German>
-		<Italian>[COLOR_HIGHLIGHT_TEXT]Tutte le caselle[COLOR_REVERT][NEWLINE]Considera tutte le caselle nel raggio cittadino indipendentemente dal proprietario.</Italian>
-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #97 -->
 	
 	<!-- Food Assist -->
 	
@@ -1072,32 +1037,7 @@
 	</TEXT>
 
 	<!-- Victory Screen -->
-	<!-- advc.008e: Articles before wonders are now handled by
-		 CIV4GameText_advc_wonders.xml -->
-	<!--TEXT>
-		<Tag>TXT_KEY_PROJECT_APOLLO_PROGRAM</Tag>
-		<English>Apollo Program</English>
-		<French>
-			<Text>Programme Apollo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Apollo-Programm</Text>
-			<Gender>Neuter</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Programma Apollo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Programa Apollo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #95 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE</Tag>
 		<English>Turns until next Vote: %d1</English>

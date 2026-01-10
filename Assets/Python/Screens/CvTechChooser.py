@@ -1230,7 +1230,7 @@ class CvTechChooser:
 			return
 
 		# Check to see if option is disabled
-		if (not BugOpt.isShowGPTechPrefs()):
+		if (not self.isGpTechPrefsEnabled()):
 			if (self.bPrefsShowing):
 				# ... and if so, remove icons if they are currently showing
 				screen.hide( "GreatPersonHeading")
@@ -1313,6 +1313,10 @@ class CvTechChooser:
 				
 # BUG - GP Tech Prefs - end
 			iX += 2 * PREF_ICON_SIZE # advc.004a
+
+	def isGpTechPrefsEnabled(self):
+		# <!-- custom: invert meaning so the checkbox disables the bulbing indicators; keep defaults visible unless players opt out. (GPT-5.2-Codex) -->
+		return not BugOpt.isShowGPTechPrefs()
 
 	def TechRecord (self, inputClass):
 		return 0

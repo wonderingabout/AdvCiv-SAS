@@ -8,35 +8,7 @@
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 	<!-- advc.002f: Replaced by text in BUG Main Interface Options.xml -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYBAR__AIRPORTICONS_TEXT</Tag>
-		<English>Airport Icons</English>
-		<German>Flughafen-Symbol</German>
-		<Italian>Icone Aeroporto</Italian>
-		<Spanish>Iconos de Aeropuerto</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYBAR__AIRPORTICONS_HOVER</Tag>
-		<English>When checked, places an airport icon above the city bars of cities that have an airport.</English>
-		<German>Zeigt ein Flughafen-Symbol neben Städten an, die über einen Flughafen verfügen</German>
-		<Italian>Quando è selezionato, aggiunge una icona aeroportuale alle città che hanno un Aeroporto.</Italian>
-		<Spanish>Muestra un icono de aeropuerto sobre las barras de ciudad que tengan un aeropuerto.</Spanish>
-	</TEXT-->
-	<!-- advc.189: Don't need an option for this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYBAR__STARVATIONTURNS_TEXT</Tag>
-		<English>Turns to Starvation</English>
-		<German>Runden bis Hungersnot</German>
-		<Italian>Turns to Starvation</Italian>
-		<Spanish>Turnos hasta Hambruna</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYBAR__STARVATIONTURNS_HOVER</Tag>
-		<English>When checked, shows how many turns until a city will lose population if it is shrinking.</English>
-		<German>Zeigt an, in wie vielen Runden eine Stadt einen Bürger verliert, falls ihre Bevölkerung schrumpft</German>
-		<Italian>When checked, shows how many turns until a city will lose population if it is shrinking.</Italian>
-		<Spanish>Muestra cuántos turnos faltan para que una ciudad pierda población.</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #99 -->
 
 	<!-- advc.186: Not making these optional -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #50 -->

@@ -18,7 +18,6 @@ To install and play this mod AdvCiv-SAS, you can follow the steps in this docume
 [Configure your game](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#configure-your-game)  
 &emsp;[General ideas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#general-ideas)  
 &emsp;[Disable the Steam overlay](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#disable-the-steam-overlay)  
-&emsp;[Relevant BUG Menu Options — enable if needed](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed)  
 [Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-anyways-etc-skip-this-section-if-only-playing-without-wanting-extra-details)  
 [Where to download more/other mods](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#where-to-download-moreother-mods)  
 
@@ -118,16 +117,6 @@ Then in BUG Menu options i also use this for example hehe but do as you prefer a
 ### Disable the Steam overlay
 
 Optionally, for steam users, consider disabling the Steam Overlay if you don't use it in Civ4; allows access to the F12 key that won't screenshot anymore (as of now default In-game is Open Sevopedia).
-
-### Relevant BUG Menu Options — enable if needed
-
-Some of the [UI reworks or changes mentionned in the Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game) require to enable the corresponding **BUG MENU**'s Option to see them.
-
-For example, to see the tech bulbing indicators, enable "GP Research" in the BUG Menu -> Advisors tab.
-
-<img src="../Images/misc_0.x/0.97_bug_menu_demo_show_recommended_advisors.jpg" alt="0.97_bug_menu_demo_show_recommended_advisors.jpg" width="250"></img>
-
-Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so appear at turn 1 onwards. See [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
 
 ## Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)
 

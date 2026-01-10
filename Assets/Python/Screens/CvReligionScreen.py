@@ -175,7 +175,7 @@ class CvReligionScreen:
 				if (gc.getPlayer(j).isAlive()):
 					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
 
-		if AdvisorOpt.isReligious():
+		if self.isBugReligiousEnabled():
 			self.X_RELIGION_AREA = 45
 			self.Y_RELIGION_AREA = 84 - 40
 			self.W_RELIGION_AREA = 934
@@ -297,7 +297,7 @@ class CvReligionScreen:
 #				screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
 
-		if AdvisorOpt.isReligious():
+		if self.isBugReligiousEnabled():
 			# Count the number of temples and monastery
 			self.BUGConstants()
 			iPlayer = PyPlayer(self.iActivePlayer)
@@ -443,7 +443,7 @@ class CvReligionScreen:
 		else:
 			iLinkReligion = iReligion
 
-		if AdvisorOpt.isReligious():
+		if self.isBugReligiousEnabled():
 # Zappara start - make space for horizontal slider
 			screen.addPanel(self.AREA1_ID, "", "", True, True, self.X_RELIGION_AREA, self.Y_RELIGION_AREA + self.H_RELIGION_AREA + self.H_SCROLL_OFFSET + 3, self.W_RELIGION_AREA, self.H_CITY_AREA - self.H_SCROLL_OFFSET + 20, PanelStyles.PANEL_STYLE_MAIN)
 			#screen.addPanel(self.AREA1_ID, "", "", True, True, self.X_RELIGION_AREA, self.Y_RELIGION_AREA + self.H_RELIGION_AREA + 3, self.W_RELIGION_AREA, self.H_CITY_AREA, PanelStyles.PANEL_STYLE_MAIN)
@@ -468,7 +468,7 @@ class CvReligionScreen:
 		cityList = iPlayer.getCityList()
 
 # start of BUG indent for new code
-		if AdvisorOpt.isReligious():
+		if self.isBugReligiousEnabled():
 			# create religion table
 			screen.addTableControlGFC(self.TABLE_ID, self.TABLE_COLUMNS, self.X_RELIGION_AREA + 15, self.Y_RELIGION_AREA + self.H_RELIGION_AREA + self.H_SCROLL_OFFSET + 3 + 15, self.W_RELIGION_AREA - 2 * 15, self.H_CITY_AREA - self.H_SCROLL_OFFSET - 5, True, True, 24,24, TableStyles.TABLE_STYLE_STANDARD)
 			screen.enableSort(self.TABLE_ID)
@@ -608,6 +608,9 @@ class CvReligionScreen:
 				bFirst = False
 				sHelp += sLoopHelp
 		return sHelp
+
+	def isBugReligiousEnabled(self):
+		return not AdvisorOpt.isReligious()
 
 	def getReligionButtonName(self, iReligion):
 		szName = self.BUTTON_NAME + str(iReligion)

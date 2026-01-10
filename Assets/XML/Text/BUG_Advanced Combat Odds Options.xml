@@ -74,14 +74,6 @@
 		<Spanish>Ignorar Victorias Gratuitas</Spanish>
 	</TEXT>
 	
-	<!-- custom: rename "Difficulty" to "Handicap" -->
-	<!-- advc.048: Expanded a bit (English) b/c ignoring a rule that
-		 causes the actual odds to be ignored is potentially confusing. -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACO__IGNOREBARBFREEWINS_HOVER</Tag>
-		<English>When checked, the shown odds ignore free wins against Barbarians that the handicap level may guarantee. If not checked, the shown odds are 100% when a free win applies.</English>
-	</TEXT>
-	
 	<!-- advc.048: German was "Ansicht wechseln" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SWAPVIEWS_TEXT</Tag>

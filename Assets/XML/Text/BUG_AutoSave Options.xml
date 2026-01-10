@@ -55,14 +55,4 @@
 		<Italian>Utilizza il nome del giocatore</Italian>
 		<Spanish>Usar Nombre del Jugador</Spanish>
 	</TEXT>
-	<!-- custom: rename "Difficulty" to "Handicap" -->
-	<!-- advc.009c: Removed the final sentence: "This setting does not affect
-		 MapFinder saves." / "(diese Option hat keinen Einfluss auf
-		 MapFinder-Spielstände)" / "Questa impostazione non influenza i
-		 salvataggi di MapFinder." / "Esta opción no afecta a las partidas
-		 guardadas por MapFinder." -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__USEPLAYERNAME_HOVER</Tag>
-		<English>When checked, your player name is used for the saved game name along with the turn year. Otherwise the name is a concatenation of 3-letter versions of Leader Name, Handicap, Map Size, Map Type, Speed, Era, Year, Climate and Sea Level.</English>
-	</TEXT>
 </Civ4GameText>

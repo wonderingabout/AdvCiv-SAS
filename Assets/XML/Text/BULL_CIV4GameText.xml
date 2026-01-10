@@ -700,46 +700,6 @@
 		<Italian>Fractional Trade Routes</Italian>
 		<Spanish>Rutas de Comercio Fraccionadas</Spanish>
 	</TEXT>
-	<!-- advc.004l: Likely won't need this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_SENTRY</Tag>
-		<English>New Sentry Actions</English>
-		<German>Neue Wach-Befehle</German>
-		<Italian>New Sentry Actions</Italian>
-		<Spanish>Nuevas Acciones de Vigilancia</Spanish>
-	</TEXT-->
-	<!-- advc: Won't want this as a compile-time option -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_GOVWORKERS</Tag>
-		<English>City Governors Build Workers</English>
-		<German>Stadtverwalter: Bautrupp aufstellen</German>
-		<Italian>City Governors Build Workers</Italian>
-		<Spanish>Gobernadores de Ciudad Construyen trabajadores</Spanish>
-	</TEXT-->
-	<!-- advc.127: Won't need an option for this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_AIAUTOPLAY</Tag>
-		<English>AI AutoPlay</English>
-		<French>AI AutoPlay</French>
-		<German>Selbstablaufende Partie</German>
-		<Italian>AI AutoPlay</Italian>
-		<Spanish>AI AutoPlay</Spanish>
-	</TEXT-->
-	<!-- advc: K-Mod handles GW -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_GWARM</Tag>
-		<English>Global Warming</English>
-		<German>Globale Erwärmung</German>
-		<Italian>Global Warming</Italian>
-		<Spanish>Calentamiento Global</Spanish>
-	</TEXT-->
-	<!-- advc.sha: Won't need this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MOD_SHAM_SPOILER</Tag>
-		<English>Show Hidden Attitudes [spoiler]</English>
-		<German>Verborgene Modifikatoren anzeigen [Spoiler]</German>
-		<Italian>Show Hidden Attitudes [spoiler]</Italian>
-		<Spanish>Mostrar Actitudes Ocultas [espoiler]</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #100 -->
 
 </Civ4GameText>

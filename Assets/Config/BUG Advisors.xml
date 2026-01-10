@@ -63,6 +63,7 @@
 	
 			<!-- Technology Advisor (F6) by EmperorFool, Ruff_Hi -->
 			<!-- advc.004e: Disabled by default. -->
+			<!-- custom: invert meaning so unchecked keeps GP bulbing info visible by default; experienced players can opt out. (GPT-5.2-Codex) -->
 			<option id="GPTechPrefs" key="GP Tech Prefs" 
 					type="boolean" default="False" 
 					get="isShowGPTechPrefs"/>

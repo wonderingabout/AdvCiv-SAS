@@ -919,6 +919,35 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Italian>Indica la posizione verticale del Pannello di Informazioni sulle Unit‡ (il valore predefinito Ë '160').</Italian>
 		<Spanish>Especifica la posiciÛn vertical del texto flotante del panel de informaciÛn de unidades (el valor por defecto es 160).</Spanish>
 	</TEXT-->
+	<!-- advc.069: Already unused in BUG (always enabled) -->
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_TEXT</Tag>
+		<English>Enabled</English>
+		<French>Activ&#233;</French>
+		<German>Aktivieren</German>
+		<Italian>Attivato</Italian>
+		<Spanish>Activado</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_HOVER</Tag>
+		<English>Replaces the default Unit Info displayed when you hover over a unit.</English>
+		<French>Remplace l'infobulle par dùfaut des Infos d'Unitù.</French>
+		<German>Ersetzt die Informationen, die standardmùùig angezeigt werden, wenn der Mauszeiger ùber ein Einheitensymbol bewegt wird</German>
+		<Italian>Sostituisce le informazioni sulle Unitù normalmente visualizzate quando si mantiene il cursore su una Unitù.</Italian>
+		<Spanish>Reemplaza la informaciùn mostrada por defecto en el texto flotante de una unidad.</Spanish>
+	</TEXT-->
+
+	<!-- advc.069: Now also unused. Player shouldn't have to set this manually. -->
+	<!-- Was "Promotion Icon Offset" and in German
+		 "Befùrderungen (Abstand)" - a bit long. -->
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_PROMO_ICON_OFFSET_Y_TEXT</Tag>
+		<English>Promotion Offset</English>
+		<German>Symbolabstand</German>
+		<Italian>Posiz. Icone Promozione</Italian>
+		<Spanish>Espaciado Promociones</Spanish>
+	</TEXT-->
+	<!-- rewritten (English, German) -->
 
 ----- Comment #46 -----
 <!--TEXT>
@@ -2027,3 +2056,174 @@ so moving these (code comments) below in this now .txt file
 now fixed, at least game starts normally, be careful of too long (in line or char count i don't know which) xml comment in nested fields perhaps
 
 
+===== .\\Assets/XML/Text/BUG_CIV4GameText.xml =====
+----- Comment #95 -----
+
+	<!-- advc.008e: Articles before wonders are now handled by
+		 CIV4GameText_advc_wonders.xml -->
+	<!--TEXT>
+		<Tag>TXT_KEY_PROJECT_APOLLO_PROGRAM</Tag>
+		<English>Apollo Program</English>
+		<French>
+			<Text>Programme Apollo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Apollo-Programm</Text>
+			<Gender>Neuter</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Programma Apollo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Programa Apollo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BUG_CIV4GameText.xml =====
+----- Comment #96 -----
+
+	<!--TEXT>
+		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
+		<English>Worked Tiles (%d1)</English>
+		<French>Cases TravaillÈes (%d1)</French>
+		<German>Gel‰ndefelder: %d1</German>
+		<Italian>Caselle lavorate (%d1)</Italian>
+		<Spanish>Casillas Trabajadas (%d1)</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_CITY_TILES</Tag>
+		<English>City's Tiles (%d1)</English>
+		<German>Gel‰ndefelder: %d1</German>
+		<Italian>Caselle della Citt‡ (%d1)</Italian>
+		<Spanish>Casillas de la Ciudad (%d1)</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_OWNED_TILES</Tag>
+		<English>Owned Tiles (%d1)</English>
+		<German>Gel‰ndefelder: %d1</German>
+		<Italian>Caselle possedute (%d1)</Italian>
+		<Spanish>Casillas poseÌdas (%d1)</Spanish>
+	</TEXT-->
+	<!-- advc.002b: The translations above are too long with the current
+		 font size, at least at screen width 1024.
+		 Alternatively, one could put the number first, e.g.
+		 "%d1 caselle lavorate". As suggested here by EmperorFool, one of the
+		 original authors:
+		 https://forums.civfanatics.com/threads/raw-yields.281724/#post-7005748
+		 -->
+
+===== .\\Assets/XML/Text/BUG_CIV4GameText.xml =====
+----- Comment #97 -----
+
+	<!--TEXT>
+		<Tag>TXT_KEY_RAW_YIELD_TILES_ALL</Tag>
+		<English>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</English>
+		<French>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</French>
+		<German>[COLOR_HIGHLIGHT_TEXT]Alle Gel‰ndefelder[COLOR_REVERT][NEWLINE]Zur Berechnung der Rohertr‰ge werden alle Gel‰ndefelder, die sich im Einzugsgebiet der Stadt befinden, unabh‰ngig davon, welcher Zivilisation sie gehˆren, herangezogen</German>
+		<Italian>[COLOR_HIGHLIGHT_TEXT]Tutte le caselle[COLOR_REVERT][NEWLINE]Considera tutte le caselle nel raggio cittadino indipendentemente dal proprietario.</Italian>
+		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BULL Actions Options.xml =====
+----- Comment #98 -----
+
+	<!-- advc.004l: Unlikely to be merged -->
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ACTIONS__IGNOREHARMLESSBARBARIANS_TEXT</Tag>
+		<English>Ignore Harmless Barbarians</English>
+		<German>Harmlose Barbaren ignorieren</German>
+		<Italian>Ignore Harmless Barbarians</Italian>
+		<Spanish>Ignorar B·rbaros Inofensivos</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ACTIONS__IGNOREHARMLESSBARBARIANS_HOVER</Tag>
+		<English>When checked, Barbarian units adjacent to your borders will not trigger a warning if they cannot enter.</English>
+		<German>L‰sst keine Warnung erscheinen, wenn sich Barbaren nahe der eigenen Grenzen befinden, diese aber nicht ¸berqueren kˆnnen</German>
+		<Italian>When checked, barbarian units adjacent to your borders will not trigger a warning if they cannot enter.</Italian>
+		<Spanish>Si se activa, las unidades b·rbaras adyacentes a tu territorio no provocar·n una advertencia si no pueden entrar.</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BULL City Bar Options.xml =====
+----- Comment #99 -----
+
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_CITYBAR__AIRPORTICONS_TEXT</Tag>
+		<English>Airport Icons</English>
+		<German>Flughafen-Symbol</German>
+		<Italian>Icone Aeroporto</Italian>
+		<Spanish>Iconos de Aeropuerto</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_CITYBAR__AIRPORTICONS_HOVER</Tag>
+		<English>When checked, places an airport icon above the city bars of cities that have an airport.</English>
+		<German>Zeigt ein Flughafen-Symbol neben St‰dten an, die ¸ber einen Flughafen verf¸gen</German>
+		<Italian>Quando Ë selezionato, aggiunge una icona aeroportuale alle citt‡ che hanno un Aeroporto.</Italian>
+		<Spanish>Muestra un icono de aeropuerto sobre las barras de ciudad que tengan un aeropuerto.</Spanish>
+	</TEXT-->
+	<!-- advc.189: Don't need an option for this -->
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_CITYBAR__STARVATIONTURNS_TEXT</Tag>
+		<English>Turns to Starvation</English>
+		<German>Runden bis Hungersnot</German>
+		<Italian>Turns to Starvation</Italian>
+		<Spanish>Turnos hasta Hambruna</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_CITYBAR__STARVATIONTURNS_HOVER</Tag>
+		<English>When checked, shows how many turns until a city will lose population if it is shrinking.</English>
+		<German>Zeigt an, in wie vielen Runden eine Stadt einen B¸rger verliert, falls ihre Bevˆlkerung schrumpft</German>
+		<Italian>When checked, shows how many turns until a city will lose population if it is shrinking.</Italian>
+		<Spanish>Muestra cu·ntos turnos faltan para que una ciudad pierda poblaciÛn.</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BULL_CIV4GameText.xml =====
+----- Comment #100 -----
+
+	<!-- advc.004l: Likely won't need this -->
+	<!--TEXT>
+		<Tag>TXT_KEY_MOD_SENTRY</Tag>
+		<English>New Sentry Actions</English>
+		<German>Neue Wach-Befehle</German>
+		<Italian>New Sentry Actions</Italian>
+		<Spanish>Nuevas Acciones de Vigilancia</Spanish>
+	</TEXT-->
+	<!-- advc: Won't want this as a compile-time option -->
+	<!--TEXT>
+		<Tag>TXT_KEY_MOD_GOVWORKERS</Tag>
+		<English>City Governors Build Workers</English>
+		<German>Stadtverwalter: Bautrupp aufstellen</German>
+		<Italian>City Governors Build Workers</Italian>
+		<Spanish>Gobernadores de Ciudad Construyen trabajadores</Spanish>
+	</TEXT-->
+	<!-- advc.127: Won't need an option for this -->
+	<!--TEXT>
+		<Tag>TXT_KEY_MOD_AIAUTOPLAY</Tag>
+		<English>AI AutoPlay</English>
+		<French>AI AutoPlay</French>
+		<German>Selbstablaufende Partie</German>
+		<Italian>AI AutoPlay</Italian>
+		<Spanish>AI AutoPlay</Spanish>
+	</TEXT-->
+	<!-- advc: K-Mod handles GW -->
+	<!--TEXT>
+		<Tag>TXT_KEY_MOD_GWARM</Tag>
+		<English>Global Warming</English>
+		<German>Globale Erw‰rmung</German>
+		<Italian>Global Warming</Italian>
+		<Spanish>Calentamiento Global</Spanish>
+	</TEXT-->
+	<!-- advc.sha: Won't need this -->
+	<!--TEXT>
+		<Tag>TXT_KEY_MOD_SHAM_SPOILER</Tag>
+		<English>Show Hidden Attitudes [spoiler]</English>
+		<German>Verborgene Modifikatoren anzeigen [Spoiler]</German>
+		<Italian>Show Hidden Attitudes [spoiler]</Italian>
+		<Spanish>Mostrar Actitudes Ocultas [espoiler]</Spanish>
+	</TEXT-->

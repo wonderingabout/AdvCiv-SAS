@@ -4049,4 +4049,4 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Was happening in AdvCiv-SAS for other categories last visited like charts too, or Hints or such in base advciv too.
 
-See commit: todo add link.
+See [commit/21f67530d536c6d93b42cf1223237b34e1ca7d0a](https://github.com/wonderingabout/AdvCiv-SAS/commit/21f67530d536c6d93b42cf1223237b34e1ca7d0a).

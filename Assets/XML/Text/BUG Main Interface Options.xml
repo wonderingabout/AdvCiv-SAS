@@ -34,11 +34,6 @@
 		<English>Mod Name in Replays</English>
 		<German>Mod-Name in Replays</German>
 	</TEXT>
-	<!-- custom: remove folder name in case it changes as it did since we transitionned from AdvCiv to AdvCiv-SAS folder name if i'm not mistaken. Clearer to remove it entirely rather i'd say i mean i think -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MODNAMEINREPLAYS_HOVER</Tag>
-		<English>When checked, the name of the mod's folder is written into your replay files, which excludes them from the Hall of Fame screen when BtS is run without mods. (As for showing replays created by BtS or other mods on the AdvCiv Hall of Fame screen, see the [COLOR_BUILDING_TEXT]HOF_...[COLOR_REVERT] variables in [COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT].)</English>
-	</TEXT>
 
 	<!-- advc.106b -->
 	<TEXT>
