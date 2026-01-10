@@ -140,6 +140,7 @@ class SevoPediaWorldSizeChart:
 			# Example: "Grid Tiles*" is computed as GridWidth * GridHeight, while "Grid Size (W x H)" just formats the XML GridWidth/GridHeight.
 			# (field_name, display_label_or_None, getter_name_or_None, icon_token)
 			("GridSize",                       "Grid Size (W x H)",         None,                               "glyph:map"),
+			("GridRatio",                      "W/H Ratio",                 None,                               "glyph:map"),
 			("GridTiles",                      "Grid Tiles*",               None,                               "glyph:map"),
 			("RatioToStandard",                "Ratio to Standard*",        None,                               "glyph:map"),
 			("TilesPerDefaultPlayer",          "Tiles Per Default Player*", None,                               "glyph:map"),
@@ -284,6 +285,7 @@ class SevoPediaWorldSizeChart:
 			grid_w = info.getGridWidth()
 			grid_h = info.getGridHeight()
 			world_dict["GridSize"] = "%d x %d" % (grid_w, grid_h)
+			world_dict["GridRatio"] = self._format_ratio(grid_w, grid_h)
 			world_dict["GridTiles"] = str(grid_w * grid_h)
 
 			parsed_data[world_type] = world_dict
@@ -376,3 +378,8 @@ class SevoPediaWorldSizeChart:
 		if name.endswith("Percent"):
 			name = name[:-len("Percent")] + "%"
 		return name
+
+	def _format_ratio(self, width, height):
+		if width <= 0 or height <= 0:
+			return ""
+		return "%.4f" % (float(width) / float(height))
