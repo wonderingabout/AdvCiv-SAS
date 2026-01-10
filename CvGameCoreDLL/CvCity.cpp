@@ -642,8 +642,8 @@ void CvCity::doTurn()
 	// <!-- custom: performance optimization: compute this only once if i'm not mistaken; e.g. "BUILDINGCLASS_HARBOR", check defines for string value -->
 	static const BuildingClassTypes eWaterFoodBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME"));
 
-	// <!-- custom: emergency harbor (or whatever the water food building is in your mod) is top priority if city is coastal, low food per turn (stagnant coastal tundra cities in autoplay never build a harbor and stay low food for dozen turns), code added thanks to chatgpt 5 and my prompts and adjustments and/or such, check if accurate -->
-	// 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather. We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or/and low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities -->
+	// <!-- custom: emergency harbor (or whatever the water food building is in your mod) is top priority if city is coastal, low food per turn (stagnant coastal tundra cities in autoplay never build a harbor and stay low food for dozen turns), code added thanks to chatgpt 5 and my prompts and adjustments or such, check if accurate -->
+	// 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather. We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities -->
 	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
 	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
 
@@ -799,7 +799,7 @@ void CvCity::doTurn()
 
 				if (!bEmergencyBuilding && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE && !bInnerRingMostlyWaterNonPeak)
 				{
-					// <!-- custom: as of now eras are (see xml for details or/and updated version -->
+					// <!-- custom: as of now eras are (see xml for details or updated version -->
 					// 18,5: 			<Type>ERA_ANCIENT</Type>
 					// 79,5: 			<Type>ERA_CLASSICAL</Type>
 					// 154,5: 			<Type>ERA_MEDIEVAL</Type>
@@ -917,7 +917,7 @@ void CvCity::doTurn()
 
 					const int iNumCities = kOwner.getNumCities();
 
-					// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure, and if -> else if -> else is preferable anyway for clarity and/or performance as well) -->
+					// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure, and if -> else if -> else is preferable anyway for clarity or performance as well) -->
 					// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think) -->
 					bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
 					bool bNavalHeavyMapname = false;
@@ -941,7 +941,7 @@ void CvCity::doTurn()
 					static const int TH_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_TIER_THRESHOLD");
 					static const int TH_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD");
 
-					// <!-- custom: note to chatgpt 5 and other AIs and/or such: it looks like `GC.getCivilizationInfo` does not exist at all in our entire .cpp and .h codebase (but there are many in .py files though although not relevant here for our need), but there are many .cpp and .h pieces of code in our mod (including which i didn't write myself at all) like `GC.getInfo(getCivilizationType())` so it may be the more correct one in our mod, although after looking at CvGlobals.h and chatgpt 5's analysis of it it seems fine to use any, sticking with the only used one, check if accurate -->
+					// <!-- custom: note to chatgpt 5 and other AIs or such: it looks like `GC.getCivilizationInfo` does not exist at all in our entire .cpp and .h codebase (but there are many in .py files though although not relevant here for our need), but there are many .cpp and .h pieces of code in our mod (including which i didn't write myself at all) like `GC.getInfo(getCivilizationType())` so it may be the more correct one in our mod, although after looking at CvGlobals.h and chatgpt 5's analysis of it it seems fine to use any, sticking with the only used one, check if accurate -->
 					// Yep—that header explains it perfectly.
 					// GC.getCivilizationInfo(eCiv) is just a tiny wrapper that returns getInfo(eCiv). In AdvCiv/K-Mod it’s defined inline in CvGlobals.h:
 					// DllExport CvCivilizationInfo& getCivilizationInfo(CivilizationTypes eCivilization) { return getInfo(eCivilization); }

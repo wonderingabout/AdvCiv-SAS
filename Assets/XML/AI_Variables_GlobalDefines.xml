@@ -175,7 +175,7 @@
 	<Define>
 		<!-- Anger from war weariness and bonds of faith. -->
 		<DefineName>UWAI_WEIGHT_PUBLIC_OPPOSITION</DefineName>
-		<!-- custom: should matter less if war is short or/and conquered city has
+		<!-- custom: should matter less if war is short or conquered city has
 		new ressources, was 100 -->
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
@@ -227,7 +227,7 @@
 			 increased war utility. If still preparing war: Do we have suffi-
 			 cient units to start the war; is there still enough time to build
 			 them? -->
-		<!-- custom: hopefully helps the AI have a more dynamic or/and
+		<!-- custom: hopefully helps the AI have a more dynamic or
 		opportunistic response to local position, was 100 -->
 		<DefineName>UWAI_WEIGHT_TACTICAL_SITUATION</DefineName>
 		<iDefineIntVal>140</iDefineIntVal>

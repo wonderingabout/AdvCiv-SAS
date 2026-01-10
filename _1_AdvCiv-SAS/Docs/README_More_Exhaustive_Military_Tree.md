@@ -11,7 +11,7 @@ Here you go:
 
 ## Military tree as of now
 
-As said in main readme.md in relevant section there as well, as of now the military tree is as such in AdvCiv-SAS (please view ingame or/and in XML for updated version if any changes have been made since then)
+As said in main readme.md in relevant section there as well, as of now the military tree is as such in AdvCiv-SAS (please view ingame or in XML for updated version if any changes have been made since then)
 
 <img src="../Images/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
 <img src="../Images/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
@@ -26,6 +26,6 @@ Still i had made this one before, and have also found some info like which butto
 
 ![0.43 military tree_modified.png](https://drive.google.com/thumbnail?id=1jewdORGIHYA6--M8_y_1DpAt-agf9n0l&sz=w2000)
 
-Drawbacks of not implementing it is some inconsistencies like the new advciv-sas i mean immortal (imported from other mods but implemented in our own way in advciv-sas and unlike in base advciv and civ4) having a spear despite being a swordsman, because there are no classical/iron age spearmen, ideally something i would change but military upgrade costs would skyrocket xd if i may say even though still old era but for all eras too, plus i am not sure such an exhaustive design is better as in more enjoyable and or relevant in terms of gameplay, especially considering how fast the tech tree moves, so units would change too often, most likely better or/and how i'd want it in base advciv/civ4, or something closer to it.
+Drawbacks of not implementing it is some inconsistencies like the new advciv-sas i mean immortal (imported from other mods but implemented in our own way in advciv-sas and unlike in base advciv and civ4) having a spear despite being a swordsman, because there are no classical/iron age spearmen, ideally something i would change but military upgrade costs would skyrocket xd if i may say even though still old era but for all eras too, plus i am not sure such an exhaustive design is better as in more enjoyable and or relevant in terms of gameplay, especially considering how fast the tech tree moves, so units would change too often, most likely better or how i'd want it in base advciv/civ4, or something closer to it.
 
 But we did some additions like camel units, bow combat types, maybe will add more or quite a lot more units or maybe not.

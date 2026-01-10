@@ -198,7 +198,7 @@
 		 additively, and I'm reducing both so that they still cancel out.
 		 Was -50, recommended: -33 -->
 	<!-- custom: i don't understand all but i think this seems like
-	or/and means religion should be more important if i increase the
+	or means religion should be more important if i increase the
 	absolute value, or decrease if counting in numerical (with sign)
 	numbers, was -33 -->
 	<Define> <!-- redefine -->
@@ -365,7 +365,7 @@
 	<!-- custom: i don't want terrain to be aggressively or even just
 	normalized like this, try to disable it and see, buff terrains
 	that are extra weak or give them some other boosts too maybe,
-	maybe this increases strategy or/and other related or similar
+	maybe this increases strategy or other related or similar
 	things, was 75-->
     <Define>
         <DefineName>REMOVAL_CHANCE_BAD_TERRAIN</DefineName>
@@ -598,7 +598,7 @@
 		 in replays. If set to 0, only Liberalism is recorded (BtS behavior). -->
 	<!-- custom: i want replay to show more useful/valuable data so why not,
 	also is maybe a good reminder/hint to me to add more first to discover
-	effects or/and tweak them -->
+	effects or tweak them -->
 	<Define>
 		<DefineName>SHOW_FIRST_TO_DISCOVER_IN_REPLAY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -906,7 +906,7 @@
 		 The BtS routine for protecting noncombatants isn't affected by
 		 this. Set to 0 or less for BtS behavior: combat units never
 		 evacuate. -->
-	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner i mean, as there is a good chance attacker would lose out too much, or/and be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive that is high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe, so reduce it a bit to evacuate sooner but not too much to not over evacuate, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more startegic in this case at least, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
+	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner i mean, as there is a good chance attacker would lose out too much, or be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive that is high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe, so reduce it a bit to evacuate sooner but not too much to not over evacuate, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more startegic in this case at least, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
     <Define>
         <DefineName>AI_EVACUATION_THRESH</DefineName>
         <iDefineIntVal>138</iDefineIntVal>
@@ -1193,7 +1193,7 @@
 		 Barbarian creation also won't be affected by the adjustment.
 		 Changes to this parameter won't properly take effect in an ongoing game,
 		 will have to start a new one. -->
-	<!-- custom: i'd want handicap settings to be more reliable, if there is/i have a setting to rebalance, i'd rather do it there, so inverting this back to 0 if it was the value, not sure what this does or if it does what i intend/as intended (of me), but maybe it does if i may say, at least i want to do it this way or/and try it for handicap settings, was 1 -->
+	<!-- custom: i'd want handicap settings to be more reliable, if there is/i have a setting to rebalance, i'd rather do it there, so inverting this back to 0 if it was the value, not sure what this does or if it does what i intend/as intended (of me), but maybe it does if i may say, at least i want to do it this way or try it for handicap settings, was 1 -->
 	<Define>
 		<DefineName>RF_PLAYER_HANDICAP_ADJUSTMENT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1527,7 +1527,7 @@
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
-	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say and/or if accurate, see also (adjust to your mod path) CIV4GameSpeedInfo.xml for details -->
+	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say or if accurate, see also (adjust to your mod path) CIV4GameSpeedInfo.xml for details -->
 	<Define>
 		<DefineName>START_YEAR</DefineName>
 		<iDefineIntVal>-50000</iDefineIntVal>

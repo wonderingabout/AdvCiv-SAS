@@ -1,6 +1,6 @@
 # README_AI_Generated_Images
 
-When i first tried/used making ai-generated images, i started with chatgpt for buttons or/and such, then later used other tools/websites like Creator Nightcafe Studio and Pixelcut AI for example for the main menu background or/and such if any other such.
+When i first tried/used making ai-generated images, i started with chatgpt for buttons or such, then later used other tools/websites like Creator Nightcafe Studio and Pixelcut AI for example for the main menu background or such if any other such.
 
 ## Menu
 
@@ -15,7 +15,7 @@ When i first tried/used making ai-generated images, i started with chatgpt for b
 
 One of the unexpected things that popped up while exploring unit naming in/for advciv-sas and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
 
-I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing), if you want to view them full size or/and more images, please ideally visit this google drive folder link rather.
+I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing), if you want to view them full size or more images, please ideally visit this google drive folder link rather.
 
 ### Unit buttons (as of now stale)
 
@@ -52,7 +52,7 @@ It also helped me generate a very nice building_russian_gord corresponding butto
 <img src="https://drive.google.com/thumbnail?id=1IrxlGcTWPkZ0Y2VLfRVdg7h9A_uvBXKI&sz=w1024" width="150" alt="gord.png"></img>
 <img src="https://drive.google.com/thumbnail?id=1dA0zEE0MqlPUZ8LTmZKBsBhwxLrN-Z9g&sz=w1024" width="150" alt="impluvium.png"></img>
 
-People or/and modders are free to reuse them as long as you mention me and chatgpt (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
+People or modders are free to reuse them as long as you mention me and chatgpt (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
 ## Using Creator Nightcafe Studio to generate it (1024x1024)
 
@@ -60,11 +60,11 @@ Note: see full-size images in this [google drive folder link](https://drive.goog
 
 First to generate our main menu image/theme, i used as advised by chatgpt Creator Nightcafe Studio (note: about their privacy/notification settings, i'd recommend making them more restrictive, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) but as you prefer if i may say), with this prompt i got the idea to write hehe (and got very lucky with output at first try hehe (couldn't reproduce an as satisfying image in several other tries in this case at least)):
 
-"Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or/and camel, in a calm setting, and in line with civ4 artstyle"
+"Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or camel, in a calm setting, and in line with civ4 artstyle"
 
 <img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" width="150" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp"></img>
 
-Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or/and prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc), else would have lost the image :/ Phew if i may say but i thankfully escaped this...
+Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc), else would have lost the image :/ Phew if i may say but i thankfully escaped this...
 
 ## Then using then Pixelcut AI to expand it to 1920 x 1080 with new details very nicely
 

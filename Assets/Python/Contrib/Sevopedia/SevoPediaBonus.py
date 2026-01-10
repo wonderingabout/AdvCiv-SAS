@@ -555,7 +555,7 @@ class SevoPediaBonus:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
-		# <!-- custom: code added with the help of claude ai thanks based on our existing code on advciv-sas and my prompt too and/or such -->
+		# <!-- custom: code added with the help of claude ai thanks based on our existing code on advciv-sas and my prompt too or such -->
 		if IS_SHOW_AI_INFO:
 			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION"
 		else:

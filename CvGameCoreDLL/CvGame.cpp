@@ -274,7 +274,7 @@ void CvGame::setInitialItems()
 		regenerateMap(true); // </advc.tsl>
 }
 
-// <!-- custom: new helpers addition quite self explanatory xd, see also known issue as of now 42 for details as well, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too. -->
+// <!-- custom: new helpers addition quite self explanatory xd, see also known issue as of now 42 for details as well, and also done with chatgpt 5's help and check if accurate too or most relevant or if there is a better way perhaps to do this; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too. -->
 // CvGame.cpp — the “braindead” recompute (just ==)
 void CvGame::recomputeMapnameHeaviness()
 {
@@ -7664,7 +7664,7 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 			iCreated++;
 		// </advc.300>
 	// <!-- custom: since this seems unused in XML, commented out in the DLL now as approved to be possible by chatgpt 5, check if accurate -->
-	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather no tediousness, but added this note if helps about this seemingly weirdness, and if i am not mistaken in my understanding or/and knowledge or lack of here in this case, check if accurate -->
+	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather no tediousness, but added this note if helps about this seemingly weirdness, and if i am not mistaken in my understanding or knowledge or lack of here in this case, check if accurate -->
 	// advc.313: Replaced by a handicap-based modifier
 	// #if 0
 	// 	/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
@@ -8744,7 +8744,7 @@ bool CvGame::checkInSync()
 }
 
 /*	<advc.003g> Test the platform's floating point behavior (intermediate precision
-	and/or rounding). */
+	or rounding). */
 int CvGame::FPChecksum() const
 {
 	/*	I've used this together with the _controlfp call at the end to test the
@@ -9061,7 +9061,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	pStream->Read(&m_initialRandSeed.uiSync);
 	// </advc.027b>
 
-	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate; this is simplified thanks to claude ai, and my prompt(s) and adjustments too and/or such, check if accurate (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are truecode, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now), which i also did here -->
+	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate; this is simplified thanks to claude ai, and my prompt(s) and adjustments too or such, check if accurate (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are truecode, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now), which i also did here -->
 
 	// Simplified: assuming current UI flag version (27)
 	// Simplified: assuming current UI flag version (no backwards compatibility)

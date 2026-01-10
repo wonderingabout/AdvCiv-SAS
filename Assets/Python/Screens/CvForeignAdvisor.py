@@ -42,7 +42,7 @@ class CvForeignAdvisor:
 		yHardcodedResolution = 1080
 
 		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios) -->
-		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such -->
+		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or such -->
 
 		wLeftSpaceForCommerceSliders = 172
 		self.X_SCREEN = wLeftSpaceForCommerceSliders

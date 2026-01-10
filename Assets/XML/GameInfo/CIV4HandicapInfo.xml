@@ -1172,7 +1172,7 @@
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
-			<!-- custom: now the same at all handicaps for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
+			<!-- custom: now the same at all handicaps for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or in the code; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -1218,7 +1218,7 @@
 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
 			<iAIInflationPercent>75</iAIInflationPercent>
 			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
-			<!-- custom: now disabled at all handicaps, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->
+			<!-- custom: now disabled at all handicaps, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->
 			<!-- advc.251: Renamed; was 5 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular i mean, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess, hopefully accurate enough if i may say and more in line with the spirit of our changes -->

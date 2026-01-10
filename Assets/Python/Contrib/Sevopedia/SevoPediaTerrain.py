@@ -184,7 +184,7 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or/and for consistency, also exclude from display here -->
+		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or for consistency, also exclude from display here -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
@@ -356,7 +356,7 @@ class SevoPediaTerrain:
 		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative -->
+		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well, so handle its display separately -->
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
@@ -542,7 +542,7 @@ class SevoPediaTerrain:
 		iCoast = getInfoTypeOrFail("TERRAIN_COAST", gc)
 		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
 
-		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative -->
+		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
 		if self.iTerrain == iPeak:
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)

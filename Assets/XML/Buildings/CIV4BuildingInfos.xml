@@ -2,7 +2,7 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- custom: see in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or/and helpful if needed xml fields and their meaning, took it from the Doto mod, see there for details -->
+<!-- custom: see in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or helpful if needed xml fields and their meaning, took it from the Doto mod, see there for details -->
 <!-- custom: adjust the iPower (as in unit info) of some buildings to better reflect their strength equivalent:
 - increase iPower of/for buildings that are underestimated as well, such as the castle
 - reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shouldn't be too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info 
@@ -291,7 +291,7 @@
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #8 -->
-			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost and/or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result, was -40 after our change to nerf barbarians as were too op -->
+			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result, was -40 after our change to nerf barbarians as were too op -->
 			<iMilitaryProductionModifier>-25</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
@@ -489,7 +489,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details, as for this one in particular, match the base palace, and not especially cultural(nerf easy sources of culture and not thematically relevant ones (ideally buff the other sources as well without making it op or/and unbalanced as well)), was 0 / 0 / 4 -->
+			<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details, as for this one in particular, match the base palace, and not especially cultural(nerf easy sources of culture and not thematically relevant ones (ideally buff the other sources as well without making it op or unbalanced as well)), was 0 / 0 / 4 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -1136,7 +1136,7 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<!-- custom: remove trait specfic production bonuses, at least for the protective trait buildings, bonuses were too lousy (or/and weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe or not bbigger or yes bigger or other or not or etc more importantly that the castle would be otherwise too op for the protective trait players -->
+			<!-- custom: remove trait specfic production bonuses, at least for the protective trait buildings, bonuses were too lousy (or weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe or not bbigger or yes bigger or other or not or etc more importantly that the castle would be otherwise too op for the protective trait players -->
 			<ProductionTraits/>
 			<HappinessTraits>
 				<HappinessTrait>
@@ -2087,7 +2087,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least, see xml for details) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search, was flavor military 10 -->
+			<!-- custom: reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least, see xml for details) so that hopefully more varied types or there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search, was flavor military 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -3654,7 +3654,7 @@
 				<iYield>0</iYield>
 			</YieldModifiers>
 			<CommerceChanges/>
-			<!-- custom: reworked as part of the slavery+granary rework or/and rebalance(ing), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, but in all cases i want to rework it as such now), maybe will turn out well, or not, or yes or etc, was was 0, 0, 1 -->
+			<!-- custom: reworked as part of the slavery+granary rework or rebalance(ing), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, but in all cases i want to rework it as such now), maybe will turn out well, or not, or yes or etc, was was 0, 0, 1 -->
 			<!-- custom: was 0, 0, 1 (note: as for the below advc comment of base advciv, it applies to the old <iCommerce>1</iCommerce> line now removed entirely as part of our rework in advciv-sas) -->
 			<!-- advc.908b: was 2 -->
 			<ObsoleteSafeCommerceChanges/>
@@ -4262,7 +4262,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things https://en.wikipedia.org/wiki/Baray -->
+		<!-- custom: if it helps for balance or info or tweaking or other things https://en.wikipedia.org/wiki/Baray -->
 		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KHMER_BARAY</Type>
@@ -9061,7 +9061,7 @@
 			<FreeStartEra>ERA_MODERN</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
-			<!-- custom: with our tech rework sacrificial_altar is now based on tech_calendar as per/according to the wikipedia info, much more relevant as calendar is much sooner in tech tree, see docs or/and tech tree view in docs as well for details -->
+			<!-- custom: with our tech rework sacrificial_altar is now based on tech_calendar as per/according to the wikipedia info, much more relevant as calendar is much sooner in tech tree, see docs or tech tree view in docs as well for details -->
 			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -10149,7 +10149,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: basing it (madrassa) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or/and from memory that they are religous, thus islamic buildings mostly if not only), this is also good because now i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it) -->
+		<!-- custom: basing it (madrassa) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or from memory that they are religous, thus islamic buildings mostly if not only), this is also good because now i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it) -->
 		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_ARABIAN_MADRASSA</Type>
@@ -11740,7 +11740,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong; since an artist specialist gives 3 gpp as of now (and culture or/and such), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building); also to rpely to chagpt 5 that said +2 may be too much, it seems thinking about it that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such, was NONE and 0 -->
+			<!-- custom: emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong; since an artist specialist gives 3 gpp as of now (and culture or such), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building); also to rpely to chagpt 5 that said +2 may be too much, it seems thinking about it that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such, was NONE and 0 -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -12708,7 +12708,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things https://en.wikipedia.org/wiki/Forum_(Roman) -->
+		<!-- custom: if it helps for balance or info or tweaking or other things https://en.wikipedia.org/wiki/Forum_(Roman) -->
 		<BuildingInfo> <!-- custom: class: market, type: roman_forum (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_ROMAN_FORUM</Type>
@@ -13064,7 +13064,7 @@
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
-			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
+			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or other code comments for details) -->
 			<!-- custom: similarly, sugar is not too good for health (but is also not too bad either quite good even necessary if i am not mistaken depending on dosage maybe), but sure makes happy i'd say so making it give happiness instead, buffing sugar at the same time which i think is fine especially as sugar is a bit weak otherwise, not matching its quite strong influence on population -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
@@ -13265,7 +13265,7 @@
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
-			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
+			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or other code comments for details) -->
 			<!-- custom: see code comment at as of now the generic grocer. -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
@@ -14978,7 +14978,7 @@
 					<iSpecialistCount>1</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
-			<!-- custom: kind of like ninjas hehe, and opens up to spy economy so interesting strategically or/and for flavor thematically i mean, advised/suggested/hinted by chatgpt o3 :) -->
+			<!-- custom: kind of like ninjas hehe, and opens up to spy economy so interesting strategically or for flavor thematically i mean, advised/suggested/hinted by chatgpt o3 :) -->
 			<FreeSpecialistCounts>
 				<FreeSpecialistCount>
 					<SpecialistType>SPECIALIST_SPY</SpecialistType>
@@ -21585,7 +21585,7 @@
 					<iFreeSpecialistCount>1</iFreeSpecialistCount>
 				</ImprovementFreeSpecialist>
 			</ImprovementFreeSpecialists>
-			<!-- custom: military effect of no anger is too low for the building to be considered by military leaning eladers i think i mean, better not use it here so they can focus on building units or/and more relevant militarily buildings, was flavors growth 5, culture 4, military 2 -->
+			<!-- custom: military effect of no anger is too low for the building to be considered by military leaning eladers i think i mean, better not use it here so they can focus on building units or more relevant militarily buildings, was flavors growth 5, culture 4, military 2 -->
 			<!-- advc.020: Was 10 Growth, but also useful militarily and for
 				 culture. -->
 			<Flavors>
@@ -25790,7 +25790,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: (AdvCiv had reduced this to 10 if i may say xd...... but thanks for all changes really i mean now also me i.e. i am tweaking as i see fit or/and best fit or/and as i want too or not or yes or etc i mean anyways was 0 / 0 / 10 -->
+			<!-- custom: (AdvCiv had reduced this to 10 if i may say xd...... but thanks for all changes really i mean now also me i.e. i am tweaking as i see fit or best fit or as i want too or not or yes or etc was 0 / 0 / 10 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -27233,7 +27233,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make it available sooner so it is built before endgame, should also be historically or/and thematically quite accurate too, was the now removed TECH_PLASTICS -->
+			<!-- custom: make it available sooner so it is built before endgame, should also be historically or thematically quite accurate too, was the now removed TECH_PLASTICS -->
 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ELECTRICITY</PrereqTech>

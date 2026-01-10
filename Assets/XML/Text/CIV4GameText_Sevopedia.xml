@@ -44,7 +44,7 @@
 		<!-- custom: <English>National Wonders</English> -->
 		<English>N. Wond.</English>
 	</TEXT>
-	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now) -->
+	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS</Tag>
 		<!-- custom: <English>Great Wonders</English> -->
@@ -85,7 +85,7 @@
 	<!--				FEATURES CATEGORY				-->
 	<!-- custom: remove mention of the "terrain" in "terrain features" of the root sevopedia category, i think it's confusing, and hinders the (especially new) player's ease of grasping that terrains and features are 2 diferent things, there should be either "terrains" or "features", i think it's an easier way to approach these new "concepts" of civ4.
 	Not necessary to remove it everywhere, the sentences may become a bit weird too, but in	key visibility and isolated (not sentences), it should be a no brainer i think.
-	I also don't trust these translations, so putting the English version rather, maybe	easier this way or/and better long term.
+	I also don't trust these translations, so putting the English version rather, maybe	easier this way or better long term.
 	-->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_FEATURE</Tag>
@@ -120,7 +120,7 @@
 
 	<!-- custom: -->
 	<!--				IMPROVEMENTS CATEGORY				-->
-	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT specifically for the Improvements category title (or/and other places where it is used), we need a new TXT KEY for the Ressources/"Improvements" now though, see TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS i created for that
+	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT specifically for the Improvements category title (or other places where it is used), we need a new TXT KEY for the Ressources/"Improvements" now though, see TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS i created for that
 	-->
 	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
 	I've kept the FIS translations from there. -->
@@ -128,7 +128,7 @@
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
 		<English>Improv.</English>
 	</TEXT>
-	<!-- custom: make this a separate entry for headers or/and such or not such -->
+	<!-- custom: make this a separate entry for headers or such or not such -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM</Tag>
 		<English>Improvements</English>

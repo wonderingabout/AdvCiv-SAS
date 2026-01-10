@@ -12478,7 +12478,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		rOurVal *= fixp(0.75);
 	}
 
-	// <!-- custom: also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc.), AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided by chatgpt 5 thanks to my prompts and/or such, check if accurate -->
+	// <!-- custom: also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc.), AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided by chatgpt 5 thanks to my prompts or such, check if accurate -->
 	// --- 1) Generic AIObjective bump (broad rule) ---
 	static const bool bValueMoreAIObjectiveBonuses = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES");
 
@@ -12554,7 +12554,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		const bool bHaveAnyMount  = (bHaveHorse || bHaveCamel);
 
 		const EraTypes eCurrentEra = getCurrentEra();
-		// <!-- custom: as of now eras are (see xml for details or/and updated version -->
+		// <!-- custom: as of now eras are (see xml for details or updated version -->
 		// 18,5: 			<Type>ERA_ANCIENT</Type>
 		// 79,5: 			<Type>ERA_CLASSICAL</Type>
 		// 154,5: 			<Type>ERA_MEDIEVAL</Type>
@@ -15079,7 +15079,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
 }
 
 
-// <!-- custom: add helpers to count how many units of a combat type we have and/or such, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details; code of below helpers provided by chatgpt 5, check if accurate -->
+// <!-- custom: add helpers to count how many units of a combat type we have or such, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details; code of below helpers provided by chatgpt 5, check if accurate -->
 int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 {
 	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
@@ -18788,7 +18788,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	} */ /*	Disabled by K-Mod. This evaluation isn't accurate enough to be useful -
 			but it does sometimes cause civs to switch
 			to organized religion when they don't have a religion... */
-	// <!-- custom: this code looks very bad as per k-mod's admission but also as it seems to only value culture specialists (i don't know too much but check to be sure), and as chatgpt 5 confirms as well (check to be sure as well). We want to value engineer specialists for example for our as of now civic_wage_labor rework that gives unlimited engineers and that is never picked by ais, even though engineer are quite strong. So trying to value each specialist based on their strengths and time when they are relevant or/and such. Code provided by chatgpt 5 which i adjusted or/and such, check if accurate i mean -->
+	// <!-- custom: this code looks very bad as per k-mod's admission but also as it seems to only value culture specialists (i don't know too much but check to be sure), and as chatgpt 5 confirms as well (check to be sure as well). We want to value engineer specialists for example for our as of now civic_wage_labor rework that gives unlimited engineers and that is never picked by ais, even though engineer are quite strong. So trying to value each specialist based on their strengths and time when they are relevant or such. Code provided by chatgpt 5 which i adjusted or such, check if accurate i mean -->
 	// {
 	// 	int iTempValue = 0; // advc: Moved up to reduce rounding error
 	// 	int iMaxCultureChange = 0;

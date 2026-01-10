@@ -79,7 +79,7 @@
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CORE__CHECKFORUPDATES_HOVER</Tag>
-		<English>When checked, BUG will look for SVN updates and/or releases each time you launch Civilization and notify you when new ones are found.</English>
+		<English>When checked, BUG will look for SVN updates or releases each time you launch Civilization and notify you when new ones are found.</English>
 		<German>Lässt die BUG Mod bei jedem Spielstart nach SVN-Updates und/oder neuen offiziellen Versionen suchen und eine Meldung ausgeben, wenn aktuellere Versionen gefunden wurden</German>
 		<Italian>Quando è selezionato, il BUG Mod controllerà la disponibilità di aggiornamenti SVN e/o nuove versioni ogni volta che lancerai Civ4 e ti notificherà ciò che avrà eventualmente trovato.</Italian>
 		<Spanish>Si se activa, BUG comprobará si existen actualizaciones SVN o nuevas versiones estables cada vez que lanzas Civilization, y creará una notificación en caso de haberlas.</Spanish>

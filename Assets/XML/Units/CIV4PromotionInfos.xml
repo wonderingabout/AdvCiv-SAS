@@ -3,7 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- --><!-- Promotion Infos -->
-<!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or/and the code there in as of now the .cpp corresponding file(s) -->
+<!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or the code there in as of now the .cpp corresponding file(s) -->
 <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<PromotionInfos>
 
@@ -1857,7 +1857,7 @@
 			<Description>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or/and related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or/and first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or/and relevant in this case i mean -->
+			<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or relevant in this case i mean -->
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_MEDIC1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_LOGISTICS</PromotionPrereqOr2>
@@ -3044,7 +3044,7 @@
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<!-- custom: does the air strike mission of the fighters
-				(or/and similar type of units) apply in collateral damage
+				(or similar type of units) apply in collateral damage
 				calculation? Assuming yes, also adding air fighter unit
 				combat type here-->
 				<UnitCombat>
@@ -3168,7 +3168,7 @@
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<!-- custom: does the air strike mission of the fighters
-				(or/and similar type of units) apply in collateral damage
+				(or similar type of units) apply in collateral damage
 				calculation? Assuming yes, also adding air fighter unit
 				combat type here-->
 				<UnitCombat>
@@ -3292,7 +3292,7 @@
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<!-- custom: does the air strike mission of the fighters
-				(or/and similar type of units) apply in collateral damage
+				(or similar type of units) apply in collateral damage
 				calculation? Assuming yes, also adding air fighter unit
 				combat type here-->
 				<UnitCombat>
@@ -3392,7 +3392,7 @@
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<!-- custom: does the air strike mission of the fighters
-				(or/and similar type of units) apply in collateral damage
+				(or similar type of units) apply in collateral damage
 				calculation? Assuming yes, also adding air fighter unit
 				combat type here-->
 				<UnitCombat>
@@ -3469,7 +3469,7 @@
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<!-- custom: does the air strike mission of the fighters
-				(or/and similar type of units) apply in collateral damage
+				(or similar type of units) apply in collateral damage
 				calculation? Assuming yes, also adding air fighter unit
 				combat type here-->
 				<UnitCombat>

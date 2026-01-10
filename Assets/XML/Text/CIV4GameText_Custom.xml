@@ -106,7 +106,7 @@
 
 
 
-	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details) or/and (tranlslate to english ((following) web page) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
+	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details) or (tranlslate to english ((following) web page) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
 	<!-- advc.004c: Based on TXT_KEY_BUILDING_DEFENSE_MOD (see below).
 		 For the DefenseRaise XML tag. Use the defense icon and refer to
 		 non-gunpowder-based units as "pre-Renaissance". "Gunpowder-based" is

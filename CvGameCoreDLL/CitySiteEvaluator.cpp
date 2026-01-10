@@ -396,7 +396,7 @@ int AIFoundValue::evaluate()
 	int iTileCountIceCap = 0;
 	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert that is really bad and should strongly be ignored without overdoing it if site is otherwise good. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 26.2 of AI not going for a nearby site better in all regards with less desert and more hill grassland -->
 	int iTileCountVeryBadDesertNoBonus = 0;
-	// <!-- custom: again worse than tundra as has no food and no meaningful improvement; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail), and even if we could/can, the food penalty on these tiles is really high. We could count 0 food tiles that are not hills, but maybe do as such for clarity or/and such although is less flexible but maybe fine as such. We need to count these tiles and deter founding there if there are too much and no other conditions are met -->
+	// <!-- custom: again worse than tundra as has no food and no meaningful improvement; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail), and even if we could/can, the food penalty on these tiles is really high. We could count 0 food tiles that are not hills, but maybe do as such for clarity or such although is less flexible but maybe fine as such. We need to count these tiles and deter founding there if there are too much and no other conditions are met -->
 	int iTileCountVeryBadSnowNoBonus = 0;
 
 	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START");
@@ -607,7 +607,7 @@ int AIFoundValue::evaluate()
 					// }
 				}
 
-				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/founding cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too); note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
+				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/founding cities on coastal locations if environment is poor to make best of yields rather than starve soon (or dicentivize not doing so maybe too); note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
 				if ((eTerrainPlot == eTerrainPlains) || (eTerrainPlot == eTerrainTundra))
 				{
 					if (pLoopPlotIsHills)
@@ -1285,7 +1285,7 @@ int AIFoundValue::evaluate()
 	// 	iValue = adjustToBarbarianSurroundings(iValue);
 	// else if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 
-	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details -->
+	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details -->
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	if (!kSet.isStartingLoc() && !kSet.isNormalizing())
@@ -2175,7 +2175,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 	} // </advc.108>
 	if (eBestImprovement == NO_IMPROVEMENT)
 		return NO_IMPROVEMENT;
-	// <!-- custom: attempted improvement with chatgpt's help, as an extension of base advciv's commit https://github.com/f1rpo/AdvCiv/commit/1a372d417a6001e2afe2b40e69824b45fa375907 and approach i (actually yes was me... Hello youtube xd or whoever but not xd) asked f1rpo who kindly gave this partial fix, now trying to improve it, in particular with(/in?) regards to food yields being underestimated, but also the AI still planting (cities) on metals and often on food as wellso trying to fix or/and improve that at least. Again i don't know too much about these but this is a tentative approach with chatgpt's help and quite cautiously, hopefully safe perhaps even ideally and as intended in this case etcwould fix/improve the yield issue -->
+	// <!-- custom: attempted improvement with chatgpt's help, as an extension of base advciv's commit https://github.com/f1rpo/AdvCiv/commit/1a372d417a6001e2afe2b40e69824b45fa375907 and approach i (actually yes was me... Hello youtube xd or whoever but not xd) asked f1rpo who kindly gave this partial fix, now trying to improve it, in particular with(/in?) regards to food yields being underestimated, but also the AI still planting (cities) on metals and often on food as wellso trying to fix or improve that at least. Again i don't know too much about these but this is a tentative approach with chatgpt's help and quite cautiously, hopefully safe perhaps even ideally and as intended in this case etcwould fix/improve the yield issue -->
 
 	// Step 2: Add weighted yield scoring with food preference
 	// Still inside the FOR_EACH_ENUM(Yield) loop, calculate a weighted total yield score:
@@ -2951,7 +2951,7 @@ bool AIFoundValue::isTooManyTakenTiles(int iTaken, int iResourceValue) const
 	{
 		return (iTaken > NUM_CITY_PLOTS / 6);
 	}
-	// <!-- custom: compete for bonuses by having a bit tighter placement, but still overall do not like to crowd cities too close to each other, is very inefficient, look for best tiels rather in other parts of the code if handled there i mean such as where we refactored/reworked logic or/and in other places if any, and aim for later big city size -->
+	// <!-- custom: compete for bonuses by having a bit tighter placement, but still overall do not like to crowd cities too close to each other, is very inefficient, look for best tiels rather in other parts of the code if handled there i mean such as where we refactored/reworked logic or in other places if any, and aim for later big city size -->
 	else
 	{
 		return (iTaken > NUM_CITY_PLOTS / 4);
@@ -3368,7 +3368,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // }
 
 
-// <!-- custom: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI -->
+// <!-- custom: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results or lead to weaker AI -->
 // int AIFoundValue::adjustToBarbarianSurroundings(int iValue) const
 // {
 // 	int r = iValue;
@@ -3647,7 +3647,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		iValue -= iDistPenalty;
 // 		IFLOG logBBAI("%d from distance penalty (%d distance to %S)", iDistPenalty, iDistanceToOurNearestCity, cityName(*pOurNearestCity));
 
-// 		// <!-- custom: on top of that, add a num cities penalty, meaning the less cities we have, the more we care about them being close knit, but not necessarily in relation to capital, this would lead to too much star shaped empires and maybe miss locally fine or nice thin or such other shapes. What i care about is that cities are close to each other not necessarily to capital at all, and that they are not too close else their plots overlap as seems to be the case now, especially when we plant our cities; later in the game, more city spots would be taken, and our economy stronger to support them, and our military ideally stronger to protect them, so we can be more creative or/and combative about which spots we want maybe especially for local benefits, code added with the help of gemini ai thanks. -->
+// 		// <!-- custom: on top of that, add a num cities penalty, meaning the less cities we have, the more we care about them being close knit, but not necessarily in relation to capital, this would lead to too much star shaped empires and maybe miss locally fine or nice thin or such other shapes. What i care about is that cities are close to each other not necessarily to capital at all, and that they are not too close else their plots overlap as seems to be the case now, especially when we plant our cities; later in the game, more city spots would be taken, and our economy stronger to support them, and our military ideally stronger to protect them, so we can be more creative or combative about which spots we want maybe especially for local benefits, code added with the help of gemini ai thanks. -->
 // 		// --- Custom City Spacing Logic ---
 // 		// We want to avoid cities being too close, and to control how far they spread.
 // 		// We'll base this on the distance to the nearest city, not the capital.

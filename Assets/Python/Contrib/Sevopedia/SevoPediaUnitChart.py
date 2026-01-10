@@ -44,7 +44,7 @@ class SevoPediaUnitChart:
 
 
 
-	# <!-- custom: i did not know about this ChatGPT told me about this or made me understand it and solve it, so adding this explanation in case it helps others or/and me:
+	# <!-- custom: i did not know about this ChatGPT told me about this or made me understand it and solve it, so adding this explanation in case it helps others or me:
 	# in python, here for placeUnitTable function, when we call it using self.placeUnitTable(), self is passed automatically as an argument so no need to write it (else there would be 2 arguments) at function.
 	# However, in function definition, self is not known, so it needs to be defined as a parameter. This is why there is an apparent mismatch in the number of parameters vs arguments in placeUnitTable(self) vs self.placeUnitTable(), but this is how it should be done else it does not work.
 	# Thanks to ChatGPT for the guidance; adding this in case it helps others. (GPT-5.2-Codex (summarized)) -->
@@ -83,7 +83,7 @@ class SevoPediaUnitChart:
 		#szMove = "Moves"
 		szMove = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
 
-		# <!-- custom: display more potentially useful information, useful in AdvCiv-SAS and/or maybe other mods as well, also so that i don't have to maintain it everytime i make a micro (or big) change, more versatile and flexible this way too. -->
+		# <!-- custom: display more potentially useful information, useful in AdvCiv-SAS or maybe other mods as well, also so that i don't have to maintain it everytime i make a micro (or big) change, more versatile and flexible this way too. -->
 		#if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_NAVAL') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_SIEGE'):
 			# <!-- custom: imported and modified from base advciv in a similar way -->
 			#szSpecial = "Bombard"

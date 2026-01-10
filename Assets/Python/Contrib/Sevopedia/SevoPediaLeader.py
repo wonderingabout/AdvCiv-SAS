@@ -8,7 +8,7 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# --- AI Utilities and/or Personality Panel for normalization and general helpers for the SevopediaLeader category ---
+# --- AI Utilities or Personality Panel for normalization and general helpers for the SevopediaLeader category ---
 # Created as part of AdvCiv-SAS improvements
 # (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
 #
@@ -174,7 +174,7 @@ def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, i
 # <!-- custom: note: collapse this below function with the VS Code UI option or similar to see the line after function definition directly (i.e. as of now around line 1530, right after function definition line e.g. around line 100) for easier reading if desired. -->
 # <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main -->
 def _compute_leader_cache_internal():
-	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) -->
+	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
 	# Build once <!-- custom: at this function's scope as we don't need it outside of it but need it many times here -->
 	NUM_LEADERS = gc.getNumLeaderHeadInfos()
 	NON_EXCLUDED_LEADERS = tuple(i for i in xrange(NUM_LEADERS) if i not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)
@@ -358,7 +358,7 @@ def _compute_leader_cache_internal():
 		del temp_by_leader
 		del min_adj_rand, max_adj_rand, min_adj_delay, max_adj_delay
 
-	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) -->
+	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
 	MEM_POS_IDX = tuple(get_positive_memory_indexes_to_types().keys())
 	MEM_NEG_IDX = tuple(get_negative_memory_indexes_to_types().keys())
 
@@ -612,11 +612,11 @@ def _compute_leader_cache_internal():
 			"getFavoriteCivicAttitudeChange": ("Favorite Civic AC", False),
 			"getFavoriteCivicAttitudeDivisor": ("Favorite Civic AD", False),
 			"getFavoriteCivicAttitudeChangeLimit": ("Favorite Civic ACL", False),
-			# <!-- custom: attitude thresholds later in code in case we want to aggregate them or/and do aggregate them but not sure may or may not do -->
+			# <!-- custom: attitude thresholds later in code in case we want to aggregate them or do aggregate them but not sure may or may not do -->
 			# ==== VASSAL AND FREEDOM FIELDS (from XML order) ====
 			"getVassalPowerModifier": ("ResistCapitulP.M", False),
 			"getFreedomAppreciation": ("FreedomApprec", False),
-			# <!-- custom: then fields with nested or/and incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more) are handled separately later -->
+			# <!-- custom: then fields with nested or incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more) are handled separately later -->
 		}
 
 		# ==== ATTITUDE THRESHOLDS ====
@@ -666,7 +666,7 @@ def _compute_leader_cache_internal():
 		leader_info_maximums = {}
 
 		for iLeader in NON_EXCLUDED_LEADERS:
-			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) -->
+			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
 
 			for getter_name, (label, b_invert) in fields_with_direct_getters.items():
@@ -677,7 +677,7 @@ def _compute_leader_cache_internal():
 				value_attitude_threshold = getattr(loopLeaderHeadInfo, getter_name)()
 				computeAndStoreMinMaxOfOneKey(getter_name, value_attitude_threshold, leader_info_minimums, leader_info_maximums)
 
-			# <!-- custom: parse fields with nested or/and with incremental getters as flat fields with an alternative key so we can loop over them more easily and reorder them later if needed, also our code is more consistent this way -->
+			# <!-- custom: parse fields with nested or with incremental getters as flat fields with an alternative key so we can loop over them more easily and reorder them later if needed, also our code is more consistent this way -->
 			# ==== FLAVORS ====
 			for i in xrange(gc.getNumFlavorTypes()):
 				# <!-- custom: store them as a parsed key name since getter is incremental and does not directly reference the name of each flavor -->
@@ -793,7 +793,7 @@ def _compute_leader_cache_internal():
 		total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
 		room_for_first = max_length - total_tail_length
 		if room_for_first <= 0:
-			raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or/and that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
+			raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
 		# <!-- custom: minimum 1 to accomodate for the " " space character -->
 		key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
 
@@ -812,7 +812,7 @@ def _compute_leader_cache_internal():
 		# "getConquestVictoryWeight", " (39)", 19 → "Conquest (39)"
 		# "getSameReligionAttitudeChangeLimit", " (39)", 15 → "SameRelACL (39)"
 
-		# <!-- custom: first strip front and/or tail, for example "getSameReligionAttitudeChangeLimit" → "SameReligion"
+		# <!-- custom: first strip front or tail, for example "getSameReligionAttitudeChangeLimit" → "SameReligion"
 		if key_or_suffix.startswith("get"):
 			# <!-- custom: strip this front part ("get") first -->
 			key_or_suffix_without_front = key_or_suffix[len("get"):]
@@ -879,7 +879,7 @@ def _compute_leader_cache_internal():
 			"EQUAL_SCALE_SYMBOL": "=",
 		}
 
-		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now if i am not mistaken see latest value or/and code comments or/and docs for updated value or and info)) order -->
+		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now if i am not mistaken see latest value or code comments or docs for updated value or and info)) order -->
 		contact_index_labels = {
 			0: "Relig. Press.",		# CONTACT_RELIGION_PRESSURE
 			1: "Civic Press.",		# CONTACT_CIVIC_PRESSURE
@@ -950,7 +950,7 @@ def _compute_leader_cache_internal():
 		for iLeader in NON_EXCLUDED_LEADERS:
 			leader_info_cached = {}
 
-			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) -->
+			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
 
 			symbol_generics = all_symbols["RAW_SCALE_SYMBOL"]
@@ -1532,7 +1532,7 @@ class SevoPediaLeader:
 		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)     ;    (reverse-ratio: 1,1214)
 		# (extracted from the more detailed notes in modding ressources's readme about art design, please look at it or the filename containing these note samples or similar for details)
 		#
-		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not, anyways, )) (while also increasing the portrait/picture which i think is a bit small currently, maybe more immersive or/and pleasant or not, anyways, )
+		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not, anyways, )) (while also increasing the portrait/picture which i think is a bit small currently, maybe more immersive or pleasant or not, anyways, )
 		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 that i measured in game diplomacy (see above, anyways), while also increasing size (of the portrait anyways) anyways)
 		#
 		# This looks good but i want to try to increase it more (portrait size, anyways, ):
@@ -1562,7 +1562,7 @@ class SevoPediaLeader:
 		self.N_AI_TABLE_NUM = 3
 
 		# <!-- custom:
-		# 2) (most) relative dimensions or/and positions then -->
+		# 2) (most) relative dimensions or positions then -->
 
 		self.W_LEADERHEAD = self.W_LEADERHEAD_PANE - 30
 		self.H_LEADERHEAD = self.H_LEADERHEAD_PANE - 34
@@ -1625,7 +1625,7 @@ class SevoPediaLeader:
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
 
-		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or/and clearer or/and helpful or not or other etc anyways, -->
+		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or clearer or helpful or not or other etc anyways, -->
 		self.placeLeaderHeadPane()
 		self.placeFavorites()
 		self.placeHistory()
@@ -1633,7 +1633,7 @@ class SevoPediaLeader:
 		self.placeTraits()
 
 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached (but we still want the excluded leaders to be excluded from computation as it could and most likely will most often if not always affect the ranking and scores normalized of other leaders with this additional item
-		# This is especially useful for iLeader of LEADER_BARBARIAN (iLeader 0 at least as of now if i'm not mistaken) in particular that is somehow accessible in the sevopedia civilization category from the barbarian civ i mean anyways (which is also useful because we now display their city names for example, see sevopedia civilization for details about how we place city names in it now) -->
+		# This is especially useful for iLeader of LEADER_BARBARIAN (iLeader 0 at least as of now if i'm not mistaken) in particular that is somehow accessible in the sevopedia civilization category from the barbarian civ (which is also useful because we now display their city names for example, see sevopedia civilization for details about how we place city names in it now) -->
 		#
 		if (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
 			self.placeAIPersonalityPanel(iLeader)
@@ -1643,7 +1643,7 @@ class SevoPediaLeader:
 
 
 
-	# <!-- custom: wrap leader placement in a specific function for clarity or/and flexibility or not anyways, -->
+	# <!-- custom: wrap leader placement in a specific function for clarity or flexibility or not anyways, -->
 	def placeLeaderHeadPane(self):
 		screen = self.top.getScreen()
 		leaderPanelWidget = self.top.getNextWidgetName()
@@ -1653,7 +1653,7 @@ class SevoPediaLeader:
 
 
 
-	# <!-- custom: imported from RFC DOC (C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py) and modified or/and not for AdvCiv-SAS. -->
+	# <!-- custom: imported from RFC DOC (C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py) and modified or not for AdvCiv-SAS. -->
 	def placeFavorites(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()

@@ -211,7 +211,7 @@
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds</Button>
 		</BuildingArtInfo>
-		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time, and adjusted or not for advciv-sas, very pretty result or/and pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doing or and doworth it i would say maybe yes in this case but anywas etc -->
+		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time, and adjusted or not for advciv-sas, very pretty result or pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doing or and doworth it i would say maybe yes in this case but anywas etc -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HOSPITAL</Type>
 			<LSystem>LSYSTEM_2x1</LSystem>

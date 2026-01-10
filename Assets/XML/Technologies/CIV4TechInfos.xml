@@ -2144,7 +2144,7 @@
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<!-- custom: if AI does not get pottery as a free tech, it is however still a quite important tech. Getting cottages or/and
+			<!-- custom: if AI does not get pottery as a free tech, it is however still a quite important tech. Getting cottages or
 			starting to build a granary sooner should help the AI, although not as much (i think) as more military or expansion focused techs -->
 			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -2297,7 +2297,7 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<!-- advc.131b -->
-			<!-- custom: if AIs want to get an early lighthouse or/and moai or/and galleys, it may not be so useless in some contexts
+			<!-- custom: if AIs want to get an early lighthouse or moai or galleys, it may not be so useless in some contexts
 			Rebalance the priorities of techs elsewhere (such as in free tech handicaps for example) , was -100 -->
 			<iAIWeight>-20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -2706,7 +2706,7 @@
 			variety of gameplay between AIs possibly ideally maybe, was 0. -->
 			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 400 -->
+			<!-- custom: trying to make tech pace more gradual or accurate, was 400 -->
 			<iCost>140</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5660,7 +5660,7 @@
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
-			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or/and such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or/and startegically interesting as such, was 0 -->
+			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or startegically interesting as such, was 0 -->
 			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
@@ -6293,7 +6293,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_FASCISM</PrereqTech>
 			</OrPreReqs>
-			<!-- custom: the TECH_THEORY_OF_EVOLUTION requirement allows to not beeline too fast from past military or such techs, plus not nonsensical e.g. hitler into eugenics which leans into choosing best genes via evolution or/and such maybe if one were to find a tentative explanation i just got xd but that i think works quite well or/and is maybe as well quite relevant -->
+			<!-- custom: the TECH_THEORY_OF_EVOLUTION requirement allows to not beeline too fast from past military or such techs, plus not nonsensical e.g. hitler into eugenics which leans into choosing best genes via evolution or such maybe if one were to find a tentative explanation i just got xd but that i think works quite well or is maybe as well quite relevant -->
 			<AndPreReqs>
 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>

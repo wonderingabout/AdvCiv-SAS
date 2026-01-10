@@ -318,7 +318,7 @@ class SevoPediaBuilding:
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
 
-		# <!-- custom: 2 Direct Yield Changes (like Food, Production, Gold), and Yield Modifiers (Food +x%, Production +x%, Gold +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and(2) -->
+		# <!-- custom: 2 Direct Yield Changes (like Food, Production, Gold), and Yield Modifiers (Food +x%, Production +x%, Gold +x%) with power breakdown added thanks to Claude AI and my prompts or tweaks/adjustments or not or yes or and but or not but or and(2) -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = buildingInfo.getYieldChange(k)
 

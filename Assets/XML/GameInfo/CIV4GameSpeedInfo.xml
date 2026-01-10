@@ -462,7 +462,7 @@
 
 
 
-		<!-- custom: note: old bts-claimed old base advciv marathon commented out timeline removedas we don't use it and we in fact reduced further the number of turns in marathon as of now so no longer relevant to us, but comment kept if informative or/and for reference -->
+		<!-- custom: note: old bts-claimed old base advciv marathon commented out timeline removedas we don't use it and we in fact reduced further the number of turns in marathon as of now so no longer relevant to us, but comment kept if informative or for reference -->
 		<!-- advc.252: Can uncomment this (and delete the one above)
 			 to restore, by and large, the BtS Marathon modifiers.
 			 May then also want to increase the threshold for Legendary culture
@@ -575,7 +575,7 @@
 				<!-- 2080 to 2105 (25y) → 50 turns @ 0.5 y/turn (6 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
-			<!-- custom: old base advciv code comments kept for reference or/and info but this is a new timeline based as of now on the new gamespeed_normal one in our mod -->
+			<!-- custom: old base advciv code comments kept for reference or info but this is a new timeline based as of now on the new gamespeed_normal one in our mod -->
 			<!-- advc.252: end -->
 			<!-- advc.910: Changed all of the turn counts,
 				 some of the increments. -->

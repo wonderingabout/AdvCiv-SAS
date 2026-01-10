@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<!-- custom: adding our own AdvCiv-SAS knobs/tunables so that players or me xdcan tweak/modify them without having to recompile each time which is tedious; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know) or/and check in code of relevant function(s) -->
+<!-- custom: adding our own AdvCiv-SAS knobs/tunables so that players or me xdcan tweak/modify them without having to recompile each time which is tedious; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know) or check in code of relevant function(s) -->
 <!-- custom: note: using the prefix is a bit cringe xd but at same time cool and does some publicity, but most importantly it gives us freedom while being compactto name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd but now think it makes sense), check if accurate -->
 <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such) but check to be sure if in doubt -->
-<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders), check to be sure -->
+<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders), check to be sure -->
 <!-- custom: note 4: i did not add it here to avoid having issues or a complicated implementation, but a few places use the hardcoded mod name such as as of now "AdvCiv-SAS" instead for example of "AdvCiv". To find these places easily, i generally wrote a comment that has something like "our mod AdvCiv-SAS" or "mod AdvCiv-SAS" or "AdvCiv-SAS Mod" or something similar so they can be found more easily to change them in case you change the mod's name. -->
 <!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate). -->
 <!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while -->
@@ -220,7 +220,7 @@
 
 
 
-	<!-- custom: some players don't like units terrain or/and feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
+	<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
 	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
 	<Define>
 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
@@ -352,7 +352,7 @@
 		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_GRASS</DefineName>
 		<iDefineIntVal>-75</iDefineIntVal>
 	</Define>
-	<!-- custom: very valuable, better avoid settling on this plot if we can unless otherwise the best or/and very good locally -->
+	<!-- custom: very valuable, better avoid settling on this plot if we can unless otherwise the best or very good locally -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS</DefineName>
 		<iDefineIntVal>-50</iDefineIntVal>
@@ -500,7 +500,7 @@
 
 
 
-	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details
+	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	-->
@@ -1310,7 +1310,7 @@
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: here is the logic i drafted (updated bit but refer to below code comments per define rather for clarity with updated values there as well) to chatgpt 5 after some back and forth and consideration:
-	Note: since it is technical and i didn't reread and/or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct
+	Note: since it is technical and i didn't reread or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct
 
 	if we have no horse nor camel nor elephants pre medieval, increase them to 1.5x
 	if we have no metal pre medieval, increase them to 1.5x
@@ -1748,7 +1748,7 @@
 	<!-- Formula: Modifier = [(MULT * Base * PowerBlocPercent) + MULT_ADD] / [(DIVIDER_MULT * ReligionFlavor) + DIVIDER_ADD] -->
 	<!-- Base = Personality-based value (50-95), PowerBlocPercent = 0-100 based on power of civs sharing religion -->
 	<!-- Example: 70% power bloc, Base=75, Flavor=5: [(10*75*70)+0] / [(1*5)+0] = 52500/5 = 10500% -->
-	<!-- custom: note: as noted by chatgpt 5.1 in a similar example thanks , in this example this would result in multiplying base value by 105 (10500 percent = 105) which is a "huge" "boost" as per its words but may be fine i think (check if accurate though as this is just a guess of mine) to account for military power more in religion value. Adjust as you see fit or/and based on autoplay or whatever. -->
+	<!-- custom: note: as noted by chatgpt 5.1 in a similar example thanks , in this example this would result in multiplying base value by 105 (10500 percent = 105) which is a "huge" "boost" as per its words but may be fine i think (check if accurate though as this is just a guess of mine) to account for military power more in religion value. Adjust as you see fit or based on autoplay or whatever. -->
 	<!-- Increasing MULT amplifies diplomatic weight. Increasing DIVIDER_ADD reduces flavor penalty for low-religion leaders. -->
 	<!-- Multiplier for diplomatic modifier. Higher = stronger diplomatic influence. Min: 0 -->
 	<Define>
@@ -1907,7 +1907,7 @@
 
 
 
-	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather. We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or/and low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities; also this serves as a nice sanity to not fallback no production too soon when city is really small and could build other things next turn rather like a granary or such based on autoplay results if i'm not mistaken in my understandig i mean. -->
+	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather. We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities; also this serves as a nice sanity to not fallback no production too soon when city is really small and could build other things next turn rather like a granary or such based on autoplay results if i'm not mistaken in my understandig i mean. -->
 	<!-- classify "mostly water inner ring" cities in CvCity::doTurn. If the 8 inner BFC tiles (excluding the city) have <= this many non-water, non-peak tiles, we treat the city as hammer-poor, low-risk island/peninsula for emergency rules (Walls/Castle, fallback units, and optionally Harbor). Example: 2 means 0, 1, or 2 land tiles. -->
 	<Define>
 		<DefineName>SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY</DefineName>

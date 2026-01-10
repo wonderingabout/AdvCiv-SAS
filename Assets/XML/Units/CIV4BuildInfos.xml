@@ -29,7 +29,7 @@
 			<Type>BUILD_RAILROAD</Type>
 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
 			<Help/>
-			<!-- custom: TECH_RAILROAD is an inefficient or/and inaccuratetech and is now removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner -->
+			<!-- custom: TECH_RAILROAD is an inefficient or inaccuratetech and is now removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner -->
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<iTime>300</iTime>
 			<iCost>0</iCost>
@@ -283,7 +283,7 @@
 			<Type>BUILD_WATERMILL</Type>
 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
 			<Help/>
-			<!-- custom: seems historically more accurate or/and meshes or fits better with our reworked tech tree sooner, was TECH_MACHINERY -->
+			<!-- custom: seems historically more accurate or meshes or fits better with our reworked tech tree sooner, was TECH_MACHINERY -->
 			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -370,7 +370,7 @@
 			<Type>BUILD_QUARRY</Type>
 			<Description>TXT_KEY_BUILD_QUARRY</Description>
 			<Help/>
-			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine, if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or/and tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
+			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine, if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>600</iTime>
 			<iCost>0</iCost>

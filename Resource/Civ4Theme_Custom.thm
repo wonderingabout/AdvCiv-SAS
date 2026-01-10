@@ -1691,7 +1691,7 @@ with GFC_Control_Panel
 		}
 
 	//Main start menu panel (Blue start menu panel)
-	// <!-- custom: replace some of this code in an attempt to remove the blue rectangle background color in main menu or/and make it transparent instead, to show our main menu background image nicer without this, done with the help of chatgpt 5, check if accurate; note: see also changes at style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style -->
+	// <!-- custom: replace some of this code in an attempt to remove the blue rectangle background color in main menu or make it transparent instead, to show our main menu background image nicer without this, done with the help of chatgpt 5, check if accurate; note: see also changes at style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style -->
 	style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style
 		{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);

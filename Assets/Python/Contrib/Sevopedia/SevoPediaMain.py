@@ -510,7 +510,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink):
-		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now in known issues of advciv-sas readme for details as well. -->
+		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or known issue number 22 as of now in known issues of advciv-sas readme for details as well. -->
 		bAddToHistory = False
 		if (not self.pediaHistory):
 			bAddToHistory = True
@@ -671,7 +671,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.TOC_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + u"</font>"
 		self.INDEX_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + u"</font>"
 
-		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or/and such -->
+		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or such -->
 		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
@@ -758,7 +758,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			#
 			# Not increasing this further to accomodate the -1 for
 			# other languages, as they are unlikely to use such long
-			# texts anyway, and i really need or/and want the extra
+			# texts anyway, and i really need or want the extra
 			# space (that is not so useful in categories headers
 			# i think, but anyways), was 16
 			# --> 

@@ -83,7 +83,7 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 			<Civilopedia>TXT_KEY_CONCEPT_LIBERATION_PEDIA</Civilopedia>
 		</ConceptInfo>
 
-		<!-- custom: these old vanilla civ4 concepts (if i am not mistaken)
+		<!-- custom: these old vanilla civ4 concepts
 		were already in BasicInfos.XML, and are now (in the Sevopedia) instead,
 		displayed alongside the Concepts (almost all, except BTS rules
 		changes).

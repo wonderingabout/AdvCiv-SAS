@@ -85,7 +85,7 @@ Was not easy to find how so i am glad i found how so hopefully these instruction
 
 ### Download media assets for example on youtube
 
-Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions: i have to cover myself xd.
+Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions: i have to cover myself xd.
 
 Disclaimer 2: Specifically about downloading from youtube, it seems from chatgpt's explanation and what i understand of it that even if a media file is public domain, downloading it from youtube may violate a license for example if the recording is not public domain, it is your responsibility to verify and make sure you use a copyright-compliant media file for the general instructions below that i provide in hope they help and without any warranty, in addition to any disclaimers in main readme's copyright section and and in this modding_ressources section as well
 
@@ -103,7 +103,7 @@ Here is now (I like this theatrical performance of an announcer i am performing 
 
 But while writing this, it now played this very nice or cool/relaxing soft if as they say if i may say too in this caseor not or etc, from [this youtube playlist](https://www.youtube.com/watch?v=MM2-z8inpY8&list=PLfP6i5T0-DkLlj5LDluZcpP9n6YlATpSG&index=3) for example; also adding what i know of yt-dlp or not or yessuch as using `-x`
 
-(note: personally i also removed the thumbnail as it makes file needlessly heavier, plus may cause bugs or not (untested but maybe or maybe not), also i prefer it more abstract i think? Not sure but is as it is, enable thumbnail if you want) (edit: also so i don't have to worry needlessly about whether/if the image itself is or may be copyrighted xd so hopefully or/and maybe best for all or in/for all cases or not or yes or etc but is as i want it at least in advciv-sas)
+(note: personally i also removed the thumbnail as it makes file needlessly heavier, plus may cause bugs or not (untested but maybe or maybe not), also i prefer it more abstract i think? Not sure but is as it is, enable thumbnail if you want) (edit: also so i don't have to worry needlessly about whether/if the image itself is or may be copyrighted xd so hopefully or maybe best for all or in/for all cases or not or yes or etc but is as i want it at least in advciv-sas)
 
 ```bash
 yt-dlp -x https://www.youtube.com/watch?v=MM2-z8inpY8 --audio-format mp3 --add-metadata
@@ -135,7 +135,7 @@ Note 2: there are other websites than youtube to download or find music, includi
 
 ### add media assets
 
-Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions; i have to cover myself xd.
+Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions; i have to cover myself xd.
 
 To add music to a leader in advciv-sas for example (i assume would be the same or very similar in an advciv or civ4 based mod too if i am not mistaken), do a vs code global search for example of "ewuare_" (new leader we added in advciv-sas for the kingdom of benin) and see in audio xml files (and also a bit in leaderhead too if you track where the corresponding assets such as for example "DIPLO_EWUARE_EARLY" lead to in the leader head info xml file too) for an example of how we added his music.
 
@@ -161,7 +161,7 @@ I started this habit somewhere in this advciv-sas mod development i mean but is 
 
 It can be useful to keep a .txt copy of the full git log of your project, for grep with a global search (for example with VS Code) or such. You can gain while doing so precious information about some features you want to know more about.
 
-To create a git log based on past commits using a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user):
+To create a git log based on past commits using a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths or such similar things anyways if not steam user):
 
 ```shell
 # 1. Set your commit hashes here
@@ -179,7 +179,7 @@ For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Com
 
 ### how to create/edit git tags at specific commits with a tag message
 
-Thanks to the help of chatgpt 5, and me noticing how based on past experience or/and such or current observation, what i mean is [git/github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) can be very useful to manage versions, provide download links, possibly also use as compare points to remember which commit they were at precisely and fast without needing to remember it yourself.
+Thanks to the help of chatgpt 5, and me noticing how based on past experience or such or current observation, what i mean is [git/github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) can be very useful to manage versions, provide download links, possibly also use as compare points to remember which commit they were at precisely and fast without needing to remember it yourself.
 
 For example, AdvCiv-SAS 4986 is available at the [4986 git/github tag](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986)
 
@@ -329,15 +329,15 @@ Please read these docs (highly recommended) if you want to know more about AI at
 
 ## A few useful other links
 
-- many links in the main README.md first for example maybe indeed or not or yes or and other or and not etc in the [main README.md 's page link](/README.md)
-- todo: tutorial on how to compile the DLL and/or files for Advciv (but should not be needed if you only modify XML files if i am not mistaken)
+- many links in the main README.md first for example maybe indeed in the [main README.md 's page link](/README.md)
+- todo: tutorial on how to compile the DLL or files for Advciv (but should not be needed if you only modify XML files if i am not mistaken)
 - [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what i use thanks to the person(s) who taught me about it) or other uses or such.
-- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point if i am not mistaken indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr or not or yes or and other or and not) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o, thanks a lot Claude AI and thanks to me too or and other or and not , hopefully helpful or not or yes or and other or and not
+- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point if i am not mistaken indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o, thanks a lot Claude AI and thanks to me too or and other or and not , hopefully helpful
 - todo add links if i have/want(/do) more to add
 
 ## In case UnitAIs info from link above is deleted someday, here is a copy here in case
 
-quote from website linked before, and adjusted or not or yes or not or yes or and other or and not for AdvCiv-SAS (mod +/- project) :
+quote from website linked before, and adjusted or not or yes for AdvCiv-SAS (mod +/- project) :
 
 ```text
 This is based on BBAI, so default BtS may be slightly different:
@@ -530,7 +530,7 @@ bool const isLandMap = (
 
 Note: not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too
 
-As for implementation, see what i did for example in as of now `isNavalHeavyMap` and `isLandHeavyMap` but check if it is accurate or/and there is a better way to characterize maps or not
+As for implementation, see what i did for example in as of now `isNavalHeavyMap` and `isLandHeavyMap` but check if it is accurate or there is a better way to characterize maps or not
 
 See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc).
 
@@ -565,11 +565,11 @@ Which would help you solve them, in my case by doing a global search, finding th
 
 In CivilizationIV.ini (for example as for me in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` path, update to your own windows user account path), there is an option that you can set to `generatecrashdumps = 1`.
 
-It is useful in issues such as for example [57 - (Not reproducible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproducible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots bu tanyways etc.
+It is useful in issues such as for example [57 - (Not reproducible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproducible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots.
 
 I don't know too much about these nor can really read these .dmp files, but Visual 2010 C++ Express seemingly can, and so can WinDbg although that may be bit trickier/harder (but check if accurate again as i don't know too much about this).
 
-The exception/error info as well as possibly some other things i don't know about could help pinpoint the crash possible type of cause and/or try to solve it and/or such.
+The exception/error info as well as possibly some other things i don't know about could help pinpoint the crash possible type of cause or try to solve it or such.
 
 I don't know too much about these but i thought i'd compile (no pun) this info quick if helps, hopefully helpful or not or yes or etc.
 
@@ -592,7 +592,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
   4328,17: BOOL isRiverSideMakesValid ()
 ```
 
-Then feed it to chatgpt with the makes valid entire method (a dozen or 2 dozen lines hehe as of now, which i only display for concision these fewer lines here) so it can help me fix it thanks chatgpt if i may say or maybe me too thanks to em too i mean or yes or not or yes or etc:
+Then feed it to chatgpt with the makes valid entire method (a dozen or 2 dozen lines hehe as of now, which i only display for concision these fewer lines here) so it can help me fix it thanks chatgpt:
 
 ```python
 		for iTerrain in xrange(gc.getNumTerrainInfos()):
@@ -636,11 +636,11 @@ Which works perfectly to selectively search strategy xml fields that are not txt
 
 ## Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)
 
-See screenshots or/and files about this in this [google drive folder link](https://drive.google.com/drive/folders/17FJs8tJy6g7SOsvtaRd5wVuX96mbmR_u?usp=sharing)
+See screenshots or files about this in this [google drive folder link](https://drive.google.com/drive/folders/17FJs8tJy6g7SOsvtaRd5wVuX96mbmR_u?usp=sharing)
 
 This is something that may seem obvious but i didn't know it until i noticed someone explaining something to me (thanks xd hehe) mention it.
 
-For example, say you want to add or/and change some code related to basicinfos xml file in your mod. If you do a global search with vs code at root of civ4 folder (as for me for example it is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\`) (note: not to be confounded with the BTS folder that is a subfolder of the former civ4 vanilla one at least in the steam version of civ4 bts it seems, and so that is in instead : `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\`), you'll find results in many files and folders related to such code samples you looked for.
+For example, say you want to add or change some code related to basicinfos xml file in your mod. If you do a global search with vs code at root of civ4 folder (as for me for example it is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\`) (note: not to be confounded with the BTS folder that is a subfolder of the former civ4 vanilla one at least in the steam version of civ4 bts it seems, and so that is in instead : `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\`), you'll find results in many files and folders related to such code samples you looked for.
 
 Or easier, if you use a tool like wiztree to search for said files (e.g. basicinfos xml file in this example) in root of civ4 folder (which as for me is the vanilla steam civ4 folder mentionned before), you see something as in the screenshot, so many basicinfos xml files:
 
@@ -652,9 +652,9 @@ I don't know too much about these, but it seems to me that these are different v
 
 Sometimes the differences are small, sometimes the differences are huge as here, so which version to pick? Generally if you play bts i'd say pick latest, but again i don't know for sure, so i compiled this info since it would have been nice to know when i started modding, hopefully helpful and helps you if you want to start your mod.
 
-In this case i guess they changed the way old code worked or/and split it among other files or did some massive change that would explain the difference, but check if accurate as these are also just guesses of mine that may be accurate but i don't know for sure.
+In this case i guess they changed the way old code worked or split it among other files or did some massive change that would explain the difference, but check if accurate as these are also just guesses of mine that may be accurate but i don't know for sure.
 
-Also as a corollary of this, if you see many versions of an asset, say `UNIT_WARRIOR` in different versions of unit infos, and you want to import it in your mod and modify it if not already there, generally i would say import latest version of it (so the BTS one), or you could even fetch it / steal it xd from other mods if they are okay with it (generally are but check as this is also just a guess, as for my mod generally fine too but read copyright and license section if you are in doubt or as the absolute reference despite what i said here in [README.md#license-and-reuse](/README.md#license-and-reuse) for the assets or/and any form of content i added or modified (or removed too but then you can't steal it xd if i may say unless you steal the idea then same applies maybe or not as removing maybe doesn't require asking as weird as it is maybe but in all cases check if accurate too in license section of this mod's main readme if in doubt or/and to be sure)).
+Also as a corollary of this, if you see many versions of an asset, say `UNIT_WARRIOR` in different versions of unit infos, and you want to import it in your mod and modify it if not already there, generally i would say import latest version of it (so the BTS one), or you could even fetch it / steal it xd from other mods if they are okay with it (generally are but check as this is also just a guess, as for my mod generally fine too but read copyright and license section if you are in doubt or as the absolute reference despite what i said here in [README.md#license-and-reuse](/README.md#license-and-reuse) for the assets or any form of content i added or modified (or removed too but then you can't steal it xd if i may say unless you steal the idea then same applies maybe or not as removing maybe doesn't require asking as weird as it is maybe but in all cases check if accurate too in license section of this mod's main readme if in doubt or to be sure)).
 
 Hopefully helpful.
 
@@ -866,7 +866,7 @@ In the note 2 example, increasing size to for example 1024 also works, we get a 
 
 note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enoughat least as proof of concept further, see the great person button code in place Stats of sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too), see screenshot(s) in drive link above for details
 
-See also [Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml](/Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml) for details or and other or and not or yes or and other or etc, see also also [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml) for extra details or/and adidtional or and alternative or and related or and other or and not or etcinformation or not or yes or and other or and not.
+See also [Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml](/Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml) for details or and other or and not or yes or and other or etc, see also also [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml) for extra details or adidtional or and alternative or and related or and other or and not or etcinformation.
 
 note 4: we later also used these/this approach for/to use images as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity.. hehe or not or eys or etc or both or none or other or not, is what i want or maybe rather like to do or not, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now
 
@@ -882,7 +882,7 @@ Note: be careful, in some mods/cases the assets such as nif may be scattered acr
 
 note 2: sometimes the .kfm is base civ4 for example of the of arabian old camel archer so can't find it in the ri mod, a hint to that may be if a ctrl+f of the filename for example "ArabiaCamelArcher.kfm" with one result in our art assets xml before we added it from another mod in the xml, or 2+ results after adding the .kfm in xml too (before finding the actual .kfm file in the mod, then it i very likely the .kfm is a base civ4 file and thus can't be found in any mod unless they especially copy it again in exact same path or path specified which there should be no strong reason to do ince the file already exists in base civ4), so in short if can't find the .kfm or maybe perhaps even the .nif in the mod, in any .fpk or such mod files too perhaps, then maybe the file is a base civ4 one so just leave path as it is without changing path to your mod specific paths, for example for the camel archer `Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm` (default keep as is) not `Art/AdvCiv_SAS/Units/Camel_Archer/nif/ArabiaCamelArcher.kfm` while desperately trying to find a file that maybe doesn't exist, but many assets have their own ;kfm though so make sure to search too, but generally they should be in path specified in one of the .fpks of the mod or raw path if they don't use fpk for this asset, hopefully helpful, if still no luck try to find the asset in another mod perhaps, hopefully i found the trick before ditching the ri mod files i had already downloaded, so all works, hopefully helpful...
 
-Like this for example if it helps too... (not sayin this is a standard or ideal to follow, but free or fine maybe to do just i don't know if is best practice or such, but since it works-functions you may use freely this template, evn if it didn't work btw maybe, regardless in all cases here is an example that hopefully or/and maybe helps but in all cases)
+Like this for example if it helps too... (not sayin this is a standard or ideal to follow, but free or fine maybe to do just i don't know if is best practice or such, but since it works-functions you may use freely this template, evn if it didn't work btw maybe, regardless in all cases here is an example that hopefully or maybe helps but in all cases)
 
 ```xml
 			<NIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal.nif</NIF>
@@ -898,7 +898,7 @@ note 3.2 / update: i have found that as of now for ri mod in particular, downloa
 
 Old information from my notes, now we use leader portraits (nif) with an animation, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful to me or others maybe so adding them for reference.
 
-Note: if you want to add leaders or other kinds of button art assets or such, below instructions aim to help at that even though they may not be 100% accurate or best practive, but may be maybe or not; however it should also be noted if i may say i mean anyways that it may be easier to rather import existing art assets from many mods, but if you want to import your own manual art asset, perhaps as static images .dds files, this is how i do it, not guaranteed is best way to do it, may or may not be, but it worked and hopefully helpful enough if you want to do so, otherwise i would recommend in general or all cases to maybe import directy already refined art assets from other mods, adjust as you see fit.
+Note: if you want to add leaders or other kinds of button art assets or such, below instructions aim to help at that even though they may not be 100% accurate or best practive, but may be maybe or not; however it should also be noted that it may be easier to rather import existing art assets from many mods, but if you want to import your own manual art asset, perhaps as static images .dds files, this is how i do it, not guaranteed is best way to do it, may or may not be, but it worked and hopefully helpful enough if you want to do so, otherwise i would recommend in general or all cases to maybe import directy already refined art assets from other mods, adjust as you see fit.
 
 Leader dimensions obtained using Paint.NET manual selection (approximately but should be quite precise but not guaranteed may or not anyways) on a 4K screen windowed mode.
 
@@ -951,7 +951,7 @@ image: 499 x 610
 
 (note 2: it is also Realism Invictus who gave me indirectly the idea to do this non ratio (2nd) resize, now my image as theirs do not maintain aspect ratio)
 
-- finally, save the image as a .dds file using Paint.NET still (for example), (may use for example maybeDXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried so far todo or not, anyways, ) for example if you need/use transparency (i don't know a lot about this, is according to ChatGPT's info, which seems accurate about this at least, anyways, ) and i don't know if gamma would be needed or best desired here too maybe, refer to ChatGPT or maybe other specialized places/sources if you want a more specific or/and detailed or/and accurate info maybe)
+- finally, save the image as a .dds file using Paint.NET still (for example), (may use for example maybeDXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried so far todo or not, anyways, ) for example if you need/use transparency (i don't know a lot about this, is according to ChatGPT's info, which seems accurate about this at least, anyways, ) and i don't know if gamma would be needed or best desired here too maybe, refer to ChatGPT or maybe other specialized places/sources if you want a more specific or detailed or accurate info maybe)
 
 - ingame check result, in my case looks very nice or as nice as could i think with starting image, displays well in (ingame) sevopedia leader view and ingame diplomacy
 
@@ -967,12 +967,12 @@ So for example you can first make a 96 x 96 crop selection around his head with 
 
 Note: if at 64x64 your leader head is too big or maybe too small, you may try instead to make a bigger selection of say for example 96 x 96 or maybe even 128 x 128 (or any number inbetwwen like 105 x 105, 99 x 99, etc should maybe work too? (to try i didn't but if you want to try it)) and then resize it to 64x64, this way leader head would be smaller relatively to the 64 x 64 button.
 
-Then regenerate the .dds in a similar manner than for the full portrait, but no restretching from say 256x512 to 512x512 since 64x64 is alreayd square so just pick same format maybe or/and other and should maybe be good (check to be sure myinfo/thought/feel/intutiion about it is accurate or not anwyays etc)
+Then regenerate the .dds in a similar manner than for the full portrait, but no restretching from say 256x512 to 512x512 since 64x64 is alreayd square so just pick same format maybe or other and should maybe be good (check to be sure myinfo/thought/feel/intutiion about it is accurate or not anwyays etc)
 
 And finally implement it (the .dds) in XML, looks very very good, at least for me i think, anyways, may or not do further beautification or not such as rounded edges or other things or not, but more than good enough for my purpose and i do what i want if i want or not anyways, hope this helps or not maybe doesn't, but wanted to send/write this as well, may serve me to reference it later again, or
 someone else or other purpose, anyways,
 
-(note: again check all this to make sure my intution or if no or/and such is accurate or/and updated, hopefully helpful)
+(note: again check all this to make sure my intution or if no or such is accurate or updated, hopefully helpful)
 
 ## .dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in sevopedia unit's unit pane('s icon frame)
 
@@ -984,7 +984,7 @@ Similarly, too high image size such as 1024 seems to result in a too pixelated i
 
 All image and .dds files at different sizes used in the below experiment/analysis are available in this [.dds comparison and analysis Google Drive folder link](https://drive.google.com/drive/folders/1_ACul0v892_wqODLBhjYdEoSobhvGiHZ?usp=sharing)
 
-I have taken this 1024 .png generated image for the 164px icon frame (unit pane) in sevopediaunit. But i made a small mistake, which hopefully doesn't alter too much the interpretation of the results, is that i added a + 2 to icon size, because i thought this is how borders (the blue edges are made), but now i understand they are part of the image indeed and not generated by civ4 during rendering, even though i saw such edges before, i didn't (couldn't? Or not or yes or and other or and not or etc) make the connection at that time that these are those...
+I have taken this 1024 .png generated image for the 164px icon frame (unit pane) in sevopediaunit. But i made a small mistake, which hopefully doesn't alter too much the interpretation of the results, is that i added a + 2 to icon size, because i thought this is how borders (the blue edges are made), but now i understand they are part of the image indeed and not generated by civ4 during rendering, even though i saw such edges before, i didn't know that these are those.
 
 So i have converted it to various sizes with Paint.NET from .png to .dds, always exiting the program (Paint.NET) and reopening the original 1024 x 1024 generated .png of ChatGPT at each new size conversion, if size is smaller than original (1024), i would thus (to explain and be exhaustive) resize image, then save as .dds, then exit
 
@@ -1029,9 +1029,9 @@ The results, minus the small and ideally not too altering + 2 to icon size i mad
 
 This may or not apply to buttons, but need to display them at same size than others in the end (else the "overflow" out of the button box like for the 84px button or 128px or 96px or bigger ones too, but they also do not overflow in the unit pane even if 1024 or 256 is way bigger than 512px, todo find how/why, and todo look ingame if images fit in the button box or "overflow" out of it too)
 
-Ideally i would redo the experiment without the uneeded and inaccurate due to my misunderstanding(of) + 2, but is a bit too tedious, ideally would, but may or may not do, hopefully interpretable enough or/and helpful enough or maybe not or yes or etc or and other or and not
+Ideally i would redo the experiment without the uneeded and inaccurate due to my misunderstanding(of) + 2, but is a bit too tedious, ideally would, but may or may not do, hopefully interpretable enough or helpful enough or maybe not or yes or etc or and other or and not
 
-Note: ingame (map and playing an actual game), the game crashes after a few turn with a 1024px, freezes without end seemingly at 256px so exiting it after a short time of a few seconds or/and such, and similarly at 128px when trying to enter debug mode just like in 128px, at least (all this happens) with default game settings which i don't know a lot about at least not now or and always or and not but in all cases, (so) not using them for now (or maybe a smaller size that doesn't crash or/and displays accurately) if not always or not or yes or and other or and not
+Note: ingame (map and playing an actual game), the game crashes after a few turn with a 1024px, freezes without end seemingly at 256px so exiting it after a short time of a few seconds or such, and similarly at 128px when trying to enter debug mode just like in 128px, at least (all this happens) with default game settings which i don't know a lot about at least not now or and always or and not but in all cases, (so) not using them for now (or maybe a smaller size that doesn't crash or displays accurately) if not always
 
 Note 2: Among all those sizes, only 64px doesn'(t crash wit default settings at least as i said that i don't know a lot about or not at least for now or not or and always or and not maybe not or yes or and other or and not), they seem a bit slower to load even at 64px ingame as they sometimes do not show but there is a default archer button instead the first times, so for now until i investigate more about it/this and know better how it works, not using them, may be for always or and not or and other or and not
 
@@ -1041,17 +1041,17 @@ Ii used ri mod's civ4mainmenubg.nif and its related files, then just replaced th
 
 Note: intended game resolution: 1920 x 1080 Unexpected results may happen at higher resolutions like the ri mod's logo suddenly apeparing maybe xd even though should otherwise be the exact same gameplay but check to be sure and i am not responsible even though seems most likely that nothing else changed, but again check to be sure in case i overlooked something (unlikely and hopefully i am not mistaken in saying so but again check to be sure just to cover myself if i may say, hopefully helpful or not or yes or etc).
 
-Note 2: then the image ingame is stretched vertically unlike our real image .jpg file or .dds, so to solve this we need to edit/"hack" the image a bit by adding fake empty pixels (half at the top, half at the bottom of the image it seems), so our image is now 1920 x 1440 instead with these fake empty pixels. This is to fix civ4 or/and the nif's constraints (i don't know which, but now is solved and image displays reliably without being stretched vertically, or some vertical (top and bottom) part being missing (we should see approximately if i am not mistaken >99+% if not 100% of our image now, vs much less (like 60-70% (not precise estimation just vaguely guessing approximately to explain it as bit tedious to measure precisely if i may say but hopefully helpful or not or yes or etc) before then rest was stretched vertically to fit screen) before this fix)). See how i did so and why and such here for details in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution)
+Note 2: then the image ingame is stretched vertically unlike our real image .jpg file or .dds, so to solve this we need to edit/"hack" the image a bit by adding fake empty pixels (half at the top, half at the bottom of the image it seems), so our image is now 1920 x 1440 instead with these fake empty pixels. This is to fix civ4 or the nif's constraints (i don't know which, but now is solved and image displays reliably without being stretched vertically, or some vertical (top and bottom) part being missing (we should see approximately if i am not mistaken >99+% if not 100% of our image now, vs much less (like 60-70% (not precise estimation just vaguely guessing approximately to explain it as bit tedious to measure precisely if i may say but hopefully helpful or not or yes or etc) before then rest was stretched vertically to fit screen) before this fix)). See how i did so and why and such here for details in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution)
 
 ## How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files)
 
 If you want to know how i removed the blue rectangle color, it is (thanks to chatgpt 5) done by replacing, in [/Resource/Civ4Theme_Custom.thm](/Resource/Civ4Theme_Custom.thm) the `style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style` 's image lines such as `Image			= 	GBitmap("../../../../Resource/Civ4/Custom/main_start.tga", HVGrid, 1, 2, 0, 0);` to `Image			= 	GBitmap();`
 
-Note 2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background) , white was too bright so now is black, screenshots are visible in the gogole drive folder corresponding to known issue above, and/or other text beautification(s) (see code comments there for details).
+Note 2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background) , white was too bright so now is black, screenshots are visible in the gogole drive folder corresponding to known issue above, or other text beautification(s) (see code comments there for details).
 
 ## How to autoplay (let the AI play for you (super fast gameplay / testing tool)) in map (loaded save file, new game, etc.) view
 
-This feature is extremely useful to see how changes feel ingame or/and how AI players handle them.
+This feature is extremely useful to see how changes feel ingame or how AI players handle them.
 
 I don't know the specifics, but in most mods you need to enable chipotle cheat code in CivilizationIV.ini (applies once for all mods and seemingly base bts too but i don't know for sure so check).
 
@@ -1072,7 +1072,7 @@ Small sample below /example too:
 
 This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
 
-And with the big help or/and support for ideas i found myself too of chatgpt as usual or not usual or usual but in all cases
+And with the big help or support for ideas i found myself too of chatgpt as usual or not usual or usual but in all cases
 
 Since i didn't know how to do it, what helped me, with past CvGameTextMgr.cpp modifying experiences i successfully did such as for the power clean/dirty messages, or removing terrain modifiers since they are shown as buttons for clarity in sevopedia unit's experiences in mind, was to search for one message that is displayed seemingly specifically in sevopedia tech's placeSpecial.
 
@@ -1105,7 +1105,7 @@ After all done, recompile the DLL, fix errors if any such as i had forgotten to 
 
 What is very nice is that this same code change also displays it in tech advisor (tech tree view, F6 key ingame) which i also wanted to do and didn't know how, so this is also my first successful modification of the ingame behaviour of the tech tree view (minus the iGridX and iGridY i did before as well as part of modding)
 
-This bTrade feature being displayed in placeSpecial should ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod if i am not mistaken but i only glanced quick, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way (personally i play without tech trading in custom game though if i am not mistaken that this is how you do itand at least from last time i played which is quite some time ago but that i may play again or maybe not or yes or not or yes or etc but in all cases modding now as i like to do too but i hope someday i can maybe play again in civ4 i mean but in all cases i enjoy modding too, maybe a game of advciv-sas someday for me i mean in civ4, hopefully helpful or not or yes or and other or and not))
+This bTrade feature being displayed in placeSpecial should ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod if i am not mistaken but i only glanced quick, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way)
 
 I also added the info about the full list of which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of sevopedia tech and helpful maybe too or not or yes or etc.
 
@@ -1115,11 +1115,11 @@ Note: later we also similarly changed the c++ so that we now also display the bR
 
 ## Example of DLL modification 2: missing BBAI getters expose them to sevopedia leader info in gc too for display
 
-See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc) on how this was implemented (google drive with screenshots link there too hopefully helpful or not or yes or and other or and not)
+See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc) on how this was implemented (google drive with screenshots link there too hopefully helpful)
 
 ## Example of performance optimization of python loading time (as in when we load the code) and loading times (as in code performance due to how it is optimized from what little or not little i know or and did of it)
 
-The AI Personality feature in/of sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or/and others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or/and pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has) screenshots and such: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+The AI Personality feature in/of sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has) screenshots and such: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
 ## Files
 

@@ -34,7 +34,7 @@
 ##   warn(message, args...)
 ##   error(message, args...)
 ##     Logs a message with optional arguments (percent substitutions) to the
-##     screen and/or the debug file depending on the current level cutoffs.
+##     screen or the debug file depending on the current level cutoffs.
 ##     e.g. BugUtil.warn("TradeUtil - unknown item type %d", trade.ItemType)
 ##
 ##   trace(message, detail?, stack?)
@@ -264,7 +264,7 @@ def error(message, *args):
 	log(ERROR, message, args)
 
 def log(level, message, args=()):
-	# Logs a message on-screen and/or to a file depending on the current levels.
+	# Logs a message on-screen or to a file depending on the current levels.
 	#
 	# The message is sent to each if the level is at least that of the destination.
 	# The level of the message is prepended to the message, and if logTime is True, 

@@ -8,7 +8,7 @@
 <Civ4SpecialBuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<SpecialBuildingInfos>
 		<!-- custom: move the tech prereq of bomb shelter from buildinginfos to specialbuildinginfos for consistency with other special buildings (may adjust if neededed else keep as is), was none -->
-		<!-- custom: also change the prereq, was electricity, should be later or/and at another more relevant tech maybe in tech though -->
+		<!-- custom: also change the prereq, was electricity, should be later or at another more relevant tech maybe in tech though -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_BOMB_SHELTER</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_BOMB_SHELTER</Description>
@@ -37,7 +37,7 @@
 			</ProductionTraits>
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
 		</SpecialBuildingInfo>
-		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree. Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner among other reasons if any, to also match the multiple pagan holy sites (/shrines, in a general term way not civ4 building specific term way specifically) throughout history -->
+		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree. Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or wants to pursue a cultural path sooner among other reasons if any, to also match the multiple pagan holy sites (/shrines, in a general term way not civ4 building specific term way specifically) throughout history -->
 		<!-- custom: use button from the building atlas (still same image) for consistency with other generic special building buttons -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_CATHEDRAL</Type>

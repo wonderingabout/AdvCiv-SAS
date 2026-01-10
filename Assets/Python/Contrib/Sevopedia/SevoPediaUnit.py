@@ -63,7 +63,7 @@ class SevoPediaUnit:
 		self.PROMOTION_ICON_SIZE = 32
 
 		# <!-- custom: no margins to merge edges with unit pane for nicer display maybe -->
-		# <!-- custom: merge effect by partially joining their borders, i accidentally found or/and maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases -->
+		# <!-- custom: merge effect by partially joining their borders, i accidentally found or maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases -->
 		self.W_MERGE_PANELS_EFFECT = 5
 
 		self.X_PROMO_PANE = self.X_UNIT_PANE + self.W_UNIT_PANE - self.W_MERGE_PANELS_EFFECT
@@ -122,7 +122,7 @@ class SevoPediaUnit:
 		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + self.MEDIUM_MARGIN
 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.W_UNIT_ANIMATION = self.W_TOTAL_EFFECTIVE_UNIT_PANE
-		# <!-- custom: make it one panel height smaller to accomodate the higher placeSpecial panel that we use to display AI information and or such if any other info displayed or/and to better display the info in cases where the placeSpecial was a bit too short in height -->
+		# <!-- custom: make it one panel height smaller to accomodate the higher placeSpecial panel that we use to display AI information and or such if any other info displayed or to better display the info in cases where the placeSpecial was a bit too short in height -->
 		# self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 
@@ -174,7 +174,7 @@ class SevoPediaUnit:
 	def placeUnitPane(self):
 		screen = self.top.getScreen()
 
-		# <!-- custom: note: using self.W_UNIT_PANE at panel creationunlike in sevopediabuilding part equivalent to this code where we use self.W_TOTAL_EFFECTIVE_BUILDING_PANE due to differences in their implementations, see sevopediabuilding for comparison or/and details -->
+		# <!-- custom: note: using self.W_UNIT_PANE at panel creationunlike in sevopediabuilding part equivalent to this code where we use self.W_TOTAL_EFFECTIVE_BUILDING_PANE due to differences in their implementations, see sevopediabuilding for comparison or details -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_UNIT_PANE, self.Y_UNIT_PANE, self.W_UNIT_PANE, self.H_UNIT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		szButton = gc.getUnitInfo(self.iUnit).getButton()
@@ -189,7 +189,7 @@ class SevoPediaUnit:
 
 	def placeStats(self):
 		screen = self.top.getScreen()
-		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am) trying to avoid redundance as long as code seems to work fine or as intended and also to avoid or/and fix the ruff warning, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least; check if accurate and to be sure; -->
+		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am) trying to avoid redundance as long as code seems to work fine or as intended and also to avoid or fix the ruff warning, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least; check if accurate and to be sure; -->
 		panelName = self.top.getNextWidgetName()
 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
 
@@ -748,7 +748,7 @@ class SevoPediaUnit:
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
 			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
 
-		# <!-- custom: if unit grants unit(s) on capture, code added thanks to claude ai as well as my prompt and adjustments and/or such or not or yes or etc -->
+		# <!-- custom: if unit grants unit(s) on capture, code added thanks to claude ai as well as my prompt and adjustments or such or not or yes or etc -->
 		unitCaptureClassType = unitInfo.getUnitCaptureClassType()
 		if unitCaptureClassType != -1:
 			unitCaptureClassTypeInfo = gc.getUnitClassInfo(unitCaptureClassType)

@@ -11630,7 +11630,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 	}
 	if (kBuilding.getPowerBonus() != NO_BONUS)
 	{
-		// <!-- custom: add info about whether power is clean or dirty for bonus as well, and add the power icon, similarly to how was done in the other TXT_KEY_BUILDING_PROVIDES_POWER similar/apparented reworks of the placeSpecial messages, see this DLL code or/and XML txt key changes or/and sevopediabuilding. -->
+		// <!-- custom: add info about whether power is clean or dirty for bonus as well, and add the power icon, similarly to how was done in the other TXT_KEY_BUILDING_PROVIDES_POWER similar/apparented reworks of the placeSpecial messages, see this DLL code or XML txt key changes or sevopediabuilding. -->
 		szBuffer.append(NEWLINE);
 		// <!-- custom: common message at the start -->
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_WITH",

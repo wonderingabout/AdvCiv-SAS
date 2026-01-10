@@ -16,12 +16,12 @@
 ##
 ## Similar functions exist for Teams, Players and Teams together, and active
 ## versions that don't require an ID or object, using the active player instead.
-## All of them return -1 and/or None if given -1 or None for playerOrId.
+## All of them return -1 or None if given -1 or None for playerOrId.
 ##
 ##   players(), teams(), teamPlayers(teamOrID)
 ##     Loops over players and teams matching various criteria.
 ##     Only valid objects that were alive at some point are returned, and they can
-##     be filtered further by alive, human, barbarian, and/or minor status.
+##     be filtered further by alive, human, barbarian, or minor status.
 ##
 ##   playerUnits(playerOrID, testFunc), playerCities(playerOrID, testFunc)
 ##     Loops over a player's units or cities.

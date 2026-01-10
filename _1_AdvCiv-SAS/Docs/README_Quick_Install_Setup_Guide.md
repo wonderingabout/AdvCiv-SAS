@@ -42,7 +42,7 @@ You can download the latest stable version from:
 
 ### Development version
 
-If you want the latest functionnalities even if it might be buggy (generally not, but saying this just in case it might be), consider also testing the development version! It should be further enhanced with possibly a stronger AI or/and other changes if any (if you want to see the list of changes, see the [git commit history, as of now here](https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/)).
+If you want the latest functionnalities even if it might be buggy (generally not, but saying this just in case it might be), consider also testing the development version! It should be further enhanced with possibly a stronger AI or other changes if any (if you want to see the list of changes, see the [git commit history, as of now here](https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/)).
 
 To download the development version, go to the [mod's github main page](https://github.com/wonderingabout/AdvCiv-SAS), and click on the green rectangle on the top right, then click "download zip".
 
@@ -84,11 +84,11 @@ See [/README.md#version-number](/README.md#version-number)
 
 ## Upgrading/Downgrading version of the mod
 
-If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same), delete the entire mod folder and put instead your new version of AdvCiv-SAS (deleting it does not delete savegames as they are not located in this mod folder anyway if i'm not mistaken) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it if you want to)).
+If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same), delete the entire mod folder and put instead your new version of AdvCiv-SAS (deleting it does not delete savegames as they are not located in this mod folder anyway if i'm not mistaken) (or make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it if you want to)).
 
 ## If you have trouble downloading/installing/using/upgrading/downgrading the mod
 
-Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or/and such, but do as you prefer and hopefully i or/and others can provide some help).
+Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or such, but do as you prefer and hopefully i or others can provide some help).
 
 ### Full Development version (to modify it yourself)
 

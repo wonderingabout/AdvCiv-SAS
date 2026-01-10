@@ -625,7 +625,7 @@
 		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
 		<English>Counter-Archer</English>
 	</TEXT>
-	<!-- custom: rename or/and create subtypes for each melee type maybe or maybe not and put them all in same promotion easier? Or partly simply by having counter melee sword, or counter sword? Todo -->
+	<!-- custom: rename or create subtypes for each melee type maybe or maybe not and put them all in same promotion easier? Or partly simply by having counter melee sword, or counter sword? Todo -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
 		<English>Counter-Melee</English>

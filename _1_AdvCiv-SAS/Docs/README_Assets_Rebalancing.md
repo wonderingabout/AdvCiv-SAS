@@ -118,15 +118,15 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 
 ## Leaders' traits rework
 
-While doing/considering the holy roman empire civ-specific unit's rework or replacement, i have noticed charlemagne's traits were not in accord with his historical profile (i asked chatgpt 5 thanks since i don't know too much if at all about his history and leader profile or/and such and to be sure and have its advice as well thanks).
+While doing/considering the holy roman empire civ-specific unit's rework or replacement, i have noticed charlemagne's traits were not in accord with his historical profile (i asked chatgpt 5 thanks since i don't know too much if at all about his history and leader profile or such and to be sure and have its advice as well thanks).
 
 It is also limiting when we want as now to assign a new unit e.g. to the holy roman empire or possibly building, so i thought this was a good time to rework leader traits for balance, accuracy, and overall synergy with the civ's profile, as well as its civ-specific units and buildings, and also to match ingame behaviour +/- more(/most?) importantly xml or and such if / as much as possible or relevant i mean.
 
-Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too and/or adjustments and/or thoughts or formatting or such, check if accurate.
+Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too or adjustments or thoughts or formatting or such, check if accurate.
 
 ### previous state
 
-This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather, as we had issues importing it from our custom leaders_data_to_ or/and it took too much time, due to data being too big or i guess maybe if i'm not mistaken.
+This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather, as we had issues importing it from our custom leaders_data_to_ or it took too much time, due to data being too big or i guess maybe if i'm not mistaken.
 
 #### main table before changes to traits
 
@@ -204,7 +204,7 @@ See below in the main table after changes as it includes the before values as we
 | Philosophical + Spiritual | 1 |
 | Protective + Spiritual | 1 |
 
-### new state after rework with rationale and/or such
+### new state after rework with rationale or such
 
 #### main table after changes to traits
 
@@ -335,7 +335,7 @@ Sanity: 53 leaders × 2 = 106 total assignments.
 
 ## Leaders' favourite civics rework
 
-Based on the old base advciv 1.12 data (or current advciv-sas if missing such as for new leaders we added like as of now Ewuare or/and such if any), check if accurate.
+Based on the old base advciv 1.12 data (or current advciv-sas if missing such as for new leaders we added like as of now Ewuare or such if any), check if accurate.
 
 Goal is to make it more historically accurate, balanced in gameplay, and more or less evenly spread (although less of a focus but an additional ideal extra). Also to to account for our reworked/replaced civics such as of now civic_wage_labor, civic_trade_bloc, civic_protectionism, etc.
 
@@ -380,7 +380,7 @@ See below in the main table after changes as it includes the before values as we
 
 ### after changes favourite civics per leader
 
-Done with the help of chatgpt 5.1, and other ais for check-up such as claude sonnet 4.5 and grok 4.1 and others, and my reviewing or/and such as well i mean. Check if accurate.
+Done with the help of chatgpt 5.1, and other ais for check-up such as claude sonnet 4.5 and grok 4.1 and others, and my reviewing or such as well i mean. Check if accurate.
 
 note: as of now advciv-sas civics are (check if updated in sevopedia/xml) wage labor is medieval new, protecitonism is late classical new (replaces mercantilism), environmentalism is removed in favour of trade_bloc (medieval (1300s) at printing press in our mod), and civic_paganism has been renamed to civic_prehistoric_religion (although it's as of now the same civic, just to distinguish/differentiate it from the religion_paganism we as of now added in advciv-sas).
 
@@ -483,7 +483,7 @@ Sanity: total favourites across all civics = 53 (one per leader, matches leader 
 
 This is the oldest rework i made and which i had made without AI if i remember it correctly at least at that time, unlike how i did it later as of now for the other reworks in this doc.
 
-Since its structure and way of doing it was quite differently done (not using chatgpt or such to web search info but digging myself if i remember it correctly) (note: chatgpt 5.1 helped me a bit to find some typoes or such here and then as of now to format and summarize the already existing data into a table and/or such), adding them here in the doc after these other reworks.
+Since its structure and way of doing it was quite differently done (not using chatgpt or such to web search info but digging myself if i remember it correctly) (note: chatgpt 5.1 helped me a bit to find some typoes or such here and then as of now to format and summarize the already existing data into a table or such), adding them here in the doc after these other reworks.
 
 ### notes_about_religious_design
 
@@ -491,7 +491,7 @@ Since its structure and way of doing it was quite differently done (not using ch
 
 According to this document [https://boutique.tropismes.com/bonus/extrait/9782812148347](https://boutique.tropismes.com/bonus/extrait/9782812148347), page 29, Gaul leaders/chiefs (maybe that includes brennus of the Gaul too?) did not exert a strong religious pressure on their people as they were driven by freedom if i understand it correctly.
 
-If this accurate and reliable, i may want/have/need to change brennus's xml to focus less on religion and more on civis, perhaps even boudica's but there may be more data on her since she is more recent, and i didn't look yet (at least not in detail, only that she was seemingly more religious at least than what i know now of brenus if this doc is accurate, but it was quick glance too on boudica anyways so may look later or maybe not though.), so may apply this to brennus only or/and other similar leaders or not.
+If this accurate and reliable, i may want/have/need to change brennus's xml to focus less on religion and more on civis, perhaps even boudica's but there may be more data on her since she is more recent, and i didn't look yet (at least not in detail, only that she was seemingly more religious at least than what i know now of brenus if this doc is accurate, but it was quick glance too on boudica anyways so may look later or maybe not though.), so may apply this to brennus only or other similar leaders or not.
 
 Note: in advciv-sas as of now confucianism has been removed and replaced with paganism religion.
 
@@ -512,17 +512,17 @@ it seems darius is a bit more religious though (at least than cyrus), in these s
 
 #### Ewuare
 
-as for Ewuare (kingdom of benin), christianity seems to be an important part of the kingdom, but the beninese also have their own kind of or own religion with human sacrifices ([https://en.wikipedia.org/wiki/Kingdom_of_Benin#Human_sacrifice](https://en.wikipedia.org/wiki/Kingdom_of_Benin#Human_sacrifice)) and/or such, plus their benin bronzes and such; makes me more lean (if i am not mistaken) towards the fact that (THEY) they were more pagans, so going with that instead.
+as for Ewuare (kingdom of benin), christianity seems to be an important part of the kingdom, but the beninese also have their own kind of or own religion with human sacrifices ([https://en.wikipedia.org/wiki/Kingdom_of_Benin#Human_sacrifice](https://en.wikipedia.org/wiki/Kingdom_of_Benin#Human_sacrifice)) or such, plus their benin bronzes and such; makes me more lean towards the fact that (THEY) they were more pagans, so going with that instead.
 
 #### Frederick
 
 frederick seems to be agnostic (quite strongly xd from the very little read i had here (in french) which is quite funny, the ironic pleasantry/plaisanterie in his letter): [https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)](https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)); but i read little about it and this page seems enough to say he is agnostic indeed maybe, but seems a bit enough.
 
-update: since i can't find what this refers to at a quick glance, i now asked chatgpt 5.1 about it still no luck xd. My best guess is in one of his correspondances with someone else he noted how something is ironic or/and paradoxical, this is how i remember it but nothing specific, maybe i should have written it or maybe not since i didn't. At least i tried xd maybe i mean.
+update: since i can't find what this refers to at a quick glance, i now asked chatgpt 5.1 about it still no luck xd. My best guess is in one of his correspondances with someone else he noted how something is ironic or paradoxical, this is how i remember it but nothing specific, maybe i should have written it or maybe not since i didn't. At least i tried xd maybe i mean.
 
 #### Genghis Khan
 
-genghis khan seems to have been tengrist something i mean anyways, but according to a quick search, it seems he had great respect for daoism: [https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme](https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme)
+genghis khan seems to have been tengrist something, but according to a quick search, it seems he had great respect for daoism: [https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme](https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme)
 
 >Bien que Gengis Khan ait été avant tout tengriste, il manifesta un grand respect à l'égard du dirigeant de la secte taoïste Quanzhen, Qiu Chuji, lorsque celui-ci lui rendit visite dans l'Hindou Kouch, à Kaboul, en 1222, à son invitation, et prédit la conquête de la Chine par les Mongols. En retour, Gengis Khan lui donna d'importants pouvoirs politiques et religieux. Il fut exempté de taxes, et depuis Pékin, sa secte fut la plus favorisée de l'Empire Mongol. Il défendit la liberté d'autogestion des autres sectes, auprès du khagan, qu'il s'agisse des taoïstes, des bouddhistes, des chrétiens nestoriens ou des musulmans[18].
 

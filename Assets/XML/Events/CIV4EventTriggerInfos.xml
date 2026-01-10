@@ -9102,7 +9102,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event, also remove TECH_SCIENTIFIC_METHOD (now removed) as it has been moved in tech tree, use another closer or/and more relevant tech in our reworked tech tree -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event, also remove TECH_SCIENTIFIC_METHOD (now removed) as it has been moved in tech tree, use another closer or more relevant tech in our reworked tech tree -->
 			<OrPreReqs>
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
@@ -16536,7 +16536,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
-			<!-- custom: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION, use another relevant tech or/and around this tech time of previous tech if i am not mistaken instead in our reworked tech tree -->
+			<!-- custom: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION, use another relevant tech or around this tech time of previous tech if i am not mistaken instead in our reworked tech tree -->
 			<AndPreReqs>
 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</AndPreReqs>

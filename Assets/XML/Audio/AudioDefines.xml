@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- AudioDefines -->
-<!-- custom: replace main menu "opening_menu" music with our own music, see main readme.md's copyright section for info on copyright there or/and in our mod's relevant places if there is such info -->
+<!-- custom: replace main menu "opening_menu" music with our own music, see main readme.md's copyright section for info on copyright there or in our mod's relevant places if there is such info -->
 <!-- K-Mod has added SND_SQUISH and SND_THEIRALLIANCE. Note that no comments
 	 are allowed within the SoundDatas element. -->
 <AudioDefines xmlns="x-schema:AudioDefinesSchema.xml">

@@ -3551,7 +3551,7 @@
 		<Spanish>[ALT] para declarar la guerra</Spanish>
 	</TEXT>
 
-	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now) -->
+	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
 	<!-- advc.004w: Based on keys in CIV4GameTextInfos.xml. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_WORLD_WONDER1</Tag>
@@ -3589,7 +3589,7 @@
 		<Italian>[ICON_BULLET]Progetto di squadra</Italian>
 		<Spanish>[ICON_BULLET]Proyecto de equipo</Spanish>
 	</TEXT>
-	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now) -->
+	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
 	<!-- advc.004w: Put only the number in parentheses, not the wonder type -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_BUILDING_WORLD_WONDER_LEFT</Tag>

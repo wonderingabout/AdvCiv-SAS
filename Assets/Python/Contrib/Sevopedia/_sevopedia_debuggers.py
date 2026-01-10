@@ -142,7 +142,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 		2: "ATTITUDE_CAUTIOUS",
 		3: "ATTITUDE_PLEASED",
 		4: "ATTITUDE_FRIENDLY",
-		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error, added this value also as this seems like a purposeful valid DLL behaviour, see above for explanation or/and of my understanding of it -->
+		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error, added this value also as this seems like a purposeful valid DLL behaviour, see above for explanation or of my understanding of it -->
 	}
 
 	for attr in dir(info):

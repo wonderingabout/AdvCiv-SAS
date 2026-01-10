@@ -107,7 +107,7 @@ class AStar:
 		return false
 			
 	# returns an adjacent plots reletaive to the coordinates of pPlot.
-	# takes consideration of x and/or y overlows or underflows
+	# takes consideration of x or y overlows or underflows
 	def getNewPlot(self, pPlot, dx, dy):
 		x = pPlot.getX()+dx
 		y = pPlot.getY()+dy

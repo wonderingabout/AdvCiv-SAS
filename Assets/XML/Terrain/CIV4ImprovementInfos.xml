@@ -755,7 +755,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: seems more historically accurate or/and making sense for our reworked tech tree, was TECH_GAME_THEORY -->
+			<!-- custom: seems more historically accurate or making sense for our reworked tech tree, was TECH_GAME_THEORY -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_PHYSICS</PrereqTech>

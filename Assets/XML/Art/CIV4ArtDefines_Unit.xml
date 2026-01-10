@@ -177,7 +177,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod) and based on this import art then adjusted or not for advciv-sas taking base advciv's ART_DEF_UNIT_WORKER as a base, kfm is base civ4 or/and advciv one -->
+		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod) and based on this import art then adjusted or not for advciv-sas taking base advciv's ART_DEF_UNIT_WORKER as a base, kfm is base civ4 or advciv one -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds</Button>

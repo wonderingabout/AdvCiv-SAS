@@ -184,7 +184,7 @@ class SevoPediaPromotion:
 		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc, check if accurate -->
+		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
 		# Loop through all units to find those with this promotion
 		for iUnit in xrange(gc.getNumUnitInfos()):
 			unitInfo = gc.getUnitInfo(iUnit)
@@ -243,7 +243,7 @@ class SevoPediaPromotion:
 		## <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: code provided by claude ai thanks to my prompts and/or such, that i adjusted or not or yes or etc, check if accurate -->
+		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
 		# Loop through all buildings to find those that grant this promotion
 		for iBuilding in range(gc.getNumBuildingInfos()):
 			buildingInfo = gc.getBuildingInfo(iBuilding)

@@ -210,7 +210,7 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 
 	# --- Pre-checks ---
 	if (min_val is None) or (max_val is None):
-		raise ValueError(u"[FATAL] min_val=%s or/and max_val=%s cannot be None, failed to fetch the real value if any exist, check your XML or/and fetching code." % (str(min_val), str(max_val)))
+		raise ValueError(u"[FATAL] min_val=%s or max_val=%s cannot be None, failed to fetch the real value if any exist, check your XML or fetching code." % (str(min_val), str(max_val)))
 
 	if min_val > max_val:
 		raise ValueError("Invalid min/max for attribute '%s': min_val=%d > max_val=%d" % (attr_name, min_val, max_val))

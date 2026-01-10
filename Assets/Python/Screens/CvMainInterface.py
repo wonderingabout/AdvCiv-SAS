@@ -5286,7 +5286,7 @@ class CvMainInterface:
 		# aCityBldgs = sorted(aCityBldgs, key=lambda iBuilding:
 		# 		# AdvCiv returns -32768 for free buildings. Let's just treat
 		# 		# all strange year numbers as 10000, which will move them
-		# 		# to the end of the list. The and/or is a hack for a
+		# 		# to the end of the list. The or is a hack for a
 		# 		# conditional expression (properly added in Python 2.5).
 		# 		(abs(pHeadSelectedCity.getBuildingOriginalTime(iBuilding)) >= 10000 and 10000
 		# 		or pHeadSelectedCity.getBuildingOriginalTime(iBuilding))

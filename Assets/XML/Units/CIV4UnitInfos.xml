@@ -1433,7 +1433,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<!-- custom: removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://www.government.nl/topics/agriculture/agriculture-and-horticulture#:~:text=After%20the%20United%20States%2C%20the,its%20largest%20trade%20partner%2C%20Germany. and https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources and also civ3 making it an agricultural civ, but since it is not easily possible to make them specifically faster in building farms and cottages easily, giving them another worker boosting effect instead (see unitinfo xml for details or/and updated value), i believe this would work quite well with the gold profile of the AI leader too william, restoring old civ4 effect for this unit at least as of now if not always or not but look at updated value(s) in real unit info ('s) xml for details -->
+		<!-- custom: removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://www.government.nl/topics/agriculture/agriculture-and-horticulture#:~:text=After%20the%20United%20States%2C%20the,its%20largest%20trade%20partner%2C%20Germany. and https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources and also civ3 making it an agricultural civ, but since it is not easily possible to make them specifically faster in building farms and cottages easily, giving them another worker boosting effect instead (see unitinfo xml for details or updated value), i believe this would work quite well with the gold profile of the AI leader too william, restoring old civ4 effect for this unit at least as of now if not always or not but look at updated value(s) in real unit info's xml for details -->
 		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_DUTCH_SWIFT_WORKER (useful for VS Code upper tree view while scrolling) -->
 			<Class>UNITCLASS_WORKER</Class>
 			<Type>UNIT_DUTCH_SWIFT_WORKER</Type>
@@ -1645,7 +1645,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: not functionnal as of now if i am not mistaken as workers are non-fighters as of now in advciv-sas but added for flavor as in for theme and for accuracy and/or exhaustiveness -->
+			<!-- custom: not functionnal as of now if i am not mistaken as workers are non-fighters as of now in advciv-sas but added for flavor as in for theme and for accuracy or exhaustiveness -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -1874,7 +1874,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<iAirUnitCap>0</iAirUnitCap>
 			<iDropRange>0</iDropRange>
 			<iNukeRange>-1</iNukeRange>
-			<!-- custom: due to war state, they often in cities, so to (partially try to) avoid (or/and compensate that (situation bu)) that, make them work extra fast -->
+			<!-- custom: due to war state, they often in cities, so to (partially try to) avoid (or compensate that (situation bu)) that, make them work extra fast -->
 			<iWorkRate>500</iWorkRate>
 			<iBaseDiscover>0</iBaseDiscover>
 			<iDiscoverMultiplier>0</iDiscoverMultiplier>
@@ -2432,7 +2432,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
-			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explroer/recon based/type of units, hopefully historically more accurate and less tedious or/and relevant this way, was INVISIBLE_SUBMARINE -->
+			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explroer/recon based/type of units, hopefully historically more accurate and less tedious or relevant this way, was INVISIBLE_SUBMARINE -->
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_AIRSHIP</Description>
 			<Civilopedia>TXT_KEY_UNIT_AIRSHIP_PEDIA</Civilopedia>
@@ -2619,7 +2619,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat -->
+			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either, hopefully quite accurate or effective at this stage of the game so AI handles these/them quite well in combat -->
 			<iPower>4</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2664,7 +2664,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
-			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explroer/recon based/type of units, hopefully historically more accurate and less tedious or/and relevant this way, was INVISIBLE_SUBMARINE -->
+			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explroer/recon based/type of units, hopefully historically more accurate and less tedious or relevant this way, was INVISIBLE_SUBMARINE -->
 			<SeeInvisible>INVISIBLE_SUBMARINE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE</Description>
 			<Civilopedia>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE_PEDIA</Civilopedia>
@@ -2851,7 +2851,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat -->
+			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either, hopefully quite accurate or effective at this stage of the game so AI handles these/them quite well in combat -->
 			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -6427,7 +6427,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: note: aztec warrior reworked, now based on the axeman not the swordsman anymore. This works well i think if i may say as the low/now lowercost as well as earlier unit availability in this caseallows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguarswhich was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have), it may synergize especially well with their sacrifice/slaving profile or/and buildings or such -->
+			<!-- custom: note: aztec warrior reworked, now based on the axeman not the swordsman anymore. This works well i think if i may say as the low/now lowercost as well as earlier unit availability in this caseallows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguarswhich was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have), it may synergize especially well with their sacrifice/slaving profile or buildings or such -->
 			<iCost>35</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -7179,7 +7179,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<!-- custom: was UNITCOMBAT_MELEE for the generic swordsman we based in on, but it is shown or/and at least seems to be holding a spear, so make it melee polearm combat type rather. This is good/cool toobecause the persia_immortal, although affected as of now by the unit_axeman melee shock combat modifier as of now, still it also has its own effects so is in fact stronger than melee shock units, which makes sense since it has a spear; note: not made a spearman because is bronze age based which is too old, stats would be weaker to accomodate that, so defeats targeted era/tech/stats purpose -->
+			<!-- custom: was UNITCOMBAT_MELEE for the generic swordsman we based in on, but it is shown or at least seems to be holding a spear, so make it melee polearm combat type rather. This is good/cool toobecause the persia_immortal, although affected as of now by the unit_axeman melee shock combat modifier as of now, still it also has its own effects so is in fact stronger than melee shock units, which makes sense since it has a spear; note: not made a spearman because is bronze age based which is too old, stats would be weaker to accomodate that, so defeats targeted era/tech/stats purpose -->
 			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
@@ -7348,7 +7348,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or/and such, check if accurate; see also code comment at the generic axeman for details and additional/related info, was empty in the generic swordsman; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such -->
+			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or such, check if accurate; see also code comment at the generic axeman for details and additional/related info, was empty in the generic swordsman; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -8575,7 +8575,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: the impi and/or zulu civilization is overall and especially if i am not mistaken from my quick in this case memories of what i read about it the aggressive profile at least for leader shaka, also allow upgrade to macemen as well -->
+			<!-- custom: the impi or zulu civilization is overall and especially if i am not mistaken from my quick in this case memories of what i read about it the aggressive profile at least for leader shaka, also allow upgrade to macemen as well -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_PIKEMAN</UnitClassUpgradeType>
@@ -8715,7 +8715,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: give an extra melee edge to match the shaka aggressive profile, see code comment at the generic spearman for details or/and related info-->
+			<!-- custom: give an extra melee edge to match the shaka aggressive profile, see code comment at the generic spearman for details or related info-->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -8941,7 +8941,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was UNITCOMBAT_MOUNTED 100 (in base advciv) -->
-			<!-- custom: see code comment at the generic spearman for details or/and related info-->
+			<!-- custom: see code comment at the generic spearman for details or related info-->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -9190,7 +9190,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: same as the generic spearman; since mounted units seldom/rarelydefend cities, this is not op in combination with as of now city attack modifiers i think; note: give them an offensive melee effect so alexander can use them as such (maybe pericles too who knows), but i added it as a combat modifier rather than free promotion else may stack with the pikeman effect at/afterupgrade and be bit too op, so better as such, and hoplite is as of now strong enough already if i'm not mistaken -->
-			<!-- custom: see code comment at the generic spearman for details or/and related info-->
+			<!-- custom: see code comment at the generic spearman for details or related info-->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -9429,7 +9429,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was "MOUNTED" 100 -->
-			<!-- custom: This way (melee shock bonus), axes from bronze age (and to a lesser extent the older and cheaper iron age swords) no longer beat or match pikes which was nonsensical, especially considering cost difference; see also code comment at the generic spearman for details or/and related info-->
+			<!-- custom: This way (melee shock bonus), axes from bronze age (and to a lesser extent the older and cheaper iron age swords) no longer beat or match pikes which was nonsensical, especially considering cost difference; see also code comment at the generic spearman for details or related info-->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -9949,7 +9949,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<!-- custom: their bow seems short and they are or/and seem more melee-leaning so adjust as such maybe, chatgpt 5 also agrees after asking it too so seems fine as such even more so, check if accurate -->
+			<!-- custom: their bow seems short and they are or seem more melee-leaning so adjust as such maybe, chatgpt 5 also agrees after asking it too so seems fine as such even more so, check if accurate -->
 			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: more versatile unit now, was UNITAI_CITY_DEFENSE -->
@@ -10212,7 +10212,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<!-- custom: their bow seems short and they are or/and seem more melee-leaning so adjust as such maybe, chatgpt 5 also agrees after asking it too so seems fine as such even more so, check if accurate -->
+			<!-- custom: their bow seems short and they are or seem more melee-leaning so adjust as such maybe, chatgpt 5 also agrees after asking it too so seems fine as such even more so, check if accurate -->
 			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: more versatile unit now, was UNITAI_CITY_DEFENSE -->
@@ -10422,7 +10422,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was UNITCOMBAT_MELEE_POLEARM 50 and UNITCOMBAT_MELEE_SHOCK 50 for the generic longbow -->
-			<!-- custom: melee shock units are naked more or less, polearm can take cover in simplified terms, but they don't necessarily gain an advantage, simplify it by it being a stalemate vs these and so it's not op; as for shock make them weaker as was; see also related comment at the generic spearman or/and such other related comments -->
+			<!-- custom: melee shock units are naked more or less, polearm can take cover in simplified terms, but they don't necessarily gain an advantage, simplify it by it being a stalemate vs these and so it's not op; as for shock make them weaker as was; see also related comment at the generic spearman or such other related comments -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
@@ -12679,7 +12679,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: according to the wikipedia description, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or/and a related to this unit code comment or similar other place(s if any other or not) -->
+			<!-- custom: according to the wikipedia description, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or a related to this unit code comment or similar other place(s if any other or not) -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
@@ -12739,7 +12739,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: add marines as an upgrade now of the ww1 infantry, and remove defensive gun unit path (so here the UNITCLASS_SAM_INFANTRY) from this seemingly offensive type of unit, this should mostly help the AI so they don't waste their precious infantry units just to build SAM, even though i never played so late into the game i assume it's how it would go and that SAM is generally quite bad (at least the ground foot first sam unit or/and much less valuable than foot gun infantry if i may say, may also be fine for human players if they don't want a sam from an infantry as well); also add the UNITCLASS_PARATROOPER so that it appears in units tree plus is now an alternative unit path, was UNITCLASS_SAM_INFANTRY and UNITCLASS_MECHANIZED_INFANTRY -->
+			<!-- custom: add marines as an upgrade now of the ww1 infantry, and remove defensive gun unit path (so here the UNITCLASS_SAM_INFANTRY) from this seemingly offensive type of unit, this should mostly help the AI so they don't waste their precious infantry units just to build SAM, even though i never played so late into the game i assume it's how it would go and that SAM is generally quite bad (at least the ground foot first sam unit or much less valuable than foot gun infantry if i may say, may also be fine for human players if they don't want a sam from an infantry as well); also add the UNITCLASS_PARATROOPER so that it appears in units tree plus is now an alternative unit path, was UNITCLASS_SAM_INFANTRY and UNITCLASS_MECHANIZED_INFANTRY -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_MODERN_INFANTRY</UnitClassUpgradeType>
@@ -14839,7 +14839,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			</UnitClassAttackMods>
 			<UnitClassDefenseMods/>
 			<!-- custom: rebalance chariot units so they are also bit good vs melee shock (due to their mounted pike i'd guess) and considering they are otherwise a bit too weak for that role at this and later stage of the game -->
-			<!-- custom: see related comments at the generic spearman and/or such other related comments -->
+			<!-- custom: see related comments at the generic spearman or such other related comments -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
@@ -15047,7 +15047,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: see code comment at the generic chariot at FeatureAttacks and/or FeatureDefenses if any code comments are there for details, was empty -->
+			<!-- custom: see code comment at the generic chariot at FeatureAttacks or FeatureDefenses if any code comments are there for details, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -15078,7 +15078,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			</UnitClassAttackMods>
 			<UnitClassDefenseMods/>
 			<!-- custom: rebalance chariot units so they are also bit good vs melee shock (due to their mounted pike i'd guess) and considering they are otherwise a bit too weak for that role at this and later stage of the game -->
-			<!-- custom: see related comments at the generic spearman and/or such other related comments -->
+			<!-- custom: see related comments at the generic spearman or such other related comments -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
@@ -15271,7 +15271,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<!-- custom: do/give milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged, but may have trouble to take cover or navigate the terrain still and/or may find it hard to hide or protect their heavy in size in this case mount so more targetable by ennemies if i may say, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say, was empty -->
+			<!-- custom: do/give milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged, but may have trouble to take cover or navigate the terrain still or may find it hard to hide or protect their heavy in size in this case mount so more targetable by ennemies if i may say, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say, was empty -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -15728,7 +15728,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -16166,7 +16166,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details; remove jungle defense penalty and give an additional jungle attack advantage as of now for this civ-specific unit due to civ geography world map advantage, see other units's code comments for details or/and additional info -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; remove jungle defense penalty and give an additional jungle attack advantage as of now for this civ-specific unit due to civ geography world map advantage, see other units's code comments for details or additional info -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -17311,7 +17311,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -17523,7 +17523,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -17749,7 +17749,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details; also remove the unit's forest penalty similarly due to world map, see code comments at other unit's terrainattacks or such for details -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; also remove the unit's forest penalty similarly due to world map, see code comments at other unit's terrainattacks or such for details -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -17977,7 +17977,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -18178,7 +18178,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -18403,7 +18403,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 					<iTerrainDefense>50</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -18630,7 +18630,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details; removing the forest penalty due to their geography favouring forest, see also as of now the korean civ-specific unit for a similar example. -->
+			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; removing the forest penalty due to their geography favouring forest, see also as of now the korean civ-specific unit for a similar example. -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -18774,7 +18774,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<StateReligion>NONE</StateReligion>
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or/and rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
+			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE -->
 			<PrereqTech>TECH_FASCISM</PrereqTech>
@@ -18970,7 +18970,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<StateReligion>NONE</StateReligion>
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or/and rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
+			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<PrereqTech>TECH_COMPOSITES</PrereqTech>
 			<TechTypes>
@@ -19164,7 +19164,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<StateReligion>NONE</StateReligion>
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or/and rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
+			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits -->
 			<PrereqTech>TECH_FUSION</PrereqTech>
@@ -19173,7 +19173,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
-			<!-- custom: make it so oil is not needed anymore, it requiring uranium to propell and be powered or such for a long time and long distances of travel with the power of explosions and or such too; may also help for balance or/and flavor, as this unit is at the tech_fusion as of now and so it doesn't become op maybe, to have rivalry and fights over bonuses even in late game/ -->
+			<!-- custom: make it so oil is not needed anymore, it requiring uranium to propell and be powered or such for a long time and long distances of travel with the power of explosions and or such too; may also help for balance or flavor, as this unit is at the tech_fusion as of now and so it doesn't become op maybe, to have rivalry and fights over bonuses even in late game/ -->
 			<BonusType>BONUS_URANIUM</BonusType>
 			<PrereqBonuses>
 				<BonusType>BONUS_ALUMINUM</BonusType>
@@ -19774,7 +19774,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: see related xml comments in this unit's xml info or/and known issue as of now 53.3 for details -->
+			<!-- custom: see related xml comments in this unit's xml info or known issue as of now 53.3 for details -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
@@ -19889,7 +19889,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: see code comment at one of the siege units's featureattacks and/or featuredefenses for details if any there as well hopefully or not or yes or etc, was empty -->
+			<!-- custom: see code comment at one of the siege units's featureattacks or featuredefenses for details if any there as well hopefully or not or yes or etc, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -20284,7 +20284,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<iWithdrawalProb>0</iWithdrawalProb>
 			<iCollateralDamage>100</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
-			<!-- custom: was 6, below info by chatgpt 5 that i formatted and/or such and thanks to my prompt(s) and or such, check if accurate -->
+			<!-- custom: was 6, below info by chatgpt 5 that i formatted or such and thanks to my prompt(s) and or such, check if accurate -->
 			<!-- Is “more defenders” relevant? Very. Collateral hits the top defenders by strength; bumping from 6 → 7 is ~+16% more coverage each attack—perfect fit for a rocket-salvo weapon. -->
 			<!-- K-Mod: was 7 -->
 			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
@@ -21026,7 +21026,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same if i am not mistaken), this is also convenient as it walking on water tiles may confuse the AI possibly or/and be tedious or super hassle to maintian or simply implement with all the unitAIs or/and such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
+			<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same if i am not mistaken), this is also convenient as it walking on water tiles may confuse the AI possibly or be tedious or super hassle to maintian or simply implement with all the unitAIs or such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
 			<bCanMoveImpassable>1</bCanMoveImpassable>
 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
 			<bFlatMovementCost>0</bFlatMovementCost>
@@ -21068,7 +21068,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: making it at latest tech(s) so that aoe effect is not abused early in robotic/future era; suits also well its atypical effect or/and extra perks if i may say toosuch as of now move impassable and/or such -->
+			<!-- custom: making it at latest tech(s) so that aoe effect is not abused early in robotic/future era; suits also well its atypical effect or extra perks if i may say toosuch as of now move impassable or such -->
 			<PrereqTech>TECH_QUANTUM_MECHANICS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_AI</PrereqTech>
@@ -22006,7 +22006,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<bOnlyDefensive>0</bOnlyDefensive>
 			<bNoCapture>0</bNoCapture>
 			<bQuickCombat>0</bQuickCombat>
-			<!-- custom: make sure this bRivalTerritory is set to 0 so they cannot nonsensically or/and not pleasantly enter borders without triggering war if no open borders -->
+			<!-- custom: make sure this bRivalTerritory is set to 0 so they cannot nonsensically or not pleasantly enter borders without triggering war if no open borders -->
 			<bRivalTerritory>0</bRivalTerritory>
 			<bMilitaryHappiness>0</bMilitaryHappiness>
 			<bMilitarySupport>1</bMilitarySupport>
@@ -22196,7 +22196,7 @@ see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
 			<bOnlyDefensive>0</bOnlyDefensive>
 			<bNoCapture>0</bNoCapture>
 			<bQuickCombat>0</bQuickCombat>
-			<!-- custom: make sure this bRivalTerritory is set to 0 so they cannot nonsensically or/and not pleasantly enter borders without triggering war if no open borders -->
+			<!-- custom: make sure this bRivalTerritory is set to 0 so they cannot nonsensically or not pleasantly enter borders without triggering war if no open borders -->
 			<bRivalTerritory>0</bRivalTerritory>
 			<bMilitaryHappiness>0</bMilitaryHappiness>
 			<bMilitarySupport>1</bMilitarySupport>

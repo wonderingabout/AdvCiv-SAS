@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Leader Infos and AI Settings -->
-<!-- custom: remember or/and be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown if i am not mistaken too -->
+<!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown if i am not mistaken too -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<LeaderHeadInfos>
 		<LeaderHeadInfo> <!-- custom: Barbarian (add leader name here too for easier vs code tree read while in the file) -->
@@ -1138,11 +1138,11 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<!-- custom: favourite civics reworked similarly to the traits rebalancing, with the very nice help of chatgpt 5.1 and me xd too, and reviewed with other ais like claude sonnet 4.5 and grok 4.1 or/and such, see as of now README_Assets_Rebalancing.md for details -->
+			<!-- custom: favourite civics reworked similarly to the traits rebalancing, with the very nice help of chatgpt 5.1 and me xd too, and reviewed with other ais like claude sonnet 4.5 and grok 4.1 or such, see as of now README_Assets_Rebalancing.md for details -->
 			<!-- Asoka: was CIVIC_FREE_RELIGION (BtS / AdvCiv 1.12) -->
 			<FavoriteCivic>CIVIC_PACIFISM</FavoriteCivic>
 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
-			<!-- custom: traits reworked with the very nice help of chatgpt 5 and my prompts and ideas and/or such, see docs (in particular as of now README_Assets_Rebalancing.md (or the main changes guide if filename changed since then or/and git commit or/and such)) for details -->
+			<!-- custom: traits reworked with the very nice help of chatgpt 5 and my prompts and ideas or such, see docs (in particular as of now README_Assets_Rebalancing.md (or the main changes guide if filename changed since then or git commit or such)) for details -->
 			<!-- Asoka — was TRAIT_SPIRITUAL and TRAIT_ORGANIZED -->
 			<Traits>
 				<Trait>
@@ -3770,7 +3770,7 @@
 			<iVassalPowerModifier>20</iVassalPowerModifier>
 			<!-- custom: Kingdom of Benin was a hereditary monarchy according to: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Burials -->
 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<!-- custom: they seem to lean more towards paganism than christianity even though both seem ot be part of the kingdom of benin i mean anyways, etc, see notes for details -->
+			<!-- custom: they seem to lean more towards paganism than christianity even though both seem ot be part of the kingdom of benin, etc, see notes for details -->
 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<!-- Ewuare — was TRAIT_IMPERIALIST and TRAIT_SPIRITUAL -->
 			<Traits>
@@ -4475,7 +4475,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>50</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<!-- custom: not strictly daoist, but closest and seems accurate, see notes in docs or/and mod's google drive if there as well for details -->
+			<!-- custom: not strictly daoist, but closest and seems accurate, see notes in docs or mod's google drive if there as well for details -->
 			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -9071,7 +9071,7 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<!-- Qin Shi Huang: was CIVIC_BUREAUCRACY -->
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may or not be related but hopefully accurate enough. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or/and some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
+			<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may or not be related but hopefully accurate enough. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
 			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>

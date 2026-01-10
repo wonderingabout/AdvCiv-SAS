@@ -43,7 +43,7 @@
 			<KFM>Art/Structures/Improvements/TribalVillage/TribalVillage.kfm</KFM>
 			<Button>,Art/Interface/Buttons/Builds/BuildTribalVillage.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,10</Button>
 		</ImprovementArtInfo>
-		<!-- custom: removed improvement_winery, now grapes (renamed from wine) is improved by improvement_farm, see docs or/and other code comments for details -->
+		<!-- custom: removed improvement_winery, now grapes (renamed from wine) is improved by improvement_farm, see docs or other code comments for details -->
 		<ImprovementArtInfo>
 			<Type>ART_DEF_IMPROVEMENT_FARM</Type>
 			<bExtraAnimations>1</bExtraAnimations>

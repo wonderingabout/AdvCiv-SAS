@@ -1145,7 +1145,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.NUM_RESOURCE_COLUMNS = len(columns) - 1
 
 		# <advc> Intermediate values leftSpace and topSpace added
-		# <!-- custom: we don't need all this yellow empty space, better use it for our blue panel and grids or/and such to show more information -->
+		# <!-- custom: we don't need all this yellow empty space, better use it for our blue panel and grids or such to show more information -->
 		# leftSpace = self.MIN_LEFT_RIGHT_SPACE + 10
 		# topSpace = self.MIN_TOP_BOTTOM_SPACE + 10
 		leftSpace = 0
@@ -1341,7 +1341,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# </advc.073>
 		
 		# # Assemble the panel that shows the trade table
-		# <!-- custom: beautify, trim or adjust the edges to remove empty space or overfilling blue panel or/and such -->
+		# <!-- custom: beautify, trim or adjust the edges to remove empty space or overfilling blue panel or such -->
 		# iExtraY = 0
 		# iExtraHeight = 0
 		iExtraY = - 20

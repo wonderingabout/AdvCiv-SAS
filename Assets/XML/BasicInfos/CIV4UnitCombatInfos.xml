@@ -7,7 +7,7 @@
 <!-- custom: file imported from:
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4UnitCombatInfos.xml
 And modified for my needs, which is to create new unit combat types
-or/and modify existing ones, for example, archery units would become:
+or modify existing ones, for example, archery units would become:
 - archers (Bow, Short)
 - archers (Bow, Long)
 - archers (Crossbow)
@@ -57,7 +57,7 @@ or/and modify existing ones, for example, archery units would become:
 
 
 
-		<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK so knight units are not strong against pikemen, and chariots are not strong against spearmen or/and such; button import from c2c mod -->
+		<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK so knight units are not strong against pikemen, and chariots are not strong against spearmen or such; button import from c2c mod -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MELEE_POLEARM</Type>
 			<Description>TXT_KEY_UNITCOMBAT_MELEE_POLEARM</Description>
