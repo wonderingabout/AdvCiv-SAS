@@ -53,6 +53,14 @@ hopefully more readable or exportable if need/want be now -->
 		<English>Never</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNIT_OBSOLETE_WITH</Tag>
+		<English>Obsoletes With</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TECH_OBSOLETE_UNITS_TREE_NOTE</Tag>
+		<English>Note: the tech tree does not list obsoleted units to avoid clutter.</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM</Tag>
 		<English>Replaces</English>
 	</TEXT>

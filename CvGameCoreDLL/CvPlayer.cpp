@@ -5258,6 +5258,11 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 			return false;
 	}
 
+	// <!-- custom: ObsoleteTech stops training once known; default NONE. (GPT-5.2-Codex) -->
+	TechTypes const eObsoleteTech = GC.getInfo(eUnit).getObsoleteTech();
+	if (eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+		return false;
+
 	if (GC.getInfo(eUnit).getStateReligion() != NO_RELIGION)
 	{
 		if (getStateReligion() != GC.getInfo(eUnit).getStateReligion())

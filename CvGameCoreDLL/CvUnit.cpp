@@ -3286,7 +3286,13 @@ bool CvUnit::canScrap() const
 	{
 		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or updated info known issue as of now 52 or other related docs)
 		const UnitAITypes eUnitAI = AI_getUnitAIType();
-
+		const CvUnitInfo& kUnitInfo = getUnitInfo();
+		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently while keeping anti-scrap gates for useful ones; avoids per-unit logic and keeps AI hammer efficiency gains. (GPT-5.2-Codex) -->
+		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
+		if (eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+		{
+			return true;
+		}
 		const bool bLandMilitaryUnitAIs = (
 			(eUnitAI == UNITAI_ATTACK) ||
 			(eUnitAI == UNITAI_ATTACK_CITY) ||

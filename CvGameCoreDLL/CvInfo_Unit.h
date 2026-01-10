@@ -159,6 +159,8 @@ public: /*  All const functions are exposed to Python except some related to art
 	CorporationTypes getPrereqCorporation() const { return m_ePrereqCorporation; }
 	BuildingTypes getPrereqBuilding() const { return m_ePrereqBuilding; }
 	TechTypes getPrereqAndTech() const { return m_ePrereqAndTech; }
+	// <!-- custom: ObsoleteTech blocks training once known; default NONE keeps unit always buildable. (GPT-5.2-Codex) -->
+	TechTypes getObsoleteTech() const { return m_eObsoleteTech; }
 	bool isTechRequired(TechTypes eTech) const; // advc.003w: Replacing global isTechRequiredForUnit
 	BonusTypes getPrereqAndBonus() const { return m_ePrereqAndBonus; }
 	int getGroupSize() const; // the initial number of individuals in the unit group
@@ -417,6 +419,7 @@ protected:
 	CorporationTypes m_ePrereqCorporation;
 	BuildingTypes m_ePrereqBuilding;
 	TechTypes m_ePrereqAndTech;
+	TechTypes m_eObsoleteTech;
 	BonusTypes m_ePrereqAndBonus;
 	int m_iGroupSize;
 	int m_iGroupDefinitions;

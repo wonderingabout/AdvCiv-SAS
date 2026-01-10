@@ -8150,6 +8150,34 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 			buildObsoleteSpecialString(szBuffer, eLoopSpecialBuilding, true);
 	}
 
+	if (!bTreeInfo)
+	{
+		bool bAnyObsoleteUnits = false;
+		FOR_EACH_ENUM(Unit)
+		{
+			CvUnitInfo const& kLoopUnitInfo = GC.getInfo(eLoopUnit);
+			if (kLoopUnitInfo.getObsoleteTech() == eTech)
+			{
+				if (!bAnyObsoleteUnits)
+				{
+					bAnyObsoleteUnits = true;
+				}
+				szBuffer.append(NEWLINE);
+				CvWString szUnitLink;
+				szUnitLink.Format(L"<link=literal>%s</link>",
+						kLoopUnitInfo.getDescription());
+				szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
+						szUnitLink.GetCString()));
+			}
+		}
+		if (bCivilopediaText && bAnyObsoleteUnits)
+		{
+			// <!-- custom: keep tech tree uncluttered; add a pedia note only when relevant. (GPT-5.2-Codex) -->
+			szBuffer.append(NEWLINE);
+			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_TECH_OBSOLETE_UNITS_TREE_NOTE"));
+		}
+	}
+
 	//	Route movement change...
 	buildMoveString(szBuffer, eTech, true, bPlayerContext);
 
@@ -8954,6 +8982,23 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	{
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_GOLDEN_AGE"));
+	}
+
+	if (u.getObsoleteTech() != NO_TECH)
+	{
+		// <!-- custom: show ObsoleteTech as a red tech link in unit special abilities (pedia). (GPT-5.2-Codex) -->
+		szBuffer.append(NEWLINE);
+		CvWString szTechLink;
+		szTechLink.Format(L"<link=literal>%s</link>",
+				GC.getInfo(u.getObsoleteTech()).getDescription());
+		CvWString szObsoleteText;
+		szObsoleteText.Format(SETCOLR L"%s: %s" ENDCOLR,
+				TEXT_COLOR("COLOR_WARNING_TEXT"),
+				gDLL->getText("TXT_KEY_PEDIA_UNIT_OBSOLETE_WITH").GetCString(),
+				szTechLink.GetCString());
+		szBuffer.append(CvWString::format(L"%c%s",
+				gDLL->getSymbolID(BULLET_CHAR),
+				szObsoleteText.GetCString()));
 	}
 
 	if (u.getLeaderExperience() > 0)

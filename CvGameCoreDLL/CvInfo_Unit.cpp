@@ -73,6 +73,8 @@ m_ePrereqReligion(NO_RELIGION),
 m_ePrereqCorporation(NO_CORPORATION),
 m_ePrereqBuilding(NO_BUILDING),
 m_ePrereqAndTech(NO_TECH),
+// <!-- custom: ObsoleteTech default NONE; XML sets it per unit when needed. (GPT-5.2-Codex) -->
+m_eObsoleteTech(NO_TECH),
 m_ePrereqAndBonus(NO_BONUS),
 m_iGroupSize(0),
 m_iGroupDefinitions(0),
@@ -837,6 +839,7 @@ void CvUnitInfo::read(FDataStreamBase* stream)
 	stream->Read((int*)&m_ePrereqCorporation);
 	stream->Read((int*)&m_ePrereqBuilding);
 	stream->Read((int*)&m_ePrereqAndTech);
+	stream->Read((int*)&m_eObsoleteTech);
 	stream->Read((int*)&m_ePrereqAndBonus);
 	stream->Read(&m_iGroupSize);
 	stream->Read(&m_iGroupDefinitions);
@@ -1109,6 +1112,7 @@ void CvUnitInfo::write(FDataStreamBase* stream)
 	stream->Write(m_ePrereqCorporation);
 	stream->Write(m_ePrereqBuilding);
 	stream->Write(m_ePrereqAndTech);
+	stream->Write(m_eObsoleteTech);
 	stream->Write(m_ePrereqAndBonus);
 	stream->Write(m_iGroupSize);
 	stream->Write(m_iGroupDefinitions);
@@ -1337,6 +1341,8 @@ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqCorporation, "PrereqCorporation");
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqBuilding, "PrereqBuilding");
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqAndTech, "PrereqTech");
+	// <!-- custom: missing ObsoleteTech stays NO_TECH (default), so older mods without the tag remain compatible. (GPT-5.2-Codex) -->
+	pXML->SetInfoIDFromChildXmlVal(m_eObsoleteTech, "ObsoleteTech");
 
 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"TechTypes"))
 	{

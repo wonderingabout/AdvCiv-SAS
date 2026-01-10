@@ -55,6 +55,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 &emsp;[Leaders (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#leaders-non-exhaustive)  
 &emsp;[Barbarians (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#barbarians-non-exhaustive)  
 &emsp;[Diplomacy (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#diplomacy-non-exhaustive)  
+&emsp;[Units (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#units-common)  
 &emsp;[Civilian Units](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilian-units)  
 &emsp;[Military & related units (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#military--related-units-non-exhaustive)  
 [Fixes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#fixes)  
@@ -478,6 +479,11 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
 - **Voluntary** vassals are **permanent** (thematically a full culture absorption/merger).
 - **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
 
+### Units (Common)
+
+- (Requires AdvCiv-SAS 5317+) New **optional XML field**: `ObsoleteTech` **for units**: if set, this unit **can no longer be produced once we have discovered this tech** (e.g. Ancient Maceman (`UNIT_WARRIOR`) obsolete at `TECH_BRONZE_WORKING`). This XML field is **optional**: if **not set** (`<ObsoleteTech>NONE</ObsoleteTech>`, e.g. for the `UNIT_SETTLER`) or missing entirely (better **inter-mod portability**), a **fallback default of `NONE`** is provided anyway, so the unit is never obsolete, meaning no tech discovery will stop allowing to produce it (base AdvCiv/Civ4 behaviour). This new XML field allows to **avoid unit clutter in later eras** (no more **abherrent obsolete units in later eras** (e.g. Ancient Maceman produced in Medieval Era; Pikemen in Industrial Era)) being **produced** or shown in the **Production Chooser Bar**. **AI** becomes **naturally stronger** as a result of these changes. Additionally, this also helps set **clean scrapping rules** to computationally cheaply detect and remove old units for the AI's military compostion, or **further enhancements**. **Sevopedia** Blurbs with links fully implemented in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). See [README: New optional XML fields](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units). See also [KI#93](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping).
+- **Build timing** tweaks for some units for historical pacing; see Tech Tree.
+
 ### Civilian Units
 
 - `DOW_UNIT_CAPTURE_CHANCE` **0 → 50**: workers can be captured **on the turn war is declared**, same as other turns. Aligns with the base capture chance and rewards opportunistic warfare.
@@ -506,7 +512,6 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
 - **Support costs:** some late/robotic units have **no support cost**; **Privateer** now **has support** (was free).
 - **Weak/late civ-specific** units **replaced by earlier/impactful ones** (e.g., Dutch East Indiaman → Dutch Swift Worker; German Panzer → Hussar; Mongol Keshik → Khishigten — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses; Holy Roman Landsknecht → Houfnice — cannon-based aligns with HRE’s aggressive profile, hits the tight medieval window, and avoids Landsknecht’s obsolescence/balance issues (anti-melee niche fades; weak vs. Cuirassiers)).
 - **Broad unit reworks/rebalances:** e.g., French **Musketeer** — Move 2 → 1; gains anti-mounted and small collateral kit for a stronger Renaissance+ role (especially vs Cuirassier units and their upgrades).
-- **Build timing** tweaks for some units for historical pacing; see Tech Tree.
 - **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery). The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
 - **Naval/animal** units broadly rebalanced; see Sevopedia/XML for details.
 - Units more **versatile:** e.g., Swords defend better; Archers can attack more credibly.
