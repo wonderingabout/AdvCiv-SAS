@@ -189,6 +189,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.iItemIndex = -1
 		self.pediaHistory = []
 		self.pediaFuture = []
+		self.SAS_lastPediaJump = None
 
 		# <!-- custom: compute once to be computationally more efficient if i'm not mistaken in my thinking, and added with the help of chatgpt 5.2 thanks. -->
 		self.SAS_cacheCivicsTuple = None
@@ -498,11 +499,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			g_TraitUtilInitDone = True
 		self.iActivePlayer = gc.getGame().getActivePlayer()
 		self.iCategory = -1
-		if (not self.pediaHistory):
+		if self.SAS_lastPediaJump is not None:
+			current = self.SAS_lastPediaJump
+		elif self.pediaHistory:
+			current = self.pediaHistory.pop()
+		else:
 			# <!-- custom: default to the first row in SAS_CATEGORY_DEFS, so the opening category always
 			# matches the current category order instead of being hardcoded to Techs. (GPT-5.2-Codex) -->
-			self.pediaHistory.append((SevoScreenEnums.PEDIA_MAIN, self.SAS_CATEGORY_DEFS[0][0]))
-		current = self.pediaHistory.pop()
+			current = (SevoScreenEnums.PEDIA_MAIN, self.SAS_CATEGORY_DEFS[0][0])
 		self.pediaFuture = []
 		self.pediaHistory = []
 		self.pediaJump(current[0], current[1], False, True)
@@ -529,6 +533,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		if (iCategory == SevoScreenEnums.PEDIA_MAIN):
 			BugUtil.debug("Main link %d" % iItem)
+			self.SAS_lastPediaJump = (iCategory, iItem)
 			self.showContents(bIsLink, iItem)
 			iListIndex = self.SAS_categoryEnumToIndex.get(iItem, -1)
 			if iListIndex != -1:
@@ -541,6 +546,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		elif (iCategory == SevoScreenEnums.PEDIA_BTS_CONCEPTS):
 			iCategory = self.determineNewConceptSubCategory(iItem)
 			BugUtil.debug("Switching to category %d" % iCategory)
+		self.SAS_lastPediaJump = (iCategory, iItem)
 		self.showContents(bIsLink, iCategory)
 		iListIndex = self.SAS_categoryEnumToIndex.get(iCategory, -1)
 		if iListIndex != -1:
