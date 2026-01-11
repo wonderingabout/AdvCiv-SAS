@@ -1349,6 +1349,8 @@ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqCorporation, "PrereqCorporation");
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqBuilding, "PrereqBuilding");
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqAndTech, "PrereqTech");
+	// <!-- custom: missing ObsoleteTech stays NO_TECH (default), so older mods without the tag remain compatible. (GPT-5.2-Codex) -->
+	pXML->SetInfoIDFromChildXmlVal(m_eObsoleteTech, "ObsoleteTech");
 
 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"TechTypes"))
 	{
@@ -1370,11 +1372,9 @@ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
 							break;
 					}
 					gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+				}
 			}
 		}
-	}
-	// <!-- custom: missing ObsoleteTech stays NO_TECH (default), so older mods without the tag remain compatible. (GPT-5.2-Codex (summarized)) -->
-	pXML->SetInfoIDFromChildXmlVal(m_eObsoleteTech, "ObsoleteTech");
 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
 	}
 

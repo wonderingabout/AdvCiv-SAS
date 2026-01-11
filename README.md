@@ -240,6 +240,7 @@ They notably feature additional fields that do not are not direct XML info field
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
 
 ### Some higher level reworks (e.g. AI Personality Panel)
 

@@ -2227,3 +2227,225 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Italian>Show Hidden Attitudes [spoiler]</Italian>
 		<Spanish>Mostrar Actitudes Ocultas [espoiler]</Spanish>
 	</TEXT-->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #101 -----
+
+	<!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 -->
+	<!-- custom: if <= this value at start phase, we apply unhealthiness value correction -->
+	<!-- custom: details below with the help of chatgpt 5 thanks -->
+	<!--
+	Bad-health scaling (plain explanation)
+
+	Terms
+	- THRESH: the cutoff where penalties begin (e.g. -300). If total bad-health (CHP) is
+	not as bad as this, there’s no penalty.
+	- RATE: how much (%) we cut per -100 CHP once past the threshold.
+	- CHP (“Cautious Health Percent”): quick net health score from nearby tiles:
+		* Jungle = -50 each, Forest = +50 each (see XML or sevopedia for updated values) (as of now they cancel 1:1).
+		* As of now, flood Plains are ignored here (their benefits outweigh the unhealth).
+
+	How it works
+	1) If CHP is above the threshold (e.g. -250 vs THRESH -300) ? 0% cut.
+	2) If CHP reaches or goes past the threshold (e.g. -350 vs THRESH -300), we cut the candidate city site total value
+	proportional to how unhealthy it is:
+	- Penalty% = min(100, RATE × (|CHP| / 100))
+	- NewValue = OldValue × (100 ? Penalty%) / 100
+	(All integer math to avoid division loss of precision; we cap at 100% so value never goes negative.)
+
+	Quick examples (THRESH = -300, RATE = 10)
+	- CHP = -299 ? below threshold ? 0% cut.
+	- CHP = -300 ? 3×100 ? 30% cut ? keep 70% of value.
+	- CHP = -350 ? ~3.5×100 ? 35% cut ? keep 65%.
+	- CHP = -600 ? 6×100 ? 60% cut ? keep 40%.
+
+	Tuning
+	- START phase uses stricter THRESH / higher RATE to avoid slow, unhealthy capitals.
+	- LATER cities use a looser THRESH / lower RATE so good long-term sites aren’t over-penalized.
+	-->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #102 -----
+
+	<!-- Important: this gate uses BASE hammers per turn (iBaseHammersPerTurn), i.e. hammers before production multipliers are applied
+	(stone/marble, traits, civics, forge/factory, etc). Production multipliers are handled separately later via getProductionModifier() and iTurnsWW.
+
+	Assume iCurrentEra is 0-based: Era0=0, Era1=1, Era2=2, Era3=3, Era4=4
+
+	Examples (using the values below):
+	World wonders:   MIN_BASE=6,  EXTRA=3  => Era0=6,  Era1=9, Era2=12, Era3=15, Era4=18
+	National wonders:MIN_BASE=6,  EXTRA=2  => Era0=6,  Era1=8, Era2=10, Era3=12, Era4=14
+	Unknown wonders: MIN_BASE=6,  EXTRA=2  => Era0=6,  Era1=8, Era2=10, Era3=12, Era4=14
+
+	City check example (world wonders values):
+	- Era1 threshold is 10: city with 9 BASE hammers is rejected; city with 10 BASE hammers is allowed.
+	-->
+	<!-- custom: setting to -1 effectively disables these as value will be negative, so we'll always have more hammer than say -5 min hammer so it would always be allowed then -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #103 -----
+
+	<!-- Unit: extra "gold per 10% strength gain" per 1 EXP.
+
+	     Examples (base = 25 gold per 10% strength gain, per XP = 1 gold per 10% strength gain per 1 EXP):
+
+		 Example 1:
+	     - unit has 13 EXP
+	       extra gold allowance from XP = 13 XP * 1 gold per 10% strength gain per 1 EXP
+	                                     = 13 gold per 10% strength gain
+	       effective value = 25 gold per 10% strength gain + 13 gold per 10% strength gain
+	                       = 38 gold per 10% strength gain (then capped below)
+
+	     Example 2:
+	     - unit has 20 EXP
+	     - extra gold allowance from XP = 20 XP * 1 gold per 10% strength gain per 1 EXP
+	                                     = 20 gold per 10% strength gain
+	     - effective value = 25 gold per 10% strength gain + 20 gold per 10% strength gain
+	                       = 45 gold per 10% strength gain (then capped below) -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #104 -----
+
+	<!-- How to read this value: "gold per +1 flat strength gain".
+	     - "flat strength gain" means raw strength points, e.g. 10 -> 13 is +3 flat strength gain.
+	     - If a unit gains +1 flat strength from an upgrade, this value is the max gold the AI is willing to pay.
+	     - If a unit gains +3 flat strength, the max gold is about triple, etc.
+
+	     Important: this gate is also influenced by the XP allowance below (even at low EXP).
+	     Example (base = 15 gold per +1 flat strength gain, per XP = 1 gold per +1 flat strength gain per 1 EXP):
+	     - unit has 1 XP -> effective value is 15 + 1 = 16 gold per +1 flat strength gain
+	     - unit has 13 XP -> effective value is 15 + 13 = 28 gold per +1 flat strength gain
+
+	     Example (value = 15 gold per +1 flat strength gain):
+	     - 10 -> 13 is +3 flat strength gain (example: Knight -> Cuirassier, strength numbers are only an example).
+	       If unit has 1 EXP:
+	       max gold allowed = 16 gold per +1 flat strength gain * 3 flat strength gain = 48 gold.
+	       If the upgrade costs 60 gold: NO (60 > 48) -> skip.
+	       If unit has 13 EXP:
+	       max gold allowed = 28 gold per +1 flat strength gain * 3 flat strength gain = 84 gold.
+	       If the upgrade costs 60 gold: YES (60 <= 84) -> upgrade. -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #105 -----
+
+	<!--     How to read this value: "gold per 10% strength gain".
+	     - If a unit gains +10% strength from an upgrade, this value is the max gold the AI is willing to pay.
+	     - If a unit gains +20% strength, the max gold is about double, etc.
+
+	     Example (value = 25 gold per 10% strength gain):
+	     - 50 -> 52 is about +4% strength gain.
+	       Max gold allowed for this strength gain is about:
+	       25 gold per 10% strength gain * (4% strength gain / 10%) = 10 gold.
+	       If the upgrade costs 20 gold: NO (20 > 10) -> skip.
+	     - 3 -> 5 is about +66% strength gain.
+	       Max gold allowed for this strength gain is about:
+	       25 gold per 10% strength gain * (66% strength gain / 10%) = 165 gold.
+	       If the upgrade costs 20 gold: YES (20 <= 165) -> upgrade. -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #106 -----
+
+	<!-- 
+		-> 0 (default): the tech tree goes from leftmost part of the screen (tightly compressed left margin as there is less room), to about halfway in the scoreboard on the right: we see leader name, the tech they are researching (if we know it), their tech %
+
+		-> 1: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about half of the scoreboard on the right: we see about half of the player names on the scoreboard unless theirs is extremely short (e.g. "Joao II" not visible, most are visible partially), plus the tech they are researching (if we know it), their tech %.
+
+		-> 2: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about 2 thirds of the scoreboard on the right: we don't see player names on the scoreboard anymore, but we see the tech players are researching (if we know it) and their tech %.
+
+		-> 3: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to the rightmost part of the screen on the right: it provides maximum immersion visually as potentially distracting info is removed, but we don't know anymore their tech (and the world map is now hidden as well).
+	-->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #107 -----
+
+	<!-- The Solution
+	We need to change the Diplomatic Modifier section in AI_religionValue.
+	1) Remove the Attitude Gate: The AI should recognize that sharing a religion is a tool to make people like them, not just a reward for people who already do.
+	2) Add Power Weighting: Instead of counting every Civ as 2 points, we will weigh them by their Military Power. If a Civ is scary (Top Dog or Strong Guy), their religion matters much more. -->
+	<!-- custom: here are tunables to change the computation of the overall diplomacy modifier (that includes power weighting) of a religion's value. -->
+	<!-- AI Religion Value Diplomacy Formula -->
+	<!-- Formula: Modifier = [(MULT * Base * PowerBlocPercent) + MULT_ADD] / [(DIVIDER_MULT * ReligionFlavor) + DIVIDER_ADD] -->
+	<!-- Base = Personality-based value (50-95), PowerBlocPercent = 0-100 based on power of civs sharing religion -->
+	<!-- Example: 70% power bloc, Base=75, Flavor=5: [(10*75*70)+0] / [(1*5)+0] = 52500/5 = 10500% -->
+	<!-- custom: note: as noted by chatgpt 5.1 in a similar example thanks , in this example this would result in multiplying base value by 105 (10500 percent = 105) which is a "huge" "boost" as per its words but may be fine i think (check if accurate though as this is just a guess of mine) to account for military power more in religion value. Adjust as you see fit or based on autoplay or whatever. -->
+	<!-- Increasing MULT amplifies diplomatic weight. Increasing DIVIDER_ADD reduces flavor penalty for low-religion leaders. -->
+	<!-- Multiplier for diplomatic modifier. Higher = stronger diplomatic influence. Min: 0 -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #108 -----
+
+	<!--
+	Civic switch hysteresis (anti flip-flop)
+
+	What it does:
+	- Stops the AI from bouncing between near-equal civics. The AI only switches if the
+	new civic is clearly better than the current one by a small "extra lead" called slack.
+
+	How slack is calculated:
+	- slack = max( SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK ,
+				round( abs(current_value) * SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT / 100 ) )
+
+	Examples:
+	- Small numbers (early game): current_value=30, MIN=5, PCT=5%
+	-> slack=max(5, round(1.5))=5. New civic must be at least 30+5=35 to switch.
+	- Large numbers (late game): current_value=220, MIN=5, PCT=5%
+	-> slack=max(5, round(11))=11. New civic must be at least 220+11=231 to switch.
+
+	Tuning tips:
+	- Raise MIN to reduce early-game churn (e.g. 6-8). Lower it for more agility.
+	- Raise PCT to require a bigger lead in late game (e.g. 6-8%). Lower it for more frequent switches.
+	- Set both to 0 to disable the anti flip-flop behavior.
+	-->
+	<!-- Absolute floor in value-points; prevents tiny swings from causing a switch when current_value is small. Raise to reduce early-game oscillation; lower to make AI more eager. -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #109 -----
+
+	<!-- Note: since it is technical and i didn't reread or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct
+
+	if we have no horse nor camel nor elephants pre medieval, increase them to 1.5x
+	if we have no metal pre medieval, increase them to 1.5x
+
+	if we have no horse nor camel medieval, increase them 1.5x if we have metals else 0.75x
+	if we have no metal medieval, increase iron 2.0x copper 0.75x if we have mounts else iron 1.0x copper 0.50x
+	regardless of all, medieval+ elephants is 0.50x (useless except buildings, offset the small iaiobjective and correct value)
+	regardless of all, medieval+ copper is 0.50x similarly
+
+	if we have no horse nor camel renaissance, increase them 1.5x if we have iron else 0.75x
+	if we have no iron renaissance increase for cannons 1.50x, if we have mounts increase 1.50x
+
+	if we have no camel don't care in industrial+, onwards apply 0.50x (not used for units anymore)
+
+	if we have no horse in industrial (cavalry is now metal independant) keep same (we have fallbacks and better units onwards)
+
+	if we have no horse in modern+ apply 0.50x (not used for units anymore)
+	Below code comments by chatgpt 5, check if accurate
+	-->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #110 -----
+
+	<!-- custom: as of now only applies to land unitais as are +/- were the most important to trim and that overproduce as of now with our changes -->
+	<!-- custom: note: now shared with no production fallback code hence the different name prefix -->
+	<!-- If your intent is:
+		- Anc/Class/Med caps only early, but
+		- Renaissance+ cheap land caps always active,
+	then you’d need to decouple the bEarly gate from the Renaissance+ branch (e.g. only wrap the Ancient/Class/Med tiers in if (bEarly) and leave the Renaissance+ tier under if (bNoExcessVeryCheapMilitaryUnits) alone). -->
+	<!-- custom: note 2: as of now in CvCity::doTurn, renaissance plus land tier unaffected by this as nicely noted by chatgpt 5.1 thanks. As for CvCityAI:AI_ChooseUnit, this is never applied at all for very cheap units gates -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #111 -----
+
+	<!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
+	<!-- custom: note: 0 to disable it would mean expansion phase would be over since the turn game started (this allows stricter no wonder policy to hopefully make AI stronger militarily; adjust as you see fit). Otherwise a value like 125 or similar may do fine (test to be sure, adjust as you see fit) -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #112 -----
+
+	<!-- Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
+		- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay” more total value on our side.
+		- When someone else is getting such a tech from us, they’ll see it as more precious as well (since their AI_techTradeVal gets the same logic when they are in danger).
+	This is symmetric and “honest”: no hidden cheat, just a consistent “this is life or death, this tech is worth a lot to us” multiplier. -->
+    <!-- SAS techTradePowerDanger: bias AI tech trade valuation toward key military techs when clearly weaker. -->
+    <!-- Enable/disable the trade-stage danger bias. -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->

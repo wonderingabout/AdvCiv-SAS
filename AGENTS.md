@@ -6,7 +6,7 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
 
 Note: our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS) if needed.
 
-## Comment Editing Rules (for me, now and later)
+## Comment Editing Rules
 
 - **ALWAYS preserve the `<!-- custom` prefix** - never remove it when summarizing comments.
 - Simplify verbose comments without changing meaning or technical details.

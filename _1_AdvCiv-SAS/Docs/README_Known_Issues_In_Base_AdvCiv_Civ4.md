@@ -2346,6 +2346,8 @@ I don't know if it's for sure a result of these, but we seem to have really good
 
 Update 2: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game).
 
+Update 3: code now disabled now that we as of now have the unit `ObsoleteTech` field. Other parts of the documentation may also now be stale and not mentionned to be as such.
+
 ## 54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
 
 See screenshots and files about/related(ing?) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1gYU7NrXpJNc5p6hbqOsCxnOmCy_7VTDf?usp=sharing)
