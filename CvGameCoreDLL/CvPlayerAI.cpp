@@ -20678,6 +20678,7 @@ void CvPlayerAI::AI_doMilitary()
 	if (!isAnarchy() && AI_isFinancialTrouble()
 		/*&& GET_TEAM(getTeam()).AI_getWarSuccessRating() > -30*/) // advc.110: commented out
 	{
+		// <!-- custom: only disband while over budget; stop once back in budget, so obsolete units are not mass-scrapped immediately. (GPT-5.2-Codex) -->
 		int iCost = AI_unitCostPerMil();
 		int const iMaxCost = AI_maxUnitCostPerMil() -
 				// advc.110: Increase iMaxCost when war success rating negative
@@ -29926,13 +29927,23 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	// 	return MAX_INT;
 	// <!-- custom: then normal/old code below -->
 	
-	int iValue = 1000 + SyncRandNum(200);
+	// <!-- custom: deterministic disband ordering; no random jitter. (GPT-5.2-Codex) -->
+	// int iValue = 1000 + SyncRandNum(200);
+	int iValue = 1000;
 
-	iValue *= 100 + 3 * kUnit.getUnitInfo().getProductionCost();
+	// <!-- custom: XML cost is the most reliable strength proxy (e.g., trebuchet vs axeman); XP is secondary. (GPT-5.2-Codex) -->
+	const int iXMLCost = kUnit.getUnitInfo().getProductionCost();
+	// iValue *= 100 + 3 * iXMLCost;
+	iValue *= 100 + 100 * iXMLCost;
 	iValue /= 100;
 
+	// <!-- custom: only break ties with XP/level; keep cheap weak veterans below stronger modern units. (GPT-5.2-Codex) -->
 	iValue *= 100 + std::max(kUnit.getExperience(),
-			kUnit.getLevel() * kUnit.getLevel() * 2 / 3) * 15;
+			// kUnit.getLevel() * kUnit.getLevel() * 2 / 3) * 15;
+			kUnit.getLevel() * kUnit.getLevel() * 2 / 3) * 4;
+	iValue /= 100;
+	// <!-- custom: strength is a light tiebreaker; cost dominates. (GPT-5.2-Codex) -->
+	iValue *= 100 + (kUnit.getUnitInfo().getCombat() * 2);
 	iValue /= 100;
 
 	/*if (getPlot().getTeam() == getTeam()) {
@@ -30128,6 +30139,23 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	if (kUnit.getUnitInfo().getExtraCost() > 0)
 	{
 		iValue /= kUnit.getUnitInfo().getExtraCost() + 1;
+	}
+
+	// <!-- custom: add scrapping support for units that have a tech in their ObsoleteTech XML field -->
+	if (kUnit.getUnitInfo().getObsoleteTech() != NO_TECH &&
+		GET_TEAM(getTeam()).isHasTech(kUnit.getUnitInfo().getObsoleteTech()))
+	{
+		iValue /= 4;
+	}
+
+	// <!-- custom: on land-heavy maps, scrap naval units first; on naval-heavy maps, scrap land units first. (GPT-5.2-Codex) -->
+	if (kGame.isLandHeavyMapnameCached() && kUnit.getDomainType() == DOMAIN_SEA)
+	{
+		iValue /= 2;
+	}
+	else if (kGame.isNavalHeavyMapnameCached() && kUnit.getDomainType() == DOMAIN_LAND)
+	{
+		iValue /= 2;
 	}
 
 	return iValue;

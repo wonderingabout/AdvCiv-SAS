@@ -13,7 +13,7 @@ Note 2 : XLL and bigger world sizes are recommended to be played with the 48 civ
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_MENU_SIZE</Tag>
-		<English>Size (Base/48 civs):</English>
+		<English>Size (Base/48):</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_RECOMMENDED_DLL_FIELD</Tag>

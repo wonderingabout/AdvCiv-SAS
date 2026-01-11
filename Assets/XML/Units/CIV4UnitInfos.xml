@@ -2092,7 +2092,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_HUNTING</PrereqTech>
-			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
+			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -2326,7 +2326,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_NAVIGATION -->
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -2562,7 +2562,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_PHYSICS -->
 			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_SPACE_EXPLORATION</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -5780,7 +5780,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -6001,7 +6001,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -6221,7 +6221,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -6460,7 +6460,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -6679,7 +6679,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>BONUS_IRON</BonusType>
 			<PrereqBonuses/>
@@ -6862,7 +6862,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -7078,7 +7078,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<!-- custom: the gallic_warrior had it so no reason why the roman_legionary can't, historically they could use copper/bronze just as well i guess, since it's their civ-specific unit it better be a good one!; as of now only applied to civ-specific swordsmen for balance and to keep strategic importance of iron, was BonusType bonus_iron and PrereqBonuses empty-->
 			<BonusType>NONE</BonusType>
@@ -7309,7 +7309,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<!-- custom: the gallic_warrior had it so no reason why the roman_legionary can't, historically they could use copper/bronze just as well i guess, since it's their civ-specific unit it better be a good one!; as of now only applied to civ-specific swordsmen for balance and to keep strategic importance of iron, was BonusType bonus_iron and PrereqBonuses empty-->
 			<BonusType>NONE</BonusType>
@@ -7533,7 +7533,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
 			<TechTypes/>
 			<!-- custom: in our mod the quechua_warrior is as of now swordsman based, but as for bonuses required, see code comment at the roman_legionary or other civ-specific swordsman class units -->
 			<BonusType>NONE</BonusType>
@@ -7760,7 +7760,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -7965,7 +7965,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -8201,7 +8201,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -8444,7 +8444,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_HUNTING -->
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -8673,7 +8673,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_HUNTING -->
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -8910,7 +8910,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_HUNTING -->
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -9148,7 +9148,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -9399,7 +9399,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<!-- Optional clean-up (if you want even sharper flavor):
 			Move Pikeman here instead of on Chivalry. Pikes historically are mass infantry / town militias / Swiss etc., raised under feudal lords but not part of the knightly code. Mechanically it also says: “Feudal order gives you both noble courts and organized infantry.” -->
 			<PrereqTech>TECH_FEUDALISM</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -9644,7 +9644,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_HUNTING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CONSTRUCTION</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -9891,7 +9891,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM -->
 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10125,7 +10125,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ARCHERY (now removed) and tech types empty -->
 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10393,7 +10393,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ARCHERY (now removed) and tech types empty -->
 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10622,7 +10622,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10822,7 +10822,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -11058,7 +11058,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -11300,7 +11300,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -11521,7 +11521,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_GUNPOWDER -->
 			<PrereqTech>TECH_FIREARMS</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -11710,7 +11710,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_GUNPOWDER -->
 			<PrereqTech>TECH_FIREARMS</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -11930,7 +11930,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_GUNPOWDER -->
 			<PrereqTech>TECH_FIREARMS</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -12162,7 +12162,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_GUNPOWDER -->
 			<PrereqTech>TECH_FIREARMS</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -12397,7 +12397,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units, was TECH_FIREARMS with techTypes empty -->
 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -12607,7 +12607,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units, was TECH_FIREARMS with techTypes empty -->
 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -12859,7 +12859,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE and tech types TECH_FIREARMS -->
 			<PrereqTech>TECH_FASCISM</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13067,7 +13067,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was tech_industrialism and tech_types tech_FIREARMS -->
 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_TRANSHUMANISM</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_FASCISM</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13268,7 +13268,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: tech requirements reworked, was flight + tech types fascism and rifling -->
 			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_TRANSHUMANISM</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -13666,7 +13666,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -13865,7 +13865,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: add TECH_ARTILLERY as it seems from very quick glances of it it seems they launch rockets/bazookas/rpgs and such from very little i know or guess of it, so fits more and quite well tech_artillery rather maybe, would make anti_tanks not appear too soon in history  too in the game, was TECH_ASSEMBLY_LINE -->
 			<PrereqTech>TECH_ARTILLERY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13978,6 +13978,223 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
+		<UnitInfo> <!-- custom: class: UNITCLASS_GUNSHIP, type: UNIT_GUNSHIP (useful for VS Code upper tree view while scrolling) -->
+			<Class>UNITCLASS_GUNSHIP</Class>
+			<Type>UNIT_GUNSHIP</Type>
+			<UniqueNames/>
+			<Special>NONE</Special>
+			<Capture>NONE</Capture>
+			<Combat>UNITCOMBAT_HELICOPTER</Combat>
+			<Domain>DOMAIN_LAND</Domain>
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<Invisible>NONE</Invisible>
+			<SeeInvisible>NONE</SeeInvisible>
+			<Description>TXT_KEY_UNIT_GUNSHIP</Description>
+			<Civilopedia>TXT_KEY_UNIT_GUNSHIP_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_MILITARY</Advisor>
+			<bAnimal>0</bAnimal>
+			<bFood>0</bFood>
+			<bNoBadGoodies>0</bNoBadGoodies>
+			<bOnlyDefensive>0</bOnlyDefensive>
+			<bNoCapture>1</bNoCapture>
+			<bQuickCombat>0</bQuickCombat>
+			<bRivalTerritory>0</bRivalTerritory>
+			<bMilitaryHappiness>0</bMilitaryHappiness>
+			<bMilitarySupport>1</bMilitarySupport>
+			<bMilitaryProduction>1</bMilitaryProduction>
+			<bPillage>1</bPillage>
+			<bSpy>0</bSpy>
+			<bSabotage>0</bSabotage>
+			<bDestroy>0</bDestroy>
+			<bStealPlans>0</bStealPlans>
+			<bInvestigate>0</bInvestigate>
+			<bCounterSpy>0</bCounterSpy>
+			<bFound>0</bFound>
+			<bGoldenAge>0</bGoldenAge>
+			<bInvisible>0</bInvisible>
+			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+			<!-- custom: was 0 -->
+			<bCanMoveImpassable>1</bCanMoveImpassable>
+			<!-- custom: was 0 -->
+			<bCanMoveAllTerrain>1</bCanMoveAllTerrain>
+			<bFlatMovementCost>0</bFlatMovementCost>
+			<bIgnoreTerrainCost>1</bIgnoreTerrainCost>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqBonuses>0</bPrereqBonuses>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bMechanized>0</bMechanized>
+			<bSuicide>0</bSuicide>
+			<bHiddenNationality>0</bHiddenNationality>
+			<bAlwaysHostile>0</bAlwaysHostile>
+			<UnitClassUpgrades/>
+			<UnitClassTargets/>
+			<UnitCombatTargets/>
+			<UnitClassDefenders/>
+			<UnitCombatDefenders/>
+			<FlankingStrikes>
+				<FlankingStrike>
+					<FlankingStrikeUnitClass>UNITCLASS_CANNON</FlankingStrikeUnitClass>
+					<iFlankingStrength>100</iFlankingStrength>
+				</FlankingStrike>
+				<FlankingStrike>
+					<FlankingStrikeUnitClass>UNITCLASS_FIELD_GUN</FlankingStrikeUnitClass>
+					<iFlankingStrength>100</iFlankingStrength>
+				</FlankingStrike>
+				<FlankingStrike>
+					<FlankingStrikeUnitClass>UNITCLASS_SELF_PROPELLED_ARTILLERY</FlankingStrikeUnitClass>
+					<iFlankingStrength>100</iFlankingStrength>
+				</FlankingStrike>
+			</FlankingStrikes>
+			<!-- custom: remove unitai_pillage, see other code comments for details -->
+			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<!-- K-Mod -->
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs/>
+			<Builds/>
+			<ReligionSpreads/>
+			<CorporationSpreads/>
+			<GreatPeoples/>
+			<Buildings/>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<PrereqBuilding>NONE</PrereqBuilding>
+			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
+			<ObsoleteTech>TECH_SPACE_EXPLORATION</ObsoleteTech>
+			<!-- custom: was empty -->
+			<TechTypes>
+				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
+			<BonusType>BONUS_OIL</BonusType>
+			<PrereqBonuses/>
+			<ProductionTraits/>
+			<Flavors/>
+			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 160 -->
+			<iCost>190</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>-1</iMinAreaSize>
+			<iMoves>4</iMoves>
+			<bNoRevealMap>0</bNoRevealMap>
+			<iAirRange>0</iAirRange>
+			<iAirUnitCap>0</iAirUnitCap>
+			<iDropRange>0</iDropRange>
+			<iNukeRange>-1</iNukeRange>
+			<iWorkRate>0</iWorkRate>
+			<iBaseDiscover>0</iBaseDiscover>
+			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+			<iBaseHurry>0</iBaseHurry>
+			<iHurryMultiplier>0</iHurryMultiplier>
+			<iBaseTrade>0</iBaseTrade>
+			<iTradeMultiplier>0</iTradeMultiplier>
+			<iGreatWorkCulture>0</iGreatWorkCulture>
+			<iEspionagePoints>0</iEspionagePoints>
+			<TerrainImpassables/>
+			<FeatureImpassables/>
+			<TerrainPassableTechs/>
+			<FeaturePassableTechs/>
+			<!-- custom: was 24 -->
+			<iCombat>26</iCombat>
+			<iCombatLimit>100</iCombatLimit>
+			<iAirCombat>0</iAirCombat>
+			<iAirCombatLimit>0</iAirCombatLimit>
+			<iXPValueAttack>4</iXPValueAttack>
+			<iXPValueDefense>2</iXPValueDefense>
+			<iFirstStrikes>0</iFirstStrikes>
+			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<iInterceptionProbability>0</iInterceptionProbability>
+			<iEvasionProbability>0</iEvasionProbability>
+			<iWithdrawalProb>25</iWithdrawalProb>
+			<iCollateralDamage>20</iCollateralDamage>
+			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+			<iCollateralDamageMaxUnits>8</iCollateralDamageMaxUnits>
+			<iCityAttack>0</iCityAttack>
+			<iCityDefense>0</iCityDefense>
+			<iAnimalCombat>0</iAnimalCombat>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
+			<TerrainNatives/>
+			<FeatureNatives/>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<!-- custom: i imagine they'd have trouble to aim if units hide in the bushes or and such, defense should be fine though as they are in the air and can especially always retreat, was empty -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses/>
+			<UnitClassAttackMods/>
+			<UnitClassDefenseMods/>
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+					<iUnitCombatMod>100</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
+			<UnitCombatCollateralImmunes/>
+			<DomainMods/>
+			<BonusProductionModifiers/>
+			<iBombRate>0</iBombRate>
+			<iBombardRate>0</iBombardRate>
+			<SpecialCargo>NONE</SpecialCargo>
+			<DomainCargo>NONE</DomainCargo>
+			<iCargo>0</iCargo>
+			<iConscription>0</iConscription>
+			<iCultureGarrison>10</iCultureGarrison>
+			<iExtraCost>0</iExtraCost>
+			<iAsset>4</iAsset>
+			<!-- custom: was 14 -->
+			<iPower>28</iPower>
+			<UnitMeshGroups>
+				<iGroupSize>1</iGroupSize>
+				<fMaxSpeed>1.75</fMaxSpeed>
+				<fPadTime>1</fPadTime>
+				<iMeleeWaveSize>1</iMeleeWaveSize>
+				<iRangedWaveSize>1</iRangedWaveSize>
+				<UnitMeshGroup>
+					<iRequired>1</iRequired>
+					<EarlyArtDefineTag>ART_DEF_UNIT_GUNSHIP</EarlyArtDefineTag>
+				</UnitMeshGroup>
+			</UnitMeshGroups>
+			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- K-Mod -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
+			<LeaderPromotion>NONE</LeaderPromotion>
+			<iLeaderExperience>0</iLeaderExperience>
+		</UnitInfo>
 		<UnitInfo> <!-- custom: class: UNITCLASS_MACHINE_GUN, type: UNIT_MACHINE_GUN (useful for VS Code upper tree view while scrolling) -->
 			<Class>UNITCLASS_MACHINE_GUN</Class>
 			<Type>UNIT_MACHINE_GUN</Type>
@@ -14067,7 +14284,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE -->
 			<PrereqTech>TECH_FASCISM</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -14274,7 +14491,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was the now removed TECH_ROBOT_RIGHTS and TECH_FIREARMS -->
 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ROBOT_RIGHTS</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -14457,7 +14674,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_FLIGHT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ROCKETRY</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -14822,7 +15039,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>BONUS_HORSE</BonusType>
 			<PrereqBonuses/>
@@ -15044,7 +15261,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>BONUS_HORSE</BonusType>
 			<PrereqBonuses/>
@@ -15292,7 +15509,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -15499,7 +15716,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -15740,7 +15957,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -15952,7 +16169,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16180,7 +16397,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16398,7 +16615,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16614,7 +16831,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16857,7 +17074,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17094,7 +17311,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17323,7 +17540,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17547,7 +17764,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
 			<PrereqTech>TECH_FIREARMS</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17764,7 +17981,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
 			<PrereqTech>TECH_FIREARMS</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17992,7 +18209,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
 			<PrereqTech>TECH_FIREARMS</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -18211,7 +18428,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -18418,7 +18635,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -18655,7 +18872,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -18873,7 +19090,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE -->
 			<PrereqTech>TECH_FASCISM</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_COMPOSITES</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -19069,7 +19286,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<PrereqTech>TECH_COMPOSITES</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_FUSION</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_COMPUTERS</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -19379,223 +19596,6 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GUNSHIP, type: UNIT_GUNSHIP (useful for VS Code upper tree view while scrolling) -->
-			<Class>UNITCLASS_GUNSHIP</Class>
-			<Type>UNIT_GUNSHIP</Type>
-			<UniqueNames/>
-			<Special>NONE</Special>
-			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_HELICOPTER</Combat>
-			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
-			<Invisible>NONE</Invisible>
-			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_GUNSHIP</Description>
-			<Civilopedia>TXT_KEY_UNIT_GUNSHIP_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_MILITARY</Advisor>
-			<bAnimal>0</bAnimal>
-			<bFood>0</bFood>
-			<bNoBadGoodies>0</bNoBadGoodies>
-			<bOnlyDefensive>0</bOnlyDefensive>
-			<bNoCapture>1</bNoCapture>
-			<bQuickCombat>0</bQuickCombat>
-			<bRivalTerritory>0</bRivalTerritory>
-			<bMilitaryHappiness>0</bMilitaryHappiness>
-			<bMilitarySupport>1</bMilitarySupport>
-			<bMilitaryProduction>1</bMilitaryProduction>
-			<bPillage>1</bPillage>
-			<bSpy>0</bSpy>
-			<bSabotage>0</bSabotage>
-			<bDestroy>0</bDestroy>
-			<bStealPlans>0</bStealPlans>
-			<bInvestigate>0</bInvestigate>
-			<bCounterSpy>0</bCounterSpy>
-			<bFound>0</bFound>
-			<bGoldenAge>0</bGoldenAge>
-			<bInvisible>0</bInvisible>
-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
-			<bNoDefensiveBonus>1</bNoDefensiveBonus>
-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<!-- custom: was 0 -->
-			<bCanMoveImpassable>1</bCanMoveImpassable>
-			<!-- custom: was 0 -->
-			<bCanMoveAllTerrain>1</bCanMoveAllTerrain>
-			<bFlatMovementCost>0</bFlatMovementCost>
-			<bIgnoreTerrainCost>1</bIgnoreTerrainCost>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqBonuses>0</bPrereqBonuses>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bMechanized>0</bMechanized>
-			<bSuicide>0</bSuicide>
-			<bHiddenNationality>0</bHiddenNationality>
-			<bAlwaysHostile>0</bAlwaysHostile>
-			<UnitClassUpgrades/>
-			<UnitClassTargets/>
-			<UnitCombatTargets/>
-			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
-			<FlankingStrikes>
-				<FlankingStrike>
-					<FlankingStrikeUnitClass>UNITCLASS_CANNON</FlankingStrikeUnitClass>
-					<iFlankingStrength>100</iFlankingStrength>
-				</FlankingStrike>
-				<FlankingStrike>
-					<FlankingStrikeUnitClass>UNITCLASS_FIELD_GUN</FlankingStrikeUnitClass>
-					<iFlankingStrength>100</iFlankingStrength>
-				</FlankingStrike>
-				<FlankingStrike>
-					<FlankingStrikeUnitClass>UNITCLASS_SELF_PROPELLED_ARTILLERY</FlankingStrikeUnitClass>
-					<iFlankingStrength>100</iFlankingStrength>
-				</FlankingStrike>
-			</FlankingStrikes>
-			<!-- custom: remove unitai_pillage, see other code comments for details -->
-			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- K-Mod -->
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs/>
-			<Builds/>
-			<ReligionSpreads/>
-			<CorporationSpreads/>
-			<GreatPeoples/>
-			<Buildings/>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was empty -->
-			<TechTypes>
-				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
-			<BonusType>BONUS_OIL</BonusType>
-			<PrereqBonuses/>
-			<ProductionTraits/>
-			<Flavors/>
-			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 160 -->
-			<iCost>190</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>-1</iMinAreaSize>
-			<iMoves>4</iMoves>
-			<bNoRevealMap>0</bNoRevealMap>
-			<iAirRange>0</iAirRange>
-			<iAirUnitCap>0</iAirUnitCap>
-			<iDropRange>0</iDropRange>
-			<iNukeRange>-1</iNukeRange>
-			<iWorkRate>0</iWorkRate>
-			<iBaseDiscover>0</iBaseDiscover>
-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
-			<iBaseHurry>0</iBaseHurry>
-			<iHurryMultiplier>0</iHurryMultiplier>
-			<iBaseTrade>0</iBaseTrade>
-			<iTradeMultiplier>0</iTradeMultiplier>
-			<iGreatWorkCulture>0</iGreatWorkCulture>
-			<iEspionagePoints>0</iEspionagePoints>
-			<TerrainImpassables/>
-			<FeatureImpassables/>
-			<TerrainPassableTechs/>
-			<FeaturePassableTechs/>
-			<!-- custom: was 24 -->
-			<iCombat>26</iCombat>
-			<iCombatLimit>100</iCombatLimit>
-			<iAirCombat>0</iAirCombat>
-			<iAirCombatLimit>0</iAirCombatLimit>
-			<iXPValueAttack>4</iXPValueAttack>
-			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>0</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
-			<iInterceptionProbability>0</iInterceptionProbability>
-			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>25</iWithdrawalProb>
-			<iCollateralDamage>20</iCollateralDamage>
-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
-			<iCollateralDamageMaxUnits>8</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
-			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
-			<TerrainNatives/>
-			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<!-- custom: i imagine they'd have trouble to aim if units hide in the bushes or and such, defense should be fine though as they are in the air and can especially always retreat, was empty -->
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
-				</FeatureAttack>
-				<FeatureAttack>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses/>
-			<UnitClassAttackMods/>
-			<UnitClassDefenseMods/>
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-					<iUnitCombatMod>100</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
-			<UnitCombatCollateralImmunes/>
-			<DomainMods/>
-			<BonusProductionModifiers/>
-			<iBombRate>0</iBombRate>
-			<iBombardRate>0</iBombardRate>
-			<SpecialCargo>NONE</SpecialCargo>
-			<DomainCargo>NONE</DomainCargo>
-			<iCargo>0</iCargo>
-			<iConscription>0</iConscription>
-			<iCultureGarrison>10</iCultureGarrison>
-			<iExtraCost>0</iExtraCost>
-			<iAsset>4</iAsset>
-			<!-- custom: was 14 -->
-			<iPower>28</iPower>
-			<UnitMeshGroups>
-				<iGroupSize>1</iGroupSize>
-				<fMaxSpeed>1.75</fMaxSpeed>
-				<fPadTime>1</fPadTime>
-				<iMeleeWaveSize>1</iMeleeWaveSize>
-				<iRangedWaveSize>1</iRangedWaveSize>
-				<UnitMeshGroup>
-					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_GUNSHIP</EarlyArtDefineTag>
-				</UnitMeshGroup>
-			</UnitMeshGroups>
-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- K-Mod -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
-			<LeaderPromotion>NONE</LeaderPromotion>
-			<iLeaderExperience>0</iLeaderExperience>
-		</UnitInfo>
 		<UnitInfo> <!-- custom: class: UNITCLASS_CATAPULT, type: UNIT_CATAPULT (useful for VS Code upper tree view while scrolling) -->
 			<Class>UNITCLASS_CATAPULT</Class>
 			<Type>UNIT_CATAPULT</Type>
@@ -19686,7 +19686,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CONSTRUCTION -->
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -19926,7 +19926,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ENGINEERING -->
 			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -20141,7 +20141,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: moved here as per tech rework, also buffs physics tech which is quite weak otherwise at least as of now, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative?) strategies if one may say, was TECH_STEEL (now removed) -->
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			<!-- custom: was empty -->
 			<TechTypes>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -20335,7 +20335,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CHEMISTRY in the generic cannon unit -->
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			<!-- custom: was empty -->
 			<TechTypes>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -20559,7 +20559,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: moved here as per tech rework, also buffs physics tech which is quite weak otherwise at least as of now, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative?) strategies if one may say, was TECH_STEEL (now removed) -->
 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			<!-- custom: was empty -->
 			<TechTypes>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -20795,7 +20795,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_ARTILLERY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -20985,7 +20985,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: move later in our reworked tech tree, was the now removed TECH_LASER and techTypes TECH_ARTILLERY -->
 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_QUANTUM_MECHANICS</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -21785,7 +21785,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_SEAFARING -->
 			<PrereqTech>TECH_SAILING</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -21875,214 +21875,6 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
 					<EarlyArtDefineTag>ART_DEF_UNIT_GALLEY</EarlyArtDefineTag>
-				</UnitMeshGroup>
-			</UnitMeshGroups>
-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
-			<LeaderPromotion>NONE</LeaderPromotion>
-			<iLeaderExperience>0</iLeaderExperience>
-		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_TRIREME, type: UNIT_TRIREME (useful for VS Code upper tree view while scrolling) -->
-			<Class>UNITCLASS_TRIREME</Class>
-			<Type>UNIT_TRIREME</Type>
-			<UniqueNames/>
-			<Special>NONE</Special>
-			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_NAVAL</Combat>
-			<Domain>DOMAIN_SEA</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
-			<Invisible>NONE</Invisible>
-			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_TRIREME</Description>
-			<Civilopedia>CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_MILITARY</Advisor>
-			<bAnimal>0</bAnimal>
-			<bFood>0</bFood>
-			<bNoBadGoodies>0</bNoBadGoodies>
-			<bOnlyDefensive>0</bOnlyDefensive>
-			<bNoCapture>0</bNoCapture>
-			<bQuickCombat>0</bQuickCombat>
-			<bRivalTerritory>0</bRivalTerritory>
-			<bMilitaryHappiness>0</bMilitaryHappiness>
-			<bMilitarySupport>1</bMilitarySupport>
-			<bMilitaryProduction>1</bMilitaryProduction>
-			<bPillage>1</bPillage>
-			<bSpy>0</bSpy>
-			<bSabotage>0</bSabotage>
-			<bDestroy>0</bDestroy>
-			<bStealPlans>0</bStealPlans>
-			<bInvestigate>0</bInvestigate>
-			<bCounterSpy>0</bCounterSpy>
-			<bFound>0</bFound>
-			<bGoldenAge>0</bGoldenAge>
-			<bInvisible>0</bInvisible>
-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<bCanMoveImpassable>0</bCanMoveImpassable>
-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
-			<bFlatMovementCost>0</bFlatMovementCost>
-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqBonuses>0</bPrereqBonuses>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bMechanized>1</bMechanized>
-			<bRenderBelowWater>1</bRenderBelowWater>
-			<bSuicide>0</bSuicide>
-			<bHiddenNationality>0</bHiddenNationality>
-			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: now that caravels are removed, upgrade to another military offensive naval unit of around that time such as the frigate instead; also add ship_of_the_line so they appear nicely in military tree plus no reason to prevent it if AI or a player wants to upgrade a trireme to a ship of the line, fits the theme very well if anything i think. -->
-			<!-- advc.905a: Changed upgrade to Frigate into upgrade to Privateer
-				 -->
-			<UnitClassUpgrades>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_FRIGATE</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_SHIP_OF_THE_LINE</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_PRIVATEER</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-			</UnitClassUpgrades>
-			<UnitClassTargets/>
-			<UnitCombatTargets/>
-			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
-			<FlankingStrikes/>
-			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE_SEA</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ESCORT_SEA</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_EXPLORE_SEA</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs/>
-			<Builds/>
-			<ReligionSpreads/>
-			<CorporationSpreads/>
-			<GreatPeoples/>
-			<Buildings/>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_METAL_CASTING and techTypes TECH_SEAFARING -->
-			<PrereqTech>TECH_NAVIGATION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<TechTypes/>
-			<BonusType>NONE</BonusType>
-			<PrereqBonuses/>
-			<ProductionTraits/>
-			<Flavors/>
-			<iAIWeight>0</iAIWeight>
-			<!-- advc.905a: was 50 -->
-			<iCost>45</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>20</iMinAreaSize>
-			<!-- advc.905a: was 2 -->
-			<iMoves>3</iMoves>
-			<bNoRevealMap>0</bNoRevealMap>
-			<iAirRange>0</iAirRange>
-			<iAirUnitCap>0</iAirUnitCap>
-			<iDropRange>0</iDropRange>
-			<iNukeRange>-1</iNukeRange>
-			<iWorkRate>0</iWorkRate>
-			<iBaseDiscover>0</iBaseDiscover>
-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
-			<iBaseHurry>0</iBaseHurry>
-			<iHurryMultiplier>0</iHurryMultiplier>
-			<iBaseTrade>0</iBaseTrade>
-			<iTradeMultiplier>0</iTradeMultiplier>
-			<iGreatWorkCulture>0</iGreatWorkCulture>
-			<iEspionagePoints>0</iEspionagePoints>
-			<TerrainImpassables>
-				<TerrainImpassable>
-					<TerrainType>TERRAIN_OCEAN</TerrainType>
-					<bTerrainImpassable>1</bTerrainImpassable>
-				</TerrainImpassable>
-			</TerrainImpassables>
-			<FeatureImpassables/>
-			<TerrainPassableTechs/>
-			<FeaturePassableTechs/>
-			<!-- advc.905a: was 2 -->
-			<iCombat>3</iCombat>
-			<iCombatLimit>100</iCombatLimit>
-			<iAirCombat>0</iAirCombat>
-			<iAirCombatLimit>0</iAirCombatLimit>
-			<iXPValueAttack>4</iXPValueAttack>
-			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>0</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
-			<iInterceptionProbability>0</iInterceptionProbability>
-			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
-			<iCollateralDamage>0</iCollateralDamage>
-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
-			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
-			<TerrainNatives/>
-			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
-			<!-- advc.905a: Removed AttackMod and DefenseMod vs.
-				 UNITCLASS_GALLEY (both 50%) -->
-			<UnitClassAttackMods/>
-			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
-			<UnitCombatCollateralImmunes/>
-			<DomainMods/>
-			<BonusProductionModifiers/>
-			<iBombRate>0</iBombRate>
-			<iBombardRate>0</iBombardRate>
-			<SpecialCargo>NONE</SpecialCargo>
-			<DomainCargo>DOMAIN_LAND</DomainCargo>
-			<iCargo>0</iCargo>
-			<iConscription>0</iConscription>
-			<iCultureGarrison>0</iCultureGarrison>
-			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
-			<!-- custom: was 3 -->
-			<iPower>1</iPower>
-			<UnitMeshGroups>
-				<iGroupSize>1</iGroupSize>
-				<fMaxSpeed>2.25</fMaxSpeed>
-				<fPadTime>1</fPadTime>
-				<iMeleeWaveSize>1</iMeleeWaveSize>
-				<iRangedWaveSize>1</iRangedWaveSize>
-				<UnitMeshGroup>
-					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_TRIREME</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
@@ -22190,7 +21982,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -22381,7 +22173,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -22497,6 +22289,399 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
+		<UnitInfo> <!-- custom: class: UNITCLASS_TRANSPORT, type: UNIT_TRANSPORT (useful for VS Code upper tree view while scrolling) -->
+			<Class>UNITCLASS_TRANSPORT</Class>
+			<Type>UNIT_TRANSPORT</Type>
+			<UniqueNames/>
+			<Special>NONE</Special>
+			<Capture>NONE</Capture>
+			<Combat>UNITCOMBAT_NAVAL</Combat>
+			<Domain>DOMAIN_SEA</Domain>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<Invisible>NONE</Invisible>
+			<SeeInvisible>NONE</SeeInvisible>
+			<Description>TXT_KEY_UNIT_TRANSPORT</Description>
+			<Civilopedia>TXT_KEY_UNIT_TRANSPORT_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_MILITARY</Advisor>
+			<bAnimal>0</bAnimal>
+			<bFood>0</bFood>
+			<bNoBadGoodies>0</bNoBadGoodies>
+			<!-- advc.905b: was 0 -->
+			<bOnlyDefensive>1</bOnlyDefensive>
+			<bNoCapture>0</bNoCapture>
+			<bQuickCombat>0</bQuickCombat>
+			<bRivalTerritory>0</bRivalTerritory>
+			<bMilitaryHappiness>0</bMilitaryHappiness>
+			<bMilitarySupport>1</bMilitarySupport>
+			<bMilitaryProduction>1</bMilitaryProduction>
+			<!-- advc.905b: was 1 -->
+			<bPillage>0</bPillage>
+			<bSpy>0</bSpy>
+			<bSabotage>0</bSabotage>
+			<bDestroy>0</bDestroy>
+			<bStealPlans>0</bStealPlans>
+			<bInvestigate>0</bInvestigate>
+			<bCounterSpy>0</bCounterSpy>
+			<bFound>0</bFound>
+			<bGoldenAge>0</bGoldenAge>
+			<bInvisible>0</bInvisible>
+			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+			<bCanMoveImpassable>0</bCanMoveImpassable>
+			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+			<bFlatMovementCost>0</bFlatMovementCost>
+			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqBonuses>0</bPrereqBonuses>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bMechanized>1</bMechanized>
+			<bRenderBelowWater>1</bRenderBelowWater>
+			<bSuicide>0</bSuicide>
+			<bHiddenNationality>0</bHiddenNationality>
+			<bAlwaysHostile>0</bAlwaysHostile>
+			<UnitClassUpgrades/>
+			<UnitClassTargets/>
+			<UnitCombatTargets/>
+			<UnitClassDefenders/>
+			<UnitCombatDefenders/>
+			<FlankingStrikes/>
+			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ASSAULT_SEA</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_SETTLER_SEA</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs/>
+			<Builds/>
+			<ReligionSpreads/>
+			<CorporationSpreads/>
+			<GreatPeoples/>
+			<Buildings/>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<PrereqBuilding>NONE</PrereqBuilding>
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<TechTypes/>
+			<BonusType>NONE</BonusType>
+			<!-- advc.905b: Removed BONUS_URANIUM -->
+			<PrereqBonuses>
+				<BonusType>BONUS_OIL</BonusType>
+				<BonusType>NONE</BonusType>
+				<BonusType>NONE</BonusType>
+				<BonusType>NONE</BonusType>
+			</PrereqBonuses>
+			<ProductionTraits/>
+			<Flavors/>
+			<iAIWeight>0</iAIWeight>
+			<!-- advc.905b: was 125 -->
+			<iCost>100</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>20</iMinAreaSize>
+			<iMoves>5</iMoves>
+			<bNoRevealMap>0</bNoRevealMap>
+			<iAirRange>0</iAirRange>
+			<iAirUnitCap>0</iAirUnitCap>
+			<iDropRange>0</iDropRange>
+			<iNukeRange>-1</iNukeRange>
+			<iWorkRate>0</iWorkRate>
+			<iBaseDiscover>0</iBaseDiscover>
+			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+			<iBaseHurry>0</iBaseHurry>
+			<iHurryMultiplier>0</iHurryMultiplier>
+			<iBaseTrade>0</iBaseTrade>
+			<iTradeMultiplier>0</iTradeMultiplier>
+			<iGreatWorkCulture>0</iGreatWorkCulture>
+			<iEspionagePoints>0</iEspionagePoints>
+			<TerrainImpassables/>
+			<FeatureImpassables/>
+			<TerrainPassableTechs/>
+			<FeaturePassableTechs/>
+			<!-- custom: was 14 -->
+			<!-- advc.905b: was 16 -->
+			<iCombat>8</iCombat>
+			<iCombatLimit>100</iCombatLimit>
+			<iAirCombat>0</iAirCombat>
+			<iAirCombatLimit>0</iAirCombatLimit>
+			<iXPValueAttack>4</iXPValueAttack>
+			<iXPValueDefense>2</iXPValueDefense>
+			<iFirstStrikes>0</iFirstStrikes>
+			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<iInterceptionProbability>0</iInterceptionProbability>
+			<iEvasionProbability>0</iEvasionProbability>
+			<iWithdrawalProb>0</iWithdrawalProb>
+			<iCollateralDamage>0</iCollateralDamage>
+			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+			<iCityAttack>0</iCityAttack>
+			<iCityDefense>0</iCityDefense>
+			<iAnimalCombat>0</iAnimalCombat>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
+			<TerrainNatives/>
+			<FeatureNatives/>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
+			<UnitClassAttackMods/>
+			<UnitClassDefenseMods/>
+			<UnitCombatMods/>
+			<UnitCombatCollateralImmunes/>
+			<DomainMods/>
+			<BonusProductionModifiers/>
+			<iBombRate>0</iBombRate>
+			<iBombardRate>0</iBombardRate>
+			<SpecialCargo>NONE</SpecialCargo>
+			<DomainCargo>DOMAIN_LAND</DomainCargo>
+			<!-- K-Mod: was 4 -->
+			<iCargo>5</iCargo>
+			<iConscription>0</iConscription>
+			<iCultureGarrison>0</iCultureGarrison>
+			<iExtraCost>0</iExtraCost>
+			<iAsset>3</iAsset>
+			<!-- custom: was 16 -->
+			<iPower>2</iPower>
+			<UnitMeshGroups>
+				<iGroupSize>1</iGroupSize>
+				<fMaxSpeed>2.25</fMaxSpeed>
+				<fPadTime>1</fPadTime>
+				<iMeleeWaveSize>1</iMeleeWaveSize>
+				<iRangedWaveSize>1</iRangedWaveSize>
+				<UnitMeshGroup>
+					<iRequired>1</iRequired>
+					<EarlyArtDefineTag>ART_DEF_UNIT_TRANSPORT</EarlyArtDefineTag>
+				</UnitMeshGroup>
+			</UnitMeshGroups>
+			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<FreePromotions/>
+			<LeaderPromotion>NONE</LeaderPromotion>
+			<iLeaderExperience>0</iLeaderExperience>
+		</UnitInfo>
+		<UnitInfo> <!-- custom: class: UNITCLASS_TRIREME, type: UNIT_TRIREME (useful for VS Code upper tree view while scrolling) -->
+			<Class>UNITCLASS_TRIREME</Class>
+			<Type>UNIT_TRIREME</Type>
+			<UniqueNames/>
+			<Special>NONE</Special>
+			<Capture>NONE</Capture>
+			<Combat>UNITCOMBAT_NAVAL</Combat>
+			<Domain>DOMAIN_SEA</Domain>
+			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
+			<Invisible>NONE</Invisible>
+			<SeeInvisible>NONE</SeeInvisible>
+			<Description>TXT_KEY_UNIT_TRIREME</Description>
+			<Civilopedia>CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_MILITARY</Advisor>
+			<bAnimal>0</bAnimal>
+			<bFood>0</bFood>
+			<bNoBadGoodies>0</bNoBadGoodies>
+			<bOnlyDefensive>0</bOnlyDefensive>
+			<bNoCapture>0</bNoCapture>
+			<bQuickCombat>0</bQuickCombat>
+			<bRivalTerritory>0</bRivalTerritory>
+			<bMilitaryHappiness>0</bMilitaryHappiness>
+			<bMilitarySupport>1</bMilitarySupport>
+			<bMilitaryProduction>1</bMilitaryProduction>
+			<bPillage>1</bPillage>
+			<bSpy>0</bSpy>
+			<bSabotage>0</bSabotage>
+			<bDestroy>0</bDestroy>
+			<bStealPlans>0</bStealPlans>
+			<bInvestigate>0</bInvestigate>
+			<bCounterSpy>0</bCounterSpy>
+			<bFound>0</bFound>
+			<bGoldenAge>0</bGoldenAge>
+			<bInvisible>0</bInvisible>
+			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+			<bCanMoveImpassable>0</bCanMoveImpassable>
+			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+			<bFlatMovementCost>0</bFlatMovementCost>
+			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqBonuses>0</bPrereqBonuses>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bMechanized>1</bMechanized>
+			<bRenderBelowWater>1</bRenderBelowWater>
+			<bSuicide>0</bSuicide>
+			<bHiddenNationality>0</bHiddenNationality>
+			<bAlwaysHostile>0</bAlwaysHostile>
+			<!-- custom: now that caravels are removed, upgrade to another military offensive naval unit of around that time such as the frigate instead; also add ship_of_the_line so they appear nicely in military tree plus no reason to prevent it if AI or a player wants to upgrade a trireme to a ship of the line, fits the theme very well if anything i think. -->
+			<!-- advc.905a: Changed upgrade to Frigate into upgrade to Privateer
+				 -->
+			<UnitClassUpgrades>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_FRIGATE</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_SHIP_OF_THE_LINE</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_PRIVATEER</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
+			</UnitClassUpgrades>
+			<UnitClassTargets/>
+			<UnitCombatTargets/>
+			<UnitClassDefenders/>
+			<UnitCombatDefenders/>
+			<FlankingStrikes/>
+			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE_SEA</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ESCORT_SEA</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_EXPLORE_SEA</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs/>
+			<Builds/>
+			<ReligionSpreads/>
+			<CorporationSpreads/>
+			<GreatPeoples/>
+			<Buildings/>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<PrereqBuilding>NONE</PrereqBuilding>
+			<!-- custom: was TECH_METAL_CASTING and techTypes TECH_SEAFARING -->
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+			<TechTypes/>
+			<BonusType>NONE</BonusType>
+			<PrereqBonuses/>
+			<ProductionTraits/>
+			<Flavors/>
+			<iAIWeight>0</iAIWeight>
+			<!-- advc.905a: was 50 -->
+			<iCost>45</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>20</iMinAreaSize>
+			<!-- advc.905a: was 2 -->
+			<iMoves>3</iMoves>
+			<bNoRevealMap>0</bNoRevealMap>
+			<iAirRange>0</iAirRange>
+			<iAirUnitCap>0</iAirUnitCap>
+			<iDropRange>0</iDropRange>
+			<iNukeRange>-1</iNukeRange>
+			<iWorkRate>0</iWorkRate>
+			<iBaseDiscover>0</iBaseDiscover>
+			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+			<iBaseHurry>0</iBaseHurry>
+			<iHurryMultiplier>0</iHurryMultiplier>
+			<iBaseTrade>0</iBaseTrade>
+			<iTradeMultiplier>0</iTradeMultiplier>
+			<iGreatWorkCulture>0</iGreatWorkCulture>
+			<iEspionagePoints>0</iEspionagePoints>
+			<TerrainImpassables>
+				<TerrainImpassable>
+					<TerrainType>TERRAIN_OCEAN</TerrainType>
+					<bTerrainImpassable>1</bTerrainImpassable>
+				</TerrainImpassable>
+			</TerrainImpassables>
+			<FeatureImpassables/>
+			<TerrainPassableTechs/>
+			<FeaturePassableTechs/>
+			<!-- advc.905a: was 2 -->
+			<iCombat>3</iCombat>
+			<iCombatLimit>100</iCombatLimit>
+			<iAirCombat>0</iAirCombat>
+			<iAirCombatLimit>0</iAirCombatLimit>
+			<iXPValueAttack>4</iXPValueAttack>
+			<iXPValueDefense>2</iXPValueDefense>
+			<iFirstStrikes>0</iFirstStrikes>
+			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<iInterceptionProbability>0</iInterceptionProbability>
+			<iEvasionProbability>0</iEvasionProbability>
+			<iWithdrawalProb>0</iWithdrawalProb>
+			<iCollateralDamage>0</iCollateralDamage>
+			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+			<iCityAttack>0</iCityAttack>
+			<iCityDefense>0</iCityDefense>
+			<iAnimalCombat>0</iAnimalCombat>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
+			<TerrainNatives/>
+			<FeatureNatives/>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
+			<!-- advc.905a: Removed AttackMod and DefenseMod vs.
+				 UNITCLASS_GALLEY (both 50%) -->
+			<UnitClassAttackMods/>
+			<UnitClassDefenseMods/>
+			<UnitCombatMods/>
+			<UnitCombatCollateralImmunes/>
+			<DomainMods/>
+			<BonusProductionModifiers/>
+			<iBombRate>0</iBombRate>
+			<iBombardRate>0</iBombardRate>
+			<SpecialCargo>NONE</SpecialCargo>
+			<DomainCargo>DOMAIN_LAND</DomainCargo>
+			<iCargo>0</iCargo>
+			<iConscription>0</iConscription>
+			<iCultureGarrison>0</iCultureGarrison>
+			<iExtraCost>0</iExtraCost>
+			<iAsset>2</iAsset>
+			<!-- custom: was 3 -->
+			<iPower>1</iPower>
+			<UnitMeshGroups>
+				<iGroupSize>1</iGroupSize>
+				<fMaxSpeed>2.25</fMaxSpeed>
+				<fPadTime>1</fPadTime>
+				<iMeleeWaveSize>1</iMeleeWaveSize>
+				<iRangedWaveSize>1</iRangedWaveSize>
+				<UnitMeshGroup>
+					<iRequired>1</iRequired>
+					<EarlyArtDefineTag>ART_DEF_UNIT_TRIREME</EarlyArtDefineTag>
+				</UnitMeshGroup>
+			</UnitMeshGroups>
+			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<FreePromotions/>
+			<LeaderPromotion>NONE</LeaderPromotion>
+			<iLeaderExperience>0</iLeaderExperience>
+		</UnitInfo>
 		<UnitInfo> <!-- custom: class: UNITCLASS_PRIVATEER, type: UNIT_PRIVATEER (useful for VS Code upper tree view while scrolling) -->
 			<Class>UNITCLASS_PRIVATEER</Class>
 			<Type>UNIT_PRIVATEER</Type>
@@ -22593,7 +22778,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: i want to have the privateers / representing the pirate ships have their own era / time of history in civ4 where they are relevant, make it at tech_astronomy so they are relevant sooner, was tech_astronomy + tech_chemistry -->
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -22791,7 +22976,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -22977,7 +23162,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: adjusted as per reworked tech tree to a closer tech, was TECH_MILITARY_SCIENCE and techTypes TECH_ASTRONOMY -->
 			<PrereqTech>TECH_PHYSICS</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 			<TechTypes>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
@@ -23188,7 +23373,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- advc.905b: was STEEL -->
 			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
 			<!-- advc.905b: was STEAM_POWER -->
 			<!-- custom: was NONE NONE NONE -->
 			<TechTypes>
@@ -23290,191 +23475,6 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
 					<EarlyArtDefineTag>ART_DEF_UNIT_IRONCLAD</EarlyArtDefineTag>
-				</UnitMeshGroup>
-			</UnitMeshGroups>
-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
-			<LeaderPromotion>NONE</LeaderPromotion>
-			<iLeaderExperience>0</iLeaderExperience>
-		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_TRANSPORT, type: UNIT_TRANSPORT (useful for VS Code upper tree view while scrolling) -->
-			<Class>UNITCLASS_TRANSPORT</Class>
-			<Type>UNIT_TRANSPORT</Type>
-			<UniqueNames/>
-			<Special>NONE</Special>
-			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_NAVAL</Combat>
-			<Domain>DOMAIN_SEA</Domain>
-			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
-			<Invisible>NONE</Invisible>
-			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_TRANSPORT</Description>
-			<Civilopedia>TXT_KEY_UNIT_TRANSPORT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_MILITARY</Advisor>
-			<bAnimal>0</bAnimal>
-			<bFood>0</bFood>
-			<bNoBadGoodies>0</bNoBadGoodies>
-			<!-- advc.905b: was 0 -->
-			<bOnlyDefensive>1</bOnlyDefensive>
-			<bNoCapture>0</bNoCapture>
-			<bQuickCombat>0</bQuickCombat>
-			<bRivalTerritory>0</bRivalTerritory>
-			<bMilitaryHappiness>0</bMilitaryHappiness>
-			<bMilitarySupport>1</bMilitarySupport>
-			<bMilitaryProduction>1</bMilitaryProduction>
-			<!-- advc.905b: was 1 -->
-			<bPillage>0</bPillage>
-			<bSpy>0</bSpy>
-			<bSabotage>0</bSabotage>
-			<bDestroy>0</bDestroy>
-			<bStealPlans>0</bStealPlans>
-			<bInvestigate>0</bInvestigate>
-			<bCounterSpy>0</bCounterSpy>
-			<bFound>0</bFound>
-			<bGoldenAge>0</bGoldenAge>
-			<bInvisible>0</bInvisible>
-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<bCanMoveImpassable>0</bCanMoveImpassable>
-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
-			<bFlatMovementCost>0</bFlatMovementCost>
-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqBonuses>0</bPrereqBonuses>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bMechanized>1</bMechanized>
-			<bRenderBelowWater>1</bRenderBelowWater>
-			<bSuicide>0</bSuicide>
-			<bHiddenNationality>0</bHiddenNationality>
-			<bAlwaysHostile>0</bAlwaysHostile>
-			<UnitClassUpgrades/>
-			<UnitClassTargets/>
-			<UnitCombatTargets/>
-			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
-			<FlankingStrikes/>
-			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_ASSAULT_SEA</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_SETTLER_SEA</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs/>
-			<Builds/>
-			<ReligionSpreads/>
-			<CorporationSpreads/>
-			<GreatPeoples/>
-			<Buildings/>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_COMBUSTION</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<TechTypes/>
-			<BonusType>NONE</BonusType>
-			<!-- advc.905b: Removed BONUS_URANIUM -->
-			<PrereqBonuses>
-				<BonusType>BONUS_OIL</BonusType>
-				<BonusType>NONE</BonusType>
-				<BonusType>NONE</BonusType>
-				<BonusType>NONE</BonusType>
-			</PrereqBonuses>
-			<ProductionTraits/>
-			<Flavors/>
-			<iAIWeight>0</iAIWeight>
-			<!-- advc.905b: was 125 -->
-			<iCost>100</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>20</iMinAreaSize>
-			<iMoves>5</iMoves>
-			<bNoRevealMap>0</bNoRevealMap>
-			<iAirRange>0</iAirRange>
-			<iAirUnitCap>0</iAirUnitCap>
-			<iDropRange>0</iDropRange>
-			<iNukeRange>-1</iNukeRange>
-			<iWorkRate>0</iWorkRate>
-			<iBaseDiscover>0</iBaseDiscover>
-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
-			<iBaseHurry>0</iBaseHurry>
-			<iHurryMultiplier>0</iHurryMultiplier>
-			<iBaseTrade>0</iBaseTrade>
-			<iTradeMultiplier>0</iTradeMultiplier>
-			<iGreatWorkCulture>0</iGreatWorkCulture>
-			<iEspionagePoints>0</iEspionagePoints>
-			<TerrainImpassables/>
-			<FeatureImpassables/>
-			<TerrainPassableTechs/>
-			<FeaturePassableTechs/>
-			<!-- custom: was 14 -->
-			<!-- advc.905b: was 16 -->
-			<iCombat>8</iCombat>
-			<iCombatLimit>100</iCombatLimit>
-			<iAirCombat>0</iAirCombat>
-			<iAirCombatLimit>0</iAirCombatLimit>
-			<iXPValueAttack>4</iXPValueAttack>
-			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>0</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
-			<iInterceptionProbability>0</iInterceptionProbability>
-			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
-			<iCollateralDamage>0</iCollateralDamage>
-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
-			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
-			<TerrainNatives/>
-			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
-			<UnitClassAttackMods/>
-			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
-			<UnitCombatCollateralImmunes/>
-			<DomainMods/>
-			<BonusProductionModifiers/>
-			<iBombRate>0</iBombRate>
-			<iBombardRate>0</iBombardRate>
-			<SpecialCargo>NONE</SpecialCargo>
-			<DomainCargo>DOMAIN_LAND</DomainCargo>
-			<!-- K-Mod: was 4 -->
-			<iCargo>5</iCargo>
-			<iConscription>0</iConscription>
-			<iCultureGarrison>0</iCultureGarrison>
-			<iExtraCost>0</iExtraCost>
-			<iAsset>3</iAsset>
-			<!-- custom: was 16 -->
-			<iPower>2</iPower>
-			<UnitMeshGroups>
-				<iGroupSize>1</iGroupSize>
-				<fMaxSpeed>2.25</fMaxSpeed>
-				<fPadTime>1</fPadTime>
-				<iMeleeWaveSize>1</iMeleeWaveSize>
-				<iRangedWaveSize>1</iRangedWaveSize>
-				<UnitMeshGroup>
-					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_TRANSPORT</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
@@ -23767,7 +23767,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: move it sooner in tech, seems historically accurate from tiny bits i read of the sevopedia description (declines during world war 2, so build it sooner), plus tech_industrialism is bloated and too strong, was TECH_INDUSTRIALISM -->
 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ROCKETRY</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -24519,7 +24519,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_FLIGHT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>BONUS_OIL</BonusType>
 			<PrereqBonuses/>
@@ -24870,7 +24870,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: now requires only tech_flight, removed tech_radio, doesn't seem critically necessary historically and in terms of timeline from very quick glances of/about it and vs first fighters (again didn't look in depth), from gameplay standpoint they can be used sooner and tech_flight is now stronger, while tech_radio is now weaker as the main path -->
 			<PrereqTech>TECH_FLIGHT</PrereqTech>
-			<ObsoleteTech>NONE</ObsoleteTech>
+			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 			<TechTypes/>
 			<BonusType>BONUS_OIL</BonusType>
 			<PrereqBonuses/>

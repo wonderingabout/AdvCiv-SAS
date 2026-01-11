@@ -338,13 +338,21 @@ int CvUnitInfo::getFlavorValue(int i) const
 	return m_piFlavorValue ? m_piFlavorValue[i] : 0; // advc.003t
 }
 
+TechTypes CvUnitInfo::getObsoleteTech() const
+{
+	// <!-- custom: allow ObsoleteTech to be toggled off globally for compatibility/testing; default on. (GPT-5.2-Codex) -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH =
+			GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH");
+	return bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH ? m_eObsoleteTech : NO_TECH;
+}
+
 int CvUnitInfo::getTerrainAttackModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
 
 	// <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
-	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS");
-	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS)
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS)
 	{
 		return 0;
 	}
@@ -357,8 +365,8 @@ int CvUnitInfo::getTerrainDefenseModifier(int i) const
 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
 
 	// <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
-	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS");
-	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS)
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS)
 	{
 		return 0;
 	}
@@ -371,8 +379,8 @@ int CvUnitInfo::getFeatureAttackModifier(int i) const
 	FAssertBounds(0, GC.getNumFeatureInfos(), i);
 
 	// <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
-	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS");
-	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS)
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS)
 	{
 		return 0;
 	}
@@ -385,8 +393,8 @@ int CvUnitInfo::getFeatureDefenseModifier(int i) const
 	FAssertBounds(0, GC.getNumFeatureInfos(), i);
 
 	// <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
-	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS");
-	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS)
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS)
 	{
 		return 0;
 	}

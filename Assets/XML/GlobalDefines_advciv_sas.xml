@@ -223,19 +223,24 @@
 	<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
 	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
 	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS</DefineName>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS</DefineName>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS</DefineName>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: similarly, if you don't want to use the ObsoleteTech new XML field at all, you can disable it without having to tediously manually modify each entry one by one in XML, you can using this SAS define. If disabled (0), the value in XML ObsoleteTech will be ignored and always NONE (i.e. same behaviour as in base AdvCiv/Civ4). If enabled (1), the tech specified for each unit in its XML ObsoleteTech field will be applied e.g. NONE or TECH_BRONZE_WORKING for UNIT_WARRIOR for example. -->
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
