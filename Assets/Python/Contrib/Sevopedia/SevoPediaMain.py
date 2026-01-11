@@ -518,8 +518,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		bAddToHistory = False
 		if (not self.pediaHistory):
 			bAddToHistory = True
-		elif (iCategory != SevoScreenEnums.PEDIA_MAIN or iItem == SevoScreenEnums.PEDIA_UNIT_UPGRADES or iItem == SevoScreenEnums.PEDIA_PROMOTION_TREE or iItem == SevoScreenEnums.PEDIA_HINTS):
-			prev = self.pediaHistory[0]
+		else:
+			prev = self.pediaHistory[-1]
 			if (prev[0] != iCategory or prev[1] != iItem):
 				bAddToHistory = True
 		if (bAddToHistory):

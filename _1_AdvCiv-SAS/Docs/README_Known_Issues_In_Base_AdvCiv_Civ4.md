@@ -128,6 +128,7 @@ hopefully helpful, thanks, anyways, thanks,
 [92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart)  
 [93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix abherrent unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping)  
 [94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
+[95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4050,3 +4051,9 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 Was happening in AdvCiv-SAS for other categories last visited like charts too, or Hints or such in base advciv too.
 
 See [commit/21f67530d536c6d93b42cf1223237b34e1ca7d0a](https://github.com/wonderingabout/AdvCiv-SAS/commit/21f67530d536c6d93b42cf1223237b34e1ca7d0a).
+
+## 95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited
+
+After previous issue with exiting Sevopedia and reopening it, this also fixes Base AdvCiv issue of the Back Tab not leading back to last visited category when it was Hints or Index.
+
+See commit todo add.
