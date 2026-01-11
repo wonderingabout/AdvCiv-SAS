@@ -1447,7 +1447,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<!-- custom: removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://www.government.nl/topics/agriculture/agriculture-and-horticulture#:~:text=After%20the%20United%20States%2C%20the,its%20largest%20trade%20partner%2C%20Germany. and https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources and also civ3 making it an agricultural civ, but since it is not easily possible to make them specifically faster in building farms and cottages easily, giving them another worker boosting effect instead (see unitinfo xml for details or updated value), i believe this would work quite well with the gold profile of the AI leader too william, restoring old civ4 effect for this unit at least as of now if not always or not but look at updated value(s) in real unit info's xml for details -->
+		<!-- custom: Long_Comments_XML.txt #118 -->
 		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_DUTCH_SWIFT_WORKER (useful for VS Code upper tree view while scrolling) -->
 			<Class>UNITCLASS_WORKER</Class>
 			<Type>UNIT_DUTCH_SWIFT_WORKER</Type>
@@ -5586,8 +5586,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: this unit is useless especially soon, yet AIs often produce it; humans would have little to gain from stacking them past a certain point fairly early in the game, so make their ObsoleteTech sooner than when we unlock their upgrade (which is as of now the Axeman). By that new tech, we should have archers as a fallback, or should research its tech anyway. Thematically, this is around the time when we domesticate animals, so we no longer have to fight them, if that makes sense. Gameplay wise, we unlock slavery around that time, so we cna produce more expensive units, and animals are fading anyway. -->
-			<ObsoleteTech>TECH_AGRICULTURE</ObsoleteTech>
+			<!-- custom: this unit is useless especially soon, yet AIs often produce it; humans would have little to gain from stacking them past a certain point fairly early in the game, so make their ObsoleteTech sooner than when we unlock their upgrade (which is as of now the Axeman). By that new tech, we should have archers as a fallback, or should research its tech anyway. Thematically, this is around the time when we domesticate animals, so we no longer have to fight them, if that makes sense. Gameplay wise, we unlock slavery around that time, so we can produce more expensive units, and animals are fading anyway. Most importantly, this tech is on the Hunting path, so it as of now guarantees archers are available. -->
+			<ObsoleteTech>TECH_ANIMAL_HUSBANDRY</ObsoleteTech>
 			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
@@ -6580,8 +6580,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: if i am not mistaken from my memory i mean, the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense. However, we don't need to do that here, as after other changes the unit is plenty strong now already; plus with the terrain/feature modifiers civ-specific units have in our mod, we don't need to keep the old woodsman specific identity redundantly here anymore. So, also as per chatgpt 5.2's recommendation (and as i had the idea too it seems but not totally sure) thanks, adding a non-combat promotion rather that fits here so it is a strong enough as of now axeman variant as as of now the dog soldier is. Was PROMOTION_WOODSMAN1 -->
-			<!-- "UNITCOMBAT_MELEE_SHOCK 50% is too much, because it turns into “I don’t need metal and I still hard-win the metal line” too often (and it keeps scaling into later Shock units)." + It fits “jungle scouting / ambush / raiding.” + "You already said only Yeoman currently uses it, so it won’t feel spammy." -->
+			<!-- custom: Long_Comments_XML.txt #117, Was PROMOTION_WOODSMAN1 -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_SENTRY</PromotionType>
@@ -12053,9 +12052,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: very nice idea by chatgpt 5 thanks to my prompt too hehethanks lot; seems thematically fitting and quite relevant, makes the unit more varied and stronger (especially against cuirassiers so very effective and seemingly nicely thematic and relevant thanks again chatgpt 5 if i may say hehe thanks) as well hopefully as was way too weak if i'm not mistaken in my thinking, check also if accurate, was empty -->
-			<!-- History cue: French line infantry excelled at disciplined volley fire and square formations vs cavalry. They weren’t inherently “fast” on foot (the 2-move in BtS is really a “dragoon flavor” abstraction). So your instinct to drop the extra move is spot-on. -->
-			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high so it seems we don't need to increase unit iCost and leave it as such otherwise -->
+			<!-- custom: very nice idea by chatgpt 5 thanks to my prompt too hehe thanks lot; seems thematically fitting and quite relevant, makes the unit more varied and stronger (especially against cuirassiers so very effective and seemingly nicely thematic and relevant thanks again chatgpt 5) as well hopefully as was way too weak, was empty; Long_Comments_XML.txt #116 -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
@@ -20567,9 +20564,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
-			<!-- custom: fine to change according to chatgpt 5 after i asked it about it, reasnoning below, check if accurate, was iron only in generic cannon in advciv-sas as of now. Note: for now not changed for all cannons so including the generic cannon, as bit tedious to consider, plus it would remove some of the strategic importance of iron, which is fine in itself but not needed for now if not always or not so left as such as of now for other units-->
-			<!-- "The early gunpowder artillery, like bombards and hand cannons, often used bronze (copper alloys) or wrought iron. Bronze was preferred for its mobility and shock resistance, with iron being cheaper but more brittle. The 15th-century Bohemian houfnice, key in the Hussite wars, may have used wrought iron early on but later cast in bronze." -->
-			<!-- "Hussite artillery used small field guns and howitzers, often wrought iron but sometimes bronze. By the 16th century, Habsburgs used bronze howitzers more widely, so requiring copper as an alternative to iron in Civ4 fits historically." -->
+			<!-- custom: fine to change according to chatgpt 5 after i asked it about it, reasnoning below, check if accurate, was iron only; Long_Comments_XML.txt #115 -->
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
 				<BonusType>BONUS_COPPER</BonusType>
@@ -20700,8 +20695,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was empty. Note: this as of now new free PROMOTION_CITY_BOMBARD_DAMAGE is also thematically more relevant according to chatgpt 5 as the unit fires longer range rockets above defensive lines if i understood it correctly, which may be represented by this doing more damage to defenses effect indirectly perhaps (attacking civilian houses or such means their defenses are more affected sort of maybe). In terms of gameplay, making it an anti wall unit is interesting as well without making it an op unit stack wiper so maybe fine as such, check if accurate -->
-			<!-- Houfnice (Bohemian “howitzer” ancestor) = short-barrel, high-arc field piece meant to lob shot over cover and into crowds; more about dropping fire behind defenses than battering walls head-on. -->
+			<!-- custom: was empty; Long_Comments_XML.txt #114 -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_CITY_BOMBARD_DAMAGE</PromotionType>
@@ -27079,8 +27073,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now... -->
-			<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
+			<!-- custom: Long_Comments_XML.txt #113 -->
 			<DefaultUnitAI>UNITAI_GREAT_SPY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>

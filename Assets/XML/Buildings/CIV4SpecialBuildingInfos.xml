@@ -38,7 +38,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
 		</SpecialBuildingInfo>
 		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree. Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or wants to pursue a cultural path sooner among other reasons if any, to also match the multiple pagan holy sites (/shrines, in a general term way not civ4 building specific term way specifically) throughout history -->
-		<!-- custom: use button from the building atlas (still same image) for consistency with other generic special building buttons -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
@@ -51,8 +50,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,8</Button>
 		</SpecialBuildingInfo>
 		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries) -->
-		<!-- custom: use this seemingly unused building atlas button for the generic ((no religion on them)) (base advciv's (civ4's too?)) monastery button, seems clearer to me than the hindu specific monastery button, and like the generic temple and generic cathedral also having generic buttons, button was:
-		<Button>Art/Interface/Buttons/Buildings/Monastery_Hindu.dds</Button> -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_MONASTERY</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>

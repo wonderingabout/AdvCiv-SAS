@@ -290,8 +290,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #8 -->
-			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result, was -40 after our change to nerf barbarians as were too op -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #8; Long_Comments_XML.txt #127 -->
 			<iMilitaryProductionModifier>-25</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
@@ -430,7 +429,7 @@
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
 			<iConquestProb>0</iConquestProb>
-			<!-- custom: was 8 which i think is may too high, considering the courthouse requirement already that is quite expensive, having 6 cities is enough and costly enough too anyways, 8 makes it too unlikely to be built in too many games, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here thanks chatgpt; also 6 is a number at which it is relevant enough to build it (so AIs in particular do not build it and lose on efficiency if uneeded or not too worth and build something else instead) while not being too restrictive for players, including AI players but also human players who want to build it too, was 8 -->
+			<!-- custom: Long_Comments_XML.txt #128, was 8 -->
 			<iCitiesPrereq>6</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
@@ -1106,8 +1105,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: according to https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles castle should be relevant much later than economics, which also seems a weird tech to "correlate" it with (obsolescence of castles, i don't see a clear link).
-		It's also interesting from a gameplay standpoint i think to make them relevant longer and not too soon obsolete so they are not worth building, and stockpilers run then rampage with pre-made farming strategies, it would require to be more careful about the whole game and pace now and war plans and such or not, hopefully an interesting change. -->
+		<!-- custom: Long_Comments_XML.txt #129 -->
 		<BuildingInfo> <!-- custom: class: castle, type: castle (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_CASTLE</Type>

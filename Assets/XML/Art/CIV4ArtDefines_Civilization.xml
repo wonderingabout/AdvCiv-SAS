@@ -223,20 +223,6 @@
 			<Path>Art/Interface/TeamColor/FlagDECAL_Skull.dds</Path>
 			<bWhiteFlag>0</bWhiteFlag>
 		</CivilizationArtInfo>
-
-
-
-		<!-- custom: example of sample from History Rewritten mod:
-		<CivilizationArtInfo>
-			<Type>ART_DEF_CIVILIZATION_NIGERIAN</Type>
-			<Button>Art/Interface/Buttons/Civilizations/Button_Nigerians.dds</Button>
-			<Path>Art/Interface/TeamColor/FlagDECAL_Nigerians.dds</Path>
-			<bWhiteFlag>0</bWhiteFlag>
-		</CivilizationArtInfo>
-		-->
-		
-
-
 		<CivilizationArtInfo>
 			<Type>ART_DEF_CIVILIZATION_KINGDOM_OF_BENIN</Type>
 			<Button>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/Button_Nigerians.dds</Button>

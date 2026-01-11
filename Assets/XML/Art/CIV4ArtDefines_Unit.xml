@@ -491,7 +491,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for exampel, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas -->
+		<!-- custom: Long_Comments_XML.txt #122 -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_PAGAN_MISSIONARY</Type>
 			<Button>Art/AdvCiv_SAS/Units/Pagan_Missionary/Button_Magi.dds</Button>
@@ -1101,7 +1101,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from ri mod's ART_DEF_UNIT_ENGLISH_LONGBOWMAN (from their svn version nicely thanksso no need to go painfully through fpks and now very very easy to fetch assets thanks lot); note: the .kfm is the base advciv +/- civ4 one; as for the bag arrows they were missing, and in nifskope i found they were in the shared folder (thanks to wiztree much much easier to use in their svn version of their ri mod i mean) at longbowman.dds so added to our own unit much cleaner as in easier to find as such -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ENGLISH_YEOMAN_ARCHER</Type>
 			<Button>Art/AdvCiv_SAS/Units/English_Yeoman_Archer/Longbowman_england.dds</Button>
@@ -1394,7 +1393,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: import from c2c mod's ART_DEF_UNIT_SENTROID_INFANTRY (and some missing files based on nif from unit "androidinfantry"), as a result there may be a bit more .dds or such extra files than needed or maybe not but at least the unit is functionnal and overhead if i may say and am not mistaken in saying/thinking (that is) soshould be overall minimal if any,  and adjusted or not for advciv-sas -->
+		<!-- custom: import from c2c mod's ART_DEF_UNIT_SENTROID_INFANTRY (and some missing files based on nif from unit "androidinfantry"), as a result there may be a bit more .dds or such extra files than needed but maybe fine and easier as such; adjusted or not for advciv-sas -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ROBOTIC_INFANTRY</Type>
 			<Button>Art/AdvCiv_SAS/Units/Robotic_Infantry/sentroid_infantry.dds</Button>
@@ -1692,7 +1691,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" button is now the base civ4 camel archer's one for clarity/consistency with the other camel generic (i.e. non-civ-specific unit) buttons, and instead arabian civ-specific unit has a new button instead see there for details. (note: the .kfm is base civ4 one of arabian old camel archer so can't find it in the ri mod) -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_ARCHER</Type>
 			<Button>,Art/Interface/Buttons/Units/CamelArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,8</Button>
@@ -1841,7 +1839,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk") with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot -->
+		<!-- custom: Long_Comments_XML.txt #123 -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_KNIGHT</Type>
 			<Button>Art/AdvCiv_SAS/Units/Camel_Knight/CamelRider.dds</Button>
@@ -2280,7 +2278,7 @@
 				<AudioRunTypeEnd>ENDSTEP_WHEELS</AudioRunTypeEnd>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: note: about this unit's sound assets: i can't find the korean unit audio file nor the corresponding asset, in audiodefines; i don't know too much how these work, but changing it to be safe or consistent with other units, but really i have no idea how it works and your best may be to check or ask to be sure, at least we're more likely (i guess, i don't know!xd) to get the generic as of now cannon (i hope) rather than no sound. (Didn't want to make the comment too long inside the info asset in case it breaks something (but is just a guess of mine too check to be sure)) -->
+		<!-- custom: Long_Comments_XML.txt #124 -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_KOREAN_HWACHA</Type>
 			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,10</Button>
@@ -4216,7 +4214,7 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: the ART_DEF_UNIT_ARCHER_EURASIAN seems to be unused in base advciv (and in civ4 too?) remove it entirely and use the already existing and used in base advciv ART_DEF_UNIT_ARCHER_CHINESE now renamed to ART_DEF_UNIT_ARCHER_ASIAN for consistency or such, see also known issue as of now 18; (not skipping line in case it breaks art assets code, see known issues as well for examples about such behaviours); also rename ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN -->
+		<!-- custom: Long_Comments_XML.txt #125 -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SPEARMAN_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Spearman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,6</Button>

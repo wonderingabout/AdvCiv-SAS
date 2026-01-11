@@ -2449,3 +2449,161 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
     <!-- SAS techTradePowerDanger: bias AI tech trade valuation toward key military techs when clearly weaker. -->
     <!-- Enable/disable the trade-stage danger bias. -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+
+===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #113 -----
+
+			<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now... -->
+			<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
+
+===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #114 -----
+
+			Note: this as of now new free PROMOTION_CITY_BOMBARD_DAMAGE is also thematically more relevant according to chatgpt 5 as the unit fires longer range rockets above defensive lines if i understood it correctly, which may be represented by this doing more damage to defenses effect indirectly perhaps (attacking civilian houses or such means their defenses are more affected sort of maybe). In terms of gameplay, making it an anti wall unit is interesting as well without making it an op unit stack wiper so maybe fine as such, check if accurate -->
+			<!-- Houfnice (Bohemian “howitzer” ancestor) = short-barrel, high-arc field piece meant to lob shot over cover and into crowds; more about dropping fire behind defenses than battering walls head-on. -->
+
+===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #115 -----
+
+			in generic cannon in advciv-sas as of now. Note: for now not changed for all cannons so including the generic cannon, as bit tedious to consider, plus it would remove some of the strategic importance of iron, which is fine in itself but not needed for now if not always or not so left as such as of now for other units-->
+			<!-- "The early gunpowder artillery, like bombards and hand cannons, often used bronze (copper alloys) or wrought iron. Bronze was preferred for its mobility and shock resistance, with iron being cheaper but more brittle. The 15th-century Bohemian houfnice, key in the Hussite wars, may have used wrought iron early on but later cast in bronze." -->
+			<!-- "Hussite artillery used small field guns and howitzers, often wrought iron but sometimes bronze. By the 16th century, Habsburgs used bronze howitzers more widely, so requiring copper as an alternative to iron in Civ4 fits historically."
+
+===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #116 -----
+
+			<!-- History cue: French line infantry excelled at disciplined volley fire and square formations vs cavalry. They weren’t inherently “fast” on foot (the 2-move in BtS is really a “dragoon flavor” abstraction). So your instinct to drop the extra move is spot-on. -->
+			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high so it seems we don't need to increase unit iCost and leave it as such otherwise -->
+
+===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #117 -----
+
+			if i am not mistaken from my memory i mean, the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense. However, we don't need to do that here, as after other changes the unit is plenty strong now already; plus with the terrain/feature modifiers civ-specific units have in our mod, we don't need to keep the old woodsman specific identity redundantly here anymore. So, also as per chatgpt 5.2's recommendation (and as i had the idea too it seems but not totally sure) thanks, adding a non-combat promotion rather that fits here so it is a strong enough as of now axeman variant as as of now the dog soldier is
+			<!-- "UNITCOMBAT_MELEE_SHOCK 50% is too much, because it turns into “I don’t need metal and I still hard-win the metal line” too often (and it keeps scaling into later Shock units)." + It fits “jungle scouting / ambush / raiding.” + "You already said only Yeoman currently uses it, so it won’t feel spammy." -->
+
+===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #118 -----
+
+		<!-- custom: removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://www.government.nl/topics/agriculture/agriculture-and-horticulture#:~:text=After%20the%20United%20States%2C%20the,its%20largest%20trade%20partner%2C%20Germany. and https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources and also civ3 making it an agricultural civ, but since it is not easily possible to make them specifically faster in building farms and cottages easily, giving them another worker boosting effect instead (see unitinfo xml for details or updated value), i believe this would work quite well with the gold profile of the AI leader too william, restoring old civ4 effect for this unit at least as of now if not always or not but look at updated value(s) in real unit info's xml for details -->
+
+===== .\\Assets/XML/GameInfo/CIV4CivicInfos.xml =====
+----- Comment #119 -----
+
+			<!-- Totally with you that Walls are a bit bland here. If you want “iconic institutions of a nation”, then:
+				- Barracks = pure military infrastructure (already very generic, every war AI builds them).
+				- Courthouse = rule of law, national judiciary.
+				- Colosseum = national games, mass rallies, patriotic spectacles
+				- Castle = historic fortresses, symbolic national strongholds.
+			Together they read as “proud, mobilised nation-state”, not just “we built some barracks”. -->
+
+===== .\\Assets/XML/GameInfo/CIV4CivicInfos.xml =====
+----- Comment #120 -----
+
+			<!-- Short version: yes, if what you want is the rise of monetized, contract-based work rather than “the modern proletariat.”
+				- Wage labor existed well before the Industrial Revolution (soldiers, artisans, day/harvest laborers, urban craftsmen, ship crews). It accelerates from the 13th–15th c. with coin monetization, towns, and guild production, then expands massively later.
+				- Tying it to Banking (Italian city-states, credit networks, bills of exchange) is thematically solid. -->
+			<!-- custom: update: slot now used by another civic, thematically fine to move this civic sooner as replied to when asking chatgpt 5.1 thanks, check if accurate -->
+			<!-- Why I’d move Wage Labor to Broader Education
+			Conceptually:
+				- Wage labor = monetized, contract-based work, especially in towns, workshops, and proto-industry.
+				- That really takes off with:
+					- growing urban craft sectors and guild training
+					- more widespread literacy / numeracy / bookkeeping
+					- a thicker layer of “skilled workers for hire” rather than purely bonded peasants.
+			In your tree, that “wider literacy / trained specialists / guild knowledge” moment is exactly what Broader Education is standing in for, while:
+				- Banking = financial institutions, credit, capital flows (which you now use for Protectionism – tariff policy, external trade design).
+				- Printing Press = information / communication, which already has Trade Bloc and feels like “shared treaties, leagues, common rules”. -->
+
+===== .\\Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml =====
+----- Comment #121 -----
+
+		<!-- custom: example from base civ4 used as a reference:
+		<LeaderheadArtInfo>
+			<Type>ART_DEF_LEADER_ZARA_YAQOB</Type>
+			<Button>,Art/interface/LeaderHeads/Btn_LH_Mali_MansaMusa.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,2</Button>
+			<NIF>art/LeaderHeads/Zara Yaqob/Zara Yaqob.nif</NIF>
+			<KFM>art/LeaderHeads/Zara Yaqob/Zara Yaqob.kfm</KFM>
+			<NoShaderNIF>art/LeaderHeads/Zara Yaqob/Zara_Yaqob_NONSHADER.nif</NoShaderNIF>
+			<BackgroundKFM>art/LeaderHeads/Zara Yaqob/Zara Yaqob_BG.kfm</BackgroundKFM>
+		</LeaderheadArtInfo>
+		-->
+
+		<!-- custom: example from realism invictus used as reference:
+		<LeaderheadArtInfo>
+			<Type>ART_DEF_LEADER_CHIANG_KAI_SHEK</Type>
+			<Button>Art/interface/Buttons/LeaderHeads/chiang_button.dds</Button>
+			<NIF>art/LeaderHeads/chiang.dds</NIF>
+			<KFM>art/LeaderHeads/Mansa_Musa/mansa_musa.kfm</KFM>
+			<NoShaderNIF>art/LeaderHeads/Mansa_Musa/mansa_musa_noshader.nif</NoShaderNIF>
+			<BackgroundKFM>art/LeaderHeads/Mansa_Musa/Mansa_Musa_BG.kfm</BackgroundKFM>
+		</LeaderheadArtInfo>
+		-->
+
+		<!-- custom: example from history rewritten mod, where we took leader_ewuare (kingdom of benin)'s animation and such all art assets after our initial static image approach, to use the many available one, while keeping consistency with the existing concept in civ4 of images being animated which is quite nice, and since we have so many animations available in all mods, better use them rather at least when we can:
+		<LeaderheadArtInfo>
+			<Type>ART_DEF_LEADER_EWUARE</Type>
+			<Button>Art/LeaderHeads/Ewuare/Button_Ewuare.dds</Button>
+			<NIF>Art/LeaderHeads/Ewuare/shaka.nif</NIF>
+			<KFM>Art/LeaderHeads/Ewuare/shaka.kfm</KFM>
+			<NoShaderNIF>Art/LeaderHeads/Ewuare/shaka.nif</NoShaderNIF>
+			<BackgroundKFM>Art/LeaderHeads/Ewuare/Shaka_BG.kfm</BackgroundKFM>
+		</LeaderheadArtInfo>
+		-->
+
+===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+----- Comment #122 -----
+
+<!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for exampel, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas -->
+
+===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+----- Comment #123 -----
+
+		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk") with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot -->
+
+===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+----- Comment #124 -----
+
+		<!-- custom: note: about this unit's sound assets: i can't find the korean unit audio file nor the corresponding asset, in audiodefines; i don't know too much how these work, but changing it to be safe or consistent with other units, but really i have no idea how it works and your best may be to check or ask to be sure, at least we're more likely (i guess, i don't know!xd) to get the generic as of now cannon (i hope) rather than no sound. (Didn't want to make the comment too long inside the info asset in case it breaks something (but is just a guess of mine too check to be sure)) -->
+
+===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+----- Comment #125 -----
+
+<!-- custom: the ART_DEF_UNIT_ARCHER_EURASIAN seems to be unused in base advciv (and in civ4 too?) remove it entirely and use the already existing and used in base advciv ART_DEF_UNIT_ARCHER_CHINESE now renamed to ART_DEF_UNIT_ARCHER_ASIAN for consistency or such, see also known issue as of now 18; (not skipping line in case it breaks art assets code, see known issues as well for examples about such behaviours); also rename ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN -->
+
+===== .\\Assets/XML/BasicInfos/CIV4NewConceptInfos.xml =====
+----- Comment #126 -----
+
+		<!-- custom: removed entirely the entries that are composed of links
+		to civ4	bts new content (as opposed to vanilla). No need to maintain
+		these as BTS can be considered the base game now, plus this information
+		is available elsewhere and already part of the game with all other
+		civ4 vanilla+BTS content, for example in the sevopedia pages specific
+		to each of these -->
+
+		<!-- custom: moved many NewConceptInfos to C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+		(or the equivalent of this folder for your civ4 installation path,
+		read the code comments there for details. -->
+
+===== .\\Assets/XML/Buildings/CIV4BuildingInfos.xml =====
+----- Comment #127 -----
+
+			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now, AIs produce too much units, and much of them are early defenders or units that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result, was -40 after our change to nerf barbarians as were too op -->
+
+===== .\\Assets/XML/Buildings/CIV4BuildingInfos.xml =====
+----- Comment #128 -----
+
+was 8 which i think is maybe too high, considering the courthouse requirement already that is quite expensive, having 6 cities is enough and costly enough too anyways, 8 makes it too unlikely to be built in too many games, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here thanks chatgpt; also 6 is a number at which it is relevant enough to build it (so AIs in particular do not build it and lose on efficiency if uneeded or not too worth and build something else instead) while not being too restrictive for players, including AI players but also human players who want to build it too
+
+===== .\\Assets/XML/Buildings/CIV4BuildingInfos.xml =====
+----- Comment #129 -----
+
+		<!-- custom: according to https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles castle should be relevant much later than economics, which also seems a weird tech to "correlate" it with (obsolescence of castles, i don't see a clear link).
+		It's also interesting from a gameplay standpoint i think to make them relevant longer and not too soon obsolete so they are not worth building, and stockpilers run then rampage with pre-made farming strategies, it would require to be more careful about the whole game and pace now and war plans and such or not, hopefully an interesting change. -->
+
+===== .\\Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #130 -----
+
+<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well, was 75 / 128 -->
+			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula), was 50 / 128 -->
+			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not noware as of now the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles) is/can be also used to buff specificially tundra tiles and relatively, so apply or try to apply/balance quite bit if not lto or not but or not butfor the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
+			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now, try to reduce it a bit; after more testing, 50 / 27 seems quite good, try to reduce base camel and increase camel per tile i.e. more frequent per x tiles; after some bit of testing or not bit lot or both bit or lot or not, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want which this formula achieves quite well or seems to do so -->
