@@ -988,7 +988,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: buff water ressources, and fish as a general bonus/ressource should still be quite widespread; 0 / 24 may still be a tiny bit too high possibly, reduce to 0 / 25, was originally 0 / 35 if i am not mistaken in base advciv code at least as of now -->
+			<!-- custom: buff water ressources, and fish as a general bonus/ressource should still be quite widespread; 0 / 24 may still be a tiny bit too high possibly, reduce to 0 / 25, was originally 0 / 35 in base advciv code at least as of now -->
 			<iPlayer>0</iPlayer>
 			<!-- advc.129: was 32 -->
 			<iTilesPer>26</iTilesPer>
@@ -1100,7 +1100,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to https://www.google.com/search?sca_esv=d68d1b3088278740&rlz=1C1GCEA_enFR1111FR1111&q=rice+natural+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtci1AK0oIkDPIMLSzNdfCsScXRDO9E92u6oQy0ZUCTVtFdzRg-C6HN8C63vx8nYX9s-qoP0iE8VkwFQOGgctLLxMbKATUbgZLQyYfx64LEnfqULbDUPajcQia8TKaZuoNhizdrYogk8tOMhcjKRK_WJwA0yKkaZ6G3hJccOaKX8s1Ovvg5A&sa=X&ved=2ahUKEwjGs-bM97mNAxUhT6QEHXAwMxYQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88 , and to buff rice a bit if relevant here and possible indeed about/for rice since it is quite weak indeed if i am not mistaken too of it being how it (rice) works, was 0 / 40 -->
+			<!-- custom: adjusted according to https://www.google.com/search?sca_esv=d68d1b3088278740&rlz=1C1GCEA_enFR1111FR1111&q=rice+natural+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtci1AK0oIkDPIMLSzNdfCsScXRDO9E92u6oQy0ZUCTVtFdzRg-C6HN8C63vx8nYX9s-qoP0iE8VkwFQOGgctLLxMbKATUbgZLQyYfx64LEnfqULbDUPajcQia8TKaZuoNhizdrYogk8tOMhcjKRK_WJwA0yKkaZ6G3hJccOaKX8s1Ovvg5A&sa=X&ved=2ahUKEwjGs-bM97mNAxUhT6QEHXAwMxYQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88 , and to buff rice a bit if relevant here and possible indeed about/for rice since it is quite weak indeed  of it being how it (rice) works, was 0 / 40 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>55</iMaxLatitude>
 			<Rands>
@@ -1791,7 +1791,7 @@
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
 			<iMinLatitude>0</iMinLatitude>
-			<!-- custom: spices as a more general concept for civ4 should be about everywhere, if i am not mistaken and for quick google glances, buffs also nothern and southern edge starts that have less ressources/bonuses overall -->
+			<!-- custom: spices as a more general concept for civ4 should be about everywhere, and for quick google glances, buffs also nothern and southern edge starts that have less ressources/bonuses overall -->
 			<!-- advc.129: was 60 -->
 			<iMaxLatitude>45</iMaxLatitude>
 			<Rands>
@@ -1983,8 +1983,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too if i am not mistaken and flat, always constant spanwing, was 67 -->
-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and molluscs are for example), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used, see docs for details) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often, reduce it a bit now from 0 / 26 to value(s) below that. -->
+			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too and flat, always constant spanwing, was 67 -->
+			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and molluscs are for example), but since it was 0, using a higher than 0 value to not disable it according to/as said in (english verison rather translated web page using google chrome (for example is what i used, see docs for details) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often, reduce it a bit now from 0 / 26 to value(s) below that. -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>29</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -2134,7 +2134,7 @@
 			<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well, was 75 / 128 -->
 			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula), was 50 / 128 -->
 			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not noware as of now the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles) is/can be also used to buff specificially tundra tiles and relatively, so apply or try to apply/balance quite bit if not lto or not but or not butfor the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
-			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now, try to reduce it a bit; after more testing, 50 / 27 seems quite good, try to reduce base camel if i am not mistaken and increase camel per tile i.e. more frequent per x tiles; after some bit of testing or not bit lot or both bit or lot or not, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want which this formula achieves quite well or seems to do so, was 50 / 27 -->
+			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now, try to reduce it a bit; after more testing, 50 / 27 seems quite good, try to reduce base camel and increase camel per tile i.e. more frequent per x tiles; after some bit of testing or not bit lot or both bit or lot or not, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want which this formula achieves quite well or seems to do so, was 50 / 27 -->
 			<!-- advc.129: was 100 -->
 			<iPlayer>20</iPlayer>
 			<!-- advc.129: was 256 -->

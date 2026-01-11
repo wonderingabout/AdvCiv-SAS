@@ -35,7 +35,7 @@ class SevoPediaReligion:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: this 287 should be accurate according to my measurements if i am not mistaken for a 4 leaders panel but the screen.appendMultiListButton uses seemingly a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty. To solve this, reducing the width, while keeping in mind the correct value should be 287 if i am not mistaken for 4 leaders per row total width including margins -->
+		# <!-- custom: this 287 should be accurate according to my measurements for a 4 leaders panel but the screen.appendMultiListButton uses seemingly a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty. To solve this, reducing the width, while keeping in mind the correct value should be 287 for 4 leaders per row total width including margins -->
 		#self.W_LEADERS = 287
 		self.W_LEADERS = 282
 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS

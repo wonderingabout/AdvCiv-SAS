@@ -47,7 +47,7 @@
 
 
 
-	# <!-- custom: logic is as follows for the below placeFreeWith function/method with the help of Claude AI thanks (note: renamed terrace to qullqa to update this explanation with the new civ-specific incan building name, everything else being the same when it comes to this explanation if i am not mistaken):
+	# <!-- custom: logic is as follows for the below placeFreeWith function/method with the help of Claude AI thanks (note: renamed terrace to qullqa to update this explanation with the new civ-specific incan building name, everything else being the same when it comes to this explanation):
 	# example: barbarian specific granary is free with barbarian palace (barbarians only), so:
 	#
 	# if currently selected building is:
@@ -272,7 +272,7 @@ class SevoPediaBuilding:
 		# - 5. Health/Unhealth: Shows health effects
 		# - 6. Great People: Shows great people rate changes with button and great people modifiers too
 		# -->
-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier)) (the 4th before going to a new column and back to 1st row), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
+		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier)) (the 4th before going to a new column and back to 1st row), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such and they are still named the same now which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
 
 		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY") -->
 		self.setupStatsPanel(screen, panelName, placeStatsTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
@@ -281,7 +281,7 @@ class SevoPediaBuilding:
 		y = self.Y_STATS_PANE
 		rowItemId = 0
 
-		# <!-- custom: if i am not mistaken it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all, so commenting it out
+		# <!-- custom: it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all, so commenting it out
 		#if (isWorldWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
 		#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxGlobalInstances()
 		#	szBuildingType = localText.getText("TXT_KEY_PEDIA_WORLD_WONDER", ())
@@ -386,7 +386,7 @@ class SevoPediaBuilding:
 				self.fillStatsCell(screen, szText2, x, y)
 				x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: also process the modifiers associated to the raw commerce changes just after the raw value (for example culture +1 then the next line is immediately culture +50% and only then/after gold + 1 for example (and now not culture + 1 then gold + 1 and only then culture + 50%), if i am not mistaken this is how it would work this code) --> 
+			# <!-- custom: also process the modifiers associated to the raw commerce changes just after the raw value (for example culture +1 then the next line is immediately culture +50% and only then/after gold + 1 for example (and now not culture + 1 then gold + 1 and only then culture + 50%), this is how it would work this code) --> 
 			iCommerceModifier = buildingInfo.getCommerceModifier(k)
 			iCommerceDoubleTime = buildingInfo.getCommerceChangeDoubleTime(k)
 			iGlobalCommerceModifier = buildingInfo.getGlobalCommerceModifier(k)
@@ -816,7 +816,7 @@ class SevoPediaBuilding:
 				isButtonFound = True
 				iButtonIndex += 1
 
-		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas; idea i got from watching ri mod's sevopedia building or so it seems ingame, of how the cruiser if i am not mistaken requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most in this caseis that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks-->
+		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas; idea i got from watching ri mod's sevopedia building or so it seems ingame, of how the cruiser requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most in this caseis that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks-->
 		# Loop through all units to check their building prerequisites
 		for iLoopUnit in range(gc.getNumUnitInfos()):
 			loopUnitInfo = gc.getUnitInfo(iLoopUnit)

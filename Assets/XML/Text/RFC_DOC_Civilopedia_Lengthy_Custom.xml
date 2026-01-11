@@ -75,7 +75,7 @@ and modified for our needs if needed. -->
 
 
 
-	<!-- custom: add a note that these are plot types if i am not mistaken not only terrains -->
+	<!-- custom: add a note that these are plot types not only terrains -->
 	<TEXT>
 		<Tag>TXT_KEY_TERRAIN_HILL_PEDIA</Tag>
 		<English>[TAB]A hill is a landform that extends above the surrounding terrain. Hills often have a distinct summit, although in areas with scarp/dip topography a hill may refer to a particular section of flat terrain without a massive summit.[PARAGRAPH:2]Note: although this "terrain" is displayed in the terrains sevopedia category, it (and other plot types as well) is in fact also a plot type if i (advciv-sas maintainer/developer) am not mistaken and from asking chatgpt with a web search too. Plot types are showed here for convenience of gathering same info in same page and would be tedious or hard or long to create a new page, i added the info in the existing label RFC DOC mod had added which this code is based on with a specific Plot type / Terrain indicator or something similar. I hope this info is helpful, so for examplethen there can be plot type hill + terrain grassland + feature forest in one tile for example, or plot type peak on a tile for example, or plot type flatland + terrain plains + feature none; see https://civilization.fandom.com/wiki/Terrain_(Civ4)#Vertical_Terrain or https://forums.civfanatics.com/threads/creating-new-plot-types.410289/post-10175128and for details</English>

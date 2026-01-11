@@ -22240,7 +22240,7 @@
 			<iUnitImmobileTurns>0</iUnitImmobileTurns>
 			<UnitPromotion/>
 			<UnitName/>
-			<!-- custom: seems polearm is also relevant for this event at a glance at the text description so put both polearm and shock melee combat types if i am not mistaken but check to be sure if want to be sure -->
+			<!-- custom: seems polearm is also relevant for this event at a glance at the text description so put both polearm and shock melee combat types but check to be sure if want to be sure -->
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>

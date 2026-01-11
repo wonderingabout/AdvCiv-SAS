@@ -11397,7 +11397,7 @@
 				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well if i am not mistaken anyways -->
+			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
@@ -11488,7 +11488,7 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
-			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well if i am not mistaken anyways -->
+			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
@@ -16536,7 +16536,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
-			<!-- custom: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION, use another relevant tech or around this tech time of previous tech if i am not mistaken instead in our reworked tech tree -->
+			<!-- custom: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION, use another relevant tech or around this tech time of previous tech instead in our reworked tech tree -->
 			<AndPreReqs>
 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</AndPreReqs>

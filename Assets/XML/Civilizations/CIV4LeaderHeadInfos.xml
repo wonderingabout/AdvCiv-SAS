@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Leader Infos and AI Settings -->
-<!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown if i am not mistaken too -->
+<!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown  -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<LeaderHeadInfos>
 		<LeaderHeadInfo> <!-- custom: Barbarian (add leader name here too for easier vs code tree read while in the file) -->
@@ -3735,7 +3735,7 @@
 			<iDogpileWarRand>125</iDogpileWarRand>
 			<iMakePeaceRand>20</iMakePeaceRand>
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
-			<!-- custom: seems especially vengeful, especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) (check if accurate), was 0 in cyrus among other uncommented changes in ewuare's xml -->
+			<!-- custom: seems especially vengeful, especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too) (check if accurate), was 0 in cyrus among other uncommented changes in ewuare's xml -->
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->

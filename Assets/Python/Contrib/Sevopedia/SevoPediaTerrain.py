@@ -111,7 +111,7 @@ class SevoPediaTerrain:
 		screen.enableSelect(panel, False)
 		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# <!-- custom: add missing txt key "Terrain" not in RFC DOC mod if i am not mistaken (didn't recheck but i assume it was as such seeing it is as of now hardcoded), instead of hardcoded one, now moved to its own txt key -->
+		# <!-- custom: add missing txt key "Terrain" not in RFC DOC mod (didn't recheck but i assume it was as such seeing it is as of now hardcoded), instead of hardcoded one, now moved to its own txt key -->
 		# <!-- custom: also display some terrains as plot types / terrains, see xml txt key code comment for details. -->
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
@@ -154,12 +154,12 @@ class SevoPediaTerrain:
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
-		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now; the peak info is also incomplete, not mentioning for example the impassable info if i am not mistaken so also not displaying it for peak if i am not mistaken in doing so-->
+		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so leaving it as rfc doc mod did just with minor refactor of iHill above as of now; the peak info is also incomplete, not mentioning for example the impassable info so also not displaying it for peak in doing so-->
 		if self.iTerrain == iPeak or self.iTerrain == iHill:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
-			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe if i am not mistaken in my guess, check if accurate, so to solve this start a bit higher than the center instead. -->
+			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe, check if accurate, so to solve this start a bit higher than the center instead. -->
 			#yPanelCenter = yPanel + (hPanel / 2)
 			yPanelCenter = yPanel + int(0.42 * hPanel)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -375,7 +375,7 @@ class SevoPediaTerrain:
 				unitInfoDomain = unitInfo.getDomainType()
 				passTech = (unitInfo.getTerrainPassableTech(iPeak) != -1)
 
-				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
+				# <!-- custom: also handle water units that can move through all terrains but only on water; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
 				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc-->
 				# Peak — Relevant Units (includes “boat with legs”; All-Terrain short-circuits)
 				can_walk_on_peak = (

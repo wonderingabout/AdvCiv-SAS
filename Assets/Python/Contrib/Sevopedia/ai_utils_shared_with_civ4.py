@@ -325,7 +325,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			adjusted_rand = 0
 			force_zero_adjusted_values = True # Forced 0 aggregation
 			if is_debug:
-				print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw. As for forced aggregation value, Rand <= 0, so AI has a compatible delay but still never engages due to rand if i (advciv-sas mod maker based on trying to understand how the base advciv or similar or before behaves) am not mistaken, and so probability of contact is still 0 if i am not mistaken in my understanding. So we still force aggregate to 0 for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
+				print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw. As for forced aggregation value, Rand <= 0, so AI has a compatible delay but still never engages due to rand if i (advciv-sas mod maker based on trying to understand how the base advciv or similar or before behaves) am not mistaken, and so probability of contact is still 0. So we still force aggregate to 0 for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
 
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
@@ -341,9 +341,9 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 
 
 def get_contact_rand_and_delay_invert_flags():
-	# <!-- custom: the higher the contact rand (say 200 > 50), the lower the 1/n = 1/200 vs 1/50 chance if i am not mistaken of contact event / prob from my memory of the terminology if i may say or words used in kujira about memory fields or such, so we invert -->
+	# <!-- custom: the higher the contact rand (say 200 > 50), the lower the 1/n = 1/200 vs 1/50 chance of contact event / prob from my memory of the terminology if i may say or words used in kujira about memory fields or such, so we invert -->
 	b_invert_contact_rands = True
-	# <!-- custom: also, the higher the delay (say 100 > 5 (turns? If i am not mistaken too)), the longer until next contact, so the lower the contact event / prob, so we invert delays too if i may say or not or yes or etc -->
+	# <!-- custom: also, the higher the delay (say 100 > 5 (turns? )), the longer until next contact, so the lower the contact event / prob, so we invert delays too if i may say or not or yes or etc -->
 	b_invert_contact_delays = True
 	return b_invert_contact_rands, b_invert_contact_delays
 
@@ -367,7 +367,7 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
 
 		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 anyway ---
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_rand_norm_score + SECONDARY_WEIGHT * adjusted_value_delay_norm_score
-		# <!-- custom: no reason to strictly round the raw values since they will be normalized later anyways which would/should be an int if i am not mistaken and as of now the raw aggregated contact prob is only stored before that at min max storage stage (before their normalization as said before in this sentence), but no reason not to, since most if not indeed all fields are int, and it is an approximation (aggregation) to begin with, values close enough like 78.123456 vs 78.234567 could be considered to be the same 78 for example in my understanding, so round them now even though makes data a bit more inaccurate. -->
+		# <!-- custom: no reason to strictly round the raw values since they will be normalized later anyways which would/should be an int and as of now the raw aggregated contact prob is only stored before that at min max storage stage (before their normalization as said before in this sentence), but no reason not to, since most if not indeed all fields are int, and it is an approximation (aggregation) to begin with, values close enough like 78.123456 vs 78.234567 could be considered to be the same 78 for example in my understanding, so round them now even though makes data a bit more inaccurate. -->
 		return int(round(raw_aggregated))
 
 
@@ -442,5 +442,5 @@ def get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score
 
 		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 ---
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_attitude_percent_norm_score + SECONDARY_WEIGHT * adjusted_value_decay_norm_score
-		# <!-- custom: similarly round, see the aggregated contact prob similar function to this if i am not mistaken. -->
+		# <!-- custom: similarly round, see the aggregated contact prob similar function to this. -->
 		return int(round(raw_aggregated))

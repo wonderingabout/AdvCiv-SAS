@@ -1079,7 +1079,7 @@
 	<!-- [advc.025] Culture that spreads from a capitulated vassal to its
 		 master is multiplied by this percentage. 100 for BtS behavior
 		 (normal spread); recommended: 50. -->
-	<!-- custom: gain less culture from capitulation, after all it's more like the loser civ is assimilated than merging (even though some exchange may happen, mostly they'd have to give up their cultural habits in favor of the empire/winner's one if i am not mistaken too to be part of their empire), plus it would be too easy of a way to gain culture through military/conquest, but no need to make it too drastic either as some culture is most likely transfered as well, was 50 -->
+	<!-- custom: gain less culture from capitulation, after all it's more like the loser civ is assimilated than merging (even though some exchange may happen, mostly they'd have to give up their cultural habits in favor of the empire/winner's one  to be part of their empire), plus it would be too easy of a way to gain culture through military/conquest, but no need to make it too drastic either as some culture is most likely transfered as well, was 50 -->
 	<Define>
 		<DefineName>CAPITULATED_TO_MASTER_CULTURE_PERCENT</DefineName>
 		<iDefineIntVal>30</iDefineIntVal>

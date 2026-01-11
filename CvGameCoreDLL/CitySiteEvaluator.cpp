@@ -549,7 +549,7 @@ int AIFoundValue::evaluate()
 				iGoody++;
 			}
 
-			// <!-- custom: regardless of coastal status if i am not mistaken and if starting site, we want land tiles, not water tiles, as they we can work them and have better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details-->
+			// <!-- custom: regardless of coastal status and if starting site, we want land tiles, not water tiles, as they we can work them and have better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details-->
 			const bool bHomePlot = isHome(*pLoopPlot);
 
 			if (!bHomePlot)
@@ -631,7 +631,7 @@ int AIFoundValue::evaluate()
 					{
 						iLowFoodLocationCount -= 1;
 					}
-					// <!-- custom: no flood plains, no oasis, most likely this is a "naked" if i may say and if i am not mistaken and in this caseterrain (0 food as of now), so count as such; note: hill or not treated the same -->
+					// <!-- custom: no flood plains, no oasis, most likely this is a "naked" and in this caseterrain (0 food as of now), so count as such; note: hill or not treated the same -->
 					else
 					{
 						iLowFoodLocationCount += 2;
@@ -1018,7 +1018,7 @@ int AIFoundValue::evaluate()
 		}
 		else
 		{
-			// <!-- custom: do not count flood plains as the good outweights the bad, it can be considered neutral in terms of health vs unhealthiness overall benefits for this calculation but anyways, but to be strictly fair we'd still grow even accounting for unhealthiness however simpler to just nullify it as it is about as good as bad to simplify if i am not mistaken-->
+			// <!-- custom: do not count flood plains as the good outweights the bad, it can be considered neutral in terms of health vs unhealthiness overall benefits for this calculation but anyways, but to be strictly fair we'd still grow even accounting for unhealthiness however simpler to just nullify it as it is about as good as bad to simplify -->
 			if (eFeature == eFeatureJungle)
 			{
 				iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
@@ -1197,7 +1197,7 @@ int AIFoundValue::evaluate()
 			// return -2;
 			// <!-- custom: this works too, try a cleaner return, positive value as chatgpt 5 advised just in case -->
 			//return std::max<short>(-100, truncIntCast<short>(-100 + iGoodBFCTiles));
-			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but better mess the code Hopefully this improves things if i am not mistaken and thanks to chatgpt 5, without messing everything up; return a positive value just in case; below example given by chatgpt 5, check if accurate -->
+			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but better mess the code Hopefully this improves things and thanks to chatgpt 5, without messing everything up; return a positive value just in case; below example given by chatgpt 5, check if accurate -->
 			//return 0;
 			// Example:
 			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 if i'm not mistaken -->.
@@ -1427,7 +1427,7 @@ int AIFoundValue::evaluate()
 	// 		-(bBarbarian ? 2 : (4 + iGreenTiles + iSpecialFoodPlus)) // advc.303
 	// 		/ (kSet.isStartingLoc() && !kSet.isScenario() ? 2 : 1)); // advc.108, advc.031f
 
-	// <!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine -->
+	// <!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather and; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine -->
 	// iValue = adjustToBadHealth(iValue, iHealth);
 	// // <advc.031>
 	// <!-- custom: our code instead-->
@@ -2135,7 +2135,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 			bCanTrade = true;
 			bCanImprove = true;
 		}
-		// <!-- custom: based on my understanding of this code thanks to gemini ai's help as well, that is quite different from what gemini ai seems to say about it that it is related to workers or such if i understood it correctly, which i also asked as this code seemed weird so i asked it about it, this may explain why we are happy to count an improvement as good enough, say a farm, even if a plantation is better in terms of yield, so don't bother calculating the rest. I assume this is done for computational effiency, but may lead to other problems down the line. I'd rather prefer it be accurate and see what happens and if for example AI settles better or worse on tiles. I also want to see if this somehow affects AI building farms on grapes plains instead of waiting for plantations, so commenting it out. And i want to see if it's really much faster with it, although we should not have too much settlers or bonuses, except at turn 1, and even then it doesn't seem like it would cost a lot of extra computation to run this, so if it can help in other ways, try to do the full calculation/bonus yield evaluation rather and not just of first eligible found build if i am not mistaken -->
+		// <!-- custom: based on my understanding of this code thanks to gemini ai's help as well, that is quite different from what gemini ai seems to say about it that it is related to workers or such if i understood it correctly, which i also asked as this code seemed weird so i asked it about it, this may explain why we are happy to count an improvement as good enough, say a farm, even if a plantation is better in terms of yield, so don't bother calculating the rest. I assume this is done for computational effiency, but may lead to other problems down the line. I'd rather prefer it be accurate and see what happens and if for example AI settles better or worse on tiles. I also want to see if this somehow affects AI building farms on grapes plains instead of waiting for plantations, so commenting it out. And i want to see if it's really much faster with it, although we should not have too much settlers or bonuses, except at turn 1, and even then it doesn't seem like it would cost a lot of extra computation to run this, so if it can help in other ways, try to do the full calculation/bonus yield evaluation rather and not just of first eligible found build -->
 		// else if (bCanTrade) // Prefer currently available build - regardless of yield
 		// 	continue;
 		int iYieldValue = 0;
@@ -3633,7 +3633,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		// 		iValue - iTempValue, iDistance, cityName(*pOurNearestCity));
 
 // 		// <!-- custom: replace long distances penalty with our own, not too long, not too short distance system -->
-// 		// <!-- custom: try to spread cities more as they are too crowded as of now and simplify formula as well if i am not mistaken in doing so, as advised as a general idea by claude ai when i asked it about this code thanks thanks-->
+// 		// <!-- custom: try to spread cities more as they are too crowded as of now and simplify formula as well in doing so, as advised as a general idea by claude ai when i asked it about this code thanks thanks-->
 // 		// <!-- custom: attempt to increase distance penalties as with flat 1000 with our change, cities are a bit too far as of now with this change, but try not to make them crowded again either, try to make first cities closer to each other, less important for later ones -->
 
 // 		int const iDistanceToOurNearestCity = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),

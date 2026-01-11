@@ -1012,7 +1012,7 @@
 			<Rotate>45</Rotate>
 			<Scale>2.9</Scale>
 		</ArtRef>
-		<!-- custom: removed building:BUILDING_PAGAN_MONASTERY entirely from this file as i don't know where the 2x3 would fit in this file, hopefully works fine if i am not mistaken in my hope or guess in this guess, added for mention/reference if need further but if works-functions fine then is for info; also i don't know too much about these if at all so check if what i said is accurate -->
+		<!-- custom: removed building:BUILDING_PAGAN_MONASTERY entirely from this file as i don't know where the 2x3 would fit in this file, hopefully works fine; note that i don't know too much about these if accurate -->
 		<ArtRef Name="building:BUILDING_PAGAN_TEMPLE">
 			<Rotate>45</Rotate>
 			<Scale>2.5</Scale>

@@ -9,7 +9,7 @@ MULTI_LIST_PANEL_OFFSET_X = 9
 MULTI_LIST_PANEL_OFFSET_Y = 36
 MULTI_LIST_PANEL_ADDITIONAL_W = -1 * (MULTI_LIST_PANEL_OFFSET_X * 2)
 MULTI_LIST_PANEL_ADDITIONAL_H = -1 * (MULTI_LIST_PANEL_OFFSET_Y)
-# <!-- custom: note: no HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING equivalent for multilists if i am not mistaken as this value is the same as PANEL_MULTILIST_OFFSET_X so using the real value rather; so we use instead PANEL_MULTILIST_OFFSET_X directly for example in get_multilist_max_buttons_per_row. -->
+# <!-- custom: note: no HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING equivalent for multilists as this value is the same as PANEL_MULTILIST_OFFSET_X so using the real value rather; so we use instead PANEL_MULTILIST_OFFSET_X directly for example in get_multilist_max_buttons_per_row. -->
 HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
 # <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit -->
 HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
@@ -114,7 +114,7 @@ def SAS_isFeatureRemovable(iFeature, gc):
 
 
 
-# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass if i may say and if i am not mistaken; also useful to access any asset id safely if i am not mistaken such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me based on previous parts of this code comment if i am not mistaken and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd. -->
+# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me based on previous parts of this code comment and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd. -->
 def getInfoTypeOrFail(tag, gc):
 	iType = gc.getInfoTypeForString(tag)
 	if iType == -1:
@@ -241,10 +241,10 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	buttonColumn = iButtonIndex % maxButtonsPerRow
 	buttonRow = iButtonIndex // maxButtonsPerRow
 
-	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai if i may say helped me design and adjust thanks, we don't need to handle the 1th no spacing with next item of the list, as anything multilied by 0 negates spacing, this applies to both column and row calculation(s) if i am not mistaken; however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT -->
+	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai if i may say helped me design and adjust thanks, we don't need to handle the 1th no spacing with next item of the list, as anything multilied by 0 negates spacing, this applies to both column and row calculation(s); however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT -->
 	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
 
-	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") if i am not mistaken in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
+	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
 	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 
 	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful or not or yes or etc to do so -->

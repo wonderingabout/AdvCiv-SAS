@@ -1076,7 +1076,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: kingdom of benin's disciplined crossbowman's button from HR mod's isikhulu (unique unit as per HR naming), nif from ri mod's ART_DEF_UNIT_CROSSBOWMAN_FILIPINO (crossbowman (tagalog)); kfm is base civ4 one as often seems to be the case if i am not mistaken -->
+		<!-- custom: kingdom of benin's disciplined crossbowman's button from HR mod's isikhulu (unique unit as per HR naming), nif from ri mod's ART_DEF_UNIT_CROSSBOWMAN_FILIPINO (crossbowman (tagalog)); kfm is base civ4 one as often seems to be the case -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
 			<Button>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds</Button>

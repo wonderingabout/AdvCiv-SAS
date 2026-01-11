@@ -131,7 +131,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	# <!-- custom: split this more cleanly as a separate method from interfaceScreen if i am not mistaken in assessing so if i may say and also as in other parts of our code as well; also Era display code bit/part in this caseimported from rfc doc mod and adjusted or not for advciv-sas-->
+	# <!-- custom: split this more cleanly as a separate method from interfaceScreen in assessing so if i may say and also as in other parts of our code as well; also Era display code bit/part in this caseimported from rfc doc mod and adjusted or not for advciv-sas-->
 	def placeTechPane(self):
 		screen = self.top.getScreen()
 		techInfo = gc.getTechInfo(self.iTech)
@@ -280,7 +280,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken) tech list at the end of placeSpecial, addition with the help of chatgpt thanks. -->
+	# <!-- custom: add non-tradeable (<bTrade>) tech list at the end of placeSpecial, addition with the help of chatgpt thanks. -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()

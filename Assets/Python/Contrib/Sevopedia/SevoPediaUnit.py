@@ -477,7 +477,7 @@ class SevoPediaUnit:
 				iButtonIndex += 1
 
 		# Check for UnitCombatMods
-		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i meanthe code (ignorantly perhaps of me but good to try or not or yes), so making sure i mean to have a separate loop for combat type modifiers if i am not mistaken in understanding this -->
+		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i meanthe code (ignorantly perhaps of me but good to try or not or yes), so making sure i mean to have a separate loop for combat type modifiers in understanding this -->
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
 			# Loop through all units to find those with UnitCombatMods against this combat type
@@ -638,7 +638,7 @@ class SevoPediaUnit:
 		iHillsAttack = unitInfo.getHillsAttackModifier()
 		iHillsDefense = unitInfo.getHillsDefenseModifier()
 
-		# <!-- custom: include negative values as well if i am not mistaken and after having asked chatgpt to be sure or quite more sure -->
+		# <!-- custom: include negative values as well and after having asked chatgpt to be sure or quite more sure -->
 		if iHillsAttack != 0 or iHillsDefense != 0:
 			widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
 			iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
@@ -656,7 +656,7 @@ class SevoPediaUnit:
 			iButtonIndex += 1
 	
 		# Terrain Attack/Defense bonuses
-		# <!-- custom: note peak is handled here as well if i am not mistaken (i.e. same as for the other terrains only here), except for hills that follow a different modifier formula with getHillsAttackModifier and getHillsDefenseModifier -->
+		# <!-- custom: note peak is handled here as well (i.e. same as for the other terrains only here), except for hills that follow a different modifier formula with getHillsAttackModifier and getHillsDefenseModifier -->
 		for i in range(gc.getNumTerrainInfos()):	
 			iTerrainAttack = unitInfo.getTerrainAttackModifier(i)
 			iTerrainDefense = unitInfo.getTerrainDefenseModifier(i)

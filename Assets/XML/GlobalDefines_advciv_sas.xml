@@ -2,7 +2,7 @@
 <!-- custom: adding our own AdvCiv-SAS knobs/tunables so that players or me xdcan tweak/modify them without having to recompile each time which is tedious; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know) or check in code of relevant function(s) -->
 <!-- custom: note: using the prefix is a bit cringe xd but at same time cool and does some publicity, but most importantly it gives us freedom while being compactto name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd but now think it makes sense), check if accurate -->
 <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such) but check to be sure if in doubt -->
-<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders), check to be sure -->
+<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or add other global define files, make sure they are added there as well and chatgpt 5 confirms it, or it won't load as it didn't seem to (load) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders), check to be sure -->
 <!-- custom: note 4: i did not add it here to avoid having issues or a complicated implementation, but a few places use the hardcoded mod name such as as of now "AdvCiv-SAS" instead for example of "AdvCiv". To find these places easily, i generally wrote a comment that has something like "our mod AdvCiv-SAS" or "mod AdvCiv-SAS" or "AdvCiv-SAS Mod" or something similar so they can be found more easily to change them in case you change the mod's name. -->
 <!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate). -->
 <!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while -->
@@ -352,7 +352,7 @@
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_DESERT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-	<!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too if i am not mistaken still quite good, absolutely avoid settling on this unless really the best locally otherwise -->
+	<!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too still quite good, absolutely avoid settling on this unless really the best locally otherwise -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_GRASS</DefineName>
 		<iDefineIntVal>-75</iDefineIntVal>
@@ -459,7 +459,7 @@
 		<iDefineIntVal>-25</iDefineIntVal>
 	</Define>
 	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) -->
-	<!-- custom: same as tundra hill, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe if i'm not mistaken or some other improvements maybe too although i didn't check, but it would be costly in food if i'm not mistaken, so not a great choice to have in our city radius (great to settle on though otherwise if i'm not mistaken but is not handled here, as we are in the non-home-plot code if i am not mistaken) -->
+	<!-- custom: same as tundra hill, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe if i'm not mistaken or some other improvements maybe too although i didn't check, but it would be costly in food if i'm not mistaken, so not a great choice to have in our city radius (great to settle on though otherwise if i'm not mistaken but is not handled here, as we are in the non-home-plot code) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_SNOW</DefineName>
 		<iDefineIntVal>-35</iDefineIntVal>
@@ -578,7 +578,7 @@
 
 
 
-	<!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine
+	<!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather and; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine
 	// iValue = adjustToBadHealth(iValue, iHealth);
 	// // <advc.031>
 	-->
@@ -858,7 +858,7 @@
 
 
 	<!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units -->
-	<!-- custom: hopefully enough just with the modifier that trebuchets use if i am not mistaken as of now (but check if accurate as i didn't check in detail) -->
+	<!-- custom: hopefully enough just with the modifier that trebuchets use as of now (but check if accurate as i didn't check in detail) -->
 	<Define>
 		<DefineName>SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
@@ -944,7 +944,7 @@
 
 
 	<!-- custom: extremely effective code ingame, seemingly even better than the no excess defender or excess siege code due to it being written differently, i'd still recommend all of these enabled. As for this no very early units, here are some tunables/knobsto customize/configure them.
-	Era info is as follows if i am not mistaken (check if accurate as i am not 100% sure it starts at 0 for first era but i guess so, check to be sure). (found with vs code global search, these are the results in an xml file in our mod):
+	Era info is as follows (check if accurate as i am not 100% sure it starts at 0 for first era but i guess so, check to be sure). (found with vs code global search, these are the results in an xml file in our mod):
 
 	// 18,5: 			<Type>ERA_ANCIENT</Type>
 	// 79,5: 			<Type>ERA_CLASSICAL</Type>
@@ -1012,7 +1012,7 @@
 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or sucha modmod might additionally add -->
+	<!-- custom: need less for naval maps as there are no invaders or such and naval units are also more important so trim it a bit more there; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or sucha modmod might additionally add -->
 	<Define>
 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

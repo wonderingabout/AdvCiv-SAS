@@ -3260,7 +3260,7 @@ void CvUnit::automate(AutomateTypes eAutomate)
 }
 
 
-// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or in other places, see known issue as of now 52 for details; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate -->
+// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or in other places, see known issue as of now 52 for details; also code provided with the help of chatgpt 5 thanks -->
 // <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks!), implementing our logic here as well, check if accurate -->
 // Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
 // <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances, see known issue as of now 52 for details; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, see known issue mentionned here in these code comments for details, and we otherwise kept function the same -->
@@ -3271,15 +3271,6 @@ bool CvUnit::canScrap() const
 	// 	return false;
 	// return true;
 
-	// <!-- custom: update: the danger and not before turn 100 and other conditions no scrapping gating here worked extremely great and solved the scrapping issue, see known issue as of now 52 for details; now doing a less going overboard xd approach, we can just disable scrapping entirely and not waste computation, or in other cases tune it to be selectively disabled or such, commenting-out this old code we added at first for that end since we don't need to check these now so kept as is commented-out in case if need (and note: untested or barely tested once), may remove it if uneeded -->
-	// 		// only allow scrapping if actually over budget or burning gold
-	// 		const int iCostPerMil = kOwner.AI_unitCostPerMil();
-	// 		const int iMaxPerMil  = kOwner.AI_maxUnitCostPerMil();
-	// 		if (iCostPerMil <= iMaxPerMil && kOwner.calculateGoldRate() >= 0)
-	// 			return false;
-	// 	}
-	// }
-
 	static const bool bSAS_CAN_SCRAP_OPTIMIZE = GC.getDefineBOOL("SAS_CAN_SCRAP_OPTIMIZE");
 
 	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
@@ -3287,6 +3278,7 @@ bool CvUnit::canScrap() const
 		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or updated info known issue as of now 52 or other related docs)
 		const UnitAITypes eUnitAI = AI_getUnitAIType();
 		const CvUnitInfo& kUnitInfo = getUnitInfo();
+
 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently while keeping anti-scrap gates for useful ones; avoids per-unit logic and keeps AI hammer efficiency gains. (GPT-5.2-Codex) -->
 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
 		if (eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
@@ -3312,7 +3304,7 @@ bool CvUnit::canScrap() const
 		{
 			return false;
 		}
-		// <!-- custom: if the former fails if i may say but anyways for example in some mod mod where workers are high strength or can fight or such, add an additional check faithful to our land military units first spirit and maybe helps catch more without false positives like spies (unless they can really fight again i mean in some mod mod or such (maybe our mod too but very unlikely so most likely not, as i don't have a reason to do this as of now so most likely not) perhaps) or galleons; note: as i don't trust the canFight check in case it fires weird things at us or flags the wrong ones (didn't check but to be safe), go with our former check first, maybe computationally more efficient although i didn't check the canFight function-->
+		// <!-- custom: if the former fails, also check canFight -->
 		// prefer explicit AIs, but also OR with canFight() just in case
 		else if (getDomainType() == DOMAIN_LAND && canFight())
 		{
@@ -3410,7 +3402,7 @@ bool CvUnit::canScrap() const
 				bLandMissionaryUnitAIs ||
 				bLandSpyUnitAIs
 			);
-			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap, or other issues we may not be aware of if i am not in my assessment; also if we happen to have a few extras for some reason, (hut, unit gifted, etc), do not mind it, assume it is not excessive and don't complexify logic for a few extra units that ultimately won't change hopefully game outcome(note: we may want though to add a preventive patch against gifting abuse, say if we are above limit, scrap any gifted unit to us, but may be a bit tedious or i don't know how, we'd need to scrap the unit received if worse than ours else one of ours if ours are worse etc, ideally would be very nice, but maybe leave it as such if not overboard may be fine and not worth the effort if i may say, although again would be very nice, but hopefully this note/reminder helps if someone other than me (or possibly me but less likely i'd do it again but who knows but i may very well not do it though, may or not not guaranteed) gets the idea from this or something) -->
+			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap -->
 			if (bMostHandledLandCivilianUnitAIs)
 			{
 				return false;
@@ -3466,8 +3458,7 @@ bool CvUnit::canScrap() const
 					// clamp to avoid negative
 					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
-					// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks; scale * 100 for rounding error/precision asa chatgpt 5 described suggested although i may have had or not or yes or etcsame idea or not or yes or etc -->
-					// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me or more easily)) --> -10% per era -->
+					// <!-- custom: as for decay use a very simple and effecive formula: -10% per era -->
 					const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value-->
 					const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
 					// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so) for all -->
@@ -3557,10 +3548,10 @@ bool CvUnit::canScrap() const
 
 		// <!-- custom: these below should happen less often, for computation saving put them at the end-->
 
-		// <!-- custom: do not scrap anything carrying units, nice idea by chatgpt 5 i didn't even ask this but just some ideas and it found this thanks. Also nice thing isthis is compatible i think if i'm not mistakenwith mod mods, if some weird weird xdmod makes swordsmen carry cargo, then don't delete the swordsman (it has ants or ant soldiers xd (not in our mod but maybe), so i find this sanity check very nice if it doesn't break anything, may uncover or solve unknown issues too maybe hopefully or prevent some maybe who knows so i like this very much thanks -->
+		// <!-- custom: do not scrap anything carrying units, nice idea by chatgpt 5 -->
 		// Never scrap anything carrying cargo
 		// Prevents “oops I deleted a galleon with settlers”.
-		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units (looks less predictable to me, perhaps needless extra care here as in not relevant to the problem maybe although i'm not too sure but it looks as such to be fine and suitable maybe to go and to simplify as such maybe too), and i hope the protection of the cargo itself is enough and most fit -->
+		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units (looks less predictable to me), and i hope the protection of the cargo itself is enough and most fit -->
 		if (getCargo() > 0)
 		{
 			return false;

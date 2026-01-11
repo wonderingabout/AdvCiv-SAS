@@ -921,7 +921,7 @@ struct CandidatePlot
 };
 
 // Returns true if the unit found a build for this city...
-// <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further if i am not mistaken and is thanks to chatgpt and co or such like claude ai and such if i may say too (and thanks to me too)-->
+// <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further -->
 // <!-- custom: rewrite to handle/optimize terrain improvement choice - don't build cottage on flatland plains if flatland grass tiles (much better candidates) are available. For bonuses, simplify logic to always improve them regardless of terrain (high-food bonuses first). Partially based on settling priorities code in CitySiteEvaluator.cpp. Credit: Gemini AI (original); ChatGPT 5 (polishing). (Claude code Sonnet 4.5 (summarized)) -->
 // This function determines the value of a specific improvement on a plot,
 // which is the core logic that guides AI worker actions.
@@ -997,7 +997,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	int const iImprovementWorkshopFoodYieldChange = kImprovementWorkshopInfo.getYieldChange(YIELD_FOOD); // Should be -1 <!-- custom: at least in the early game -->
 	bool const bImprovementWorkshopCostsNoFood = (iImprovementWorkshopFoodYieldChange >= 0);
 
-	CvImprovementInfo const& kImprovementFarmInfo = GC.getInfo(eImprovementFarm); // <!-- custom: e.g. +1 food early if i am not mistaken -->
+	CvImprovementInfo const& kImprovementFarmInfo = GC.getInfo(eImprovementFarm); // <!-- custom: e.g. +1 food early -->
 	int const iImprovementFarmFoodYieldChange = kImprovementFarmInfo.getYieldChange(YIELD_FOOD);
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
@@ -1019,31 +1019,17 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		pathFinder.setGroup(*getGroup(), NO_MOVEMENT_FLAGS, 5, GC.getMOVE_DENOMINATOR());
 	} // K-Mod end
 
-	// <!-- custom: rewrite / refactor this heavily by gemini ai and other AIs to fix fatal flaw of not returning any best plot if our selected best plot happens to be unpathable, plus other seemingly bugs as well (see code comments below in this function for details) -->
-	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast(see screenshot and doc at known issues readme as of now number 30 for details).
+	// <!-- custom: rewrite this to fix fatal flaw of not returning any best plot if our selected best plot happens to be unpathable, plus other seemingly bugs as well -->
+	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast(see screenshot and doc at known issues readme as of now number 30).
 	// <!-- custom: rewrite addresses suboptimal behavior - old code pathfinding-recomputed best plot even after pass 1 computation. More efficient to compute decrementally from best candidate to worse until one is found, then early return, rather than compute all plots including ones that won't be best. New code is cleaner and easier to customize. Credit: Gemini AI. (Claude code Sonnet 4.5 (summarized)) -->
 
 	std::vector<CandidatePlot> candidatePlots;
 
-	// <!-- custom: note: performance optimization and perhaps logic optimization as well i got from watching gemini ai's general feedback on it being perhaps slow (which in fact seemingly was not after measuring (see above)) it gave me this other idea thanks a lot hehe, and that i would have ideally implemented, but it seems faster to not check pathfinding at all (in case it is expensive as gemini ai said in another answer to me i mean in this case) and loop over all tiles rather than check pathfinding at same time as we check candidate plots so that we can early exit after first bonus found (in short it seems faster to store all candidate plots blindly than pre-select them only for pathfinder-eligible and passing ones, which should be uneeded if we don't choose them anyway in the end in this case at least); so my idea was (unimplemented due to explained reasons in this code comment): if we find a bonus, check other following plots lightly, since in the end we will choose a bonus, so may skip any non bonus tile at first bonus tile found. This may have also helped enforce the bonus-first priority so nice in all ways maybe, but as said before is maybe not as efficient as i thought (as if this only best tile ends up being unpathable, then all the other good candidate plots we skipped assuming we had a better one would not be chosen then if no other pathfinder-ok bonus tile exists, so safer and also seemingly faster to not bother with pathfinder until we have sorted all plots from best to worse) (although i didn't measure it so check to be sure in case relevant or interested) so not implementing it -->
+	// <!-- custom: note: performance/logic optimization: it seems faster to not check pathfinding at all and loop over all tiles rather than check pathfinding at same time as we check candidate plots (check if accurate) -->
 
-	// <!-- custom: computationally faster even if a bit maybe to access these directly instead of through the pointer/method especially for/if repeated/ly use/d if i may say maybe but check to be sure -->
+	// <!-- custom: moved up for perf opt -->
 	int const iCityHealthCalculatedDifference = kCity.goodHealth() - kCity.badHealth();
 	int const iCityPopulation = kCity.getPopulation();
-
-	// <!-- custom: food difference may be at 0 when we are building a worker or settler for example (i assume it is via the bFood xml field in unit info but check to be sure), so count food only when we are not building these units, as we don't know if it's really 0 or 0 as a result of food production, and i don't want to modify the code in case it interferes with many things although ideally i should i think but not sure but in all cases calculating ourselves rather the real actual city food difference based on yields and food consumption, not on civ4 helpers, to decide if for example we should build farms when starved (are we really starved or building a worker? We need the info to decide so adding it here if i may say but), with the help of claude ai as well and my prompts and adjustments too or not or yes or etc-->
-	// int const iCityFoodDifference = kCity.foodDifference();
-	// <!-- custom: it seems this is no good and confuses the AI, as we have a very irrigated city, i assume as it built many workers or some other condition, it got misled into thinking that we were starved, when we were not. Commenting out the if starved build farm on flatland grass code sovled the issue, so i assume this check is too often true, even if we are not starved, inaccurately favouring the farm and thus reducing AI effiency and strength (over irrigated city, and in grass tiles what's worse which our best tiles or among to use for potential rather (cottage, etc.) ideally, but now with low production). The idea was to build farms ONLY if really needed, especially in high food tiles, really try to avoid it unless necessary. For now, use an estimated food consumption rather, so that we don't think we're starved just because we're producting a worker, with the idea that each citizen consumes 2 food -->
-	// int const iRealCalculatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
-	// <!-- custom: update: it seems that when we are building settlers or such food is production builds, food allocation or food yields are quite a lot reduced or so it seems at least in some cases, attempt this approach i found somewhere in the code -->
-	//int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - (2 * iCityPopulation)
-	// <!-- custom: try a modified version of the sample below, as we sometimes, although quite rare now and we have many nice flood plain cottages, but sometimes stillbuild too much farms, which is a problem especially on flood plains but also on grass as we should ideally capitalize on these tiles, maybe cause is we are confused by food is production so rather than doing here and in a way that seems inaccurate or not relevant to us according to my understanding of gemini ai's explanation of it (if food is production i don't want to count food at all in particular, unreliable, i'd rather just ignore building farms then), trying this formula provided by gemini ai instead and that i modified too ignoring food production case. On top of it, add a check that if food is production, assume we have enough food. This is sketchy and maybe inaccurate sometimes, but i'd rather they don't build farms than build them, unless we are really starved, which is often unlikely -->
-	// int const iEstimatedCityFoodDifference = (kCity.isFoodProduction() ?
-	// 		std::max(0, (kCity.getYieldRate(YIELD_FOOD) -
-	// 		kCity.foodConsumption(true))) : 0);
-	// <!-- custom: update 3: even with this change and some other changes as well, we still build farms on flood plains and on bonuses (although rarer for bonuses), i even tried to comment out the farm building code entirely but it still happens, so i assume there is another code outside of this function or of what we wrote that interferes with our logic-->
-	// <!-- custom: in rare cases get crazy oscillation between flatland grass farm and cottage. City not starved but runs useless specialist hindering growth (stagnant), or has angry citizen so thinks it needs food, but more food = more angry citizens (fix happiness instead). Restrict farms/food builds on non-bonus plots only when we really need food. Count ideal food need to account for specialists/angry citizens. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
-	// int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(false);
 
 	// <!-- custom: note: see also a slightly different implementation of this at variable iEffectiveFoodAfterBuiltHappy in as of now buildingvalue function in cvcityai.cpp file -->
 	// Specialists that actually cost population (and thus 'pull' 2 food each)
@@ -1074,11 +1060,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 		// <!-- custom: start from scratch with own logic (saves computation). Now iValue chooses which tiles to improve first, while bestBuild is independently handled by own helpers based on terrain, feature, bonuses, tech (canBuild), etc. Logic cleanly separated: which is best ideal build vs which tile to improve first. (Claude code Sonnet 4.5 (summarized)) -->
 		// int iValue = kCity.AI_getBestBuildValue(ePlot);
-		// <!-- custom: also to override seemingly higher `iValue <= 1` expected conditions in other functions, not sure they call this and use it, but just in cast start with higher values in case other functions expect them (check to be sure), start with a higher minimal value than this threshold, although ours should be so much higher than 1 for most good plots, but just in case to not be rejected there if we somehow have a good plot or not too bad one with negative value if i am not mistaken. -->
+		// <!-- custom: also to override seemingly higher `iValue <= 1` expected conditions in other functions, not sure they call this and use it, but just in cast start with higher values in case other functions expect them (check to be sure), start with a higher minimal value than this threshold, although ours should be so much higher than 1 for most good plots, but just in case to not be rejected there if we somehow have a good plot or not too bad one with negative value. -->
 		int iValue = 10;
 
 		// <!-- custom: AI does a lot of bad stuff, this is much better with our value tweaks (no more farms on plains but now too many farms on grassland, still i believe starting from scratch and ignoring any above instucitons from our code is best, so we'll determine best build ourselves here at least for what this part of the code is responsible for, test to do so) -->	
-		// <!-- custom: move eBuild definition here if i am not mistaken in doing so -->
+		// <!-- custom: move eBuild definition here in doing so -->
 		// BuildTypes const eBuild = kCity.AI_getBestBuild(ePlot);
 		BuildTypes eBestSupposedBuild = NO_BUILD;
 
@@ -1093,7 +1079,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		if (eBonus != NO_BONUS)
 		{
 			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units -->
-			// <!-- custom: note 2: even if chopping is important, do not change plot value at all, so that highest value bonus is chopped first, then at next step it is still highest value so it is improved, then it has now an improvement that is correct so it is moved out of our plots in all cases, then 2nd best bonus is chopped if needed, else improved, then 3rd bonus choped if needed then improved etc, then the rest of the plots :) Hehe a very elegant solution as gemini ai said from idea i nicely got but it helped me lot, so making chopping more important by not making it more important (else with a multiplier AI would rush in theory at leastfrom chopping one bonus to directly chopping bonus 2 without imprvoing bonus 1 before that which would defeat the purpose and be very inefficient, only goal was to chop before actual improve for flexibility of AI workers and such)... -->
 			if (eFeature == eFeatureForest)
 			{
 				// <!-- custom: no need to remove feature yet, first get the yields from the camp, +/- early connection if a river or route or such is already there luckily/conveniently as well -->
@@ -1172,7 +1157,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					}
 				}
 			}
-			// <!-- custom: computationally faster to put it at last feature (among features to remove/scrub i mean) if i'm not mistaken even though it has highest value due to urgency to clean/remove/scrub this feature, but very few feature_fallout ever happen in the game and generally quite late, but we loop quite often over al tiles, so try to save computation and put this check last even though is the most important in iValue as of now -->
+			// <!-- custom: computationally faster to put it at last feature (among features to remove/scrub i mean) even though it has highest value due to urgency to clean/remove/scrub this feature, but very few feature_fallout ever happen in the game and generally quite late, but we loop quite often over al tiles, so try to save computation and put this check last even though is the most important in iValue as of now -->
 			else if (eFeature == eFeatureFallout)
 			{
 				if (canBuild(kPlot, eBuildScrubFallout))
@@ -1225,7 +1210,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// Give a <!-- custom: very high value (avoid multiplying for any weird bug or such, addition by a big number would produce more consistent or reliable results i think if i may say and) --> for any unimproved bonus.
 					iValue += 20000;
 
-					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maybe bit too), so multiply it even further than the base any unimproved bonus multiplier if i am not mistaken in my understanding -->
+					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maybe bit too), so multiply it even further than the base any unimproved bonus multiplier -->
 					// Give an even bigger multiplier if the bonus is a FOOD bonus.
 					if (bonusFoodYieldChange > 0)
 						iValue += (8 * bonusFoodYieldChange * 500);
@@ -1274,7 +1259,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		else
 		{
 			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones. Helps avoid oscillation (workers changing their mind and overwriting a tile repeatedly based on fleeting conditions, which is very inefficient). Helps AI focus on one improvement and stick to it. (Claude code Sonnet 4.5 (summarized))
-			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect if i am not mistaken too -->
+			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect  -->
 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 			// <!-- custom: first the absolutely holy improvements to never improve -->
 			if (ePlotCurrentImprovement == eImprovementHamlet ||
@@ -1365,7 +1350,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					{
 						eBestSupposedBuild = eBuildFarm;
 
-						// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them if i am not mistaken but in all cases -->
+						// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them but in all cases -->
 						iValue += 1700 + (100 * (-1 * iEstimatedCityFoodDifference));
 					}
 					// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
@@ -1382,7 +1367,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					}
 				}
 			}
-			// <!-- custom: feature floodplains can effectively be considered a terrain as it spawns only on desert in our mod if i am not mistaken as in base advciv +/- civ4, so use else if for computational effiency -->
+			// <!-- custom: feature floodplains can effectively be considered a terrain as it spawns only on desert in our mod as in base advciv +/- civ4, so use else if for computational effiency -->
 			else if (eTerrain == eTerrainGrass)
 			{
 				if (kPlot.isHills())
@@ -1616,10 +1601,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// <!-- custom: for tundra prioritize developping the other food tiles, develop tundra last or among last terrains, or only if we are surrounded by it, then prefer farms or cottages depending on our food supply on flatland, else and in general as well see below logic for details -->
 			else if (eTerrain == eTerrainTundra)
 			{
-				// <!-- custom: on hills the problem is more straightforward similarly to plains, but they yield less production, so less valuable, still as tundra is lower production overall, production is valuable itself, so make it worth a bit less than plains so that plains prevail but not by a lot if i am not mistaken in my thinking so... -->
+				// <!-- custom: on hills the problem is more straightforward similarly to plains, but they yield less production, so less valuable, still as tundra is lower production overall, production is valuable itself, so make it worth a bit less than plains so that plains prevail but not by a lot so... -->
 				if (kPlot.isHills())
 				{
-					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more; also as tundra tends to have less food around it, so consistently (i.e. regardless of food difference if i am not mistaken in my thinking) favour the windmill instead -->
+					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more; also as tundra tends to have less food around it, so consistently (i.e. regardless of food difference) favour the windmill instead -->
 					if (canBuild(kPlot, eBuildWindmill))
 					{
 						// <!-- custom: on tundra the windmill may be slightly more valuable than on plains, i don't know exactly why i feel or seem to think so, but maybe since production is low anyway, capitalize on food rather, or maybe because tundra overall has less food in its environment so value food morewindmill, go for it anyway etc -->
@@ -1753,7 +1738,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				}
 				// <!-- custom: else nothing to do on flatland snow, that would raise our yields at all (we DON'T want forts...) -->
 			}
-			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml if i am not mistaken (although i didn't check too much if at all to be fair but it seems to function as such ingame)-->
+			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml (although i didn't check too much if at all to be fair but it seems to function as such ingame)-->
 			else if (eTerrain == eTerrainDesert)
 			{
 				if (kPlot.isHills())
@@ -2022,7 +2007,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// K-Mod. basically the same thing, but using pathFinder.
 		if (pathFinder.generatePath(*pB))
 		{
-			// <!-- custom: max one worker per tile, should be much more efficient in most cases, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest if i am not mistaken; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile, the type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
+			// <!-- custom: max one worker per tile, should be much more efficient in most cases, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile, the type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
 			//int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
 			// int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(*pB, eB);
 			// if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
@@ -2836,7 +2821,7 @@ bool CvUnitAI::AI_foundFirstCity()
 
 				int iTurnWeight;
 
-				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far; also note: >, not >= to strictly allow 5 entire turns before any penalty is applied; give AI the best chances to win and overcome a bad start on tundra, coast only, etc; removed old advciv / kmod flat penalty per turn code for cleanliness and readability if i may say and if i am not mistaken in my understanding too -->
+				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far; also note: >, not >= to strictly allow 5 entire turns before any penalty is applied; give AI the best chances to win and overcome a bad start on tundra, coast only, etc; removed old advciv / kmod flat penalty per turn code for cleanliness and readability -->
 				if (iTurnsBeyondMaxToFound == 0)
 				{
 					iTurnWeight = 100;
@@ -2845,7 +2830,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				{
 					iTurnWeight = 50; 
 				}
-				// <!-- custom: else, see claude ai's explanation below if i am not mistaken and it is not too i mean, check if accurate -->
+				// <!-- custom: else, see claude ai's explanation below and it is not too i mean, check if accurate -->
 				// CLAUDE: Since we already filtered out plots that take too long above,
 				// iTurnWeight should never be 0 here
 				// CLAUDE: Skip plots that would take too long, matching original logic
@@ -10576,7 +10561,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 		static const PromotionTypes ePromotionLogistics = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_LOGISTICS", true);
 
-		// <!-- custom: most likely not going to be useful or reliably so except for recon units; mounted units for example could get combat or anything more effective or likely to be vs this if i am not mistaken so try to avoid "bad" choices or not too often/reliably ""good""/effective ones for AI players-->
+		// <!-- custom: most likely not going to be useful or reliably so except for recon units; mounted units for example could get combat or anything more effective or likely to be vs this so try to avoid "bad" choices or not too often/reliably ""good""/effective ones for AI players-->
 		if ((ePromotion == ePromotionSentry) ||
 			(ePromotion == ePromotionWoodsman1) ||
 			(ePromotion == ePromotionWoodsman2) ||
@@ -10756,7 +10741,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			bMostlyOffensiveLandUnitAI
 		);
 
-		// <!-- custom: the less strict rules such as not pick hills master still stand, for example if all city raider of the strict rules are already picked if i am not mistaken; so include strict offense unitais in the general offense unitai rules -->
+		// <!-- custom: the less strict rules such as not pick hills master still stand, for example if all city raider of the strict rules are already picked; so include strict offense unitais in the general offense unitai rules -->
 		const bool bOffenseLandUnitAI = (bStrictAttackCityLandUnitAI || bCommonOffenseLandUnitAI);
 
 		const bool bOffenseNavalUnitAI = (
@@ -10765,7 +10750,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 		const bool bOffenseUnitAI = (bOffenseLandUnitAI || bOffenseNavalUnitAI);
 
-		// <!-- custom: promotion_city_garrison1 and such unlikely to be too useful or reliably useful/used by the AI / AI players 's offense(ive?) unitAIs if not used for/with these unitAIs, so disable them for effiency and most often likely to be useful and effective (or non-not effective...), and same as well for generally defensive type of unitAIs such as hills_master1 and such if i am not mistaken in my assessment of so/such, as for hills_master1 and such for example, they are too situational to be reliably used for offense, and as of now the hill attack modifier comes only at later levels of this promotion, not worth the XP investment for AI players due to it not being reliable, bet on other promotions rather, but here we're just disabling the unlikely to be useful ones, otherwise as of now at least not changing choosing logic; as for counter_siege or such if any other, generally city defenders are not or should not be siege units, so aim for counter archer or such or anything else i mean if i may say but anyways rather etc for AI offense units; as for counter tanks, most of them are going to be attackers and not city guards most likely as well, so statistically more likely to be beneficial to avoid this promotion as well for offensive unitais if i am not mistaken; as for counter_melee, it is unclear and harder, but many exceptions such as mounted units, siege, etc, can make this choice not relevant, so avoid it for effectiveness and statistical probability, even though in many cases it may have been a good choice, in many other cases it might not, so better go for something more reliable and effective for offense units, such as combat, city_raider, first_strike, among other possibilities maybe (here we are not altering these, only blacklisting not-relevant or most likely to be useful choices while hopefully not killing versatility too much) -->
+		// <!-- custom: promotion_city_garrison1 and such unlikely to be too useful or reliably useful for offensive unitAIs, so disable them for effiency -->
 		if ((ePromotion == ePromotionCityGarrison1) ||
 			(ePromotion == ePromotionCityGarrison2) ||
 			(ePromotion == ePromotionCityGarrison3) ||
@@ -19179,7 +19164,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 	CvPlot* pBestPlot=NULL;
 	BuildTypes eBestBuild=NO_BUILD;
 
-	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimizedAI_bestCityBuild function is ever called. I tried to implement roading on bonuses but we had more and more issues due to pushing missions or crashes, that even after i fixed them, made it so that worker efficiency was worse than before (many worker per tiles, roading in city tiles, etc.). So i reverted to latest known stable which was before the roading on bonuses changes, if i am not mistaken in how i did so. I kept the safeties we added as part of past changes though as they are nice to have. This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, if i am not mistaken in how i did so -->
+	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimizedAI_bestCityBuild function is ever called. I tried to implement roading on bonuses but we had more and more issues due to pushing missions or crashes, that even after i fixed them, made it so that worker efficiency was worse than before (many worker per tiles, roading in city tiles, etc.). So i reverted to latest known stable which was before the roading on bonuses changes, in how i did so. I kept the safeties we added as part of past changes though as they are nice to have. This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, in how i did so -->
 	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this))
 		return false; // advc
 	FAssert(pBestPlot != NULL);
@@ -19469,7 +19454,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// <!-- custom: update: another crash caused by this function is now fixed, read below null and such checks code comments, so this one may be fixed too, but check if accurate -->
 		// <!-- custom: note: for some reason we crash when only try to check AI_bestCityBuild function call and not AI_getBestBuild function call if i'm not mistaken. I don't know if it's related to my heavy changes in the function or not or if it wa already here before or not. My idea is since we handle all (land) improvements as we want now directly in AI_bestCityBuild, we maybe don't need anymore the old AI_getBestBuild that we disabled in our rewritten AI_bestCityBuild to compute value of each plot ourselves, but maybe this interferes or removes or doesn't handle some logic like workboats, roads, water tiles? I don't know enough nor did i check, so these are just guesses of me anyways, but since it seems to work as is, i'm adding this info just for reference or if useful to debug or such. -->
 		// <!-- custom: so after the update, now that the crash is fixed, trying to disable old interference of AI_getbestCityBuild since our funciton is more optimized in case the other function gives us too many NO_BUILD or bad improvements or such(is just a guess from me so check if accurate); result update: we don't crash anymore!!! Even if not relying on the old and most likely faulty AI_bestCityBuild, our logic is now reliable, and our city D or such are now improved much sooner as we want -->
-		// <!-- custom: update after all above code code comments: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimizedAI_bestCityBuild function is ever called. I tried to implement roading on bonuses but we had more and more issues due to pushing missions or crashes, that even after i fixed them, made it so that worker efficiency was worse than before (many worker per tiles, roading in city tiles, etc.). So i reverted to latest known stable which was before the roading on bonuses changes, if i am not mistaken in how i did so. I kept the safeties we added as part of past changes though as they are nice to have. This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, if i am not mistaken in how i did so -->
+		// <!-- custom: update after all above code code comments: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimizedAI_bestCityBuild function is ever called. I tried to implement roading on bonuses but we had more and more issues due to pushing missions or crashes, that even after i fixed them, made it so that worker efficiency was worse than before (many worker per tiles, roading in city tiles, etc.). So i reverted to latest known stable which was before the roading on bonuses changes, in how i did so. I kept the safeties we added as part of past changes though as they are nice to have. This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, in how i did so -->
         if (pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
             !AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
         {
@@ -20260,9 +20245,9 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	// 1. To clear a feature if a planned improvement requires it.
 	// 2. To build a road if the plot bridges two separate road networks.
 
-	// <!-- custom: not sure it is needed to add fallout as such but just to be safe, get any build we can, as fallout doesn't have as of now a build_remove_fallout, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true if i am not mistaken and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case other functions call this somehow (i ddin't check))) -->
+	// <!-- custom: not sure it is needed to add fallout as such but just to be safe, get any build we can, as fallout doesn't have as of now a build_remove_fallout, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case other functions call this somehow (i ddin't check))) -->
 	// <!-- custom: for feature remove builds, this is a safeguard for cases where somehow we may have missed the specific build to remove feature (if any exists); note: advantage of hardcoding these especially for forest and jungle is we don't say get a farm that maybe can remove a jungle when we wanted to build a workshop instead after chopping, requires a bit more maintenance but hopefully this stay consistent enough and is computationally efficient, also when caller is one of our refactored functions such as CvUnitAI::AI_bestCityBuild, they already process extensively best build in many conditions including chopping, so this is a safeguard and in case other functions call this (didn't check too much if at all). -->
-	// <!-- custom: fix on refactored version: while we now improve bonuses much more efficiently, and not needlessly road them first and other things, so very nice early yields, and bonuses improved much sooner in the game, so very very nice yields too, we now however have bonuses sometimes unroaded, for quite a long time often. Trying to do the best of both, improving bonuses sooner, but also roading them sooner as well, and not roading everything execessively/needlessly or too soon as well (the former function was quite crazy about roading if i am not mistaken based on the ai that helped me refactor it and all's reaction to the code xd if i remember it correctly); code provided by claude ai; with this version it seems we are on a good track, as we road more bonuses or sooner (at turn 60 almost all are roaded in capital city it seems (vs most but not marbe with o3's fix, and i assume worse or same before o3's fix even) in the autoplay same map i ran, but we'd still like to road even sooner ideally -->
+	// <!-- custom: fix on refactored version: while we now improve bonuses much more efficiently, and not needlessly road them first and other things, so very nice early yields, and bonuses improved much sooner in the game, so very very nice yields too, we now however have bonuses sometimes unroaded, for quite a long time often. Trying to do the best of both, improving bonuses sooner, but also roading them sooner as well, and not roading everything execessively/needlessly or too soon as well (the former function was quite crazy about roading based on the ai that helped me refactor it and all's reaction to the code xd if i remember it correctly); code provided by claude ai; with this version it seems we are on a good track, as we road more bonuses or sooner (at turn 60 almost all are roaded in capital city it seems (vs most but not marbe with o3's fix, and i assume worse or same before o3's fix even) in the autoplay same map i ran, but we'd still like to road even sooner ideally -->
 
 	FAssert(eBuild != NO_BUILD);
 
@@ -20292,7 +20277,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 		return eBuild;
 	}
 
-	// <!-- custom: note: this is used several times in our code; one such cases is when we want to road a bonus in a city radius (from CvUnitAI::AI_bestCityBuild function i assume). In that case, the new bSentinelRoad in CvUnitAI::AI_improveCity takes over so we can move to the tile, build the chosen build_road in CvUnitAI::AI_bestCityBuild, and then road to nearest path to trade network if i understood it correctly based on chatgpt 5's explanation and what i understood of this in general too hehe, but check if accurate and if i am not mistaken; so in such a case we now override this code. However, do not remove it or comment-out, as it can (maybe, check if accurate) still be useful for example if we have a bonus in cultural borders but not in the BFC of any city, then CvUnitAI::AI_bestCityBuild function would not pick these up yet we still need the road, and in such other cases perhaps, so fall back to these if i'm not mistaken -->
+	// <!-- custom: note: this is used several times in our code; one such cases is when we want to road a bonus in a city radius (from CvUnitAI::AI_bestCityBuild function i assume). In that case, the new bSentinelRoad in CvUnitAI::AI_improveCity takes over so we can move to the tile, build the chosen build_road in CvUnitAI::AI_bestCityBuild, and then road to nearest path to trade network if i understood it correctly based on chatgpt 5's explanation and what i understood of this in general too hehe, but check if accurate and; so in such a case we now override this code. However, do not remove it or comment-out, as it can (maybe, check if accurate) still be useful for example if we have a bonus in cultural borders but not in the BFC of any city, then CvUnitAI::AI_bestCityBuild function would not pick these up yet we still need the road, and in such other cases perhaps, so fall back to these if i'm not mistaken -->
 	// IMPROVED LOGIC: Road improved bonuses that aren't connected yet
 	BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
 	if (eBonus != NO_BONUS && 
@@ -23748,7 +23733,7 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
 	// {
 	// 	iDefenseValue = 0;
 	// } // </advc.035>
-	// <!-- custom: No!!! De!!! prioritize fucking forts xd, similar to other places, these are just so inefficient to build for minimal gains, only build if absolutely necessary, should statistically benefit the AI more and make it be more efficient and not ruin its yields or worker time if i am not mistaken too, so commenting out most of this function's code, returing iCost instead of r, quite similarly than done as in other places, and as explained as well in the other code comment(s) in this function -->
+	// <!-- custom: No!!! De!!! prioritize fucking forts xd, similar to other places, these are just so inefficient to build for minimal gains, only build if absolutely necessary, should statistically benefit the AI more and make it be more efficient and not ruin its yields or worker time , so commenting out most of this function's code, returing iCost instead of r, quite similarly than done as in other places, and as explained as well in the other code comment(s) in this function -->
 	/*  Prioritize Forts on tiles with high natural defense and on important
 		resources that may later be guarded. */
 	// if(iDefenseValue > 0)

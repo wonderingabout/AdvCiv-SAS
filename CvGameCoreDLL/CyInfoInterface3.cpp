@@ -97,10 +97,10 @@ void CyInfoPythonInterface3()
 		.def("getNoGiveHelpAttitudeThreshold", &CvLeaderHeadInfo::getNoGiveHelpAttitudeThreshold, "int ()")
 		.def("getTechRefuseAttitudeThreshold", &CvLeaderHeadInfo::getTechRefuseAttitudeThreshold, "int ()")
 
-		// <!-- custom: similarly beginning of addition to python expose for sevopedia leader's gc if i am not mistaken. -->
+		// <!-- custom: similarly beginning of addition to python expose for sevopedia leader's gc. -->
 		.def("getCityRefuseAttitudeThreshold", &CvLeaderHeadInfo::getCityRefuseAttitudeThreshold, "int ()")
 		.def("getNativeCityRefuseAttitudeThreshold", &CvLeaderHeadInfo::getNativeCityRefuseAttitudeThreshold, "int ()")
-		// <!-- custom: end of new additions to python expose for sevopedia leader's gc if i am not mistaken. -->
+		// <!-- custom: end of new additions to python expose for sevopedia leader's gc. -->
 
 		.def("getStrategicBonusRefuseAttitudeThreshold", &CvLeaderHeadInfo::getStrategicBonusRefuseAttitudeThreshold, "int ()")
 		.def("getHappinessBonusRefuseAttitudeThreshold", &CvLeaderHeadInfo::getHappinessBonusRefuseAttitudeThreshold, "int ()")

@@ -150,7 +150,7 @@ class SevoPediaImprovement:
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely if i am not mistaken too -->
+		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely  -->
 		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.addPanel( panelName, "", "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
 
@@ -178,7 +178,7 @@ class SevoPediaImprovement:
 	def placeBonusYields(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely if i am not mistaken too -->
+		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely  -->
 		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES", ()), "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.addPanel( panelName, "", "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
 		info = gc.getImprovementInfo(self.iImprovement)
@@ -319,7 +319,7 @@ class SevoPediaImprovement:
 				#screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Determine which concept to link to based on the route type.
 				routeInfo = gc.getRouteInfo(item)
-				# <!-- custom: as of now if i am not mistaken with a conceptIDToRoute of -1 we would get with get_concept_widgetType_widgetID1_widgetID2 an id1 -1 and id2 -1 and widget general too so maybe fine for not crash, else i'd still want it to crash loudly rather than silently, as i said to gemini ai too who approved of it hehe as they (ais) usually do but i believe sitll provided some critical thinking or non-opposition one with my idea maybe if i am not mistaken but in all cases thanks for being my echo chamber xd gemini ai if i may say yo helped me lot if i may say here too and other ais as well thanks i mean too, but since this seems safe enough in handling fallback no redirect, maybe leave as is and do not write a hard crash if missing at load such as what we do as of now for the getters in sevopedia leader for example if i remember correctly and am not mistaken i mean (i think not but in case and to be safe who knows) -->
+				# <!-- custom: as of now with a conceptIDToRoute of -1 we would get with get_concept_widgetType_widgetID1_widgetID2 an id1 -1 and id2 -1 and widget general too so maybe fine for not crash, else i'd still want it to crash loudly rather than silently, as i said to gemini ai too who approved of it hehe as they (ais) usually do but i believe sitll provided some critical thinking or non-opposition one with my idea maybe but in all cases thanks for being my echo chamber xd gemini ai if i may say yo helped me lot if i may say here too and other ais as well thanks i mean too, but since this seems safe enough in handling fallback no redirect, maybe leave as is and do not write a hard crash if missing at load such as what we do as of now for the getters in sevopedia leader for example if i remember correctly and am not mistaken i mean (i think not but in case and to be safe who knows) -->
 				# Initialize with invalid ID
 				conceptIDToRoute = -1
 				# Check if it's a Road or Railroad, or a general Route concept
@@ -339,7 +339,7 @@ class SevoPediaImprovement:
 
 
 
-	# <!-- custom: new addition thanks to chatgpt; as for logic if i am not mistaken this is how it works-functions based on chatgpt's explanation as well as my own research/findings in (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids: if some terrains are specified then the improvement is only allowed on these terrains, else improvement is allowed on all terrains; not sure i got it all right (in particular in the case of irrigation or such conditions seemingly allowing the improvement on a terrain even if not listed here), so i am not sure it is all accurate but maybe is, check to be sure, and adjust this if needed; i implemented it as such and also added an explicative text that maybe the restriction could be elsewhere if not in improvementinfos. -->
+	# <!-- custom: new addition thanks to chatgpt; as for logic this is how it works-functions based on chatgpt's explanation as well as my own research/findings in (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids: if some terrains are specified then the improvement is only allowed on these terrains, else improvement is allowed on all terrains; not sure i got it all right (in particular in the case of irrigation or such conditions seemingly allowing the improvement on a terrain even if not listed here), so i am not sure it is all accurate but maybe is, check to be sure, and adjust this if needed; i implemented it as such and also added an explicative text that maybe the restriction could be elsewhere if not in improvementinfos. -->
 	def placeTerrainMakesValids(self):
 		xPanel = self.X_TERRAIN_MAKES_VALIDS
 		yPanel = self.Y_TERRAIN_MAKES_VALIDS
@@ -394,7 +394,7 @@ class SevoPediaImprovement:
 
 
 
-	# <!-- custom: addition based on our existing mod's code in some other class, as for pedia entries, imported from m-e mod (see main readme for mod abbreviation details in as of now credits section) (but i also found them later in c2c mod and they are seemingly the same but the file is sadly/unfortunately way too bloated so going for the m-e mod one(s if talking about the assets themselves if i am not mistaken in thinking/saying so)) -->
+	# <!-- custom: addition based on our existing mod's code in some other class, as for pedia entries, imported from m-e mod (see main readme for mod abbreviation details in as of now credits section) (but i also found them later in c2c mod and they are seemingly the same but the file is sadly/unfortunately way too bloated so going for the m-e mod one(s if talking about the assets themselves in thinking/saying so)) -->
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()

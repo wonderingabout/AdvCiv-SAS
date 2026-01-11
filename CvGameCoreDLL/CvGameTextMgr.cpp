@@ -985,7 +985,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 	}
 
 	// <!-- custom: also show collateral damage info (with defenders too) if collateral damage limit > 0 as well, may be useful to know -->
-	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit if i am not mistaken so it (also) appears in sevopedia unit, not in this seemingly ingame panel), still, is maybe cleaner (but i don't know again as i don't know a lot about these) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine. -->
+	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit so it (also) appears in sevopedia unit, not in this seemingly ingame panel), still, is maybe cleaner (but i don't know again as i don't know a lot about these) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine. -->
 	if (pUnit->collateralDamage() > 0 || pUnit->collateralDamageLimit() > 0)
 	{
 		szString.append(NEWLINE);
@@ -994,7 +994,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 				pUnit->collateralDamage(), // <!-- custom: add missing iCollateralDamage info as well, for example <iCollateralDamage>25</iCollateralDamage>; added thanks to chatgpt's help as well and me guessing or adjusting it as well-->
 				pUnit->collateralDamageLimit(),
 				pUnit->collateralDamageMaxUnits())); // advc.004
-		// <!-- custom: if i am not mistaken the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA should not be an else conditional display but a cumulative effect with the base collateral damage, so showing both as well -->
+		// <!-- custom: the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA should not be an else conditional display but a cumulative effect with the base collateral damage, so showing both as well -->
 		if (pUnit->getExtraCollateralDamage() != 0)
 		{
 			szString.append(NEWLINE);
@@ -8232,10 +8232,10 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	//	Enables bridge building...
 	buildBridgeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech if i am not mistaken too; (<bTrade> in XML if i am not mistaken in tech info 's xml) -->
+	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech ; (<bTrade> in XML in tech info 's xml) -->
 	buildBTradeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech if i am not mistaken too; (<bRepeat> in XML if i am not mistaken in tech info 's xml) -->
+	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech ; (<bRepeat> in XML in tech info 's xml) -->
 	buildBRepeatString(szBuffer, eTech, true, bPlayerContext);
 
 	//	Can spread irrigation...
@@ -9751,7 +9751,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			szBuffer.append(szTempBuffer);
 		}
 	} // </advc.905b>
-	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar), so safe to remove and uneeded to keep now, if i am not mistaken. -->
+	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar), so safe to remove and uneeded to keep now. -->
 	if (!bCivilopediaText)
 	{
 		bool bFirst = true;
@@ -9981,7 +9981,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			bool bFirst = true;
 			if (u.isNuke() && (pCity == NULL || !GC.getGame().isNukesValid()))
 			{
-				// <!-- custom: in sevopedia, similarly to what was done for the sevopedia building project requires that we now display as buttons in same placeRequires as of now, it seems sevopedia unit has 2 requires texts for projects, one where multiple projects are required appending them with an "or", and after commenting it out just above if i am not mistaken in this .cpp code, some units that are mono or somehow also multi project required in some or most or all or not cases still show the project requirement in placeSpecial, so commenting this out also solves this it seems. -->
+				// <!-- custom: in sevopedia, similarly to what was done for the sevopedia building project requires that we now display as buttons in same placeRequires as of now, it seems sevopedia unit has 2 requires texts for projects, one where multiple projects are required appending them with an "or", and after commenting it out just above in this .cpp code, some units that are mono or somehow also multi project required in some or most or all or not cases still show the project requirement in placeSpecial, so commenting this out also solves this it seems. -->
 				if (!bCivilopediaText)
 				{
 					FOR_EACH_ENUM(Project)
@@ -10836,14 +10836,14 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
 		// <!-- custom: also add the K-Mod code block nice info for area clean power to not misleadingly assume that areacleanpower power has no unhealthy effect.
-		// But since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) and part of this K-Mod code.
+		// But since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) and part of this K-Mod code.
 		// But since i am not sure that dirty power is cancelled in this city if both areacleanpower and dirtypower are specified, added a "(?)" as well. -->
 		// <!-- custom: split the message info between/to cover clean and dirty cases. -->
 		// K-Mod. Also include base health change from power.
 		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case. -->
 
 		// K-Mod end
-		// <!-- custom: then add info about the effect and its value in all cities as well, since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) -->
+		// <!-- custom: then add info about the effect and its value in all cities as well, since power is always clean due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one) -->
 		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case -->
 		szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES"));
 		int iPowerHealthChangeAll = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
@@ -15498,7 +15498,7 @@ void CvGameTextMgr::buildBridgeString(CvWStringBuffer &szBuffer,
 	}
 }
 
-// <!-- custom: add the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial -->
+// <!-- custom: add the <bTrade> tech info xml flag in sevopedia tech's placeSpecial -->
 void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer,
 	TechTypes eTech, bool bList, bool bPlayerContext)
 {
@@ -15511,7 +15511,7 @@ void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer,
 	}
 }
 
-// <!-- custom: quite similarly but displaying the positive condition this time (not negative one like in bTrade) also add the <bRepeat> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial -->
+// <!-- custom: quite similarly but displaying the positive condition this time (not negative one like in bTrade) also add the <bRepeat> tech info xml flag in sevopedia tech's placeSpecial -->
 void CvGameTextMgr::buildBRepeatString(CvWStringBuffer &szBuffer,
 	TechTypes eTech, bool bList, bool bPlayerContext)
 {

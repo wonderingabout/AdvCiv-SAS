@@ -37,7 +37,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 
 	print("\n\n[DEBUG] For iLeader=%d, leader head info debugged as such:" % iLeader)
 
-	# <!-- custom: more computationally efficient to store closest pointer since we have many/multiple calls to make if i am not mistaken as chatgpt had done before and i was too dumb or rather maybe uninformed to understand/know, even if difference is minimal or not, and even if we don't use this except when debugging, no reason to not implement it as well. I (had) wanted for method call for clarity, but if this is more efficient better do it as so then maybe. -->
+	# <!-- custom: more computationally efficient to store closest pointer since we have many/multiple calls to make as chatgpt had done before and i was too dumb or rather maybe uninformed to understand/know, even if difference is minimal or not, and even if we don't use this except when debugging, no reason to not implement it as well. I (had) wanted for method call for clarity, but if this is more efficient better do it as so then maybe. -->
 	info = gc.getLeaderHeadInfo(iLeader)
 
 	# <!-- custom: try to follow XML order as much as possible and to be sure we have all fields too -->
@@ -110,7 +110,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 
 	# <!-- custom: there are "AttitudeThreshold" and "RefuseAttitudeThreshold", handle the most common case, they seem to all be about refusing something or not being able to do it if threshold is not met, handle them as such -->
 	print("\n\n==== ATTITUDE THRESHOLDS ====")
-	# <!-- custom:, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in leader_ragnar), here is the table conversion map if i am not mistaken of attitude to num: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
+	# <!-- custom:, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in leader_ragnar), here is the table conversion map of attitude to num: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
 	#
 	# Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious), and friendly being the highest, so we can use this map of the dll directly without needing to parse atittude str to num for our ranking of leaders in AI personality panel directly -->
 	#
@@ -130,9 +130,9 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	#
 	# and LEADER_TOKUGAWA 's XML is:
 	# 		<MapRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</MapRefuseAttitudeThreshold>
-	# Exactly the same as of LEADER_ELIZABETH, this is the field causing the key error which should map to 4 if i am not mistaken in my understanding, not to 5
+	# Exactly the same as of LEADER_ELIZABETH, this is the field causing the key error which should map to 4, not to 5
 	#
-	# I have done a global search and they are the only leaders with "<MapRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</MapRefuseAttitudeThreshold>", so this seems most likely intended that map trading in base advciv code at least if not other mods preceding it or and base civ4 or not handle it as such (increment one level of atittude higher than the value, to make map trading harsher, so friendly means they will always refuse map trading if i am not mistaken i assume / in my assumption, all other leaders don't trigger a key error nor in/at this field nor in any other field, so keep as is and display it accurately as DLL handles it) -->
+	# I have done a global search and they are the only leaders with "<MapRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</MapRefuseAttitudeThreshold>", so this seems most likely intended that map trading in base advciv code at least if not other mods preceding it or and base civ4 or not handle it as such (increment one level of atittude higher than the value, to make map trading harsher, so friendly means they will always refuse map trading i assume / in my assumption, all other leaders don't trigger a key error nor in/at this field nor in any other field, so keep as is and display it accurately as DLL handles it) -->
 
 	# Mapping of attitude values to their Civ4 XML constants
 	DLL_ATTITUDE_MAP = {
@@ -164,7 +164,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	# as we don't need them/display them in ai personality panel; then resume at fields below: -->
 
 	print("\n\n==== FLAVORS ====")
-	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name if i am not mistaken (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\__SevoPediaBuilding-gc-debug-content.txt for details), so no need to specify a number of values to loop over as in below code if i am not mistaken -->
+	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\__SevoPediaBuilding-gc-debug-content.txt for details), so no need to specify a number of values to loop over as in below code -->
 	for i in range(gc.getNumFlavorTypes()):
 		name = gc.getFlavorTypes(i)
 		value = info.getFlavorValue(i)

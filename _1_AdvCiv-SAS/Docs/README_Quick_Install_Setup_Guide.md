@@ -27,7 +27,7 @@ First you need to install (or have it installed already) Civilization 4 Beyond t
 
 If you don't have the game, i recommend buying it from GOG rather than Steam (i have no affiliation with either xd, although i have the steam version myself for convenience and such, as the executable or whatever they call it is cleaner and closer if not entirely unmodified unlike the Steam one, but check to be sure).
 
-It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide, check if i am not mistaken i mean too or for extra or updated info if any change has been made since maybe.
+It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide, check i mean too or for extra or updated info if any change has been made since maybe.
 
 ## Download this mod AdvCiv-SAS
 

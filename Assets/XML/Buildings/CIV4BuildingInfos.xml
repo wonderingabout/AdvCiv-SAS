@@ -384,7 +384,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: added so it appears in tech tree (tech advisor), is also historically accurate if i am not mistaken according to quick glances i made at in this casehttps://en.wikipedia.org/wiki/Forbidden_City, was NONE -->
+			<!-- custom: added so it appears in tech tree (tech advisor), is also historically accurate according to quick glances i made at in this casehttps://en.wikipedia.org/wiki/Forbidden_City, was NONE -->
 			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -2087,7 +2087,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least, see xml for details) so that hopefully more varied types or there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search, was flavor military 10 -->
+			<!-- custom: reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least, see xml for details) so that hopefully more varied types or there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones i guess, both for defense but more importantly for offense and from asking chatgpt too with web search, was flavor military 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -5031,7 +5031,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now if i am not mistaken too but or not but... so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, was 80 -->
+			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now  but or not but... so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, was 80 -->
 			<iCost>50</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -7803,7 +7803,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: they were relevant sooner in tech if i am not mistaken from quick wikipedia lookup, plus to make them buildable sooner too, was the now removed TECH_PLASTICS -->
+			<!-- custom: they were relevant sooner in tech from quick wikipedia lookup, plus to make them buildable sooner too, was the now removed TECH_PLASTICS -->
 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -13065,7 +13065,7 @@
 				</BonusHealthChange>
 			</BonusHealthChanges>
 			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or other code comments for details) -->
-			<!-- custom: similarly, sugar is not too good for health (but is also not too bad either quite good even necessary if i am not mistaken depending on dosage maybe), but sure makes happy i'd say so making it give happiness instead, buffing sugar at the same time which i think is fine especially as sugar is a bit weak otherwise, not matching its quite strong influence on population -->
+			<!-- custom: similarly, sugar is not too good for health (but is also not too bad either quite good even necessary depending on dosage maybe), but sure makes happy i'd say so making it give happiness instead, buffing sugar at the same time which i think is fine especially as sugar is a bit weak otherwise, not matching its quite strong influence on population -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
 					<BonusType>BONUS_GRAPES</BonusType>
@@ -22699,7 +22699,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: do not give too high military flavor else military leaders would build it instead of units, also the effect is not too strong for military leaders as well, especially considering the cost as also said/highlighted in base advciv comment below, but make it not 0 as is slightly good for military leaders as well but not too much or mandatory if i may say and if i am not mistaken i mean; also add small science flavor considering great person type and value of modifier i mean if i am not mistaken now that this is a world wonder, was flavors military 6 growth 3 -->
+			<!-- custom: do not give too high military flavor else military leaders would build it instead of units, also the effect is not too strong for military leaders as well, especially considering the cost as also said/highlighted in base advciv comment below, but make it not 0 as is slightly good for military leaders as well but not too much or mandatory i mean; also add small science flavor considering great person type and value of modifier i mean now that this is a world wonder, was flavors military 6 growth 3 -->
 			<!-- advc.020: No flavor in BtS. Mostly a military thing, though
 				 Growth has an easier time with the prereq. Hospitals. -->
 			<Flavors>
@@ -25834,7 +25834,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: now a more versatile building/wonder if i am not mistaken in my assessment(s) but or not but or yes but, add a bit of the relevant flavors -->
+			<!-- custom: now a more versatile wonder, add a bit of the relevant flavors -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -27016,7 +27016,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: keep small growth flavor in case growth type of leaders have many specialists if i am not mistaken in this guess/assumption/hypothesis, was flavors growth 4 culture 8 -->
+			<!-- custom: keep small growth flavor in case growth type of leaders have many specialists in this guess/assumption/hypothesis, was flavors growth 4 culture 8 -->
 			<!-- advc.020: was 10 Growth; cf. Broadway -->
 			<Flavors>
 				<Flavor>
@@ -28288,7 +28288,7 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<!-- custom: similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too) to be built, at least is what ideally i would want, however unfortunately monasteries are not merged under the same class if i am not mistaken so i can't sadly require x monasteries, require a library instead (and reduce number a bit), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead, was empty -->
+			<!-- custom: similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too) to be built, at least is what ideally i would want, however unfortunately monasteries are not merged under the same class so i can't sadly require x monasteries, require a library instead (and reduce number a bit), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead, was empty -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
@@ -28511,7 +28511,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: no flavor military too as military leaders need to focus on offense not defense, see chichen itza code comment as well, and i seem to have read this or something similar in a base advciv code comment too or somewhere if i am not mistaken so not sure so maybe this gave me the idea now again or i got it independently or both or other, was flavor gold 5 growth 4 -->
+			<!-- custom: no flavor military too as military leaders need to focus on offense not defense, see chichen itza code comment as well, and i seem to have read this or something similar in a base advciv code comment too or somewhere so not sure so maybe this gave me the idea now again or i got it independently or both or other, was flavor gold 5 growth 4 -->
 			<!-- advc.310, advc.020: Was 8 Military. Extra trades routes get
 				 Gold flavor. A bit of Growth because the prereq. Walls have
 				that flavor. -->
@@ -28707,7 +28707,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: use similar reasoning as in base advciv comment below if i am not mistaken i mean as well as for chichen itza and great wall too, but do not put any flavor at all as military leaders would produce less units, and gold or religion or culture or such or growth or science or other would not be defended more because ennemies have more war weariness so don't put any flavor here, except for the production great person related effect, was flavor culture 6 -->
+			<!-- custom: use similar reasoning as in base advciv comment below i mean as well as for chichen itza and great wall too, but do not put any flavor at all as military leaders would produce less units, and gold or religion or culture or such or growth or science or other would not be defended more because ennemies have more war weariness so don't put any flavor here, except for the production great person related effect, was flavor culture 6 -->
 			<!-- advc.020: Was 8 Military. Make it Culture b/c of the culture
 				 bonus. The defensive ability (if it actually did sth.) would
 				 also work well for a peaceable, Culture-flavored leader. -->
@@ -29330,7 +29330,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities, hopefully historically accurate as they were built much later if i am not mistaken too anyways and after checking more seems really an accurate time around pre-(age of)exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History -->
+		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities, hopefully historically accurate as they were built much later  anyways and after checking more seems really an accurate time around pre-(age of)exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History -->
 		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_MOAI_STATUES</BuildingClass>
 			<Type>BUILDING_MOAI_STATUES</Type>
@@ -29456,7 +29456,7 @@
 			<!-- advc.131c: was 10 -->
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: remove local/city-only effect ((of) SeaPlotYieldChanges if i am not mistaken too but or not but) -->
+			<!-- custom: remove local/city-only effect ((of) SeaPlotYieldChanges  but or not but) -->
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<!-- custom: make the effect stronger, now applies to all cities, on top of the building-only effect of the port, was empty -->

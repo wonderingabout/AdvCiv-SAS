@@ -375,7 +375,7 @@
 			<HillsYieldChange/>
 			<iMovement>1</iMovement>
 			<iSeeThrough>0</iSeeThrough>
-			<!-- custom: this feature is a bit op so fine to nerf it bit, no reason not to increase the health penalty even outside of this as seems more realistic if i am not mistaken in my guess but or not but or yes, was -40 -->
+			<!-- custom: this feature is a bit op so fine to nerf it bit, no reason not to increase the health penalty even outside of this as seems more realistic, was -40 -->
 			<iHealthPercent>-50</iHealthPercent>
 			<iDefense>0</iDefense>
 			<iAppearance>10000</iAppearance>

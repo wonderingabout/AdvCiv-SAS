@@ -46,13 +46,13 @@ IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SH
 # <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thingbut is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible, so do as you see fit use at your own risk code is there if you want to know what it does with also a debug sample (non-exhaustive but hopefully quite plenty) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to work fine, available there if needed, for my own hard drive too. -->
 IS_DEBUG_LEADER = False
 
-# <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization, so set B_WARN to false if i am not mistaken in my understanding -->
+# <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization, so set B_WARN to false -->
 B_WARN = False
 
 if IS_DEBUG_LEADER:
 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map(gc)))
 
-# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically) unlike in generate_leaders_data.py for external to civ4 script usage, as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive -->
+# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL so handle that edge case of LEADER_DEFAULTS specifically) unlike in generate_leaders_data.py for external to civ4 script usage, as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one but is to be exhaustive -->
 EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
 	"LEADER_BARBARIAN",
 )
@@ -366,7 +366,7 @@ def _compute_leader_cache_internal():
 
 	def get_positive_or_negative_memory_indexes(is_positive):
 		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs (see the related python docs for details). -->
-		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them if i am not mistaken in my understanding. -->
+		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them. -->
 		positive_or_negative_memory_indexes = None
 
 		if is_positive:
@@ -689,7 +689,7 @@ def _compute_leader_cache_internal():
 
 			# ==== CONTACTS ====
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
-				# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now if i am not mistaken are only contact rands and contact delays -->
+				# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now are only contact rands and contact delays -->
 				# <!-- custom: Step 1: Raw contact rands and delays -->
 				contact_type = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
@@ -708,7 +708,7 @@ def _compute_leader_cache_internal():
 				computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_contact_prob, value_aggregated_raw_contact_prob, leader_info_minimums, leader_info_maximums)
 
 			# ==== MEMORY ====
-			# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now if i am not mistaken are only contact rands and contact delays; here we can loop over real DLL i index directly like in sevopedia_helpers py file debug code (see there for details), and unlike for raw aggregated memory fields that are separated in positive and negative memories, so here we can loop over real DLL i index directly -->
+			# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now are only contact rands and contact delays; here we can loop over real DLL i index directly like in sevopedia_helpers py file debug code (see there for details), and unlike for raw aggregated memory fields that are separated in positive and negative memories, so here we can loop over real DLL i index directly -->
 			for is_positive in (True, False):
 				for is_affection in (True, False):
 					positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
@@ -879,7 +879,7 @@ def _compute_leader_cache_internal():
 			"EQUAL_SCALE_SYMBOL": "=",
 		}
 
-		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now if i am not mistaken see latest value or code comments or docs for updated value or and info)) order -->
+		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now see latest value or code comments or docs for updated value or and info)) order -->
 		contact_index_labels = {
 			0: "Relig. Press.",		# CONTACT_RELIGION_PRESSURE
 			1: "Civic Press.",		# CONTACT_CIVIC_PRESSURE

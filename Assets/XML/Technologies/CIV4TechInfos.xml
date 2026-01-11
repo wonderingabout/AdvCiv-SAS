@@ -2894,7 +2894,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: good tech to have for growth type of leaders (also considering following techs in our reworked tech tree) and gold ones to a lesser extent; on top of being very good for science leaders even though deviates from main military tech tree path but should be very worth or quite worth, so put flavor science very or quite very high if i am not mistaken too -->
+			<!-- custom: good tech to have for growth type of leaders (also considering following techs in our reworked tech tree) and gold ones to a lesser extent; on top of being very good for science leaders even though deviates from main military tech tree path but should be very worth or quite worth, so put flavor science very or quite very high  -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>

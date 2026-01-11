@@ -4310,7 +4310,7 @@
 					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<!-- custom: note: this seemingly does nothing as barbarians still build libraries if i am not mistaken about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues)) as they do in autoplay at least-->
+				<!-- custom: note: this seemingly does nothing as barbarians still build libraries about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues)) as they do in autoplay at least-->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>

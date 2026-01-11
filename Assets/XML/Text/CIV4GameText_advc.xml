@@ -1372,11 +1372,11 @@
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_IMMORTAL_HELP</Tag>
-		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Penalties are consistently and gradually as well higher than in previous handicap settings, and same for barbarians settings, even though these affect all players as well. No drastic changes otherwise. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled, as there are no free techs nor ai free techs, so this means all players start at turn 1 at this handicap setting if i am not mistaken.</English>
+		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Penalties are consistently and gradually as well higher than in previous handicap settings, and same for barbarians settings, even though these affect all players as well. No drastic changes otherwise. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled, as there are no free techs nor ai free techs, so this means all players start at turn 1 at this handicap setting.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
-		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting if i am not mistaken as well.</English>
+		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting as well.</English>
 	</TEXT>
 
 
@@ -5623,18 +5623,18 @@
 
 
 
-	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too: also show iCollateralDamage not only max if i am not mistaken in doing so, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly) -->
+	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
 	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
 		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
-	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too: also show iCollateralDamage not only max if i am not mistaken in doing so, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly) -->
+	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
 		<English>[ICON_BULLET]Coll. Damage (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
-	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name; since this shouldn't refer to iCollateralDamage if i am not mistaken in my guess, adding the word "extra" -->
+	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name; since this shouldn't refer to iCollateralDamage i guess, adding the word "extra" -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA</Tag>
 		<English>[ICON_BULLET]Causes Extra Collateral Damage (%D1_Amount%%)</English>
@@ -6580,7 +6580,7 @@
 
 
 
-	<!-- custom: add (new) the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial, see also buildBTradeString and related or similar in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any. -->
+	<!-- custom: add (new) the <bTrade> tech info xml flag in sevopedia tech's placeSpecial, see also buildBTradeString and related or similar in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any. -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_TECH_CANNOT_BE_TRADED</Tag>
 		<English>[ICON_BULLET]Cannot be traded.</English>

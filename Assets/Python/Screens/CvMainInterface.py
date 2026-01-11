@@ -1580,7 +1580,7 @@ class CvMainInterface:
 		xResolution = self.xResolution
 		yResolution = self.yResolution
 
-		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper -->
+		# <!-- custom: compute cheaply once that fetching the define once is cheaper -->
 		if self.iBarExtraRows is None:
 			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")

@@ -549,7 +549,7 @@ public:
 	{
 		return m_pUnitInfo->isIgnoreBuildingDefense();
 	}
-	// <!-- custom: add these so we can show TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW ingame in map view of a unit, if i am not mistaken. -->
+	// <!-- custom: add these so we can show TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW ingame in map view of a unit. -->
 	bool isAnyTerrainImpassable() const																	
 	{
 		return m_pUnitInfo->isAnyTerrainImpassable();
@@ -558,7 +558,7 @@ public:
 	{
 		return m_pUnitInfo->isAnyFeatureImpassable();
 	}
-	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables if i am not mistaken and according to chatgpt's explanation. -->
+	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables and according to chatgpt's explanation. -->
 	bool getTerrainImpassable(TerrainTypes eTerrain) const
 	{
 		return m_pUnitInfo->getTerrainImpassable(eTerrain);

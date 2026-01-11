@@ -616,7 +616,7 @@
 			<iUnitTradePercent>200</iUnitTradePercent>
 			<iUnitGreatWorkPercent>200</iUnitGreatWorkPercent>
 			<iGoldenAgePercent>200</iGoldenAgePercent>
-			<!-- custom: was 40, not sure if we should change it too much, but now and as of nowwe are nicely double the turns of normal, so alter it to be exactly half if i am not mistaken -->
+			<!-- custom: was 40, not sure if we should change it too much, but now and as of nowwe are nicely double the turns of normal, so alter it to be exactly half -->
 			<!-- advc.252: was 33 -->
 			<iHurryPercent>50</iHurryPercent>
 			<!-- custom: was 250 -->

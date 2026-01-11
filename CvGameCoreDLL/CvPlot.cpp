@@ -7315,7 +7315,7 @@ void CvPlot::read(FDataStreamBase* pStream)
 	pStream->Read(&m_eTeam);
 	// </advc.opt>
 
-	// <!-- custom: the base advciv comment note initial tag seems to be missing, i didn't remove it, not adding it either just in case, and is if i am not mistaken too hehe-->
+	// <!-- custom: the base advciv comment note initial tag seems to be missing, i didn't remove it, not adding it either just in case, and is  hehe-->
 	// </advc.opt>
 	pStream->Read(&m_ePlotType);
 	pStream->Read(&m_eTerrainType);

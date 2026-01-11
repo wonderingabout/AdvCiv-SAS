@@ -7664,7 +7664,7 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 			iCreated++;
 		// </advc.300>
 	// <!-- custom: since this seems unused in XML, commented out in the DLL now as approved to be possible by chatgpt 5, check if accurate -->
-	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather no tediousness, but added this note if helps about this seemingly weirdness, and if i am not mistaken in my understanding or knowledge or lack of here in this case, check if accurate -->
+	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather no tediousness, but added this note if helps about this seemingly weirdness -->
 	// advc.313: Replaced by a handicap-based modifier
 	// #if 0
 	// 	/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
