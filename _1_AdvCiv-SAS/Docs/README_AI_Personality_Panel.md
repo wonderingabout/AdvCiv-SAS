@@ -38,9 +38,9 @@ The ai attributes (simply) aim to and display:
 
 Here is an example below of how it looks ingame in the sevopedia leader category:
 
-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>
 
 More screenshot samples in the [sevopedia reworks Google Drive folder](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 
@@ -50,7 +50,7 @@ You can enable/disable images as buttons (i.e. the emojis) as i call them, in [G
 
 Here is how it would look like without emojis for example:
 
-<img src="../Images/sevopedia_reworks/0.621_sevopedia_leaders_no_emoji.JPG" alt="0.621_sevopedia_leaders_no_emoji.JPG" width="250"></img>
+<img src="../Images/sevopedia/0.621_sevopedia_leaders_no_emoji.JPG" alt="0.621_sevopedia_leaders_no_emoji.JPG" width="250"></img>
 
 ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
 
@@ -100,7 +100,7 @@ Similarly to how was done for emoji images, there is also a tunable/knob in [Glo
 
 Here is an example below of it would look like with this set to `True`:
 
-<img src="../Images/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG" alt="0.622_sevopedia_leaders_labels_as_keys.JPG" width="250"></img>
+<img src="../Images/sevopedia/0.622_sevopedia_leaders_labels_as_keys.JPG" alt="0.622_sevopedia_leaders_labels_as_keys.JPG" width="250"></img>
 
 ## Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking
 

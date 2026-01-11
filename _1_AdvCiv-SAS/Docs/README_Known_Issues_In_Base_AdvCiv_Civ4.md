@@ -4056,4 +4056,4 @@ See [commit/21f67530d536c6d93b42cf1223237b34e1ca7d0a](https://github.com/wonderi
 
 After previous issue with exiting Sevopedia and reopening it, this also fixes Base AdvCiv issue of the Back Tab not leading back to last visited category when it was Hints or Index.
 
-See commit todo add.
+See [commit/044d26e918b6aa586807c6428fb770cb32f6324e](https://github.com/wonderingabout/AdvCiv-SAS/commit/044d26e918b6aa586807c6428fb770cb32f6324e).

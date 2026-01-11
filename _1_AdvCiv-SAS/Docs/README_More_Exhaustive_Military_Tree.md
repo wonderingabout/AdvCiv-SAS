@@ -13,8 +13,8 @@ Here you go:
 
 As said in main readme.md in relevant section there as well, as of now the military tree is as such in AdvCiv-SAS (please view ingame or in XML for updated version if any changes have been made since then)
 
-<img src="../Images/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
-<img src="../Images/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.60_military_tree (1).JPG" alt="0.60_military_tree (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.60_military_tree (2).JPG" alt="0.60_military_tree (2).JPG" width="250"></img>
 
 Significant changes have been made to upgrade paths, unit costs, stats and such, some units were removed and a few new were added (mostly to replace some removed ones, sometimes as an entirely new unit (as of now only for the kingdom of benin's civ-specific unit (the disciplined crossbow as of now))), see docs or sevopedia.
 
