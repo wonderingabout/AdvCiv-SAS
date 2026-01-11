@@ -608,8 +608,8 @@
 		<element type="PrereqCorporation"/>
 		<element type="PrereqBuilding"/>
 		<element type="PrereqTech"/>
-		<element type="ObsoleteTech" minOccurs="0"/>
 		<element type="TechTypes"/>
+		<element type="ObsoleteTech" minOccurs="0"/>
 		<element type="BonusType"/>
 		<element type="PrereqBonuses"/>
 		<!-- advc.905b -->
