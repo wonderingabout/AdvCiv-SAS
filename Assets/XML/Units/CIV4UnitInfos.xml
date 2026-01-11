@@ -92,8 +92,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -274,8 +274,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -448,8 +448,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -622,8 +622,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -805,8 +805,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -1063,8 +1063,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -1316,8 +1316,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -1598,8 +1598,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -1863,8 +1863,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -2091,8 +2091,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -2325,8 +2325,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_NAVIGATION -->
-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -2561,8 +2561,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_PHYSICS -->
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<ObsoleteTech>TECH_SPACE_EXPLORATION</ObsoleteTech>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -2790,8 +2790,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_AI</PrereqTech>
 				<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
@@ -2978,8 +2978,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ALPHABET (now removed) -->
-			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -3159,8 +3159,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>CORPORATION_1</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: Executives now require tech(s) to be built, matching their corresponding corporation's required tech(s). This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit; was PrereqTech NONE and TechTypes empty -->
-			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -3332,8 +3332,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>CORPORATION_2</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1; was PrereqTech NONE and TechTypes empty -->
-			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -3505,8 +3505,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>CORPORATION_3</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1; was PrereqTech NONE and TechTypes empty -->
-			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -3678,8 +3678,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>CORPORATION_4</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1; was PrereqTech NONE and TechTypes empty -->
-			<PrereqTech>TECH_RADIO</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_RADIO</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -3851,8 +3851,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>CORPORATION_5</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1; was PrereqTech NONE and TechTypes empty -->
-			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -4024,8 +4024,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>CORPORATION_6</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1; was PrereqTech NONE and TechTypes empty -->
-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -4197,8 +4197,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>CORPORATION_7</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1; was PrereqTech NONE and TechTypes empty -->
-			<PrereqTech>TECH_CORPORATION</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_CORPORATION</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -4366,8 +4366,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>RELIGION_PAGANISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>BUILDING_PAGAN_MONASTERY</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -4535,8 +4535,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>RELIGION_HINDUISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>BUILDING_HINDU_MONASTERY</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -4704,8 +4704,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>RELIGION_JUDAISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>BUILDING_JEWISH_MONASTERY</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -4873,8 +4873,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>BUILDING_DAOIST_MONASTERY</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -5042,8 +5042,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>RELIGION_BUDDHISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>BUILDING_BUDDHIST_MONASTERY</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -5211,8 +5211,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>RELIGION_CHRISTIANITY</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>BUILDING_CHRISTIAN_MONASTERY</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -5380,8 +5380,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>RELIGION_ISLAM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>BUILDING_ISLAMIC_MONASTERY</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -5586,9 +5586,9 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<!-- custom: this unit is useless especially soon, yet AIs often produce it; humans would have little to gain from stacking them past a certain point fairly early in the game, so make their ObsoleteTech sooner than when we unlock their upgrade (which is as of now the Axeman). By that new tech, we should have archers as a fallback, or should research its tech anyway. Thematically, this is around the time when we domesticate animals, so we no longer have to fight them, if that makes sense. Gameplay wise, we unlock slavery around that time, so we cna produce more expensive units, and animals are fading anyway. -->
 			<ObsoleteTech>TECH_AGRICULTURE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -5780,8 +5780,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -6001,8 +6001,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -6221,8 +6221,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -6460,8 +6460,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -6679,8 +6679,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>BONUS_IRON</BonusType>
 			<PrereqBonuses/>
@@ -6862,8 +6862,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -7078,8 +7078,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<TechTypes/>
 			<!-- custom: the gallic_warrior had it so no reason why the roman_legionary can't, historically they could use copper/bronze just as well i guess, since it's their civ-specific unit it better be a good one!; as of now only applied to civ-specific swordsmen for balance and to keep strategic importance of iron, was BonusType bonus_iron and PrereqBonuses empty-->
 			<BonusType>NONE</BonusType>
@@ -7309,8 +7309,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<TechTypes/>
 			<!-- custom: the gallic_warrior had it so no reason why the roman_legionary can't, historically they could use copper/bronze just as well i guess, since it's their civ-specific unit it better be a good one!; as of now only applied to civ-specific swordsmen for balance and to keep strategic importance of iron, was BonusType bonus_iron and PrereqBonuses empty-->
 			<BonusType>NONE</BonusType>
@@ -7533,8 +7533,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<TechTypes/>
 			<!-- custom: in our mod the quechua_warrior is as of now swordsman based, but as for bonuses required, see code comment at the roman_legionary or other civ-specific swordsman class units -->
 			<BonusType>NONE</BonusType>
@@ -7760,8 +7760,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -7965,8 +7965,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -8201,8 +8201,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -8444,8 +8444,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_HUNTING -->
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -8673,8 +8673,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_HUNTING -->
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -8910,8 +8910,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_HUNTING -->
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -9148,8 +9148,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -9399,8 +9399,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<!-- custom: changed and separated from as of noww medieval mounted units as nicely recommended by chatgpt 5.1 thanks. From a balance standpoint helps nicely balance out tech as of now chivalry so it is no longer op or a mandatory/one-sidedmilitary path which should help versatility, was TECH_ENGINEERING -->
 			<!-- Optional clean-up (if you want even sharper flavor):
 			Move Pikeman here instead of on Chivalry. Pikes historically are mass infantry / town militias / Swiss etc., raised under feudal lords but not part of the knightly code. Mechanically it also says: “Feudal order gives you both noble courts and organized infantry.” -->
-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -9644,8 +9644,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ARCHERY (now removed) -->
-			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<ObsoleteTech>TECH_CONSTRUCTION</ObsoleteTech>
+			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -9891,8 +9891,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM -->
-			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10125,8 +10125,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ARCHERY (now removed) and tech types empty -->
-			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10393,8 +10393,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ARCHERY (now removed) and tech types empty -->
-			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10622,8 +10622,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10822,8 +10822,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -11058,8 +11058,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -11300,8 +11300,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -11521,8 +11521,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_GUNPOWDER -->
-			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -11710,8 +11710,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_GUNPOWDER -->
-			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -11930,8 +11930,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_GUNPOWDER -->
-			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -12162,8 +12162,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_GUNPOWDER -->
-			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -12397,8 +12397,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units, was TECH_FIREARMS with techTypes empty -->
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -12607,8 +12607,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units, was TECH_FIREARMS with techTypes empty -->
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -12859,8 +12859,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE and tech types TECH_FIREARMS -->
-			<PrereqTech>TECH_FASCISM</PrereqTech>
 			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
+			<PrereqTech>TECH_FASCISM</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13067,8 +13067,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was tech_industrialism and tech_types tech_FIREARMS -->
-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<ObsoleteTech>TECH_TRANSHUMANISM</ObsoleteTech>
+			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_FASCISM</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13268,8 +13268,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: tech requirements reworked, was flight + tech types fascism and rifling -->
-			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<ObsoleteTech>TECH_TRANSHUMANISM</ObsoleteTech>
+			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -13453,8 +13453,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits -->
-			<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_AI</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13666,8 +13666,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -13865,8 +13865,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: add TECH_ARTILLERY as it seems from very quick glances of it it seems they launch rockets/bazookas/rpgs and such from very little i know or guess of it, so fits more and quite well tech_artillery rather maybe, would make anti_tanks not appear too soon in history  too in the game, was TECH_ASSEMBLY_LINE -->
-			<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+			<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -14073,8 +14073,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<ObsoleteTech>TECH_SPACE_EXPLORATION</ObsoleteTech>
+			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<!-- custom: was empty -->
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
@@ -14284,8 +14284,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE -->
-			<PrereqTech>TECH_FASCISM</PrereqTech>
 			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
+			<PrereqTech>TECH_FASCISM</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -14491,8 +14491,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was the now removed TECH_ROBOT_RIGHTS and TECH_FIREARMS -->
-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<ObsoleteTech>TECH_ROBOT_RIGHTS</ObsoleteTech>
+			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -14674,8 +14674,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<ObsoleteTech>TECH_ROCKETRY</ObsoleteTech>
+			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -14855,8 +14855,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was the now removed TECH_LASER and NONE NONE NONE -->
-			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			<TechTypes/>
 			<BonusType>BONUS_OIL</BonusType>
 			<PrereqBonuses/>
@@ -15039,8 +15039,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
+			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			<TechTypes/>
 			<BonusType>BONUS_HORSE</BonusType>
 			<PrereqBonuses/>
@@ -15261,8 +15261,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
+			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			<TechTypes/>
 			<BonusType>BONUS_HORSE</BonusType>
 			<PrereqBonuses/>
@@ -15509,8 +15509,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -15716,8 +15716,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -15957,8 +15957,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16169,8 +16169,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
-			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16397,8 +16397,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
-			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16615,8 +16615,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16831,8 +16831,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17074,8 +17074,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17311,8 +17311,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17540,8 +17540,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17764,8 +17764,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
-			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17981,8 +17981,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
-			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -18209,8 +18209,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
-			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<PrereqTech>TECH_FIREARMS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -18428,8 +18428,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -18635,8 +18635,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -18872,8 +18872,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -19090,8 +19090,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE -->
-			<PrereqTech>TECH_FASCISM</PrereqTech>
 			<ObsoleteTech>TECH_COMPOSITES</ObsoleteTech>
+			<PrereqTech>TECH_FASCISM</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -19286,8 +19286,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
-			<PrereqTech>TECH_COMPOSITES</PrereqTech>
 			<ObsoleteTech>TECH_FUSION</ObsoleteTech>
+			<PrereqTech>TECH_COMPOSITES</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_COMPUTERS</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -19482,8 +19482,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits -->
-			<PrereqTech>TECH_FUSION</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_FUSION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_AI</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -19686,8 +19686,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CONSTRUCTION -->
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -19926,8 +19926,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ENGINEERING -->
-			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
+			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -20141,8 +20141,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: moved here as per tech rework, also buffs physics tech which is quite weak otherwise at least as of now, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative?) strategies if one may say, was TECH_STEEL (now removed) -->
-			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<!-- custom: was empty -->
 			<TechTypes>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -20335,8 +20335,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CHEMISTRY in the generic cannon unit -->
-			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<!-- custom: was empty -->
 			<TechTypes>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -20559,8 +20559,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: moved here as per tech rework, also buffs physics tech which is quite weak otherwise at least as of now, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative?) strategies if one may say, was TECH_STEEL (now removed) -->
-			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<!-- custom: was empty -->
 			<TechTypes>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -20795,8 +20795,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
+			<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -20985,8 +20985,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: move later in our reworked tech tree, was the now removed TECH_LASER and techTypes TECH_ARTILLERY -->
-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<ObsoleteTech>TECH_QUANTUM_MECHANICS</ObsoleteTech>
+			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -21176,8 +21176,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: making it at latest tech(s) so that aoe effect is not abused early in robotic/future era; suits also well its atypical effect or extra perks if i may say toosuch as of now move impassable or such -->
-			<PrereqTech>TECH_QUANTUM_MECHANICS</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_QUANTUM_MECHANICS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_AI</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -21385,8 +21385,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_FISHING</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_FISHING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -21585,8 +21585,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_FISHING</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_FISHING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -21785,8 +21785,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_SEAFARING -->
-			<PrereqTech>TECH_SAILING</PrereqTech>
 			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+			<PrereqTech>TECH_SAILING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -21982,8 +21982,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -22173,8 +22173,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -22370,8 +22370,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<!-- advc.905b: Removed BONUS_URANIUM -->
@@ -22578,8 +22578,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_METAL_CASTING and techTypes TECH_SEAFARING -->
-			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -22778,8 +22778,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: i want to have the privateers / representing the pirate ships have their own era / time of history in civ4 where they are relevant, make it at tech_astronomy so they are relevant sooner, was tech_astronomy + tech_chemistry -->
-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -22976,8 +22976,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -23162,8 +23162,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: adjusted as per reworked tech tree to a closer tech, was TECH_MILITARY_SCIENCE and techTypes TECH_ASTRONOMY -->
-			<PrereqTech>TECH_PHYSICS</PrereqTech>
 			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+			<PrereqTech>TECH_PHYSICS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
@@ -23373,8 +23373,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- advc.905b: was STEEL -->
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<!-- advc.905b: was STEAM_POWER -->
 			<!-- custom: was NONE NONE NONE -->
 			<TechTypes>
@@ -23576,8 +23576,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_COMBUSTION -->
-			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -23767,8 +23767,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: move it sooner in tech, seems historically accurate from tiny bits i read of the sevopedia description (declines during world war 2, so build it sooner), plus tech_industrialism is bloated and too strong, was TECH_INDUSTRIALISM -->
-			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<ObsoleteTech>TECH_ROCKETRY</ObsoleteTech>
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -23953,8 +23953,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ROBOT_RIGHTS -->
-			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			<!-- custom: was empty -->
 			<TechTypes>
 				<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
@@ -24148,8 +24148,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- advc.906: was ROCKETRY plus RADIO and COMBUSTION -->
-			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_COMBUSTION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -24336,8 +24336,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -24519,8 +24519,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<TechTypes/>
 			<BonusType>BONUS_OIL</BonusType>
 			<PrereqBonuses/>
@@ -24691,8 +24691,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<TechTypes/>
 			<BonusType>BONUS_OIL</BonusType>
 			<PrereqBonuses>
@@ -24870,8 +24870,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: now requires only tech_flight, removed tech_radio, doesn't seem critically necessary historically and in terms of timeline from very quick glances of/about it and vs first fighters (again didn't look in depth), from gameplay standpoint they can be used sooner and tech_flight is now stronger, while tech_radio is now weaker as the main path -->
-			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<TechTypes/>
 			<BonusType>BONUS_OIL</BonusType>
 			<PrereqBonuses/>
@@ -25044,8 +25044,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was the now removed TECH_STEALTH and tech types TECH_ROBOT_RIGHTS -->
-			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ROCKETRY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -25226,8 +25226,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_RADIO</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -25398,8 +25398,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_FISSION</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_FISSION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ROCKETRY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -25569,8 +25569,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_FISSION</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_FISSION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ROCKETRY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -25802,8 +25802,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -26021,8 +26021,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -26256,8 +26256,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -26474,8 +26474,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -26694,8 +26694,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -26918,8 +26918,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -27159,8 +27159,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>

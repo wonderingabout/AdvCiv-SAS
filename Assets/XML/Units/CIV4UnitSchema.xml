@@ -607,8 +607,8 @@
 		<element type="PrereqReligion"/>
 		<element type="PrereqCorporation"/>
 		<element type="PrereqBuilding"/>
-		<element type="PrereqTech"/>
 		<element type="ObsoleteTech" minOccurs="0"/>
+		<element type="PrereqTech"/>
 		<element type="TechTypes"/>
 		<element type="BonusType"/>
 		<element type="PrereqBonuses"/>
