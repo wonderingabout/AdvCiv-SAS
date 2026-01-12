@@ -26,6 +26,21 @@ public:
 	int AI_specialistValue(SpecialistTypes eSpecialist, bool bRemove, bool bIgnoreFood = false, int iGrowthValue = -1) const; // K-Mod
 	int AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const; // K-Mod
 	void AI_chooseProduction();
+	bool SAS_AI_findBestFallbackUnit(
+			UnitTypes& ePickUnit,
+			UnitAITypes& ePickUnitAI,
+			bool bOffenseDefaultUnitAIsOnly,
+			bool bDefenseDefaultUnitAIsOnly,
+			int iMaxCost,
+			bool bAllowSiege,
+			bool bAllowTrebuchetsLike,
+			int iCapNonTrebuchetsLikeSiegesAll,
+			int iCapTrebsLike,
+			int iSiegesAllNonTrebuchetsLike,
+			int iSiegesAllTrebuchetsLike,
+			UnitTypes eSkipUnit,
+			bool bAllowOverallFallback,
+			bool bAllowCheapestFallback) const;
 
 	UnitTypes AI_bestUnit(bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, UnitAITypes* peBestUnitAI = NULL) const;
 	UnitTypes AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR) const;
