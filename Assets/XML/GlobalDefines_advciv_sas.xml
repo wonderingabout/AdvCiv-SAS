@@ -969,6 +969,20 @@
 		<DefineName>SAS_CAN_SCRAP_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: set to 1 to allow scrapping units just because their ObsoleteTech is known; 0 ignores ObsoleteTech as a scrap trigger. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_TECH</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: extra unit tolerance beyond unit support costs before disbanding starts; scales by era: mult * (era + 1) + add (GPT-5.2-Codex). Useful as we expect to lose a few during war or such, better to have some extra and not become weaker than our rivals. E.g. with 4 mult and 1 add, extra allowed = 1 at ancient, 4 + 1 = 5 at classical, (4 * 2) + 1 = 9 at medieval. -->
+	<Define>
+		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: turn until which we won't scrap at all, adjusted to game speed. E.g. turn 150 at gamespeed_normal would be turn (150 * 150 / 100) = turn 225 at gamespeed epic, or turn (150 * 200) / 100 = turn 300 at gamespeed marathon, etc. -->
 	<Define>
 		<DefineName>SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL</DefineName>

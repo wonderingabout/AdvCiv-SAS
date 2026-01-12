@@ -20680,9 +20680,22 @@ void CvPlayerAI::AI_doMilitary()
 	{
 		// <!-- custom: only disband while over budget; stop once back in budget, so obsolete units are not mass-scrapped immediately. (GPT-5.2-Codex) -->
 		int iCost = AI_unitCostPerMil();
-		int const iMaxCost = AI_maxUnitCostPerMil() -
+		int iMaxCost = AI_maxUnitCostPerMil() -
 				// advc.110: Increase iMaxCost when war success rating negative
 				range(2 * GET_TEAM(getTeam()).AI_getWarSuccessRating(), -100, 0);
+		// <!-- custom: allow extra-unit tolerance beyond unit support costs before disbanding; scale by era: mult * (era + 1) + add. (GPT-5.2-Codex) -->
+		static const int iSAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT = GC.getDefineINT("SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT");
+		static const int iSAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD = GC.getDefineINT("SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD");
+		int const iExtraUnits = std::max(0, (iSAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT * (getCurrentEra() + 1)) + iSAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD);
+		if (iExtraUnits > 0)
+		{
+			int const iUnitCount = getNumUnits();
+			if (iUnitCount > 0 && iCost > 0)
+			{
+				int const iPerUnitCostPerMil = std::max(1, iCost / iUnitCount);
+				iMaxCost += iExtraUnits * iPerUnitCostPerMil;
+			}
+		}
 		if (iCost > 0 && (iCost > iMaxCost || calculateGoldRate() < 0))
 		{
 			std::vector<std::pair<int, int> > unit_values; // <value, id>
@@ -30141,8 +30154,10 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 		iValue /= kUnit.getUnitInfo().getExtraCost() + 1;
 	}
 
-	// <!-- custom: add scrapping support for units that have a tech in their ObsoleteTech XML field -->
-	if (kUnit.getUnitInfo().getObsoleteTech() != NO_TECH &&
+	// <!-- custom: add scrapping support for units that have a tech in their ObsoleteTech XML field (toggleable). (GPT-5.2-Codex) -->
+	static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
+	if (bSAS_CAN_SCRAP_OBSOLETE_TECH &&
+		kUnit.getUnitInfo().getObsoleteTech() != NO_TECH &&
 		GET_TEAM(getTeam()).isHasTech(kUnit.getUnitInfo().getObsoleteTech()))
 	{
 		iValue /= 4;

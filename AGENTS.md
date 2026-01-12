@@ -110,6 +110,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - When doing performance optimizations, a good trick that may help find many entries fairly cheaply is to append `.` or `)` or ` ` or `,`, etc., to what we want to simplify. For example `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) `, or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
 - When doing performance optimizations, also optimize commented-out code for exhaustiveness.
 - When doing performance optimizations, if there are returns and they don't use our cached variable, cache after them.
+- Use `static const` for our defines whenever possible and relevant for computational efficiency (value is always the same, quick check it rather). Example `static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");`.
 
 ### Docs
 

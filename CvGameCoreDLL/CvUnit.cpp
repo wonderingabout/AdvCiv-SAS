@@ -3279,9 +3279,10 @@ bool CvUnit::canScrap() const
 		const UnitAITypes eUnitAI = AI_getUnitAIType();
 		const CvUnitInfo& kUnitInfo = getUnitInfo();
 
-		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently while keeping anti-scrap gates for useful ones; avoids per-unit logic and keeps AI hammer efficiency gains. (GPT-5.2-Codex) -->
+		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
+		static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
-		if (eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+		if (bSAS_CAN_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
 		{
 			return true;
 		}
