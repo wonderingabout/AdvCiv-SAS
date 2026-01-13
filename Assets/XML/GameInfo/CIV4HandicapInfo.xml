@@ -1257,7 +1257,7 @@
 			</Goodies>
 			<FreeTechs/>
 			<AIFreeTechs/>
-			<!-- custom: adjusted slightly based on/with knowledge of the code sample in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\UWAIAgent.cpp as well as chatgpt's explanation of it, our handicap settings are more gradual than in base advciv, not sure it makes a difference but go for gradual values between handicap settings, also start from a higher base line difficulty since our settings in advciv-sas are slightly harder, was 85 -->
+			<!-- custom: adjusted slightly based on/with knowledge of the code sample in UWAIAgent.cpp as well as chatgpt's explanation of it, our handicap settings are more gradual than in base advciv, not sure it makes a difference but go for gradual values between handicap settings, also start from a higher base line difficulty since our settings in advciv-sas are slightly harder, was 85 -->
 			<!-- advc.250a -->
 			<iDifficulty>90</iDifficulty>
 		</HandicapInfo>

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- custom: AdvCiv-SAS specific tags, here is mostly but not only documentation pages about AdvCiv-SAS itself -->
-
-
-
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #30 -->
-
-
-
 <Civ4GameText>
 	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
 	<!-- custom: the other conceptinfo entries have been moved to file with similar filename than in civ4 bts -->

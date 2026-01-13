@@ -1,3 +1,7 @@
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
 Long XML comments (consolidated)
 Purpose: keep XML files readable by moving very long comments into this file.
 Threshold: comments >= 1000 characters (inner length) are moved here.
@@ -6,7 +10,7 @@ Initial consolidation and formatting by GPT-5.2-Codex (VS Code extension).
 Moved on: 2025-12-23 10:49:55
 Source root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
 
-Whitelisted files (no comment moves):
+Somewhat whitelisted files for now (few comment moves):
 - Assets/XML/GlobalDefines_advc.xml
 - Assets/XML/GlobalDefines_advciv_sas.xml
 
@@ -76,8 +80,15 @@ Whitelisted files (no comment moves):
 ----- Comment #5 -----
 <!-- custom: new unit based on a c2c mod ("recon_drone") not base civ4 art so ideally no need to overtweak the design so it fits quite realistically domain_land; also adjusted or not for advciv-sas, tried to do it based on a mix of advciv-sas's airship (as it is already tuned to domain_land as we want for free control of the unit on map tiles and or other advantages maybe) and the gunship as it seems this c2c mod's unit is based on the gunship i assume based on its artdefine in c2c mod so trying to replicate c2c mod's or maybe rather our art defines equivalents of the advciv-sas gunship (which as of now is same as base_advciv in art defines i mean at least ), but also not too absed on the gunship as this recon_drone in our mod is mostly if not only a civilian unit, so things like fortify or such are not intended for this unit in our mod at least as of now -->
 
+===== .\Assets\XML\GameInfo/CIV4CivicInfos.xml =====
 ----- Comment #6 -----
-<!-- custom: art import based on ri mod's ART_DEF_UNIT_FUSILIER_AMERICA_EARLY (Line infantry (continental army) in ri mod at least as of now, and btw their naming is very very weird and inconsistent between unit name and asset name in ri mod, and their fpks are shit scattered even though is not the most for this unit where all nifs and such/related files were nicely all in one fpk but often it's shit big big big shit scattered in many files despite the quality or and quantity of having many art assets, PakBuild helps in some cases if/as i have merged all ri mod's commonly used fpks (for example interface and such) in one windows folder much easier to browse but else is big big shit, despite their art being really good though if i may say,), taking the base advciv's rifleman art def as a base, kfm is base civ4 one, also i take back what i said sadly it's even worse, the unit didn't have the missing brownbesstexture.dds in folder li_fus_early_america despite the nif expecting it in nifskope so had to use dragonchecker in the units america and luckily find it very very bad packaging, please do all files per unit in one folder ideally so it is easily exportable to another mod or such for example if needed even if redundant is better to have portability i think, but thankfully fixed now no more purple gun but the real one art and helped me add a tutorial about it even though ideally there would be no issue was easy enough to solve in this case thanks to harder time with camel unit in the past when i didn't know how and c2c mod even thogh unrelated had dependencies in nifskope to outside paths and it was a huge messhopefully this tutorial part also helps in modding ressources... -->
+<!-- custom: vassalage civic tech prereq rationale changed as chatgpt 5.1 confirms thanks; also as a side effect closer to bts early vassalage availability, was TECH_FEUDALISM -->
+<!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (EgyptñCanaan, Hittites, Zhou ìfengjianî, Assyria, early China, etc.). These are formal overlordñsubject treaties with tribute, hostages, mutual defense, and legal obligations. -->
+<!-- Mechanically, you do not want capitulation and permanent sub-states to exist while players are still fighting over their first 3ñ5 cities. In SAS your wars are deadly and the AI is opportunistic; early vassalizing would produce some nasty snowballs. -->
+<!-- So I would: Put Vassal States in the late Classical band, not earlier than that.
+Of the candidates, my pick is: Put ìEnables Vassal Statesî on Drama. -->
+<!-- custom: update: at TECH_PHILOSOPHY rather as recommended by gemini 3 pro and more balanced as such (clearer military vs culture lines, philosophy was empty, and thematically more relevant as well) -->
+<!-- "While Western "Feudalism" (Knights) comes later, the concept of strict social hierarchy was defined in the Classical Era by Philosophers." + "Confucius (Kung Fuzi): His entire philosophy was about the "Five Bonds" (Ruler to Subject, Father to Son). He taught that social stability comes from everyone knowing their place and serving their superior." + "Aristotle/Plato: They wrote extensively on the "Republic" and the natural hierarchy of society." + "This creates a very strong "Social Band" in your Middle Rows:" + "Code of Laws (Courthouses) $\rightarrow$ Philosophy (Vassalage/Daoism) $\rightarrow$ Civil Service (Bureaucracy)" + "Recommendation: Move Vassalage to Philosophy. It makes the tech valuable and fits the "Social Order" theme perfectly." --> 
 
 ===== .\Assets\XML\BBAI_Game_Options_GlobalDefines.xml =====
 ----- Comment #7 -----
@@ -2607,3 +2618,244 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula), was 50 / 128 -->
 			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not noware as of now the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles) is/can be also used to buff specificially tundra tiles and relatively, so apply or try to apply/balance quite bit if not lto or not but or not butfor the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
 			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now, try to reduce it a bit; after more testing, 50 / 27 seems quite good, try to reduce base camel and increase camel per tile i.e. more frequent per x tiles; after some bit of testing or not bit lot or both bit or lot or not, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want which this formula achieves quite well or seems to do so -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #131 -----
+
+<!-- custom: adding our own AdvCiv-SAS knobs/tunables so that players or me xdcan tweak/modify them without having to recompile each time which is tedious; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know) or check in code of relevant function(s) -->
+<!-- custom: note: using the prefix is a bit cringe xd but at same time cool and does some publicity, but most importantly it gives us freedom while being compactto name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd but now think it makes sense), check if accurate -->
+<!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such) but check to be sure if in doubt -->
+<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or add other global define files, make sure they are added there as well and chatgpt 5 confirms it, or it won't load as it didn't seem to (load) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders), check to be sure -->
+<!-- custom: note 4: i did not add it here to avoid having issues or a complicated implementation, but a few places use the hardcoded mod name such as as of now "AdvCiv-SAS" instead for example of "AdvCiv". To find these places easily, i generally wrote a comment that has something like "our mod AdvCiv-SAS" or "mod AdvCiv-SAS" or "AdvCiv-SAS Mod" or something similar so they can be found more easily to change them in case you change the mod's name. -->
+
+===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #132 -----
+
+	<!-- custom: Leader AI Cache:
+		0 = compute at runtime (still fairly fast, but needless computation: this ignores the predumped file (SevoPediaLeaderCachePredumped.py) and always recomputes the ai personality panel's values for the first time we access the sevopedia leader panel, and the same again every time we start the game and do so again (i.e. computes only once during same session, not many times, and does not compute if we don't access sevopedia leader, but still computes once every time we do for the first time during this session); optional for modders or temporarily for players who want to change some display options in the ai personality panel until they have updated the predump, then they can use 1 rather)
+		
+		1 = load from predumped file (SevoPediaLeaderCachePredumped.py) (recommended for most players: fastest and cheapest for your computer as all the values are computed, but if you want to change something like adding emojis in headers, changing any xml value in leader info, you need to manually update the predumped file (set this to 0 temporarily and when you have updated the file you can set this to 1 again if you want). -->
+
+===== .\\Assets/XML/AI_Variables_GlobalDefines.xml =====
+----- Comment #133 -----
+
+<!-- custom: shriking XML comments to one line does not help performance at all even a bit it seems if i understood chatgpt's explanation, due to the parser still reading the entire line regardless, unlike with a # in python for example where rest of line is skipped, but doing so sometimes as it improves word wrap especially if screen is split for example, still less incentive to do so since no perfomance gain, (i) may or not do so inconsistenly in the xml files, see main readme.md for details in the as of now fixes section. -->
+<!-- custom: maybe most likely also much faster if i ask chatgpt to do it, todo maybe later but not guaranteed though may or may not do -->
+
+===== .\\Assets/XML/Technologies/CIV4TechInfos.xml =====
+----- Comment #134 -----
+
+<!-- custom: button import from NW mod's very very nice one in all or all in one rather. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting fine (folder name has the advciv-sas asset name or closest or close to it, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if needed)), is based on NW mod's TECH_HEAVY_WATER button -->
+
+===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+----- Comment #135 -----
+
+		<!-- custom: elevation trick now that the airship is a domain land unit now
+		<fScale>0.3</fScale>
+		trick by ChatGPT:
+		Hacky XML Workaround (Using Shadow Scale/Offset)
+		-->
+		<!-- custom: part of the trick by ChatGPT
+		<fShadowScale>0.65</fShadowScale>
+		-->
+
+===== .\\Assets/XML/Units/CIV4PromotionInfos.xml =====
+----- Comment #136 -----
+
+<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or relevant in this case i mean -->
+
+===== .\\Assets/XML/Buildings/CIV4BuildingInfos.xml =====
+----- Comment #137 -----
+
+<!-- custom: see in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or helpful if needed xml fields and their meaning, took it from the Doto mod, see there for details -->
+<!-- custom: adjust the iPower (as in unit info) of some buildings to better reflect their strength equivalent:
+- increase iPower of/for buildings that are underestimated as well, such as the castle
+- reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shouldn't be too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info 
+-->
+<!-- custom: note: also we made some AI optimizations about which buildings to build or not, some of which are hard coded. In all cases, i'd recommend if you make changes to the XML here (change a buildign's characteristics or add / remove), to also reflect these there in CvCityAI::AI_buildingValue, to help AI better optimize its building choices with your new changes -->
+<!-- custom: note: in same code part than the above, AI also won't build wonders it doesn't have a modifier for, as it would most likely be beaten by rivals for it (except during some of the early turns), with a hardcoded threshold of 25 (%), so assuming you don't have civics or religions or such giving a production modifier that is understood by the code, i'd advise not to lower bonus modifier for wonders (e.g. stone makes great wall or iron makes eiffel tower be built faster) below 25 if you want AIs to keep going for them when it has the bonus, else even if it has the bonus (and if it doesn't to), if it doesn't also have other positive modifiers to motivate it to build the wonder, it simply won't. Adjust code there if you want a lower threshold -->
+
+===== .\\Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
+----- Comment #138 -----
+
+<!-- custom: reordered in reverse from fastest at top to slowest at bottom so they appear as such in the "Play Now" Game Speed section. -->
+<!-- custom: timeline readability rule
+	For early/midgame, prefer iMonthIncrement values that are whole years (divisible by 12),
+	ideally round 5/10-year steps (i.e., multiples of 60/120 months). This avoids awkward chart
+	entries like "62y6m" (example: 750 months = 62y6m). Prefer round alternatives like:
+	- 720 months = 60y
+	- 780 months = 65y
+	and adjust iTurnsPerIncrement to keep the same segment endpoints and total turns.
+	Sub-year steps (<12 months) are kept as separate rows (e.g., 6/3/2 months) for clarity. (ChatGPT 5.2 Thinking) -->
+<!-- custom: note: iExtraFreeOutsideUnits is an OPTIONAL tag (schema minOccurs=0), but the DLL default was 100 (percent-style fallback).
+     That default is wrong for this field because it is a UNIT COUNT added to INITIAL_FREE_OUTSIDE_UNITS, not a percent.
+     Result: speeds missing the tag display/behave like "100" (see SevoPedia Game Speed Chart), while slower speeds explicitly set "1".
+     We now set this tag explicitly for ALL game speeds (usually 0) to avoid hidden fallback values and keep behavior consistent.
+     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2 Thinking). See known issue as of now 92 for details. -->
+<!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See known issue as of now 92 for details. -->
+
+===== .\\Assets/XML/GameInfo/CIV4ReligionInfo.xml =====
+----- Comment #139 -----
+
+<!-- custom: BTS version of the file imported cleanly from "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo\CIV4ReligionInfo.xml" and then modified for AdvCiv-SAS. -->
+<!-- custom:
+		backup of old:
+			<Button>Art/Interface/Buttons/Religions/Confuscianism.dds</Button>
+			<TechButton>Art/Interface/Buttons/TechTree/Confucianism.dds</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Confucianism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,3</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Confucianism/Con_Found.nif</MovieFile>	
+
+		example from HR mod:
+			<Button>Art/Interface/Buttons/Religions/Baalism.dds</Button>
+			<TechButton>Art/Interface/Buttons/TechTree/Religion.dds</TechButton>
+			<GenericTechButton>Art/Interface/Buttons/TechTree/Religion.dds</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Baalism/Generic_Found.nif</MovieFile>
+-->
+
+===== .\\Assets/XML/Text/CIV4GameText_advc_hints.xml =====
+----- Comment #140 -----
+
+<!-- advc.008c: In BtS, this was a lengthy explanation about how to found a
+	 corporation. I had previously edited it a bit for brevity. See K-Mod
+	 hints.xml in AdvCiv 0.92 for that version of the hint.
+	 advc.114, advc.115b: -->
+<!-- <TEXT>
+	<Tag>TXT_KEY_HINT_73</Tag>
+	<English>(AdvCiv) When your Caravels discover an unclaimed continent, consider sending an Explorer: At that point of the game, Tribal Villages can yield substantial amounts of gold and other goodies.</English>
+	<German>(AdvCiv) Wenn Ihre Karavellen einen unerforschten Kontinent entdecken, kann es sich lohnen, mit einem Kundschafter nach Stammesdùrfern zu suchen. So spùt im Spiel kùnnen diese betrùchtliche Goldsummen und andere Goodies ergeben.</German>
+</TEXT>
+-->
+
+===== .\\Assets/XML/Text/BUG_Plot List Enhancements Options.xml =====
+----- Comment #141 -----
+
+	<!-- advc.069: unused -->
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_PLE__ENABLED_TEXT</Tag>
+		<English>Enabled</English>
+		<French>Activer</French>
+		<German>Aktivieren</German>
+		<Italian>Abilitato</Italian>
+		<Spanish>Activar</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_PLE__ENABLED_HOVER</Tag>
+		<English>Enables the Plot List Enhancements mod and the rest of the options on this tab.</English>
+		<French>Active le mod Plot List Enhancements ainsi que le reste des options sur cet onglet.</French>
+		<German>Aktiviert die Verbesserungen der Einheitenliste am unteren Bildschirmrand (verwendet 12monkeys' "Plot List Enhancements"-Mod)</German>
+		<Italian>Abilita il mod 'Plot List Enhancements' (PLE, Icone delle Unitù Avanzate) e le altre opzioni in questa pagina.</Italian>
+		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pestaùa.</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BUG_Strategy Overlay Options.xml =====
+----- Comment #142 -----
+
+	<!-- advc.004: Now unused -->
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__SHOWDOTMAP_TEXT</Tag>
+		<English>Show Dot Map</English>
+		<German>Overlay-Karte anzeigen</German>
+		<Italian>Mostra la Mappa di posizionamento</Italian>
+		<Spanish>Mostrar Mapa de Puntos</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__SHOWDOTMAP_HOVER</Tag>
+		<English>When checked, the city-planning dot map layer is shown overlaying the terrain.</English>
+		<German>L‰sst die Overlay-Karte zur Planung von Stadtgr¸ndungen das Gel‰nde ¸berlagern</German>
+		<Italian>Quando Ë selezionato, il livello di pianificazione delle Citt‡ detto "Mappa di posizionamento" viene mostrato come sovrapposto al terreno.</Italian>
+		<Spanish>Muestra los puntos de ciudad planeada en el mapa normal.</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BUG_Strategy Overlay Options.xml =====
+----- Comment #143 -----
+
+	<!-- advc.004: unused -->
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPDOTICON_HOVER</Tag>
+		<English>The index number of the icon to be placed in the center of the borders of planned cities.</English>
+		<German>Die Indexnummer des Symbols, das im Zentrum der Grenzen von geplanten St‰dten angezeigt werden soll</German>
+		<Italian>Indica il numero d'indice dell'icona che deve essere posizionata al centro delle aree di posizionamento delle citt‡.</Italian>
+		<Spanish>N˙mero del icono a colocar en el centro de los bordes de las ciudades planeadas.</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BULL City Bar Options.xml =====
+----- Comment #144 -----
+
+	<!-- Handled by advc.101; non-optional. -->
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_OPT_CITYBAR__REVOLTCHANCE_TEXT</Tag>
+		<English>Revolt Chance</English>
+		<German>Unruhe-Wahrscheinlichkeit</German>
+		<Italian>Possibilit‡ di Rivolta</Italian>
+		<Spanish>Probabilidad de Revuelta</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_CITYBAR__REVOLTCHANCE_HOVER</Tag>
+		<English>When checked, shows the probability that the city will revolt due to cultural pressure.</English>
+		<German>Zeigt die Wahrscheinlichkeit an, dass in einer Stadt auf Grund von kulturellem Druck Unruhen ausbrechen</German>
+		<Italian>Quando Ë selezionato, mostra la probabilit‡ che la Citt‡ si rivolti a causa della pressione culturale.</Italian>
+		<Spanish>Si se activa, muestra las probabilidades de que tenga lugar una revuelta en la ciudad debido a la presiÛn cultural.</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BULL_CIV4GameText.xml =====
+----- Comment #145 -----
+
+	<!-- advc: I'm not using this -->
+	<!--TEXT>
+		<Tag>TXT_KEY_WORST_ENEMY_IS</Tag>
+		<English>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player is Worst Enemy[COLOR_REVERT]</English>
+		<French>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player est pire ennemi[COLOR_REVERT]</French>
+		<German>[ICON_BULLET][COLOR_YIELD_FOOD]Erzfeind: %s1_player[COLOR_REVERT]</German>
+		<Italian>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player Ë peggiore ostile[COLOR_REVERT]</Italian>
+		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player es peor enemigo[COLOR_REVERT]</Spanish>
+	</TEXT-->
+
+===== .\\Assets/XML/Text/BULL_CIV4GameText.xml =====
+----- Comment #146 -----
+
+	<!--TEXT>
+		<Tag>TXT_KEY_BUG_TOTAL_TRADE_YIELD</Tag>
+		<English>[NEWLINE]Total Yield: %s1[ICON_COMMERCE]</English>
+		<German>[NEWLINE]Gesamteinkommen: %s1[ICON_COMMERCE]</German>
+		<Italian>[NEWLINE]Total Yield: %s1[ICON_COMMERCE]</Italian>
+		<Spanish>[NEWLINE]Beneficio total: %s1[ICON_COMMERCE]</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_TOTAL_TRADE_ROUTES</Tag>
+		<English>[NEWLINE]Number of Routes: %d1</English>
+		<German>[NEWLINE]Anzahl der Handelsverbindungen: %d1</German>
+		<Italian>[NEWLINE]Number of Routes: %d1</Italian>
+		<Spanish>[NEWLINE]N˙mero de rutas: %d1</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_AVERAGE_TRADE_YIELD</Tag>
+		<English>[NEWLINE]Average Yield: %s1[ICON_COMMERCE]</English>
+		<German>[NEWLINE]Durchschnittliches Einkommen: %s1[ICON_COMMERCE]</German>
+		<Italian>[NEWLINE]Average Yield: %s1[ICON_COMMERCE]</Italian>
+		<Spanish>[NEWLINE]Beneficio medio: %s1[ICON_COMMERCE]</Spanish>
+	</TEXT-->
+	<!-- advc: Replacing the above. Akin to keys under "Finance Advisor". -->
+
+===== .\\Assets/XML/Text/CIV4GameText_Sevopedia.xml =====
+----- Comment #147 -----
+
+	<!-- custom: rename "Unit Upgrades" to "Units Tree", clearer and consistent with "Promotion Upgrades Tree", while also short enough to fit well enough in the sevopedia panel.
+	Also note that this/it is not necessarily about upgrading units but showing them, even though upgrading them may be the end result, but still, this should not be a wrong way to present things, regarding how this is just a tree that displays units and how they relate to each other (think of it as looking back maybe for example, not necessarily upgrade only, or also looking at per era units in a vertical way for example (in AdvCiv-SAS the tech tree would be designed in such a way that each era has one type of unit, and each unit is aligned vertically (in the column corresponding to) where it starts, maybe this can help this be more intuitive too) -->
+
+===== .\\Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml =====
+----- Comment #148 -----
+
+<!-- custom: gather all base civ4 (vanilla or BTS alike) content in the same category, was "Game Concepts".
+	I prefer to keep the data as it can be useful/helpful to players maybe, and not delete it entirely, but clearly indicate (or more clearly indicate) that it is outdated.
+	
+	Added the tag/mention "(Outdated)" to signify that this info is not up to date anymore, but may help for general purposes maybe especially ingame. Add this mention may also remove the burden for modders to maintain this page, as i think it is more practical for players to go online (if possible) to find/gather the data they want, while also serving my purposes.
+	Also "BtS" is one character shorter than "Game", with the other advantage (i think) of being more indicative of the fact that it relates to base civ4 (vanilla or BTS or similar), and not to other mods info (for example K-Mod, AdvCiv, AdvCiv-SAS, etc). -->
+
+===== .\\Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml =====
+----- Comment #149 -----
+
+<!-- custom: rename "Ivory" to "Elephants". Here the main reasons for this change: 
+	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
+	- 2) ivory doesn't grow on the groud i think, but is derived from elephants, independent of whether they are alive or dead.
+	- 3) One could also maybe imagine that elephants the animal itself makes people happy, and not necessarily their ivory.
+	Note: since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version. -->

@@ -1,4 +1,9 @@
 ## Sid Meier's Civilization 4 - Copyright Firaxis Games 2005
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
 from CvPythonExtensions import *
 # <advc.092>
 from RectLayout import *

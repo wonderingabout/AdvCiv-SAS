@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- custom: adding some extra files after our asset renames such as the old "montezuma"->"moctezuma" missing after our changes so need to add them -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 	<!-- custom: "_MONTEZUMA_" -> "_MOCTEZUMA_" so add now missing corresponding assets in this mod -->

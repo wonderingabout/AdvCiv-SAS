@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
-<!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 	<!-- custom rename "Resource" to "Bonus" -->
 	<!-- New label for the surplus box -->

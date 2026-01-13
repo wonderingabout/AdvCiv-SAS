@@ -1,5 +1,13 @@
 # AGENTS
 
+## You don't need to look at files mentionned in this sub-section as an agent
+
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+
+## General information
+
 This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv 1.12.
 
 These rules apply to me GPT-Codex Guidelines or other agents now and later (future me too). Append the following instructions as we agree on them. You can expand this freely as you see fit.

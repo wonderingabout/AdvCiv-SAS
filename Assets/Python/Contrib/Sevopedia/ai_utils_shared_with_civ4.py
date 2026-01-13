@@ -1,6 +1,6 @@
 # --- AI Utilities for normalization and general helpers ---
 # Created as part of AdvCiv-SAS improvements
-# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 
 

@@ -2,16 +2,13 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- -->
-<!-- Basic Infos -->
-<!-- custom: file imported from:
-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4UnitCombatInfos.xml
-And modified for my needs, which is to create new unit combat types
-or modify existing ones, for example, archery units would become:
-- archers (Bow, Short)
-- archers (Bow, Long)
-- archers (Crossbow)
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 -->
+<!-- Basic Infos -->
+<!-- custom: file imported from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4UnitCombatInfos.xml -->
 <Civ4UnitCombatInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
 	<UnitCombatInfos>
 		<UnitCombatInfo>
@@ -43,7 +40,6 @@ or modify existing ones, for example, archery units would become:
 
 
 
-		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such; as for the button art import from ri mod -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MOUNTED_MELEE</Type>
 			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Description>

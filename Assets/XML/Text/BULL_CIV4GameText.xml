@@ -190,15 +190,7 @@
 		<Italian>[ICON_BULLET][COLOR_YIELD_FOOD]Peggiore ostile di %s1_player[COLOR_REVERT]</Italian>
 		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]Peor enemigo de %s1_player[COLOR_REVERT]</Spanish>
 	</TEXT>
-	<!-- advc: I'm not using this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_WORST_ENEMY_IS</Tag>
-		<English>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player is Worst Enemy[COLOR_REVERT]</English>
-		<French>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player est pire ennemi[COLOR_REVERT]</French>
-		<German>[ICON_BULLET][COLOR_YIELD_FOOD]Erzfeind: %s1_player[COLOR_REVERT]</German>
-		<Italian>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player è peggiore ostile[COLOR_REVERT]</Italian>
-		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player es peor enemigo[COLOR_REVERT]</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #145 -->
 	<!-- advc: "the" added -->
 	<TEXT>
 		<Tag>TXT_KEY_WORST_ENEMY_IS_YOU</Tag>
@@ -472,28 +464,7 @@
 		<Italian>Nessun commercio con %%s1_PlyrName</Italian>
 		<Spanish>No hay comercio con %s1_PlyrName</Spanish>
 	</TEXT>
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_TOTAL_TRADE_YIELD</Tag>
-		<English>[NEWLINE]Total Yield: %s1[ICON_COMMERCE]</English>
-		<German>[NEWLINE]Gesamteinkommen: %s1[ICON_COMMERCE]</German>
-		<Italian>[NEWLINE]Total Yield: %s1[ICON_COMMERCE]</Italian>
-		<Spanish>[NEWLINE]Beneficio total: %s1[ICON_COMMERCE]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_TOTAL_TRADE_ROUTES</Tag>
-		<English>[NEWLINE]Number of Routes: %d1</English>
-		<German>[NEWLINE]Anzahl der Handelsverbindungen: %d1</German>
-		<Italian>[NEWLINE]Number of Routes: %d1</Italian>
-		<Spanish>[NEWLINE]Número de rutas: %d1</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_AVERAGE_TRADE_YIELD</Tag>
-		<English>[NEWLINE]Average Yield: %s1[ICON_COMMERCE]</English>
-		<German>[NEWLINE]Durchschnittliches Einkommen: %s1[ICON_COMMERCE]</German>
-		<Italian>[NEWLINE]Average Yield: %s1[ICON_COMMERCE]</Italian>
-		<Spanish>[NEWLINE]Beneficio medio: %s1[ICON_COMMERCE]</Spanish>
-	</TEXT-->
-	<!-- advc: Replacing the above. Akin to keys under "Finance Advisor". -->
+	<!-- custom: Long_Comments_XML.txt #146 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_COMMERCE_FROM_ROUTES</Tag>
 		<English>%d1[ICON_COMMERCE] from %d2 Trade Routes</English>

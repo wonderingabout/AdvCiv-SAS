@@ -5,7 +5,11 @@
 
 	Copyright (c) 2009 The BUG Mod.
 -->
-<!-- custom: modified version of the BUG settings for AdvCiv-SAS -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 

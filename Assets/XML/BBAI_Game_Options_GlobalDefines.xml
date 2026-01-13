@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
-<!-- -->
 <!-- Game options for new features in Better BTS AI -->
 <!-- by jdog5000 -->
-<!-- -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
 	<Define>
 		<!-- Better BTS AI: Use new air combat mechanics -->

@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- custom: The Mod XXL World (https://forums.civfanatics.com/resources/xxl-world-bts.6708/) is as of now now implemented into AdvCiv-SAS, with the help of GPT-5.2-Codex thanks. These are where TXT KEYs that are most relevant to XXL World Mod are located in AdvCiv-SAS.
 Note: AdvCiv-SAS uses a modified version of the XXL World with different World Size names (adjusted by GPT-Codex-5.2 for AdvCiv-SAS thanks).
 Note 2 : XLL and bigger world sizes are recommended to be played with the 48 civs DLL, and they require the a > MAX_CIV_PLAYERS civs DLL to be able able to play with all players the world size supports. Since we only provided the 48 civs DLL (as of now CvGameCoreDLL_48_civs_DLL.dll, see docs for details on how to use it) in AdvCiv-SAS, to simplify, we explain it as requiring the 48 civs DLL for SAS24+ world sizes, but a 24 civs DLL or 96 civs DLL could just as well respectively for SAS24 or SAS40 world sizes for example. -->

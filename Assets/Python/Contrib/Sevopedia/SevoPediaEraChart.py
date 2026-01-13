@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # Mirrors the handicap chart layout, but for EraInfo.
-
+#
 
 
 from CvPythonExtensions import *

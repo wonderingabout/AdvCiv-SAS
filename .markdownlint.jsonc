@@ -1,3 +1,7 @@
+// AI, UI, or other modifications
+// Created as part of AdvCiv-SAS improvements
+// (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+//
 // <!-- custom: file to set markdownlint config, i use it to disable some rules as advised by chatgpt after asking it. -->
 // <!-- custom: use .jsonc instead of .json so we can comment this markdownlint config file. -->
 {

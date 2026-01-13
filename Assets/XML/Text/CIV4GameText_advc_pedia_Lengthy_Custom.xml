@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
+<!-- custom: moved the lengthy part of the Sevopedia changes
+to this file, but only for AdvCiv-SAS specific changes (for example
+a new civ, a new leader, etc) that are lengthy.
+Hopefully more readable now, and perhaps exportable if some wish,
+AdvCiv or other mods, at least it's cleanly separated -->
+
+<!-- advc.008: Since the Civilopedia changes are so wordy (not the changes, but the copied text), I've moved them out of CIV4GameText_advc.xml, where the rest of the Advanced Civ game text
+	is located.
+	Starting with the two text keys changed by K-Mod
+	(one of them commented out, already in K-Mod) cut from
+	Civ4GameText_K-Mod.xml. The comments above those keys
+	are also from K-Mod. -->
 <Civ4GameText>
-	<!-- custom: moved the lengthy part of the Sevopedia changes
-	to this file, but only for AdvCiv-SAS specific changes (for example
-	a new civ, a new leader, etc) that are lengthy.
-	Hopefully more readable now, and perhaps exportable if some wish,
-	AdvCiv or other mods, at least it's cleanly separated -->
-
-	<!-- advc.008: Since the Civilopedia changes are so wordy (not the changes, but the copied text), I've moved them out of CIV4GameText_advc.xml, where the rest of the Advanced Civ game text
-	 is located.
-	 Starting with the two text keys changed by K-Mod
-	 (one of them commented out, already in K-Mod) cut from
-	 Civ4GameText_K-Mod.xml. The comments above those keys
-	 are also from K-Mod. -->
-
-
-
-	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Bonuses.xml -->
 	<!-- custom: similarly, rename _IVORY to _ELEPHANTS -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_GEMSTONES_PEDIA</Tag>
@@ -218,7 +219,7 @@
 
 
 
-	<!-- custom: rename "ARABIA_CAMELARCHER" to "ARABIA_HAJJAN", entry from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml 's TXT_KEY_UNIT_ARABIA_CAMELARCHER_PEDIA and adjusted/enhanced on for AdvCiv-SAS; as for the unit name, one of the sources for example: https://en.wiktionary.org/wiki/hajjan but with a more distinctive name -->
+	<!-- custom: rename "ARABIA_CAMELARCHER" to "ARABIA_HAJJAN", entry from TXT_KEY_UNIT_ARABIA_CAMELARCHER_PEDIA and adjusted for AdvCiv-SAS; as for the unit name, one of the sources for example: https://en.wiktionary.org/wiki/hajjan but with a more distinctive name -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN_PEDIA</Tag>
 		<English>[TAB]In the Arabian Peninsula, cavalrymen ride on either horse or camel. While horses are somewhat easier to train than camels, camels are the obvious choice for forces operating in the deep desert. Arab tribesmen such as the Bedouin have always been fearsome warriors, and their prowess with bow and arrow (and later, rifle) from atop a mount has become the stuff of legend.[PARAGRAPH:1]In the arabic language, hajjan (plural hajjans or hajjaneh) is a synonym of cameleer, a camel-mounted soldier.</English>
@@ -258,7 +259,7 @@
 
 
 
-	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL", and/plus unit reworked, now based on the swordsman at least as of now, entry from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml -->
+	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL", (plus unit reworked, now as of now based on the swordsman) -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL_PEDIA</Tag>
 		<English>[TAB]The Immortals were a strong corps deployed by the Persian Empire in the fifth century BC. Gifted soldiers, they drew their moniker from the fact that regardless of the casualties sustained in battle, the unit was restored to full strength, no matter the cost. Equipped with bow and spear, the front rank would advance upon the enemy while rear ranks rained arrows to ease the assault.</English>
@@ -372,7 +373,6 @@
 
 
 
-	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml and then modified for AdvCiv-SAS -->
 	<!-- custom: description from: https://en.wikipedia.org/wiki/Paganism and https://en.wikipedia.org/wiki/Polytheism -->
 	<TEXT>
 		<Tag>TXT_KEY_RELIGION_PAGANISM_PEDIA</Tag>
@@ -604,7 +604,7 @@
 
 
 
-	<!-- custom: import from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords.xml -->
+	<!-- custom: import from CIV4GameText_Warlords.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST_PEDIA</Tag>
 		<English>Although they did seek to extend their empire through piracy and invasion, for much of the time the Vikings were merchants, with a trading network that extended from Greenland, Iceland, and Finland into the British Isles, Western Europe, and the Mediterranean. Viking merchants are known to have traded Russian slaves at Constantinople for silks and spices, and they brought furs and ivory from far-away Greenland to ports throughout Europe, North Africa and the Middle East.[NEWLINE][NEWLINE]The earliest Viking trading posts were quite primitive settlements, consisting of simple dwellings and warehouses constructed of whatever local material was readily available. Over time many of the posts flourished, becoming important cities in their own rights. For example the Irish capitol of Dublin began its existence as a Viking trading post; and after being captured by the Vikings, the English city of York became a thriving trading center, second in importance only to London.</English>

@@ -21,23 +21,7 @@
 		<Italian>Quando è selezionato, vengono attivate le scorciatoie da tastiera e le funzionalità del Livello Strategico.</Italian>
 		<Spanish>Si se activa, las características y atajos del mapa estratégico pueden ser usados.</Spanish>
 	</TEXT>
-
-	<!-- advc.004: Now unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__SHOWDOTMAP_TEXT</Tag>
-		<English>Show Dot Map</English>
-		<German>Overlay-Karte anzeigen</German>
-		<Italian>Mostra la Mappa di posizionamento</Italian>
-		<Spanish>Mostrar Mapa de Puntos</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__SHOWDOTMAP_HOVER</Tag>
-		<English>When checked, the city-planning dot map layer is shown overlaying the terrain.</English>
-		<German>Lässt die Overlay-Karte zur Planung von Stadtgründungen das Gelände überlagern</German>
-		<Italian>Quando è selezionato, il livello di pianificazione delle Città detto "Mappa di posizionamento" viene mostrato come sovrapposto al terreno.</Italian>
-		<Spanish>Muestra los puntos de ciudad planeada en el mapa normal.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: Long_Comments_XML.txt #142 -->	
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPDRAWDOTS_TEXT</Tag>
 		<English>Draw City Dots</English>
@@ -62,16 +46,7 @@
 		<Italian>Icona delle Citt&#224;</Italian>
 		<Spanish>Icono Ciudad</Spanish>
 	</TEXT>
-	
-	<!-- advc.004: unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPDOTICON_HOVER</Tag>
-		<English>The index number of the icon to be placed in the center of the borders of planned cities.</English>
-		<German>Die Indexnummer des Symbols, das im Zentrum der Grenzen von geplanten Städten angezeigt werden soll</German>
-		<Italian>Indica il numero d'indice dell'icona che deve essere posizionata al centro delle aree di posizionamento delle città.</Italian>
-		<Spanish>Número del icono a colocar en el centro de los bordes de las ciudades planeadas.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: Long_Comments_XML.txt #143 -->		
 	<!-- advc.004: Was "Brightness"; "Transparenz" in German -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPBRIGHTNESS_TEXT</Tag>

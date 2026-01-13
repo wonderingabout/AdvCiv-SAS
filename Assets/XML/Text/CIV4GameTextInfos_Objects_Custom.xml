@@ -2,7 +2,11 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- Game Text Objects -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia -->
@@ -26,11 +30,7 @@
 
 
 
-	<!-- custom: gather all base civ4 (vanilla or BTS alike) content in the same category, was "Game Concepts".
-	I prefer to keep the data as it can be useful/helpful to players maybe, and not delete it entirely, but clearly indicate (or more clearly indicate) that it is outdated.
-	
-	Added the tag/mention "(Outdated)" to signify that this info is not up to date anymore, but may help for general purposes maybe especially ingame. Add this mention may also remove the burden for modders to maintain this page, as i think it is more practical for players to go online (if possible) to find/gather the data they want, while also serving my purposes.
-	Also "BtS" is one character shorter than "Game", with the other advantage (i think) of being more indicative of the fact that it relates to base civ4 (vanilla or BTS or similar), and not to other mods info (for example K-Mod, AdvCiv, AdvCiv-SAS, etc). -->
+	<!-- custom: Long_Comments_XML.txt #148 -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
 		<!-- custom: <English>Concepts (Outdated)</English>-->
@@ -116,11 +116,7 @@
 
 
 
-	<!-- custom: rename "Ivory" to "Elephants". Here the main reasons for this change: 
-	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
-	- 2) ivory doesn't grow on the groud i think, but is derived from elephants, independent of whether they are alive or dead.
-	- 3) One could also maybe imagine that elephants the animal itself makes people happy, and not necessarily their ivory.
-	Note: since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version. -->
+	<!-- custom: Long_Comments_XML.txt #149 -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_ELEPHANTS</Tag>
 		<English>Elephants</English>

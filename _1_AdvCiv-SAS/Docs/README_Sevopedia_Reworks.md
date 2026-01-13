@@ -347,8 +347,10 @@ As for the grouping, since this is a nice functionnal change, i wanted to show i
 
 ### example 15: specialists category
 
-Beautified it a bit (removed the ugly blue panel around the buttons as we did in previous reworks), but added the grouping (by specialist type (as of now normal vs great specialists.)) similarly to how we said as of now at the top of this file.
+Beautified it (removed the ugly blue panel around the buttons as we did in previous reworks), and added the grouping (by specialist type (as of now normal vs great specialists.)) similarly to how we said as of now at the top of this file. Based on how the RFC DOC mod does it and done with the help of chatgpt 5.2 thanks.
 
-Still, i wanted to showcase it as i think it's quite nice thanks to RFC DOC's mod for having done the code i could use as a base for this plus chatgpt 5.2 for help (and thanks to me too as well)
+Then, more recently, i added new Extra Slots and Extra Yields panel based on the Middle-earth mod's code and adjusted for AdvCiv-SAS with the help of GPT-5.2-Codex thanks a lot!
 
-<img src="../Images/sevopedia/0.760_sevopedia_specialists.JPG" alt="0.760_sevopedia_specialists.JPG" width="250"></img>
+<img src="../Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.760_sevopedia_specialists (2).JPG" alt="0.760_sevopedia_specialists (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.760_sevopedia_specialists (3).JPG" alt="0.760_sevopedia_specialists (3).JPG" width="250"></img>

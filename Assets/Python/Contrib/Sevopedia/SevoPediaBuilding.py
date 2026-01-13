@@ -8,7 +8,11 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
 
 
 			# <!-- custom: for freebonus, done according to kujira's website, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
@@ -816,7 +820,7 @@ class SevoPediaBuilding:
 				isButtonFound = True
 				iButtonIndex += 1
 
-		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas; idea i got from watching ri mod's sevopedia building or so it seems ingame, of how the cruiser requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most in this caseis that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks-->
+		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas thanks -->
 		# Loop through all units to check their building prerequisites
 		for iLoopUnit in range(gc.getNumUnitInfos()):
 			loopUnitInfo = gc.getUnitInfo(iLoopUnit)

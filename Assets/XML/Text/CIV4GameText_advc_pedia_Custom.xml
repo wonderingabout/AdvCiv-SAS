@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-
-<!-- custom: moved the lengthy part of the Sevopedia changes,
-specific to AdvCiv-SAS, to
-Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml,
-hopefully more readable or exportable if need/want be now -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
+<!-- custom: moved the lengthy part of the Sevopedia changes, specific to AdvCiv-SAS, to
+Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
 
 <!-- advc.008: Since the Civilopedia changes are so wordy (not the
      changes, but the copied text), I've moved them out of
@@ -13,7 +15,6 @@ hopefully more readable or exportable if need/want be now -->
 	 (one of them commented out, already in K-Mod) cut from
 	 Civ4GameText_K-Mod.xml. The comments above those keys
 	 are also from K-Mod. -->
-
 <Civ4GameText>
 	<!-- advc.004y: Heading for "changes" box in trait articles -->
 	<TEXT>

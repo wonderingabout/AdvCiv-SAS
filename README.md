@@ -264,7 +264,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.730_sevopedia_promotions (3).JPG" alt="0.730_sevopedia_promotions (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.740_sevopedia_civics (1).JPG" alt="0.740_sevopedia_civics (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG" alt="0.750_sevopedia_projects.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.760_sevopedia_specialists.JPG" alt="0.760_sevopedia_specialists.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
 
 #### Notes about the sevopedia leader's AI Personality Panel
 
@@ -632,6 +632,8 @@ The original authors are listed in the [README authors section](/README.md#autho
 Here are a short info about the authors.
 
 Note: may not list all versions of such models/ais used.
+
+Note 2: for crediting us or reusing our work, see [License and reuse](/README.md#license-and-reuse).
 
 ### me, wonderingabout
 

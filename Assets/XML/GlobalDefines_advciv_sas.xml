@@ -1,23 +1,17 @@
 <?xml version="1.0"?>
-<!-- custom: adding our own AdvCiv-SAS knobs/tunables so that players or me xdcan tweak/modify them without having to recompile each time which is tedious; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know) or check in code of relevant function(s) -->
-<!-- custom: note: using the prefix is a bit cringe xd but at same time cool and does some publicity, but most importantly it gives us freedom while being compactto name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd but now think it makes sense), check if accurate -->
-<!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such) but check to be sure if in doubt -->
-<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or add other global define files, make sure they are added there as well and chatgpt 5 confirms it, or it won't load as it didn't seem to (load) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders), check to be sure -->
-<!-- custom: note 4: i did not add it here to avoid having issues or a complicated implementation, but a few places use the hardcoded mod name such as as of now "AdvCiv-SAS" instead for example of "AdvCiv". To find these places easily, i generally wrote a comment that has something like "our mod AdvCiv-SAS" or "mod AdvCiv-SAS" or "AdvCiv-SAS Mod" or something similar so they can be found more easily to change them in case you change the mod's name. -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
+<!-- custom: Long_Comments_XML.txt #131 -->
 <!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate). -->
 <!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while -->
 
 
 
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
-
-
-
-	<!-- custom: Leader AI Cache:
-		0 = compute at runtime (still fairly fast, but needless computation: this ignores the predumped file (SevoPediaLeaderCachePredumped.py) and always recomputes the ai personality panel's values for the first time we access the sevopedia leader panel, and the same again every time we start the game and do so again (i.e. computes only once during same session, not many times, and does not compute if we don't access sevopedia leader, but still computes once every time we do for the first time during this session); optional for modders or temporarily for players who want to change some display options in the ai personality panel until they have updated the predump, then they can use 1 rather)
-		
-		1 = load from predumped file (SevoPediaLeaderCachePredumped.py) (recommended for most players: fastest and cheapest for your computer as all the values are computed, but if you want to change something like adding emojis in headers, changing any xml value in leader info, you need to manually update the predumped file (set this to 0 temporarily and when you have updated the file you can set this to 1 again if you want). -->
-
+	<!-- custom: Long_Comments_XML.txt #132 -->
 	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
 	Set to 0 to compute at runtime  -->
 	<Define>
@@ -174,7 +168,7 @@
 
 
 
-	<!-- custom: choose how wide the tech tree should be horizontally: -->
+	<!-- custom: choose how wide the tech tree should be horizontally -->
 	<!-- custom: Long_Comments_XML.txt #106 -->
 	<Define>
 		<DefineName>SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH</DefineName>
@@ -969,12 +963,12 @@
 		<DefineName>SAS_CAN_SCRAP_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: set to 1 to allow scrapping units just because their ObsoleteTech is known; 0 ignores ObsoleteTech as a scrap trigger. (GPT-5.2-Codex) -->
+	<!-- custom: set to 1 to allow scrapping for units with an ObsoleteTech that we know; 0 ignores ObsoleteTech as a scrap trigger. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_CAN_SCRAP_OBSOLETE_TECH</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: extra unit tolerance beyond unit support costs before disbanding starts; scales by era: mult * (era + 1) + add (GPT-5.2-Codex). Useful as we expect to lose a few during war or such, better to have some extra and not become weaker than our rivals. E.g. with 4 mult and 1 add, extra allowed = 1 at ancient, 4 + 1 = 5 at classical, (4 * 2) + 1 = 9 at medieval. -->
+	<!-- custom: extra unit tolerance beyond unit support costs before disbanding starts; scales by era: mult * (era + 1) + add (GPT-5.2-Codex). Useful as we expect to lose a few during war or such, better to have some extra and not become weaker than our rivals. E.g. with 4 mult and 1 add, extra allowed = ((4 * (0 + 1)) + 1 = 5 at ancient, (4 * 2) + 1 = 9 at classical, (4 * 3) + 1 = 13 at medieval. Note: overshooting may lead to bankruptcy though. -->
 	<Define>
 		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>

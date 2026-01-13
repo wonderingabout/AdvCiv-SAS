@@ -1849,7 +1849,6 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: replaced with a button i made based on the medic 3 button from ri mod (thankfully found it easily there without having to browse through atlas or wherever it was so thanks for this .dds ready to use) then edited with paint.net to add the 4th medic level-->
 			<Button>Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -1857,7 +1856,7 @@
 			<Description>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or relevant in this case i mean -->
+			<!-- custom: Long_Comments_XML.txt #136 -->
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_MEDIC1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_LOGISTICS</PromotionPrereqOr2>
@@ -3109,7 +3108,6 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_1/barrage1.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3233,7 +3231,6 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_2/barrage2.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3333,7 +3330,6 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_3/barrage3.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3391,10 +3387,7 @@
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
 			<UnitCombats>
-				<!-- custom: does the air strike mission of the fighters
-				(or similar type of units) apply in collateral damage
-				calculation? Assuming yes, also adding air fighter unit
-				combat type here-->
+				<!-- custom: does the air strike mission of the fighters (or similar type of units) apply in collateral damage calculation? Assuming yes, also adding air fighter unit combat type here -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -3410,7 +3403,6 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image)) from the ri mod's button -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_4/barrage4.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3499,7 +3491,6 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image)) from the ri mod's button -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_5/barrage5.dds</Button>
 		</PromotionInfo>
 
@@ -3999,7 +3990,6 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod then modified with paint.net to remove the star part of the image -->
 			<Button>Art/AdvCiv_SAS/Promotions/City_Bombard_Damage/bombarding1_no_star.dds</Button>
 		</PromotionInfo>
 
@@ -4269,7 +4259,6 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from ri mod -->
 			<Button>Art/AdvCiv_SAS/Promotions/Sentry/observer.dds</Button>
 		</PromotionInfo>
 

@@ -1,3 +1,7 @@
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+
 in sevopediafeature, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), with chatgpt 5.2's help, in interfaceScreen:
 iBuild = gc.getInfoTypeForString("BUILD_ROAD")  # example
 printObjAttrs(gc.getBuildInfo(iBuild))

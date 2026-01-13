@@ -6,25 +6,7 @@
 	Copyright (c) 2009 The BUG Mod.
 -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-
-	<!-- advc.069: unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__ENABLED_TEXT</Tag>
-		<English>Enabled</English>
-		<French>Activer</French>
-		<German>Aktivieren</German>
-		<Italian>Abilitato</Italian>
-		<Spanish>Activar</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_PLE__ENABLED_HOVER</Tag>
-		<English>Enables the Plot List Enhancements mod and the rest of the options on this tab.</English>
-		<French>Active le mod Plot List Enhancements ainsi que le reste des options sur cet onglet.</French>
-		<German>Aktiviert die Verbesserungen der Einheitenliste am unteren Bildschirmrand (verwendet 12monkeys' "Plot List Enhancements"-Mod)</German>
-		<Italian>Abilita il mod 'Plot List Enhancements' (PLE, Icone delle Unit� Avanzate) e le altre opzioni in questa pagina.</Italian>
-		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pesta�a.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: Long_Comments_XML.txt #141 -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #43 -->
 	<!-- advc.069: Replacing the above. The last one actually had no
 		 effect in BUG/K-Mod, and now the effect isn't the one described

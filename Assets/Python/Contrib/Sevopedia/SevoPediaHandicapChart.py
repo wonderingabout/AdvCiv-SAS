@@ -1,6 +1,6 @@
 # --- Handicap chart page for Sevopedia (AdvCiv-SAS) ---
 # Created as part of AdvCiv-SAS improvements
-# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # Based on the Middle-earth mod's PlatyPedia handicap approach: pull values from
 # CvHandicapInfo getters (rather than XML parsing) for Python 2.4 compatibility.

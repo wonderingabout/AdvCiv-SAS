@@ -1,3 +1,6 @@
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 # <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt's recommendation; very very useful, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example) for example, so i'd recommend using it with these settings as part of advciv-sas or whichever mod you are using, adjust as you see fit. -->
 
 # Enable Ruff linting (blazing fast)

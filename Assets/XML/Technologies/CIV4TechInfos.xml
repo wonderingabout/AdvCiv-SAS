@@ -5995,7 +5995,7 @@
 			<Quote>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MARINE_TECHNOLOGY</Sound>
 			<SoundMP>AS2D_TECH_MP_MARINE_TECHNOLOGY</SoundMP>
-			<!-- custom: button import from NW mod's very very nice one in all or all in one rather. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting fine (folder name has the advciv-sas asset name or closest or close to it, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if needed)), is based on NW mod's TECH_HEAVY_WATER button -->
+			<!-- custom: Long_Comments_XML.txt #134 -->
 			<Button>Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_ASSEMBLY_LINE (useful for VS Code upper tree view while scrolling) -->

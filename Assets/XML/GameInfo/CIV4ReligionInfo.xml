@@ -4,20 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Religion -->
-<!-- custom: BTS version of the file imported cleanly from "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo\CIV4ReligionInfo.xml" and then modified for AdvCiv-SAS. -->
-<!-- custom:
-		backup of old:
-			<Button>Art/Interface/Buttons/Religions/Confuscianism.dds</Button>
-			<TechButton>Art/Interface/Buttons/TechTree/Confucianism.dds</TechButton>
-			<GenericTechButton>,Art/Interface/Buttons/TechTree/Confucianism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,3</GenericTechButton>
-			<MovieFile>Art/Movies/Religion/Confucianism/Con_Found.nif</MovieFile>	
-
-		example from HR mod:
-			<Button>Art/Interface/Buttons/Religions/Baalism.dds</Button>
-			<TechButton>Art/Interface/Buttons/TechTree/Religion.dds</TechButton>
-			<GenericTechButton>Art/Interface/Buttons/TechTree/Religion.dds</GenericTechButton>
-			<MovieFile>Art/Movies/Religion/Baalism/Generic_Found.nif</MovieFile>
--->
+<!-- custom: Long_Comments_XML.txt #139 -->
 <Civ4ReligionInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<ReligionInfos>
 		<ReligionInfo>

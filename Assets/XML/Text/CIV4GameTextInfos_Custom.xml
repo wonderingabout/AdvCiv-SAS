@@ -2,7 +2,11 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- Game Text Infos -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 	<!-- advc.008a: Removed "Only" because this is going to be shown for
@@ -209,6 +213,10 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION</Tag>
 		<English>Effects with some AI information</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_EFFECTS_SPECIALISTS</Tag>
+		<English></English>
 	</TEXT>
 
 

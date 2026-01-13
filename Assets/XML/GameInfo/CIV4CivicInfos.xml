@@ -4,13 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Civic Infos -->
-<!-- custom: vassalage civic tech prereq rationale changed as chatgpt 5.1 confirms thanks; also as a side effect closer to bts early vassalage availability, was TECH_FEUDALISM -->
-<!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (Egypt–Canaan, Hittites, Zhou “fengjian”, Assyria, early China, etc.). These are formal overlord–subject treaties with tribute, hostages, mutual defense, and legal obligations. -->
-<!-- Mechanically, you do not want capitulation and permanent sub-states to exist while players are still fighting over their first 3–5 cities. In SAS your wars are deadly and the AI is opportunistic; early vassalizing would produce some nasty snowballs. -->
-<!-- So I would: Put Vassal States in the late Classical band, not earlier than that.
-Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->
-<!-- custom: update: at TECH_PHILOSOPHY rather as recommended by gemini 3 pro and more balanced as such (clearer military vs culture lines, philosophy was empty, and thematically more relevant as well) -->
-<!-- "While Western "Feudalism" (Knights) comes later, the concept of strict social hierarchy was defined in the Classical Era by Philosophers." + "Confucius (Kung Fuzi): His entire philosophy was about the "Five Bonds" (Ruler to Subject, Father to Son). He taught that social stability comes from everyone knowing their place and serving their superior." + "Aristotle/Plato: They wrote extensively on the "Republic" and the natural hierarchy of society." + "This creates a very strong "Social Band" in your Middle Rows:" + "Code of Laws (Courthouses) $\rightarrow$ Philosophy (Vassalage/Daoism) $\rightarrow$ Civil Service (Bureaucracy)" + "Recommendation: Move Vassalage to Philosophy. It makes the tech valuable and fits the "Social Order" theme perfectly." --> 
+<!-- custom: Long_Comments_XML.txt #6 -->
 <Civ4CivicInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<CivicInfos>
 		<CivicInfo>

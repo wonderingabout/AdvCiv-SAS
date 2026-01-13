@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- custom: a few buttons we use in a hardcoded way (for example the cities (terrain modifiers) button in sevopedia unit) that do not fit in AdvCiv-SAS_Images_As_Buttons.xml as these are not Images_As_Buttons (no button as Txt) but real ingame buttons so that we can access them all more easily -->
 <Civ4GameText>
 	<TEXT>

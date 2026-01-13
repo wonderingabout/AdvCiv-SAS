@@ -177,7 +177,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod) and based on this import art then adjusted or not for advciv-sas taking base advciv's ART_DEF_UNIT_WORKER as a base, kfm is base civ4 or advciv one -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds</Button>
@@ -250,14 +249,10 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: Long_Comments_XML.txt #135 -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_AIRSHIP</Type>
 			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,12</Button>
-			<!-- custom: elevation trick now that the airship is a domain land unit now
-			<fScale>0.3</fScale>
-			trick by ChatGPT:
-			Hacky XML Workaround (Using Shadow Scale/Offset)
-			-->
 			<fScale>0.7</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>
@@ -268,9 +263,6 @@
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/BearShadow.nif</ShadowNIF>
 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
-				<!-- custom: part of the trick by ChatGPT
-				<fShadowScale>0.65</fShadowScale>
-				-->
 				<fShadowScale>0.3</fShadowScale>
 			</ShadowDef>
 			<iDamageStates>4</iDamageStates>
@@ -736,7 +728,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ROMAN_LEGIONARY</Type>
 			<Button>Art/AdvCiv_SAS/Units/Roman_Legionary/swordsman_rome.dds</Button>
@@ -882,7 +873,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_GREEK_HOPLITE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds</Button>
@@ -1076,7 +1066,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: kingdom of benin's disciplined crossbowman's button from HR mod's isikhulu (unique unit as per HR naming), nif from ri mod's ART_DEF_UNIT_CROSSBOWMAN_FILIPINO (crossbowman (tagalog)); kfm is base civ4 one as often seems to be the case -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
 			<Button>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds</Button>
@@ -1296,7 +1285,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #6 -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_USA_PATRIOT</Type>
 			<Button>Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds</Button>
@@ -1814,7 +1802,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from ri mod's ART_DEF_UNIT_KNIGHT_MONGOL, from their svn version so thankfully no need to painfully go through fpks and/but instead nicely able to download and find assets super fast thanks!; note: be careful the kfm is actually base civ4 one as i found it to be the case in other mods xd thanks-->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_MONGOL_KHISHIGTEN</Type>
 			<Button>Art/AdvCiv_SAS/Units/Mongol_Khishigten/knight_mongol.dds</Button>
@@ -1914,7 +1901,6 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod, as was in base advciv +/- civ4 way too close to the unit_explorer's button, hoopefully much clearer now -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SPANISH_CONQUISTADOR</Type>
 			<Button>Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds</Button>
@@ -2315,7 +2301,6 @@
 			<SelectionSound>AS3D_UN_CATAPULT_HEAL</SelectionSound>
 			<ActionSound>AS3D_UN_CATAPULT_HEAL</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: art import from ri mod (their svn version so no fpk nice much easier if i may say thanks)'s ART_DEF_UNIT_CANNON_VIKING, adjusted or not for AdvCiv-SAS-->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_HOLY_ROMAN_HOUFNICE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/cannon.dds</Button>
@@ -2647,7 +2632,6 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_PRIVATEER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Privateer/privateer_light.dds</Button>
@@ -2688,7 +2672,6 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_FRIGATE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Frigate/frigate.dds</Button>
@@ -2729,7 +2712,6 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SHIP_OF_THE_LINE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds</Button>
@@ -2927,7 +2909,6 @@
 			<SelectionSound>AS3D_UN_DESTROYER_FORT</SelectionSound>
 			<ActionSound>AS3D_UN_DESTROYER_FORT</ActionSound>
 		</UnitArtInfo>
-		<!-- custom: button art import from ri mod -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SUBMARINE</Type>
 			<Button>Art/AdvCiv_SAS/Units/Attack_Submarine/submarine.dds</Button>

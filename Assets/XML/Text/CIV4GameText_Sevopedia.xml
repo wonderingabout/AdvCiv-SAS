@@ -24,9 +24,7 @@
 		<Italian>Contenuto</Italian>
 		<Spanish>Contenido</Spanish>
 	</TEXT>
-
-	<!-- custom: rename "Unit Upgrades" to "Units Tree", clearer and consistent with "Promotion Upgrades Tree", while also short enough to fit well enough in the sevopedia panel.
-	Also note that this/it is not necessarily about upgrading units but showing them, even though upgrading them may be the end result, but still, this should not be a wrong way to present things, regarding how this is just a tree that displays units and how they relate to each other (think of it as looking back maybe for example, not necessarily upgrade only, or also looking at per era units in a vertical way for example (in AdvCiv-SAS the tech tree would be designed in such a way that each era has one type of unit, and each unit is aligned vertically (in the column corresponding to) where it starts, maybe this can help this be more intuitive too) -->
+	<!-- custom: Long_Comments_XML.txt #147 -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
 		<!-- custom: <English>Units Tree</English> -->
@@ -163,7 +161,7 @@
 		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION</Tag>
 		<English>No Restriction in ImprovementInfo 's FeatureMakesValids</English>
 	</TEXT>
-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #76 -->	
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #76 -->
 
 	<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
 	parentheses and "Total"; more comprehensible this way. -->
