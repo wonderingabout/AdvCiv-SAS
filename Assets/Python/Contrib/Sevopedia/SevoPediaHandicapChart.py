@@ -275,7 +275,7 @@ class SevoPediaHandicapChart:
 			"Industrialism": "Industr.",
 		}
 		techs_per_cell = 1
-		none_text = localText.getText("TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE", ())
+		none_text = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
 
 		# Collect tech types once.
 		tech_types = []

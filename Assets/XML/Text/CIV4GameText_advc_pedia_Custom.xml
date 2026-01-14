@@ -33,6 +33,23 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
 		<Tag>TXT_KEY_PEDIA_NO_TECH_PREREQUISITE</Tag>
 		<English>No Tech Prerequisite</English>
 	</TEXT>
+	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER</Tag>
+		<English>Never</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING</Tag>
+		<English>Nothing</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS</Tag>
+		<English>Always</English>
+	</TEXT>
 
 
 
@@ -50,10 +67,6 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
 		<English>Obsolete</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND</Tag>
-		<English>Never</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_UNIT_OBSOLETE_WITH</Tag>
 		<English>Obsoletes With</English>
 	</TEXT>
@@ -66,108 +79,44 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
 		<English>Replaces</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND</Tag>
-		<English>Nothing</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FREE_PBBS</Tag>
 		<English>Free Promotion, Building, Bonus, Specialists</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FREE_WITH</Tag>
 		<English>Free W/</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS</Tag>
 		<English>Free Promotions</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_REQUIRES_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_REQUIRED_FOR</Tag>
 		<English>Required For</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND</Tag>
-		<English>Nothing</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_UPGRADES_TO_NO_BUTTON_FOUND</Tag>
-		<English>Nothing</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS</Tag>
 		<English>Against Classes (A/D), Combat T. (A and D)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT</Tag>
 		<English>Of Other Classes's Units 's (A/D) and Combat Types's Units (A and D) 's Modifiers Against This Unit</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS</Tag>
 		<English>Peak, Hill, City, Terrains, Features (A/D)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_OBSOLETE_WITH</Tag>
 		<English>Obsolete With</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_OBSOLETE_WITH_NO_BUTTON_FOUND</Tag>
-		<English>Never</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BONUS_REVEALED_BY_NO_BUTTON_FOUND</Tag>
-		<English>Always</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BONUS_TRADEABLE_SINCE_NO_BUTTON_FOUND</Tag>
-		<English>Always</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BONUS_GENERIC_NONE</Tag>
-		<English>None</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS</Tag>
 		<English>Free Promotions (Units)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS</Tag>
 		<English>Free Promotion (Buildings)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
 	</TEXT>
 
 

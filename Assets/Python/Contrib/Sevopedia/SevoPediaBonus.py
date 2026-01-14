@@ -272,7 +272,7 @@ class SevoPediaBonus:
 		if not bAnyFound:
 			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_BONUS_GENERIC_NONE", ())
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
 			screen.addMultilineText(textName, szText, self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -318,7 +318,7 @@ class SevoPediaBonus:
 		if not bAnyFound:
 			yPanelCenter = self.Y_UNITS + (self.H_UNITS / 2)
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_BONUS_GENERIC_NONE", ())
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
 			screen.addMultilineText(textName, szText, self.X_UNITS + 7, yPanelCenter, self.W_UNITS - 14, self.H_UNITS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -375,7 +375,7 @@ class SevoPediaBonus:
 		if not bAnyDisplayed:
 			yPanelCenter = self.Y_BUILDINGS_AND_PROJECTS + (self.H_BUILDINGS_AND_PROJECTS / 2)
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_BONUS_GENERIC_NONE", ())
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
 			screen.addMultilineText(textName, szText, self.X_BUILDINGS_AND_PROJECTS + 7, yPanelCenter, self.W_BUILDINGS_AND_PROJECTS - 14, self.H_BUILDINGS_AND_PROJECTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -431,7 +431,7 @@ class SevoPediaBonus:
 				#iButtonIndex += 1
 		
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
@@ -489,7 +489,7 @@ class SevoPediaBonus:
 				#iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
@@ -547,7 +547,7 @@ class SevoPediaBonus:
 				#iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
@@ -609,7 +609,7 @@ class SevoPediaBonus:
 		else:
 			yPanelCenter = self.Y_REVEALED_BY + (self.H_REVEALED_BY / 2)
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_BONUS_REVEALED_BY_NO_BUTTON_FOUND", ())
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS", ())
 			screen.addMultilineText(textName, szText, self.X_REVEALED_BY + 7, yPanelCenter, self.W_REVEALED_BY - 14, self.H_REVEALED_BY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -629,7 +629,7 @@ class SevoPediaBonus:
 		else:
 			yPanelCenter = self.Y_TRADEABLE_SINCE + (self.H_TRADEABLE_SINCE / 2)
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_BONUS_TRADEABLE_SINCE_NO_BUTTON_FOUND", ())
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS", ())
 			screen.addMultilineText(textName, szText, self.X_TRADEABLE_SINCE + 7, yPanelCenter, self.W_TRADEABLE_SINCE - 14, self.H_TRADEABLE_SINCE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -656,7 +656,7 @@ class SevoPediaBonus:
 		else:
 			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_BONUS_OBSOLETE_WITH_NO_BUTTON_FOUND", ())
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
 			screen.addMultilineText(textName, szText, self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

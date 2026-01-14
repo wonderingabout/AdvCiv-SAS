@@ -120,8 +120,4 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_ERA_CHART</Tag>
 		<English>Eras</English>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE</Tag>
-		<English>None</English>
-	</TEXT>
 </Civ4GameText>

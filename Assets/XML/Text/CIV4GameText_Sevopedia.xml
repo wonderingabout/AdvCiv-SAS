@@ -239,9 +239,10 @@
 		<Tag>TXT_KEY_PEDIA_OBSOLETES</Tag>
 		<English>Obsoletes</English>
 	</TEXT>
+	<!-- custom: new text key for First to Discover panel in Sevopedia Tech (Claude code Opus 4.5 + GPT-5.2-Codex) -->
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND</Tag>
-		<English>None</English>
+		<Tag>TXT_KEY_PEDIA_FIRST_TO_DISCOVER</Tag>
+		<English>First to D</English>
 	</TEXT>
 	<!-- custom: new text key for Enables panel in Sevopedia Tech (Claude code Opus 4.5) -->
 	<TEXT>

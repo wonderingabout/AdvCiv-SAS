@@ -267,7 +267,7 @@ class SevoPediaEraChart:
 				return (_font2(glyph) + _sort_key(0, iRowIndex), "")
 			return (_sort_key(0, iRowIndex), "")
 
-		none_text = localText.getText("TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE", ())
+		none_text = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
 		yes_text = localText.getText("TXT_KEY_YES", ())
 		no_text = localText.getText("TXT_KEY_NO", ())
 

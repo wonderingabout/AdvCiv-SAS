@@ -203,7 +203,7 @@ class SevoPediaPromotion:
 				#iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
@@ -262,7 +262,7 @@ class SevoPediaPromotion:
 				#iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)

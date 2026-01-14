@@ -70,7 +70,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: reorganized layout (Claude code Opus 4.5):
 		# Row 1: Tech Pane (left) | Starting Civs (right)
 		# Row 2: Requires (left half) | Leads To (right half)
-		# Row 3: Obsoletes (full width)
+		# Row 3: First to Discover (left, narrow) | Obsoletes (right, remaining width)
 		# Row 4: Enables (full width) - merged units + buildings
 		# Row 5: Special (left, W_TECH_PANE width) | History (right, remaining space)
 		# -->
@@ -110,9 +110,16 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.W_LEADS_TO = self.top.R_PEDIA_PAGE - self.X_LEADS_TO
 		self.H_LEADS_TO = self.H_ROW
 
-		# Row 3: Obsoletes (full width)
-		self.X_OBSOLETES = self.X_TECH_PANE
-		self.Y_OBSOLETES = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		# Row 3: First to Discover (left, narrow) | Obsoletes (right, remaining width)
+		# <!-- custom: First to Discover panel for religions, corporations, great people, free techs - positioned left of Obsoletes (Claude Code Opus 4.5) -->
+		self.W_FIRST_TO_DISCOVER = 84  # Same width as SevoPediaBuilding's obsolete panel - enough for one button
+		self.X_FIRST_TO_DISCOVER = self.X_TECH_PANE
+		self.Y_FIRST_TO_DISCOVER = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		self.H_FIRST_TO_DISCOVER = self.H_ROW
+
+		# Obsoletes panel - dynamically positioned after First to Discover
+		self.X_OBSOLETES = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
+		self.Y_OBSOLETES = self.Y_FIRST_TO_DISCOVER
 		self.W_OBSOLETES = self.top.R_PEDIA_PAGE - self.X_OBSOLETES
 		self.H_OBSOLETES = self.H_ROW
 
@@ -151,6 +158,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.placePrereqs()
 		self.placeLeadsTo()
 		# Row 3
+		self.placeFirstToDiscover()
 		self.placeObsoletes()
 		# Row 4
 		self.placeEnables()
@@ -208,6 +216,58 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			civ = gc.getCivilizationInfo(iCiv)
 			#if civ.isCivilizationFreeTechs(self.iTech):
 			screen.attachImageButton(panelName, "", civ.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1, False)
+
+
+
+	# <!-- custom: First to Discover panel showing religions, corporations, great people, and free techs that can be gained by being first to discover this tech (Claude code Opus 4.5 + GPT-5.2-Codex) -->
+	def placeFirstToDiscover(self):
+		screen = self.top.getScreen()
+		techInfo = gc.getTechInfo(self.iTech)
+		iActivePlayer = gc.getGame().getActivePlayer()
+
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_FIRST_TO_DISCOVER", ()), "", False, True, self.X_FIRST_TO_DISCOVER, self.Y_FIRST_TO_DISCOVER, self.W_FIRST_TO_DISCOVER, self.H_FIRST_TO_DISCOVER, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+
+		bButtonFound = False
+
+		# Religions founded by first discoverer
+		for iReligion in range(gc.getNumReligionInfos()):
+			religionInfo = gc.getReligionInfo(iReligion)
+			if religionInfo.getTechPrereq() == self.iTech:
+				screen.attachImageButton(panelName, "", religionInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1, False)
+				bButtonFound = True
+
+		# Free unit (great person) for first discoverer
+		iFirstFreeUnitClass = techInfo.getFirstFreeUnitClass()
+		if iFirstFreeUnitClass != -1:
+			# Get civ-specific unit if active player exists
+			if iActivePlayer >= 0:
+				iUnit = gc.getCivilizationInfo(gc.getGame().getActiveCivilizationType()).getCivilizationUnits(iFirstFreeUnitClass)
+			else:
+				iUnit = gc.getUnitClassInfo(iFirstFreeUnitClass).getDefaultUnitIndex()
+			if iUnit != -1:
+				unitInfo = gc.getUnitInfo(iUnit)
+				szButton = unitInfo.getButton()
+				if iActivePlayer >= 0:
+					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
+				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+				bButtonFound = True
+
+		# Free tech for first discoverer
+		if techInfo.getFirstFreeTechs() > 0:
+			szButton = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_FREETECH").getPath()
+			# <!-- custom: similarly, as of now upscale the smaller button to 46 px not more -->
+			screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_FREE_TECH, self.iTech, -1, False)
+			bButtonFound = True
+
+		if not bButtonFound:
+			# No first-to-discover effects - display "None" text
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_FIRST_TO_DISCOVER + (self.H_FIRST_TO_DISCOVER / 2)
+			screen.addMultilineText(textName, szText, self.X_FIRST_TO_DISCOVER + 7, yPanelCenter, self.W_FIRST_TO_DISCOVER - 14, self.H_FIRST_TO_DISCOVER - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -350,7 +410,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		
 		else:
 			# No obsolete items - display "None" text
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = self.Y_OBSOLETES + (self.H_OBSOLETES / 2)
@@ -364,16 +424,26 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, szLeadsTo, "", False, True, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
+		bButtonFound = False
 
 		for j in range(gc.getNumTechInfos()):
 			for k in range(gc.getNUM_OR_TECH_PREREQS()):
 				iPrereq = gc.getTechInfo(j).getPrereqOrTechs(k)
 				if (iPrereq == self.iTech):
 					screen.attachImageButton(panelName, "", gc.getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False)
+					bButtonFound = True
 			for k in range(gc.getNUM_AND_TECH_PREREQS()):
 				iPrereq = gc.getTechInfo(j).getPrereqAndTechs(k)
 				if (iPrereq == self.iTech):
 					screen.attachImageButton(panelName, "", gc.getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False)
+					bButtonFound = True
+
+		if not bButtonFound:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_LEADS_TO + (self.H_LEADS_TO / 2)
+			screen.addMultilineText(textName, szText, self.X_LEADS_TO + 7, yPanelCenter, self.W_LEADS_TO - 14, self.H_LEADS_TO - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -383,29 +453,29 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, szRequires, "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
-		bFirst = True
+		bButtonFound = False
+		bHasAnd = False
 		for j in range(gc.getNUM_AND_TECH_PREREQS()):
 			eTech = gc.getTechInfo(self.iTech).getPrereqAndTechs(j)
 			if (eTech > -1):
-				if (not bFirst):
+				if bHasAnd:
 					screen.attachLabel(panelName, "", localText.getText("TXT_KEY_AND", ()))
 				else:
-					bFirst = False
+					bHasAnd = True
 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)
+				bButtonFound = True
 		nOrTechs = 0
 		for j in range(gc.getNUM_OR_TECH_PREREQS()):
 			if (gc.getTechInfo(self.iTech).getPrereqOrTechs(j) > -1):
 				nOrTechs += 1
 		szLeftDelimeter = ""
 		szRightDelimeter = ""
-		if (not bFirst):
+		if bHasAnd:
 			if (nOrTechs > 1):
 				szLeftDelimeter = localText.getText("TXT_KEY_AND", ()) + "("
 				szRightDelimeter = ") "
 			elif (nOrTechs > 0):
 				szLeftDelimeter = localText.getText("TXT_KEY_AND", ())
-			else:
-				return
 		if len(szLeftDelimeter) > 0:
 			screen.attachLabel(panelName, "", szLeftDelimeter)
 		bFirst = True
@@ -417,12 +487,20 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				else:
 					bFirst = False
 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)
+				bButtonFound = True
 		if len(szRightDelimeter) > 0:
 			screen.attachLabel(panelName, "", szRightDelimeter)
 
+		if not bButtonFound:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
+			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
-	# <!-- custom: merged placeUnits and placeBuildings into single placeEnables (Claude code Opus 4.5) -->
+
+	# <!-- custom: merged placeUnits and placeBuildings into single placeEnables, expanded to include all tech advisor items (Claude code Opus 4.5 + GPT-5.2-Codex) -->
 	def placeEnables(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -430,6 +508,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.attachLabel(panelName, "", "  ")
 
 		iActivePlayer = gc.getGame().getActivePlayer()
+		techInfo = gc.getTechInfo(self.iTech)
+		bButtonFound = False
 
 		# Units enabled
 		for eLoopUnit in range(gc.getNumUnitInfos()):
@@ -439,17 +519,186 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 					if iActivePlayer >= 0:
 						szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
 					screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
+					bButtonFound = True
 
 		# Buildings enabled
 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
 			if eLoopBuilding != -1:
 				if isTechRequiredForBuilding(self.iTech, eLoopBuilding):
 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False)
+					bButtonFound = True
 
 		# Projects enabled
 		for eLoopProject in range(gc.getNumProjectInfos()):
 			if isTechRequiredForProject(self.iTech, eLoopProject):
 				screen.attachImageButton(panelName, "", gc.getProjectInfo(eLoopProject).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, eLoopProject, 1, False)
+				bButtonFound = True
+
+		# Promotions enabled
+		for iPromotion in range(gc.getNumPromotionInfos()):
+			if gc.getPromotionInfo(iPromotion).getTechPrereq() == self.iTech:
+				screen.attachImageButton(panelName, "", gc.getPromotionInfo(iPromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iPromotion, 1, False)
+				bButtonFound = True
+
+		# Civics enabled
+		for iCivic in range(gc.getNumCivicInfos()):
+			if gc.getCivicInfo(iCivic).getTechPrereq() == self.iTech:
+				screen.attachImageButton(panelName, "", gc.getCivicInfo(iCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
+				bButtonFound = True
+
+		# Bonuses revealed
+		for iBonus in range(gc.getNumBonusInfos()):
+			if gc.getBonusInfo(iBonus).getTechReveal() == self.iTech:
+				screen.attachImageButton(panelName, "", gc.getBonusInfo(iBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+				bButtonFound = True
+
+		# Builds/Improvements enabled (includes feature-removal builds like Chop Forest, roads, etc.)
+		for iBuild in range(gc.getNumBuildInfos()):
+			buildInfo = gc.getBuildInfo(iBuild)
+			bTechFound = False
+			# Check if this build's tech prereq matches
+			if buildInfo.getTechPrereq() == -1:
+				# No direct tech prereq - check feature-specific techs (e.g. Chop Jungle needs specific tech)
+				for iFeature in range(gc.getNumFeatureInfos()):
+					if buildInfo.getFeatureTech(iFeature) == self.iTech:
+						bTechFound = True
+						break
+			else:
+				if buildInfo.getTechPrereq() == self.iTech:
+					bTechFound = True
+
+			if bTechFound:
+				iImprovement = buildInfo.getImprovement()
+				if iImprovement != -1:
+					screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+				else:
+					# Use WIDGET_HELP_IMPROVEMENT to keep the feature-removal tooltip/redirect behavior (DLL change).
+					screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, self.iTech, iBuild, False)
+				bButtonFound = True
+
+		# Special buildings like monasteries
+		for iSpecialBuilding in range(gc.getNumSpecialBuildingInfos()):
+			if gc.getSpecialBuildingInfo(iSpecialBuilding).getTechPrereq() == self.iTech:
+				screen.attachImageButton(panelName, "", gc.getSpecialBuildingInfo(iSpecialBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_SPECIAL_BUILDING, self.iTech, iSpecialBuilding, False)
+				bButtonFound = True
+
+		# Route movement change (faster roads)
+		# <!-- custom: use BUTTON_SIZE_46 for interface art buttons - this is the largest size the engine supports for attachImageButton;
+		# unintended but beneficial side effect: the smaller size helps visually distinguish these "ability" icons from the 64px game object buttons above (Claude Code Opus 4.5) -->
+		for iRoute in range(gc.getNumRouteInfos()):
+			if gc.getRouteInfo(iRoute).getTechMovementChange(self.iTech) != 0:
+				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MOVE_BONUS").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MOVE_BONUS, self.iTech, -1, False)
+				bButtonFound = True
+				break  # Only show once even if multiple routes affected
+
+		# Bridge Building
+		if techInfo.isBridgeBuilding():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_BRIDGEBUILDING").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_BUILD_BRIDGE, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Irrigation
+		if techInfo.isIrrigation():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_IRRIGATION, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Ignore Irrigation (farms spread without fresh water)
+		if techInfo.isIgnoreIrrigation():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_NOIRRIGATION").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_IGNORE_IRRIGATION, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Water Work (coastal work)
+		if techInfo.isWaterWork():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERWORK").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_WATER_WORK, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Domain Extra Moves (e.g. extra naval movement)
+		for iDomain in range(DomainTypes.NUM_DOMAIN_TYPES):
+			if techInfo.getDomainExtraMoves(iDomain) != 0:
+				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERMOVES").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_DOMAIN_EXTRA_MOVES, self.iTech, iDomain, False)
+				bButtonFound = True
+
+		# Terrain trade routes (coastal/ocean trade)
+		for iTerrain in range(gc.getNumTerrainInfos()):
+			if techInfo.isTerrainTrade(iTerrain):
+				szArtInfoType = "INTERFACE_TECH_WATERTRADE"
+				if iTerrain == gc.getDefineINT("DEEP_WATER_TERRAIN"):
+					szArtInfoType = "INTERFACE_TECH_DEEPWATERTRADE"
+				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, self.iTech, iTerrain, False)
+				bButtonFound = True
+
+		# River trade
+		if techInfo.isRiverTrade():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_RIVERTRADE").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, self.iTech, gc.getNumTerrainInfos(), False)
+			bButtonFound = True
+
+		# Commerce slider adjustments (culture, espionage sliders)
+		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+			if techInfo.isCommerceFlexible(iCommerce):
+				if iCommerce == CommerceTypes.COMMERCE_CULTURE:
+					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_CULTURE").getPath()
+				elif iCommerce == CommerceTypes.COMMERCE_ESPIONAGE:
+					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_ESPIONAGE").getPath()
+				else:
+					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_GENERAL_QUESTIONMARK").getPath()
+				screen.attachImageButton(panelName, "", szFileName, GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_ADJUST, self.iTech, iCommerce, False)
+				bButtonFound = True
+
+		# Map Trading
+		if techInfo.isMapTrading():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPTRADING").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MAP_TRADE, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Tech Trading
+		if techInfo.isTechTrading():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_TECHTRADING").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_TECH_TRADE, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Gold Trading
+		if techInfo.isGoldTrading():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_GOLDTRADING").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_GOLD_TRADE, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Open Borders
+		if techInfo.isOpenBordersTrading():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_OPEN_BORDERS, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Defensive Pact
+		if techInfo.isDefensivePactTrading():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_DEFENSIVE_PACT, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Permanent Alliance
+		if techInfo.isPermanentAllianceTrading():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_PERMANENT_ALLIANCE, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Vassal States
+		if techInfo.isVassalStateTrading():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_VASSAL_STATE, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Extra LOS (line of sight) from water
+		if techInfo.isExtraWaterSeeFrom():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_LOS").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_LOS_BONUS, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Map centering
+		if techInfo.isMapCentering():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPCENTER").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MAP_CENTER, self.iTech, -1, False)
+			bButtonFound = True
+
+		# Map reveal
+		if techInfo.isMapVisible():
+			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPREVEAL").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MAP_REVEAL, self.iTech, -1, False)
+			bButtonFound = True
+
+		if not bButtonFound:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_ENABLES + (self.H_ENABLES / 2)
+			screen.addMultilineText(textName, szText, self.X_ENABLES + 7, yPanelCenter, self.W_ENABLES - 14, self.H_ENABLES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -469,8 +718,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 					szSpecialText += u"\n\n"
 				szSpecialText += UNTRADEABLE_TECHS_TEXT
 
-		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking, reduce height, was self.H_SPECIAL-10 -->
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 35, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 3, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -485,7 +733,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szQuoteTextWidget = self.top.getNextWidgetName()
 		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
