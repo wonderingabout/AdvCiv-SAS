@@ -129,6 +129,7 @@ hopefully helpful, thanks, anyways, thanks,
 [93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix abherrent unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping)  
 [94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
 [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
+[96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4059,3 +4060,11 @@ See [commit/21f67530d536c6d93b42cf1223237b34e1ca7d0a](https://github.com/wonderi
 After previous issue with exiting Sevopedia and reopening it, this also fixes Base AdvCiv issue of the Back Tab not leading back to last visited category when it was Hints or Index.
 
 See [commit/044d26e918b6aa586807c6428fb770cb32f6324e](https://github.com/wonderingabout/AdvCiv-SAS/commit/044d26e918b6aa586807c6428fb770cb32f6324e).
+
+## 96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1taEek59g61fUYdfz3IwnlR5JaqBbY7Jc?usp=sharing).
+
+Also fixed the base advciv issue of obsolete bullets spanning vertically instead of horizontally being comma-separated. We only make anothee bullet for Obsolete units that are comma-separated too.
+
+This was a problem especially as we had many bullets. Now we only show one bullet per asset type (e.g. all obsolete buildings in one bullet, then all obsolete units in another bullet, etc.). Change with the help of Claude code Sonnet 4.5 in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) thanks.
