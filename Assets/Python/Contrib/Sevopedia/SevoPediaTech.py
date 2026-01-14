@@ -29,8 +29,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: change its value if you don't want to see this info -->
 IS_SHOW_NON_TRADEABLE_TECHS_LIST = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST") > 0)
+IS_SHOW_OBSOLETES_RED_X = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_OBSOLETES_RED_X") > 0)
 
 
 
@@ -88,15 +88,25 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = 110
 
 		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments -->
-		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (3 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (3 * self.SMALL_MARGIN)
+		# <!-- custom: add obsoletes panel height to the total bottom panels (Claude code Sonnet 4.5) -->
+		self.H_OBSOLETES = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (4 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (4 * self.SMALL_MARGIN)
 
 		self.X_HISTORY = self.X_TECH_PANE
 		self.Y_HISTORY = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY - self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS
 
+		self.X_OBSOLETES = self.X_TECH_PANE
+		self.Y_OBSOLETES = self.Y_HISTORY + self.H_HISTORY + self.SMALL_MARGIN
+		self.W_OBSOLETES = self.top.R_PEDIA_PAGE - self.X_OBSOLETES
+
+		# <!-- custom: note: Now that we switched to the thinner ChatGPT 5.2 based model, 64 is a bit too small, so extending it to fit buttons -->
+		# self.RED_X_BUTTON_SIZE = 64
+		self.RED_X_BUTTON_SIZE = 72
+
 		self.X_REQUIRES = self.X_TECH_PANE
-		self.Y_REQUIRES = self.Y_HISTORY + self.H_HISTORY + self.SMALL_MARGIN
+		self.Y_REQUIRES = self.Y_OBSOLETES + self.H_OBSOLETES + self.SMALL_MARGIN
 		self.W_REQUIRES = self.top.W_PEDIA_PAGE / 2 - 5
 		self.H_REQUIRES = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
 
@@ -127,6 +137,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		self.placeTechPane()
 		self.placeCivilizationsThatStartWithThisTech()
+		self.placeObsoletes()
 		self.placePrereqs()
 		self.placeLeadsTo()
 		self.placeUnits()
@@ -184,6 +195,153 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			civ = gc.getCivilizationInfo(iCiv)
 			#if civ.isCivilizationFreeTechs(self.iTech):
 			screen.attachImageButton(panelName, "", civ.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1, False)
+
+
+
+	# <!-- custom: new obsoletes panel showing buildings, bonuses, special buildings, and units obsoleted by this tech with red X overlay (Claude code Sonnet 4.5) -->
+	def placeObsoletes(self):
+		screen = self.top.getScreen()
+
+		# Collect all obsolete items for this tech
+		obsoleteBuildings = []
+		obsoleteBonuses = []
+		obsoleteSpecialBuildings = []
+		obsoleteUnits = []
+
+		# Obsolete Buildings (iterate by building class to get civ-specific buildings)
+		for iBuildingClass in range(gc.getNumBuildingClassInfos()):
+			iBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
+			if iBuilding != -1:
+				buildingInfo = gc.getBuildingInfo(iBuilding)
+				if buildingInfo.getObsoleteTech() == self.iTech:
+					obsoleteBuildings.append(iBuilding)
+
+		# Obsolete Bonuses
+		for iBonus in range(gc.getNumBonusInfos()):
+			bonusInfo = gc.getBonusInfo(iBonus)
+			if bonusInfo.getTechObsolete() == self.iTech:
+				obsoleteBonuses.append(iBonus)
+
+		# Obsolete Special Buildings
+		for iSpecialBuilding in range(gc.getNumSpecialBuildingInfos()):
+			specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuilding)
+			if specialBuildingInfo.getObsoleteTech() == self.iTech:
+				obsoleteSpecialBuildings.append(iSpecialBuilding)
+
+		# Obsolete Units - check that getObsoleteTech is exposed in DLL
+		unitInfo = gc.getUnitInfo(0)
+		if not hasattr(unitInfo, "getObsoleteTech"):
+			raise RuntimeError("[FATAL] Your mod DLL does not expose the required CvUnitInfo Python getter: getObsoleteTech. Please expose it in CyInfoInterface1.cpp and rebuild the DLL.")
+		for iUnit in range(gc.getNumUnitInfos()):
+			unitInfo = gc.getUnitInfo(iUnit)
+			if unitInfo.getObsoleteTech() == self.iTech:
+				obsoleteUnits.append(iUnit)
+
+		# Always show panel, display "None" if no obsolete items
+		totalObsoleteCount = len(obsoleteBuildings) + len(obsoleteBonuses) + len(obsoleteSpecialBuildings) + len(obsoleteUnits)
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_OBSOLETES", ()), "", False, True, self.X_OBSOLETES, self.Y_OBSOLETES, self.W_OBSOLETES, self.H_OBSOLETES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+
+		if totalObsoleteCount > 0:
+			# Get red X overlay path for obsolete indicator
+			# <!-- custom: default Civ4 one was too bold at 64 px making it hard to read; replaced with a thinner one imrpessively generated by ChatGPT 5.2 thanks a lot! -->
+			# szRedX = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_RED_X").getPath()
+			szRedX = "Art/AdvCiv_SAS/Interface/RedX_Thin/chatgpt_5_2_obsolete_x_edge_thin_1204_preview64.dds"
+
+			# Helper to add an obsolete item with red X overlay
+			# We use addDDSGFCAt to overlay red X on top of the button
+			# Since attachImageButton doesn't support overlays, we use a workaround:
+			# attach the button first, then add the overlay separately using screen coordinates
+
+			# For simplicity, we'll use a different approach: create a child panel for each item
+			# Actually, the cleanest approach is to use attachImageButton and then manually
+			# add the red X overlay at the same position using addDDSGFC
+
+			# Obsolete Buildings
+			for iBuilding in obsoleteBuildings:
+				buildingInfo = gc.getBuildingInfo(iBuilding)
+				screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+
+			# Obsolete Bonuses
+			for iBonus in obsoleteBonuses:
+				bonusInfo = gc.getBonusInfo(iBonus)
+				screen.attachImageButton(panelName, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+
+			# Obsolete Special Buildings - show individual buildings that belong to this special building type
+			for iSpecialBuilding in obsoleteSpecialBuildings:
+				specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuilding)
+				# Find all buildings with this special building type and display them
+				for iBuilding in range(gc.getNumBuildingInfos()):
+					buildingInfo = gc.getBuildingInfo(iBuilding)
+					if buildingInfo.getSpecialBuildingType() == iSpecialBuilding:
+						screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+
+			# Obsolete Units
+			iActivePlayer = gc.getGame().getActivePlayer()
+			for iUnit in obsoleteUnits:
+				unitInfo = gc.getUnitInfo(iUnit)
+				szButton = unitInfo.getButton()
+				if iActivePlayer >= 0:
+					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
+				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+			# Now add red X overlays on top of all buttons (if enabled via SAS define)
+			if IS_SHOW_OBSOLETES_RED_X:
+				# Since attachImageButton positions are managed by the panel, we need to use a different approach
+				# We'll add the overlays as separate DDS graphics at calculated positions
+				# The panel adds a label "  " first, then buttons start after that
+
+				# Calculate total items and add overlays
+				# Adjusted values to match actual button positions in the panel
+				# Note: actual buttons in panel are 64px (BUTTON_SIZE_CUSTOM), RED_X_BUTTON_SIZE is for the overlay DDS
+				# <!-- custom: old values for base INTERFACE_BUTTONS_RED_X (64px, bold):
+				#   iOverlaySize = 64
+				#   iCurrentX = self.X_OBSOLETES + 10
+				#   iOverlayY = self.Y_OBSOLETES + 36
+				#   iButtonSpacing = 64 + 4
+				# -->
+				iButtonSize = 64  # Actual button size in panel (BUTTON_SIZE_CUSTOM)
+				iOverlaySize = self.RED_X_BUTTON_SIZE  # Size of the thin red X DDS (128px to fit properly)
+				iOverlayOffset = (iButtonSize - iOverlaySize) / 2  # Center overlay on button (will be negative if overlay > button)
+				iCurrentX = self.X_OBSOLETES + 10 + iOverlayOffset  # Starting position with centering offset
+				iOverlayY = self.Y_OBSOLETES + 36 + iOverlayOffset  # Y position with centering offset
+				iButtonSpacing = iButtonSize + 4  # Actual button spacing (64 + 4 = 68)
+
+				# Process buildings
+				for iBuilding in obsoleteBuildings:
+					szOverlayName = self.top.getNextWidgetName()
+					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
+					iCurrentX += iButtonSpacing
+
+				# Process bonuses
+				for iBonus in obsoleteBonuses:
+					szOverlayName = self.top.getNextWidgetName()
+					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1)
+					iCurrentX += iButtonSpacing
+
+				# Process special buildings (individual buildings)
+				for iSpecialBuilding in obsoleteSpecialBuildings:
+					for iBuilding in range(gc.getNumBuildingInfos()):
+						buildingInfo = gc.getBuildingInfo(iBuilding)
+						if buildingInfo.getSpecialBuildingType() == iSpecialBuilding:
+							szOverlayName = self.top.getNextWidgetName()
+							screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
+							iCurrentX += iButtonSpacing
+
+				# Process units
+				for iUnit in obsoleteUnits:
+					szOverlayName = self.top.getNextWidgetName()
+					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1)
+					iCurrentX += iButtonSpacing
+		
+		else:
+			# No obsolete items - display "None" text
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_OBSOLETES + (self.H_OBSOLETES / 2)
+			screen.addMultilineText(textName, szText, self.X_OBSOLETES + 7, yPanelCenter, self.W_OBSOLETES - 14, self.H_OBSOLETES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

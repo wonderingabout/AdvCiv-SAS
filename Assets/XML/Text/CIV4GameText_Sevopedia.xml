@@ -14,12 +14,12 @@
 		<French>Index</French>
 		<German>Index</German>
 		<Italian>Indice</Italian>
-		<Spanish>Õndice</Spanish>
+		<Spanish>√çndice</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SCREEN_CONTENTS</Tag>
 		<English>Contents</English>
-		<French>MatiËres</French>
+		<French>Mati√®res</French>
 		<German>Inhalt</German>
 		<Italian>Contenuto</Italian>
 		<Spanish>Contenido</Spanish>
@@ -63,10 +63,10 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FAV_CIVIC_AND_RELIGION</Tag>
 		<English>Favorite Civic and Religion</English>
-		<French>Doctrine et Religion PrÈfÈrÈe</French>
+		<French>Doctrine et Religion Pr√©f√©r√©e</French>
 		<German>Bevorzugte Staatsform und Religion</German>
 		<Italian>Forme di governo e Religioni preferite</Italian>
-		<Spanish>Principio y religiÛn favoritos</Spanish>
+		<Spanish>Principio y religi√≥n favoritos</Spanish>
 	</TEXT>
 
 
@@ -233,5 +233,14 @@
 			<Gender>Male</Gender>
 			<Plural>1</Plural>
 		</Spanish>
+	</TEXT>
+	<!-- custom: new text key for Obsoletes panel in Sevopedia Tech (Claude code Sonnet 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OBSOLETES</Tag>
+		<English>Obsoletes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
 	</TEXT>
 </Civ4GameText>

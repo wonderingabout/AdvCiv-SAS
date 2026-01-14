@@ -8118,110 +8118,108 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	if (bTreeInfo && NO_TECH != eFromTech)
 		buildTechTreeString(szBuffer, eTech, bPlayerContext, eFromTech);
 
-	// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency (Claude code Sonnet 4.5) -->
-	//	Obsolete Buildings
-	CvWString szObsoleteBuildings;
-	bool bAnyObsoleteBuildings = false;
-	FOR_EACH_ENUM(BuildingClass)
+	// <!-- custom: skip obsolete bullets in civilopedia text since we now have a dedicated Obsoletes panel in Sevopedia Tech (Claude code Opus 4.5) -->
+	if (!bCivilopediaText)
 	{
-		if (!bPlayerContext || (GET_PLAYER(eActivePlayer).
-			getBuildingClassCount(eLoopBuildingClass) > 0))
+		// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency (Claude code Sonnet 4.5) -->
+		//	Obsolete Buildings
+		CvWString szObsoleteBuildings;
+		bool bAnyObsoleteBuildings = false;
+		FOR_EACH_ENUM(BuildingClass)
 		{
-			BuildingTypes eLoopBuilding;
-			if (eActivePlayer != NO_PLAYER)
-				eLoopBuilding = kGame.getActiveCivilization()->getBuilding(eLoopBuildingClass);
-			else eLoopBuilding = GC.getInfo(eLoopBuildingClass).getDefaultBuilding();
-			if (eLoopBuilding != NO_BUILDING)
+			if (!bPlayerContext || (GET_PLAYER(eActivePlayer).
+				getBuildingClassCount(eLoopBuildingClass) > 0))
 			{
-				//	Obsolete Buildings Check...
-				if (GC.getInfo(eLoopBuilding).getObsoleteTech() == eTech)
+				BuildingTypes eLoopBuilding;
+				if (eActivePlayer != NO_PLAYER)
+					eLoopBuilding = kGame.getActiveCivilization()->getBuilding(eLoopBuildingClass);
+				else eLoopBuilding = GC.getInfo(eLoopBuildingClass).getDefaultBuilding();
+				if (eLoopBuilding != NO_BUILDING)
 				{
-					if (bAnyObsoleteBuildings)
-						szObsoleteBuildings += L", ";
-					szObsoleteBuildings += CvWString::format(L"<link=literal>%s</link>",
-							GC.getInfo(eLoopBuilding).getDescription());
-					bAnyObsoleteBuildings = true;
+					//	Obsolete Buildings Check...
+					if (GC.getInfo(eLoopBuilding).getObsoleteTech() == eTech)
+					{
+						if (bAnyObsoleteBuildings)
+							szObsoleteBuildings += L", ";
+						szObsoleteBuildings += CvWString::format(L"<link=literal>%s</link>",
+								GC.getInfo(eLoopBuilding).getDescription());
+						bAnyObsoleteBuildings = true;
+					}
 				}
 			}
 		}
-	}
-	if (bAnyObsoleteBuildings)
-	{
-		szBuffer.append(NEWLINE);
-		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
-				szObsoleteBuildings.GetCString()));
-	}
-
-	//	Obsolete Bonuses
-	CvWString szObsoleteBonuses;
-	bool bAnyObsoleteBonuses = false;
-	FOR_EACH_ENUM(Bonus)
-	{
-		if (GC.getInfo(eLoopBonus).getTechObsolete() == eTech)
-		{
-			if (bAnyObsoleteBonuses)
-				szObsoleteBonuses += L", ";
-			szObsoleteBonuses += CvWString::format(L"<link=literal>%s</link>",
-					GC.getInfo(eLoopBonus).getDescription());
-			bAnyObsoleteBonuses = true;
-		}
-	}
-	if (bAnyObsoleteBonuses)
-	{
-		szBuffer.append(NEWLINE);
-		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
-				szObsoleteBonuses.GetCString()));
-	}
-
-	//	Obsolete Special Buildings
-	CvWString szObsoleteSpecialBuildings;
-	bool bAnyObsoleteSpecialBuildings = false;
-	FOR_EACH_ENUM(SpecialBuilding)
-	{
-		if (GC.getInfo(eLoopSpecialBuilding).getObsoleteTech() == eTech)
-		{
-			if (bAnyObsoleteSpecialBuildings)
-				szObsoleteSpecialBuildings += L", ";
-			szObsoleteSpecialBuildings += CvWString::format(L"<link=literal>%s</link>",
-					GC.getInfo(eLoopSpecialBuilding).getDescription());
-			bAnyObsoleteSpecialBuildings = true;
-		}
-	}
-	if (bAnyObsoleteSpecialBuildings)
-	{
-		szBuffer.append(NEWLINE);
-		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES_NO_LINK",
-				szObsoleteSpecialBuildings.GetCString()));
-	}
-
-	if (!bTreeInfo)
-	{
-		// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency -->
-		CvWString szObsoleteUnits;
-		bool bAnyObsoleteUnits = false;
-		FOR_EACH_ENUM(Unit)
-		{
-			CvUnitInfo const& kLoopUnitInfo = GC.getInfo(eLoopUnit);
-			if (kLoopUnitInfo.getObsoleteTech() == eTech)
-			{
-				if (bAnyObsoleteUnits)
-					szObsoleteUnits += L", ";
-				szObsoleteUnits += CvWString::format(L"<link=literal>%s</link>",
-						kLoopUnitInfo.getDescription());
-				bAnyObsoleteUnits = true;
-			}
-		}
-		if (bAnyObsoleteUnits)
+		if (bAnyObsoleteBuildings)
 		{
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
-					szObsoleteUnits.GetCString()));
+					szObsoleteBuildings.GetCString()));
 		}
-		if (bCivilopediaText && bAnyObsoleteUnits)
+
+		//	Obsolete Bonuses
+		CvWString szObsoleteBonuses;
+		bool bAnyObsoleteBonuses = false;
+		FOR_EACH_ENUM(Bonus)
 		{
-			// <!-- custom: keep tech tree uncluttered; add a pedia note only when relevant. (GPT-5.2-Codex) -->
+			if (GC.getInfo(eLoopBonus).getTechObsolete() == eTech)
+			{
+				if (bAnyObsoleteBonuses)
+					szObsoleteBonuses += L", ";
+				szObsoleteBonuses += CvWString::format(L"<link=literal>%s</link>",
+						GC.getInfo(eLoopBonus).getDescription());
+				bAnyObsoleteBonuses = true;
+			}
+		}
+		if (bAnyObsoleteBonuses)
+		{
 			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_TECH_OBSOLETE_UNITS_TREE_NOTE"));
+			szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
+					szObsoleteBonuses.GetCString()));
+		}
+
+		//	Obsolete Special Buildings
+		CvWString szObsoleteSpecialBuildings;
+		bool bAnyObsoleteSpecialBuildings = false;
+		FOR_EACH_ENUM(SpecialBuilding)
+		{
+			if (GC.getInfo(eLoopSpecialBuilding).getObsoleteTech() == eTech)
+			{
+				if (bAnyObsoleteSpecialBuildings)
+					szObsoleteSpecialBuildings += L", ";
+				szObsoleteSpecialBuildings += CvWString::format(L"<link=literal>%s</link>",
+						GC.getInfo(eLoopSpecialBuilding).getDescription());
+				bAnyObsoleteSpecialBuildings = true;
+			}
+		}
+		if (bAnyObsoleteSpecialBuildings)
+		{
+			szBuffer.append(NEWLINE);
+			szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES_NO_LINK",
+					szObsoleteSpecialBuildings.GetCString()));
+		}
+
+		if (!bTreeInfo)
+		{
+			// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency -->
+			CvWString szObsoleteUnits;
+			bool bAnyObsoleteUnits = false;
+			FOR_EACH_ENUM(Unit)
+			{
+				CvUnitInfo const& kLoopUnitInfo = GC.getInfo(eLoopUnit);
+				if (kLoopUnitInfo.getObsoleteTech() == eTech)
+				{
+					if (bAnyObsoleteUnits)
+						szObsoleteUnits += L", ";
+					szObsoleteUnits += CvWString::format(L"<link=literal>%s</link>",
+							kLoopUnitInfo.getDescription());
+					bAnyObsoleteUnits = true;
+				}
+			}
+			if (bAnyObsoleteUnits)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
+						szObsoleteUnits.GetCString()));
+			}
 		}
 	}
 
