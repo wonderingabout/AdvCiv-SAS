@@ -17,7 +17,7 @@ AI attributes (at least i call them this way not sure it is their exact name but
 &emsp;[how to enable/disable emoji buttons in sevopedia leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader)  
 [Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#where-and-how-to-find-the-abbreviations-in-label-in-the-ai-personality-panels-meaning)  
 [Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#normalization-to-100-in-advciv-sas-anyways-and-leaders-scoreranking)  
-[As a player (i.e. only if you want to play), what you need to know and do](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#as-a-player-ie-only-if-you-want-to-play-anyways-etc-what-you-need-to-know-and-do)  
+[As a player (i.e. only if you want to play), what you need to know and do](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#as-a-player-ie-only-if-you-want-to-play-what-you-need-to-know-and-do)  
 [Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels)  
 [Notes about performance optimization of the AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)  
 [If you want to mod](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#if-you-want-to-mod)  

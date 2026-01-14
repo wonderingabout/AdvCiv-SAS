@@ -243,4 +243,9 @@
 		<Tag>TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND</Tag>
 		<English>None</English>
 	</TEXT>
+	<!-- custom: new text key for Enables panel in Sevopedia Tech (Claude code Opus 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_ENABLES</Tag>
+		<English>Enables</English>
+	</TEXT>
 </Civ4GameText>

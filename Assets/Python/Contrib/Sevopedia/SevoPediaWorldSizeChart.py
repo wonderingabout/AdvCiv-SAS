@@ -140,7 +140,7 @@ class SevoPediaWorldSizeChart:
 			# Example: "Grid Tiles*" is computed as GridWidth * GridHeight, while "Grid Size (W x H)" just formats the XML GridWidth/GridHeight.
 			# (field_name, display_label_or_None, getter_name_or_None, icon_token)
 			("GridSize",                       "Grid Size (W x H)",         None,                               "glyph:map"),
-			("GridRatio",                      "W/H Ratio",                 None,                               "glyph:map"),
+			("GridRatio",                      "W/H Ratio*",                 None,                               "glyph:map"),
 			("GridTiles",                      "Grid Tiles*",               None,                               "glyph:map"),
 			("RatioToStandard",                "Ratio to Standard*",        None,                               "glyph:map"),
 			("TilesPerDefaultPlayer",          "Tiles Per Default Player*", None,                               "glyph:map"),

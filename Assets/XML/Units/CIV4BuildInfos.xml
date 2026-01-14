@@ -643,7 +643,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Builds/BuildChopDown.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,8</Button>
+			<!-- custom: import from the Middle-earth mod's PROJECT_ANGRIST thanks a lot! -->
+			<Button>Art/AdvCiv_SAS/Builds/Remove_Jungle/Angrist.dds</Button>
 		</BuildInfo>
 		<BuildInfo>
 			<Type>BUILD_REMOVE_FOREST</Type>
@@ -671,7 +672,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Builds/BuildChopDown.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,8</Button>
+			<!-- custom: import from the Middle-earth mod's PROJECT_DURINS_AXE thanks a lot! -->
+			<Button>Art/AdvCiv_SAS/Builds/Remove_Forest/DurinsAxe.dds</Button>
 		</BuildInfo>
 		<!-- custom: changed to TECH_FISSION according to https://forums.civfanatics.com/threads/can-you-scrub-fallout-in-real-life-like-in-civ.558302/ anwyays etc, see also code comment at TXT_KEY_TECH_ECOLOGY_PEDIA for details or and other alternative compelementary info or related details or context -->
 		<BuildInfo>

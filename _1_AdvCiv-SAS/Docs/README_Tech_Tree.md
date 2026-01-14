@@ -7,7 +7,7 @@ If any images below in this readme mention a google drive link, you can access i
 ## Menu
 
 [Current Tech Tree ingame](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#current-tech-tree-ingame)  
-[Additional info about the tech tree](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#additional-info-about-the-tech-tree-anyways-etc)  
+[Additional info about the tech tree](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#additional-info-about-the-tech-tree)  
 [More info on notes](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#more-info-on-notes)  
 [Abstract timeline tech tree](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#abstract-timeline-tech-tree)  
 [Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-prototype--alternative-version)  

@@ -67,6 +67,18 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
+		# <!-- custom: reorganized layout (Claude code Opus 4.5):
+		# Row 1: Tech Pane (left) | Starting Civs (right)
+		# Row 2: Requires (left half) | Leads To (right half)
+		# Row 3: Obsoletes (full width)
+		# Row 4: Enables (full width) - merged units + buildings
+		# Row 5: Special (left, W_TECH_PANE width) | History (right, remaining space)
+		# -->
+
+		# Standard row height for panels
+		self.H_ROW = 110
+
+		# Row 1: Tech Pane and Starting Civs
 		self.X_TECH_PANE = self.top.X_PEDIA_PAGE
 		self.Y_TECH_PANE = self.top.Y_PEDIA_PAGE
 		self.W_TECH_PANE = 340
@@ -85,63 +97,64 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
 		self.Y_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.Y_TECH_PANE
 		self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.top.R_PEDIA_PAGE - self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
-		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = 110
+		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.H_ROW
 
-		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments -->
-		# <!-- custom: add obsoletes panel height to the total bottom panels (Claude code Sonnet 4.5) -->
-		self.H_OBSOLETES = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
-		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (4 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (4 * self.SMALL_MARGIN)
+		# Row 2: Requires (left half) | Leads To (right half)
+		self.X_REQUIRES = self.X_TECH_PANE
+		self.Y_REQUIRES = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
+		self.W_REQUIRES = self.top.W_PEDIA_PAGE / 2 - 5
+		self.H_REQUIRES = self.H_ROW
 
-		self.X_HISTORY = self.X_TECH_PANE
-		self.Y_HISTORY = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
-		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY - self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS
+		self.X_LEADS_TO = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.Y_LEADS_TO = self.Y_REQUIRES
+		self.W_LEADS_TO = self.top.R_PEDIA_PAGE - self.X_LEADS_TO
+		self.H_LEADS_TO = self.H_ROW
 
+		# Row 3: Obsoletes (full width)
 		self.X_OBSOLETES = self.X_TECH_PANE
-		self.Y_OBSOLETES = self.Y_HISTORY + self.H_HISTORY + self.SMALL_MARGIN
+		self.Y_OBSOLETES = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
 		self.W_OBSOLETES = self.top.R_PEDIA_PAGE - self.X_OBSOLETES
+		self.H_OBSOLETES = self.H_ROW
 
 		# <!-- custom: note: Now that we switched to the thinner ChatGPT 5.2 based model, 64 is a bit too small, so extending it to fit buttons -->
 		# self.RED_X_BUTTON_SIZE = 64
 		self.RED_X_BUTTON_SIZE = 72
 
-		self.X_REQUIRES = self.X_TECH_PANE
-		self.Y_REQUIRES = self.Y_OBSOLETES + self.H_OBSOLETES + self.SMALL_MARGIN
-		self.W_REQUIRES = self.top.W_PEDIA_PAGE / 2 - 5
-		self.H_REQUIRES = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+		# Row 4: Enables (full width) - merged units + buildings
+		self.X_ENABLES = self.X_TECH_PANE
+		self.Y_ENABLES = self.Y_OBSOLETES + self.H_OBSOLETES + self.SMALL_MARGIN
+		self.W_ENABLES = self.top.R_PEDIA_PAGE - self.X_ENABLES
+		self.H_ENABLES = self.H_ROW
 
-		self.X_LEADS_TO = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
-		self.Y_LEADS_TO = self.Y_REQUIRES
-		self.W_LEADS_TO = self.W_REQUIRES
-		self.H_LEADS_TO = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
-
+		# Row 5: Special (left, W_TECH_PANE width) | History (right, remaining space)
 		self.X_SPECIAL = self.X_TECH_PANE
-		self.W_SPECIAL = self.W_REQUIRES
-		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
-		self.H_SPECIAL = (2 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + self.SMALL_MARGIN
+		self.Y_SPECIAL = self.Y_ENABLES + self.H_ENABLES + self.SMALL_MARGIN
+		self.W_SPECIAL = self.W_TECH_PANE
+		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
-		self.X_UNITS_ENABLED = self.X_LEADS_TO
-		self.W_UNITS_ENABLED = self.W_LEADS_TO
-		self.Y_UNITS_ENABLED = self.Y_SPECIAL
-		self.H_UNITS_ENABLED = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
-		self.X_BUILDINGS_ENABLED = self.X_LEADS_TO
-		self.W_BUILDINGS_ENABLED = self.W_LEADS_TO
-		self.Y_BUILDINGS_ENABLED = self.Y_UNITS_ENABLED + self.H_UNITS_ENABLED + self.SMALL_MARGIN
-		self.H_BUILDINGS_ENABLED = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+		self.Y_HISTORY = self.Y_SPECIAL
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+		self.H_HISTORY = self.H_SPECIAL
 
 
 
 	def interfaceScreen(self, iTech):
 		self.iTech = iTech
 
+		# Row 1
 		self.placeTechPane()
 		self.placeCivilizationsThatStartWithThisTech()
-		self.placeObsoletes()
+		# Row 2
 		self.placePrereqs()
 		self.placeLeadsTo()
-		self.placeUnits()
-		self.placeBuildings()
+		# Row 3
+		self.placeObsoletes()
+		# Row 4
+		self.placeEnables()
+		# Row 5
 		self.placeSpecial()
 		self.placeHistory()
 
@@ -409,36 +422,33 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	def placeUnits(self):
+	# <!-- custom: merged placeUnits and placeBuildings into single placeEnables (Claude code Opus 4.5) -->
+	def placeEnables(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()), "", False, True, self.X_UNITS_ENABLED, self.Y_UNITS_ENABLED, self.W_UNITS_ENABLED, self.H_UNITS_ENABLED, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_ENABLES", ()), "", False, True, self.X_ENABLES, self.Y_ENABLES, self.W_ENABLES, self.H_ENABLES, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
-		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
+
+		iActivePlayer = gc.getGame().getActivePlayer()
+
+		# Units enabled
 		for eLoopUnit in range(gc.getNumUnitInfos()):
-			if (eLoopUnit != -1):
-				if (isTechRequiredForUnit(self.iTech, eLoopUnit)):
+			if eLoopUnit != -1:
+				if isTechRequiredForUnit(self.iTech, eLoopUnit):
 					szButton = gc.getUnitInfo(eLoopUnit).getButton()
-					# <advc.003l>
 					if iActivePlayer >= 0:
 						szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
-					# </advc.003l>
 					screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
 
-
-
-	def placeBuildings(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILDINGS_ENABLED", ()), "", False, True, self.X_BUILDINGS_ENABLED, self.Y_BUILDINGS_ENABLED, self.W_BUILDINGS_ENABLED, self.H_BUILDINGS_ENABLED, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.attachLabel(panelName, "", "  ")
+		# Buildings enabled
 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
-			if (eLoopBuilding != -1):
-				if (isTechRequiredForBuilding(self.iTech, eLoopBuilding)):
-						screen.attachImageButton(panelName, "", gc.getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False)
-						
+			if eLoopBuilding != -1:
+				if isTechRequiredForBuilding(self.iTech, eLoopBuilding):
+					screen.attachImageButton(panelName, "", gc.getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False)
+
+		# Projects enabled
 		for eLoopProject in range(gc.getNumProjectInfos()):
-			if (isTechRequiredForProject(self.iTech, eLoopProject)):
+			if isTechRequiredForProject(self.iTech, eLoopProject):
 				screen.attachImageButton(panelName, "", gc.getProjectInfo(eLoopProject).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, eLoopProject, 1, False)
 
 
@@ -467,7 +477,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = u""
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
 		szText += gc.getTechInfo(self.iTech).getQuote()
@@ -475,7 +485,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szQuoteTextWidget = self.top.getNextWidgetName()
 		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 9, self.Y_HISTORY + 12, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
