@@ -56,7 +56,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok 
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
 [Python scripts](/README.md#python-scripts)  
 [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)  
-[Known issues that may be fixed or not fixed in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4)  
+[Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)  
 ["Temporary" crashes](/README.md#temporary-crashes)  
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
 [Version number](/README.md#version-number)  

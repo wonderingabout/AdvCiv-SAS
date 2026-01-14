@@ -104,6 +104,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
 - Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).
 - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
 - removed the **Strategy Text** in Choose Production and Choose Research (“Sid’s tips”) popups, as well as in the Civic Revolution popup (“Would you like to start a revolution?”), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+- (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding Sevopedia Feature** page (e.g. "Remove Jungle" build redirects to the Jungle Feature page; similarly for "Remove Forest" and "Scrub Fallout"). Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**) using the by changing the **widget**'s behaviour, in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp). See [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
 
 ### UI (In-game)
 
@@ -540,4 +541,4 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
 
 ## Fixes
 
-See [Known issues / fixes](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4) for the indexed list and links to before/after notes and screenshots.
+See [Known issues / fixes](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4) for the indexed list and links to before/after notes and screenshots.

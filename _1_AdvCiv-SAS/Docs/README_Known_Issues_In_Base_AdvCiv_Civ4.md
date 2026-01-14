@@ -130,6 +130,7 @@ hopefully helpful, thanks, anyways, thanks,
 [94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
 [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
 [96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
+[97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Remove Forest", and "Scrub Fallout" not redirecting to sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4068,3 +4069,11 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 Also fixed the base advciv issue of obsolete bullets spanning vertically instead of horizontally being comma-separated. We only make anothee bullet for Obsolete units that are comma-separated too.
 
 This was a problem especially as we had many bullets. Now we only show one bullet per asset type (e.g. all obsolete buildings in one bullet, then all obsolete units in another bullet, etc.). Change with the help of Claude code Sonnet 4.5 in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) thanks.
+
+## 97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Remove Forest", and "Scrub Fallout" not redirecting to sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to sevopedia improvement corresponding page
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tDKR5ZqAbFrDZZ3G4YuO7CeiDbsM6mdb?usp=sharing).
+
+Fixed with the help of Claude code Opus 4.5 after i have noticed this issue in the technology advisor, by as of now adding a redirect in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp).
+
+So now right-clicking e.g. on the "Remove Jungle" button in the technology advisor successfully redirects to the sevopedia feature corresponding page, e.g. of the Jungle Feature!
