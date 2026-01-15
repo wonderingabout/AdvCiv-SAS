@@ -378,7 +378,7 @@
 		<Spanish>Reloj Alternativo</Spanish>
 	</TEXT-->
 	<!-- advc.067: Merging the above with TXT_KEY_BUG_OPTLABEL_NJAGC_ALTERNATE
-		 in 'BUG Options Screen.xml' -->
+		 in 'BUG_Options_Screen.xml' -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTERNATETEXT_TEXT</Tag>
 		<English>Alternate View</English>

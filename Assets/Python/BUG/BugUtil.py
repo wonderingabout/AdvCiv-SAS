@@ -298,7 +298,7 @@ def logToFile(message):
 	sys.stdout.write(message + "\n")
 
 def readLoggingOptions(option=None, value=None):
-	# Pulls the logging options from the BUG Core options and stores into local copies.
+	# Pulls the logging options from the BUG_Core_Options and stores into local copies.
 	# Done this way to avoid hitting the options in tight loops that use logging.
 	#
 	import BugCore

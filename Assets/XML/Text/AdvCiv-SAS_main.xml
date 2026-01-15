@@ -2797,4 +2797,40 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_RF_HANDICAP_SETTINGS</Tag>
 		<English>Game Handicap (AI discounts):[NEWLINE][TAB]%s1_GameHandicap[NEWLINE]Human Player Handicap: %s2_HumanPlayerHandicap[NEWLINE]Handicap for AI Players: %s3_AIPlayerHandicap</English>
 	</TEXT>
+
+
+
+	<!-- custom: "_MONTEZUMA_" -> "_MOCTEZUMA_" so add now missing corresponding assets -->
+	<TEXT>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1</Tag>
+		<English>I am pleased to meet you, [CT_NAME]! Let us each slaughter fifty thousand slaves to celebrate this auspicious occasion.</English>
+		<French>C'est un plaisir de faire votre connaissance, [CT_NAME] ! Sacrifions tous deux cinq mille esclaves pour c&#233;l&#233;brer cette rencontre de bon augure.</French>
+		<German>Ich freue mich, Euch kennen zu lernen, [CT_NAME]! Lasst uns zur Feier dieses denkw&#252;rdigen Augenblicks je f&#252;nfzigtausend Sklaven opfern!</German>
+		<Italian>Piacere di incontrarti, [CT_NAME]! Per festeggiare questo momento propizio, dovremmo massacrare cinquantamila schiavi ciascuno.</Italian>
+		<Spanish>Me alegro mucho de conoceros, [CT_NAME]. Sacrifiquemos cada uno a cincuenta mil esclavos para celebrar esta propicia ocasi&#243;n.</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MOCTEZUMA_1</Tag>
+		<English>Talk to the ceremonial blade, [CT_NAME].</English>
+		<French>Parlez plut&#244;t &#224; ma lame de c&#233;r&#233;monie, [CT_NAME].</French>
+		<German>Ihr k&#246;nnt gern Bekanntschaft mit meiner Klinge machen, [CT_NAME]!</German>
+		<Italian>Perch&#233; non ne discuti con la lama cerimoniale, [CT_NAME]?</Italian>
+		<Spanish>Dec&#237;dselo al cuchillo ceremonial, [CT_NAME].</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MOCTEZUMA_1</Tag>
+		<English>Tell me, [CT_NAME]: what has [CT_CIV_SHORT] done to anger the gods so that they give them you as leader?</English>
+		<French>Dites-moi, [CT_NAME]... Qu'ont bien pu faire les [CT_CIV_SHORT] pour que les dieux soient irrit&#233;s au point de vous nommer &#224; leur t&#234;te ?</French>
+		<German>Sagt mir, [CT_NAME]: Wie konnte [CT_CIV_SHORT] die G&#246;tter nur so erz&#252;rnen, dass sie ihm Euch als Staatsoberhaupt vorgesetzt haben?</German>
+		<Italian>Dimmi, [CT_NAME], cosa ha fatto [CT_CIV_SHORT:2] perch&#233; gli dei si siano adirati a tal punto da fornire loro un leader come te?</Italian>
+		<Spanish>Decidnos, [CT_NAME], &#191;qu&#233; ha hecho [CT_CIV_SHORT] para enojar a los dioses y que os convirtieran en su l&#237;der?</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED</Tag>
+		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
+		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
+		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
+		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
+		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
+	</TEXT>
 </Civ4GameText>

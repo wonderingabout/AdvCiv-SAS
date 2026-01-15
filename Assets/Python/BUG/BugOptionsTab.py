@@ -1,6 +1,6 @@
 ## BugOptionsTab
 ##
-## Base class for all tabs in the BUG Options Screen.
+## Base class for all tabs in the BUG_Options_Screen.
 ##
 ## Copyright (c) 2007 The BUG Mod.
 ##
@@ -21,7 +21,7 @@ g_options = BugOptions.getOptions()
 
 class BugOptionsTab:
 	#
-	# Provides an API for building a single tab on the BUG Options Screen by placing UI controls.
+	# Provides an API for building a single tab on the BUG_Options_Screen by placing UI controls.
 	#
 	
 	def __init__(self, name, title):
@@ -107,7 +107,7 @@ class BugOptionsTab:
 		
 		# Exit button
 		title = BugUtil.getPlainText("TXT_KEY_PEDIA_SCREEN_EXIT", "Exit")
-		hover = BugUtil.getPlainText("TXT_KEY_BUG_OPTBUTTON_EXIT_HOVER", "Exits the BUG Options screen.")
+		hover = BugUtil.getPlainText("TXT_KEY_BUG_OPTBUTTON_EXIT_HOVER", "Exits the BUG_Options_Screen.")
 		exitButton = self.name + "Exit"
 		self.addButton(screen, exitPanel, exitButton, "handleBugExitButtonInput", title, hover)
 		

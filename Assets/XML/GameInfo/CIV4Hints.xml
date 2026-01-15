@@ -431,7 +431,7 @@
 		<HintInfo>
 			<Description>TXT_KEY_BUG_HINT_INTERFACE_4</Description>
 		</HintInfo>
-<!-- K-Mod hints -->
+<!-- K-Mod_hints -->
 		<HintInfo>
 			<Description>TXT_KEY_BUG_HINT_INTERFACE_1</Description>
 		</HintInfo>
@@ -485,7 +485,7 @@
 			<Description>TXT_KEY_KMOD_HINT_16</Description>
 		</HintInfo>
 		
-		<!-- advc.008d: Copied K-Mod hints to increase their probability: -->
+		<!-- advc.008d: Copied K-Mod_hints to increase their probability: -->
 		<HintInfo>
 			<Description>TXT_KEY_BUG_HINT_INTERFACE_1</Description>
 		</HintInfo>

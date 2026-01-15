@@ -1,6 +1,6 @@
 ## BugUpdateChecker
 ##
-## Uses SvnUtil and BUG Core options to check for BUG updates and releases.
+## Uses SvnUtil and BUG_Core_Options to check for BUG updates and releases.
 ##
 ## Copyright (c) 2008 The BUG Mod.
 ##

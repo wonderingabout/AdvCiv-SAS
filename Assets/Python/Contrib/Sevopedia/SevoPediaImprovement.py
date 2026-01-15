@@ -33,8 +33,10 @@ class SevoPediaImprovement:
 	def __init__(self, main):
 		self.iImprovement = -1
 		self.top = main
-		self.I_CONCEPT_IRRIGATION = gc.getInfoTypeForString("CONCEPT_IRRIGATION")
-		self.I_TERRAIN_HILL = gc.getInfoTypeForString("TERRAIN_HILL")
+		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD", gc)
+		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD", gc)
+		self.I_CONCEPT_IRRIGATION = getInfoTypeOrFail("CONCEPT_IRRIGATION", gc)
+		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
@@ -319,26 +321,18 @@ class SevoPediaImprovement:
 				if iYieldChange != 0:
 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 			if len(sText):
-				# <!-- similarly than for river yield changes, also handle route yield changes differently than in m-e mod, using the newly added in advciv-sas CONCEPT_ROUTE_ROAD and CONCEPT_ROUTE_RAILROAD (as these are as of now our only routeinfo xml entries) as sevopedia pages to redirect to as well -->
-				#screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getRouteInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, 6788, item)
-				#screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				# Determine which concept to link to based on the route type.
+				# <!-- custom: link route yield changes to the real Build entries (road/railroad) now that Builds are a category. This removes
+				# the old concept route hack and keeps behavior consistent with other Build links. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
 				routeInfo = gc.getRouteInfo(item)
-				# <!-- custom: as of now with a conceptIDToRoute of -1 we would get with get_concept_widgetType_widgetID1_widgetID2 an id1 -1 and id2 -1 and widget general too so maybe fine for not crash, else i'd still want it to crash loudly rather than silently, as i said to gemini ai too who approved of it hehe as they (ais) usually do but i believe sitll provided some critical thinking or non-opposition one with my idea maybe but in all cases thanks for being my echo chamber xd gemini ai if i may say yo helped me lot if i may say here too and other ais as well thanks i mean too, but since this seems safe enough in handling fallback no redirect, maybe leave as is and do not write a hard crash if missing at load such as what we do as of now for the getters in sevopedia leader for example if i remember correctly and am not mistaken i mean (i think not but in case and to be safe who knows) -->
-				# Initialize with invalid ID
-				conceptIDToRoute = -1
-				# Check if it's a Road or Railroad, or a general Route concept
+				iBuild = -1
 				if routeInfo.getType() == "ROUTE_ROAD":
-					conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_ROAD", gc)
+					iBuild = self.SAS_iBuildRoad
 				elif routeInfo.getType() == "ROUTE_RAILROAD":
-					conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_RAILROAD", gc)
-				# Add more conditions here if you have other specific route types and concepts for them.
+					iBuild = self.SAS_iBuildRailroad
+				if iBuild < 0:
+					raise Exception("SevoPediaImprovement: missing Build for route %s" % routeInfo.getType())
 
-				# Get widget parameters for the determined concept.
-				widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(conceptIDToRoute, WidgetTypes, CivilopediaPageTypes)
-
-				# Use the button from the RouteInfo itself
-				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
+				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild)
 				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 

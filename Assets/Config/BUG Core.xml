@@ -22,7 +22,7 @@
 		<section id="General">
 			<option id="OptionsScreenOpened" key="Options Screen Opened" 
 					type="boolean" default="False"
-					help="Set to True the first time the player opens the BUG Options screen"/>
+					help="Set to True the first time the player opens the BUG_Options_Screen"/>
 		</section>
 		<!-- k146: Defaults were 2 and 0 -->
 		<section id="Logging">
@@ -81,7 +81,7 @@
 		</arg>
 	</init>
 
-	<!-- BUG Options Screen UI control handlers -->
+	<!-- BUG_Options_Screen UI control handlers -->
 	<export module="BugOptionsScreen" function="handleBugExitButtonInput" to="CvOptionsScreenCallbackInterface"/>
 	<export module="BugOptionsScreen" function="handleBugHelpButtonInput" to="CvOptionsScreenCallbackInterface"/>
 	<export module="BugOptionsScreen" function="handleBugCheckboxClicked" to="CvOptionsScreenCallbackInterface"/>

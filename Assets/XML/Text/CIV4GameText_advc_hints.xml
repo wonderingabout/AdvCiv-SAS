@@ -844,7 +844,7 @@
 	 translations. K-Mod removed all but one of the BUG hints. Many of them are
 	 aimed at beginners, others are already covered by my own hints; so this is
 	 the only one that I want to include (in addition to the one in
-	 'K-Mod hints.xml'). -->
+	 'K-Mod_hints.xml'). -->
 <TEXT>
 	<Tag>TXT_KEY_BUG_HINT_INTERFACE_4</Tag>
 	<English>To cancel the missions of all your Workers, select one of them and click the [COLOR_HIGHLIGHT_TEXT]Cancel Mission[COLOR_REVERT] button while holding down the [ALT] key.</English>

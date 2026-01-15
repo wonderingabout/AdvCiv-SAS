@@ -24,6 +24,8 @@ class SevoPediaBuild:
 	def __init__(self, main):
 		self.iBuild = -1
 		self.top = main
+		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD", gc)
+		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD", gc)
 
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
@@ -132,13 +134,14 @@ class SevoPediaBuild:
 		iRoute = buildInfo.getRoute()
 		if iRoute > -1:
 			routeInfo = gc.getRouteInfo(iRoute)
-			conceptIDToRoute = -1
+			iBuild = -1
 			if routeInfo.getType() == "ROUTE_ROAD":
-				conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_ROAD", gc)
+				iBuild = self.SAS_iBuildRoad
 			elif routeInfo.getType() == "ROUTE_RAILROAD":
-				conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_RAILROAD", gc)
-			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(conceptIDToRoute, WidgetTypes, CivilopediaPageTypes)
-			screen.attachImageButton(panelName, "", routeInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, widgetID2, False)
+				iBuild = self.SAS_iBuildRailroad
+			if iBuild < 0:
+				raise Exception("SevoPediaBuild: missing Build for route %s" % routeInfo.getType())
+			screen.attachImageButton(panelName, "", routeInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild, False)
 			bFound = True
 
 		if not bFound:

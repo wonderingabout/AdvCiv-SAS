@@ -308,8 +308,6 @@ Added new concepts, as of now:
 - concept_fresh_water (with a link to it added in concept_irrigation (even though lost translation xd now (i removed it (i.e. now only has english translation for all languages))))
 - concept_global_warming
 - concept_rivers
-- concept_route_road
-- concept_route_railroad
 - concept_scoring_system
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG" alt="0.800_sevopedia_conceptinfos (1).JPG" width="250"></img>

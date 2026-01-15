@@ -7141,7 +7141,7 @@ commit b440de71cd8a4579242f5b446088af9ea1cc8b17
 Author: karadoc <hidden>
 Date:   2012-03-17 22:34:12 +1100
 
-Added a button for accessing the BUG Options screen in the in-game main menu, and in the non-BUG options screen (only when in-game).
+Added a button for accessing the BUG_Options_Screen in the in-game main menu, and in the non-BUG_Options_Screen (only when in-game).
 Rewrote some of the code for handling the in-game main menu, because the original code had woefully poor style.
 
 commit f93860079ab3ad24b59dc05b73b6aa27eef744c7
@@ -7917,7 +7917,7 @@ commit e574cce74ec3255a5f5c1289c241d8b6624bf7dd
 Author: karadoc <hidden>
 Date:   2012-02-10 23:49:06 +1100
 
-Rearranged the the layout of the BUG City Screen options tab so that it fits neatly on one page.
+Rearranged the the layout of the BUG_City_Screen_Options tab so that it fits neatly on one page.
 
 commit c6f7eb0712d7cce66760cf20ebc83c3804f96e76
 Author: karadoc <hidden>

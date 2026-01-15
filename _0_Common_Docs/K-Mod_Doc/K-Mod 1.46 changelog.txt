@@ -527,7 +527,7 @@ Game
 UI
 
 + Implemented unit cycling suppression with the X key. ie. If you hold X while issuing an order, the unit will remain selected even when it has no moves left.
-+ Added a new option to the BUG options screen: Simple [Shift] Unit Selection. With this option enabled, the selection with the shift key will behave in a more rigid and predictable way.
++ Added a new option to the BUG_Options_Screen: Simple [Shift] Unit Selection. With this option enabled, the selection with the shift key will behave in a more rigid and predictable way.
 + Fixed several bugs and inconsistencies in the default selection rules when using the shift key.
 + Units deselected with shift key will now be ungrouped. (Previously, units would be added the the group when selected, but not removed from the group when deselected.)
 + Previously when selecting units with either ctrl or alt, units with no remaining moves would be excluded from the selection. This has been changed so that if the player explicitly clicks on a unit with no moves (while holding ctrl or alt) then the selection will include all units regardless of their moves.
@@ -878,7 +878,7 @@ Game
 + When a peace deal is signed, units are now only bumped after the trade is completed. This fixes several problems, for example, if the peace deal involves a city gift, the new owner of the city will not have their units bumped out of that city.
 + When a civ capitulates, the vassal's units will now be bumped out of the master's land. (Previously they were not bumped until the following turn.)
 + When a plot's best-build is an improvement that connects the bonus, other builds which connect the bonus will no longer be marked as recommended.
-+ Added a button for accessing the BUG Options screen in the in-game main menu, and in the non-BUG options screen (only when in-game).
++ Added a button for accessing the BUG_Options_Screen in the in-game main menu, and in the non-BUG_Options_Screen (only when in-game).
 + Added some loading-screen tips.
 
 
@@ -1047,7 +1047,7 @@ v1.18 changelist
 
 + The choose production popup screen will now be postponed if the city is in disorder.
 + Fixed a problem which prevented the end-of-turn message from displaying when the player has all their units automated.
-+ Rearranged the the layout of the BUG City Screen options tab so that it fits neatly on one page.
++ Rearranged the the layout of the BUG_City_Screen_Options tab so that it fits neatly on one page.
 + Happiness and healthiness bonuses from events are now included in mouse-over text for buildings. (The bonuses are included in the total. They do not have their own description.)
 + Implemented "actual building effect" mouse-over hover options from BUG.
 + Fixed an original BtS problem which prevented units from executing chained commands when standing near hostile units. (ie. issuing commands while holding shift did not work. It does now.)

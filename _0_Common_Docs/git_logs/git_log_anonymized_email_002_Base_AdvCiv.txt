@@ -27227,7 +27227,7 @@ https://github.com/dguenms/Dawn-of-Civilization/commit/1f4f363de280a098c2f1aaad8
 Merged a small, old commit from K-Mod-Extended that I may never need: [kmodx]
 https://github.com/alberts2/Civ4-K-Mod-Extended/commit/1ce714f77dfddcf0fa4ebbadc1ef4a1a48f85c9c
 
-Moved revised BtS hints from 'K-Mod hints.xml' to 'CIV4GameText_advc.008d.xml'.
+Moved revised BtS hints from 'K-Mod_hints.xml' to 'CIV4GameText_advc.008d.xml'.
 
 Revised additional BtS hints and added a few new ones to replace unhelpful BtS hints. [advc.008c,advc.008d]
 

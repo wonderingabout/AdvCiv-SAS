@@ -1,6 +1,6 @@
 ## BugOptionsScreen
 ##
-## Displays the BUG Options Screen and its tabs.
+## Displays the BUG_Options_Screen and its tabs.
 ##
 ## For input handlers see CvOptionsScreenCallbackInterface in Python/EntryPoints.
 ##

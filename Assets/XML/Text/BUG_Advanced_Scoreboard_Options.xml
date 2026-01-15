@@ -246,7 +246,7 @@
 		<Spanish>Activo</Spanish>
 	</TEXT-->
 	<!-- advc.004: Replacing the above and TXT_KEY_BUG_OPTLABEL_SCORES_GRID in
-		 BUG Options Screen.xml -->
+		 BUG_Options_Screen.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__ALIGNICONS_TEXT</Tag>
 		<English>Enable Tabular Layout</English>

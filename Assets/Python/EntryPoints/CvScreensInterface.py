@@ -1047,7 +1047,7 @@ def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraSt
 	gc = CyGlobalContext()
 	if choice == 0:
 		gc.updateCameraStartDistance(False)
-	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG Main Interface Options.xml).
+	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG_Main_Interface_Options.xml).
 	elif choice == 1:
 		newVal = 2200
 	elif choice == 2:

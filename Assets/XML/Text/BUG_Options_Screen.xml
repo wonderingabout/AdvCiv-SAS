@@ -42,7 +42,7 @@
 		<Spanish>Abre la ayuda de BUG Mod. También puedes pulsar [ALT + CTRL + F1] desde la pantalla principal.</Spanish>
 	</TEXT>
 
-	<!-- advc.004: was "BUG Options screen" -->
+	<!-- advc.004: was "BUG_Options_Screen" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTBUTTON_EXIT_HOVER</Tag>
 		<English>Closes the BUG menu</English>

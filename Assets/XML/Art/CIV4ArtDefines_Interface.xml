@@ -1701,12 +1701,12 @@
 		</InterfaceArtInfo>
 <!-- BUG - Wonders Tab - end -->			
 
-<!-- BUG - Main Interface - BUG Options Screen - Start -->			
+<!-- BUG - Main Interface - BUG_Options_Screen - Start -->			
 		<InterfaceArtInfo>
 			<Type>BUG_OPTIONS_SCREEN_BUTTON</Type>
 			<Path>Art/BUG/options.dds</Path>
 		</InterfaceArtInfo>
-<!-- BUG - Main Interface - BUG Options Screen - end -->			
+<!-- BUG - Main Interface - BUG_Options_Screen - end -->			
 
 		<InterfaceArtInfo>
 			<Type>QUESTION_MARK</Type>

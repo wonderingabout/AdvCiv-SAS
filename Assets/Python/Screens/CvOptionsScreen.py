@@ -387,7 +387,7 @@ class CvOptionsScreen:
 		tab.attachDropDown("LangHBox", szWidgetName, szDropdownDesc, aszDropdownElements, self.callbackIFace, szCallbackFunction, szWidgetName, iInitialSelection)
 		tab.setLayoutFlag(szWidgetName, "LAYOUT_LEFT")
 		
-		# K-Mod: BUG options button. Unfortunately, the BUG options screen doesn't work from the main menu.
+		# K-Mod: BUG options button. Unfortunately, the BUG_Options_Screen doesn't work from the main menu.
 		if CyGame().isFinalInitialized():
 			tab.attachVSeparator("LangHBox", "LangHBoxSeparator")
 			tab.attachVBox("LangHBox", "KmodBox")

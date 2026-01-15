@@ -132,7 +132,7 @@ New Features:
 
 - Main Interface
 	Can choose from three sizes for the build/action buttons
-	Added a button to bring up the BUG Options Screen (top left)
+	Added a button to bring up the BUG_Options_Screen (top left)
 - Espionage Advisor
 	New layout shows EPs spent against you and icons for passive missions
 	Can swap cities and missions lists to see cost in each city for a single mission
@@ -558,7 +558,7 @@ Improvements:
 - Raw Yields: Split up Trade Routes total into Domestic, Foreign, and Overseas (foreign only) Trade
 - Sevopedia: Resource pages show all buildings they affect in the Buildings list--not just the buildings that supply the resource
 - Great General Progress Bar: Replaced "General" with icon
-- BUG options screen: Improved hover texts that include multiple options and redesigned General tab
+- BUG_Options_Screen: Improved hover texts that include multiple options and redesigned General tab
 - Updated German and Italian translations
 - Added CvAltRoot for use with Civ4's /AltRoot command-line feature
 - F9 / Charts now includes a 3-in-1 feature that displays 3 user selected charts
@@ -602,7 +602,7 @@ New Features:
 - CvMainInterface.updateScreen() fires gameUpdate event (not fired by Civ4)
 - Added <shortcut> tag to XML configuration to create keyboard shortcuts
 - Added module attribute to <mod> element that is used as default for module attributes in all child elements
-- Added horizontal and vertical sliders to BUG Options Screen (see BugOptionsTab)
+- Added horizontal and vertical sliders to BUG_Options_Screen (see BugOptionsTab)
 
 Bug Fixes:
 

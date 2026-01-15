@@ -434,7 +434,7 @@ Rename the tag									Original untouched; you're free to localize your version
 <!-- custom: ‚??Ô∏ù emoji ('s choice/idea/suggestion) is from chatgpt's code
     then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example, there are also several images to choose from in the website as well for example, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say -->
 
-===== .\Assets\XML\Text\BUG City Screen Options.xml =====
+===== .\Assets\XML\Text\BUG_City_Screen_Options.xml =====
 ----- Comment #32 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVER_TEXT</Tag>
@@ -479,7 +479,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Selecciona el n˙mero de turnos a esperar antes de mostrar informaciÛn de decaimiento.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG Main Interface Options.xml =====
+===== .\Assets\XML\Text\BUG_Main_Interface_Options.xml =====
 ----- Comment #33 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSKEY_TEXT</Tag>
@@ -572,7 +572,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<German>Zeigt das [ICON_HEALTHY]-Symbol ¸ber den Namen von St‰dten an, deren Bevˆlkerung keine [ICON_UNHEALTHY]-Punkte generiert.</German>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG Options Screen.xml =====
+===== .\Assets\XML\Text\BUG_Options_Screen.xml =====
 ----- Comment #36 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_BUILDS</Tag>
@@ -623,7 +623,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Comercio:</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Advanced Scoreboard Options.xml =====
+===== .\Assets\XML\Text\BUG_Advanced_Scoreboard_Options.xml =====
 ----- Comment #37 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_TEXT</Tag>
@@ -694,7 +694,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Muestra un aviso cuando una ciudad sea pacificada, terminando con la ocupaciÛn.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_MoreCiv4lerts Options.xml =====
+===== .\Assets\XML\Text\BUG_MoreCiv4lerts_Options.xml =====
 ----- Comment #40 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__CITYFOUNDED_TEXT</Tag>
@@ -791,7 +791,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>LÌmite de territorio para una victoria por DominaciÛn.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Not Just Another Game Clock Options.xml =====
+===== .\Assets\XML\Text\BUG_Not_Just_Another_Game_Clock_Options.xml =====
 ----- Comment #42 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_TEXT</Tag>
@@ -826,7 +826,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Muestra el porcentaje de turnos completado si la condiciÛn de Victoria por Tiempo est· habilitada</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Plot List Enhancements Options.xml =====
+===== .\Assets\XML\Text\BUG_Plot_List_Enhancements_Options.xml =====
 ----- Comment #43 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_LIST</Tag>
@@ -971,7 +971,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Especifica el espaciado vertical de los iconos de promociÛn en el texto flotante del panel de informaciÛn de unidades (el valor por defecto es cero, valores positivos hacia arriba). Es necesario modificar este valor al usar temas que modifican la fuente. Por ejemplo, hay que usar 6 con BlueMarble.</Spanish>
 	</TEXT!-->
 
-===== .\Assets\XML\Text\BULL Actions Options.xml =====
+===== .\Assets\XML\Text\BULL_Actions_Options.xml =====
 ----- Comment #47 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__ASKDECLAREWARUNITS_TEXT</Tag>
@@ -1048,7 +1048,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Si se activa, los Trabajadores a los que se les ordene construir una mejora que resulte en el talado de un bosque se detendr·n cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminar·n la mejora.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BULL City Bar Options.xml =====
+===== .\Assets\XML\Text\BULL_City_Bar_Options.xml =====
 ----- Comment #50 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HEALTH_TEXT</Tag>
@@ -1272,7 +1272,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Si se activa, muestra el n˙mero de turnos restantes para que en la ciudad nazca una gran personaje ([ICON_GREATPEOPLE]).</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BULL Misc Hovers Options.xml =====
+===== .\Assets\XML\Text\BULL_Misc_Hovers_Options.xml =====
 ----- Comment #57 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_TEXT</Tag>
@@ -2144,7 +2144,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL Actions Options.xml =====
+===== .\\Assets/XML/Text/BULL_Actions_Options.xml =====
 ----- Comment #98 -----
 
 	<!-- advc.004l: Unlikely to be merged -->
@@ -2163,7 +2163,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Spanish>Si se activa, las unidades b·rbaras adyacentes a tu territorio no provocar·n una advertencia si no pueden entrar.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL City Bar Options.xml =====
+===== .\\Assets/XML/Text/BULL_City_Bar_Options.xml =====
 ----- Comment #99 -----
 
 	<!--TEXT>
@@ -2728,7 +2728,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 </TEXT>
 -->
 
-===== .\\Assets/XML/Text/BUG_Plot List Enhancements Options.xml =====
+===== .\\Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
 ----- Comment #141 -----
 
 	<!-- advc.069: unused -->
@@ -2749,7 +2749,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pestaùa.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BUG_Strategy Overlay Options.xml =====
+===== .\\Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
 ----- Comment #142 -----
 
 	<!-- advc.004: Now unused -->
@@ -2768,7 +2768,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Muestra los puntos de ciudad planeada en el mapa normal.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BUG_Strategy Overlay Options.xml =====
+===== .\\Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
 ----- Comment #143 -----
 
 	<!-- advc.004: unused -->
@@ -2780,7 +2780,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>N˙mero del icono a colocar en el centro de los bordes de las ciudades planeadas.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL City Bar Options.xml =====
+===== .\\Assets/XML/Text/BULL_City_Bar_Options.xml =====
 ----- Comment #144 -----
 
 	<!-- Handled by advc.101; non-optional. -->

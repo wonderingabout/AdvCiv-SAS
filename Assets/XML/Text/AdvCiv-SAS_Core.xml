@@ -56,22 +56,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>[H1]Rivers[\H1][PARAGRAPH:2]Rivers are exceptional terrain in that they are not "in" or "on" a tile, but they run between tiles. A river is considered adjacent to all tiles that it runs along, including all four tiles which touch a place where the river bends or empties into water. However, the two tiles which touch the source of a river and are behind it, with respect to the river's flow, are not riverside. Rivers supply fresh water to all adjacent tiles. A river adds +1 [ICON_COMMERCE] to all adjacent land tiles, unless they also contain an unimproved forest or jungle. Only riverside Cities may build [LINK=BUILDING_LEVEE]Levees[\LINK], which provide +1 [ICON_PRODUCTION] to every riverside tile within that City's radius.[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Terrain_(Civ4)#Rivers</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD</Tag>
-		<English>Route (Road)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Tag>
-		<English>[H1]Route (Road)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]Roads can be built after discovering The Wheel. With roads, all spaces cost 1/2 [ICON_MOVES] Movement points (MP) to enter from other road tiles. After discovering [LINK=TECH_ENGINEERING]Engineering[\LINK], the cost goes down to 1/3 [ICON_MOVES] MP. In practice, this means that a unit with just one movement point can move three tiles using roads. Similarly, units with two movement points can move six tiles.[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD</Tag>
-		<English>Route (Railroad)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Tag>
-		<English>[H1]Route (Railroad)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]To build railroads, the civilization first needs to discover the Railroad technology and have an access to Coal or Oil. Railroads are similar to roads, but they reduce the number of [ICON_MOVES] Movement points needed to enter a tile from another railroad tile to 1/10 [ICON_MOVES] MP.[PARAGRAPH:1]Railroads also give a bonus of 1 [ICON_PRODUCTION] to tiles with a [LINK=IMPROVEMENT_MINE]Mine[\LINK], a [LINK=IMPROVEMENT_LUMBERMILL]Lumbermill[\LINK], or a [LINK=IMPROVEMENT_QUARRY]Quarry[\LINK].[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_GLOBAL_WARMING</Tag>
 		<English>Global Warming</English>
 	</TEXT>

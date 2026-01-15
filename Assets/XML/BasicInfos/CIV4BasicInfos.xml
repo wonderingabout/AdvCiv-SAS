@@ -276,18 +276,6 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 		</ConceptInfo>
 		<!-- custom: new entry -->
 		<ConceptInfo>
-			<Type>CONCEPT_ROUTE_ROAD</Type>
-			<Description>TXT_KEY_CONCEPT_ROUTE_ROAD</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Civilopedia>
-		</ConceptInfo>
-		<!-- custom: new entry -->
-		<ConceptInfo>
-			<Type>CONCEPT_ROUTE_RAILROAD</Type>
-			<Description>TXT_KEY_CONCEPT_ROUTE_RAILROAD</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Civilopedia>
-		</ConceptInfo>
-		<!-- custom: new entry -->
-		<ConceptInfo>
 			<Type>CONCEPT_SCORING_SYSTEM</Type>
 			<Description>TXT_KEY_CONCEPT_SCORING_SYSTEM</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_SCORING_SYSTEM_PEDIA</Civilopedia>

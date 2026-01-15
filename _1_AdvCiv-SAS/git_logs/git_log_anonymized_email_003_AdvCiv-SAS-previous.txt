@@ -2951,7 +2951,7 @@ commit 0efaba32cacac4b047eb047995b4c04f174883ec
 Author: wonderingabout <hidden>
 Date:   2025-07-30 19:48:20 +0200
 
-beautify sevopedia improvement's placeMostYields, now as clickable buttons with tooltips too on hover, based on m-e mod's code, with claude ai and gemini ai and my adjustments too hehe or not or yes or etc, add new concepts concept_rivers, concept_route_road, concept_route_railroad
+beautify sevopedia improvement's placeMostYields, now as clickable buttons with tooltips too on hover, based on m-e mod's code, with the help of claude ai and gemini ai thanks, add new concepts concept_rivers, concept_route_road, concept_route_railroad
 - ROUTE_ROAD and ROUTE_RAILROAD "<!-- custom: note: we have also added them as conceptinfos entries in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml, so that we can redirect to them and show their tool tip without implementing them exhaustively, in sevopedia improvement (similar approach although unrelated as of now in sevopedia unit's concept_cities), see these places's code or code comments for details -->"
 - sevopedia improvement's placeMostYields: "<!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ) and adjsuted or not for advciv-sas -->" + "<!-- custom: unlike in m-e mod or so it seems, we don't use WidgetTypes.WIDGET_PYTHON and id 6783 neither, so go for a simpler implementation, that matches how we redirect using concepts in sevopedia unit as of now to the concept_cities for example, we now have a new concept_rivers to redirect to now in advciv-sas, use that rather, is also thanks to gemini ai's help, and adjusted or not by me too hehe if i may say in this casefor advciv-sas -->" + "<!-- similarly than for river yield changes, also handle route yield changes differently than in m-e mod, using the newly added in advciv-sas CONCEPT_ROUTE_ROAD and CONCEPT_ROUTE_RAILROAD (as these are as of now our only routeinfo xml entries) as sevopedia pages to redirect to as well -->"
 
@@ -5241,7 +5241,7 @@ higher attitude) so fixed
 -- scan_xml_duplicates-3.3.py (scans duplicates in all XML, not
 entirely exhaustive or reliable but does a very good job i found, could/can also selectively
 spot the Gandhi duplicate (i had made such a script after noticing the Gandhi duplicate and
-trying to generalize that, but some duplicates are intentional like the AdvCiv/K-Mod hints
+trying to generalize that, but some duplicates are intentional like the AdvCiv/K-Mod_hints
 it seems hehe (according to chatgpt who made the code i prompted mostly if
 not all) for publicity (or maybe in better prose anyways
 etc for clearer read (as both are accurate))) and then trying to replicate

@@ -1,6 +1,6 @@
 ## BugCityScreenOptionsTab
 ##
-## Tab for the BUG City Screen Options.
+## Tab for the BUG_City_Screen_Options.
 ##
 ## Copyright (c) 2007-2008 The BUG Mod.
 ##
@@ -9,7 +9,7 @@
 import BugOptionsTab
 
 class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
-	"BUG City Screen Options Screen Tab"
+	"BUG_City_Screen_Options Screen Tab"
 	
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "CityScreen", "City Screen")
