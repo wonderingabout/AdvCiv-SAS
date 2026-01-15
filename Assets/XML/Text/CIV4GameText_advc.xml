@@ -3,18 +3,6 @@
 	 such changes are tagged with a comment that says "redefine".
 	 Some of the Romance-language translations are based on www.deepl.com. -->
 <Civ4GameText>
-
-	<!-- custom: rename "AdvCiv mod" to "AdvCiv-SAS mod" in replay screen too, was [AdvCiv] -->
-	<!-- advc.106i: Mod name to be used as a prefix for replay file names and
-		 to be written into the first replay message (the DLL removes the
-		 square brackets in that context). If this text key is removed
-		 entirely, then no file prefix is used and no mod name is written in the
-		 first replay message. -->
-	<TEXT>
-		<Tag>TXT_KEY_REPLAY_PREFIX</Tag>
-		<English>[AdvCiv-SAS]</English>
-	</TEXT>
-
 	<!-- advc.100: In-game text for displaying and logging messages about
 		 hired DoW. Original BtS text bits pertaining to DoW are located in
 		 CIV4GameTextInfos.xml. -->
@@ -1338,49 +1326,6 @@
 
 
 
-	<!-- custom: rename "Difficulty" to "Handicap" -->
-	<!-- custom: rewrite handicap descriptions texts to match reworked advciv-sas gradual handicap settings -->
-	<!-- advc.137: Originally in Civ4GameText_Help.xml. Changed only English and
-		 German. -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc.; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall handicap.</English>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but a bit less now, AI attitude should overall be the same or not too much harder otherwise.</English>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_WARLORD_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but even less now. Warfare should start to feel even or if not should be close to it, vs barbarians but also other players.</English>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_NOBLE_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This is mostly an even game setting with other players, even though barbarians are still getting stronger.</English>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_PRINCE_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger.</English>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_MONARCH_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. The penalties increase in this handicap setting. Economy and overall game plan needs to be really efficient and going forward on higher handicap settings to compensate AI advantages. Barbarians are also getting stronger.</English>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_EMPEROR_HELP</Tag>
-		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. Efficiency and strategy may need to further be refined to be competitive at this handicap setting that has quite strong penalties. Barbarians are also getting stronger and may start to feel like being on a rampage if not at previous handicap settings, but this affects all players.</English>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_IMMORTAL_HELP</Tag>
-		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Penalties are consistently and gradually as well higher than in previous handicap settings, and same for barbarians settings, even though these affect all players as well. No drastic changes otherwise. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled, as there are no free techs nor ai free techs, so this means all players start at turn 1 at this handicap setting.</English>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
-		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting as well.</English>
-	</TEXT>
-
-
-
 	<!-- I don't think these are shown anywhere, but I still wanted to correct
 		 the recommended player counts (in English and German only).-->
 	<TEXT> <!-- redefine -->
@@ -1721,33 +1666,6 @@
 		<German> km&#178;</German>
 		<Italian>km&#178;</Italian>
 		<Spanish> km&#178;</Spanish>
-	</TEXT>
-	<!-- custom: was Alexander -->
-	<!-- These two French names were too long for the best/ worst columns -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
-		<English>Alexander III</English>
-	</TEXT>
-	<!-- custom: was Tokugawa -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
-		<English>Tokugawa Ieyasu</English>
-	</TEXT>
-	<!-- custom: was Genghis in some languages or some other version, anyways, -->
-	<!-- German spelling was long and unusual -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_LEADER_GENGHIS_KHAN</Tag>
-		<English>Genghis Khan</English>
-	</TEXT>
-	<!-- custom: was Isabella -->
-	<!-- Spanish was too long -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_LEADER_ISABELLA</Tag>
-		<English>
-			<Text>Isabella I</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</English>
 	</TEXT>
 	<!-- From CIV4GameText_Misc1.xml. "ca." added b/c it's now
 		 an approximation. -->
@@ -3428,54 +3346,7 @@
 		<German>%s1_attitude (+/- 0) gegen&#252;ber %s2_leader</German>
 		<Italian>%s1_attitude (+/- 0) confronti di %s2_leader</Italian>
 		<Spanish>Actitud hacia %s3_leader: %s1_attitude (+/- 0)</Spanish>
-	</TEXT>
-	
-	<!-- custom: rename "Amerindian Empire" back if i may say in this case at leastto "Native American Empire" -->
-	<!-- advc.002b: Overwrites values in CIV4GameText_Objects_BTS.xml. -->
-	<TEXT>
-		<Tag>TXT_KEY_CIV_NATIVE_AMERICA_DESC</Tag>
-		<English>Native American Empire</English>
-	</TEXT>
-
-	<!-- advc.005: was Pacal II -->
-	<!-- custom: i want the full leader name, plus i'm thinking of
-	adding Basil II	for the byzantine empire -->
-	<TEXT>
-		<Tag>TXT_KEY_LEADER_PACAL</Tag>
-		<English>Pacal II</English>
-	</TEXT>
-	<!-- custom: was Justinian -->
-	<!-- advc.005: Removed regnal number I (all languages) -->
-	<TEXT>
-		<Tag>TXT_KEY_LEADER_JUSTINIAN</Tag>
-		<English>Justinian I</English>
-	</TEXT>
-
-	<!-- custom: should be functionnaly the same to delete other
-	languages if translation is same, so doing
-	that here, anyways, -->
-	<!-- advc.005: was Asoka -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_LEADER_ASOKA</Tag>
-		<English>Ashoka</English>
-	</TEXT>
-	<!-- 002b: Shortened leader names -->
-	<!-- custom: was Augustus (in Warlords Civ4GameTextObjects XML) -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
-		<English>Augustus Caesar</English>
-	</TEXT>
-	<!-- custom: was Willem -->
-	<TEXT> <!-- redefine -->
-	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
-		<English>Willem van Oranje</English>
-	</TEXT>
-	<!-- custom: was Suryavarman. (in BtS Civ4GameTextObjects XML) -->
-	<TEXT>
-		<Tag>TXT_KEY_LEADER_SURYAVARMAN</Tag>
-		<English>Suryavarman II</English>
-	</TEXT>
-	
+	</TEXT>	
 	<!-- advc.004r: Based on TXT_KEY_MISC_YOU_DISCOVERED_BONUSin
 		 Vanilla CIV4GameTextInfos.xml	-->
 	<TEXT>
@@ -3550,13 +3421,6 @@
 		<Italian>[ALT] per dichiarare guerra</Italian>
 		<Spanish>[ALT] para declarar la guerra</Spanish>
 	</TEXT>
-
-	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
-	<!-- advc.004w: Based on keys in CIV4GameTextInfos.xml. -->
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_WORLD_WONDER1</Tag>
-		<English>[ICON_BULLET]World Wonder</English>
-	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_TEAM_WONDER1</Tag>
 		<English>[ICON_BULLET]Team Wonder</English>
@@ -3588,12 +3452,6 @@
 		<German>[ICON_BULLET]Teamprojekt</German>
 		<Italian>[ICON_BULLET]Progetto di squadra</Italian>
 		<Spanish>[ICON_BULLET]Proyecto de equipo</Spanish>
-	</TEXT>
-	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
-	<!-- advc.004w: Put only the number in parentheses, not the wonder type -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_BUILDING_WORLD_WONDER_LEFT</Tag>
-		<English>[SPACE]World Wonder (%d1_Num Left)</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_BUILDING_NATIONAL_WONDER_LEFT</Tag>
@@ -4078,7 +3936,6 @@
 	<!-- advc.004a: Replacing TXT_KEY_BUG_TECH_PREFS_ALL, 
 		 TXT_KEY_BUG_TECH_PREFS_CURRENT and TXT_KEY_BUG_TECH_PREFS_FUTURE in
 		 BUG_CIV4GameText.xml-->
-	<!-- custom: this file is named BUG_CIV4GameText_Custom.xml now though -->
 	<TEXT>
 		<Tag>TXT_KEY_ADVC_TECH_PREFS_FUTURE</Tag>
 		<English>After finishing queued research, i.e.</English>
@@ -5620,27 +5477,6 @@
 		<Italian>[COLOR_WARNING_TEXT]Danno massimo (%d1%%) inflitto[COLOR_REVERT]</Italian>
 		<Spanish>[COLOR_WARNING_TEXT]Máximo da&#241;o (%d1%%) infligido[COLOR_REVERT]</Spanish>
 	</TEXT>
-
-
-
-	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
-	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
-		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
-	</TEXT>
-	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
-		<English>[ICON_BULLET]Coll. Damage (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
-	</TEXT>
-	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name; since this shouldn't refer to iCollateralDamage i guess, adding the word "extra" -->
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA</Tag>
-		<English>[ICON_BULLET]Causes Extra Collateral Damage (%D1_Amount%%)</English>
-	</TEXT>
-
-
 	<!-- advc.030 -->
 	<TEXT>
 		<Tag>TXT_KEY_PLOT_ICE_LOCKED</Tag>
@@ -6198,15 +6034,6 @@
 		<Italian>Popolazione meno %s1_Num (vittime civili).</Italian>
 		<Spanish>Población menos %s1_Num (víctimas civiles).</Spanish>
 	</TEXT>
-
-	<!-- advc.650: Would be nice to make clear somehow that the evasion chance
-		 is already taken into account here. -->
-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #65 -->
-	<TEXT>
-		<Tag>TXT_KEY_NUKE_INTERCEPT_CHANCE</Tag>
-		<English>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%%</English>
-	</TEXT>
-
 	<!-- advc.004g: "Plot" is slang; "tile" is the proper game term.
 		 I haven't bothered changing this in texts that only concern
 		 map scripts, WorldBuilder, Pedia, random events or
@@ -6576,34 +6403,5 @@
 		<German>(erhöht f&#252;r Nichtaus&#252;bung von %s2_ReligionOrCivic)</German>
 		<Italian>(aumentato per non praticare %s2_ReligionOrCivic)</Italian>
 		<Spanish>(aumentado por no practicar %s2_ReligionOrCivic)</Spanish>
-	</TEXT>
-
-
-
-	<!-- custom: add (new) the <bTrade> tech info xml flag in sevopedia tech's placeSpecial, see also buildBTradeString and related or similar in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any. -->
-	<TEXT>
-		<Tag>TXT_KEY_MISC_TECH_CANNOT_BE_TRADED</Tag>
-		<English>[ICON_BULLET]Cannot be traded.</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER</Tag>
-		<English>As a reminder, the following technologies cannot be traded:</English>
-	</TEXT>
-	<!-- custom: adds the <bRepeat> info similarly, see also similarly buildBRepeatString -->
-	<TEXT>
-		<Tag>TXT_KEY_MISC_TECH_CAN_BE_REPEATED</Tag>
-		<English>[ICON_BULLET]Can be researched multiple times.</English>
-	</TEXT>
-
-
-
-	<!-- custom: show this info in sevopedia unit's as of now placeSpecial for example for the robotic_infantry we added in advciv-sas -->
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST</Tag>
-		<English>No military support cost</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE</Tag>
-		<English>May grant unit(s) on capture</English>
 	</TEXT>
 </Civ4GameText>

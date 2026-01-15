@@ -156,7 +156,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.X_ITEMS = self.X_CATEGORIES + self.W_CATEGORIES + 2
 		self.Y_ITEMS = self.Y_CATEGORIES
-		# <!-- custom: same reasoning as for/in smaller categories, did not test but should be fine with the new space, anyways, was 210 -->
+		# <!-- custom: same reasoning as for/in smaller categories, did not test but should be fine with the new space was 210 -->
 		self.W_ITEMS = 230
 		# <advc.004y>
 		if self.bWideScreen:

@@ -6,7 +6,7 @@ in sevopediaunit, after having imported the sevopedia_debuggers (`from _sevopedi
 printObjAttrs(gc.getUnitInfo(self.iUnit))
 returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
 
-Note: if i'm not mistaken we don't need to inspect the full gc for each file since it should be common, so i only inspected one here, but did instead the inner-debug-content rather , but it's just a guess and i don't know too much about these, check if accurate.
+Note: if i'm not mistaken we don't need to inspect the full gc for each file since it should be common, so i only inspected one here, but did instead the inner-debug-content rather, but it's just a guess and i don't know too much about these, check if accurate.
 
 
 

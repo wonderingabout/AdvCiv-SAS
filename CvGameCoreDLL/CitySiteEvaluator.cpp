@@ -1018,7 +1018,7 @@ int AIFoundValue::evaluate()
 		}
 		else
 		{
-			// <!-- custom: do not count flood plains as the good outweights the bad, it can be considered neutral in terms of health vs unhealthiness overall benefits for this calculation but anyways, but to be strictly fair we'd still grow even accounting for unhealthiness however simpler to just nullify it as it is about as good as bad to simplify -->
+			// <!-- custom: do not count flood plains as the good outweights the bad, it can be considered neutral in terms of health vs unhealthiness overall benefits for this calculation, but to be strictly fair we'd still grow even accounting for unhealthiness however simpler to just nullify it as it is about as good as bad to simplify -->
 			if (eFeature == eFeatureJungle)
 			{
 				iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();

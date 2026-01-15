@@ -5,10 +5,6 @@
 
 <Civ4GameText xmlns="http://www.firaxis.com">
 	<TEXT>
-		<Tag>TXT_KEY_SEVOPEDIA_TITLE</Tag>
-		<English>SEVOPEDIA</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SCREEN_INDEX</Tag>
 		<English>Index</English>
 		<French>Index</French>
@@ -24,42 +20,10 @@
 		<Italian>Contenuto</Italian>
 		<Spanish>Contenido</Spanish>
 	</TEXT>
-	<!-- custom: Long_Comments_XML.txt #147 -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
-		<!-- custom: <English>Units Tree</English> -->
-		<English>Un. Tree</English>
-	</TEXT>
-	<!-- custom: use the plural here too: "Promotion Tree" -> "Promotions Tree" -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE</Tag>
-		<!-- custom: <English>Promotions Tree</English> -->
-		<English>Pr. Tree</English>
-	</TEXT>
-
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS</Tag>
-		<!-- custom: <English>National Wonders</English> -->
-		<English>N. Wond.</English>
-	</TEXT>
-	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS</Tag>
-		<!-- custom: <English>Great Wonders</English> -->
-		<English>W. Wond.</English>
-	</TEXT>
-
 	<!-- advc.002g: Deleted TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
 		 (en. BTS Concepts, fr. Conceptes BTS, dt. Beyond the Sword-Konzepte,
 		 it. Concetti di BTS, es. Conceptos BtS)
 		 because I'm replacing this key in CIV4GameText_advc_pedia.xml. -->
-
-	<!-- custom: rename "Unique Buildings" to "Civilization Buildings", hopefully clearer -->
-	<TEXT>
-		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
-		<English>Civilization Buildings</English>
-	</TEXT>
-
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FAV_CIVIC_AND_RELIGION</Tag>
 		<English>Favorite Civic and Religion</English>
@@ -68,101 +32,7 @@
 		<Italian>Forme di governo e Religioni preferite</Italian>
 		<Spanish>Principio y religión favoritos</Spanish>
 	</TEXT>
-
-
-	<!-- custom: -->
-	<!--				TERRAINS CATEGORY				-->
-	<!-- custom: rename "Base Terrain" to "Terrains" (also switching to the plural form, same as for "Features" (no reason why not and why it was not like that). Maybe simpler is better here. -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_TERRAIN</Tag>
-		<English>Terrains</English>
-	</TEXT>
-
-
-	<!-- custom: -->
-	<!--				FEATURES CATEGORY				-->
-	<!-- custom: remove mention of the "terrain" in "terrain features" of the root sevopedia category, i think it's confusing, and hinders the (especially new) player's ease of grasping that terrains and features are 2 diferent things, there should be either "terrains" or "features", i think it's an easier way to approach these new "concepts" of civ4.
-	Not necessary to remove it everywhere, the sentences may become a bit weird too, but in	key visibility and isolated (not sentences), it should be a no brainer i think.
-	I also don't trust these translations, so putting the English version rather, maybe	easier this way or better long term.
-	-->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_FEATURE</Tag>
-		<English>Features</English>
-	</TEXT>
-
-
-	<!-- custom: -->
-	<!--				RESSOURCES / BONUSES CATEGORY				-->
-	<!-- custom: create a new TXT KEY for ressources natural tile yields, making it extra clear what these yields are:
-	- they are not global (yield on tile only)
-	- they are bonus (and natural tile yield)
-	I think this part about ressources is very confusing too, hopefully clearer now -->
-	<TEXT> 
-		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES</Tag>
-		<English>Natural Tile Yield Change(s)</English>
-	</TEXT>
-	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT to something clearer at the same time, maybe helps.
-	Create a new TXT KEY specifically for the improvements info of the ressources (bonus) category (before creating	this new txt key, the previous one was shared between category title "Improvements", and	Ressources/"Improvements", not possible to modify one without affecting the other which is not optimal, so creating this new text key, and updating the python files too to support it)
-	-->
-	<!-- custom: be careful, this applies to the ressources category not the improvement category unlike what the tile may (mis)lead to think, clarified that this is the total (base + extra) bonus -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES</Tag>
-		<English>Total (Base + extra) Improvement(s) Yield Change(s)</English>
-	</TEXT>
-	<!-- custom: create a new entry "Revealed By" specifically for the sevopedia, the civilopedia still uses reveals due to how	the text "reveals" is displayed in the civilopedia rather -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM</Tag>
-		<English>Revealed By</English>
-	</TEXT>
-
-
-	<!-- custom: -->
-	<!--				IMPROVEMENTS CATEGORY				-->
-	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT specifically for the Improvements category title (or other places where it is used), we need a new TXT KEY for the Ressources/"Improvements" now though, see TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS i created for that
-	-->
-	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
-	I've kept the FIS translations from there. -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
-		<English>Improv.</English>
-	</TEXT>
-	<!-- custom: make this a separate entry for headers or such or not such -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM</Tag>
-		<English>Improvements</English>
-	</TEXT>
-	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES</Tag>
-		<English>Irrigation, Hill, River, Tech, Civic, Route Tile Yield Changes</English>
-	</TEXT>
-	<!-- custom: be careful, this is applied to improvements category not ressources category.
-	Also clarifying it to a more detailed/accurate name to hopefully help the player; also as of now disabled as is prettier and clearer without it, was "Bonus Yields"
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES</Tag>
-		<English>On Bonuses Extra Yield</English>
-	</TEXT>
-	-->
-	<!-- custom: new panels, see sevopedia improvement for details -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS</Tag>
-		<English>TerrainMakesValids</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS</Tag>
-		<English>FeatureMakesValids</English>
-	</TEXT>
-	<!-- custom: clarify that the restriction can be elsewhere (maybe in bonus infos for example?), not only see sevopedia improvement for details -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION</Tag>
-		<English>No Restriction in ImprovementInfo 's TerrainMakesValids</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION</Tag>
-		<English>No Restriction in ImprovementInfo 's FeatureMakesValids</English>
-	</TEXT>
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #76 -->
-
 	<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
 	parentheses and "Total"; more comprehensible this way. -->
 	<TEXT> <!-- redefine -->
@@ -233,20 +103,5 @@
 			<Gender>Male</Gender>
 			<Plural>1</Plural>
 		</Spanish>
-	</TEXT>
-	<!-- custom: new text key for Obsoletes panel in Sevopedia Tech (Claude code Sonnet 4.5) -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_OBSOLETES</Tag>
-		<English>Obsoletes</English>
-	</TEXT>
-	<!-- custom: new text key for First to Discover panel in Sevopedia Tech (Claude code Opus 4.5 + GPT-5.2-Codex) -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FIRST_TO_DISCOVER</Tag>
-		<English>First to D</English>
-	</TEXT>
-	<!-- custom: new text key for Enables panel in Sevopedia Tech (Claude code Opus 4.5) -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_ENABLES</Tag>
-		<English>Enables</English>
 	</TEXT>
 </Civ4GameText>

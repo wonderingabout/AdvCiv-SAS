@@ -3475,7 +3475,7 @@
 				</UnitCombat>
 				<!-- custom: todo replace with war boats and war boats (and submarines too
 				i think but todo check) foreign only 
-				todo only boat cuirassiers if i add them again, anyways, -->
+				todo only boat cuirassiers if i add them again -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>

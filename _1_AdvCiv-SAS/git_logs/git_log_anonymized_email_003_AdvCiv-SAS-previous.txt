@@ -326,7 +326,7 @@ Date:   2025-12-20 06:55:09 +0100
 add SAS_getBuildingsGroupedByEra_fromBaseList helper, group wonders by era (tech prereq) + other changes.
 - fix BUILDING_BARBARIAN_BARRACKS's tech prereq from NONE to TECH_HUNTING (same as the generic barracks.
 - change BUILDING_ZULU_IKHANDA's tech prereq from NONE to TECH_HUNTING (same as the generic barracks.
-- BUILDING_ACADEMY: change tech prereq from NONE to TECH_LITERATURE: "so this building appears in the Technology Advisor and is not listed in sevopedia buildings in the "No Tech Prerequisite" group. For balance and strategy, also helps reward the science path more than give a generic free academy path for warmogners or anyone; , was NONE. -->"
+- BUILDING_ACADEMY: change tech prereq from NONE to TECH_LITERATURE: "so this building appears in the Technology Advisor and is not listed in sevopedia buildings in the "No Tech Prerequisite" group. For balance and strategy, also helps reward the science path more than give a generic free academy path for warmogners or anyone;, was NONE. -->"
 - BUILDING_SCOTLAND_YARD: change tech prereq from NONE to TECH_MONARCHY" <!-- custom: so it appears in tech tree, and so that in sevopedia buildings it is not listed under the as of now "No Tech Prerequisite section". No reason to put it especially late in the tech tree in terms of gameplay -->"
 - UNITCLASS_SPY: change tech prereq from TECH_MONARCHY to TECH_CALENDAR
 
@@ -1045,7 +1045,7 @@ commit f43ea2be6f15404a50b1ebd1257989931aa19490
 Author: wonderingabout <hidden>
 Date:   2025-11-27 09:31:52 +0100
 
-overhaul `FLAVOR_MILTIARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0 , TECH_CIVIL_SERVICE 3->8)
+overhaul `FLAVOR_MILTIARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0, TECH_CIVIL_SERVICE 3->8)
 
 commit 829c236b48b5afc5bc7f3735f88c9c98f48324ee
 Author: wonderingabout <hidden>
@@ -2016,7 +2016,7 @@ buff and rework/rebalance colosseum buildings so they are more specialized and b
 - buff culture-specific buildings (here colosseum buildings) and make them more specialised, increase cost to justify/match the effect when needed
 - - maya_ball_court: "<!-- custom: was 3: way too op and not varied nor balanced, give other effects instead -->" + "<!-- custom: description mentions it influencing god sacrifices, varied, more versatile and quite strong, was empty -->" + about bonus maize for +1 happiness"<!-- custom: very nice idea by chatgpt 5, thematic and varied and quite good/strong too if player has bonus, was empty -->"
 - - greek_odeon: "<!-- custom: emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong; since an artist specialist gives 3 gpp as of now (and culture or such), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building); also to rpely to chagpt 5 that said +2 may be too much, it seems thinking about it that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such, was NONE and 0 -->"
-- - babylon_garden: about +1 health with bonus_wheat: "<!-- custom: more varied as such than flat health, plus unlikely a player would have too many of the bonuses early so balanced as well and thematic too if i may say, done with the help of chatgpt 5, check if accurate -->"
+- - babylon_garden: about +1 health with bonus_wheat: "<!-- custom: more varied as such than flat health, plus unlikely a player would have too many of the bonuses early so balanced as well and thematic too, done with the help of chatgpt 5, check if accurate -->"
 
 commit ce25fe35fd52a81c1f69d4cc643504581e35c0bb
 Author: wonderingabout <hidden>
@@ -2484,7 +2484,7 @@ Author: wonderingabout <hidden>
 Date:   2025-08-30 14:13:56 +0200
 
 disabled iAIHandicapIncrementTurns at all difficulties/handicap settings, tech quotes reordering or such
-- iAIHandicapIncrementTurns: "<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->"
+- iAIHandicapIncrementTurns: "<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->"
 - tech quotes reordering or such if any other such:
 
 - - combustion ("everything in life is somewhere else, and you get there in a car") -> priesthood (bio engineering)
@@ -2675,7 +2675,7 @@ Date:   2025-08-20 19:21:23 +0200
 - rename UNIT_WORKBOAT_BARBARIAN to UNIT_WORK_BOAT_BARBARIAN to UNIT_BARBARIAN_WORKBOAT
 - sevopedia unit: "Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for example for the generic settler or generic worker) thanks to claude ai as well as well as thanks to my prompts and adjustments or such or not or yes or etc."
 - remove main menu blue rectangle theme to better show our background image: "if you want to know how i removed the blue rectangle color, it is (thanks to chatgpt 5) done by replacing, in [/Resource/Civ4Theme_Custom.thm](/Resource/Civ4Theme_Custom.thm) the `style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style` 's image lines such as `Image			= 	GBitmap("../../../../Resource/Civ4/Custom/main_start.tga", HVGrid, 1, 2, 0, 0);` to `Image			= 	GBitmap();`"
-- make main menu text change from white to black: "then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background) , white was too bright so now is black, screenshots are visible in the gogole drive folder corresponding to known issue above, or other text beautification(s) (see code comments there for details)."
+- make main menu text change from white to black: "then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background), white was too bright so now is black, screenshots are visible in the gogole drive folder corresponding to known issue above, or other text beautification(s) (see code comments there for details)."
 - BUILDING_UNITED_NATIONS: increased cost as of now from 1000 to 1500: "<!-- custom: class: united_nations, type: united_nations (useful for vs code (for example) upper tree view while scrolling) -->"
 - BUILDING_HEROIC_EPIC, BUILDING_NATIONAL_EPIC: "<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details, these are op enough already and would prefer to gain culture in a more risky and rewarding path rather, was 0 / 0 / 4 -->"
 - BUILDING_FORBIDDEN_PALACE: "<!-- custom: reduce this a bit for non-purely cultural buildings and for balance too, similar reasoning than as of now the changes for the building_library and such, see there for details, as for this one in particular, match the base palace, and not especially cultural(nerf easy sources of culture and not thematically relevant ones (ideally buff the other sources as well without making it op or unbalanced as well)), was 0 / 0 / 4 -->"
@@ -2841,7 +2841,7 @@ Author: wonderingabout <hidden>
 Date:   2025-08-07 15:50:53 +0200
 
 various AI fixes and tweaks: better AI worker control by functionally disabling base advciv +/- civ4 AI worker logic further more, no or much less interference (unwanted farm flood plains out of our main logic, or farm spices plains, etc), better avoiding settling on bonuses, better favouring settling on coast in low-food environment in some seemingly rare cases where AI still didn't chose to do so, and other fixes or tweaks
-- CvCityAI::AI_getImprovementValue: "<!-- custom: since we handle all this ourselves now in CvUnitAI::AI_bestCityBuild, we don't want any interference, disabled as part of trying to solve spices plains forcibly irrigated despite our code controlling most of the ai worker build decisions now, as well as flood plains or flatland grass as well very inefficiently farmed when city is not even starved, let us handle it ourselves rather there as we seem to already do for most, added by chatgpt o-3 and adjusted or not or yes or etc by me too; update: this solved the farm on spices plains issue and also unwanted as well farm on flood plains, AI workers chose to go for production economy for some reason xd, but our best improvements are still chosen reliably it seems (e.g. cottage on flood plains or nothing unless we are starved, see CvUnitAI::AI_bestCityBuild for details) -->"
+- CvCityAI::AI_getImprovementValue: "<!-- custom: since we handle all this ourselves now in CvUnitAI::AI_bestCityBuild, we don't want any interference, disabled as part of trying to solve spices plains forcibly irrigated despite our code controlling most of the ai worker build decisions now, as well as flood plains or flatland grass as well very inefficiently farmed when city is not even starved, let us handle it ourselves rather there as we seem to already do for most, added by chatgpt 3o and adjusted or not or yes or etc by me too; update: this solved the farm on spices plains issue and also unwanted as well farm on flood plains, AI workers chose to go for production economy for some reason xd, but our best improvements are still chosen reliably it seems (e.g. cottage on flood plains or nothing unless we are starved, see CvUnitAI::AI_bestCityBuild for details) -->"
 - CvUnitAI::AI_irrigateTerritory: disable it functionally as well in an attempt to solve extra farms or such issues: "<!-- custom: we handle these ourselves now in CvUnitAI::AI_bestCityBuild, please do not override and interfere with our preferred ideal tiles like often cottages on flood plains or grass, no farm on plains spices (exceptions managed there as well), we as of now don't strictly handle irrigation, but we want to remove unwanted interferences, this ruins good city radiuses with needless farms just because a tile, any unimproved tile, can be irrigated, according to what i understand of claude ai's explanation, and otherwise we have almost total control and improved it nicely. So testing commenting-out this function entirely to see what happens, as advised by claude ai, we already choose and improve cities based on terrain and such, even if as of now we don't handle irrigation, it is not a concern big enough to override nice and ultimate or at least very efficient yield and terrain optimization we added, so testing to disable functionally this to see -->"
 - low-food environment city settling/founding/planting penalty: "update: increase the penalty a bit to solve some extra cases where some cities still didn't prefer coast, and which seems to indeed successfully solve it as well for these cities, see screenshots 1855 vs 1859 to 1862 for compare"
 - fix some issues in our refactored CvUnitAI::AI_bestCityBuild
@@ -2874,7 +2874,7 @@ Date:   2025-08-06 19:36:40 +0200
 code optimizations and tweaks in CvUnitAI::AI_bestCityBuild and other related functions to increase AI worker efficiency and accuracy, move civic_slavery to tech_agriculture, rebalance japan_doujou
 - rebalance the japan_doujou, gives as of now less gpp and a free spy
 - civic_slavery: move it back to as of now tech_agriculture"some other civics such as CIVIC_SLAVERY have been moved sooner or at another position in tech tree, as of now for example at tech_agriculture for CIVIC_SLAVERY, for historical accuracy and also gameplay balance or strategical variety: having it out of the military tree reduces the power/strength of tech_bronze_working in a quite nice way and rewards additional paths as well. So hopefully all in all best or fine to do/try in our mod if i may say as such"
-- CvUnitAI::AI_improveBonus: "update note: i have noticed that commenting out the `CvUnitAI::AI_improveBonus` function entirely in the inner body i mean in this caseand returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had; i didn't see an easy way to selectively do this with AIs like chatgpt o-3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient)"
+- CvUnitAI::AI_improveBonus: "update note: i have noticed that commenting out the `CvUnitAI::AI_improveBonus` function entirely in the inner body i mean in this caseand returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had; i didn't see an easy way to selectively do this with AIs like chatgpt 3o, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient)"
 
 commit c4ffe69511a53516e41181b230f0554c9921c42b
 Author: wonderingabout <hidden>
@@ -2938,7 +2938,7 @@ Author: wonderingabout <hidden>
 Date:   2025-07-31 14:08:05 +0200
 
 make AI never ever choose the citizen specialist as it is too inefficient (change in the DLL in `CvCityAI::AI_jobChangeValue` thanks to gemini ai and adjusted for advciv-sas too or not), that as a side effect may also slightly increase performance due to early return in the function
-- CvCityAI::AI_jobChangeValue: "<!-- custom: code provided by gemini ai and adjusted or not for advciv-sas, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, especially crippling in the early game i think. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it -->"
+- CvCityAI::AI_jobChangeValue: "<!-- custom: code provided by gemini ai and adjusted or not for advciv-sas, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, especially crippling in the early game i think. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code, and return lowest positive value as gemini ai did, or something very or similar to it -->"
 
 commit 44ffa78d4326c49b8049cefd99f8d80566cf42ff
 Author: wonderingabout <hidden>
@@ -2952,7 +2952,7 @@ Author: wonderingabout <hidden>
 Date:   2025-07-30 19:48:20 +0200
 
 beautify sevopedia improvement's placeMostYields, now as clickable buttons with tooltips too on hover, based on m-e mod's code, with claude ai and gemini ai and my adjustments too hehe or not or yes or etc, add new concepts concept_rivers, concept_route_road, concept_route_railroad
-- ROUTE_ROAD and ROUTE_RAILROAD "<!-- custom: note: we have also added them as conceptinfos entries in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml , so that we can redirect to them and show their tool tip without implementing them exhaustively, in sevopedia improvement (similar approach although unrelated as of now in sevopedia unit's concept_cities), see these places's code or code comments for details -->"
+- ROUTE_ROAD and ROUTE_RAILROAD "<!-- custom: note: we have also added them as conceptinfos entries in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml, so that we can redirect to them and show their tool tip without implementing them exhaustively, in sevopedia improvement (similar approach although unrelated as of now in sevopedia unit's concept_cities), see these places's code or code comments for details -->"
 - sevopedia improvement's placeMostYields: "<!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ) and adjsuted or not for advciv-sas -->" + "<!-- custom: unlike in m-e mod or so it seems, we don't use WidgetTypes.WIDGET_PYTHON and id 6783 neither, so go for a simpler implementation, that matches how we redirect using concepts in sevopedia unit as of now to the concept_cities for example, we now have a new concept_rivers to redirect to now in advciv-sas, use that rather, is also thanks to gemini ai's help, and adjusted or not by me too hehe if i may say in this casefor advciv-sas -->" + "<!-- similarly than for river yield changes, also handle route yield changes differently than in m-e mod, using the newly added in advciv-sas CONCEPT_ROUTE_ROAD and CONCEPT_ROUTE_RAILROAD (as these are as of now our only routeinfo xml entries) as sevopedia pages to redirect to as well -->"
 
 commit a12a30bc7ebc07b49086b35d32fa62e83bc7594a
@@ -3067,7 +3067,7 @@ Date:   2025-07-25 21:26:59 +0200
 
 add "no military support cost" info in sevopedia unit's placeSpecial (as of now only for the robotic_infantry), increase bMilitarySupport to 1 for the privateer in this being the xml field
 - + "<!-- custom: import from c2c mod's ART_DEF_UNIT_SENTROID_INFANTRY (and some missing files based on nif from unit "androidinfantry"), as a result there may be a bit more .dds or such extra files than needed or maybe not but at least the unit is functionnal and overhead if i may say and am not mistaken in saying/thinking (that is) soshould be overall minimal if any,  and adjusted or not for advciv-sas -->"
-- privateer: "<!-- custom: even if it has no nationality, it should still cost gold or such to run, so give it maintenance military cost too if i may say, was 0 -->"
+- privateer: "<!-- custom: even if it has no nationality, it should still cost gold or such to run, so give it maintenance military cost too, was 0 -->"
 - "added "no military support cost" (`bMilitarySupport` in unit info's XML) info in sevopedia unit's placeSpecial as part of giving as of now 0 military support cost for the robotic_infantry we (i.e. i) added in advciv-sas, see [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) and the [/_1_AdvCiv-SAS/Docs/README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs/README_Quick_Get_Started_Guide.md) for related info as well"
 
 commit 42c6513b0d3e451eef7563a9ba362d5a3207499f
@@ -3096,10 +3096,10 @@ Date:   2025-07-24 20:21:46 +0200
 
 add collateral damage limit info in sevopedia unit and ingame even if base collateral damage is 0, fix bugs in advciv-sas and also a bug ro bugs in base advciv +/- civ4 as well
 - "fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (``<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions, but we (i.e. mexd...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still; such info is now displayed in sevopedia unit chart (as of now named "Combat" category, as well as in each unit's sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well); hopefully i am not mistaken in doing so or it is helpful or not or yes or etc)"
-- in the DLL for ingame map view part (pUnit): "	// <!-- custom: also show collateral damage info (with defenders too) if collateral damage limit > 0 as well, may be useful to know -->" + "<!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit so it (also) appears in sevopedia unit, not in this seemingly ingame panel,), still, is maybe cleaner (but i don't know again as i don't know a lot about these) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine at least to me but again check to be sure, hopefully helpful or not or yes or etc -->"
+- in the DLL for ingame map view part (pUnit): "	// <!-- custom: also show collateral damage info (with defenders too) if collateral damage limit > 0 as well, may be useful to know -->" + "<!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS(), i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit so it (also) appears in sevopedia unit, not in this seemingly ingame panel,), still, is maybe cleaner (but i don't know again as i don't know a lot about these) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine at least to me but again check to be sure, hopefully helpful or not or yes or etc -->"
 - in the DLL for sevopedia unit part view: "// <!-- custom: also display the collateral limit info even for units that have a base collateral damage of 0, but now applying this to sevopedia unit placeSpecial panel here in this code block, with chatgpt's help too, hopefully helpful or not or yes or etc -->"
 - "<!-- custom: rename "_BARRAGE" to "_COLLATERAL_DAMAGE" -->" in remaining places where i forgot or overlooked to do so but or not but or yes but
-- fix a bug in sevopedia promotion we had created in advciv-sas whiel remvoing unsued variables, but the instruction itself was used though: "<!-- custom: removed line `iRow = screen.appendTableRow(szTable)` to fix ruff warning of variable being unused so cleaning this up, after asking chatgpt this seems fine and safe to do and we have no errors so maybe solved as well (as in sevopedia unit ruff warning fix/cleanup as well), other sevopedia classes don't seem to have a similar issue from quick glance at each file, although i didn't investigate in depth, hopefully fine, if in doubt check ingame display to see if it matches xml info, in sevopedia at least if i may say, hopefully helpful or not or yes or etc, but or not but or yes-->"
+- fix a bug in sevopedia promotion we had created in advciv-sas whiel remvoing unsued variables, but the instruction itself was used though: "<!-- custom: removed line `iRow = screen.appendTableRow(szTable)` to fix ruff warning of variable being unused so cleaning this up, after asking chatgpt this seems fine and safe to do and we have no errors so maybe solved as well (as in sevopedia unit ruff warning fix/cleanup as well), other sevopedia classes don't seem to have a similar issue from quick glance at each file, although i didn't investigate in depth, hopefully fine, if in doubt check ingame display to see if it matches xml info, in sevopedia at least, hopefully helpful or not or yes or etc, but or not but or yes-->"
 - "fix a seemingly bug in base advciv +/- civ4 of some promotions not being shown in sevopedia unit's placePromotions for example for the generic swordsman and the impi (i.e. for example for the melee units combat type), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#27---now-fixed-some-promotions-are-missing-in-sevopedia-units-placepromotions](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#27---now-fixed-some-promotions-are-missing-in-sevopedia-units-placepromotions)" + "<!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml -->"
 
 commit 8662b6bb212613b584ce334a2c1770d4ce24d523
@@ -3184,7 +3184,7 @@ commit 96aa082a991bea20941d4dd9e5f602d26590effa
 Author: wonderingabout <hidden>
 Date:   2025-07-22 13:29:35 +0200
 
-(Attempt to) make the AI settle more on low food terrain/features and less on high food ones, especially more on hill (due to additional defense bonus), make the not settling in range of water bonus penalty stronger than in base advciv if i may say, hopefully both of these help although not tested too much from quick glance but maybe they do
+(Attempt to) make the AI settle more on low food terrain/features and less on high food ones, especially more on hill (due to additional defense bonus), make the not settling in range of water bonus penalty stronger than in base advciv, hopefully both of these help although not tested too much from quick glance but maybe they do
 - "similarly also attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill (defense modifier and low food in particular make it a particularly nice candidate to settle/plant/found cities on in most cases (excluding hills grassland)) +/- desert, snow (terrain), plains, tundra, all of which should now more or less strongly depending on some conditions be prioritized even a bit if not a bit more, and too often on high food ones such as grassland, including hill grassland, and flood plains. This logic was added in the DLL, with chatgpt's help and my prompts and thoughts too similarly i mean than for previous AI settling or worker behaviour changes in advciv-sas i mean as i don't know too much about these but can provide some ideas or think about them in this case with chatgpt's help thanks, hopefully helpful or not or yes or etc. Effect should be a bit less pronounced, as i don't know how this code may affect other parts or not of the AI behaviour, still there may be a bit of difference if not quite a bit, hopefully helpful(only tested on a few autoplay runs, you may want to test to be sure and see if it maybe makes a difference or that is signficant enough,)"
 - "About water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city insteada non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or updated value), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe"
 
@@ -3312,7 +3312,7 @@ rework and buff jungle, add placeRelevantUnits and placeUnitsImpassable in sevop
 - FEATURE_JUNGLE: "<!-- custom: some or many websites i looked at or on google or such search say jungle is vegetation and animal(s?rich), so to rebalance it and make it as strong in different/other ways than forest, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below as of now, was -1 / 0 / 0 -->" + iHealthPercent increased from -25 to -50
 - add chop production information in sevopedia feature
 - "Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious) with chatgpt +/- claude ai i forgot who xd maybe both."
-- mounted_ranged units: "<!-- custom: do/give milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged, but may have trouble to take cover or navigate the terrain still or may find it hard to hide or protect their heavy in size in this case mount so more targetable by ennemies if i may say anywyas etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say, was empty -->"
+- mounted_ranged units: "<!-- custom: do/give milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged, but may have trouble to take cover or navigate the terrain still or may find it hard to hide or protect their heavy in size in this case mount so more targetable by ennemies if i may say anywyas etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry, was empty -->"
 
 commit 0a47e63d61827d9eb543336a7d7e7d78894d597d
 Author: wonderingabout <hidden>
@@ -3331,7 +3331,7 @@ commit 3997ab6d2ba3cf4657303c499ef81d516eb0212f
 Author: wonderingabout <hidden>
 Date:   2025-07-13 17:03:55 +0200
 
-add placeUnits and placeUnitsImpassable in sevopedia terrain, nerf/rebalance barbarians so other civs can grow without having to go full ultra military if i may say, refactor, add/rebalance/update terrain or feature unit modifiers, and other changes
+add placeUnits and placeUnitsImpassable in sevopedia terrain, nerf/rebalance barbarians so other civs can grow without having to go full ultra military, refactor, add/rebalance/update terrain or feature unit modifiers, and other changes
 - rebalance barbarians's iMilitaryProductionModifier as of now to -50 (see xml for update value): "<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians) to have the time and space to build in this case at least i meanso accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus, was 0 -->"
 - refactor similarly remaining sevopedia unit panels using multilist code: now the other units modifiers panel in particular handles or rather anywys etc displays info as multi row (is only one or few liens to change but only this panel has it/these as of now (as is not needed for the other panels as of now if not always or not or other or etc))
 - add missing hill and peak pedia entries (import from rfc doc mod) with a mention aobut plot types
@@ -3350,10 +3350,10 @@ Author: wonderingabout <hidden>
 Date:   2025-07-11 18:09:39 +0200
 
 refactor, rename "_MARINE" (unit) to "_MODERN_INFANTRY", rename "Gunpowder Units" to "Gun units", and other changes
-- refactor sevopedia building to use the new i mean used in our refactored sevopedia unit part of the code multilist code, much much more efficient and clean if i may say, no need to calculate fake numTxt empty ones and such like in old code if i may say
+- refactor sevopedia building to use the new i mean used in our refactored sevopedia unit part of the code multilist code, much much more efficient and clean, no need to calculate fake numTxt empty ones and such like in old code if i may say
 - "<!-- custom: rename "_MARINE" (unit) to "_MODERN_INFANTRY"; pedia entry based on https://en.wikipedia.org/wiki/Rifleman#Modern_tactics -->"
 - "<!-- custom: rename "Gunpowder Units" to "Gun units" to encompass all kind of gun units not just the early ones that use gunpowder; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of smokeless powder instead -->"
-- "<!-- custom: move most helpers outside of their caller function if not a one time thing like the compute cache that is called only once so fine as a design to be done so if i may say, may increase performance to move helpers outside caller as advised by chatgpt after asking it this question in my prompt, so we don't redefine them during runtime each time instead of using them right away, gain may not be big but still nice i think and if i understood it correctly, it's also a free gain so why not relatively, the cost in code being messier with not only place methods in the class is fine i think if it's for performance and cleanliness if i may say and clarity, so not free but fine; also since the functions are entirely parametrized already and don't manipulate variables (even though could have done so if needed) or such i thought it's fine to do so in particular after also asking/telling chatgpt about it which also agreed as often does despite its initial recommendation to overall leave as is but thanks for help chatgpt i mean really thanks but or not but or yes; still even for those called only once like precomputing cache, may and did extract helpers from their caller function for consistency or reliability if i may say as i wanted in this case, i think, which allwoe also to fix a few bugs or other suboptimal things at least to me if not others or all or just as it is or notsuch as not properly parametrized functions not entirely and or such -->"
+- "<!-- custom: move most helpers outside of their caller function if not a one time thing like the compute cache that is called only once so fine as a design to be done so, may increase performance to move helpers outside caller as advised by chatgpt after asking it this question in my prompt, so we don't redefine them during runtime each time instead of using them right away, gain may not be big but still nice i think and if i understood it correctly, it's also a free gain so why not relatively, the cost in code being messier with not only place methods in the class is fine i think if it's for performance and cleanliness if i may say and clarity, so not free but fine; also since the functions are entirely parametrized already and don't manipulate variables (even though could have done so if needed) or such i thought it's fine to do so in particular after also asking/telling chatgpt about it which also agreed as often does despite its initial recommendation to overall leave as is but thanks for help chatgpt i mean really thanks but or not but or yes; still even for those called only once like precomputing cache, may and did extract helpers from their caller function for consistency or reliability if i may say as i wanted in this case, i think, which allwoe also to fix a few bugs or other suboptimal things at least to me if not others or all or just as it is or notsuch as not properly parametrized functions not entirely and or such -->"
 - and other changes or not or yes
 
 commit eb361ab734dfe9df8276552c7f3ebcc75f7cc869
@@ -3385,7 +3385,7 @@ Author: wonderingabout <hidden>
 Date:   2025-07-09 18:55:10 +0200
 
 refactor sevopedia unit thanks to claude ai and chatgpt and my prompts too, add missing previous commit message
-- "<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such -->" + "This also changes warfare tactics and such, for example also, mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwiseas of now at least, also there are other small or not differences such as the defend order or such" + "as for the button art import from ri mod"
+- "<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such -->" + "This also changes warfare tactics and such, for example also, mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example). Also note that some civ-specific units are not in same combat type than their generic "parent", for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwiseas of now at least, also there are other small or not differences such as the defend order or such" + "as for the button art import from ri mod"
 - UNITCOMBAT_ARCHER_BOW_LONG: "<!-- custom: art import from FFH2 mod's UNITCOMBAT_ARCHER 's button -->"
 - UNITCOMBAT_AIR_BOMBER: "<!-- custom: art import from COM mod's rom_promotion_atlas2.dds atlas (their UNITCOMBAT_BOMBERS button that i extracted from the atlas with Paint.NET as we don't need all the atlas) -->"
 
@@ -3416,7 +3416,7 @@ Author: wonderingabout <hidden>
 Date:   2025-07-08 18:37:33 +0200
 
 finalized timeline at gamespeed_normal as of now from -50 000 (at turn 0) to 1870 (at turn 250), disabled hit bonuses, buff citizen, priest, and engineer specialists, rename techs with +/- new art and pedia entries and other changes or not
-- finalized timeline at gamespeed_normal as of now from -50 000 (at turn 0) to 1870 (at turn 250) then bridges with base advciv timeline if i may say, see docs or xml for details
+- finalized timeline at gamespeed_normal as of now from -50 000 (at turn 0) to 1870 (at turn 250) then bridges with base advciv timeline, see docs or xml for details
 - "disabled some bonuses we don't want, as of now, this only applies to hit bonuses. Due to the preexisting warning `WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem` in [CIV4BonusInfos.xml](/Assets/XML/Terrain/CIV4BonusInfos.xml), disabling bonuses we don't need/want rather than removing them altogether, so as of now they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally) without removing them, the assets affected by this change are rebalanced with another effect instead or left as is if deemed fine to do so. As for why they are removed, it is tedious (at least to me if i may say) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less."
 - buff the citizen, as of now now gives 1 hammer and 1 gold (vs only 1 hammer before), this is mostly to help the AI that may allocate a lot of them inefficiently, as well as buff the citizen that is still too weak even without that, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in less penalizing to choose the citizen specialist over any other or working a tile, see sevopedia ingame or xml for updated values
 - also buff the priest that as of now also gives one extra culture (so total 1 hammer 2 gold 1 culture as of now anyways), see sevopedia ingame or xml for updated values
@@ -3424,7 +3424,7 @@ finalized timeline at gamespeed_normal as of now from -50 000 (at turn 0) to 187
 - reworked or rebalanced some buildings
 - TECH_MUSIC: "<!-- custom: replace button from a historically more accurate one and also as per our reworked tech tree as well but even without that so this is also a more historically neutral and less western-centric one, ancient music did not use violins as these appeared so much later from very quick glances i did of it, button art import from c2c mod's TECH_FOLK_MUSIC -->"
 - tech_divine_right: "<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM", quite frankly i am not too sure about this tech name, but it seems most at least more if not most accurate, divine right happened much sooner in history around tech_monarchy if not sooner from what i remember of my search, and a tech name like "islamic golden age" or "islamic era" may be confused with the "golden age" concept or the "era" concept; also, some abrahamic religions appeared after islam, in the end they are all the same entity, so having islam the most famous of the later abrahamic religions represent it is hopefully accurate enough, quote is bit tedious to change so hopefully this one reflects it quite well while keeping same narrator; as for pedia entry not accurate anymore as the text is for divine right, plus i'd suspect civ4 devs or whoever writes these or whoever several or many people do not encessarily one if i may say in this case may add significant(ly) annoying clutter and polish instead of just being historically accurate and honest or neutral even if brief or long too, entry from https://en.wikipedia.org/wiki/Abrahamic_religions#Islam or such other related in same wikipedia page info/paragraphs quoted more exhaustively or less or not, and adjusted or not for advciv-sas -->" + "<!-- custom: art button import from ffh2 mod's tech_fanaticism -->"
-- "<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION", as theology is a broader concept that is not limited, nor especially represented by christianity alone, it happened in various parts of history and of the world as part of religion forming maybe i would say from little or not quite bit if not lot or maybe notknowledge or guess i have/make on the topic, the specific period where christianity emerged from judaism seems to be following what is called the axial age, i find it to fit quite well from little or notresearch bit if not lot or noti have made on the topic, but in short mostly from pedia or reddit or and such or notor other website(s) or not or yes, what i learned or how i see it is that christianity emerged from judaism that is a classical or earlier religion, and from the clash with the roman empire that executed the killing of jesus, so the idea that this religion (christianity) would follow and be a good representative of the postaxial age is something i would find to fit quite well, it was even adopted by the roman empire or what followed it, so i think christianity is a good representative of that and from the guesses, and reading i made online or and such; entry from https://en.wikipedia.org/wiki/History_of_religion#Axial_age and https://en.wikipedia.org/wiki/History_of_religion#Middle_Ages and https://en.wikipedia.org/wiki/History_of_religion#Modern_Ages and https://en.wikipedia.org/wiki/Christianity_and_violence and adjusted or not for advciv-sas -->" + "<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thnkas a lot chatgpt, as for me i gave it context of the tech, asked which scene i wanted, which it did extremely well, then added edges with paint.net if i may say since i liked the image so much if not exagerated of me or maybe i am underestimating my liking of it (to be fair i also tried to generate same image with edges but it failed to do so and image was worse not same maybe i didn't need or maybe didn't want but for exhaustiveness but no i wanted it else would not have said it but maybe i would have ideally not wanted to or i am conflicted that i want to say it but can't talking of mesaid it as i wanted maybe or not or yes or etc or other) so i added edges as i could myself which i think looks not too bad maybe even quite good i would say especially at 64px should be fine, hd iamge in the advciv-sas google drive mod folder of ai-generated images as long as google drive link is valid (link in readme.md) -->"
+- "<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION", as theology is a broader concept that is not limited, nor especially represented by christianity alone, it happened in various parts of history and of the world as part of religion forming maybe i would say from little or not quite bit if not lot or maybe notknowledge or guess i have/make on the topic, the specific period where christianity emerged from judaism seems to be following what is called the axial age, i find it to fit quite well from little or notresearch bit if not lot or noti have made on the topic, but in short mostly from pedia or reddit or and such or notor other website(s) or not or yes, what i learned or how i see it is that christianity emerged from judaism that is a classical or earlier religion, and from the clash with the roman empire that executed the killing of jesus, so the idea that this religion (christianity) would follow and be a good representative of the postaxial age is something i would find to fit quite well, it was even adopted by the roman empire or what followed it, so i think christianity is a good representative of that and from the guesses, and reading i made online or and such; entry from https://en.wikipedia.org/wiki/History_of_religion#Axial_age and https://en.wikipedia.org/wiki/History_of_religion#Middle_Ages and https://en.wikipedia.org/wiki/History_of_religion#Modern_Ages and https://en.wikipedia.org/wiki/Christianity_and_violence and adjusted or not for advciv-sas -->" + "<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thnkas a lot chatgpt"
 - TECH_AESTHETICS: "<!-- custom: button import from c2c mod's TECH_CLASSICAL_LIFESTYLE, should be more historically at least quite accurate even though still a bit greek-roman centric but hopefully representative enough of that time-era -->"
 
 commit e9b665405044fce0facc2ea976c010bbcef89735
@@ -3470,9 +3470,9 @@ replace ogiso igodo with ewuare (based on cyrus then xml refined with chatgpt an
 - replace "    " (4 spaces) with \t in most relevant or where it is easy enough to do places anwyays etc
 - _sevopedia_debuggers.py: "# <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game if i may say), especially the very nice i mean debug leaderheadinfo one but not only, (another) other functions(function) as well, moving them here as it would be heavy and unclean in this case and would also clutter needlessly the other helpers -->"
 - barracks buildings: "- reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least, see xml for details) so that hopefully more varied types or there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones i guess, both for defense but more importantly for offense and from asking chatgpt too with web search."
-- barracks buildings: "to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances , also increase iAIWeight so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira for details) example to be sure, and also by seeing what FFH2 mod does (it uses a value of 40 for example) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details), so all AI leaders (except barbarian as it just needs more units more efficient for it i think) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well,, hopefully AI would plan more and execute better their rushes with stronger in experience units even if these rushes are slightly delayed as a result"
+- barracks buildings: "to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, also increase iAIWeight so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira for details) example to be sure, and also by seeing what FFH2 mod does (it uses a value of 40 for example) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details), so all AI leaders (except barbarian as it just needs more units more efficient for it i think) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well,, hopefully AI would plan more and execute better their rushes with stronger in experience units even if these rushes are slightly delayed as a result"
 - stables buildings: similar reasoning and balance changes, as of now flavor military reduced from 10 to 6 (see xml for updated values) and iAIWeight reduced from 0 to 75, see xml or and docs or other relevant info in our mod or outside of it maybe if helps
-- adjusted the xml values of some leaders based on chatgpt's feedback and my own perception of it anyways from quite little in this case i know about the topic and quite cautiously if i may say, for example increased as of now julius caesar's buildunitprob from 30 to 35, augustus caesar from 25 to 30, qin shi huang from 20 to 30, genghis khan from 35 to 40, alexander from 35 to 40, tokugawa from 30 to 35, stalin from 30 to 35, brennus from 30 to 35, boudica from 30 to 35, catherine from 25 to 30, mao zedong from 25 to 35, isabella from 25 to 30, kublai khan from 25 to 30, which means they should build relatively quite more units than buildings/wonders; also reduced buildunitprob for some leaders, as of now like willhem from 25 to 20 for example, justinian from 35 to 30, sitting bull from 35 to 30, zara yaqob from 30 to 25, mansa musa from 25 to 20, see xml for details or updated values hopefully helpful
+- adjusted the xml values of some leaders based on chatgpt's feedback and my own perception of it anyways from quite little in this case i know about the topic and quite cautiously, for example increased as of now julius caesar's buildunitprob from 30 to 35, augustus caesar from 25 to 30, qin shi huang from 20 to 30, genghis khan from 35 to 40, alexander from 35 to 40, tokugawa from 30 to 35, stalin from 30 to 35, brennus from 30 to 35, boudica from 30 to 35, catherine from 25 to 30, mao zedong from 25 to 35, isabella from 25 to 30, kublai khan from 25 to 30, which means they should build relatively quite more units than buildings/wonders; also reduced buildunitprob for some leaders, as of now like willhem from 25 to 20 for example, justinian from 35 to 30, sitting bull from 35 to 30, zara yaqob from 30 to 25, mansa musa from 25 to 20, see xml for details or updated values hopefully helpful
 - fix a bug of not properly excluding from calculations excluded leaders from calculations in sevopedia leader (due to using leader types instead of indexes anways etc, see sevopedia leader py file for details) anwyays etc
 - rebalance previously reworked industrious trait as was too op (combined with bureaucracy it was ridiculous(ly op) in autoplay) and previously reworked as well financial trait in anticipation of it being so
 
@@ -3492,7 +3492,7 @@ fix inefficient Boost 1.32.0 and Python24 paths now out of mod folder, workboats
 - remove advciv-sas core changes as info is more (accurate and udpated there) and better centralized in the quick start guide rather, also update docs in other parts as well in this case and other changes or not
 - rename "UNITCLASS_KNIGHT" to "UNITCLASS_HORSE_KNIGHT" so that horse knight units are more(?) distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd..) unit ...
 - '<!-- custom: rename "UNIT_KNIGHT" to "UNIT_HORSE_KNIGHT" so it is distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd..) unit ...; as for description replaced with a wikipedia based one as civ4 one was too inaccurate even uninformative even from little i know about it, from https://en.wikipedia.org/wiki/Knight and adjusted or not for advciv-sas -->'
-- "also changed/reworked upgrade paths for naval units if i may say, and while doing so in particular found the very inconsistent or nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or for all upgrade changes, or sevopedia entries of the units or related sevopedia entries, or xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense"
+- "also changed/reworked upgrade paths for naval units, and while doing so in particular found the very inconsistent or nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or for all upgrade changes, or sevopedia entries of the units or related sevopedia entries, or xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense"
 - rename "UNITCLASS_CUIRASSIER" to "UNITCLASS_HORSE_CUIRASSIER"
 - "<!-- custom: similarly rename "UNIT_CUIRASSIER" to "UNIT_HORSE_CUIRASSIER" too as there are camel cuirassiers too now, pedia entry is based civ4 one but only in english though as per how we do and i want to do in advciv-sas i mean, is less tedious and such too, from https://en.wikipedia.org/wiki/Knight, and adjusted or not for advciv-sas -->"
 
@@ -3507,7 +3507,7 @@ replace _STEEL with _MARINE_TECHNOLOGY, TECH_PAPER with TECH_THEORY_OF_EVOLUTION
 - "<!-- custom: replace _ALPHABET with _NATURALISM, also pedia entry from: https://en.wikipedia.org/wiki/Naturalism_(philosophy) and https://en.wikipedia.org/wiki/Naturalism_(literature) and https://en.wikipedia.org/wiki/Naturalism_(theatre) quite similarly, modified or not for advciv-sas -->" + "new naturalism button now that it replaces old tech alphabet, based on a base civ4 atlas", see xml for details
 - corporations: "have greater variety in great person type, one great person type per corporation type without overlap, see xml or sevopedia for updated values"
 - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example a great spy at the new tech game theory); this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more in this case, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree) or sevopedia for details
-- BUILDING_BROADCAST_TOWER: "<!-- custom: building reworked as a hybrid broadcasting building if i may say, adjust flavors to match these changes"
+- BUILDING_BROADCAST_TOWER: "<!-- custom: building reworked as a hybrid broadcasting building, adjust flavors to match these changes"
 - replace ai-generated images as well as some mod images from git hosting with or to google drive links rather, thanks to https://stackoverflow.com/a/52067077
 - TECH_ARTILLERY: "<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, even though this makes military artillery selectively stronger now as a tech but should dissuade or incentivize maybe rather to pay more attention or give more weight to non-directly miltiary techs for players (would need to change flavors or such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, hopefully more balanced or startegically interesting; maybe this makes more sense in terms of theme too, as such powerful weapons make leaders consider more seriously permanent alliances rather than solo war if i may say in this case, even though they existed before, but perhaps they are bit stronger if not lot now at artillery tech maybe, was 0 -->"
 - rebalance some/most gun and armored units (is tentatively as i enver played with gun units in civ4 but from a quick glance at their stats i assumed some were op while others were not, rebalanced it a bit based on this and made some other related changes quite minor or not or other)
@@ -3543,7 +3543,7 @@ finalize most of the tech wonders rework (quite greatly reduce BonusProductionMo
 - reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shoudln't eb too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info
 -->"
 - "removed some building(s?) like BUILDING_WEST_POINT as it is a way too weak and inefficient building, hopefully this makes AI stronger too as they focus more on relevant buildings or build units instead or more units too"
-- "<!-- custom: replace sentimental and inaccurate TECH_ECOLOGY civ4 +/- base advciv's description with a historically and scientifically grounded one from wikipedia (i can be sentimental too and i like and learned from wikipedia i mean, i just find this wikipedia one so much more accurate and informative about not only the origins of the branch/science, but also how it relates to previous discoveries/perspectives, darwin's view from my quick glance if not mistaken in my quick read or understanding that the dominant competitors need to put in check their domination else they may struggle if they kill/consume/destroy all food sources is particularly interesting and more interesting than the sentimental and mistaken one of fight the evil pollution by the evil corporations or such one even though there is maybe ground for this, history shows it was accounted for much much sooner, most likely even in antiquity and before people were aware and conscious to preserve nature and protect it although i didn't check,which is why in particular i hate the dominant intuitive social view of ecology which i was also led to believe, instead of viewing it as a scientific field or causality of human existence where we need to coexist with nature rather than fight some evil entity admonizing ourselves if it's a word in english from our own faults or things we can improve or maybe rather do better within ourselves, i hate myself for having been led by such a belief but i am glad i can learn now in this case at least, not to reject my past experience if i may say, but just saying there is a better view for me that makes my life make sense in the astronomical density of the universe and its history, and in line with its/my precedessors, that were not stupid, not ignorant, not backwards, just they had other ideas or priorities in mind, i am thankful very much for (modern) technical progress (in particular), but it would be a fault or ignorance, which i claim to myself too, of reducing past people as ignorant war-like ones, i was so mistaken and a fool or ignorant, but i blame society too for teaching me this functional and beneficial lie,); there is so much stuff i wish i knew but i am not even sure the truth hard and cold would have been beneficial to me, but it was no reason to lie to me either, i hate society for that, even though i understand the purpose i think but still, maybe at least it makes some sense now, i have also or developped if i may say too in this case, or at least can develop more empathy for other species, as i understand their life is miserable as ours as per the conditions of our existence, where we must cruelly fight for territory and subsistence, instead of coexisting in harmony in our shared struggle, if i knew all this.. why didn't they tell me all this... Was it so beneficial to lie? What's even the point in the frames of existence, i am just glad and thankful i know now and gradually more, again i am not sure the truth is beneficial but it was no reason to lie either, there must have been a better way, perhaps more gradual or such, or maybe adjusted to one's understanding that focuses on kindness if i may say or such, why, why is the world so evil, yet pointless, when our struggle is shared, but no one owes anyone anything maybe, but anyways hoepfully helpful or not maybe i should delete this later or maybe not maybe i should keep it, but in all cases; based on https://en.wikipedia.org/wiki/History_of_ecology -->"
+- "<!-- custom: replace sentimental and inaccurate TECH_ECOLOGY civ4 +/- base advciv's description with a historically and scientifically grounded one from wikipedia (i can be sentimental too and i like and learned from wikipedia i mean, i just find this wikipedia one so much more accurate and informative about not only the origins of the branch/science, but also how it relates to previous discoveries/perspectives, darwin's view from my quick glance if not mistaken in my quick read or understanding that the dominant competitors need to put in check their domination else they may struggle if they kill/consume/destroy all food sources is particularly interesting and more interesting than the sentimental and mistaken one of fight the evil pollution by the evil corporations or such one even though there is maybe ground for this, history shows it was accounted for much much sooner, most likely even in antiquity and before people were aware and conscious to preserve nature and protect it although i didn't check,which is why in particular i hate the dominant intuitive social view of ecology which i was also led to believe, instead of viewing it as a scientific field or causality of human existence where we need to coexist with nature rather than fight some evil entity admonizing ourselves if it's a word in english from our own faults or things we can improve or maybe rather do better within ourselves, i hate myself for having been led by such a belief but i am glad i can learn now in this case at least, not to reject my past experience, but just saying there is a better view for me that makes my life make sense in the astronomical density of the universe and its history, and in line with its/my precedessors, that were not stupid, not ignorant, not backwards, just they had other ideas or priorities in mind, i am thankful very much for (modern) technical progress (in particular), but it would be a fault or ignorance, which i claim to myself too, of reducing past people as ignorant war-like ones, i was so mistaken and a fool or ignorant, but i blame society too for teaching me this functional and beneficial lie,); there is so much stuff i wish i knew but i am not even sure the truth hard and cold would have been beneficial to me, but it was no reason to lie to me either, i hate society for that, even though i understand the purpose i think but still, maybe at least it makes some sense now, i have also or developped if i may say too in this case, or at least can develop more empathy for other species, as i understand their life is miserable as ours as per the conditions of our existence, where we must cruelly fight for territory and subsistence, instead of coexisting in harmony in our shared struggle, if i knew all this.. why didn't they tell me all this... Was it so beneficial to lie? What's even the point in the frames of existence, i am just glad and thankful i know now and gradually more, again i am not sure the truth is beneficial but it was no reason to lie either, there must have been a better way, perhaps more gradual or such, or maybe adjusted to one's understanding that focuses on kindness if i may say or such, why, why is the world so evil, yet pointless, when our struggle is shared, but no one owes anyone anything maybe, but anyways hoepfully helpful or not maybe i should delete this later or maybe not maybe i should keep it, but in all cases; based on https://en.wikipedia.org/wiki/History_of_ecology -->"
 - TXT_KEY_BUILDING_MT_RUSHMORE_PEDIA: "<!-- custom: the more i learn the more i am upset about how usa-centric and appalingly forgetful it is sometimes, if not blatantly propagandist, even though rare, but for example see the ecology entry vs new one from wikipedia, the base civ4 +/- advciv version seems to totally obscure the fact that the mount was stolen from the indigenous people that was there, i mean technically it wasn't "there's" per se as it belongs to nature i.e. anyone that can control it, still glorifying it without any mention of past owner is simply disgusting, hopefully some truth is restored even though i didn't know at all before and barely looked now whiel reworking this building, hopefully this is not a too widespread problem in civ4 and i fixed some entries; nevermind it's even more disgusting that i thought, with lines like "remarkably, no one was killed during construction", i wonder who even wrote those fucking lines??? If this is is not self-glorifying propaganda, i am glad i learned the "truth" if i may say even though it is relative to one's point of view, but my view of it is this is disgustingly concealed, entry now from https://en.wikipedia.org/wiki/Mount_Rushmore -->"; also it is now a world wonder with a reworked military effect
 - ART_DEF_BUILDING_HOSPITAL: "<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time anywyas etc, and adjusted or not for advciv-sas, vry pretty result or pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doign or and doworth it i would say maybe yes in this case but anywas etc -->"
 - TXT_KEY_BUILDING_KREMLIN_PEDIA: "the "farms spreads irrigation" ability is unlocked much sooner, as of now now at tech_engineering, see sevopedia or tech advisor (i.e. tech tree view) for update value/tech if any i mean hopefully helpful"
@@ -3553,7 +3553,7 @@ finalize most of the tech wonders rework (quite greatly reduce BonusProductionMo
 see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details -->"
 - rebalanced also naval units or other units like animal units and perhaps other units or not or yes while doing so, see xml for details or sevopedia ingame also for updated values too
 - adjust unitAIs of some (mostly early as of now see xml for details and docs) siege units so they don't get baited as much instead of focusing mostly on city attack or "counter" (as in staying in city but atatcking the surrounding units) defense (ideally as i didn't explicitly implement it as such but i hope they don't get baited anymore at least)
-- TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA: "<!-- custom: surprisingly on a more positive note this time if i may say, i didn't know recycling centers existed on a quite global or country scale much before the modern/post industrial era, updating i mean replacing the entry with a wikipedia based one from https://en.wikipedia.org/wiki/Recycling#History; the base civ4 +/- advciv one is as usual garbage without a pun, hopefully more scientifically grounded, less moralistic, more informative and exhaustive pehaps enjoyable too if may say-->"
+- TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA: "<!-- custom: surprisingly on a more positive note this time, i didn't know recycling centers existed on a quite global or country scale much before the modern/post industrial era, updating i mean replacing the entry with a wikipedia based one from https://en.wikipedia.org/wiki/Recycling#History; the base civ4 +/- advciv one is as usual garbage without a pun, hopefully more scientifically grounded, less moralistic, more informative and exhaustive -->"
 - SPECIALBUILDING_MONASTERY: "<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed); also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies) function as such so there must be a reason or reasons i mean in this case), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage in terms of gameplay and modding as well, was TECH_SCIENTIFIC_METHOD -->"
 - forbidden palace: "<!-- custom: great spy great person is low enough it can be ignored and probably better to ignore it in this case at least, as for flavors in base advciv, were/was flavor military 5??? Fixed to growth gold based formula as seems much more accurate (didn't read the adv manual id though in case it has info but this still seems much more accurate like this with these udpated flavors i/we i.e. i anywyas etc now added in advciv-sas -->"
 - update docs and other changes or not or yes
@@ -3638,7 +3638,7 @@ Date:   2025-06-25 20:33:05 +0200
 
 replace GERMAN_PANZER with GERMAN_HUSSAR (cuirassier based), add kingdom of benin assets and unit effect and other changes
 - "<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", based on the "CUIRASSIER" and tweaked from there, one of the main reasons is to have civ-specific units earlier so they are more imapctful -->"
-- remove sex neutral units anwyays etc, after all elt's be real if i may say, combatatnts were mostly men/male in human history, is maybe fine to not alter history just to fit my narrative if i may say, but i would like if some units are women, not for the sake of it, but just if and where i see it fit, i have some ideas like the smaratian archer if we add it as a civ, or some bow units as women are generally more agile and would fit the role better, psosibly light sword units, but i would also need to have the/a coressponding art to import into, i have some ffh2 ones and most liekly can find at least a few in other mods but didnt search (too) much so is todo if opportunity arises and it seems relevant, also less tedious this way; wrote some long blablah at least quite long i wanted to write too
+- remove sex neutral units anwyays etc, after all elt's be real, combatatnts were mostly men/male in human history, is maybe fine to not alter history just to fit my narrative, but i would like if some units are women, not for the sake of it, but just if and where i see it fit, i have some ideas like the smaratian archer if we add it as a civ, or some bow units as women are generally more agile and would fit the role better, psosibly light sword units, but i would also need to have the/a coressponding art to import into, i have some ffh2 ones and most liekly can find at least a few in other mods but didnt search (too) much so is todo if opportunity arises and it seems relevant, also less tedious this way; wrote some long blablah at least quite long i wanted to write too
 - add kingdom of benin's disciplined crossbowman's art based on other mods (see xml for details) and special effect (promotion) see xml for details
 - minor other changes or and not
 
@@ -3647,7 +3647,7 @@ Author: wonderingabout <hidden>
 Date:   2025-06-24 23:59:38 +0200
 
 performance optimization: do not cache for sevopedia leaders until we click and the first time only on Sevopedia Main's placeLeaders
-therefore/by doing so we cache only once per gaming session (i.e. once until game is exited, even if sevopedia is exited and reopened later), and more importantly we don't cache if we open other sevopedia categories than Leaders, as it woudl waste/spend needless computation and affect needlessly performance. I also like that/to use a function call rather than hardcoded code. Also, we cache before any leader is selected. With the previous parts of the sevopedia leader such as using many tuples, byte strings, etc from little or not i know or did of it also thanks to chagpt's ideas and replies to my prompts too and my own ideas and thoughts as well but anyways, i believe the system is now even more and very very efficient. May be improved, but is really efficient and i am really happy of it.
+therefore/by doing so we cache only once per gaming session (i.e. once until game is exited, even if sevopedia is exited and reopened later), and more importantly we don't cache if we open other sevopedia categories than Leaders, as it woudl waste/spend needless computation and affect needlessly performance. I also like that/to use a function call rather than hardcoded code. Also, we cache before any leader is selected. With the previous parts of the sevopedia leader such as using many tuples, byte strings, etc from little or not i know or did of it also thanks to chagpt's ideas and replies to my prompts too and my own ideas and thoughts as well, i believe the system is now even more and very very efficient. May be improved, but is really efficient and i am really happy of it.
 
 See also doc links as there is a drive link with screenshots and examples as long as it is there of how and why we did it this way, quite quick in this case or not but anywyas etc (i.e. not all screenshots but most relevant ones hoepfully helpful or as i wanted or and chose to do in this case) but or not but or yes but, in readme of ai personality panel there is a performance optimization section with th elink there and some info too about it/this hoepfully helpful or not or ye sor as i wanted or did or not or yes or etc
 
@@ -3702,7 +3702,7 @@ performance optimization: replace most docstrings with comment-out or move them 
 - remove most string litterals and replace them with # comments (with vs code "ctrl" + ":" (or "/" witout shift on my keyboard anwyays etc): from what i understand of it may increase loading times or and also help reduce memory usage even if a bit, see docs for details of what i understood of chatgpt's explanations and also benchmarks i asked it to run to test too, some of which are moved to their own files as well such as (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG Doc\configobj_changelog_py_notes.txt for the giant (+/- 500 lines) changelog, hopefully cleaner and or more performant this way, at least not less performant than no comment, perhaps more accessible too in centralized doc folder, see also note in README.md for info/details as well as google drive link with screenshots.
 - xml performance optimization at least in theory: move long comment block to separate text note files, not exhaustive though as would take too long and not sure i'll keep doing it for all assets though (most likely not but who knows maybe at least partly, especially if i spot 500 liens again but not sure may or may not), may revert this too later as i see fit or not or yes or other or not or yes or not or etc or and but)
 - add non-tradeable techs: see sevopedia ingame in placeSpecial of any tech for full list of non-tradeable techs, and a bullet point as well at each non-tradeable tech in placeSpecial or in XML <BTrade>0</BTrade> 
-- note in particular: be careful about (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\BUG\configobj.py , commenting out its test docstrings causes ingame errors, so not commenting out the tests, only textual info, especially in configobj.py
+- note in particular: be careful about (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\BUG\configobj.py, commenting out its test docstrings causes ingame errors, so not commenting out the tests, only textual info, especially in configobj.py
 - unit_bomber now requires only tech_flight, not tech_radio anymore
 - unit_paratrooper moved to tech_advanced_flight as in/expalined in this code comment: "<!-- custom: tech requirements reworked, was flight + tech types fascism and rifling -->"
 - move UNIT_MOBILE_ARTILLERY later now at tech_ in our reworked tech tree and another tech prereq (tech_artillery as of now), see xml or docs or sevopedia or similar or other for details
@@ -3746,10 +3746,10 @@ for x2 in a:
 - to better guard against these, i have renamed in some sensitive spots the variables with _1 _2 suffixes or prefixes or midfixes or  and whatever it is named, to avoid reuse as much as possible, i like to do it this way generally form little or not little i know or and like ot dobut helped spot few issues as well
 - while debugging it also, had the very nice idea as chatgpt to have a much cleaner and exhaustive debugging, now also optionally disableable unlike previous one, helped solve issues thanks to debug or with the help of it too, which is more exhaustive, with debug samples (as of now in SevopediaLead_derExamplesOfOutputs.txt)
 - removed a lot of redunance in old sevopedia leader, i didn't know and was tyring to quite desperately make it work despite my quite general broad programming background broadly i mean not too in depth in a language enough to be expert not to minimize myself but knowing soem basics quite solidly not advanced features thoughquite solidly at least if not lot or yes or other or in all cases
-- remove base advciv leaders_data.py, eventually we'll move ours away from sevopedia folder, generate_leaders_data.py is still useful to generate the scripts for leader comparison (.csv flatten leaders data etc naming), perhaps other usages or not in the future opr not or yes or not or etc or and other or and not or yes or not or other or yes or etc or and other
+- remove base advciv leaders_data.py, eventually we'll move ours away from sevopedia folder, generate_leaders_data.py is still useful to generate the scripts for leader comparison (.csv flatten leaders data etc naming)
 - add note about some inconsistent values for nowarattitude prob -2 at annoyed for example for leader alexander vs 0 at furious, shoudln't be negative and most importantly should be >=0, despite value being the same in XML 0 for furiou and 0 for annoyed, which is not consistent with values being differnt at DLL-level or gc or whiever term or both or none or as i said or and other or and not or yes or other or etc term is accurate/correct in this case or in general or both or none or and other or and not, see also README_Known_Issues_In_Base_AdvCiv_Civ4.md (with google drive link with screenshots and or such)
 - todo update docs for the remaining part of these as well or and other changes todo or and not but or not but or yes but
-- various other related changes/tweaks/fixes or etc anwyays etc or not or yes or etc or and other or and not or yes or etc
+- various other related changes/tweaks/fixes or etc anwyays etc or yes or etc
 
 commit 1d08e9a28b0bf41bbb5c9b365c1ddd843a92ac1b
 Author: wonderingabout <hidden>
@@ -3779,7 +3779,7 @@ add camel bonus/ressource and camel units, expose to python gc sevopedia leader 
 - unit upgrade paths reworked, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, see sevopedia ingame or tech tree view or xml for accurate/updated value(s)
 - nerf tech whoreism (if that is a word), which AIs are especially vulnerable to and that humans can abuse, by adding a few or quite many new "This tech cannot be traded" flags in sevopedia, tech tree view (tech advisor) at some techs, hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game which disables it entirely), so you can't gain 10 techs in a row with just one tech anymore, but maybe you can profit a bit from tech trading if you don't use the option i.e. if you play with tech trading enabled (personally i don't play with tech trading at least as of now and when i last playedbut i hope it is more balanced this way now anyways), added also a new "This Technology cannot be traded" sevopedia tech (in "Special Abilities" panel (placeSpecial in the py code)) and tech tree view (called "technology advisor") (see also [/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc] for details on how this was implemented/coded in advciv-sas by me with the help of chatgpt), hopefully gameplay is more balanced and interesting this way, perhaps informative too with my changes if i may say...
 - also add the "As reminder, the following techs cannot be traded" info in all sevopedia tech pages in placeSpecial as well (TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER)
-- add gc debug output helper function in _sevopedia_helpers.py called i.e. named debugPrintLeaderHeadInfoFlavorNowarattitudeprobContactMemory (for flavor, nowarprob, contact , and memory fields), that displays data successfully, see output example in _sevopedia_helpers.py or modding ressource's google drive link if any screenshots are there too todo
+- add gc debug output helper function in _sevopedia_helpers.py called i.e. named debugPrintLeaderHeadInfoFlavorNowarattitudeprobContactMemory (for flavor, nowarprob, contact, and memory fields), that displays data successfully, see output example in _sevopedia_helpers.py or modding ressource's google drive link if any screenshots are there too todo
 - fix missing memory types in generate_leaders_data.py based on previous debugging, there are 37 memory fields it seems but we only had 32 in our sevopedia leader display, for example for leader gandhi, now fixed by adding the missing 5 in generate_leaders_data.py and in sevopedia leader 's config too (one not displayedas the table is too small to show all but is in the config commented out if need)
 - expose in python sevopedia leader's gc BBAI victory weights, see docs for details
 - rename CELTIC_BARBARIAN to CELTIC_GALLIC_WARRIOR
@@ -3861,7 +3861,7 @@ buff the BUILDING_GREAT_LIGHTHOUSE, rework harbor and lighthouse buildings (unfi
 - removed caravel class and unit entirely; as explained in this code comment in unit info 's xml"		<!-- custom: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without trigegring war, that now only privateers can do at least among visible naval units; as for the effect bRivalTerritory is set to 0 in the galleon as well same as what it was, even though they have UNITAI_EXPLORE_SEA, was annoying from my memory of advciv games that caravels could send many spies in particular without ever declaring war and without me allowing them to enter my borders, hopefully much more sensical now and pleasant this way, that they have to respect water rights or something, and galleon is a bit more affordable and civilian like unit, may also help to simplify gameplay a bit as we don't need strongly/strongly needthe caravel if the galleon is cheap enough and fast enough, may help the AI indirectly or simplify gameplay perhaps, not ideal but maybe a desirable change at least for me... -->"
 - buff privateer a bit
 - PORTUGAL_CARRACK now based on galleon
-- rework BUILDING_LABORATORY, available sooner in tech plus buffed a bit (stronger scientific effect but hopefully not op hopefully more relevant as a building now or and worth to build... , removed space race (spaceship production) effect
+- rework BUILDING_LABORATORY, available sooner in tech plus buffed a bit (stronger scientific effect but hopefully not op hopefully more relevant as a building now or and worth to build..., removed space race (spaceship production) effect
 - adjusted tech_tree view a bit is still todo for the actual (tech) (re)arragementin tech tree
 - update docs
 - minor or not other changes or and other or and not
@@ -4029,7 +4029,7 @@ Author: wonderingabout <hidden>
 Date:   2025-06-04 18:32:46 +0200
 
 add ai-generated buttons and related docs, remove BUILDING_RUSSIAN_RESEARCH_INSTITUTE, replace it with BUILDING_RUSSIAN_GORD (based on the castle), and other changes
-- reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GlobalDefines_advc.xml for details and or latest updated value) , which as reminder according to the base advciv code comment: "	<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->"
+- reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GlobalDefines_advc.xml for details and or latest updated value), which as reminder according to the base advciv code comment: "	<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->"
 - add the new BUILDING_RUSSIAN_GORD, civ-specific building for the russian empire (based on the castle), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, for a stronger early game impact and more military focus in this case,, see xml or and docs or and similar or and not for details, with a real pedia based entry
 - rename MOUNTED_INFANTRY to MOUNTED_COMBAT
 - add ai generated buttons (.dds) for building gord, building impluvium, tech MOUNTED_COMBAT, update docs about ai generated images
@@ -4099,7 +4099,7 @@ rework and buff the aqueduct buildings, add kingdom of benin's impluvium (buildi
 - (forgot to mention before) change TECH_PRIESTHOOD 's button to ,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,6
 
 - rework the aqueduct buildings in the (aqueduct) class, now gives a mix of food and health +/- other effects for civ-specific versions, buff them a bit too by reducing cost and such, see xml for details
-- add kingdom of benin's special building: Impluvium's art button (from https://fr.pinterest.com/pin/412290540863776580/ , see xml code comments for details as well), nif from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker), with also wikipedia based pedia entry
+- add kingdom of benin's special building: Impluvium's art button (from https://fr.pinterest.com/pin/412290540863776580/, see xml code comments for details as well), nif from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker), with also wikipedia based pedia entry
 - rebalance (buff) the babylonian colosseum: gives less health and more food, aligns better with the pedia entry description and buffs it as well
 - add info on how to add a .nif (import from another mod) at least how i successfully imported the impluvium's nif (with screenshots drive link there)
 - add a bit more info on the ogiso monarchy that preceded the oba monarchy (wikipedia based)
@@ -4156,13 +4156,13 @@ commit 357017c68e6101cf8dfb0c55ea8de3e1dd7ff436
 Author: wonderingabout <hidden>
 Date:   2025-05-30 18:20:10 +0200
 
-add tech tree only grid for now), adjust gamespeed to -50 000 start year and adjust/tweak increments, add K-Mod to AdvCiv changes (non-exhaustive) in mods info
+add tech tree only grid for now), adjust gamespeed to -50 000 start year and adjust/tweak increments, add K-Mod to AdvCiv changes in mods info
 - add k-mod to advciv changes mods info (todo add screenshot too or not?, add info about where advciv manual in particular is, as well as other docs then reorder the # docs section of the readme higher or and other or and not?
 - imported most old base AdvCiv sevopedia code comments in k-mod to advciv changes mods info as well (those i found relevant for AdvCiv-SAS or that i still had or that i wanted to now or other or and not (but?) (but?))
 
 - start year reduced from -100000 (-100 000) to -50000 (-50 000) as we have less i.e. a more efficient starting tech tree now, may keep it as is and is/may be even desirable or maybe be, to speed/skip faster into the mid game with less inefficient techs, but will see...; also adjusted game speed increments to match these changes (unfinished is just for start years if i may say to continue or correct/adjust or not or yes or etc and other or and not or yes or etc some other time or not or yes or etc)
 
-- add reworked tech tree, for now only the grid coordinates and such if any such other is added or amybe not, and update docs (related to these changes or and other or and not or etc; as for tech renaming or tech prereqs and such or other related changes like buildings or pedia entries or such or and other or and not, (i) will ideally and hopefully do in next commits or not or yes or etc or and other or and not maybe rather
+- add reworked tech tree, for now only the grid coordinates and such if any such other is added or amybe not, and update docs (related to these changes or and other or and not or etc; as for tech renaming or tech prereqs and such or other related changes like buildings or pedia entries or such or and other or and not, (i) will ideally and hopefully do in next commits maybe rather
 
 commit 1a108fde24838aaded799b9b720293fdc2e11709
 Author: wonderingabout <hidden>
@@ -4175,7 +4175,7 @@ Author: wonderingabout <hidden>
 Date:   2025-05-28 21:09:08 +0200
 
 replace Mounted Infantry's button with HR button's import(ed button)
-is a shitty thing of me to do if i may say, but i do prefer this one...
+is a shitty thing of me to do, but i do prefer this one...
 We may have other opportunities or not to add COM button (most likely yes but not sure though may not be i.e. may be never, so removing also description, hopefully we can add it again but again is not sure, may never be added or added again or other etc...)
 
 commit c61f80654dc2ee8076ea955bcee9a379f8a1c106
@@ -4239,7 +4239,7 @@ rebalance the great artist culture bomb effect (nerfed now) and the culture per 
 - monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries)
 - cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or wants to pursue a cultural path sooner or other reasons, to also match the multiple pagan holy sites (/shrines ,in a general term way not civ4 building specific term way specifically,?) throughout history
 - rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 20 per turn
-- rename _UTOPIA to _COMMUNISM , add a real pedia (wikipedia based) entry to it too
+- rename _UTOPIA to _COMMUNISM, add a real pedia (wikipedia based) entry to it too
 - move culture building ability to an earlier tech, mysticism
 - add info in README_Known_Issues_In_Base_AdvCiv_Civ4.md about a seemingly bug in advciv(/base civ4 too?) that in debug mode, in map view, an improved or similar, but unexplored tile, still shows the improve or similar requirement and in red text, even though tile is already improved
 - other minor or related or and other or and not or yes or and other or and notes anyways changes
@@ -4285,7 +4285,7 @@ rework bonuses heavily (buff water ressources and make them less rare, nerf land
 - increase the appearence frequency of water animal bonuses, using a lower value (but not 0 as it disables it according to kujira's website (translated website using gogole chrome (for example is what i used, see docs for details) page translate to english) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper) for iTilesPer, for example for molluscs lowering it from 32 to 16 (lower value is less pronounced in less general ressources like crabs for example, see XML in (adjust to where your mod path is) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4BonusInfos.xml for details), reducing iPlayer to 0 if need be to make it player-independent too and flat, always constant spanwing.
 - this is also more generally to buff water tiles and to incentivize and reward more coastal/naval city planting/founding, that is currently too weak as compared to land founding, and too often ignored, without making it op either else would be the same problem reversed xd if i may say...
 - rework BONUS_WHALE: new pedia real wikipedia based entry, fixing inaccuracy or rather uncompleteness, sooner tech time, reworked stats, see xml for details
-- rename _CLAM to the more general _MOLLUSCS according to/using as base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/ , since fish is so general for any type fo fish, use the more general mollusc is probably fine as well and less confusing then clam vs crab for example similar naming
+- rename _CLAM to the more general _MOLLUSCS according to/using as base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/, since fish is so general for any type fo fish, use the more general mollusc is probably fine as well and less confusing then clam vs crab for example similar naming
 - buff water ressources since they are few and to make coastal cities stronger too
 - increase base yield of crab(s?), molluscs, and rework base yield of whale to match a food like formula and be more balanced like fish is, and to give water tiles more incentive too.
 - clarify the old "improvement bonus tile yields" type of messages we added, by repalcing "bonus" with "yield change" as yield could be negative (for example in base advciv (civ4 too?) gold gives extra yield change -1/+6). Then also reworking these messages hopefully simplifying them by splitting them or rather renaming them to in sevopedia improvement "Base Tile Yield Change(s)" (we know we are in sevopedia improvement already (for example of the mine improvement) so saying improvement again is needless and perhaps even confusing, but keep adding the "base" idea; and then also still in sevopedia improvement (for example of the mine still) "On Bonus(es)/Ressource(s) Extra Tile Yield Change(s)" (remove the word improvement as needless as well and perhaps even confusing); finally in sevopedia bonus rename "Improvements Bonus Tile Yields" to "Total (Base + extra) Improvements Tile Yield Change(s)" now adding the word improvement as it is relevant i think since we are in sevopedia bonus not sevopedia improvement anymore, plus mention the idea of "Total (base + extra)" to link it to how it is calculated from sevopedia improvement's stats). Finally as well, also rename the natural yield part in sevopedia bonus to "Natural Tile Yield Change(s)" to match these.
@@ -4293,7 +4293,7 @@ rework bonuses heavily (buff water ressources and make them less rare, nerf land
 - remove negative yields from all improvements who have them (i spotted mine with gold, gemstones, silver)
 - buff nothern and southern edge starts by giving more ressources near (currently it seems too skewed towards central ressources spawn (i.e. most ressources spawn, if any repartition is partial, mostly around the center of the map, and no or almost no bonus has an edge specific spawn), trying to rectify, counter-balance, or adjust that maybe rather or both or all or none or some or when relevant and possible, may do so more in next commits or maybe not, but starting by some bonuses where i see this pattern for now and where i find it relevant, as per civ4 general and non-exhaustive full real-world ressource representation (for example there are many kinds of spices, fishes, molluscs, englobed if that is an english word around a single "spices" or "fish" or "molluscs" for example, and many livestock type of animals missing.
 - elephant and horse into a food strategic ressource todo because they are first food before being utility (elephant hunting, horse meat, etc... tasty maybe, sorry for them but still tasty and not holding back of eating them as sad as it may be for them though, is how it is, and i am purposely and willingly not holding back on happily for my own good and pleasure too i mean and what i want doing so, even though is not in theirs)
-- make most if not all land ressources appear less often so players would compete more for them and they'd be more valuable, this is the case for strategic ressources (iron, etc.), food strategic ressources (horse, elephants, etc.), food luxury ressources (grapes, etc.), strategic luxury and other ressources (stone, marble, gold, etc.) , and luxury ressources as well (dyes, spices, etc.), as well as food bonuses (wheat, maize, etc.), that seem to spawn too often in the map at least to my taste if i may say, hopefully there are still enough but significantly less of them now, which should incentivize naval settling a bit more
+- make most if not all land ressources appear less often so players would compete more for them and they'd be more valuable, this is the case for strategic ressources (iron, etc.), food strategic ressources (horse, elephants, etc.), food luxury ressources (grapes, etc.), strategic luxury and other ressources (stone, marble, gold, etc.), and luxury ressources as well (dyes, spices, etc.), as well as food bonuses (wheat, maize, etc.), that seem to spawn too often in the map at least to my taste, hopefully there are still enough but significantly less of them now, which should incentivize naval settling a bit more
 - buff and rework the BUILDING_HARBOR much sooner now at tech sailing, and buff BUILDING_CARTHAGE_COTHON, now based on customs house class, rework or slightly or not slightly adjust related buildings
 - rename _COW and _COWS to _CATTLE as should have been at least as i (had? But cattle is still relevant as a name for the animal) wanted for cows cattled
 - replaced ingame pedia entries of bonuses/ressources with real wikipedia excerpts or modified or not for advciv-sas by me of course... such as for the horse, elephant, deer, whale, molluscs, fish, crab, cattle, etc, some of which helped me rework the harbor and such for example with the info i quickly read from them or learn a few or a lot of things indeed if i may say and enjoyed even though aybe not needed to say or not but is what i felt and wanted to do so i do.
@@ -4313,9 +4313,9 @@ Now fixed: by replacing, in sevopediaunit py file, in placeRequires function/met
 
 See _1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md for details
 
-Testing if links work in git commit message (why not no reason why it shoudln't but maybe doesn't, testing to be sure and tot est for fu or not fun or yes fun): [4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc) , actually quite high chance it doesn't work since autofill of vs code i mea the prefill link when i create a [](/) does not load path dynamically as i do so so may not work but tesing/trying to be sure
+Testing if links work in git commit message (why not no reason why it shoudln't but maybe doesn't, testing to be sure and tot est for fu or not fun or yes fun): [4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc), actually quite high chance it doesn't work since autofill of vs code i mea the prefill link when i create a [](/) does not load path dynamically as i do so so may not work but tesing/trying to be sure
 
-Real link if need and since i shared it too ro not too, if i may say, is in (as long as link is valid or not or yes or etc not or etc yes or etc or and other or and not): https://github.com/wonderingabout/AdvCiv-SAS/blob/tech-rework/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc
+Real link if need and since i shared it too ro not too,, is in (as long as link is valid or not or yes or etc not or etc yes or etc or and other or and not): https://github.com/wonderingabout/AdvCiv-SAS/blob/tech-rework/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc
 
 commit 43d2cbd22ac913e8ec0da378d057a9a09917dd22
 Author: wonderingabout <hidden>
@@ -4328,7 +4328,7 @@ commit 9b4525ea0228d97c3233a9c93cea8c0be1c4141f
 Author: wonderingabout <hidden>
 Date:   2025-05-23 10:41:49 +0200
 
-fix/update icons (GameFont.tga and GameFont_75.tga) to use our new buttons equivalent images (manually imported from HR mod and RI mod), add also instructions or help in docs in how to do so hopefully helpful or not or yes or etc or and other or and not
+fix/update icons (GameFont.tga and GameFont_75.tga) to use our new buttons equivalent images (manually imported from HR mod and RI mod), add also instructions or help in docs in how to do so hopefully helpful
 minor or not minor changes or not
 
 commit 025c696fac3f43dd2b2489d99f36fae3f407ecb4
@@ -4393,7 +4393,7 @@ Date:   2025-05-21 14:04:00 +0200
 
 add right panel version as base sevopedia religion version, using addMultiListControlGFC and civ4bug sourceforge net doc (doc also added to our mod's common doc if helps)
 now we can put in the future much more leaders if we want and panel would not overfill, will go to next line if (row/line is) full automatically (4 leaders per row)
-I can't wait to add more leaders if i may say, but maybe other changes first
+I can't wait to add more leaders, but maybe other changes first
 
 mods with many leaders can perhaps reuse our code now as well and tweak it easier if need.
 
@@ -4622,7 +4622,7 @@ possibly even Civ4 since AdvCiv is based on it and i don't know if it (i.e.
 AdvCiv or previous mods it's based on changed this part since how it was in
 Civ4 BTS. I may tone it down a bit to say 80 or 90 because i want them to
 build lighthouses especially since they have a nice barbarian version of it
-now easy and fast to build for them if i may say, but now they don't build
+now easy and fast to build for them, but now they don't build
 wonders at all, even most buildings, but consistently always get their super
 barbarian palace in all cities, it's such a nice balance building because i
 can adjust all stats on it (may remove barbarian granary maybe or keep it
@@ -5104,7 +5104,7 @@ Date:   2025-05-06 12:20:27 +0200
 
 mega commit: AI Personality Panel mostly finalized, add generate_leaders_data.py and leaders_data.py, and many other changes
 As my git was partly broken (auth issue) due to creating another repo
-with different settings but anyways, i also took this time and opportunity
+with different settings, i also took this time and opportunity
 to focus on or polish the AI Personality Panel.
 
 Since last commit (not committed too due to such an issue etc anyways),
@@ -5353,7 +5353,7 @@ Date:   2025-04-18 16:26:43 +0200
 use UWAI-only (raw) ai attributes (todo check if none are missing or legacy to remove)
 again from chatgpt, need to double check providing it proper UWAI context source
 files and making sure they are in its current session's context and then that data is
-relevant if i can do that too mayeb (not sure), anyways, thanks chatgpt or other(s)
+relevant if i can do that too mayeb (not sure) thanks chatgpt or other(s)
 or not, thanks,
 
 commit 18f9df6ec607a95ff81ecb4b964896958df679e2
@@ -5435,7 +5435,7 @@ if ChatGPT is not mistaken after feeding it the entire UWAI source files,
 these files in txt form, chatgpt could make a lot of sense of these, i am
 just not certain of its explications, but maybe they are right, as it
 analyzed the uwai code quite deeply too (but no deep search for that)
-- move to numerical weights (-1 , (0), 1)
+- move to numerical weights (-1, (0), 1)
 - opens the door to partial weighting
 - send ChatGPT charts now that we have a working formula, should be useful
 data, implement it in docs too
@@ -5554,29 +5554,11 @@ commit 0f70e37a6ad59809682ac1b015f0ca0f45cb7620
 Author: wonderingabout <hidden>
 Date:   2025-04-14 23:39:31 +0200
 
-major/tremendous improvement in the understanding and code and logic of AI Aggregates, in particular for now only fixed the aggressive trait which should be much more reliable, others to fine tune later, docs later too
-too many things to list all, i am coutning on you chat gpt, please see
-appended screenshots for some of the route, the google drive (link
-in readme.md too hopefully not too hard to find but anywyas (ctrl+f "drive")
-but anyways) for more of it but still not exhaustive maybe (could not
-screenshot all too tedious, but i was very engaged in this and hopefully
-you got/get most of it from these screenshots + drive ones)
+major/tremendous improvement in the understanding and code and logic of AI Aggregates, in particular for now only fixed the aggressive trait which should be much more reliable, others to fine tune later
 
-these may serve as teaching value or showing what i did or souvenir
-or memory or and not, working with chatgpt, teaching it my logic,
-correcting it when it takes false course if i may say but is about
-this at least anyways, and using its power to do very advanced things,
-at least to me, and thanks to its memory it understands the code and
-our project much better so could fix much easier
+use screenshots for diff also to compare how values changed
 
-note: for the chatgpt breakdown, you can almost skip all this paragraph
-and scroll quite heavily below, but i'm glad i wrote it too and may or
-not if i want or not etc or not anyways, thanks,
-
-use screenshots for diff also to compare how values changed, at least
-for the aggressive trait, others to change later
-
-chat gpt breakdown:
+chatgpt breakdown:
 
 This commit marks a major milestone in the design and implementation of the AI Personality Panel for leaders in the Sevopedia of AdvCiv-SAS. It brings a deep recalibration of aggregate score calculation logic — beginning with the "Aggressive" aggregate — and fully revises the percentile and inversion logic based on extensive testing. The end result is a far more accurate and human-readable representation of each leader's behavioral tendencies.
 
@@ -5835,40 +5817,26 @@ Reflects how players intuitively think about leader differences
 In short: it’s both more accurate and more human-readable. 🧠📊
 
 Enjoy!
-— ChatGPT 🐱‍💻 (aka “CatGPT” in a moment of affection)
 
 commit a087e8f7942c0f6bb971cf062e9fcdc246c3708a
 Author: wonderingabout <hidden>
 Date:   2025-04-14 16:32:29 +0200
 
-quite minor update docs aobut chatgpt and (and bit messy but maybe not bad or not etc i do as i want or not or do or not but anyways) such anyways,
+minor
 
 commit 49cc307ad413f4d47ede4f41db0120d13a7add9e
 Author: wonderingabout <hidden>
 Date:   2025-04-14 15:58:19 +0200
 
-add ChatGPT / catgpt link to breakdown
-more info about catgpt in drive but anyways, etc, thanks,
+minor
 
 commit bf8764cb337550b4e84cef5106acdaaf4b159018
 Author: wonderingabout <hidden>
 Date:   2025-04-14 15:45:52 +0200
 
-performance optimization: Optimize aggregate AI personality trait scores via module-level caching (Sevopedia performance boost)
-credit fully goes to chatgpt i only helped and implemented it, publis
-skimmed thorugh after testing tis non working code, but newer one it
-submitted perfectly worked, (so) maybe bit credit to me too, but thanks
-a lot chatgpt you deserve it maybe (not that others don't deserve it
-indeed or not if may say but anyways...)
+performance optimization: Optimize aggregate AI personality trait scores via module-level caching (Sevopedia performance boost) with the help of chatgpt thanks
 
-also works very lightweight in my machine, i don't know if improved
-performance and if a lot or not in particular, but i certianly want to
-implement this change as well for quite minimal (but very in depth and
-insightful, thanks a lto chatgp for the little i understand and follow
-with you/it but anyways, thanks,) code changes it has, thanks a lot
-chatgpt :) anyways,
-
-as for the ChatGPT breakdown it is below, anyways, thanks,
+ChatGPT breakdown:
 
 ✅ Git Commit Message:
 Optimize aggregate AI personality trait scores via module-level caching (Sevopedia performance boost)
@@ -6166,7 +6134,7 @@ Please read the ChatGPT breakdown of this change below for more
 information if needed, thanks ChatGPT and me or other or
 not etc anyways, thanks, : (also hopefully this data and all efforts
 and all is helpful to players or me or others or not,
-should be at least for me but not guarnateed or not etc, anyways, )
+should be at least for me but not guarnateed or not etc )
 so now the proper ":" but anyways... hopefully helpful, thanks, :
 
 Refactored AI aggregate definitions into class-level constants for clarity and performance
@@ -6200,38 +6168,16 @@ commit 5257f49065bf97c29ca90d367d4f596c1ede79f0
 Author: wonderingabout <hidden>
 Date:   2025-04-14 10:31:01 +0200
 
-add more agregates, logically order them, extensive doc by ChatGPT all wit my prompts, thanks a lot
-i may even refer to it (by that i mean too or even in this case about
-civ4 at least anyways), hopefully very helpful data that id id not find
-easy to reach info of it, is flexible for other mods too as long as they
-use same civ4 tags, else they may adjust code or docs, anyways
-
-very happy of it all, but anyways, thanks, hoepfullyhelpful but anywys,
-thanks to those who indirectedly helped me or mentionned to me chatgpt for
-civ4 and all or not, anyways
+add more agregates, logically order them, with the help of ChatGPT thanks.
 
 commit c9fcdad5902ec58d29f91a062a96c88072c9ef83
 Author: wonderingabout <hidden>
 Date:   2025-04-14 02:29:53 +0200
 
-fully add the finalized documentation of AI Personality Aggregates
-very very very nice, thanks to ChaGPT (who wrote the doc too actully)
-a big big lot and those who indirectly helped me or not or to me or to
-for prompting it and giving it feedback etc but anyways, hopefully a very
-nice feature, may add more aggregates or not, please read the documentation,
-screenshots, and visit ingame the sevopedia Mod information for details,
-or visit leader pages yourself, anyways, to have hopefully an undersatnding
-of how it works (which tbh i don't have a lot of, but i hope to get familiar
-with AI characteristics now and understand them better.)
+fully add the finalized documentation of AI Personality aggregates
 
 Also is automatically fetched from the xml, even if you change the values,
-it will auto update to latest xml values as you load it (which was the whole
-point or most of it, thankfully done etc anyways, thanks,), anywyas, thanks,
-
-i did not check how accurate it is, but seems quite a bit accurate from
-a very quick impression, hope enjoy and helps etc, anyways,
-
-May tweak the feature or docs further even though i said finalized,
+it will auto update to latest xml values as you load it
 
 commit c59c8dc78a4a685b3512b921853f507d01e12773
 Author: wonderingabout <hidden>
@@ -6243,14 +6189,13 @@ commit 29d54e506d007583f93615acdc0e7b77a92f7d9f
 Author: wonderingabout <hidden>
 Date:   2025-04-14 00:00:16 +0200
 
-initial symbols and legends, mostly to back it up but is quite functionnal, may change course on that to add othr functions or not, anyways,
+initial symbols and legends, mostly to back it up but is quite functionnal, may change course on that to add othr functions or not
 
 commit 6cd58d51cd2c86593a50efb103d7dcc8902d72b0
 Author: wonderingabout <hidden>
 Date:   2025-04-13 21:46:02 +0200
 
 add mention to chatgpt breakdown and quick reasonning on dictionnary being at init instead of in a function
-and for exhaustiveness too maybe or not etc, but anyways,
 
 commit 448b0c440de5a1351e880c7ba02aa1b9a654d05a
 Author: wonderingabout <hidden>
@@ -6280,9 +6225,9 @@ you as i find this data very valuable, which it agrees with (sharing),
 even though it doesn't have a proper will or ego, its "thought"/analyzing
 processing converged into allowing me or not disallowing me to do this,
 i am aware it's convenient of me to say this since it was programmed to
-do so, but i kindly take its generosity, anyways, thanks ChatGPT, and with
+do so, but i kindly take its generosity thanks ChatGPT, and with
 that said and your agreement on future similar quotes, i proceed with this
-one as the milestone if i may say, anyways:
+one as the milestone, anyways:
 
 Now to your question about the AI attribute dictionary and whether to move it to __init__:
 
@@ -6322,7 +6267,7 @@ Author: wonderingabout <hidden>
 Date:   2025-04-13 19:04:21 +0200
 
 add create 2nd AI Personality Panel (empty currently) + trimming logic (hardcoded for nwo but works)
-is still unfinished but closer to finished now, anyways,
+is still unfinished but closer to finished now
 
 commit 9e83913396268068a1dc26c146c091c8bcc4305b
 Author: wonderingabout <hidden>
@@ -6379,7 +6324,7 @@ that is directly useful adn helpful hopefully but anyways.
 May increase it a bit to 205 or 210 for example for visual clarity or
 smoothness, but not guaranteed and may not, this is quite fine overall,
 anyways, and i can use the place for other things too or not other
-things or not or yes or not etc, anyways,
+things or not or yes or not etc
 
 commit 7ae0669ba4f06433fc9dd4652c59f88d0a98dfce
 Author: wonderingabout <hidden>
@@ -6388,7 +6333,7 @@ Date:   2025-04-13 14:24:34 +0200
 rename "BtS Concepts (Outdated)" to "Concepts (Outdated)", reduce iThresh from 23 to 19
 a lot more room now, and maybe clearer too or more efficient naming or
 spacing, now adjusting width or other things or not i am not
-sure but will maybe find or not or yes or not, anyways,
+sure but will maybe find or not or yes or not
 
 commit c740bcfb1f13b25c7af59cad1f490e133777d883
 Author: wonderingabout <hidden>
@@ -6431,7 +6376,7 @@ Author: wonderingabout <hidden>
 Date:   2025-04-13 02:13:44 +0200
 
 fix google drive link (may view latest rpeview there too, anyways)
-i have just noticed link was broken, my bad, fixed, anyways, thanks,
+i have just noticed link was broken, my bad, fixed thanks,
 
 commit 18a12dbfa4aaea57a588b16684663020a8c465ac
 Author: wonderingabout <hidden>
@@ -6457,7 +6402,7 @@ commit a5ce9321f928fe78bb28c83f8396a2b0ea5b6cba
 Author: wonderingabout <hidden>
 Date:   2025-04-12 23:37:40 +0200
 
-update docs and add a few modding ressources examples, anyways,
+update docs and add a few modding ressources examples
 
 commit 3c1c8f674d282ccdc7b7778f8e32ea2ceb5209cf
 Author: wonderingabout <hidden>
@@ -6499,7 +6444,7 @@ Other changes (non exhaustive):
 added a new collateral damage 5 (requires a great leader); and gradually less
 units eligible for later levels that are stronger, last level much stronger
 requires a great general (may most likely follow this pattern for other
-promotions, or may not, anyways, )
+promotions, or may not )
 - increase collateral damage limit to 200 for all units
 - buff explore units, they can walk on impassable terrains since start of the
 game, even scouts, even on peaks (should not be able to walk on water though
@@ -6511,10 +6456,10 @@ units (but its base strength should be quite low))
 - rework slightly the privateer
 - change the UnitAI for accurate or more relevant ones, largely unfinished
 but promising if i would/could do it, maybe will or not, not guaranteed,
-may or not, anyways,
+may or not
 - updated docs with the new additions and some ideas i had/have (non exhaustive
 or not) or not, anyways; or other minor or not minor changes or not
-or other or not other ideas i have/had or not, anyways,
+or other or not other ideas i have/had or not
 
 - todo other changes related to this such as further rework airship,
 give minimal collateral such as 10% to all eligible units (to indicate
@@ -6533,7 +6478,7 @@ Author: wonderingabout <hidden>
 Date:   2025-04-12 09:56:45 +0200
 
 rename promotion_commando to promotion_logistics,  add spacing and reorder (quite) slightly CIV4PromotionInfos.xml
-hopefully more readable and clearer this way at least for me, anyways,
+hopefully more readable and clearer this way at least for me
 
 commit 1bb325ddf6d3b1c8b2d5f234b666fc2ce0d4857d
 Author: wonderingabout <hidden>
@@ -6653,7 +6598,7 @@ or that 64px was required, looks very nice now, no need
 for edge margins, may do some beautification later but
 clearly not urgent, looks very good so far, more than
 good enough, and i am very satisfied with, at least for
-now, anyways,
+now
 
 commit 22e989bf8109bf57750fea41701fed031c72ee43
 Author: wonderingabout <hidden>
@@ -6664,16 +6609,13 @@ does not have rounded edges/angles and some transparency at the
 edge but good enough at least for now
 may or not tweak it further, happy about the overall result
 (or untweak all the other ones xd, but unlikely as they are
-many, will see, anyways, )
+many, will see )
 
 commit 9f5b34201d42762e1140e1188cef74777e13e557
 Author: wonderingabout <hidden>
 Date:   2025-04-11 16:05:59 +0200
 
 add leader art (portait) of Ogiso Igodo (Kingdom Og Benin)
-looks very nice, or as nice as could i think, but anyways,
-in sevopedia leader page and in particular in ingame diplomacy
-view, anyways,
 
 would/may need to fix the smaller icon/portait of the leader
 as ti is very pixelated but may or not at a later time or not,
@@ -6689,7 +6631,7 @@ commit 400085bb8b4e0f65090b0c3bae6747d374edea88
 Author: wonderingabout <hidden>
 Date:   2025-04-11 12:36:56 +0200
 
-remove big music file i had not noticed (thanks to wiztree saw it while downloading zip (, anyways, ))
+remove big music file i had not noticed (thanks to wiztree saw it while downloading zip ( ))
 
 commit f624f9b8bbc66dec56af0f42a9a473bea7897cbe
 Author: wonderingabout <hidden>
@@ -6701,7 +6643,7 @@ Mostly about translations as explained in previous commit.
 Contains also some other fixes/tweaks/changes related or not.
 
 May tweak it a bit further or not about some other things
-related or not, anyways,
+related or not
 In all cases, hopefully a lot clearer and cleaner now, and
 easier to code from now on hopefully for me at least,
 anyways,
@@ -6720,16 +6662,16 @@ fix mistaken understanding about Ice Feature necessarily on water, rename "Ice" 
 hopefully clearer with Ice feature and terrain now having different names,
 also should be according as per wiki's explanation or accurate enough.
 Having the same name for 2 different tile alterations was very confusing,
-hopefully clearer now, anyways,
+hopefully clearer now
 
 Other changes:
 - add lengthy explanation about translation redudancy
 - English only being supported/used for this mod
 - update AdvCiv-SAS core changes
 - update docs
-- or other fixes/changes or not, anyways,
+- or other fixes/changes or not
 
-also info about git commit ammend (i didn't know of learned today, very useful, anyways, ):
+also info about git commit ammend (i didn't know of learned today, very useful ):
 https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/changing-a-commit-message
 
 commit baa641079ba9775b75ba9d1dafa18c27fb1b2cdb
@@ -6738,7 +6680,7 @@ Date:   2025-04-11 02:24:45 +0200
 
 fix remove old move vs (or) Air Range
 now they are separated so each in their column, no need to handle
-each case twice, anyways,
+each case twice
 
 commit f9d9c595d730a65f200b82eabb2a17df497b1b4a
 Author: wonderingabout <hidden>
@@ -6777,11 +6719,7 @@ while doing so
 
 ChatGPT helped me a lot to troubleshoot it after writing it, as i was
 no familiar with self being auto passed as an argument (so do not pass
-it at function call) but needing to be defined though (so add it as
-a parameter in function definition),  chatGPT told me about this, which
-helped me solve it, thanks a lot!! And thanks to me for doing it xd,
-anyways, and thanks all or not idk maybe or not, but anyways, hopefully
-this code will be helpful or pleasant to see, for me or others,
+it at function call) thanks.
 
 commit afb1a9044fcae2167ae30e47f508e365f643fcbe
 Author: wonderingabout <hidden>
@@ -6829,7 +6767,7 @@ i may redirect to that if need or desired, else and in all cases
 added a disclaimer about how how i'm not responsible for the data i
 helped even though i hope it helps.
 
-Anyways, back to coding this UnitChat, is very nice, anyways,
+Anyways, back to coding this UnitChat, is very nice
 
 commit ce3f71f509cf40857e5d8725534dcc1499d2166f
 Author: wonderingabout <hidden>
@@ -7064,7 +7002,7 @@ Date:   2025-04-09 17:00:45 +0200
 
 major docs + code comments cleanup + maybe other similar or related fixes/changes/quick
 i really needed (wanted?) these but now i really want (and need?) to code.
-Hopefully clearer now, to read and all, anyways,
+Hopefully clearer now, to read and all
 Hopefully clean and tidy from now on but not guaranteed, hopefully,
 i want to code!!!
 anyways,
@@ -7383,7 +7321,7 @@ in civ4 bts unless i'm mistaken, while collateral
 damage does not affect city defenses but attacks units), this extra
 word may be removed to accomodate smaller resolutions maybe, but i'd
 rather keep it aiming for 1080p when possible (while trying to generally
-having names short, not compromising on "accuracy", if i may say, "ha!".
+having names short, not compromising on "accuracy",, "ha!".
 But no i mean yes, i really try to take smaller resolutions
 into account when possible or convenient, but may not always do so,
 especially in such cases, possible workaroudn is to trim the name manually
@@ -7572,7 +7510,7 @@ this but anyways) to align units vertically per era in the tree, with
 max one unit type per era, so also useful to look at all units in an
 era or look back in units tree. Short enough to fit, and the plural
 on units is clearer too i think but anyways. See code comments for
-details if not too verbose to read but anyways, hopefully the key
+details if not too verbose to read, hopefully the key
 info is in this commit log too but anyways.
 - "Promotion Tree" renamed to "Promotions Tree" for consistency
 and also makes more sense, there are several promotions after all,
@@ -7803,7 +7741,7 @@ with these fixes, may or not revisit later or not
 about this at least or not, but not promised, about
 this at least, and is maybe as is or not or yes or
 not or etc, focusing on myself or not or yes etc i
-mean anyways, hope helps or not etc, anyways, i
+mean anyways, hope helps or not etc i
 mean anyways, as is or not, thanks,
 
 commit af567fabc9797866b84936807ec88a0dbe6114b7
@@ -7851,25 +7789,13 @@ commit 1e866ea3a2beb6d00f5fc0b406a28154a0c4fb8a
 Author: wonderingabout <hidden>
 Date:   2025-04-03 19:32:45 +0200
 
-fix civlization text line height slightly too (increase height quite a bit)
-i don't know if result of my changes to padding or was as this, did
-not check about this, but now fixed, about this i mean
-anyways, thanks,
+fix civlization text line height slightly too
 
 commit 3ff3402656d67d822e009eaf2319f494327bbb02
 Author: wonderingabout <hidden>
 Date:   2025-04-03 18:32:47 +0200
 
-rename all references of placeRequire and their coordinate to Reveals
-as Reveals has now inherited the half from requires, while the other
-half became, about this at least, the, Enables,
-function, about this, as is or not maybe or not or
-yes or not, thanks,
-minor cleanup cleanup relatively or rather maybe fixes or maybe not
-cleanup seeing long comment but at least i said all i wanted or most
-maybe, as is or not, and about this i
-mean at least as is maybe or not or yes, or anyways or
-not or yes etc, but anyways, thanks,
+rename all references of placeRequire or such
 
 commit 391913e624db429d7c661ca322544fbb3e59edd7
 Author: wonderingabout <hidden>
@@ -7888,14 +7814,14 @@ that is at the right, see commit comments for details, thanks,
 is also actually step 4 but step 3 was "just" a
 fix about this, so this number of step 3 should
 be fine in this case and about this, as is i mean
-anyways, i mean, anyways, i mean, anyways, thanks,
+anyways, i mean i mean thanks,
 
 commit bca4087af6cee1c3a9d70e05f6be2ea7683ddf79
 Author: wonderingabout <hidden>
 Date:   2025-04-03 17:02:28 +0200
 
 reduce the history panel's (in Ressources category) size to better accomodate the new positin of the buildings panel
-looks so nice though if i may say i mean maybe, i mean, anyways,
+looks so nice though if i may say i mean maybe, i mean
 i mean maybe,, thanks,
 
 commit 3a6753c687f6d55dd12d7e63a0240a9f93387494
@@ -7915,13 +7841,7 @@ Date:   2025-04-03 16:26:54 +0200
 reorder the order of the function calls so that it matches existing and then our desired new display order
 fixed previous mistaken rearrangement, could have moved
 the function calls instead or the function declarations
-as well maybe if still not in same order, but not checking,
-speaking about this, i mean, at least, and i continue this
-code and focus on if i want or not or do or not as i want
-or not or prefer or not or yes or not, as
-is or not or yes, but anyways, as is, maybe indeed, but
-anyways, i mean, anyways,, thanks, i mean,
-thanks,
+as well maybe if still not in same order
 
 commit 1d6ee19d2cf597c8f87ab4d7082863fe66f63970
 Author: wonderingabout <hidden>
@@ -8120,7 +8040,7 @@ commit 0715ee4959028740dc687bd14e28d82b56f31d9e
 Author: wonderingabout <hidden>
 Date:   2025-04-02 19:25:53 +0200
 
-move the lengthy part of the sevopedia changes to CIV4GameText_advc_pedia_Lengthy_Custom.xml
+move the lengthy part of the sevopedia changes to AdvCiv-SAS_Sevopedia_Lengthy.xml
 hopefully cleaner now
 
 commit 03f437b9044bf994a84a1e2fb2bf406bbc00915c
@@ -8285,7 +8205,7 @@ revert leader names to bts leader names or equivalent
 at least the ones i spotted thanks to the very useful redifine
 tag.
 Might have been useful/preferable not to change them at all,
-about this if i may say, but some are (i find
+about this, but some are (i find
 them at least rather)
 useful: Asoka -> Ashoka maybe, thanks,
 
@@ -8444,12 +8364,7 @@ Date:   2025-04-01 00:42:51 +0200
 
 add Kingdom of Benin (civilization) and Ogiso Igodo (leader) (unfinished), and
 other things, about this at least maybe:
-- imported, while doing these changes (that add rather actually i
-mean but anyways), the
-Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml renamed, from
-another PR that was in base advciv i mean anywyas, the changes of
-were too low quality so dropped though (but a minority of it and
-about this case), see:
+- imported, see:
 https://github.com/f1rpo/AdvCiv/pull/8
 - added a map of the Kingdom of Benin, quite hard to find at least
 a bit harder than for other countries maybe about this case i mean
@@ -8689,7 +8604,7 @@ sorting, which means i mean to reorder
 some folder, do some docs quicks or other things.
 I want to add/listen to this awesome music!!!!
 Maybe i can do both or not, is maybe
-as is or not or yes, anyways,
+as is or not or yes
 
 commit b6e292bffead805a93220d5d7846f02917167e7e
 Author: wonderingabout <hidden>

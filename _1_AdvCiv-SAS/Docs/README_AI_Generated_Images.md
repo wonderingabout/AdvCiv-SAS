@@ -13,7 +13,7 @@ When i first tried/used making ai-generated images, i started with chatgpt for b
 
 ## Using ChatGPT
 
-One of the unexpected things that popped up while exploring unit naming in/for advciv-sas and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
+One of the unexpected things that popped up while exploring unit naming in/for advciv-sas and found to be very pleasant, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
 
 I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing), if you want to view them full size or more images, please ideally visit this google drive folder link rather.
 

@@ -4,14 +4,7 @@ AI, UI, or other modifications
 Created as part of AdvCiv-SAS improvements
 (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 -->
-<!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need, record the button Path as a txtKey for reference (centralized).
-
-See also /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation.
-
-See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there). -->
-<!-- custom: note: sometimes the localtext fetching can break if not converted to a string (such as with `str(`, or sometimes you need to do it later and not just when you import the localText path, or something along those lines. If you encounter issues, consider hardcoding the path directly in the button rather such as `szRankImg = u"<img=Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds size=16></img>"` in cvinfoscreen.py for example as claude opus 4.5 found to be the issue, until i implemented properly using localText.
-
-See also as of now the mod's root /README.md for related info. -->
+<!-- custom: Long_Comments_XML.txt #150 -->
 <Civ4GameText>
 	<!-- custom: 🕊️ emoji similarly from emojiterra. -->
     <TEXT>

@@ -14756,7 +14756,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 		}
 	}
 
-	// <!-- custom: adding lone brackets just in case as is seemingly done as a pattern here if i may say, after we have cleaned up the old conditional uiflag check hence its scope as well -->
+	// <!-- custom: adding lone brackets just in case as is seemingly done as a pattern here, after we have cleaned up the old conditional uiflag check hence its scope as well -->
 	{
 		m_triggersFired.clear();
 		uint iSize;

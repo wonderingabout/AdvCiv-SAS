@@ -818,7 +818,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or adjust ideally city placement based on this too, was 0 / 16 -->
-			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say, was 0 / 22 -->
+			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1047,7 +1047,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or adjust ideally city placement based on this too, was 0 / 16 -->
-			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say, was 0 / 22 -->
+			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1172,7 +1172,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or adjust ideally city placement based on this too, was 0 / 16 -->
-			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food if i may say, was 0 / 22 -->
+			<!-- custom: reduce other high food land animal a bit to accomodate the new bonus_camel that also gives a lot of food, was 0 / 22 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>23</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -1592,7 +1592,7 @@
 			<iPlacementOrder>5</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: trying to make nothern and southern edges positions of the map as relevant and strong than central one for livestock bonuses, and if accurate and seemingly relevant here if i may say, was 0 / 40 -->
+			<!-- custom: trying to make nothern and southern edges positions of the map as relevant and strong than central one for livestock bonuses, and if accurate and seemingly relevant here, was 0 / 40 -->
 			<iMinLatitude>40</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>

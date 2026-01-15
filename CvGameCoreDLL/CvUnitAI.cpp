@@ -1254,7 +1254,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			}
 		}
 
-		// <!-- custom: after bonus computation is handled, for bonus preference do not mind the terrain/feature, improve any terrain as long as it is a bonus with very great priority if i may say, else if our best would not be a bonus (no bonus or unreachable), then consider terrain or feature, prefer high food terrain most importantly: for example and in particular, do not build flatland plains cottage when there are flatland grass tiles available in city radius, this is a big waste of food yield and opportunity -->
+		// <!-- custom: after bonus computation is handled, for bonus preference do not mind the terrain/feature, improve any terrain as long as it is a bonus with very great priority, else if our best would not be a bonus (no bonus or unreachable), then consider terrain or feature, prefer high food terrain most importantly: for example and in particular, do not build flatland plains cottage when there are flatland grass tiles available in city radius, this is a big waste of food yield and opportunity -->
         // Logic to prioritize farms on high-food terrains like grassland and plains.
 		else
 		{
@@ -1491,7 +1491,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// <!-- custom: lower food terrain as of now -->
 			else if (eTerrain == eTerrainPlains)
 			{
-				// <!-- custom: on hills the problem is more straightforward if i may say, build mines until we can afford windmills, then let iValue despite outside of this function if we should build the best build or not vs other tiles (i.e. as of now due to the penalty of overwriting plots, windmills would not be considered until high enough value city plots have been improved first, our build mine on plains would be delayed until then) -->
+				// <!-- custom: on hills the problem is more straightforward, build mines until we can afford windmills, then let iValue despite outside of this function if we should build the best build or not vs other tiles (i.e. as of now due to the penalty of overwriting plots, windmills would not be considered until high enough value city plots have been improved first, our build mine on plains would be delayed until then) -->
 				if (kPlot.isHills())
 				{
 					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more -->
@@ -2757,7 +2757,7 @@ bool CvUnitAI::AI_foundFirstCity()
 	// <advc>
 	CvGame const& kGame = GC.getGame();
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-	// <!-- custom: we don't use kSpeed and game speed percent as noted by chatgpt 5 thanks hehe if i may say, can comment them out now -->
+	// <!-- custom: we don't use kSpeed and game speed percent as noted by chatgpt 5 thanks hehe, can comment them out now -->
 	// CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
 	/*  Earlier exploreMove may have revealed more tiles. Don't set bStartingLoc;
 		that setting rules out e.g. plots with a goody hut or at the edge of a

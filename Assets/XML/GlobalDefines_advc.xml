@@ -1196,7 +1196,7 @@ Created as part of AdvCiv-SAS improvements
 		 Barbarian creation also won't be affected by the adjustment.
 		 Changes to this parameter won't properly take effect in an ongoing game,
 		 will have to start a new one. -->
-	<!-- custom: i'd want handicap settings to be more reliable, if there is/i have a setting to rebalance, i'd rather do it there, so inverting this back to 0 if it was the value, not sure what this does or if it does what i intend/as intended (of me), but maybe it does if i may say, at least i want to do it this way or try it for handicap settings, was 1 -->
+	<!-- custom: i'd want handicap settings to be more reliable, if there is/i have a setting to rebalance, i'd rather do it there, so inverting this back to 0 if it was the value, not sure what this does or if it does what i intend/as intended (of me), but maybe it does, at least i want to do it this way or try it for handicap settings, was 1 -->
 	<Define>
 		<DefineName>RF_PLAYER_HANDICAP_ADJUSTMENT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

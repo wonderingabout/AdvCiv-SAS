@@ -3,7 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
-<!-- custom: new world sizes based on the XXL Word (BtS) mod (https://forums.civfanatics.com/resources/xxl-world-bts.6708/)'s approach, with values adjusted for AdvCiv-SAS with the help of GPT-Codex-5.2 and then ChatGPT 5.2 Thinking thanks. For details, see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\XXL_World_SAS_Modified.xml and docs. -->
+<!-- custom: new world sizes based on the XXL Word (BtS) mod (https://forums.civfanatics.com/resources/xxl-world-bts.6708/)'s approach, with values adjusted for AdvCiv-SAS with the help of GPT-Codex-5.2 and then ChatGPT 5.2 Thinking thanks. -->
 <!-- World Infos -->
 <!-- NOTE: If you remove any of these you need to update Interface/WorldPickerInfos.xml -->
 <Civ4WorldInfo xmlns="x-schema:CIV4GameInfoSchema.xml">

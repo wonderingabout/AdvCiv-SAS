@@ -3,7 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
-<!-- custom: file imported from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Interface\CIV4WorldPickerInfos.xml as part of adding new world sizes in AdvCiv-SAs based on the XXL World Mod's approach with the help of GPT-Codex-5.2 thanks. For details, see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\XXL_World_SAS_Modified.xml and docs. -->
+<!-- custom: file imported from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Interface\CIV4WorldPickerInfos.xml as part of adding new world sizes in AdvCiv-SAs based on the XXL World Mod's approach with the help of GPT-Codex-5.2 thanks. -->
 <!-- World Picker -->
 <!-- custom: Globe.nif size scale factors: values after 'Random' are ratios to Standard (1.0).
      Computed as (iGridWidth*iGridHeight) / StandardTiles from CIV4WorldInfo.xml.

@@ -3,6 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- custom: Long_Comments_XML.txt #137 -->
+<!-- custom: Long_Comments_XML.txt #157 -->
 <!-- Building Infos -->
 <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<BuildingInfos>
@@ -12271,7 +12272,7 @@
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_COLOSSEUM</ConstructSound>
-			<!-- custom: more varied as such than flat health, plus unlikely a player would have too many of the bonuses early so balanced as well and thematic too if i may say, done with the help of chatgpt 5, check if accurate -->
+			<!-- custom: more varied as such than flat health, plus unlikely a player would have too many of the bonuses early so balanced as well and thematic too, done with the help of chatgpt 5, check if accurate -->
 			<BonusHealthChanges>
 				<BonusHealthChange>
 					<BonusType>BONUS_WHEAT</BonusType>
@@ -12483,7 +12484,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: building reworked as a hybrid broadcasting building if i may say, adjust flavors to match these changes, was flavors culture 9 growth 5 -->
+			<!-- custom: building reworked as a hybrid broadcasting building, adjust flavors to match these changes, was flavors culture 9 growth 5 -->
 			<!-- advc.020: was 10 Culture, but also helpful for Growth -->
 			<Flavors>
 				<Flavor>
@@ -12959,7 +12960,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost quite a bit, reduce also its effect a bit to compensate if i may say, 130 may still be a bit too high, was 130 -->
+			<!-- custom: reduce cost quite a bit, reduce also its effect a bit to compensate, 130 may still be a bit too high, was 130 -->
 			<!-- advc.911b: was 150 -->
 			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>

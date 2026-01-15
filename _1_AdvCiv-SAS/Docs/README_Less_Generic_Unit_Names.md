@@ -6,18 +6,18 @@ I think some unit names are very lousy, for example for "spearman" it's basicall
 
 ## Menu
 
-[Less generic or inaccurate unit names or combat types (todo and non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Less_Generic_Unit_Names.md#less-generic-or-inaccurate-unit-names-orand-combat-types-todo-and-non-exhaustive)  
+[Less generic or inaccurate unit names or combat types (todo and non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Less_Generic_Unit_Names.md#less-generic-or-inaccurate-unit-names-orand-combat-types-todo-and)  
 
 ## Less generic or inaccurate unit names or combat types (todo and non-exhaustive)
 
 I found these possibly more epic and badass (i think but anyways) names after a quick bit of research or intutiion/idea of mine or and such or that i saw somewhere or something similar, so using this instead, see below, anyways.
 
-Some other units also have a more problematic name, as they are very inaccurate. For example a Knight is a title, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry (update note: since then reframed as dragoon units) could be in any era if i'm not mistaken but need to check too or more, anyways:
+Some other units also have a more problematic name, as they are very inaccurate. For example a Knight is a title, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example.
 
 - Spearman: Lancer (Light, Medium, Heavy), similar reasoning maybe at a different era instead not sure
 - Axeman: Battle Axe Warrior
 - Swordsman: Swordsfighter (Light, Medium, Heavy) or use it if we add an ealier or later sword unit at a different era, or maybe Swordsmaster instead
-- Maceman: Mace Warrior? Keep Maceman here? (But would be inconsistent then or not immersive if others don't have man too, anyways, also mace warrior is quite cool too i think, but anyways)
+- Maceman: Mace Warrior? Keep Maceman here? (But would be inconsistent then or not immersive if others don't have man too also mace warrior is quite cool too i think, but anyways)
 
 - Longbowman: Longbow? Longbow Soldier? Similar reasoning
 - Crossbowman: Crossbow? Crossbow Soldier? Similar reasoning
@@ -31,13 +31,11 @@ Some other units also have a more problematic name, as they are very inaccurate.
 - Camel Lancer Knight
 - Camel Swordsfighter Knight
 
-- Cavalry (update note: since then reframed as dragoon units): Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
-
-Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by XP system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
+Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by XP system and less linked to history will see, may or not, will see or not, etc or not etc For example:
 
 - Camel Lancer
 - Horse Swordsfighter
-- (note i don't think there were knights horse archers but i don't know, may or not them as a result plus don't want to complicate (needlessly?) the unit tree, will see what i do or not or will see or not etc or not, anyways,)
+- (note i don't think there were knights horse archers but i don't know, may or not them as a result plus don't want to complicate (needlessly?) the unit tree, will see what i do or not or will see or not etc or not)
 
 Not exhaustive or maybe is or not but or todo, anyways
 

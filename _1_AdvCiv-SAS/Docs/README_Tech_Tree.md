@@ -34,7 +34,7 @@ So i hope this more efficient tech tree helps have a smoother game experience fo
 
 ## More info on notes
 
-View also notes files that have tech in their name, or and other notes files that while not directly named with "tech" in their filename, may also contain directly or indirectly related tech information (ideally i should have (more maybe or not or yes or etc or and other or and not separated the info, but sometimes also the info is intertwined so not possible to separate unless duplicating the info, so or i hope there is still enough info in these docs hopefully or not))
+View also notes files that have tech in their name, or and other notes files that while not directly named with "tech" in their filename, may also contain directly or indirectly related tech information (ideally i should have (more maybe separated the info, but sometimes also the info is intertwined so not possible to separate unless duplicating the info, so or i hope there is still enough info in these docs hopefully or not))
 
 These files include (may not be exhaustive in case i forgot some or maybe i didn't) (note: see them in the mod's google drive to view the file and for details, some text in them is not updated or not relevant anymore, some of it should be informative about some technological choices in advciv-sas):
 

@@ -816,7 +816,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: TechYieldChange prereq tech, sems more accurate and buffes them too, while making middle game sooner and more relevant if i may say, was TECH_GAME_THEORY -->
+			<!-- custom: TechYieldChange prereq tech, sems more accurate and buffes them too, while making middle game sooner and more relevant, was TECH_GAME_THEORY -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_MACHINERY</PrereqTech>

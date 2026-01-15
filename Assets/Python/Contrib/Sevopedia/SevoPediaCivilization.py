@@ -105,7 +105,7 @@ class SevoPediaCivilization:
 
 
 
-	# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from Middle-earth's mod's Platypedia C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py thanks and then modified or not for AdvCiv-SAS -->
+	# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive or not is imported from Middle-earth's mod's Platypedia C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py thanks and then modified or not for AdvCiv-SAS -->
 	def placeCities(self):
 		screen = self.top.getScreen()
 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_CONCEPT_CITIES", ()), "", True, True, self.X_CITIES, self.Y_CITIES, self.W_CITIES, self.H_CITIES, PanelStyles.PANEL_STYLE_BLUE50 )
