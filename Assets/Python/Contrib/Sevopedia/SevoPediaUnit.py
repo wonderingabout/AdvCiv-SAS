@@ -83,44 +83,71 @@ class SevoPediaUnit:
 		# <!-- custom: see sevopediabuilding's self.W_TOTAL_EFFECTIVE_BUILDING_PANE for differences in implementation -->
 		self.W_TOTAL_EFFECTIVE_UNIT_PANE = self.W_UNIT_PANE + self.W_PROMO_PANE - self.W_MERGE_PANELS_EFFECT
 
-		self.X_REQUIRES = self.X_UNIT_PANE
-		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
-		self.W_REQUIRES = ((self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN)/ 2) 
+		# <!-- custom: reorganized layout (Claude code Opus 4.5):
+		# Row 1 (left half): Requires (bigger) | Obsolete With (84px) | Free Promotions (small, 2 buttons)
+		# Row 2 (left half): Replaces (bigger) | Civs (84px) | Upgrades To (same W as Free Promotions)
+		# Row 2 (right half, under animation): Against Classes | Peak/Hill/City
+		# Row 3-4: Of Other Units panel (full width, 2 rows height)
+		# Row 5: Special | History -->
+
 		self.H_REQUIRES = 110
 
-		self.X_UPGRADES_TO = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
-		self.Y_UPGRADES_TO = self.Y_REQUIRES
-		self.W_UPGRADES_TO = ((self.W_REQUIRES - self.MEDIUM_MARGIN)/ 2) 
+		# Narrow panels width (same as SevoPediaBuilding's obsolete panel)
+		self.W_OBSOLETE_WITH = 84
+		self.W_CIVILIZATIONS = 84
+
+		# Small panels width - fits ~2 buttons with scroll if more (64px per button + padding)
+		self.W_SMALL_PANEL = 150
+
+		# Row 1 left half: Requires | Obsolete With | Free Promotions
+		self.W_FREE_PROMOTIONS = self.W_SMALL_PANEL
+
+		# Requires takes remaining space
+		self.X_REQUIRES = self.X_UNIT_PANE
+		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
+		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
+		self.H_REQUIRES = 110
+
+		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.Y_OBSOLETE_WITH = self.Y_REQUIRES
+		self.H_OBSOLETE_WITH = self.H_REQUIRES
+
+		self.X_FREE_PROMOTIONS = self.X_OBSOLETE_WITH + self.W_OBSOLETE_WITH + self.MEDIUM_MARGIN
+		self.Y_FREE_PROMOTIONS = self.Y_REQUIRES
+		self.H_FREE_PROMOTIONS = self.H_REQUIRES
+
+		# Row 2 left half: Replaces | Civs | Upgrades To (aligned under Free Promotions)
+		self.W_UPGRADES_TO = self.W_SMALL_PANEL
+		self.X_UPGRADES_TO = self.X_FREE_PROMOTIONS  # Aligned under Free Promotions
+		self.Y_UPGRADES_TO = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
 		self.H_UPGRADES_TO = self.H_REQUIRES
 
-		self.X_FREE_PROMOTIONS = self.X_UPGRADES_TO + self.W_UPGRADES_TO + self.MEDIUM_MARGIN
-		self.Y_FREE_PROMOTIONS = self.Y_UPGRADES_TO
-		self.W_FREE_PROMOTIONS = self.W_UPGRADES_TO
-		self.H_FREE_PROMOTIONS = self.H_UPGRADES_TO
+		# Civs aligned under Obsolete With
+		self.X_CIVILIZATIONS = self.X_OBSOLETE_WITH  # Aligned under Obsolete With
+		self.Y_CIVILIZATIONS = self.Y_UPGRADES_TO
+		self.H_CIVILIZATIONS = self.H_REQUIRES
 
-		self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.X_UNIT_PANE
-		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
-		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.W_REQUIRES
-		self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.H_REQUIRES
-
-		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
-		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
-		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
-		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		self.X_REPLACE = self.X_UNIT_PANE
+		self.Y_REPLACE = self.Y_UPGRADES_TO
+		self.W_REPLACE = self.X_CIVILIZATIONS - self.X_REPLACE - self.MEDIUM_MARGIN  # Takes remaining space (same as Requires)
+		self.H_REPLACE = self.H_REQUIRES
 
 		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; check if accurate as i don't know too much about these. -->
 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
+		# Row 3-4: Of Other Units panel (full width, 2 rows height) - under Row 2
 		self.X_OF_OTHER_UNITS_MODIFIERS = self.X_UNIT_PANE
-		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.SMALL_MARGIN
+		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_REPLACE + self.H_REPLACE + self.SMALL_MARGIN
 		self.W_OF_OTHER_UNITS_MODIFIERS = self.top.R_PEDIA_PAGE - self.X_UNIT_PANE
 		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
 
+		# Row 5: Special panel (left half)
 		self.X_SPECIAL = self.X_UNIT_PANE
 		self.Y_SPECIAL = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + self.SMALL_MARGIN
 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_UNIT_PANE
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
+		# Right column: Unit Animation
 		self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE = 7
 
 		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + self.MEDIUM_MARGIN
@@ -134,22 +161,25 @@ class SevoPediaUnit:
 		self.Z_ROTATION_UNIT_ANIMATION = 30
 		self.SCALE_ANIMATION = 1.0
 
-		self.W_CIVILIZATIONS = 84
+		# Row 2 right half (under animation): Against Classes (left) | Peak/Hill/City (right)
+		# <!-- custom: swapped positions - Against Classes on left, Peak/Hill/City on right -->
+		self.H_UNDER_ANIMATION_PANELS = self.H_REQUIRES
 
-		self.X_REPLACE = self.X_UNIT_ANIMATION
-		self.Y_REPLACE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.SMALL_MARGIN
-		self.W_REPLACE = self.W_UNIT_ANIMATION - self.MEDIUM_MARGIN - self.W_CIVILIZATIONS
-		self.H_REPLACE = self.H_REQUIRES
+		self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.X_UNIT_ANIMATION
+		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.SMALL_MARGIN
+		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = (self.W_UNIT_ANIMATION - self.MEDIUM_MARGIN) / 2
+		self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.H_UNDER_ANIMATION_PANELS
 
-		self.X_CIVILIZATIONS = self.X_UNIT_ANIMATION + self.W_REPLACE + self.MEDIUM_MARGIN
-		self.Y_CIVILIZATIONS = self.Y_REPLACE
-
-		self.H_CIVILIZATIONS = self.H_REPLACE
+		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
+		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_UNDER_ANIMATION_PANELS
 
 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
+		# Row 5 right half: History panel - aligned with Special panel
 		self.X_HISTORY = self.X_UNIT_ANIMATION
-		self.Y_HISTORY = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + self.SMALL_MARGIN
+		self.Y_HISTORY = self.Y_SPECIAL  # Same Y as Special panel for alignment
 		self.W_HISTORY = self.W_UNIT_ANIMATION
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
@@ -158,18 +188,29 @@ class SevoPediaUnit:
 	def interfaceScreen(self, iUnit):
 		self.iUnit = iUnit
 
+		# Row 0: Unit Pane + Promotions (left) | Animation (right)
 		self.placeUnitPane()
 		self.placeStats()
 		self.placePromotions()
-		self.placeRequires()
-		self.placeUpgradesTo()
-		self.placeFreePromotions()
-		self.placeModifiersOfThisUnitAgainstOtherUnitClassesCombatTypes()
-		self.placePeakHillCityTerrainsFeaturesModifiers()
 		self.placeUnitAnimation()
+
+		# Row 1 left: Requires | Obsolete With | Free Promotions
+		self.placeRequires()
+		self.placeObsoleteWith()
+		self.placeFreePromotions()
+
+		# Row 2 left: Replaces | Civs | Upgrades To
+		# Row 2 right (under animation): Against Classes | Peak/Hill/City
 		self.placeReplace()
 		self.placeCivilizations()
+		self.placeUpgradesTo()
+		self.placeModifiersOfThisUnitAgainstOtherUnitClassesCombatTypes()
+		self.placePeakHillCityTerrainsFeaturesModifiers()
+
+		# Row 3-4: Of Other Units panel (full width)
 		self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit()
+
+		# Row 5: Special (left) | History (right)
 		self.placeSpecial()
 		self.placeHistory()
 
@@ -898,6 +939,32 @@ class SevoPediaUnit:
 
 
 
+	# <!-- custom: placeObsoleteWith - mirrors SevoPediaBuilding's obsolete with panel (Claude code Opus 4.5) -->
+	def placeObsoleteWith(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+
+		# Create panel with proper styling - use same text key as SevoPediaBuilding
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
+		# Additional left side padding for the button(s)
+		screen.attachLabel(panelName, "", "  ")
+
+		unitInfo = gc.getUnitInfo(self.iUnit)
+
+		# Check if the unit has an obsolete tech
+		iObsoleteTech = unitInfo.getObsoleteTech()
+
+		if iObsoleteTech != -1:
+			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
+		else:
+			# No obsolete tech - show "Never" message (same as SevoPediaBuilding)
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
+			yCenterPanel = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
+			screen.addMultilineText(textName, szText, self.X_OBSOLETE_WITH + 7, yCenterPanel, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -910,7 +977,7 @@ class SevoPediaUnit:
 		# <!-- custom: fix height too low, does not display properly the concept texts (for example any religious missionary unit) -->
 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

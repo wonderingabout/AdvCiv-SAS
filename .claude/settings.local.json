@@ -6,7 +6,8 @@
       "Bash(for:*)",
       "Bash(done)",
       "Bash(sort:*)",
-      "Bash(xargs sed:*)"
+      "Bash(xargs sed:*)",
+      "Bash(python -m py_compile:*)"
     ]
   }
 }

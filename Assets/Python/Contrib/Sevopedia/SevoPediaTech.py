@@ -332,14 +332,15 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# add the red X overlay at the same position using addDDSGFC
 
 			# Obsolete Buildings
+			# <!-- custom: use iData2=-1 instead of 1 to fix left-click not working (same pattern as SevoPediaBuilding's obsolete tech) -->
 			for iBuilding in obsoleteBuildings:
 				buildingInfo = gc.getBuildingInfo(iBuilding)
-				screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+				screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
 
 			# Obsolete Bonuses
 			for iBonus in obsoleteBonuses:
 				bonusInfo = gc.getBonusInfo(iBonus)
-				screen.attachImageButton(panelName, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+				screen.attachImageButton(panelName, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, -1, False)
 
 			# Obsolete Special Buildings - show individual buildings that belong to this special building type
 			for iSpecialBuilding in obsoleteSpecialBuildings:
@@ -348,7 +349,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				for iBuilding in range(gc.getNumBuildingInfos()):
 					buildingInfo = gc.getBuildingInfo(iBuilding)
 					if buildingInfo.getSpecialBuildingType() == iSpecialBuilding:
-						screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+						screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
 
 			# Obsolete Units
 			iActivePlayer = gc.getGame().getActivePlayer()
@@ -357,7 +358,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				szButton = unitInfo.getButton()
 				if iActivePlayer >= 0:
 					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
-				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1, False)
 
 			# Now add red X overlays on top of all buttons (if enabled via SAS define)
 			if IS_SHOW_OBSOLETES_RED_X:
@@ -378,19 +379,23 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				iOverlaySize = self.RED_X_BUTTON_SIZE  # Size of the thin red X DDS (128px to fit properly)
 				iOverlayOffset = (iButtonSize - iOverlaySize) / 2  # Center overlay on button (will be negative if overlay > button)
 				iCurrentX = self.X_OBSOLETES + 10 + iOverlayOffset  # Starting position with centering offset
-				iOverlayY = self.Y_OBSOLETES + 36 + iOverlayOffset  # Y position with centering offset
+				# <!-- custom: for some reason after switching from addDDSGFC to addDDSGFCAt to fix linking issues clicking (right click works but left click doesn't which is not consistent with how other panel's clicking works (either left only or both), the RedX has shifted vertically a bit, so we need to reduce the original + 36 added to iOverlayY -->
+				iOverlayY = self.Y_OBSOLETES + 8 + iOverlayOffset  # Y position with centering offset
 				iButtonSpacing = iButtonSize + 4  # Actual button spacing (64 + 4 = 68)
 
 				# Process buildings
 				for iBuilding in obsoleteBuildings:
 					szOverlayName = self.top.getNextWidgetName()
-					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
+					screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
+					# <!-- custom: overlay should not intercept clicks; disable hit testing so underlying obsolete button handles left/right click (GPT-5.2-Codex) -->
+					screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
 					iCurrentX += iButtonSpacing
 
 				# Process bonuses
 				for iBonus in obsoleteBonuses:
 					szOverlayName = self.top.getNextWidgetName()
-					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1)
+					screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, -1, False)
+					screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
 					iCurrentX += iButtonSpacing
 
 				# Process special buildings (individual buildings)
@@ -399,13 +404,15 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 						buildingInfo = gc.getBuildingInfo(iBuilding)
 						if buildingInfo.getSpecialBuildingType() == iSpecialBuilding:
 							szOverlayName = self.top.getNextWidgetName()
-							screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
+							screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
+							screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
 							iCurrentX += iButtonSpacing
 
 				# Process units
 				for iUnit in obsoleteUnits:
 					szOverlayName = self.top.getNextWidgetName()
-					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1)
+					screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1, False)
+					screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
 					iCurrentX += iButtonSpacing
 		
 		else:
@@ -703,6 +710,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 	# <!-- custom: add non-tradeable (<bTrade>) tech list at the end of placeSpecial, addition with the help of chatgpt thanks. -->
+	# <!-- custom: Note: We intentionally keep all textual info here (units, buildings, civics, bonuses, builds, promotions)
+	# even though they're also displayed as buttons in the Enables panel. This duplication is helpful because
+	# users find it easier to read and scan the textual list for quick reference. (Claude code Opus 4.5) -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()

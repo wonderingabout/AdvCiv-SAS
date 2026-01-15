@@ -84,8 +84,8 @@ if IS_DEBUG_LEADER:
 # - If you change emoji settings or leader XML, you need to re-dump
 # - The dumped data includes: LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
 # === Cache dump/load config and helpers ===
-IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED") > 0)
-IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG") > 0)
+IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED") > 0)
+IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG") > 0)
 # Name of the pre-dumped module (without .py extension)
 PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
 
@@ -146,7 +146,7 @@ def try_load_predumped_cache():
 		return (leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories)
 	
 	except:
-		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
+		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
 
 
 
