@@ -231,7 +231,7 @@ commit 1fd378ad9704a2168b846d0179cfa1fd4456173c
 Author: wonderingabout <hidden>
 Date:   2025-12-21 14:01:50 +0100
 
-add Land subgroups: Growth, Bonus-capable, Other, in seveopedia improvements, with the veyr nice help of chatgpt 5.2 and our combined effort xd thanks a lot.
+add Land subgroups: Growth, Bonus-capable, Other, in seveopedia improvements, with the very nice help of chatgpt 5.2 and our combined effort xd thanks a lot.
 
 commit 4a67cd2480b83250ce710bdb4eb22f3d98065c38
 Author: wonderingabout <hidden>
@@ -1426,7 +1426,7 @@ significantly adjust the medieval era and mid game tech tree
 - move frigate units to tech_gunpowder as seems more relevant there and now that we've split them (plus allows to counter privateers sooner). This is better aligned with ship of the line being available later at tech_physics which now also requires astronomy (and added the tech_gunpowder prereq).
 - add tech_machinery as an additional prereq to cannon units as recommended by chatgpt 5 (rather than adding it to tech_chemistry that would not be as clean or readable or according to chatgpt 5 balanced i mean if i understood it correctly).
 
-all in all i like this new tech tree very much. Now knight units are available later, macemen shine longer, gun units a bit later too, there is much more variety in tech paths, and the medieval and around it tech tree itself is much more detailed even though it uses same techs, but with much more variety, less intertwined nodes and bloat. I believe this adds much strategical possibilities as well as immersion hoepfulyl as well, at least i like it very much. Hopefully much more balanced as such and replayable.
+all in all i like this new tech tree very much. Now knight units are available later, macemen shine longer, gun units a bit later too, there is much more variety in tech paths, and the medieval and around it tech tree itself is much more detailed even though it uses same techs, but with much more variety, less intertwined nodes and bloat. I believe this adds much strategical possibilities as well as immersion hoepfully as well, at least i like it very much. Hopefully much more balanced as such and replayable.
 
 commit f53e5cd9a7fdb824ad766e12594d783698cdf8ac
 Author: wonderingabout <hidden>
@@ -1451,7 +1451,7 @@ Date:   2025-11-06 07:25:15 +0100
 
 tech tree early game adjustments
 - hunting is no longer an AND but is now an OR requirement for agriculture (replaced by pottery now): the hunting line was too op to allows everything, now it will be instead the early committal edge for animal husbandry and chariots. Pottery is indirectly stronger as it plays a more central role now in the early game, but the tech itself is not op so maybe fine as such. Indirectly gives builder and religious civs more momentum for bronze working as well that is a bit more accessible now (since it requires masonry which is available via pottery anyway), so i hope it is both more flexible and balanced as such, and allows some more variety without being too carefree if such a thing exists at least in civ4 i mean.
-- reworked the naval line so that sailing is available sooner and is now also an alternative tech for construction (if you can curve wood for ships, you can probably curve bows (construction) and roofs with wood or something without needing the wheel itself). More sensical and should most importantly hopefulyl i meanmake the naval line with fishing much more viable.
+- reworked the naval line so that sailing is available sooner and is now also an alternative tech for construction (if you can curve wood for ships, you can probably curve bows (construction) and roofs with wood or something without needing the wheel itself). More sensical and should most importantly hopefully i meanmake the naval line with fishing much more viable.
 - also made navigation be later in tech tree (it was a bit too soon to get world maps or ports i think) as AIs (and i assume players would or may too) would too easily beeline engineering with the now much more accessible navigation, skipping iron working altogether. While the diversity of early catapults and castle is interesting, it turns out the high tech cost was not a deterrent enough to prevent that, so made navigation a bit later to connet better with water wheel tech as well
 - also unrelated but updated DLL with latest fix in previous commit.
 Hopefully much saner (was not too bad before but even better or fine as such if i may say maybe) and balanced with clear strategical lines remaining but with more flexibility now especially for the naval line.
@@ -2687,7 +2687,7 @@ Author: wonderingabout <hidden>
 Date:   2025-08-16 11:59:36 +0200
 
 (Fixed/Enhanced) told AI which promotions are most likely to be bad and to not go for and rarely vice versa if very good and always go first for, to fix issue of AI picking ineffective promotions such as woodsman and medic quite often
-- CvUnitAI::AI_promotionValue: "<!-- custom: similarly to what we did for AI specialists in CvCityAI::AI_jobChangeValue, also do not allow some promotions for AI players, as these promotions are either too weak most times (e.g. woodsman promotions ineffective in cities etc, even with the buff in our mod) or too situational to be reliably good for AI players, hopefully helps AI better pick promotions without killing versatility. Better promotion choice is especially important in the early game where any small advantage may give an edge for successfuly invasion or defense, but nice if kept during the whole game as well to do good promotion choices that are in most cases effective for AI players. Done with the help of chatgpt 5 and that i adjusted too and such, check if accurate -->" + "<!-- custom: note: as of now this mostly, except for some strict unitais where it seems beneficial to do so, doesn't incentivize anything, only forbids some promotions, otherwise mostly (minus these exceptions) keeping AI choices the same; hopefully this leads to saner and more effective AI promotion choices, while patching the core issues of flawed to sometimes very flawed AI promotion choices while keeping at least as of now otherwise most of the base advciv behaviour that we attempt to enhance with these rules-->" + about AI_getUnitAIType() "<!-- custom: moved up here, and refactored to remove the countless as in very very numerous repeated lookups in this same function, which seem very inefficient or suboptimal, hopefulyl cleaner and better for perfomance or clarity or such maybe too-->", see known issue as of now 46 for details
+- CvUnitAI::AI_promotionValue: "<!-- custom: similarly to what we did for AI specialists in CvCityAI::AI_jobChangeValue, also do not allow some promotions for AI players, as these promotions are either too weak most times (e.g. woodsman promotions ineffective in cities etc, even with the buff in our mod) or too situational to be reliably good for AI players, hopefully helps AI better pick promotions without killing versatility. Better promotion choice is especially important in the early game where any small advantage may give an edge for successfuly invasion or defense, but nice if kept during the whole game as well to do good promotion choices that are in most cases effective for AI players. Done with the help of chatgpt 5 and that i adjusted too and such, check if accurate -->" + "<!-- custom: note: as of now this mostly, except for some strict unitais where it seems beneficial to do so, doesn't incentivize anything, only forbids some promotions, otherwise mostly (minus these exceptions) keeping AI choices the same; hopefully this leads to saner and more effective AI promotion choices, while patching the core issues of flawed to sometimes very flawed AI promotion choices while keeping at least as of now otherwise most of the base advciv behaviour that we attempt to enhance with these rules-->" + about AI_getUnitAIType() "<!-- custom: moved up here, and refactored to remove the countless as in very very numerous repeated lookups in this same function, which seem very inefficient or suboptimal, hopefully cleaner and better for perfomance or clarity or such maybe too-->", see known issue as of now 46 for details
 - PROMOTION_DISORGANIZED: "<!-- custom: since this seems unused in DLL due to #if 0 and understood correctly chatgpt 5's explanation of it, and since it is and was also commented out here already in the XML as well, also commented it out in the DLL as well, see there for details in corresponding as of now .cpp file(s) (can be found with a global search with vs code for example), and done as approved to be possible by chatgpt 5, check if accurate -->"
 - revert to some old civ4 +/- base advciv promotion buttons as clearer ingame in map view
 - UNIT_GRENADIER: reworked to have some collateral damage, withdraw and such small changes or not
@@ -2825,7 +2825,7 @@ UNITAI AI preference changes, settler slow growth AI policy for efficiency and e
 - disabled for AIs the unrreliable unitais that are unreliable (`UNITAI_COLLATERAL` to aim for less suicides and getting baited and more focused defense or offense units, `UNITAI_PILLAGE` (no time to waste running around, this unit will not be focused attacking or defending, avoid this, inefficient), and `UNITAI_PIRATE_SEA` again not efficient and annoying, is also part of reducing naval warfare influence (see below for details), as a result we use our hammers more efficiently to have a more effective and efficient unitais. Say a swordsman will be an attacker or a defender, but not a pillager, so the stack will be stronger, and the cities more guarded, at least in theory, results seem good, as Khmer AI could pull an early rush on Medina and capture it with a strong stack.)
 - disabled for AIs the unreliable unitais that are unreliable (`UNITAI_COLLATERAL` to aim for less suicides and getting baited and more focused defense or offense units, `UNITAI_PILLAGE` (no time to waste running around, this unit will not be focused attacking or defending, avoid this, inefficient), and `UNITAI_PIRATE_SEA` again not efficient and annoying, is also part of reducing naval warfare influence (see below for details), as a result we use our hammers more efficiently to have a more effective and efficient unitais. Say a swordsman will be an attacker or a defender, but not a pillager, so the stack will be stronger, and the cities more guarded, at least in theory, results seem good, as Khmer AI could pull an early rush on Medina and capture it with a strong stack.)
 - restricted settlers for AIs to be built only in capital, and only if city pop >= 5 (i.e. not <= 4). This is so they can use more efficiently the food as production, as it's much easier to produce a settler using food from the many population count additionally to existing hammer yields as well, than it is at low pop. And if city stagnates, it is very efficient too, at least food is put to use instead of stagnating. There are other advantages, such as seemingly a bit less barbarian captures, and more units early. We may use 1 or 2 spots, but barbarian captures happen much less, and secondary cities can grow more. This change is in line with the settler now being a national unit as of now (1 allowed for whole empire including existing unit, check quick get started guide for updated values or info, or sevopedia or xml). As for small new cities, it guarantees they grow as well instead of being stuck producing a settler for a long time, as hapepned many times and was the original reason why i did this to begin with, then expanded on it. I added a patch, although should never happen with the settler being a national unit and only in capital, but that if city is very small and stagnant, switch to worker instead, but since only cpaital as of now produces them and it grows fast, this shouldn't happen but if changed this patch woudl help as well small cities being stuck in a very lnog settler production and being stagnant, in fact it's necessary now else our capital can't produce a settler, as chatgpt 5 noticed or noted as well. Update: also as it mentionned to me to add here as well, there are exceptions such as a city somehow being stagnant, then even if pop is small, we are not using the food anyway, so may as well take our chances and build a settler, as it rightly told me to add to this doc hehe which i forogt but i think this is a quite good summary otherwise...
-- free window: during the first as of now 75 turns at normal game speed (adjusted based on game speed), the AI will have free production of settler (minus restrictions said before). So it can take its time and grow freely. Then after this window, it will consider which strategy to take, either offense mode, or defense mode, or other maybe which i added hardcoded in cvcityAI. Based on these, it may not build settlers anymore and start to stack units. This is something i had a problem with in base advciv, of AI expanding again and again while it was near me, instead of preparing for the likely war. Hopefulyl AI would react better to these.
+- free window: during the first as of now 75 turns at normal game speed (adjusted based on game speed), the AI will have free production of settler (minus restrictions said before). So it can take its time and grow freely. Then after this window, it will consider which strategy to take, either offense mode, or defense mode, or other maybe which i added hardcoded in cvcityAI. Based on these, it may not build settlers anymore and start to stack units. This is something i had a problem with in base advciv, of AI expanding again and again while it was near me, instead of preparing for the likely war. Hopefully AI would react better to these.
 - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place, in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai. It does seem though as of now to be taken quite well into acocunt, but test to be sure. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack), and this means its units won't wander or such and atatck more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems. This is a summary i attempted to do of the changes and again didn't test too much so far; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, jsut to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units woudl be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i coudl have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays i quickly glanced at skimemd through i may say, hopefully helpful and making AI stronger and more capable as a result but test to be sure.
 
 commit bda7d2fa2ea8ac82c7afd002d94efad25fc206cb
@@ -2938,7 +2938,7 @@ Author: wonderingabout <hidden>
 Date:   2025-07-31 14:08:05 +0200
 
 make AI never ever choose the citizen specialist as it is too inefficient (change in the DLL in `CvCityAI::AI_jobChangeValue` thanks to gemini ai and adjusted for advciv-sas too or not), that as a side effect may also slightly increase performance due to early return in the function
-- CvCityAI::AI_jobChangeValue: "<!-- custom: code provided by gemini ai and adjusted or not for advciv-sas, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it -->"
+- CvCityAI::AI_jobChangeValue: "<!-- custom: code provided by gemini ai and adjusted or not for advciv-sas, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, especially crippling in the early game i think. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it -->"
 
 commit 44ffa78d4326c49b8049cefd99f8d80566cf42ff
 Author: wonderingabout <hidden>
@@ -3139,7 +3139,7 @@ Author: wonderingabout <hidden>
 Date:   2025-07-23 18:53:26 +0200
 
 add terrain or feature modifiers for remaining intended civ-specific units, rework the aztec_jaguar to be now based on the axeman (not swordsman anymore)
-- "terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly); as it is also tedious and less intuitive mostly if i may say too and not necessarily worth it or as i would want it maybe). Civ-specific units in particular as of now almost all have terrain +/- feature modifiers, see sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or sevopedia feature page to see all units modifiers for said terrain/feature (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)). For example the camel knight or the zulu impi are stronger in desert or other terrains as well. Some generic units have terrain or feature modifiers although generally less and as of now only for few units to not skew the balance and as is quite needless, only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info" + "+ "sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe due to it being only forestic with no obvious terrain in the world maps i saw, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms(see for example this [europe climate map on wikipedia](https://fr.m.wikipedia.org/wiki/Fichier:Europe_K%C3%B6ppen_Map.png) for details or maybe rather info or such hopefulyl helpful...)"
+- "terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly); as it is also tedious and less intuitive mostly if i may say too and not necessarily worth it or as i would want it maybe). Civ-specific units in particular as of now almost all have terrain +/- feature modifiers, see sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or sevopedia feature page to see all units modifiers for said terrain/feature (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)). For example the camel knight or the zulu impi are stronger in desert or other terrains as well. Some generic units have terrain or feature modifiers although generally less and as of now only for few units to not skew the balance and as is quite needless, only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info" + "+ "sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe due to it being only forestic with no obvious terrain in the world maps i saw, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms(see for example this [europe climate map on wikipedia](https://fr.m.wikipedia.org/wiki/Fichier:Europe_K%C3%B6ppen_Map.png) for details or maybe rather info or such hopefully helpful...)"
 - "<!-- custom: note: aztec warrior reworked, now based on the axeman not the swordsman anymore. This works well i think if i may say as the low/now lowercost as well as earlier unit availability in this caseallows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguarswhich was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have), it may synergize especially well with their sacrifice/slaving profile or buildings or such -->" + "<!-- custom: from my memory i mean, i seem to remember that the jaguars are elite forces valued in society, since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense and covers the overall "elite forces" feeling/theme of the unit if i may say but or not but or yes but, was PROMOTION_WOODSMAN1 -->" + "<!-- custom: also give it the swordsman's city attack bonus, this goes quite well with their theme of early aggression, and they retain most of their previous advantages as swordsmen, but now available sooner and cheaper in cost despite the strength reduction, overall the unit should be much stronger now hopefully balanced and not op; it was way too weak before, was 0 -->"
 
 commit 3816ed06c12bb80365b1fb8dd9d2e689783f4d6b
@@ -3250,7 +3250,7 @@ Author: wonderingabout <hidden>
 Date:   2025-07-17 16:07:16 +0200
 
 replace leader_cyrus 's  music with really royalty free one (see copyright section of main readme for details)
-it seems this onei mean the previous one anwyays etc... Was not copyright safe and i had just hoped it would be then forgot about it, now replaced with a real hopefulyl copyright safe one stated as royalty free but check to be sure, and see main readme's copyright section for details or and info
+it seems this onei mean the previous one anwyays etc... Was not copyright safe and i had just hoped it would be then forgot about it, now replaced with a real hopefully copyright safe one stated as royalty free but check to be sure, and see main readme's copyright section for details or and info
 
 hopefully now i can really rest and also i can sleep sound hoepfully hehe, and the music is quite cool if not cool itself in this case now i really rest xd as long or not long that i want or not or yes or etc:)
 
@@ -3554,7 +3554,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 - rebalanced also naval units or other units like animal units and perhaps other units or not or yes while doing so, see xml for details or sevopedia ingame also for updated values too
 - adjust unitAIs of some (mostly early as of now see xml for details and docs) siege units so they don't get baited as much instead of focusing mostly on city attack or "counter" (as in staying in city but atatcking the surrounding units) defense (ideally as i didn't explicitly implement it as such but i hope they don't get baited anymore at least)
 - TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA: "<!-- custom: surprisingly on a more positive note this time if i may say, i didn't know recycling centers existed on a quite global or country scale much before the modern/post industrial era, updating i mean replacing the entry with a wikipedia based one from https://en.wikipedia.org/wiki/Recycling#History; the base civ4 +/- advciv one is as usual garbage without a pun, hopefully more scientifically grounded, less moralistic, more informative and exhaustive pehaps enjoyable too if may say-->"
-- SPECIALBUILDING_MONASTERY: "<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed); also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies) function as such so there must be a reason or reasons i mean in this case), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage in terms of gameplay and modding as well at least for me maybe for others or not or yes or other, was TECH_SCIENTIFIC_METHOD -->"
+- SPECIALBUILDING_MONASTERY: "<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed); also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies) function as such so there must be a reason or reasons i mean in this case), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage in terms of gameplay and modding as well, was TECH_SCIENTIFIC_METHOD -->"
 - forbidden palace: "<!-- custom: great spy great person is low enough it can be ignored and probably better to ignore it in this case at least, as for flavors in base advciv, were/was flavor military 5??? Fixed to growth gold based formula as seems much more accurate (didn't read the adv manual id though in case it has info but this still seems much more accurate like this with these udpated flavors i/we i.e. i anywyas etc now added in advciv-sas -->"
 - update docs and other changes or not or yes
 
@@ -3601,7 +3601,7 @@ Author: wonderingabout <hidden>
 Date:   2025-06-27 14:49:51 +0200
 
 fixes and tweaks from previous commit
-after multiple manual rereads hehe if i may say in this casedue to github showing the same code diff many times, this should be quite safe now (could have checked diff in vs code but fine to do with github too as i like in this case at least), so hopefulyl should be qutie safe moving forward even though not 100% guaranteed but i reread many times and didn't find a mistake or typo from quick glances and (quite) slow read i mean in this case
+after multiple manual rereads hehe if i may say in this casedue to github showing the same code diff many times, this should be quite safe now (could have checked diff in vs code but fine to do with github too as i like in this case at least), so hopefully should be qutie safe moving forward even though not 100% guaranteed but i reread many times and didn't find a mistake or typo from quick glances and (quite) slow read i mean in this case
 
 commit 2973ba48f3bd65d0a85956ed5aee0457858dc621
 Author: wonderingabout <hidden>
@@ -3649,7 +3649,7 @@ Date:   2025-06-24 23:59:38 +0200
 performance optimization: do not cache for sevopedia leaders until we click and the first time only on Sevopedia Main's placeLeaders
 therefore/by doing so we cache only once per gaming session (i.e. once until game is exited, even if sevopedia is exited and reopened later), and more importantly we don't cache if we open other sevopedia categories than Leaders, as it woudl waste/spend needless computation and affect needlessly performance. I also like that/to use a function call rather than hardcoded code. Also, we cache before any leader is selected. With the previous parts of the sevopedia leader such as using many tuples, byte strings, etc from little or not i know or did of it also thanks to chagpt's ideas and replies to my prompts too and my own ideas and thoughts as well but anyways, i believe the system is now even more and very very efficient. May be improved, but is really efficient and i am really happy of it.
 
-See also doc links as there is a drive link with screenshots and examples as long as it is there of how and why we did it this way, quite quick in this case or not but anywyas etc (i.e. not all screenshots but most relevant ones hoepfulyl helpful or as i wanted or and chose to do in this case) but or not but or yes but, in readme of ai personality panel there is a performance optimization section with th elink there and some info too about it/this hoepfulyl helpful or not or ye sor as i wanted or did or not or yes or etc
+See also doc links as there is a drive link with screenshots and examples as long as it is there of how and why we did it this way, quite quick in this case or not but anywyas etc (i.e. not all screenshots but most relevant ones hoepfully helpful or as i wanted or and chose to do in this case) but or not but or yes but, in readme of ai personality panel there is a performance optimization section with th elink there and some info too about it/this hoepfully helpful or not or ye sor as i wanted or did or not or yes or etc
 
 commit 630168d5b844adf66d8202b77907029f08b47e45
 Author: wonderingabout <hidden>
@@ -3770,7 +3770,7 @@ Author: wonderingabout <hidden>
 Date:   2025-06-14 19:08:19 +0200
 
 add camel bonus/ressource and camel units, expose to python gc sevopedia leader BBAI victory weights getters and some missing attitude threshold getters too, add debug output in sevopedia leader, remove hit_movies bonus (replaced by bonus_camel), add "This technology cannot be traded" in placeSpecial of sevopedia leader in DLL, begin to nerf tech whoreism by restricting techs, fixes and tweakes and other changes
-- "<!-- custom: move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC.), so maybe and hopefully makes sense at least enough ideally lot and is pleasant ideally too this way even though not obligated but would be nice if but not obligated abotu hinduism, was TECH_POLYTHEISM -->"
+- "<!-- custom: move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC.), was TECH_POLYTHEISM -->"
 - "<!-- custom: buff/rework hollywood, remove hit ressources/bonuses, give more culture instead or and other changes"
 - "<!-- custom: rework broadcast_tower, (and also) gives a free artist now, also remove hit bonuses too else(where) in the xml"
 - "<!-- custom: remove hit bonuses/ressources from building_american_mall too, rework building instead by giving more gold which may be fine for a building so late in the game as compensation -->"
@@ -3861,7 +3861,7 @@ buff the BUILDING_GREAT_LIGHTHOUSE, rework harbor and lighthouse buildings (unfi
 - removed caravel class and unit entirely; as explained in this code comment in unit info 's xml"		<!-- custom: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without trigegring war, that now only privateers can do at least among visible naval units; as for the effect bRivalTerritory is set to 0 in the galleon as well same as what it was, even though they have UNITAI_EXPLORE_SEA, was annoying from my memory of advciv games that caravels could send many spies in particular without ever declaring war and without me allowing them to enter my borders, hopefully much more sensical now and pleasant this way, that they have to respect water rights or something, and galleon is a bit more affordable and civilian like unit, may also help to simplify gameplay a bit as we don't need strongly/strongly needthe caravel if the galleon is cheap enough and fast enough, may help the AI indirectly or simplify gameplay perhaps, not ideal but maybe a desirable change at least for me... -->"
 - buff privateer a bit
 - PORTUGAL_CARRACK now based on galleon
-- rework BUILDING_LABORATORY, available sooner in tech plus buffed a bit (stronger scientific effect but hopefulyl not op hopefully more relevant as a building now or and worth to build... , removed space race (spaceship production) effect
+- rework BUILDING_LABORATORY, available sooner in tech plus buffed a bit (stronger scientific effect but hopefully not op hopefully more relevant as a building now or and worth to build... , removed space race (spaceship production) effect
 - adjusted tech_tree view a bit is still todo for the actual (tech) (re)arragementin tech tree
 - update docs
 - minor or not other changes or and other or and not
@@ -4043,7 +4043,7 @@ Date:   2025-06-04 09:47:30 +0200
 make emoji buttons in sevopedia leader an optional config flag in the py file with instructions on how to enable / disable
 Was a bit too distracting to me but still glad i added them (i.e. the buttons)
 
-Stil now is a cool enable/disable button if need, so maybe the both of worlds if i may say and even instructions how, may enable in the future or not as i prefer or not and each player prefers to do for themselves or not or yes or for others or not or yes or etc..
+Stil now is a cool enable/disable button if need, so maybe the both of worlds.
 
 commit 34b60ccc647b0a7aef701e6228349003fde8e435
 Author: wonderingabout <hidden>
@@ -4081,7 +4081,7 @@ Author: wonderingabout <hidden>
 Date:   2025-06-02 22:58:21 +0200
 
 add flatten_handicap_info_to_csv_and_md.py script and docs and screenshots and such on how to view the data (.csv: github web view, libreoffice for example, etc.; .md: github web view too, or Notepad++ or similar text editor/viewer, etc.)
-also included base advciv handicap data (in .csv and .md) for compare too with our mods's settings, which are still unfinished as of now, hopefulyl helpful or and other or and not or yes or etc
+also included base advciv handicap data (in .csv and .md) for compare too with our mods's settings, which are still unfinished as of now, hopefully helpful or and other or and not or yes or etc
 
 Done with the help of chatgpt thanks; should be compatible with other mods.
 
@@ -4222,7 +4222,7 @@ Author: wonderingabout <hidden>
 Date:   2025-05-28 10:54:18 +0200
 
 use a generic button for the generic (special building) monastery button, same as for the generic temple and generic catehdral
-hopefulyl clearer or more consistent or and othe ror and not or and yes...
+hopefully clearer or more consistent or and othe ror and not or and yes...
 
 commit f50ab80096a352ae0f6ae7e562870f9b73957a32
 Author: wonderingabout <hidden>
@@ -4368,7 +4368,7 @@ Author: wonderingabout <hidden>
 Date:   2025-05-21 19:42:16 +0200
 
 rename _IVORY to _ELEPHANTS, same as what was done much earlier for xml asset txtkey only renaming in the past, now generalized
-as should have been, and maybe now time is right to do this change as part of other changes in civ4.. Hopefulyl consistent with our other changes or not of bonus or and other or and not or other or not or yes or other or etc..
+as should have been, and maybe now time is right to do this change as part of other changes in civ4.. Hopefully consistent with our other changes or not of bonus or and other or and not or other or not or yes or other or etc..
 
 commit f551d27b34b4e0b394744ff3f857076b1978653f
 Author: wonderingabout <hidden>
@@ -4788,7 +4788,7 @@ not
 - added an empty TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY txt key
 to not clutter with uneeded and unused, not sure it is necessary as we don't use the fields at
 all, but maybe we respect the xml architecture this way (of civ4 i
-mean), i did not check if we applied it eveyrwhere needed
+mean), i did not check if we applied it everywhere needed
 if it is even needed but etc
 - minor other changes or/ad other i may have forgotten or not,
 hopefully accurate enough, please view commit diff for details,
@@ -4868,7 +4868,7 @@ Author: wonderingabout <hidden>
 Date:   2025-05-08 21:44:38 +0200
 
 fix/adjust leaders favourite religions, remove confucianism religion, add paganism religion, add xml custom leader comment to navigate data (xml)(much(!!)) easier
-unifinished (minus art and veyr few txt keys in comparison)
+unifinished (minus art and very few txt keys in comparison)
 but stable and almost finished so i'd rather commit it too on
 my end.
 
@@ -5043,7 +5043,7 @@ can/may(?) see them/these for details) in this commit
 
 But it does also display some useful information, and it is also true the other attitude
 changes +/- limits +/- divisors don't change among leaders, not ideal, maybe to change or
-not, but in all cases hoepfulyl helpful or maybe not but in all cases or not;
+not, but in all cases hoepfully helpful or maybe not but in all cases or not;
 it does also wrap up the sevopedia leader panel quite nicely, while adding more relevant
 info and sorting it a bit too.
 
@@ -5283,7 +5283,7 @@ not or like or not or other or not, including for the robotic era as
 explained below.
 
 Thirdly(if that is a word? anwyays etc), added robotic era content (docs only now), entirely
-written by ChatGPT - robotic era, i may alter it a bit espcially for values and balance
+written by ChatGPT - robotic era, i may alter it a bit especially for values and balance
 or such, but as for lore and perhaps maybe even leaders and such or not, i may keep them as is as i
 find them very cool, some alteraltions maybe is that i don't expect humans(humanity) to go extinct as
 robots eventually flourish. Also, to view the full discussion of how
@@ -5697,24 +5697,9 @@ commit 65357eb9e92d0f28d0801f721e6123aa8ec781b9
 Author: wonderingabout <hidden>
 Date:   2025-04-14 17:16:35 +0200
 
-calculation change: switch to median-based distribution for AI aggregates (idea by me but chatgpt impelemnted it brilliantly a lot more than i could think it (in terms of math and such, not that i couldnt absolutely do it but big big thanks, may have been able or not maybe etc but anyways thanks lot anyways) thanks to me or or mayeb and chatgpt too anyways, anyways)
-See diff in screenshots (no 2 line spacing but hopefully readable enough (i
-didn't spam notes there at least but anyways... but i like to do but feel
-free to skip or not etc anyways and trying to keep code bit clean for me
-too maybe or others or not or other not or etc anyways))
+calculation change: switch to median-based distribution for AI aggregates (idea by me but chatgpt impelemnted it brilliantly a lot more than i could think it (in terms of math and such, not that i couldnt absolutely do it but big big thanks, may have been able or not maybe etc but anyways thanks lot anyways) thanks
 
-ChatGPT breakdown below, thanks a lot and is detailed as i asked; as this
-can be a technical change, i hope to learn from its explanation etc anyways,
-as it explained to me but maybe more details or not etc but i like to share
-or not or yes but etc anyways i do or not if i want or not or etc but anyways,
-chatgpt breakdown below, thanks (now it's teasing me (even though has no
-will but still very smart and impressive.. I need a counterattack now in
-kind and kindness (too) etc maybe or not or yes etc but anwyays is me to do
-if i want or otn etc anyways thanks a lot chatgpt, thanks, ))
-
-(also docs to be updated later after this is more finalized maybe but screenshots
-especially useful and not so long to do maybe and i wanted to do most importantly
-maybe or not etc anyways read below for chatgpt breakdown etc, thanks, )
+ChatGPT breakdown below, thanks a lot and is detailed as i asked
 
 🧠 Commit: Improve Aggregate Scoring Accuracy via Percentile Normalization
 Summary:
@@ -5870,7 +5855,7 @@ Author: wonderingabout <hidden>
 Date:   2025-04-14 15:45:52 +0200
 
 performance optimization: Optimize aggregate AI personality trait scores via module-level caching (Sevopedia performance boost)
-credit fulyl goes to chatgpt i only helped and implemented it, publis
+credit fully goes to chatgpt i only helped and implemented it, publis
 skimmed thorugh after testing tis non working code, but newer one it
 submitted perfectly worked, (so) maybe bit credit to me too, but thanks
 a lot chatgpt you deserve it maybe (not that others don't deserve it
@@ -5997,10 +5982,6 @@ Author: wonderingabout <hidden>
 Date:   2025-04-14 15:15:17 +0200
 
 readme notes update or fixes
-not to diminish paint which i like a big lot too but anyways, even
-though i started using a bit more paint.net recently but still paint
-is veyr nice and simpel but etc anyways thanks, but credit goes to
-chatgpt this time etc anyways,
 
 commit 4e5a8076c7dfa70793107774ef9ac5b60567bc99
 Author: wonderingabout <hidden>
@@ -6152,9 +6133,7 @@ Date:   2025-04-14 12:58:14 +0200
 refactor: use global variables for ai headers
 we use them several times, avoid to rewrite them each, code more
 robust and easy to manage this way, idea comes from me but expands
-an older idea chatcpt had with renaming to AGGREGATES_HEADER to
-solve an issue or help in one etc or not anyways, credit to both
-or not or other or not etc but anyways,
+an older idea chatcpt had with renaming to AGGREGATES_HEADER,
 
 commit 98548c0bedbbdec0280a83a1318282b4eaaad615
 Author: wonderingabout <hidden>
@@ -6223,11 +6202,11 @@ Date:   2025-04-14 10:31:01 +0200
 
 add more agregates, logically order them, extensive doc by ChatGPT all wit my prompts, thanks a lot
 i may even refer to it (by that i mean too or even in this case about
-civ4 at least anyways), hopefulyl very helpful data that id id not find
+civ4 at least anyways), hopefully very helpful data that id id not find
 easy to reach info of it, is flexible for other mods too as long as they
 use same civ4 tags, else they may adjust code or docs, anyways
 
-very happy of it all, but anyways, thanks, hoepfulylhelpful but anywys,
+very happy of it all, but anyways, thanks, hoepfullyhelpful but anywys,
 thanks to those who indirectedly helped me or mentionned to me chatgpt for
 civ4 and all or not, anyways
 
@@ -6236,7 +6215,7 @@ Author: wonderingabout <hidden>
 Date:   2025-04-14 02:29:53 +0200
 
 fully add the finalized documentation of AI Personality Aggregates
-very very veyr nice, thanks to ChaGPT (who wrote the doc too actully)
+very very very nice, thanks to ChaGPT (who wrote the doc too actully)
 a big big lot and those who indirectly helped me or not or to me or to
 for prompting it and giving it feedback etc but anyways, hopefully a very
 nice feature, may add more aggregates or not, please read the documentation,
@@ -6369,7 +6348,7 @@ Date:   2025-04-13 15:48:02 +0200
 
 generalize category and items width for smaller screens
 as we have no margins anymroe we can use the space, hopefully helpful
-or clearer, did not test, hopefulyl works well, anyways
+or clearer, did not test, hopefully works well, anyways
 
 Did not remove the logic in case some want to tweak it, and no strong
 reason to (urgently do so), anyways
@@ -6656,7 +6635,7 @@ commit 368fbcd5e9dd3bfc7d9f400aeeb5602767ee07b6
 Author: wonderingabout <hidden>
 Date:   2025-04-11 20:21:11 +0200
 
-add AI-generated images/icons to project "goals" (not that it is obligated) and files and links
+add AI-generated images/icons
 
 commit 48c51346422293aeeee7d5896cb398f8b8809c66
 Author: wonderingabout <hidden>
@@ -6850,7 +6829,7 @@ i may redirect to that if need or desired, else and in all cases
 added a disclaimer about how how i'm not responsible for the data i
 helped even though i hope it helps.
 
-Anyways, back to coding this UnitChat, is veyr nice, anyways,
+Anyways, back to coding this UnitChat, is very nice, anyways,
 
 commit ce3f71f509cf40857e5d8725534dcc1499d2166f
 Author: wonderingabout <hidden>
@@ -7746,7 +7725,7 @@ Date:   2025-04-04 17:53:53 +0200
 
 reapply the military overhaul latest .xml files so i can see the diff / to show
 in https://github.com/wonderingabout/AdvCiv-SAS/pull/15
-now hopefulyl can compare, about this,
+now hopefully can compare, about this,
 thanks,
 
 commit f03a2d5ebe48f9d86ea5665762cdbd2b254eea55
@@ -7805,13 +7784,8 @@ mean anyways.
 
 Originally was to solve the display issue of the religion concept's
 text in the spy (as a unit, not a specialist).
-Hopefully a lot clearer, and perhaps more useful to the player
-too, thanks,
-See code comments whatever is intelligible or maybe helpful of it
-too, not to diminish myself but hope this helps
-i mean anyways, indeed maybe, as is or not but,
-anyways,, as is or not or etc as is anyways
-i mean anyways, thanks,
+Hopefully a lot clearer, thanks,
+See code comments.
 
 commit 81cfb629873877d439aedbae7352086a7298c557
 Author: wonderingabout <hidden>

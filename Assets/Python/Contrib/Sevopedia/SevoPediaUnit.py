@@ -37,6 +37,7 @@ class SevoPediaUnit:
 	def __init__(self, main):
 		self.iUnit = -1
 		self.top = main
+		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
@@ -686,7 +687,7 @@ class SevoPediaUnit:
 		# <!-- custom: include negative values as well and after having asked chatgpt to be sure or quite more sure -->
 		if iHillsAttack != 0 or iHillsDefense != 0:
 			widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
-			iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+			iHill = self.I_TERRAIN_HILL
 			widgetID2 = -1
 
 			# Column index (always 0 when numLists=1)

@@ -16,6 +16,8 @@ AdvCiv-SAS is now generally stable, but if issues were to arise such as bugs or 
 
 Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
 
+For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+
 ## Menu
 
 [Tech Tree](/README.md#tech-tree)  
@@ -618,9 +620,7 @@ See [Some Useful tools while doing this](/_1_AdvCiv-SAS/Docs/README_References.m
 
 Written by chatgpt and adjusted bit by me wonderingabout.
 
-This mod is free to use, modify, and share.
-
-While i cannot enforce it, i strongly appreciate that if you reuse part of our work, you'd credit us. Example:
+You can reuse our work in your projects, but we ask that you credit us. Example:
 
 ```txt
 the AdvCiv-SAS mod by wonderingabout and AI helpers

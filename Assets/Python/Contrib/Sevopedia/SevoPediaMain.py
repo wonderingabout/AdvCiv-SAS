@@ -698,6 +698,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
+		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS = []
+		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
+			iT = getInfoTypeOrFail(szType, gc)
+			if iT >= 0:
+				self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS.append(iT)
 
 		self.categoryList = []
 		self.SAS_categoryEnumToIndex = {}
@@ -1319,11 +1324,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		water = []
 
 		# Terrain IDs considered "GraphicalOnly (High)" purely for UI grouping (e.g. Hills/Peaks).
-		highIds = []
-		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
-			iT = getInfoTypeOrFail(szType, gc)
-			if iT >= 0:
-				highIds.append(iT)
+		highIds = self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS
 
 		for (szName, iTerrain) in baseList:
 			info = gc.getTerrainInfo(iTerrain)
@@ -1403,10 +1404,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		water = []
 
 		# Exclude our GraphicalOnly (High) terrains (e.g. Hill/Peak) even if XML marks them as water.
-		graphicalOnlyHighIds = []
-		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
-			iT = getInfoTypeOrFail(szType, gc)
-			graphicalOnlyHighIds.append(iT)
+		graphicalOnlyHighIds = self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS
 
 		# Build list of "true water terrains" for feature classification.
 		waterTerrainIds = []

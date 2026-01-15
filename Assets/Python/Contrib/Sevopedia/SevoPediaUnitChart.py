@@ -25,6 +25,8 @@ class SevoPediaUnitChart:
 	def __init__(self, main):
 		self.iGroup = -1
 		self.top = main
+		self.I_UNITCOMBAT_AIR_BOMBER = getInfoTypeOrFail("UNITCOMBAT_AIR_BOMBER", gc)
+		self.I_UNITCOMBAT_AIR_FIGHTER = getInfoTypeOrFail("UNITCOMBAT_AIR_FIGHTER", gc)
 
 		self.X_TABLE = self.top.X_PEDIA_PAGE
 		self.Y_TABLE = self.top.Y_PEDIA_PAGE
@@ -55,7 +57,7 @@ class SevoPediaUnitChart:
 		screen = self.top.getScreen()
 		table = self.top.getNextWidgetName()
 
-		isAirCombatType = (self.iGroup == getInfoTypeOrFail("UNITCOMBAT_AIR_BOMBER", gc) or self.iGroup == getInfoTypeOrFail("UNITCOMBAT_AIR_FIGHTER", gc))
+		isAirCombatType = (self.iGroup == self.I_UNITCOMBAT_AIR_BOMBER or self.iGroup == self.I_UNITCOMBAT_AIR_FIGHTER)
 
 		if not isAirCombatType:
 			self.N_COLUMNS = 8

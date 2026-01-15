@@ -19,7 +19,8 @@ HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
 HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
 # <!-- custom: note: below line not yet tested. -->
 HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
-
+# <!-- custom: when displaying only one row, adjust height to hide the 2nd row's buttons so it is prettier/clearer to read -->
+HIDE_SECOND_ROW_MULTI_LIST = - 4
 
 
 def get_leaders_index_to_type_map(gc):

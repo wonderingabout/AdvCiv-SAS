@@ -33,6 +33,14 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
 		<Tag>TXT_KEY_PEDIA_NO_TECH_PREREQUISITE</Tag>
 		<English>No Tech Prerequisite</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_BUILD_REMOVE</Tag>
+		<English>Remove</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD</Tag>
+		<English>Units (Any Build)</English>
+	</TEXT>
 	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>

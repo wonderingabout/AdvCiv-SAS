@@ -72,7 +72,7 @@ class SevoPediaFeature:
 
 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
-		self.W_INFO_PANE = 290
+		self.W_INFO_PANE = 330
 		# <!-- custom: make some room for the new fields we added in placeSpecial and align display horizontally with placeSpecial, was 120 -->
 		self.H_INFO_PANE = 127
 
@@ -84,13 +84,18 @@ class SevoPediaFeature:
 
 		self.X_INFO_TEXT = self.X_INFO_PANE + 110
 		self.Y_INFO_TEXT = self.Y_ICON + 15
-		self.W_INFO_TEXT = 220
+		self.W_INFO_TEXT = 260
 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
 
-		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
-		self.H_SPECIAL = self.H_INFO_PANE
-		self.Y_SPECIAL = self.Y_INFO_PANE
+		self.X_BUILD_REMOVES = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
+		self.Y_BUILD_REMOVES = self.Y_INFO_PANE
+		self.W_BUILD_REMOVES = 84
+		self.H_BUILD_REMOVES = self.H_INFO_PANE
+
+		self.X_UNITS_ANY_BUILD = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
+		self.Y_UNITS_ANY_BUILD = self.Y_INFO_PANE
+		self.W_UNITS_ANY_BUILD = self.top.R_PEDIA_PAGE - self.X_UNITS_ANY_BUILD
+		self.H_UNITS_ANY_BUILD = self.H_INFO_PANE
 
 		self.X_FEATURES = self.X_INFO_PANE
 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
@@ -119,12 +124,25 @@ class SevoPediaFeature:
 		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
 		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
-		self.H_UNITS_IMPASSABLE = self.H_FEATURES
+		self.H_UNITS_IMPASSABLE = self.H_FEATURES + HIDE_SECOND_ROW_MULTI_LIST
 
-		self.X_HISTORY = self.X_UNITS_IMPASSABLE
+		self.X_SPECIAL = self.X_INFO_PANE
+		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
+		self.W_SPECIAL = self.W_INFO_PANE
+		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+
+		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+		self.Y_HISTORY = self.Y_SPECIAL
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
-		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
-		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+		self.H_HISTORY = self.H_SPECIAL
+
+		self.I_FEATURE_ICE = getInfoTypeOrFail("FEATURE_ICE", gc)
+		self.I_FEATURE_FOREST = getInfoTypeOrFail("FEATURE_FOREST", gc)
+		self.I_FEATURE_JUNGLE = getInfoTypeOrFail("FEATURE_JUNGLE", gc)
+
+		self.I_PROMOTION_WOODSMAN1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1", gc)
+		self.I_PROMOTION_WOODSMAN2 = getInfoTypeOrFail("PROMOTION_WOODSMAN2", gc)
+		self.I_PROMOTION_WOODSMAN3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3", gc)
 
 
 
@@ -132,12 +150,13 @@ class SevoPediaFeature:
 		self.iFeature = iFeature
 
 		self.placeInfo()
-		self.placeSpecial()
+		self.placeBuildUnits()
 		self.placeTerrain()
 		self.placeImprovements()
 		self.placeBonusesOnAnyTerrain()
 		self.placeRelevantUnits()
 		self.placeUnitsImpassable()
+		self.placeSpecial()
 		self.placeHistory()
 
 
@@ -173,6 +192,81 @@ class SevoPediaFeature:
 
 
 
+	def placeBuildUnits(self):
+		screen = self.top.getScreen()
+		iActivePlayer = gc.getGame().getActivePlayer()
+
+		removalBuilds = []
+		improvementBuilds = []
+
+		for iBuild in xrange(gc.getNumBuildInfos()):
+			buildInfo = gc.getBuildInfo(iBuild)
+			iImprovement = buildInfo.getImprovement()
+			if iImprovement != -1:
+				improvementInfo = gc.getImprovementInfo(iImprovement)
+				if improvementInfo.isGoody():
+					continue
+				if improvementInfo.getFeatureMakesValid(self.iFeature):
+					improvementBuilds.append(iBuild)
+			elif buildInfo.isFeatureRemove(self.iFeature):
+				removalBuilds.append(iBuild)
+
+		if len(removalBuilds) == 0 and len(improvementBuilds) == 0:
+			return
+
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_FEATURE_BUILD_REMOVE", ()), "", False, True, self.X_BUILD_REMOVES, self.Y_BUILD_REMOVES, self.W_BUILD_REMOVES, self.H_BUILD_REMOVES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+
+		if len(removalBuilds) > 0:
+			for iBuild in removalBuilds:
+				buildInfo = gc.getBuildInfo(iBuild)
+				# <!-- custom: show build buttons for feature-removal actions; WIDGET_HELP_IMPROVEMENT keeps the build hover and right-click redirect to the feature page since no build pedia exists (GPT-5.2-Codex) -->
+				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, -1, iBuild, False)
+		else:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_BUILD_REMOVES + (self.H_BUILD_REMOVES / 2)
+			screen.addMultilineText(textName, szText, self.X_BUILD_REMOVES + 7, yPanelCenter, self.W_BUILD_REMOVES - 14, self.H_BUILD_REMOVES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD", ()), "", False, True, self.X_UNITS_ANY_BUILD, self.Y_UNITS_ANY_BUILD, self.W_UNITS_ANY_BUILD, self.H_UNITS_ANY_BUILD, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+
+		bUnitFound = False
+		for iUnit in xrange(gc.getNumUnitInfos()):
+			unitInfo = gc.getUnitInfo(iUnit)
+			if unitInfo.isGraphicalOnly():
+				continue
+
+			bCanBuild = False
+			for iBuild in improvementBuilds:
+				if unitInfo.getBuilds(iBuild):
+					bCanBuild = True
+					break
+			if not bCanBuild:
+				for iBuild in removalBuilds:
+					if unitInfo.getBuilds(iBuild):
+						bCanBuild = True
+						break
+
+			if bCanBuild:
+				szButton = unitInfo.getButton()
+				if iActivePlayer >= 0:
+					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
+				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+				bUnitFound = True
+
+		if not bUnitFound:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_UNITS_ANY_BUILD + (self.H_UNITS_ANY_BUILD / 2)
+			screen.addMultilineText(textName, szText, self.X_UNITS_ANY_BUILD + 7, yPanelCenter, self.W_UNITS_ANY_BUILD - 14, self.H_UNITS_ANY_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
 	# <!-- custom: code provided with the help of claude ai and chatgpt too -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
@@ -180,7 +274,7 @@ class SevoPediaFeature:
 		text = self.top.getNextWidgetName()
 		info = gc.getFeatureInfo(self.iFeature)
 
-		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 		szSpecialText = info.getHelp()
 		szSpecialText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
 
@@ -208,7 +302,7 @@ class SevoPediaFeature:
 				break
 
 		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
-		screen.addMultilineText(text, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(text, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -297,11 +391,8 @@ class SevoPediaFeature:
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# <!-- custom: handle feature(s) that is (are) impassable such as of now only the ice cap feature quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences, see code comments at sevopedia feature's placeUnitsImpassable -->
-		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
 		# <!-- custom: handle features with promotions or other specific effects separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on -->
-		iForest = getInfoTypeOrFail("FEATURE_FOREST", gc)
-		iJungle = getInfoTypeOrFail("FEATURE_JUNGLE", gc)
-
+		iIce = self.I_FEATURE_ICE
 		if self.iFeature == iIce:
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
@@ -333,11 +424,7 @@ class SevoPediaFeature:
 					iButtonIndex += 1
 
 		# <!-- custom: in advciv-sas as of now at least if not always or not, woodsman promotions apply both to jungle but also to forest tiles as well, seems more sensical to me, adjust below logic depending on which features have promotions applying to them or some other effects you'd want to display in the numTxt or not -->
-		elif self.iFeature == iForest or self.iFeature == iJungle:
-			# <!-- custom: raise an error if asset does not exist -->
-			iPromotionWoodsman1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1", gc)
-			iPromotionWoodsman2 = getInfoTypeOrFail("PROMOTION_WOODSMAN2", gc)
-			iPromotionWoodsman3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3", gc)
+		elif self.iFeature == self.I_FEATURE_FOREST or self.iFeature == self.I_FEATURE_JUNGLE:
 
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
@@ -348,9 +435,9 @@ class SevoPediaFeature:
 				iFeatureAttack = unitInfo.getFeatureAttackModifier(self.iFeature)
 				iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
 
-				isHasW1 = unitInfo.getFreePromotions(iPromotionWoodsman1)
-				isHasW2 = unitInfo.getFreePromotions(iPromotionWoodsman2)
-				isHasW3 = unitInfo.getFreePromotions(iPromotionWoodsman3)
+				isHasW1 = unitInfo.getFreePromotions(self.I_PROMOTION_WOODSMAN1)
+				isHasW2 = unitInfo.getFreePromotions(self.I_PROMOTION_WOODSMAN2)
+				isHasW3 = unitInfo.getFreePromotions(self.I_PROMOTION_WOODSMAN3)
 
 				if ((iFeatureAttack != 0) or (iFeatureDefense != 0) or isHasW1 or isHasW2 or isHasW3):
 					# Column index (always 0 when numLists=1)
@@ -415,9 +502,7 @@ class SevoPediaFeature:
 		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE"
 
 		# <!-- custom: https://forums.civfanatics.com/threads/make-ice-workable.462809/?utm_source=chatgpt.com based on this provided to me by chatgpt thanks, it seems the ice feature (called as of now "ice cap" feature in advciv-sas is impassable but can be walked on if a unit has such a flag, so using a code similar to the terrain_peak handling in sevopedia terrain's as of now placeUnitsImpassable -->
-		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
-
-		if self.iFeature == iIce:
+		if self.iFeature == self.I_FEATURE_ICE:
 			txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE"
 
 		screen = self.top.getScreen()
@@ -442,6 +527,7 @@ class SevoPediaFeature:
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
+		iIce = self.I_FEATURE_ICE
 		if self.iFeature == iIce:
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
