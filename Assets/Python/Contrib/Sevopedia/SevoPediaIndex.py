@@ -110,7 +110,6 @@ class SevoPediaIndex:
 		featureList = self.top.getFeatureList()
 		bonusList = self.top.getBonusList()
 		improvementList = self.top.getImprovementList()
-		buildList = self.top.getBuildList()
 		
 		civList = self.top.getCivilizationList()
 		leaderList = self.top.getLeaderList()
@@ -180,11 +179,6 @@ class SevoPediaIndex:
 			list.append([item[0],"Bonus",item])
 		for item in improvementList:
 			list.append([item[0],"Improv",item])
-		for item in buildList:
-			if (item[0][:13] == "TXT_KEY_BUILD_"):
-				list.append([item[0][13:].capitalize(), "Build", item])
-			else:
-				list.append([item[0], "Build", item])
 		
 		for item in civList:
 			list.append([item[0],"Civ",item])
@@ -212,8 +206,6 @@ class SevoPediaIndex:
 	def placeIndex(self):
 		screen = self.top.getScreen()
 		CONCEPT_CHAR = gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()
-		# <!-- custom: index listbox doesn't pass widget data for build rows; map row -> build id for click jumps. (GPT-5.2-Codex (summarized)) -->
-		self.SAS_rowToBuild = {}
 		
 		if self.SAS_indexWidgetNames:
 			for szWidget in self.SAS_indexWidgetNames:
@@ -302,9 +294,6 @@ class SevoPediaIndex:
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBonusInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
 			elif (type == "Improv"):
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getImprovementInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
-			elif (type == "Build"):
-				self.SAS_rowToBuild[iRow] = iData1
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iData1, CvUtil.FONT_LEFT_JUSTIFY)
 			
 			elif (type == "Civ"):
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
@@ -337,9 +326,6 @@ class SevoPediaIndex:
 					self.SAS_indexKeyDebounceByKey = {}
 					self.placeIndex()
 				return 1
-			if inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
-				if inputClass.getData1() == self.top.SAS_PEDIA_PYTHON_BUILD:
-					return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, inputClass.getData2(), True, False)
 		
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
 			screen = self.top.getScreen()
@@ -376,13 +362,4 @@ class SevoPediaIndex:
 			screen = self.top.getScreen()
 			screen.selectRow(self.tableName, self.iLastRow, True)
 			screen.selectRow(self.tableName, inputClass.getData1(), True)
-			return 1
-		
-		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
-				or inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
-			if inputClass.getFunctionName() == self.tableName:
-				iRow = inputClass.getData()
-				iBuild = self.SAS_rowToBuild.get(iRow, None)
-				if iBuild is not None:
-					return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
 		return 0
