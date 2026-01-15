@@ -121,6 +121,8 @@ class SevoPediaIndex:
 		
 		conceptList = self.top.getConceptList()
 		newConceptList = self.top.getNewConceptList()
+		# <!-- custom: add Builds to index, inspired by Middle-earth mod's PlatyPedia approach (Claude Opus 4.5) -->
+		buildList = self.top.getBuildList()
 		
 		list=[]
 		for item in techList:
@@ -199,6 +201,9 @@ class SevoPediaIndex:
 			list.append([item[0],"Concept",item])
 		for item in newConceptList:
 			list.append([item[0],"NewConcept",item])
+		# <!-- custom: add Builds to index (Claude Opus 4.5) -->
+		for item in buildList:
+			list.append([item[0],"Build",item])
 		
 		list.sort()
 		self.index = list
@@ -219,10 +224,18 @@ class SevoPediaIndex:
 		
 		nColumns = 3
 		self.tableName = self.top.getNextWidgetName()
+		self.SAS_rowToBuild = {}
+		self.iTableWidgetId = int(self.tableName.replace(self.top.WIDGET_ID, ""))
 		iTableY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
-		iTableH = self.H_INDEX - (self.SAS_INDEX_SEARCH_H + 4)
-		screen.addTableControlGFC(self.tableName, nColumns, self.X_INDEX, iTableY, self.W_INDEX, iTableH, False, False, self.LIST_BUTTON_SIZE, self.LIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
-		screen.enableSelect(self.tableName, False)
+		iTableH = self.H_INDEX - (iTableY - self.Y_INDEX)
+		# <!-- custom: For Build entries, table selection is the only reliable click signal, so keep the table selectable and capture
+		# row->Build mapping in handleInput. We previously tried overlay buttons, but they ignored table scrolling and desynced from rows.
+		# Also, if the table doesn't have focus on first open, NOTIFY_CHARACTER goes nowhere and the search bar appears "dead" until
+		# you navigate away and back. Setting focus here keeps search responsive and avoids the broken first-load behavior. Credit:
+		# Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
+		screen.addTableControlGFC(self.tableName, nColumns, self.X_INDEX, iTableY, self.W_INDEX, iTableH, True, True, self.LIST_BUTTON_SIZE, self.LIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSelect(self.tableName, True)
+		screen.setFocus(self.tableName)
 		self.SAS_indexWidgetNames.append(self.tableName)
 		for i in range(nColumns):
 			screen.setTableColumnHeader(self.tableName, i, "", (self.W_INDEX - 10) / nColumns)
@@ -294,6 +307,11 @@ class SevoPediaIndex:
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBonusInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
 			elif (type == "Improv"):
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getImprovementInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: Build rows use the normal table cell (icon + text) and rely on table selection to trigger pediaJump.
+			# This avoids overlay widgets that don't scroll with the table. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
+			elif (type == "Build"):
+				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				self.SAS_rowToBuild[iRow] = iData1
 			
 			elif (type == "Civ"):
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
@@ -362,4 +380,13 @@ class SevoPediaIndex:
 			screen = self.top.getScreen()
 			screen.selectRow(self.tableName, self.iLastRow, True)
 			screen.selectRow(self.tableName, inputClass.getData1(), True)
+			return 1
+		
+		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
+				or inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
+			if inputClass.getFunctionName() == self.top.WIDGET_ID and inputClass.getID() == self.iTableWidgetId:
+				iRow = inputClass.getData()
+				iBuild = self.SAS_rowToBuild.get(iRow, None)
+				if iBuild is not None:
+					return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
 		return 0

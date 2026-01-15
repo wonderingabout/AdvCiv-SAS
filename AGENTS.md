@@ -21,7 +21,7 @@ If you don't know how to do something, generally mostly for UI stuff as we like 
 - The Middle-earth mod (in particular but not only their Platypedia) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth"
 - The C2C (Cavemen2Cosmos) mod (in particular but not only for UI/EXE stuff) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos"
 
-While doing so and comparing with our approach and what our mod does, in the end we'd adjust for our AdvCiv-based mod and not strictly copy paste it, unless it is fine for our needs. We should properly credit them as such when we do so.
+While doing so and comparing with our approach and what our mod does, in the end we'd adjust for our AdvCiv-based mod and not strictly copy paste it, unless it is fine for our needs. We should properly credit them as such in code comments or docs when we do so.
 
 Example of UI tip discovered: if a new Sevopedia category needs clickable entries and the EXE doesn't fire a custom widget, use `WidgetTypes.WIDGET_PYTHON` with a custom data1 code (e.g. 6798) and route it in `SevoPediaMain.handleInput` to `pediaJump`. Middle-earth's PlatyPedia routes/traits use this pattern. C2C mod also uses `WidgetTypes.WIDGET_PYTHON`.
 
@@ -38,6 +38,12 @@ In particular but only, these are usually helpful:
 Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, in particular but not only:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"
+
+Our AdvCiv-SAS documentation is mostly located here:
+
+- root README.md: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README.md"
+- Docs folder: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs"
+- Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
 
 May help to find key documentation, additionally to doing a grep or such, indexes like `# advc.004y: Restored (comment out to remove traits)` refer to and provide key information about a change (grep the tag e.g. `004y` in the manual).
 

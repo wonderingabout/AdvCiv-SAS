@@ -16,7 +16,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
 &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
 [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
-&emsp;[Widget Python 6278 to link (e.g. for Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6278-to-link-eg-for-builds)  
+&emsp;[Widget Python 6798 to link (e.g. for Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds)  
 &emsp;&emsp;[example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm)  
 &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
 &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
@@ -95,12 +95,15 @@ As of now has its own search bar, but keyboard navigation is not supported.
 
 More recently, added the Builds entries to the Index. See [example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm") new category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
 
+Then, to make those Index Builds entries fully clickable and stable, we kept the table selectable, mapped row->Build IDs, and routed the click in `SevoPediaIndex.handleInput` instead of overlaying buttons. The overlay approach looked correct at first but the buttons did not scroll with the table and became desynced. Also, the index search bar was dead on first open until the table received focus, so we explicitly set focus to the index table when building it. Credit: Claude code Opus 4.5 + GPT-5.2-Codex.
+
 <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
 
 ## Other new categories
 
-### Widget Python 6278 to link (e.g. for Builds)
+### Widget Python 6798 to link (e.g. for Builds)
 
 Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such.
 

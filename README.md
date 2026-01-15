@@ -38,7 +38,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-index-as-category-etc)  
 &emsp;[Other new categories](/README.md#other-new-categories)  
-&emsp;&emsp;[Widget Python 6278 to link (e.g. for Builds)](/README.md#widget-python-6278-to-link-eg-for-builds)  
+&emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds)](/README.md#widget-python-6798-to-link-eg-for-builds)  
 &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
 &emsp;[Some higher level reworks (e.g. AI Personality Panel)](/README.md#some-higher-level-reworks-eg-ai-personality-panel)  
 &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
@@ -228,14 +228,19 @@ Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 
 
 #### Index As Category
 
-Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved with GPT-5.2-Codex's big help the index from being a tab to being its own category. This should increase ease-of-access and make it better integrated with the other categories (no need to go back and forth to other pages, etc.). Note that it also implements a Sevopedia Search Bar. See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category).
+Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved with GPT-5.2-Codex's big help the index from being a tab to being its own category. This should increase ease-of-access and make it better integrated with the other categories (no need to go back and forth to other pages, etc.). Note that it also implements a Sevopedia Search Bar.
+
+In particular, we now added the new Sevopedia Build's entries in the index too! Index Builds entries are now clickable too: keep the index table selectable (row->Build mapping) and set table focus on open so the search bar works immediately (GPT-5.2-Codex + Claude Opus 4.5).
+
+See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category).
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
 
 ### Other new categories
 
-#### Widget Python 6278 to link (e.g. for Builds)
+#### Widget Python 6798 to link (e.g. for Builds)
 
 Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such. As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the new Sevopedia Builds' category's corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)!
 
