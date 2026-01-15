@@ -1172,19 +1172,6 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 			eImprovement = GC.getInfo(eBuild).getImprovement();
 		if (eImprovement != NO_IMPROVEMENT)
 			py.jumpToPedia(eImprovement, "Improvement");
-		// <!-- custom: for feature-removal builds (Chop Forest, Chop Jungle, Scrub Fallout), redirect to the feature page since there's no improvement to link to (Claude Code Opus 4.5) -->
-		else if (eBuild != NO_BUILD)
-		{
-			CvBuildInfo const& kBuild = GC.getInfo(eBuild);
-			FOR_EACH_ENUM(Feature)
-			{
-				if (kBuild.isFeatureRemove(eLoopFeature))
-				{
-					py.jumpToPedia(eLoopFeature, "Feature");
-					break;
-				}
-			}
-		}
 		break;
 	}
 	case WIDGET_HELP_YIELD_CHANGE:

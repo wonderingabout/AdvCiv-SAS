@@ -495,7 +495,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: match other strategic ressources/bonuses formula, was 30 / 128 -->
+			<!-- custom: match other strategic bonuses formula, was 30 / 128 -->
 			<!-- advc.129: was 50 -->
 			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 0 -->
@@ -1777,7 +1777,7 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: spices make us more productive perhaps, maybe a bit like sugar and coffee and incense -->
+			<!-- custom: bonus increases productivity theme -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
@@ -1791,7 +1791,7 @@
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
 			<iMinLatitude>0</iMinLatitude>
-			<!-- custom: spices as a more general concept for civ4 should be about everywhere, and for quick google glances, buffs also nothern and southern edge starts that have less ressources/bonuses overall -->
+			<!-- custom: spices as a more general concept for civ4 should be about everywhere, and for quick google glances, buffs also nothern and southern edge starts that have less bonuses overall -->
 			<!-- advc.129: was 60 -->
 			<iMaxLatitude>45</iMaxLatitude>
 			<Rands>
@@ -1843,7 +1843,7 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: sugar increases productivity, kind of like coffeee and such maybe even though i don't drink them too much if at all but still quite nice maybe or maybe not but in all cases or not or etc -->
+			<!-- custom: bonus increases productivity theme -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>

@@ -1,6 +1,6 @@
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
-
+#
 #
 # Sevopedia 2.3
 #   sevotastic.blogspot.com
@@ -8,6 +8,8 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose, EmperorFool
 # see ReadMe [advc: BUG help file] for details
+#
+# advc.004y: Restored traits
 #
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
@@ -36,6 +38,7 @@ import SevoPediaBonus
 import SevoPediaTerrain
 import SevoPediaFeature
 import SevoPediaImprovement
+import SevoPediaBuild
 import SevoPediaCivic
 import SevoPediaCivilization
 import SevoPediaLeader
@@ -95,6 +98,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_SEARCH_DEFAULT_TEXT = u"Type to filter..."
 		self.SAS_SEARCH_H = 32
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+		self.SAS_PEDIA_PYTHON_BUILD = 6798
 
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
@@ -209,6 +213,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheSpecialistsTuple = None
 		self.SAS_cacheBonusesTuple = None
 		self.SAS_cacheImprovementsTuple = None
+		self.SAS_cacheBuildsTuple = None
 		self.SAS_cacheTerrainsTuple = None
 		self.SAS_cacheFeaturesTuple = None
 
@@ -257,6 +262,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		iconStrength = u"%c  " % (CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
 		iconSilverStar = u"%c  " % (CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
 		iconYieldProduction = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
+		iconYieldFood = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar())
 		iconGreatPeople = u"%c  " % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
 		iconCitizen = u"%c  " % (CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
 		iconMap = u"%c  " % (CyGame().getSymbolID(FontSymbols.MAP_CHAR))
@@ -282,7 +288,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_TERRAINS, "TXT_KEY_PEDIA_CATEGORY_TERRAIN", iconMap, "placeTerrains", SevoPediaTerrain.SevoPediaTerrain, "PEDIA_MAIN_TERRAIN"),
 			(SevoScreenEnums.PEDIA_FEATURES, "TXT_KEY_PEDIA_CATEGORY_FEATURE", iconMap, "placeFeatures", SevoPediaFeature.SevoPediaFeature, "PEDIA_MAIN_FEATURE"),
 			(SevoScreenEnums.PEDIA_BONUSES, "TXT_KEY_PEDIA_CATEGORY_BONUS", iconMap, "placeBonuses", SevoPediaBonus.SevoPediaBonus, "PEDIA_MAIN_BONUS"),
-			(SevoScreenEnums.PEDIA_IMPROVEMENTS, "TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", iconMap, "placeImprovements", SevoPediaImprovement.SevoPediaImprovement, "PEDIA_MAIN_IMPROVEMENT"),
+			(SevoScreenEnums.PEDIA_IMPROVEMENTS, "TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", iconYieldFood, "placeImprovements", SevoPediaImprovement.SevoPediaImprovement, "PEDIA_MAIN_IMPROVEMENT"),
+			(SevoScreenEnums.PEDIA_BUILDS, "TXT_KEY_PEDIA_CATEGORY_BUILD", iconYieldFood, "placeBuilds", SevoPediaBuild.SevoPediaBuild, None),
 			(SevoScreenEnums.PEDIA_UNITS, "TXT_KEY_PEDIA_CATEGORY_UNIT", iconStrength, "placeUnits", SevoPediaUnit.SevoPediaUnit, "PEDIA_MAIN_UNIT"),
 			(SevoScreenEnums.PEDIA_UNIT_UPGRADES, "TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", iconStrength, "placeUnitUpgrades", None, None),
 			(SevoScreenEnums.PEDIA_UNIT_CATEGORIES, "TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT", iconSilverStar, "placeUnitCategories", SevoPediaUnitChart.SevoPediaUnitChart, "PEDIA_MAIN_UNIT_GROUP"),
@@ -723,6 +730,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			("getNumFeatureInfos", "getFeatureInfo", SevoScreenEnums.PEDIA_FEATURES),
 			("getNumBonusInfos", "getBonusInfo", SevoScreenEnums.PEDIA_BONUSES),
 			("getNumImprovementInfos", "getImprovementInfo", SevoScreenEnums.PEDIA_IMPROVEMENTS),
+			("getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS),
 			("getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS),
 			("getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS),
 			("getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS),
@@ -1589,6 +1597,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getImprovementList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, gc.getImprovementInfo)
 
+	def placeBuilds(self):
+		self.list = self.getBuildList()
+		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getBuildInfo)
+
 	def SAS_isBonusCapableImprovement(self, iImprovement):
 		info = gc.getImprovementInfo(iImprovement)
 		if not info or info.isGraphicalOnly():
@@ -1728,6 +1740,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_cacheImprovementsTuple = tuple(baseList)
 
 		return self.SAS_cacheImprovementsTuple
+
+	def getBuildList(self):
+		if self.SAS_cacheBuildsTuple is None:
+			self.SAS_cacheBuildsTuple = tuple(self.getSortedList(gc.getNumBuildInfos(), gc.getBuildInfo))
+		return self.SAS_cacheBuildsTuple
 
 
 	def placeCivs(self):
@@ -2113,6 +2130,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# - We also build SAS_listIdxToRow so pediaJump can select the correct displayed row.
 		setShowListIdx = None
 		self.SAS_listIdxToRow = None
+		self.SAS_rowToListIdx = {}
 
 		# <!-- custom: rebuild arrow-navigation selectable caches every time we rebuild the list (fixes stale indices / out-of-range) (ChatGPT 5.2 Thinking) -->
 		self.SAS_selectableListIdx = []
@@ -2191,12 +2209,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: make a common initial variable so we can tweak it in specific elif or such blocks as we see fit and keep common logic at the end; using a long name to avoid weird python scope inheritance issues to unrelated scopes -->
 			sTitlePlaceItems = item[0]
 			widgetPlaceItems = widget
+			bSAS_hasCustomData2 = False
 			# Even though you later handle data1 == -1 inside the civics block, you still do szButtonPlaceItems = info(item[1]).getButton() before any header check.
 			# When getCivicList() inserts headers and spacers, you now have rows like ("Government", -1) and ("", -1). So you end up calling gc.getCivicInfo(-1).getButton() and Civ4 blows up with Access violation - no RTTI data!. Minimal fix:
 			if data1 != -1:
 				szButtonPlaceItems = info(data1).getButton()
 			else:
 				szButtonPlaceItems = ""
+
+			if info == gc.getBuildInfo:
+				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
+				if data1 != -1:
+					data2 = data1
+					data1 = self.SAS_PEDIA_PYTHON_BUILD
+					bSAS_hasCustomData2 = True
 
 			if info == gc.getConceptInfo:
 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
@@ -2214,7 +2240,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			else:
 				# advc (note): 0 tends to mean no tooltip (or an empty one?).
 				#    -1 should also work as the default; BULL likes to use 1.
-				data2 = 1
+				if not bSAS_hasCustomData2:
+					data2 = 1
 
 				# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
 				# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
@@ -2233,6 +2260,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 			screen.appendTableRow(self.ITEM_LIST_ID)
 			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + sTitlePlaceItems + u"</font>", szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+			self.SAS_rowToListIdx[i] = idx
 			i += 1
 		#screen.updateListBox(self.ITEM_LIST_ID)
 
@@ -2342,6 +2370,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 								return 1
 						# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
+		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
+			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_BUILDS:
+				iRow = inputClass.getData()
+				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
+				if iListIdx is not None:
+					item = self.list[iListIdx]
+					if item[1] != -1:
+						return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, item[1], True, False)
+
 		# Existing TOC/INDEX buttons.
 		if self.SAS_USE_BOTTOM_TABS:
 			if (inputClass.getFunctionName() == self.TOC_ID):
@@ -2351,6 +2388,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.showIndex()
 				return 1
 		
+		if inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
+			iData1 = inputClass.getData1()
+			iData2 = inputClass.getData2()
+			if iData1 == self.SAS_PEDIA_PYTHON_BUILD:
+				return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iData2, True, False)
+
 		return 0
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 

@@ -320,7 +320,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
-			<!-- custom: currently fish is unfairly to me at least and undesirably too strong, other ressources/bonuses have other assets/qualities too -->
+			<!-- custom: currently fish is unfairly to me at least and undesirably too strong, other bonuses have other assets/qualities too -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_MOLLUSCS</BonusType>

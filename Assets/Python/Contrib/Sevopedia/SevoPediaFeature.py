@@ -221,8 +221,8 @@ class SevoPediaFeature:
 		if len(removalBuilds) > 0:
 			for iBuild in removalBuilds:
 				buildInfo = gc.getBuildInfo(iBuild)
-				# <!-- custom: show build buttons for feature-removal actions; WIDGET_HELP_IMPROVEMENT keeps the build hover and right-click redirect to the feature page since no build pedia exists (GPT-5.2-Codex) -->
-				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, -1, iBuild, False)
+				# <!-- custom: link feature-removal build buttons to the Builds pedia entry using WIDGET_PYTHON now that builds have a page. (GPT-5.2-Codex (summarized)) -->
+				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild, False)
 		else:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()

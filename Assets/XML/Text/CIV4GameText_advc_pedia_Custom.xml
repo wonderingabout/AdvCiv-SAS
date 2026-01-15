@@ -38,6 +38,34 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
 		<English>Remove</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_BUILD</Tag>
+		<English>Builds</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_RESULTS</Tag>
+		<English>Results</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_REMOVES_FEATURES</Tag>
+		<English>Removes Features</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_INFO</Tag>
+		<English>Build Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_TIME</Tag>
+		<English>Build Time</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_COST</Tag>
+		<English>Build Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_KILL_WORKER</Tag>
+		<English>Consumes Unit</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD</Tag>
 		<English>Units (Any Build)</English>
 	</TEXT>

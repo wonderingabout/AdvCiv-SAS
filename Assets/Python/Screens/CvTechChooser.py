@@ -166,6 +166,7 @@ class CvTechChooser:
 		# <!-- custom: parametrize properly the X starting position of the first column; value was hardcoded repeatedly. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
 		self.iX_LEFT_START = 30
+		self.SAS_PEDIA_PYTHON_BUILD = 6798
 		# For OR Prerequisites: Note: This one is currently 24 (30 minus 6). If you increase your main offset by 10, increase this by 10 as well.
 		self.iX_LEFT_START_OR_PREREQS = 24
 		# <!-- custom: adjust tech bulbing left starting position so we align vertically with the first tech button. (GPT-5.2-Codex (summarized)) -->
@@ -854,7 +855,8 @@ class CvTechChooser:
 
 			if (bTechFound == 1):
 				szImprovementButton = self.getNextWidgetName("Improvement")
-				screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getBuildInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IMPROVEMENT, i, j, False )
+				# <!-- custom: use WIDGET_PYTHON to jump to the Builds pedia entry (EXE doesn't fire a custom build widget here). (GPT-5.2-Codex (summarized)) -->
+				screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getBuildInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_BUILD, j, False )
 				fX += X_INCREMENT
 
 		j = 0
@@ -1379,6 +1381,11 @@ class CvTechChooser:
 			elif szWidgetName == self.sTechTradeTab:
 				self.sTechTabID = self.sTechTradeTab
 				self.ShowTab()
+			elif inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
+				if inputClass.getData1() == self.SAS_PEDIA_PYTHON_BUILD:
+					import CvScreensInterface
+					CvScreensInterface.pediaJumpToBuild((inputClass.getData2(),))
+					return 1
 
 
 

@@ -17155,7 +17155,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details. Also remove forest penalties due to civ geographic in world map advantage of forest, see other units code comments at terrainattacks or such, was empty -->
+			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details. Also remove_forest penalties due to civ geographic in world map advantage of forest, see other units code comments at terrainattacks or such, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>

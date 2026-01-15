@@ -343,6 +343,7 @@ def createCivilopedia():
 								SevoScreenEnums.PEDIA_FEATURES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
+								SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_CIVS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
 								# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
@@ -391,6 +392,7 @@ def createCivilopedia():
 							SevoScreenEnums.PEDIA_FEATURES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
+							SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_CIVS		 	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
 							# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
@@ -485,6 +487,12 @@ def pediaJumpToBonus(argsList):
 def pediaJumpToImprovement(argsList):
 	if (bUsingSevopedia):
 		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_IMPROVEMENTS, argsList[0], True, False)
+	else:
+		pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, argsList[0], True)
+
+def pediaJumpToBuild(argsList):
+	if (bUsingSevopedia):
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_BUILDS, argsList[0], True, False)
 	else:
 		pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, argsList[0], True)
 
