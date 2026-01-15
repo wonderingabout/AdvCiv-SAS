@@ -298,6 +298,8 @@ Update: i have recently found with the help of chatgpt 5.2 that these `TERRAIN_H
 
 Since then, also added a new Units (Any Build) panel with the help of GPT-5.2-Codex thanks a lot :)
 
+And then, fixed the Hills' Improvements' RFC DOC mod's formula with the help of GPT-5.2-Codex so we display accurate improvements (check if accurate).
+
 <img src="../Images/sevopedia/0.700_sevopedia_terrains (1).JPG" alt="0.700_sevopedia_terrains (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.700_sevopedia_terrains (2).JPG" alt="0.700_sevopedia_terrains (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.700_sevopedia_terrains (3).JPG" alt="0.700_sevopedia_terrains (3).JPG" width="250"></img>

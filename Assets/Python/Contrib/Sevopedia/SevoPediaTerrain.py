@@ -279,8 +279,8 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now, as for peak exclude it as well as it shouldn't have improvements at least as of now -->
-		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL:
+		# <!-- custom: exclude peak (no improvements), but show hills using improvement rules instead of skipping; hills were previously hidden because output was unreliable (forts missing, cottages conditional on food, forest preserve dependent on forest/jungle). Now we show improvements that explicitly allow hills (isHillsMakesValid) or that become valid via a feature that can appear on hills, which is closer to actual in-game placement while still avoiding false positives. (GPT-5.2-Codex (summarized)) -->
+		if self.iTerrain == self.I_TERRAIN_PEAK:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
@@ -288,15 +288,25 @@ class SevoPediaTerrain:
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		else:
+			isHillTerrain = (self.iTerrain == self.I_TERRAIN_HILL)
 			for iImprovement in xrange(gc.getNumImprovementInfos()):
 				ImprovementInfo = gc.getImprovementInfo(iImprovement)
 				if ImprovementInfo.isGoody():
 					continue
+				if isHillTerrain:
+					isValidOnHills = ImprovementInfo.isHillsMakesValid()
+					if not isValidOnHills:
+						for iFeature in xrange(gc.getNumFeatureInfos()):
+							FeatureInfo = gc.getFeatureInfo(iFeature)
+							if FeatureInfo.isGraphicalOnly():
+								continue
+							if ImprovementInfo.getFeatureMakesValid(iFeature) and FeatureInfo.isTerrain(self.iTerrain):
+								isValidOnHills = True
+								break
+					if isValidOnHills:
+						screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
 				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain) or (ImprovementInfo.isWater() and (self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN)):
 					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
-				# <!-- custom: the output is not reliable for hills improvements (missing forts, also cottages are conditionally dependent on terrain having enough food according to https://civilization.fandom.com/wiki/Hill_(Civ4), missing forest preserve too dependent on forest or jungle according to this link as well, so disabling the display entirely rather)
-				# elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
-				# 	screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
 
 
 
