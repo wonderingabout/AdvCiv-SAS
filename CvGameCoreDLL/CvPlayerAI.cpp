@@ -18647,7 +18647,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 		}
 	}
 
-	// <!-- custom: following our rework to give commerce yields to specialists as of now in(/to?) civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks i meanto see if it helps, check if accurate -->
+	// <!-- custom: following our rework to give commerce yields to specialists as of now in civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks i mean to see if it helps, check if accurate -->
 	static const int iSASCommerceToningDownPercent = GC.getDefineINT("SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT");
 	FOR_EACH_ENUM2(Commerce, eCommerce)
 	{

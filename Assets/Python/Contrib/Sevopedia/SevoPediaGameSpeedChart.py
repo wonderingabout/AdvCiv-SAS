@@ -27,15 +27,7 @@ class SevoPediaGameSpeedChart:
 		self.ROW_H = 15
 		self.W_ICON = 24
 		self.W_FIELD = 180
-		# Mirror handicap chart behavior: optional icon column controlled by a define.
-		# NOTE: Many installs already have SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS but not the
-		# game-speed-specific define. To avoid requiring a new define for a cosmetic toggle, we
-		# fall back to the handicap define when the game-speed one is 0.
-		iHeaderIcons = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS")
-		if iHeaderIcons == 0:
-			iHeaderIcons = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS")
-		self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS = (iHeaderIcons != 0)
-		self.bShowIconColumn = self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS
+		self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS") > 0)
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT")
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT must be >= 1.")
@@ -410,7 +402,7 @@ class SevoPediaGameSpeedChart:
 		# ---------------------------------------------------------------------
 		table = []
 		header = [""]
-		if self.bShowIconColumn:
+		if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
 			header.append("")
 		for sz in speed_labels:
 			header.append(sz)
@@ -422,7 +414,7 @@ class SevoPediaGameSpeedChart:
 			if derived_field_keys.get(field):
 				szFieldName += u"*"
 
-			if self.bShowIconColumn:
+			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key(field, row_index), _font2(szFieldName)]
 			else:
 				row = [_font2(szFieldName)]
@@ -438,7 +430,7 @@ class SevoPediaGameSpeedChart:
 			info = gc.getCultureLevelInfo(iLevel)
 			szName = CyTranslator().getText(str(info.getTextKey()), ())
 
-			if self.bShowIconColumn:
+			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key("iCulturePercent", row_index), _font2(szName)]
 			else:
 				row = [_font2(szName)]

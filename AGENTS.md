@@ -145,7 +145,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 ## C++
 
-- Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles and give players more tuning options; avoid overusing defines when the feature is tiny or unlikely to need tuning.
+- Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles; avoid overusing defines when the feature is tiny or unlikely to need tuning.
 - Prefer minimalistic, simple AI changes that are easy to reason about and compile.
 - Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
 - When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.

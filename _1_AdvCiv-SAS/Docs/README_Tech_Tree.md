@@ -77,7 +77,7 @@ After changing the tech tree, starting techs had to be adjusted. See [README_Ass
 
 ## Customizable technology advisor width
 
-Players can tune the tech tree's width as they prefer, as of now to 0, 1, 2, or 3 (4 different options possible in total) in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH` there).
+Players can tune the tech tree's width as they prefer, as of now to 0, 1, 2, or 3 (4 different options possible in total) in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE` there).
 
 Visual comparison of how each looks below.
 

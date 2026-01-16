@@ -13,6 +13,7 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 
+import re
 import TraitUtil
 from _sevopedia_helpers import *
 
@@ -20,6 +21,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+IS_SHOW_ZERO_TRAIT_PAIRS = (gc.getDefineINT("SAS_SEVOPEDIA_TRAIT_SHOW_ZERO_PAIRS") > 0)
+IS_SHOW_ZERO_TRAIT_PAIRS_LEFT = (gc.getDefineINT("SAS_SEVOPEDIA_TRAIT_SHOW_ZERO_PAIRS_LEFT") > 0)
 
 # <!-- custom: Module-level cache for trait statistics. Computed once on first Traits category click,
 # then reused for the entire session. Similar pattern to SevoPediaLeader's LEADERS_INFO_CACHED. (Claude Opus 4.5) -->
@@ -73,8 +76,27 @@ def precomputeTraitStatisticsCache():
 				pairCounts[pair].append(iLeader)
 
 	# Build sorted all-pairs data
-	allPairsData = [(t1, t2, len(ids), sorted(ids)) for (t1, t2), ids in pairCounts.items()]
-	allPairsData.sort(key=lambda d: gc.getTraitInfo(d[0]).getDescription() + gc.getTraitInfo(d[1]).getDescription())
+	allPairsData = []
+	if IS_SHOW_ZERO_TRAIT_PAIRS:
+		for t1 in range(numTraits):
+			for t2 in range(t1 + 1, numTraits):
+				ids = pairCounts.get((t1, t2), [])
+				allPairsData.append((t1, t2, len(ids), sorted(ids)))
+	else:
+		for (t1, t2), ids in pairCounts.items():
+			allPairsData.append((t1, t2, len(ids), sorted(ids)))
+	def clean_sort_name(text):
+		# <!-- custom: strip non-alphanumeric chars so tie-break sorts ignore icons/punctuation. (GPT-5.2-Codex) -->
+		return re.sub(r"[^A-Za-z0-9]+", "", text or "")
+	def all_pairs_sort_key(entry):
+		t1, t2, count, ids = entry
+		name1 = clean_sort_name(gc.getTraitInfo(t1).getDescription())
+		name2 = clean_sort_name(gc.getTraitInfo(t2).getDescription())
+		return (-count, name1 + name2)
+	allPairsData.sort(key=all_pairs_sort_key)
+	allPairsMaxLeaders = 0
+	if allPairsData:
+		allPairsMaxLeaders = max([len(d[3]) for d in allPairsData])
 
 	# Precompute min/max for ranking bar normalization
 	if allPairsData:
@@ -87,6 +109,7 @@ def precomputeTraitStatisticsCache():
 		"traitLeaders": traitLeaders,
 		"allPairsData": tuple(allPairsData),
 		"allPairsMinMax": allPairsMinMax,
+		"allPairsMaxLeaders": allPairsMaxLeaders,
 	}
 
 	print("Sevopedia Trait statistics cache prebuilt. This should appear only once per gaming session.")
@@ -99,22 +122,24 @@ class SevoPediaTrait:
 		self.iTrait = -1
 		self.top = main
 
-		# <!-- custom: Enhanced layout - Leaders at top, Statistics in center, Effects bottom-left, History bottom-right.
-		# Precompute all layout values once in __init__ for performance. (Claude code Opus 4.5) -->
+		# <!-- custom: Enhanced layout - Leaders on right, Statistics center, Effects bottom-left, History bottom-right.
+		# Precompute all layout values once in __init__ for performance. (Claude code Opus 4.5) (GPT-5.2-Codex (summarized)) -->
 
 		MARGIN = 10
+		self.BOTTOM_PANELS_H = 296
 
-		# Leaders panel - full width at top
-		self.X_LEADERS = self.top.X_PEDIA_PAGE
+		# Leaders panel - right side, full height
+		self.W_LEADERS = 282
+		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
 		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
-		self.W_LEADERS = self.top.R_PEDIA_PAGE - self.X_LEADERS
-		self.H_LEADERS = 110
+		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
+		self.R_CONTENT = self.top.R_PEDIA_PAGE - self.W_LEADERS - MARGIN
 
 		# Statistics panel - wide center panel
 		self.X_STATISTICS = self.top.X_PEDIA_PAGE
-		self.Y_STATISTICS = self.Y_LEADERS + self.H_LEADERS + MARGIN
-		self.W_STATISTICS = self.top.R_PEDIA_PAGE - self.X_STATISTICS
-		self.H_STATISTICS = 585
+		self.Y_STATISTICS = self.top.Y_PEDIA_PAGE
+		self.W_STATISTICS = self.R_CONTENT - self.X_STATISTICS
+		self.H_STATISTICS = self.top.B_PEDIA_PAGE - self.top.Y_PEDIA_PAGE - self.BOTTOM_PANELS_H
 
 		# Statistics sub-panels layout (precomputed)
 		STATS_MARGIN = 10
@@ -181,15 +206,21 @@ class SevoPediaTrait:
 		# Effects panel - bottom left
 		self.X_SPECIAL = self.top.X_PEDIA_PAGE
 		self.Y_SPECIAL = Y_BOTTOM_ROW
-		self.W_SPECIAL = (self.top.R_PEDIA_PAGE - self.X_SPECIAL - MARGIN) / 2
+		self.W_SPECIAL = (self.R_CONTENT - self.X_SPECIAL - MARGIN) / 2
 		self.H_SPECIAL = H_BOTTOM_ROW
 
 		# History panel - bottom right
 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MARGIN
 		self.Y_HISTORY = Y_BOTTOM_ROW
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+		self.W_HISTORY = self.R_CONTENT - self.X_HISTORY
 		self.H_HISTORY = H_BOTTOM_ROW
 
+		# <!-- custom: Leader icon size for statistics tables. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
+		self.LEADER_ICON_SIZE = 24
+		# <!-- custom: Leader button columns spacing; total column width is icon size + spacing. (GPT-5.2-Codex) -->
+		self.LEADER_BUTTON_COLUMN_SPACING = 2
+		# <!-- custom: Leader button size in the right-side leaders panel. (GPT-5.2-Codex) -->
+		self.LEADER_PANEL_BUTTON_SIZE = 64
 
 
 	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude code Opus 4.5) -->
@@ -223,17 +254,23 @@ class SevoPediaTrait:
 			percent,
 		)
 		screen.addPanel( panelName, headerText, "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50 )
-		screen.attachLabel(panelName, "", "  ")
+		rowListName = self.top.getNextWidgetName()
+		multiListX = self.X_LEADERS + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = self.Y_LEADERS + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = self.W_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = self.H_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_H
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, self.LEADER_PANEL_BUTTON_SIZE, self.LEADER_PANEL_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		for iLeader in leadersWithTrait:
 			self.iLeader = iLeader
 			iCiv = leaderToCiv.get(iLeader, -1)
 			if iCiv == -1:
 				continue
-			screen.attachImageButton(panelName, "", gc.getLeaderHeadInfo(iLeader).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, False)
+			screen.appendMultiListButton(rowListName, gc.getLeaderHeadInfo(iLeader).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, False)
 
 
 
-	# <!-- custom: Statistics panel with two tables:
+	# <!-- custom: Statistics panel with two charts:
 	# Left: Trait pairings for current trait (trait, paired count, total, leaders)
 	# Right: All trait combinations globally with pair count, ranking bar, and leaders
 	# Inspired by README_Assets_Rebalancing.md tables. (Claude code Opus 4.5) -->
@@ -242,21 +279,32 @@ class SevoPediaTrait:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_STATISTICS", ()), "", True, True, self.X_STATISTICS, self.Y_STATISTICS, self.W_STATISTICS, self.H_STATISTICS, PanelStyles.PANEL_STYLE_BLUE50)
 
+		leaderToCiv = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)[1]
+
 		pairingData = self._buildTraitPairingData()
 
 		# === LEFT TABLE: Pairings for current trait ===
 		if pairingData:
+			maxLeadersLeft = max([len(d[3]) for d in pairingData])
+			if maxLeadersLeft < 1:
+				maxLeadersLeft = 1
+			leaderColWLeft = self.LEADER_ICON_SIZE + self.LEADER_BUTTON_COLUMN_SPACING
+			availableLeadersWLeft = self.STATS_LEFT_TABLE_W - self.STATS_LEFT_COL_TRAIT - self.STATS_LEFT_COL_PAIR - self.STATS_LEFT_COL_TOTAL
+			if availableLeadersWLeft < leaderColWLeft * maxLeadersLeft:
+				leaderColWLeft = int(availableLeadersWLeft / maxLeadersLeft)
+
 			leftPanelName = self.top.getNextWidgetName()
 			screen.addPanel(leftPanelName, "", "", True, True, self.STATS_PANEL_X, self.STATS_PANEL_Y, self.STATS_LEFT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
 
 			leftTableName = self.top.getNextWidgetName()
-			screen.addTableControlGFC(leftTableName, 4, self.STATS_LEFT_TABLE_X, self.STATS_LEFT_TABLE_Y, self.STATS_LEFT_TABLE_W, self.STATS_LEFT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+			screen.addTableControlGFC(leftTableName, 3 + maxLeadersLeft, self.STATS_LEFT_TABLE_X, self.STATS_LEFT_TABLE_Y, self.STATS_LEFT_TABLE_W, self.STATS_LEFT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
 			screen.enableSort(leftTableName)
 
 			screen.setTableColumnHeader(leftTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TRAIT_HEADER", ()), self.STATS_LEFT_COL_TRAIT)
 			screen.setTableColumnHeader(leftTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_LEFT_COL_PAIR)
 			screen.setTableColumnHeader(leftTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), self.STATS_LEFT_COL_TOTAL)
-			screen.setTableColumnHeader(leftTableName, 3, localText.getText("TXT_KEY_CONCEPT_LEADERS", ()), self.STATS_LEFT_COL_LEADERS)
+			for iCol in xrange(maxLeadersLeft):
+				screen.setTableColumnHeader(leftTableName, 3 + iCol, "", leaderColWLeft)
 
 			for otherTrait, pairCount, totalCount, leaderIds in pairingData:
 				iRow = screen.appendTableRow(leftTableName)
@@ -267,24 +315,32 @@ class SevoPediaTrait:
 				screen.setTableText(leftTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 				screen.setTableText(leftTableName, 2, iRow, u"<font=2>%d</font>" % totalCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-				leaderNames = [gc.getLeaderHeadInfo(iL).getDescription() for iL in leaderIds]
-				screen.setTableText(leftTableName, 3, iRow, u"<font=2>%s</font>" % u", ".join(leaderNames), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				self._setLeaderIconCells(screen, leftTableName, iRow, leaderIds, 3, maxLeadersLeft, leaderToCiv)
 
 		# === RIGHT TABLE: All trait combinations globally ===
 		# <!-- custom: Use cached all-pairs data for efficiency. (Claude Opus 4.5) -->
-		allPairsData, (minCount, maxCount) = self._getAllTraitPairsData()
+		allPairsData, (minCount, maxCount), maxLeadersRight = self._getAllTraitPairsData()
 		if allPairsData:
+			if maxLeadersRight < 1:
+				maxLeadersRight = 1
+			leaderColWRight = self.LEADER_ICON_SIZE + self.LEADER_BUTTON_COLUMN_SPACING
+			availableLeadersWRight = self.STATS_RIGHT_TABLE_W - self.STATS_RIGHT_COL_COMBO - self.STATS_RIGHT_COL_COUNT - self.STATS_RIGHT_COL_RANK
+			if availableLeadersWRight < leaderColWRight * maxLeadersRight:
+				leaderColWRight = int(availableLeadersWRight / maxLeadersRight)
+			tableWRight = self.STATS_RIGHT_TABLE_W
+
 			rightPanelName = self.top.getNextWidgetName()
 			screen.addPanel(rightPanelName, "", "", True, True, self.STATS_RIGHT_X, self.STATS_PANEL_Y, self.STATS_RIGHT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
 
 			rightTableName = self.top.getNextWidgetName()
-			screen.addTableControlGFC(rightTableName, 4, self.STATS_RIGHT_TABLE_X, self.STATS_RIGHT_TABLE_Y, self.STATS_RIGHT_TABLE_W, self.STATS_RIGHT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+			screen.addTableControlGFC(rightTableName, 3 + maxLeadersRight, self.STATS_RIGHT_TABLE_X, self.STATS_RIGHT_TABLE_Y, tableWRight, self.STATS_RIGHT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
 			screen.enableSort(rightTableName)
 
 			screen.setTableColumnHeader(rightTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COMBO", ()), self.STATS_RIGHT_COL_COMBO)
 			screen.setTableColumnHeader(rightTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_RIGHT_COL_COUNT)
 			screen.setTableColumnHeader(rightTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), self.STATS_RIGHT_COL_RANK)
-			screen.setTableColumnHeader(rightTableName, 3, localText.getText("TXT_KEY_CONCEPT_LEADERS", ()), self.STATS_RIGHT_COL_LEADERS)
+			for iCol in xrange(maxLeadersRight):
+				screen.setTableColumnHeader(rightTableName, 3 + iCol, "", leaderColWRight)
 
 			for trait1, trait2, pairCount, leaderIds in allPairsData:
 				iRow = screen.appendTableRow(rightTableName)
@@ -305,8 +361,22 @@ class SevoPediaTrait:
 				numPlus = (normalized + 10) / 20
 				screen.setTableText(rightTableName, 2, iRow, u"<font=2>%s</font>" % (u"+" * numPlus), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-				leaderNames = [gc.getLeaderHeadInfo(iL).getDescription() for iL in leaderIds]
-				screen.setTableText(rightTableName, 3, iRow, u"<font=2>%s</font>" % u", ".join(leaderNames), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				self._setLeaderIconCells(screen, rightTableName, iRow, leaderIds, 3, maxLeadersRight, leaderToCiv)
+
+	def _setLeaderIconCells(self, screen, tableName, row, leaderIds, leaderColStart, leaderColCount, leaderToCiv):
+		for iCol in xrange(leaderColCount):
+			if iCol >= len(leaderIds):
+				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				continue
+
+			iLeader = leaderIds[iCol]
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			buttonPath = leaderInfo.getButton()
+			iCiv = leaderToCiv.get(iLeader, -1)
+			if iCiv != -1 and buttonPath:
+				screen.setTableText(tableName, leaderColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, CvUtil.FONT_LEFT_JUSTIFY)
+			else:
+				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	def _buildTraitPairingData(self):
 		# <!-- custom: Build per-trait pairing data using cached traitLeaders mapping.
@@ -324,14 +394,21 @@ class SevoPediaTrait:
 			return []
 
 		pairingData = []
-		for otherTrait, leadersWithOther in traitLeaders.items():
-			if otherTrait == self.iTrait:
-				continue
-			if not leadersWithOther:
-				continue
-			leadersWithBoth = leadersWithThisTrait.intersection(set(leadersWithOther))
-			if leadersWithBoth:
+		if IS_SHOW_ZERO_TRAIT_PAIRS_LEFT:
+			for otherTrait, leadersWithOther in traitLeaders.items():
+				if otherTrait == self.iTrait:
+					continue
+				leadersWithBoth = leadersWithThisTrait.intersection(set(leadersWithOther))
 				pairingData.append((otherTrait, len(leadersWithBoth), len(leadersWithOther), sorted(leadersWithBoth)))
+		else:
+			for otherTrait, leadersWithOther in traitLeaders.items():
+				if otherTrait == self.iTrait:
+					continue
+				if not leadersWithOther:
+					continue
+				leadersWithBoth = leadersWithThisTrait.intersection(set(leadersWithOther))
+				if leadersWithBoth:
+					pairingData.append((otherTrait, len(leadersWithBoth), len(leadersWithOther), sorted(leadersWithBoth)))
 
 		pairingData.sort(key=lambda x: gc.getTraitInfo(x[0]).getDescription())
 		return pairingData
@@ -340,8 +417,8 @@ class SevoPediaTrait:
 		# <!-- custom: Return cached all-pairs data. Computed once per session. (Claude Opus 4.5) -->
 		cache = TRAIT_STATISTICS_CACHE
 		if cache is None:
-			return [], (0, 0)
-		return cache["allPairsData"], cache["allPairsMinMax"]
+			return [], (0, 0), 0
+		return cache["allPairsData"], cache["allPairsMinMax"], cache["allPairsMaxLeaders"]
 
 
 
@@ -393,11 +470,9 @@ class SevoPediaTrait:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 
+		textName = self.top.getNextWidgetName()
 		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
-		# Don't display the text key if text not found
-		if szText and not szText.endswith("PEDIA"):
-			textName = self.top.getNextWidgetName()
-			screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 30, self.W_HISTORY - 14, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 30, self.W_HISTORY - 5, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

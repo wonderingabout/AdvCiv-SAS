@@ -27,10 +27,7 @@ class SevoPediaEraChart:
 		self.ROW_H = 15
 		self.W_ICON = 24
 		self.W_FIELD = 210
-		iHeaderIcons = gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS")
-		if iHeaderIcons == 0:
-			iHeaderIcons = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS")
-		self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS = (iHeaderIcons != 0)
+		self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS") > 0)
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT")
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT must be >= 1.")

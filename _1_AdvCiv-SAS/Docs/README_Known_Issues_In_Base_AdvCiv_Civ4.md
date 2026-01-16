@@ -2849,9 +2849,7 @@ See code comments i.e. in `CvCityAI::AI_assignWorkingPlots` there for details, s
 
 Update/note: most likely was caused by the forced artist code we added (see [Specialists (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#specialists-ai) for details), although i am not totally sure, as it fires only for artists, and in the early game only in first turns, which aligns with it stopping to fire after we have our BFC, which is when we stop forcing an artist in our code and so it seems likely our code caused it and not base advciv itself, although this is just a guess of mine so check to be sure if want. Still, this is a nice fix and guard to have regardless as sanity i'd say maybe if i may say and guess i mean, but i don't know too much about these, also the extra assert info in the message detailed i mean is nice too.
 
-Update 2: this causes issues sometimes or always so we can't anymore force an artist so reverted and now disabled it, gated via a define if want to experiment with it i mean(see as of now `SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST` for details) i mean. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not.
-
-Update 3: significantly reduced the invalid artist being forced issue by obviously adding an invalid specialist check.. (`isSpecialistValid`) before forcing an artist or unforcing one. Obvious but which i had no idea of xd. For some reason did not entirely disappear but fires much less now with these added.
+Update 2: significantly reduced the invalid artist being forced issue by obviously adding an invalid specialist check.. (`isSpecialistValid`) before forcing an artist or unforcing one. Obvious but which i had no idea of xd. For some reason did not entirely disappear but fires much less now with these added.
 
 Sometimes with a debug DLL it still fires as such though as of now:
 

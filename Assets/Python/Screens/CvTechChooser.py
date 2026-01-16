@@ -161,7 +161,7 @@ class CvTechChooser:
 		self.BOX_INCREMENT_Y_SPACING = 6 #Should be a multiple of 3...
 		self.BOX_INCREMENT_X_SPACING = 9 #Should be a multiple of 3...
 
-		self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = None
+		self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE = None
 		self.W_RIGHT_SPACE_FOR_SCOREBOARD = None
 		# <!-- custom: parametrize properly the X starting position of the first column; value was hardcoded repeatedly. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
@@ -194,11 +194,11 @@ class CvTechChooser:
 		screen = self.getScreen()
 
 		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)) -->
-		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH is None:
-			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH")
+		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE is None:
+			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE")
 		
 		# <!-- custom: since various players may like a different visual design, give several tech tree dimensions -->
-		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH <= 0:
+		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE <= 0:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 206
 			# <!-- custom: move bulbing indicators more to the left. (GPT-5.2-Codex (summarized)) -->
 			self.PREF_ICON_LEFT = 10
@@ -206,10 +206,10 @@ class CvTechChooser:
 			extraXAdjust = -5
 			self.iX_LEFT_START = 10 + extraXAdjust
 			self.iX_LEFT_START_OR_PREREQS = 4 + extraXAdjust
-		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 1:
+		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE == 1:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
 			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
-		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 2:
+		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE == 2:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 1
 			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
 		else:
