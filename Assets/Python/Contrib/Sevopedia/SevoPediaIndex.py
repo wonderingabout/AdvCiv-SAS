@@ -225,6 +225,7 @@ class SevoPediaIndex:
 		nColumns = 3
 		self.tableName = self.top.getNextWidgetName()
 		self.SAS_rowToBuild = {}
+		self.SAS_rowToTrait = {}  # <!-- custom: row-to-trait mapping for WIDGET_PYTHON trait handling. (Claude Opus 4.5) -->
 		self.iTableWidgetId = int(self.tableName.replace(self.top.WIDGET_ID, ""))
 		iTableY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
 		iTableH = self.H_INDEX - (iTableY - self.Y_INDEX)
@@ -317,8 +318,10 @@ class SevoPediaIndex:
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
 			elif (type == "Leader"):
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getLeaderHeadInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: Trait rows use WIDGET_GENERAL and row-to-trait mapping like Builds. (Claude Opus 4.5) -->
 			elif (type == "Trait"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getTraitInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				self.SAS_rowToTrait[iRow] = iData1
 			
 			elif (type == "Civic"):
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivicInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
@@ -389,4 +392,8 @@ class SevoPediaIndex:
 				iBuild = self.SAS_rowToBuild.get(iRow, None)
 				if iBuild is not None:
 					return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
+				# <!-- custom: Handle trait clicks via row mapping. (Claude Opus 4.5) -->
+				iTrait = self.SAS_rowToTrait.get(iRow, None)
+				if iTrait is not None:
+					return self.top.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iTrait, True, False)
 		return 0

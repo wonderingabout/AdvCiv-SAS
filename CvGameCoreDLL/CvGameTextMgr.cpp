@@ -5991,7 +5991,11 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
 			szTempBuffer.Format(L"%s", szText.GetCString());
 		else
 		{
-			szTempBuffer.Format(NEWLINE SETCOLR L"%s" ENDCOLR,
+			// <!-- custom: Wrap trait name in <link=literal> so clicking it opens Sevopedia Traits page.
+			// The link() method in SevoPediaMain.py searches SAS_linkMatchDefs (which includes getTraitInfo)
+			// to find a matching trait and jump to PEDIA_TRAITS. This enables clickable trait names in
+			// Sevopedia Leader and anywhere else parseTraits is used. (Claude Opus 4.5) -->
+			szTempBuffer.Format(NEWLINE SETCOLR L"<link=literal>%s</link>" ENDCOLR,
 					TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), szText.GetCString());
 		}
 		szHelpString.append(szTempBuffer);

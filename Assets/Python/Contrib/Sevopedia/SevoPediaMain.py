@@ -9,8 +9,6 @@
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose, EmperorFool
 # see ReadMe [advc: BUG help file] for details
 #
-# advc.004y: Restored traits
-#
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
@@ -42,7 +40,7 @@ import SevoPediaBuild
 import SevoPediaCivic
 import SevoPediaCivilization
 import SevoPediaLeader
-import SevoPediaTrait # advc.004y: Restored
+import SevoPediaTrait
 import SevoPediaSpecialist
 import SevoPediaHistory
 import SevoPediaProject
@@ -98,7 +96,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_SEARCH_DEFAULT_TEXT = u"Type to filter..."
 		self.SAS_SEARCH_H = 32
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+		# <!-- custom: WIDGET_PYTHON magic IDs for custom Sevopedia categories. These allow Builds and Traits to have
+		# their own dedicated pages without requiring new widget types in the DLL. The ID is passed as data1, and the
+		# actual item ID (build/trait index) as data2. Handled in placeItems(), handleInput(), and SevoPediaIndex. -->
 		self.SAS_PEDIA_PYTHON_BUILD = 6798
+		self.SAS_PEDIA_PYTHON_TRAIT = 6799  # <!-- custom: (Claude Opus 4.5) -->
 
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
@@ -591,8 +593,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def determineNewConceptSubCategory(self, iItem):
 		info = gc.getNewConceptInfo(iItem)
 		BugUtil.debug("NewConcept item %d is %s" % (iItem, info.getDescription()))
-		if (self.isTraitInfo(info)):
-			return SevoScreenEnums.PEDIA_TRAITS
+		# <!-- custom: Removed isTraitInfo check - CONCEPT_TRAIT_* entries deleted from XML since Traits now use
+		# WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
 		if (self.isShortcutInfo(info)):
 			return SevoScreenEnums.PEDIA_SHORTCUTS
 		return SevoScreenEnums.PEDIA_BTS_CONCEPTS
@@ -733,6 +735,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			("getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS),
 			("getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS),
 			("getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS),
+			# <!-- custom: Add traits to link matching so clicking <link=literal>TraitName</link> in Sevopedia Leader
+			# (or anywhere else) navigates to the Sevopedia Traits page. The DLL wraps trait names in <link=literal>
+			# tags (see CvGameTextMgr.cpp parseTraits), and this entry tells the link() method to search TraitInfo
+			# for a match and jump to PEDIA_TRAITS. Without this, clicking trait links had no effect. (Claude Opus 4.5) -->
+			("getNumTraitInfos", "getTraitInfo", SevoScreenEnums.PEDIA_TRAITS),
 			("getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS),
 			("getNumReligionInfos", "getReligionInfo", SevoScreenEnums.PEDIA_RELIGIONS),
 			("getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS),
@@ -1791,34 +1798,38 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return r # </advc.004y>
 
 
+	# <!-- custom: Sevopedia Traits rework - Previously traits used a hacky CONCEPT_TRAIT_* wrapper approach where
+	# trait entries were stored as NewConcept entries and required extracting the actual TraitInfo via string parsing.
+	# Now traits use WIDGET_PYTHON 6799 approach (like Builds with 6798), reading directly from CIV4TraitInfos.xml.
+	# This is cleaner, allows proper linking from Sevopedia Leader, and the CONCEPT_TRAIT_* XML entries are deleted.
+	# See also: SevoPediaIndex.py (row mapping), SevoPediaTrait.py (receives trait ID directly), and
+	# CvGameTextMgr.cpp parseTraits (DLL adds <link=literal> for clickable trait links). (Claude Opus 4.5) -->
 	def placeTraits(self):
 		self.list = self.getTraitList()
-		self.placeItems(WidgetTypes.WIDGET_PEDIA_DESCRIPTION, self.getTraitInfo)
-	
+		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getTraitInfo)
+
 	def getTraitList(self):
-		return self.getSortedList(gc.getNumNewConceptInfos(), self.getTraitInfo, True, False) # advc.004y: bCheckGraphicalOnly = False
+		return self.getSortedList(gc.getNumTraitInfos(), self.getTraitInfo, True, False) # advc.004y: bCheckGraphicalOnly = False
 
 	def getTraitInfo(self, id):
-		info = gc.getNewConceptInfo(id)
-		if self.isTraitInfo(info):
-			
-			class TraitInfo:
-				def __init__(self, conceptInfo):
-					self.conceptInfo = conceptInfo
-					sKey = conceptInfo.getType()
-					sKey = sKey[sKey.find("TRAIT_"):]
-					self.eTrait = gc.getInfoTypeForString(sKey)
-					self.traitInfo = gc.getTraitInfo(self.eTrait)
-				def getDescription(self):
-					return u"%c %s" % (TraitUtil.getIcon(self.eTrait), self.traitInfo.getDescription())
-				def getButton(self):
-					return self.traitInfo.getButton()
-			
-			return TraitInfo(info)
-		return None
-	
-	def isTraitInfo(self, info):
-		return info.getType().find("_TRAIT_") != -1
+		info = gc.getTraitInfo(id)
+		if info is None:
+			return None
+		# Wrap to add icon to description like original implementation
+		class TraitInfoWrapper:
+			def __init__(self, traitInfo, eTrait):
+				self.traitInfo = traitInfo
+				self.eTrait = eTrait
+			def getDescription(self):
+				return u"%c %s" % (TraitUtil.getIcon(self.eTrait), self.traitInfo.getDescription())
+			def getButton(self):
+				return self.traitInfo.getButton()
+			def isGraphicalOnly(self):
+				return False  # Traits are never graphical-only
+		return TraitInfoWrapper(info, id)
+
+	# <!-- custom: Removed isTraitInfo() - no longer needed since CONCEPT_TRAIT_* entries deleted from XML.
+	# Traits now use WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
 
 	def placeCivics(self):
 		self.list = self.getCivicList()
@@ -2058,7 +2069,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getNewConceptInfo(self, id):
 		info = gc.getNewConceptInfo(id)
-		if not self.isShortcutInfo(info) and not self.isTraitInfo(info):
+		# <!-- custom: Removed isTraitInfo check - CONCEPT_TRAIT_* entries deleted from XML since Traits now use
+		# WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
+		if not self.isShortcutInfo(info):
 			return info
 		return None
 
@@ -2224,12 +2237,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					data1 = self.SAS_PEDIA_PYTHON_BUILD
 					bSAS_hasCustomData2 = True
 
+			# <!-- custom: Handle traits with WIDGET_PYTHON like Builds. (Claude Opus 4.5) -->
+			if info == gc.getTraitInfo:
+				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
+				if data1 != -1:
+					data2 = data1
+					data1 = self.SAS_PEDIA_PYTHON_TRAIT
+					bSAS_hasCustomData2 = True
+
 			if info == gc.getConceptInfo:
 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
 				# <!-- custom: we cannot change to data1 here as we changed it in this scope so need to properly use item[1] rather as chatgpt 5.2 recommends and that indeed lead to an issue ingame of displaying always same sevopedia concept's text. To be safe, not changing it in other places as well unless we need to -->
 				data2 = item[1]
 
-			elif info == self.getNewConceptInfo or info == self.getShortcutInfo or info == self.getTraitInfo: # advc
+			elif info == self.getNewConceptInfo or info == self.getShortcutInfo: # advc (removed self.getTraitInfo - now uses WIDGET_PYTHON)
 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
 				data2 = item[1]
 
@@ -2378,6 +2399,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					item = self.list[iListIdx]
 					if item[1] != -1:
 						return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, item[1], True, False)
+			# <!-- custom: Handle trait item list clicks like Builds. Without this, clicking trait entries in the
+			# Traits category had no effect (though Index linking worked fine). (Claude Opus 4.5) -->
+			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_TRAITS:
+				iRow = inputClass.getData()
+				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
+				if iListIdx is not None:
+					item = self.list[iListIdx]
+					if item[1] != -1:
+						return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, item[1], True, False)
 
 		# Existing TOC/INDEX buttons.
 		if self.SAS_USE_BOTTOM_TABS:
@@ -2393,6 +2423,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iData2 = inputClass.getData2()
 			if iData1 == self.SAS_PEDIA_PYTHON_BUILD:
 				return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iData2, True, False)
+			# <!-- custom: Handle trait clicks with WIDGET_PYTHON. (Claude Opus 4.5) -->
+			if iData1 == self.SAS_PEDIA_PYTHON_TRAIT:
+				return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iData2, True, False)
 
 		return 0
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->

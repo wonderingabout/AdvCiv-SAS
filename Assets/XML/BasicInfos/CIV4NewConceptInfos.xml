@@ -66,57 +66,8 @@
 			<Description>TXT_KEY_SHORTCUTS_MP</Description>
 			<Civilopedia>TXT_KEY_SHORTCUTS_MP_PEDIA</Civilopedia>
 		</NewConceptInfo>
-		<!-- advc.004y: Trait categories restored -->
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_AGGRESSIVE</Type>
-			<Description>TXT_KEY_TRAIT_AGGRESSIVE</Description>
-			<Civilopedia>TXT_KEY_TRAIT_AGGRESSIVE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_CHARISMATIC</Type>
-			<Description>TXT_KEY_TRAIT_CHARISMATIC</Description>
-			<Civilopedia>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_CREATIVE</Type>
-			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
-			<Civilopedia>TXT_KEY_TRAIT_CREATIVE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<!-- custom: removed CONCEPT_TRAIT_EXPANSIVE as the trait is now as of nowremoved in our mod-->
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_FINANCIAL</Type>
-			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>
-			<Civilopedia>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_IMPERIALIST</Type>
-			<Description>TXT_KEY_TRAIT_IMPERIALIST</Description>
-			<Civilopedia>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_INDUSTRIOUS</Type>
-			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
-			<Civilopedia>TXT_KEY_TRAIT_INDUSTRIOUS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_ORGANIZED</Type>
-			<Description>TXT_KEY_TRAIT_ORGANIZED</Description>
-			<Civilopedia>TXT_KEY_TRAIT_ORGANIZED_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_PHILOSOPHICAL</Type>
-			<Description>TXT_KEY_TRAIT_PHILOSOPHICAL</Description>
-			<Civilopedia>TXT_KEY_TRAIT_PHILOSOPHICAL_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_PROTECTIVE</Type>
-			<Description>TXT_KEY_TRAIT_PROTECTIVE</Description>
-			<Civilopedia>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_SPIRITUAL</Type>
-			<Description>TXT_KEY_TRAIT_SPIRITUAL</Description>
-			<Civilopedia>TXT_KEY_TRAIT_SPIRITUAL_PEDIA</Civilopedia>
-		</NewConceptInfo>
+		<!-- custom: Removed all CONCEPT_TRAIT_* entries. Sevopedia Traits category now uses WIDGET_PYTHON 6799
+			 approach (like Builds) which reads trait data directly from CIV4TraitInfos.xml via gc.getTraitInfo().
+			 The old concept-based workaround is no longer needed. (Claude Opus 4.5) -->
 	</NewConceptInfos>
 </Civ4NewConceptInfos>

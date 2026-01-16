@@ -16,7 +16,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
 &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
 [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
-&emsp;[Widget Python 6798 to link (e.g. for Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds)  
+&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
 &emsp;&emsp;[example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm)  
 &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
 &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
@@ -40,6 +40,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 13: civics category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-13-civics-category)  
 &emsp;[example 14: projects category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-14-projects-category)  
 &emsp;[example 15: specialists category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-specialists-category)  
+&emsp;[example 16: traits category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-traits-category)  
 
 ## Some Lower Level Changes or new features
 
@@ -103,11 +104,13 @@ Then, to make those Index Builds entries fully clickable and stable, we kept the
 
 ## Other new categories
 
-### Widget Python 6798 to link (e.g. for Builds)
+### Widget Python 6798 to link (e.g. for Builds, for Traits)
 
 Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such.
 
 As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the Builds page corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)! Added with the big and nice help of GPT-5.2-Codex thanks a lot!
+
+We then also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter. See also [example 16: traits category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-traits-category).
 
 #### example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")
 
@@ -180,7 +183,9 @@ note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead
 
 Also, Trait icons (chars) are now displayed before trait names in the leader's Traits section, making it easier to identify traits at a glance (similar to the Traits category). Added with the help of GPT-Codex-5.2 thanks.
 
-Free promotion's unit combats are in the same line instead of taking too much vertical space; and add a blank line between traits for readability. Change in [CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp) with the help of GPT-Codex-5.2 thanks.
+Free promotion's unit combats are in the same line instead of taking too much vertical space; and add a blank line between traits for readability. Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) with the help of GPT-Codex-5.2 thanks.
+
+More recently, we also added linking from the traits panel's textual description like "Aggressive", "Protective", to the corresponding Traits entry in Sevopedia Traits. Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) with the help of GPT-Codex-5.2 thanks.
 
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
@@ -395,3 +400,10 @@ Then, more recently, i added new Extra Slots and Extra Yields panel based on the
 <img src="../Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.760_sevopedia_specialists (2).JPG" alt="0.760_sevopedia_specialists (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.760_sevopedia_specialists (3).JPG" alt="0.760_sevopedia_specialists (3).JPG" width="250"></img>
+
+### example 16: traits category
+
+Initially rework was minimal there with only increasing the size of the special panel to see more effects, but more recently this page can also receive links from sevopedia leader: see [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits) and [example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes).
+
+<img src="../Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.624_sevopedia_traits (2).JPG" alt="0.624_sevopedia_traits (2).JPG" width="250"></img>

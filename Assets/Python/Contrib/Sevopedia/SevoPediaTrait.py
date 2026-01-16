@@ -60,13 +60,10 @@ class SevoPediaTrait:
 
 
 
-	def interfaceScreen(self, iConcept):
+	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude Opus 4.5) -->
+	def interfaceScreen(self, iTrait):
 		self.iLeader = -1
-		self.iConcept = iConcept
-		info = gc.getNewConceptInfo(iConcept)
-		sKey = info.getType()
-		sKey = sKey[sKey.find("TRAIT_"):]
-		self.iTrait = gc.getInfoTypeForString(sKey)
+		self.iTrait = iTrait
 		# advc.004y: Commented out. No made-up trait icons.
 		#screen = self.top.getScreen()
 		#screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
@@ -150,7 +147,8 @@ class SevoPediaTrait:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel( panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50 )
-		szText = gc.getNewConceptInfo(self.iConcept).getCivilopedia()
+		# <!-- custom: Get text from TraitInfo directly (no longer concept-based). (Claude Opus 4.5) -->
+		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
 		# advc.004y: Don't display the text key if text not found
 		if not szText.endswith("PEDIA"):
 			screen.attachMultilineText( panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
