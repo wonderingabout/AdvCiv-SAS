@@ -8,13 +8,10 @@
 
 from CvPythonExtensions import *
 import CvUtil
-import re
+from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 localText = CyTranslator()
-
-def _font2(szText):
-	return u"<font=2>%s</font>" % unicode(szText)
 
 
 
@@ -23,9 +20,9 @@ class SevoPediaGameSpeedChart:
 		self.top = main
 		self._cachedTable = None
 
-		self.MARGIN = 4
-		self.ROW_H = 15
-		self.W_ICON = 24
+		self.MARGIN = CHART_TABLE_MARGIN
+		self.ROW_H = CHART_TABLE_ROW_H
+		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 180
 		self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS") > 0)
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT")
@@ -252,36 +249,6 @@ class SevoPediaGameSpeedChart:
 		for (k, _getter, icon_spec) in row_specs:
 			icon_spec_by_key[k] = icon_spec
 
-		# ---------------------------------------------------------------------
-		# Stable icon sorting (fixes "emoji order changes / ties shuffle")
-		# ---------------------------------------------------------------------
-		#
-		# Civ4 table sorting uses the raw cell text. If multiple rows share the same icon,
-		# tie ordering can shuffle between ascending/descending clicks.
-		#
-		# We fix ties by appending an invisible sort key (icon_group + row_index) to the icon cell text.
-		#
-		# IMPORTANT: We avoid ASCII control chars (0x01..0x1F) here. Some Civ4 builds can fail to render
-		# *any* glyph in a table cell if such chars are present. This was the root cause of:
-		#   "buttons show, but GameFont glyphs (food/citizen/gold/etc) are blank".
-		#
-		# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F), which are invisible
-		# and safe to include in Civ4's UI strings.
-		_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5 invisible marks
-
-		def _encode_base5(iValue, iDigits):
-			out = []
-			for _ in xrange(iDigits):
-				out.append(_SORT_DIGITS[iValue % 5])
-				iValue //= 5
-			out.reverse()
-			return u"".join(out)
-
-		def _sort_key(iGroup, iRowIndex):
-			# 4 base-5 digits cover up to 624, enough for our "group" numbering (<= 140).
-			# 3 digits cover up to 124 rows.
-			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
-
 		def icon_cell_for_key(key, iRowIndex):
 			icon_spec = icon_spec_by_key.get(key)
 
@@ -291,16 +258,16 @@ class SevoPediaGameSpeedChart:
 
 			if not icon_spec:
 				# No icon: still return a stable, invisible tie-breaker so sorting can't shuffle.
-				return (_sort_key(0, iRowIndex), "")
+				return (chart_sort_key(0, iRowIndex), "")
 
 			(kind, name) = icon_spec
 			if kind == "btn":
 				(path, iGroup) = btn_by_name.get(name, ("", 0))
-				return (_sort_key(iGroup, iRowIndex), path)
+				return (chart_sort_key(iGroup, iRowIndex), path)
 
 			# kind == "glyph"
 			(glyph, iGroup) = glyph_by_name.get(name, ("", 0))
-			return (_font2(glyph) + _sort_key(iGroup, iRowIndex), "")
+			return (chart_font2(glyph) + chart_sort_key(iGroup, iRowIndex), "")
 
 		# ---------------------------------------------------------------------
 		# Extract data from DLL infos
@@ -315,7 +282,7 @@ class SevoPediaGameSpeedChart:
 		speed_labels = []
 		for i in xrange(gc.getNumGameSpeedInfos()):
 			info = gc.getGameSpeedInfo(i)
-			szName = self._beautify_enum_name(info.getType())
+			szName = chart_beautify_enum_name(info.getType())
 			iNumInc = info.getNumTurnIncrements()
 			iTurns = 0
 			for iInc in xrange(iNumInc):
@@ -410,17 +377,17 @@ class SevoPediaGameSpeedChart:
 
 		row_index = 0
 		for field in field_order:
-			szFieldName = self._beautify_field_name(field)
+			szFieldName = chart_beautify_field_name(field)
 			if derived_field_keys.get(field):
 				szFieldName += u"*"
 
 			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
-				row = [icon_cell_for_key(field, row_index), _font2(szFieldName)]
+				row = [icon_cell_for_key(field, row_index), chart_font2(szFieldName)]
 			else:
-				row = [_font2(szFieldName)]
+				row = [chart_font2(szFieldName)]
 
 			for speed_type in speed_types:
-				row.append(_font2(parsed_data.get(speed_type, {}).get(field, "")))
+				row.append(chart_font2(parsed_data.get(speed_type, {}).get(field, "")))
 
 			table.append(row)
 			row_index += 1
@@ -431,12 +398,12 @@ class SevoPediaGameSpeedChart:
 			szName = CyTranslator().getText(str(info.getTextKey()), ())
 
 			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
-				row = [icon_cell_for_key("iCulturePercent", row_index), _font2(szName)]
+				row = [icon_cell_for_key("iCulturePercent", row_index), chart_font2(szName)]
 			else:
-				row = [_font2(szName)]
+				row = [chart_font2(szName)]
 
 			for iSpeed in xrange(len(speed_types)):
-				row.append(_font2(str(info.getSpeedThreshold(iSpeed))))
+				row.append(chart_font2(str(info.getSpeedThreshold(iSpeed))))
 
 			table.append(row)
 			row_index += 1
@@ -528,33 +495,3 @@ class SevoPediaGameSpeedChart:
 		else:
 			szSep = "="
 		return "+%d%s%s%s%s" % (turns, szOp, szRate, szSep, szEnd)
-
-
-
-	def _beautify_field_name(self, raw_name):
-		# Keep field labels readable; only shorten trailing "Percent" to "%".
-		name = raw_name
-
-		# Strip leading 'i' from iFooBar style fields
-		if name.startswith("i") and len(name) > 1 and name[1].isupper():
-			name = name[1:]
-
-		# Pretty-split underscores / camelCase
-		name = re.sub(r"_", " ", name)
-		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
-
-		# Replace trailing "Percent" with "%"
-		if name.endswith("Percent"):
-			name = name[:-len("Percent")] + "%"
-
-		return name
-
-
-	def _beautify_enum_name(self, raw_name):
-		name = raw_name
-		for prefix in ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_"):
-			if name.startswith(prefix):
-				name = name[len(prefix):]
-				break
-		name = re.sub(r"_", " ", name)
-		return name.title()

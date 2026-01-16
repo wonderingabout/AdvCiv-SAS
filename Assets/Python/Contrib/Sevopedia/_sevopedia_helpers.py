@@ -2,6 +2,8 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
+import re
+#
 # <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
 #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
 #HYPOTHESIZED_INTER_BUTTON_SPACING = 4
@@ -303,3 +305,127 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	textH = 30
 
 	screen.addMultilineText(textName, numTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
+
+
+
+# <!-- custom: Sevopedia Chart Helpers (shared across Handicap/GameSpeed/WorldSize/Era charts). (Claude Code Opus 4.5) -->
+#
+# <!-- custom: Common constants for chart tables -->
+CHART_TABLE_MARGIN = 4
+CHART_TABLE_ROW_H = 15
+CHART_TABLE_W_ICON = 24
+# <!-- custom: All known enum prefixes to strip. Grouped here for simplicity across all charts. -->
+CHART_ENUM_PREFIXES = ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_", "ERA_", "WORLDSIZE_")
+# <!-- custom: # Stable icon sorting (fixes "emoji order changes / ties shuffle")
+#
+# Civ4 table sorting uses the raw cell text. If multiple rows share the same icon,
+# tie ordering can shuffle between ascending/descending clicks.
+# We fix ties by appending an invisible sort key (icon_group + row_index) to the icon cell text.
+# IMPORTANT: We avoid ASCII control chars (0x01..0x1F) here. Some Civ4 builds can fail to render
+# *any* glyph in a table cell if such chars are present. This was the root cause of:
+#   "buttons show, but GameFont glyphs (food/citizen/gold/etc) are blank".
+# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F), which are invisible
+# and safe to include in Civ4's UI strings. (GPT-5.2-Codex + ChatGPT-5.2 Thinking) -->
+CHART_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5 invisible marks
+
+
+
+def chart_font2(szText):
+	# Wrap text in <font=2> tags for chart table cells.
+	return u"<font=2>%s</font>" % unicode(szText)  # noqa: F821
+
+
+
+def chart_encode_base5(iValue, iDigits):
+	# Encode an integer as a base-5 string using invisible Unicode chars.
+	out = []
+	for _ in xrange(iDigits):  # noqa: F821
+		out.append(CHART_SORT_DIGITS[iValue % 5])
+		iValue //= 5
+	out.reverse()
+	return u"".join(out)
+
+
+
+def chart_sort_key(iGroup, iRowIndex):
+	# Generate an invisible sort key for stable icon column sorting.
+	# 4 base-5 digits cover up to 624, enough for our "group" numbering (<= 140).
+	# 3 digits cover up to 124 rows.
+	return u"<font=1>" + chart_encode_base5(iGroup, 4) + chart_encode_base5(iRowIndex, 3) + u"</font>"
+
+
+
+def chart_beautify_field_name(raw_name):
+	# Convert camelCase/underscore field names to readable labels.
+	# Strips leading 'i' or 'b' prefix, replaces _ with spaces, splits camelCase, replaces Percent with %.
+	name = raw_name
+	if name.startswith("i") and len(name) > 1 and name[1].isupper():
+		name = name[1:]
+	if name.startswith("b") and len(name) > 1 and name[1].isupper():
+		name = name[1:]
+	name = re.sub(r"_", " ", name)
+	name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
+	if name.endswith("Percent"):
+		name = name[:-len("Percent")] + "%"
+	return name
+
+
+
+def chart_beautify_enum_name(raw_name):
+	# Convert ENUM_STYLE_NAMES to Title Case Labels.
+	# Strips known prefixes, replaces _ with spaces, converts to title case.
+	name = raw_name
+	for prefix in CHART_ENUM_PREFIXES:
+		if name.startswith(prefix):
+			name = name[len(prefix):]
+			break
+	name = re.sub(r"_", " ", name)
+	return name.title()
+
+
+
+def chart_chunk_list(items, size):
+	# Split a list into chunks of given size. Returns list of lists.
+	if size <= 0:
+		return [items]
+	chunks = []
+	current = []
+	for item in items:
+		current.append(item)
+		if len(current) >= size:
+			chunks.append(current)
+			current = []
+	if current:
+		chunks.append(current)
+	return chunks
+
+
+
+def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None):
+	# Parse a comma-separated tech list string into formatted output.
+	# value: comma-separated string of tech names/types
+	# return_list: if True, return list; if False, return joined string
+	# none_text: text to return/use when list is empty
+	# abbrev_tech_names: optional dict of {full_name: abbreviated_name}
+	if not value:
+		if return_list:
+			return []
+		return none_text
+	parts = value.split(",")
+	out = []
+	for part in parts:
+		p = part.strip()
+		if not p:
+			continue
+		# Beautify if it looks like an enum (e.g. TECH_AGRICULTURE)
+		if p.startswith("TECH_"):
+			p = chart_beautify_enum_name(p)
+		# Apply abbreviations if provided
+		if abbrev_tech_names and p in abbrev_tech_names:
+			p = abbrev_tech_names[p]
+		out.append(p)
+	if return_list:
+		return out
+	if len(out) == 0:
+		return none_text
+	return ", ".join(out)

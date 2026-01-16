@@ -129,6 +129,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - When doing performance optimizations, checking only, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
 - When doing performance optimizations, use local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
 - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
+- Avoid fluff like `================`, keep it nice and simple and clean.
 
 ### Python (Civ4)
 
@@ -140,6 +141,9 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - When adding guidance, include at least one simple code example so other agents can copy the pattern.
 - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
 - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+- Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
+- Keep import burden on callers for Civ4-specific dependencies: helper functions should receive Civ4 objects (e.g. `gc`, `screen`, `CyGame()`) as parameters rather than importing them internally. This avoids circular dependencies. Standard Python modules (`re`, `math`, etc.) are fine to import directly in helpers since they're cached and always available.
+- When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
 
 ## XML
 

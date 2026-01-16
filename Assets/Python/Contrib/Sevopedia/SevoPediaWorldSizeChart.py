@@ -8,13 +8,10 @@
 
 from CvPythonExtensions import *
 import CvUtil
-import re
+from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 localText = CyTranslator()
-
-def _font2(szText):
-	return u"<font=2>%s</font>" % unicode(szText)
 
 
 
@@ -23,9 +20,9 @@ class SevoPediaWorldSizeChart:
 		self.top = main
 		self._cachedTable = None
 
-		self.MARGIN = 4
-		self.ROW_H = 15
-		self.W_ICON = 24
+		self.MARGIN = CHART_TABLE_MARGIN
+		self.ROW_H = CHART_TABLE_ROW_H
+		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 210
 		self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS") > 0)
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT")
@@ -214,21 +211,6 @@ class SevoPediaWorldSizeChart:
 			glyph_by_name[name] = glyph
 
 
-		# ---------------------------------------------------------------------
-		# Stable icon sorting (prevents same-icon rows from shuffling on re-sort)
-		# ---------------------------------------------------------------------
-		_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
-
-		def _encode_base5(iValue, iDigits):
-			out = []
-			for _ in xrange(iDigits):
-				out.append(_SORT_DIGITS[iValue % 5])
-				iValue //= 5
-			out.reverse()
-			return u"".join(out)
-
-		def _sort_key(iGroup, iRowIndex):
-			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
 		icon_token_by_key = {}
 		for field_name, _display_label, _getter_name, icon_token in row_specs:
 			if icon_token:
@@ -242,26 +224,26 @@ class SevoPediaWorldSizeChart:
 		def icon_cell_for_key(icon_key, iRowIndex):
 			# Always return a stable invisible tie-breaker, even if no icon is found.
 			if not icon_key:
-				return (_sort_key(0, iRowIndex), "")
+				return (chart_sort_key(0, iRowIndex), "")
 			token = icon_token_by_key.get(icon_key, "")
 			if not token:
-				return (_sort_key(0, iRowIndex), "")
+				return (chart_sort_key(0, iRowIndex), "")
 			if token.startswith("btn:"):
 				name = token[4:]
 				btn = btn_by_name.get(name)
 				if btn is None:
-					return (_sort_key(0, iRowIndex), "")
+					return (chart_sort_key(0, iRowIndex), "")
 				path, iGroup = btn[0], btn[1]
 				if not path:
-					return (_sort_key(0, iRowIndex), "")
-				return (_sort_key(iGroup, iRowIndex), path)
+					return (chart_sort_key(0, iRowIndex), "")
+				return (chart_sort_key(iGroup, iRowIndex), path)
 			if token.startswith("glyph:"):
 				name = token[6:]
 				glyph = glyph_by_name.get(name, u"")
 				if not glyph:
-					return (_sort_key(0, iRowIndex), "")
-				return (_font2(glyph) + _sort_key(0, iRowIndex), "")
-			return (_sort_key(0, iRowIndex), "")
+					return (chart_sort_key(0, iRowIndex), "")
+				return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
+			return (chart_sort_key(0, iRowIndex), "")
 
 
 		world_types = []
@@ -341,40 +323,30 @@ class SevoPediaWorldSizeChart:
 		header = []
 		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
 			header.append(u"")
-			header.append(_font2("Field"))
+			header.append(chart_font2("Field"))
 		else:
-			header.append(_font2("Field"))
+			header.append(chart_font2("Field"))
 		for label in world_labels:
-			header.append(_font2(label))
+			header.append(chart_font2(label))
 
 		table = [header]
 
 		row_index = 0
 		for field_name, display_label, _getter_name, _icon_token in row_specs:
-			szFieldName = display_label_by_key.get(field_name, self._beautify_field_name(field_name))
+			szFieldName = display_label_by_key.get(field_name, chart_beautify_field_name(field_name))
 
 			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
-				row = [icon_cell_for_key(field_name, row_index), _font2(szFieldName)]
+				row = [icon_cell_for_key(field_name, row_index), chart_font2(szFieldName)]
 			else:
-				row = [_font2(szFieldName)]
+				row = [chart_font2(szFieldName)]
 
 			for world_type in world_types:
-				row.append(_font2(parsed_data.get(world_type, {}).get(field_name, "")))
+				row.append(chart_font2(parsed_data.get(world_type, {}).get(field_name, "")))
 
 			table.append(row)
 			row_index += 1
 
 		return table
-
-	def _beautify_field_name(self, raw_name):
-		name = raw_name
-		if name.startswith("i") and len(name) > 1 and name[1].isupper():
-			name = name[1:]
-		name = re.sub(r"_", " ", name)
-		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
-		if name.endswith("Percent"):
-			name = name[:-len("Percent")] + "%"
-		return name
 
 	def _format_ratio(self, width, height):
 		if width <= 0 or height <= 0:

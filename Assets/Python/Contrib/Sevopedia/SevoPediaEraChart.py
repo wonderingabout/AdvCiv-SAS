@@ -8,13 +8,10 @@
 
 from CvPythonExtensions import *
 import CvUtil
-import re
+from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 localText = CyTranslator()
-
-def _font2(szText):
-	return u"<font=2>%s</font>" % unicode(szText)
 
 
 
@@ -23,9 +20,9 @@ class SevoPediaEraChart:
 		self.top = main
 		self._cachedTable = None
 
-		self.MARGIN = 4
-		self.ROW_H = 15
-		self.W_ICON = 24
+		self.MARGIN = CHART_TABLE_MARGIN
+		self.ROW_H = CHART_TABLE_ROW_H
+		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 210
 		self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS") > 0)
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT")
@@ -217,22 +214,6 @@ class SevoPediaEraChart:
 		for name, glyph in _glyph_defs:
 			glyph_by_name[name] = glyph
 
-		# ---------------------------------------------------------------------
-		# Stable icon sorting (prevents same-icon rows from shuffling on re-sort)
-		# ---------------------------------------------------------------------
-		_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
-
-		def _encode_base5(iValue, iDigits):
-			out = []
-			for _ in xrange(iDigits):
-				out.append(_SORT_DIGITS[iValue % 5])
-				iValue //= 5
-			out.reverse()
-			return u"".join(out)
-
-		def _sort_key(iGroup, iRowIndex):
-			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
-
 		icon_token_by_key = {}
 		display_label_by_key = {}
 		for field_name, display_label, _getter_name, icon_token, _value_type in row_specs:
@@ -243,26 +224,26 @@ class SevoPediaEraChart:
 
 		def icon_cell_for_key(icon_key, iRowIndex):
 			if not icon_key:
-				return (_sort_key(0, iRowIndex), "")
+				return (chart_sort_key(0, iRowIndex), "")
 			token = icon_token_by_key.get(icon_key, "")
 			if not token:
-				return (_sort_key(0, iRowIndex), "")
+				return (chart_sort_key(0, iRowIndex), "")
 			if token.startswith("btn:"):
 				name = token[4:]
 				btn = btn_by_name.get(name)
 				if btn is None:
-					return (_sort_key(0, iRowIndex), "")
+					return (chart_sort_key(0, iRowIndex), "")
 				path, iGroup = btn[0], btn[1]
 				if not path:
-					return (_sort_key(0, iRowIndex), "")
-				return (_sort_key(iGroup, iRowIndex), path)
+					return (chart_sort_key(0, iRowIndex), "")
+				return (chart_sort_key(iGroup, iRowIndex), path)
 			if token.startswith("glyph:"):
 				name = token[6:]
 				glyph = glyph_by_name.get(name, u"")
 				if not glyph:
-					return (_sort_key(0, iRowIndex), "")
-				return (_font2(glyph) + _sort_key(0, iRowIndex), "")
-			return (_sort_key(0, iRowIndex), "")
+					return (chart_sort_key(0, iRowIndex), "")
+				return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
+			return (chart_sort_key(0, iRowIndex), "")
 
 		none_text = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
 		yes_text = localText.getText("TXT_KEY_YES", ())
@@ -298,7 +279,7 @@ class SevoPediaEraChart:
 				continue
 			tech_name = tech_info.getDescription()
 			if not tech_name:
-				tech_name = self._beautify_enum_name(tech_info.getType())
+				tech_name = chart_beautify_enum_name(tech_info.getType())
 			techs_by_era[era_types[iEra]].append(tech_name)
 
 		for era_type in era_types:
@@ -311,11 +292,11 @@ class SevoPediaEraChart:
 		header = []
 		if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
 			header.append(u"")
-			header.append(_font2("Field"))
+			header.append(chart_font2("Field"))
 		else:
-			header.append(_font2("Field"))
+			header.append(chart_font2("Field"))
 		for label in era_labels:
-			header.append(_font2(label))
+			header.append(chart_font2(label))
 
 		table = [header]
 
@@ -328,27 +309,27 @@ class SevoPediaEraChart:
 					display_text = tech_row["Field"]
 					if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
 						icon_key = tech_row.get("IconKey", "")
-						row = [icon_cell_for_key(icon_key, row_index), _font2(display_text)]
+						row = [icon_cell_for_key(icon_key, row_index), chart_font2(display_text)]
 					else:
-						row = [_font2(display_text)]
+						row = [chart_font2(display_text)]
 					for era_type in era_types:
-						row.append(_font2(tech_row.get(era_type, "")))
+						row.append(chart_font2(tech_row.get(era_type, "")))
 					table.append(row)
 					row_index += 1
 				continue
 
-			szFieldName = display_label_by_key.get(field_name, self._beautify_field_name(field_name))
+			szFieldName = display_label_by_key.get(field_name, chart_beautify_field_name(field_name))
 
 			if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
-				row = [icon_cell_for_key(field_name, row_index), _font2(szFieldName)]
+				row = [icon_cell_for_key(field_name, row_index), chart_font2(szFieldName)]
 			else:
-				row = [_font2(szFieldName)]
+				row = [chart_font2(szFieldName)]
 
 			for era_type in era_types:
 				val = parsed_data.get(era_type, {}).get(field_name, "")
 				if value_type == "bool":
 					val = self._format_bool(val, yes_text, no_text)
-				row.append(_font2(val))
+				row.append(chart_font2(val))
 
 			table.append(row)
 			row_index += 1
@@ -368,52 +349,13 @@ class SevoPediaEraChart:
 				return ""
 		return value
 
-	def _beautify_field_name(self, raw_name):
-		name = raw_name
-		if name.startswith("i") and len(name) > 1 and name[1].isupper():
-			name = name[1:]
-		if name.startswith("b") and len(name) > 1 and name[1].isupper():
-			name = name[1:]
-		name = re.sub(r"_", " ", name)
-		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
-		if name.endswith("Percent"):
-			name = name[:-len("Percent")] + "%"
-		return name
-
-	def _beautify_enum_name(self, raw_name):
-		name = raw_name
-		for prefix in ("TECH_", "HANDICAP_", "GOODY_", "ERA_"):
-			if name.startswith(prefix):
-				name = name[len(prefix):]
-				break
-		name = re.sub(r"_", " ", name)
-		return name.title()
-
-	def _format_tech_list(self, value, return_list, none_text):
-		if not value:
-			if return_list:
-				return []
-			return none_text
-		parts = value.split(",")
-		out = []
-		for part in parts:
-			p = part.strip()
-			if not p:
-				continue
-			out.append(p)
-		if return_list:
-			return out
-		if len(out) == 0:
-			return none_text
-		return ", ".join(out)
-
 	def _expandTechRows(self, field_name, era_types, parsed_data, techs_per_cell, none_text):
 		per_era_chunks = {}
 		max_chunks = 1
 		for era_type in era_types:
 			raw = parsed_data.get(era_type, {}).get(field_name, "")
-			items = self._format_tech_list(raw, True, none_text)
-			chunks = self._chunkList(items, techs_per_cell)
+			items = chart_format_tech_list(raw, True, none_text)
+			chunks = chart_chunk_list(items, techs_per_cell)
 			if not chunks:
 				chunks = [[none_text]]
 			per_era_chunks[era_type] = chunks
@@ -434,17 +376,3 @@ class SevoPediaEraChart:
 					row[era_type] = ""
 			rows.append(row)
 		return rows
-
-	def _chunkList(self, items, size):
-		if size <= 0:
-			return [items]
-		chunks = []
-		current = []
-		for item in items:
-			current.append(item)
-			if len(current) >= size:
-				chunks.append(current)
-				current = []
-		if current:
-			chunks.append(current)
-		return chunks

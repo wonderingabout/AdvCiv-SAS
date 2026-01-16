@@ -12,6 +12,7 @@
 from CvPythonExtensions import *
 import CvUtil
 import re
+from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 localText = CyTranslator()
@@ -23,9 +24,9 @@ class SevoPediaHandicapChart:
 		self.top = main
 		self._cachedTable = None
 
-		self.MARGIN = 4
-		self.ROW_H = 15
-		self.W_ICON = 24
+		self.MARGIN = CHART_TABLE_MARGIN
+		self.ROW_H = CHART_TABLE_ROW_H
+		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 290
 		self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS") > 0)
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
@@ -389,9 +390,6 @@ class SevoPediaHandicapChart:
 		# --------------------------------------------------------------------
 		# One-time render prep (kept local; cache stores only final table cells)
 		# --------------------------------------------------------------------
-		def _font2(s):
-			return u"<font=2>%s</font>" % s
-
 		icon_cell_for_key = None
 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
 			game = CyGame()
@@ -433,35 +431,7 @@ class SevoPediaHandicapChart:
 			for _name, _glyph in _glyph_defs:
 				glyph_by_name[_name] = _glyph
 			
-			# ---------------------------------------------------------------------
-			# Stable icon sorting (prevents same-icon rows from shuffling on re-sort)
-			# ---------------------------------------------------------------------
-			#
-			# Civ4 table sorting uses the raw cell text. When multiple rows share the
-			# same icon, tie ordering can shuffle between ascending/descending clicks.
-			#
-			# We fix ties by appending an invisible sort key (icon_group + row_index)
-			# to the icon cell text. This keeps the chart readable while making sort
-			# results fully deterministic.
-			#
-			# We avoid ASCII control chars (0x01..0x1F): some Civ4 builds can cause
-			# GameFont glyphs to render blank when such chars appear in table cells.
-			# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F).
-			_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
-
-			def _encode_base5(iValue, iDigits):
-				out = []
-				for _ in xrange(iDigits):
-					out.append(_SORT_DIGITS[iValue % 5])
-					iValue //= 5
-				out.reverse()
-				return u"".join(out)
-
-			def _sort_key(iGroup, iRowIndex):
-				# 4 base-5 digits cover group ids comfortably; 3 digits cover up to 124 rows.
-				return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
-
-			# Token map: key -> "btn:name" or "glyph:name"
+				# Token map: key -> "btn:name" or "glyph:name"
 			# Built from the centralized specs above, so there is only ONE place to edit.
 			icon_token_by_key = {}
 			for field_name, _getter_name, icon_token in field_specs:
@@ -477,36 +447,36 @@ class SevoPediaHandicapChart:
 			def icon_cell_for_key(icon_key, iRowIndex):
 				# Always return a stable invisible tie-breaker, even if no icon is found.
 				if not icon_key:
-					return (_sort_key(0, iRowIndex), "")
+					return (chart_sort_key(0, iRowIndex), "")
 				token = icon_token_by_key.get(icon_key, "")
 				if not token:
-					return (_sort_key(0, iRowIndex), "")
+					return (chart_sort_key(0, iRowIndex), "")
 				if token.startswith("btn:"):
 					name = token[4:]
 					btn = btn_by_name.get(name)
 					if btn is None:
-						return (_sort_key(0, iRowIndex), "")
+						return (chart_sort_key(0, iRowIndex), "")
 					path, iGroup = btn[0], btn[1]
 					if not path:
-						return (_sort_key(0, iRowIndex), "")
-					return (_sort_key(iGroup, iRowIndex), path)
+						return (chart_sort_key(0, iRowIndex), "")
+					return (chart_sort_key(iGroup, iRowIndex), path)
 				if token.startswith("glyph:"):
 					name = token[6:]
 					glyph = glyph_by_name.get(name, u"")
 					if not glyph:
-						return (_sort_key(0, iRowIndex), "")
+						return (chart_sort_key(0, iRowIndex), "")
 					# Preserve the visible glyph, but add an invisible tie-breaker.
-					return (_font2(glyph) + _sort_key(0, iRowIndex), "")
-				return (_sort_key(0, iRowIndex), "")
+					return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
+				return (chart_sort_key(0, iRowIndex), "")
 
 
 		# Build header (pre-fonted)
 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
-			header = [u"", _font2("Field")]
+			header = [u"", chart_font2("Field")]
 		else:
-			header = [_font2("Field")]
+			header = [chart_font2("Field")]
 		for difficulty in difficulty_types:
-			header.append(_font2(self._beautify_enum_name(difficulty)))
+			header.append(chart_font2(chart_beautify_enum_name(difficulty)))
 
 		data = [header]
 
@@ -521,15 +491,15 @@ class SevoPediaHandicapChart:
 				icon_cell = (u"", "")
 				if icon_cell_for_key is not None:
 					icon_cell = icon_cell_for_key(icon_key, row_index)
-				out_row = [icon_cell, _font2(display_field)]
+				out_row = [icon_cell, chart_font2(display_field)]
 			else:
-				out_row = [_font2(display_field)]
+				out_row = [chart_font2(display_field)]
 
 			for difficulty in difficulty_types:
 				value = row.get(difficulty, "")
 				if row["Field"] in ("FreeTechs", "AIFreeTechs"):
-					value = self._format_tech_list(value, False, none_text, abbrev_tech_names)
-				out_row.append(_font2(value))
+					value = chart_format_tech_list(value, False, none_text, abbrev_tech_names)
+				out_row.append(chart_font2(value))
 
 			data.append(out_row)
 			row_index += 1
@@ -575,15 +545,6 @@ class SevoPediaHandicapChart:
 		handicap_dict["AIFreeTechs"] = ", ".join(ai_free_list)
 		all_fields["FreeTechs"] = 1
 		all_fields["AIFreeTechs"] = 1
-
-	def _beautify_enum_name(self, raw_name):
-		name = raw_name
-		for prefix in ("TECH_", "HANDICAP_", "GOODY_"):
-			if name.startswith(prefix):
-				name = name[len(prefix):]
-				break
-		name = re.sub(r"_", " ", name)
-		return name.title()
 
 	def _mergeHumanAiRows(self, rows, difficulty_types, none_text):
 		row_by_field = {}
@@ -633,26 +594,6 @@ class SevoPediaHandicapChart:
 		base = re.sub(r"([a-z])([A-Z])", r"\1 \2", base)
 		return base + " (Human / AI)"
 
-	def _format_tech_list(self, value, return_list, none_text, abbrev_tech_names):
-		if not value:
-			if return_list:
-				return []
-			return none_text
-		parts = value.split(",")
-		out = []
-		for part in parts:
-			p = part.strip()
-			if not p:
-				continue
-			name = self._beautify_enum_name(p)
-			name = abbrev_tech_names.get(name, name)
-			out.append(name)
-		if return_list:
-			return out
-		if len(out) == 0:
-			return none_text
-		return ", ".join(out)
-
 	def _expandTechRows(self, rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names):
 		new_rows = []
 		for row in rows:
@@ -665,8 +606,8 @@ class SevoPediaHandicapChart:
 			max_chunks = 1
 			for difficulty in difficulty_types:
 				raw = row.get(difficulty, "")
-				items = self._format_tech_list(raw, True, none_text, abbrev_tech_names)
-				chunks = self._chunkList(items, techs_per_cell)
+				items = chart_format_tech_list(raw, True, none_text, abbrev_tech_names)
+				chunks = chart_chunk_list(items, techs_per_cell)
 				if not chunks:
 					chunks = [[none_text]]
 				per_diff_chunks[difficulty] = chunks
@@ -690,17 +631,3 @@ class SevoPediaHandicapChart:
 						new_row[difficulty] = ""
 				new_rows.append(new_row)
 		return new_rows
-
-	def _chunkList(self, items, size):
-		if size <= 0:
-			return [items]
-		chunks = []
-		current = []
-		for item in items:
-			current.append(item)
-			if len(current) >= size:
-				chunks.append(current)
-				current = []
-		if current:
-			chunks.append(current)
-		return chunks
