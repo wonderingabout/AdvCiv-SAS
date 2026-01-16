@@ -1808,8 +1808,21 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getTraitList()
 		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getTraitInfo)
 
+	# <!-- custom: Sort traits alphabetically by raw description (without icon), then display with icon.
+	# The icon character would cause incorrect sorting if included. (Claude Opus 4.5) -->
 	def getTraitList(self):
-		return self.getSortedList(gc.getNumTraitInfos(), self.getTraitInfo, True, False) # advc.004y: bCheckGraphicalOnly = False
+		traitList = []
+		for iTrait in range(gc.getNumTraitInfos()):
+			info = gc.getTraitInfo(iTrait)
+			if info:
+				# Store (raw_description_for_sorting, display_description_with_icon, id)
+				rawDesc = info.getDescription()
+				displayDesc = u"%c %s" % (TraitUtil.getIcon(iTrait), rawDesc)
+				traitList.append((rawDesc, displayDesc, iTrait))
+		if self.isSortLists():
+			traitList.sort(key=lambda x: x[0])  # Sort by raw description
+		# Return list in expected format: (display_description, id)
+		return [(item[1], item[2]) for item in traitList]
 
 	def getTraitInfo(self, id):
 		info = gc.getTraitInfo(id)

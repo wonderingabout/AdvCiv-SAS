@@ -52,11 +52,8 @@ B_WARN = False
 if IS_DEBUG_LEADER:
 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map(gc)))
 
-# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL so handle that edge case of LEADER_DEFAULTS specifically) unlike in generate_leaders_data.py for external to civ4 script usage, as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one but is to be exhaustive -->
-EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
-	"LEADER_BARBARIAN",
-)
-EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_leader_indexes_from_leader_types(EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS, gc)
+# <!-- custom: Use shared exclusion list from _sevopedia_helpers. (Claude Opus 4.5) -->
+EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_excluded_leader_indexes(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA, gc)
 
 # <!-- custom: more consistently and reliably exclude leaders by having a ready list of such leaders we can call -->
 if IS_DEBUG_LEADER:
@@ -1509,7 +1506,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 	# Wrapper that either loads pre-dumped cache or computes it
 	return get_leader_cache_predumped_or_compute(
 		compute_func = _compute_leader_cache_internal,
-		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS,
+		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA,
 		is_emoji_enabled = IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS,
 		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
 	)

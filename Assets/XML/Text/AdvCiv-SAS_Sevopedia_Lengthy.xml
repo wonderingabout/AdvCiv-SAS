@@ -1218,4 +1218,50 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_SHORTCUTS_MAP_PEDIA</Tag>
 		<English>[H1]Map[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimize user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle bare map on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle resource display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle unit display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle tile grid[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle yield display (yield icons)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle on/off write some text ("Enter caption") on a tile[NEWLINE]</English>
 	</TEXT>
+
+
+
+	<!-- custom: AdvCiv-SAS - Trait Civilopedia text
+	Purpose: Provide broad, mod-agnostic descriptions for the Sevopedia Traits page.
+	Notes: Avoids hard numbers and specific yield/movement claims so other mods can reuse safely. (Genreated with the help of ChatGPT 5.2 thanks) -->
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_PHILOSOPHICAL_PEDIA</Tag>
+		<English>[TAB]Philosophical leaders are defined by curiosity, reflection, and a long view of history. They patronize learning, debate, and the kind of institutions that turn ideas into lasting influence. [PARAGRAPH:1]In play, this trait encourages investing in knowledge and people rather than only territory. It often rewards running specialists, planning for Great People, and using culture or science to shape the map without constant warfare. [PARAGRAPH:1]A philosophical empire tends to peak through timing: key discoveries, key individuals, and deliberate pivots in policy. The general theme is consistent: more value from thinking ahead than from reacting late.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_AGGRESSIVE_PEDIA</Tag>
+		<English>[TAB]Aggressive leaders favor decisive action, military readiness, and the will to impose outcomes. Their states organize early for conflict: training, discipline, and a preference for initiative. [PARAGRAPH:1]In play, this trait supports building a credible army earlier, pressuring neighbors, and converting tactical advantages into strategic gains. It pairs well with plans that secure resources, deny rivals key positions, and keep production focused on units when needed. [PARAGRAPH:1]Aggressive does not have to mean reckless: the strongest use is often controlled violence at the right moment. The general theme is stronger combat readiness and more efficient early pressure.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_SPIRITUAL_PEDIA</Tag>
+		<English>[TAB]Spiritual leaders draw authority from belief, tradition, and the shared meaning of rituals and law. They are often able to realign society quickly when circumstances change, without losing cohesion. [PARAGRAPH:1]In play, this trait favors flexibility: adapting civics, managing religion or diplomacy, and reshaping priorities without long disruptions. It can support peaceful growth, cultural development, or war planning by making internal transitions cheaper and smoother. [PARAGRAPH:1]Spiritual empires often thrive on timing and stability: choosing the right institutions for the current era, then switching again when the world shifts. The general theme is internal control and low-friction change.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_INDUSTRIOUS_PEDIA</Tag>
+		<English>[TAB]Industrious leaders emphasize craftsmanship, organization of labor, and large projects that outlast a single generation. They treat infrastructure as power: roads, workshops, public works, and the technical skills behind them. [PARAGRAPH:1]In play, this trait supports turning production into long-term advantage. It often rewards building earlier, specializing cities, and completing important projects before rivals can contest them. [PARAGRAPH:1]An industrious empire is usually strongest when it chooses targets carefully: key buildings, key wonders, and key upgrades that compound over time. The general theme is better returns from building and improving.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_CREATIVE_PEDIA</Tag>
+		<English>[TAB]Creative leaders shape identity through art, language, and symbols that bind a society together. Their influence is not only military: it spreads through culture, prestige, and the ability to claim space without direct force. [PARAGRAPH:1]In play, this trait supports early border security, flexible city placement, and long-term cultural pressure on contested regions. It often pairs well with diplomacy and city planning, because cultural momentum can reduce the need for constant garrisons or repeated wars. [PARAGRAPH:1]Creative empires can win by framing the map: defining where the frontier is, and making it costly for rivals to dispute it. The general theme is faster cultural development and a wider cultural reach for cities.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Tag>
+		<English>[TAB]Financial leaders prioritize wealth, efficient administration of markets, and the steady growth of an economy. They understand that money is optionality: it buys time, technology, armies, and diplomacy. [PARAGRAPH:1]In play, this trait rewards building a strong economic base and working productive land. It often pairs well with expansion that can be sustained, investment in commerce infrastructure, and strategic trading. [PARAGRAPH:1]A financial empire tends to win through compounding advantages: steady income becomes steady research, which becomes steady power. The general theme is greater value from developed land and sustained economic growth.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_ORGANIZED_PEDIA</Tag>
+		<English>[TAB]Organized leaders rely on institutions, logistics, and predictable systems rather than personal rule alone. They coordinate large territories through administration: laws, records, supply, and clear lines of responsibility. [PARAGRAPH:1]In play, this trait supports managing a wider empire with less friction. It often helps you sustain expansion, run complex policies, and keep long-term costs under control as the state grows. [PARAGRAPH:1]An organized empire is strong in endurance: it can maintain large armies, many cities, or expensive policies without collapsing into inefficiency. The general theme is lower ongoing costs and smoother large-scale management.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Tag>
+		<English>[TAB]Charismatic leaders rule through personal presence, morale, and the ability to unify people behind a direction. They inspire loyalty, reduce internal friction, and draw talent into service. [PARAGRAPH:1]In play, this trait often supports stronger stability in cities and faster development of experienced units. It pairs well with diplomacy and war alike: high morale helps sustain conflict, while social cohesion supports growth. [PARAGRAPH:1]A charismatic empire can turn small advantages into momentum because people keep working, fighting, and believing longer. The general theme is higher morale and more effective trained forces.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Tag>
+		<English>[TAB]Protective leaders prioritize security, preparedness, and the resilience of their cities. They build defenses early and treat survival as the foundation for everything else. [PARAGRAPH:1]In play, this trait supports holding key positions, defending borders, and absorbing initial attacks without collapsing. It pairs well with careful expansion and with strategies that grow safely behind secure lines. [PARAGRAPH:1]Protective does not forbid offense: it often enables it by ensuring that the home front stays safe while armies operate elsewhere. The general theme is stronger city security and more reliable defense.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Tag>
+		<English>[TAB]Imperialist leaders focus on expansion, influence beyond the core homeland, and the practical systems that keep far-flung holdings connected. They value reach: new cities, new routes, and new forms of control over territory. [PARAGRAPH:1]In play, this trait supports establishing a larger footprint earlier and benefiting from the networks that come with it. It can pair well with settlement planning, overseas ambitions, and trade-oriented growth, because expansion is only useful if it can be integrated. [PARAGRAPH:1]An imperial empire is strongest when it turns new land into real power: supply, administration, and economic ties that make distance manageable. The general theme is more effective expansion and integration of a large, connected realm.</English>
+	</TEXT>
 </Civ4GameText>

@@ -40,7 +40,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Other new categories](/README.md#other-new-categories)  
 &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
 &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
-&emsp;[Some higher level reworks (e.g. AI Personality Panel)](/README.md#some-higher-level-reworks-eg-ai-personality-panel)  
+&emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Tables)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-tables)  
 &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
 [UI (Common)](/README.md#ui-common)  
 &emsp;[Images as buttons](/README.md#images-as-buttons)  
@@ -263,15 +263,15 @@ They notably feature additional fields that do not are not direct XML info field
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
 
-### Some higher level reworks (e.g. AI Personality Panel)
+### Some higher level reworks (e.g. AI Personality Panel, Traits Tables)
 
-One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature.
-
-Not a strictly new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data). It is computationally lightweight, as all the values are already provided in the mod before the game is launched, the game just displays this data.
+One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature. Not a strictly new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data). It is computationally lightweight, as all the values are already provided in the mod before the game is launched, the game just displays this data.
 
 As always, ChatGPT is a key co-author and main code contributor and with the help of other AIs (See [Authors](/README.md#authors) for details) thanks.
 
-Here is below a sample of the example screenshots showing the AI Personality panel feature in sevopedialeader, as well as samples showing other sevopedia reworks that are part of AdvCiv-SAS.
+Another significant contribution from our AI helpers is the new Traits Tables, that are 2 sortable Traits Tables that show all trait pairs and their representation among all leaders, using as of now a "++++" kind of ranking, plus even the Leaders'panel's header has been enhanced with similar info, as of now for example "Leader 12/53 (22%)" to show how many leaders among all have this trait! Added with the very nice help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot! Also, the Traits have been enhanced with new txt keys that are fairly mod-agnostic, added with the help of ChatGPT 5.2 thanks a lot too!
+
+Here is below a sample of the example screenshots showing the AI Personality panel, Traits Tables, and the many other reworks we did in sevopedia in AdvCiv-SAS:
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>

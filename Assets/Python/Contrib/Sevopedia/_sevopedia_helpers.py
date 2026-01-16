@@ -23,6 +23,14 @@ HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
 HIDE_SECOND_ROW_MULTI_LIST = - 4
 
 
+# <!-- custom: Shared exclusion list for Sevopedia Leader and Trait pages.
+# LEADER_BARBARIAN is excluded because it's not a playable/selectable leader.
+# LEADER_DEFAULTS is not listed because it has no index (it's an XML template). (Claude Opus 4.5) -->
+EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA = (
+	"LEADER_BARBARIAN",
+)
+
+
 def get_leaders_index_to_type_map(gc):
 	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
 	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
@@ -49,18 +57,53 @@ def get_leader_index_from_leader_type(leader_type, gc):
 
 
 
+def get_leader_index_safe(leader_type, gc):
+	# Returns leader index for a leader_type string, or -1 if not found.
+	# Unlike get_leader_index_from_leader_type, this does not raise - useful for
+	# exclusion lists that may include non-indexed types like LEADER_DEFAULTS.
+	for iLeader in range(gc.getNumLeaderHeadInfos()):
+		if gc.getLeaderHeadInfo(iLeader).getType() == leader_type:
+			return iLeader
+	return -1
+
+
 def get_leader_indexes_from_leader_types(leader_types, gc):
-	# Given a list/tuple of leader types (e.g. ('LEADER_BARBARIAN', <!-- custom:, but also 'LEADER_ASOKA', etc, any leader -->)), return a tuple of corresponding leader indexes (iLeader) (e.g. <!-- custom: (0, 2, etc.) -->).
-
-	leader_indexes_list = []
-
+	# Given a list/tuple of leader types, return tuple of valid leader indexes.
+	# Silently skips types that don't exist (e.g. LEADER_DEFAULTS has no index).
+	result = []
 	for leader_type in leader_types:
-		leader_index = get_leader_index_from_leader_type(leader_type, gc)
-		leader_indexes_list.append(leader_index)
-	
-	leader_indexes_tuple = tuple(leader_indexes_list)
+		idx = get_leader_index_safe(leader_type, gc)
+		if idx != -1:
+			result.append(idx)
+	return tuple(result)
 
-	return leader_indexes_tuple
+
+def get_excluded_leader_indexes(leader_types, gc):
+	return get_leader_indexes_from_leader_types(leader_types, gc)
+
+
+def get_real_leader_maps_and_count(gc, excluded_leader_types):
+	# Returns (leaderIds, leaderToCiv, numRealLeaders).
+	excluded_leader_indexes = set(get_leader_indexes_from_leader_types(excluded_leader_types, gc))
+	leader_ids = []
+	leader_to_civ = {}
+	num_real_leaders = 0
+
+	for iLeader in range(gc.getNumLeaderHeadInfos()):
+		if iLeader in excluded_leader_indexes:
+			continue
+		iCivForLeader = -1
+		for iCiv in range(gc.getNumCivilizationInfos()):
+			if gc.getCivilizationInfo(iCiv).isLeaders(iLeader):
+				iCivForLeader = iCiv
+				break
+		if iCivForLeader == -1:
+			continue
+		num_real_leaders += 1
+		leader_ids.append(iLeader)
+		leader_to_civ[iLeader] = iCivForLeader
+
+	return leader_ids, leader_to_civ, num_real_leaders
 
 
 
