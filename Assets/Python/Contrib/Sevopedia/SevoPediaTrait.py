@@ -21,6 +21,77 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 
+# <!-- custom: Module-level cache for trait statistics. Computed once on first Traits category click,
+# then reused for the entire session. Similar pattern to SevoPediaLeader's LEADERS_INFO_CACHED. (Claude Opus 4.5) -->
+# traitLeaders: dict of traitId -> [leaderIds] - used to quickly compute per-trait pairing data
+# allPairsData: list of (trait1, trait2, count, [leaderIds]) - all trait combinations globally
+# allPairsMinMax: (minCount, maxCount) - for ranking bar normalization
+TRAIT_STATISTICS_CACHE = None
+
+
+def precomputeTraitStatisticsCache():
+	# Precompute and cache trait statistics data. Called once from SevoPediaMain.placeTraits()
+	# on first Traits category click. Returns the cache dict.
+	global TRAIT_STATISTICS_CACHE
+
+	if TRAIT_STATISTICS_CACHE is not None:
+		return TRAIT_STATISTICS_CACHE
+
+	numTraits = gc.getNumTraitInfos()
+	numLeaders = gc.getNumLeaderHeadInfos()
+
+	# Build traitId -> [leaderIds] mapping (used for per-trait pairing lookups)
+	traitLeaders = {}
+	for iTrait in range(numTraits):
+		traitLeaders[iTrait] = []
+	for iLeader in range(numLeaders):
+		leader = gc.getLeaderHeadInfo(iLeader)
+		for iTrait in range(numTraits):
+			if leader.hasTrait(iTrait):
+				traitLeaders[iTrait].append(iLeader)
+
+	# Build leader -> traits mapping (only leaders with 2+ traits) for all-pairs computation
+	leaderTraits = {}
+	for iLeader in range(numLeaders):
+		leader = gc.getLeaderHeadInfo(iLeader)
+		traits = set()
+		for iTrait in range(numTraits):
+			if leader.hasTrait(iTrait):
+				traits.add(iTrait)
+		if len(traits) >= 2:
+			leaderTraits[iLeader] = traits
+
+	# Count all trait pairs
+	pairCounts = {}
+	for iLeader, traits in leaderTraits.items():
+		traitList = sorted(traits)
+		for i in range(len(traitList)):
+			for j in range(i + 1, len(traitList)):
+				pair = (traitList[i], traitList[j])
+				if pair not in pairCounts:
+					pairCounts[pair] = []
+				pairCounts[pair].append(iLeader)
+
+	# Build sorted all-pairs data
+	allPairsData = [(t1, t2, len(ids), sorted(ids)) for (t1, t2), ids in pairCounts.items()]
+	allPairsData.sort(key=lambda d: gc.getTraitInfo(d[0]).getDescription() + gc.getTraitInfo(d[1]).getDescription())
+
+	# Precompute min/max for ranking bar normalization
+	if allPairsData:
+		counts = [d[2] for d in allPairsData]
+		allPairsMinMax = (min(counts), max(counts))
+	else:
+		allPairsMinMax = (0, 0)
+
+	TRAIT_STATISTICS_CACHE = {
+		"traitLeaders": traitLeaders,
+		"allPairsData": tuple(allPairsData),
+		"allPairsMinMax": allPairsMinMax,
+	}
+
+	print("Sevopedia Trait statistics cache prebuilt. This should appear only once per gaming session.")
+	return TRAIT_STATISTICS_CACHE
+
 
 class SevoPediaTrait:
 
@@ -200,7 +271,8 @@ class SevoPediaTrait:
 				screen.setTableText(leftTableName, 3, iRow, u"<font=2>%s</font>" % u", ".join(leaderNames), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# === RIGHT TABLE: All trait combinations globally ===
-		allPairsData = self._buildAllTraitPairsData()
+		# <!-- custom: Use cached all-pairs data for efficiency. (Claude Opus 4.5) -->
+		allPairsData, (minCount, maxCount) = self._getAllTraitPairsData()
 		if allPairsData:
 			rightPanelName = self.top.getNextWidgetName()
 			screen.addPanel(rightPanelName, "", "", True, True, self.STATS_RIGHT_X, self.STATS_PANEL_Y, self.STATS_RIGHT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
@@ -213,11 +285,6 @@ class SevoPediaTrait:
 			screen.setTableColumnHeader(rightTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_RIGHT_COL_COUNT)
 			screen.setTableColumnHeader(rightTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), self.STATS_RIGHT_COL_RANK)
 			screen.setTableColumnHeader(rightTableName, 3, localText.getText("TXT_KEY_CONCEPT_LEADERS", ()), self.STATS_RIGHT_COL_LEADERS)
-
-			# Min/max for normalization
-			counts = [d[2] for d in allPairsData]
-			minCount = min(counts)
-			maxCount = max(counts)
 
 			for trait1, trait2, pairCount, leaderIds in allPairsData:
 				iRow = screen.appendTableRow(rightTableName)
@@ -242,33 +309,24 @@ class SevoPediaTrait:
 				screen.setTableText(rightTableName, 3, iRow, u"<font=2>%s</font>" % u", ".join(leaderNames), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	def _buildTraitPairingData(self):
-		# Build trait pairing statistics for the current trait.
-		# Returns list of (otherTraitId, pairCount, totalWithOther, [leaderIds]) sorted alphabetically.
+		# <!-- custom: Build per-trait pairing data using cached traitLeaders mapping.
+		# Much faster than recomputing the mapping each time. (Claude Opus 4.5) -->
 		if self.iTrait < 0:
 			return []
 
-		numTraits = gc.getNumTraitInfos()
-		numLeaders = gc.getNumLeaderHeadInfos()
+		cache = TRAIT_STATISTICS_CACHE
+		if cache is None:
+			return []  # Cache not built yet (shouldn't happen if called after placeTraits)
 
-		# Build traitId -> [leaderIds] mapping
-		traitLeaders = {}
-		for iTrait in range(numTraits):
-			traitLeaders[iTrait] = []
-		for iLeader in range(numLeaders):
-			leader = gc.getLeaderHeadInfo(iLeader)
-			for iTrait in range(numTraits):
-				if leader.hasTrait(iTrait):
-					traitLeaders[iTrait].append(iLeader)
-
-		leadersWithThisTrait = set(traitLeaders[self.iTrait])
+		traitLeaders = cache["traitLeaders"]
+		leadersWithThisTrait = set(traitLeaders.get(self.iTrait, []))
 		if not leadersWithThisTrait:
 			return []
 
 		pairingData = []
-		for otherTrait in range(numTraits):
+		for otherTrait, leadersWithOther in traitLeaders.items():
 			if otherTrait == self.iTrait:
 				continue
-			leadersWithOther = traitLeaders[otherTrait]
 			if not leadersWithOther:
 				continue
 			leadersWithBoth = leadersWithThisTrait.intersection(set(leadersWithOther))
@@ -278,38 +336,12 @@ class SevoPediaTrait:
 		pairingData.sort(key=lambda x: gc.getTraitInfo(x[0]).getDescription())
 		return pairingData
 
-	def _buildAllTraitPairsData(self):
-		# Build data for ALL trait combinations globally.
-		# Returns list of (trait1Id, trait2Id, pairCount, [leaderIds]) sorted alphabetically.
-		numTraits = gc.getNumTraitInfos()
-		numLeaders = gc.getNumLeaderHeadInfos()
-
-		# Build leader -> traits mapping (only leaders with 2+ traits)
-		leaderTraits = {}
-		for iLeader in range(numLeaders):
-			leader = gc.getLeaderHeadInfo(iLeader)
-			traits = set()
-			for iTrait in range(numTraits):
-				if leader.hasTrait(iTrait):
-					traits.add(iTrait)
-			if len(traits) >= 2:
-				leaderTraits[iLeader] = traits
-
-		# Count all trait pairs
-		pairCounts = {}
-		for iLeader, traits in leaderTraits.items():
-			traitList = sorted(traits)
-			for i in range(len(traitList)):
-				for j in range(i + 1, len(traitList)):
-					pair = (traitList[i], traitList[j])
-					if pair not in pairCounts:
-						pairCounts[pair] = []
-					pairCounts[pair].append(iLeader)
-
-		# Build and sort result
-		allPairsData = [(t1, t2, len(ids), sorted(ids)) for (t1, t2), ids in pairCounts.items()]
-		allPairsData.sort(key=lambda d: gc.getTraitInfo(d[0]).getDescription() + gc.getTraitInfo(d[1]).getDescription())
-		return allPairsData
+	def _getAllTraitPairsData(self):
+		# <!-- custom: Return cached all-pairs data. Computed once per session. (Claude Opus 4.5) -->
+		cache = TRAIT_STATISTICS_CACHE
+		if cache is None:
+			return [], (0, 0)
+		return cache["allPairsData"], cache["allPairsMinMax"]
 
 
 

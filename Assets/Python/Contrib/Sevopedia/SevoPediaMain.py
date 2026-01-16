@@ -1807,6 +1807,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeTraits(self):
 		self.list = self.getTraitList()
 		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getTraitInfo)
+		# <!-- custom: Trigger cache precomputation on first Traits category click.
+		# Similar to SevoPediaLeader's pattern - compute once, reuse for session. (Claude Opus 4.5) -->
+		SevoPediaTrait.precomputeTraitStatisticsCache()
 
 	# <!-- custom: Sort traits alphabetically by raw description (without icon), then display with icon.
 	# The icon character would cause incorrect sorting if included. (Claude Opus 4.5) -->

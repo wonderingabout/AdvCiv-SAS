@@ -199,6 +199,8 @@ Also enhanced it with a new Background/History panel that shows fairly mod-agnos
 
 Then added 2 Trait sortable tables showing all trait pairs and their representation among all leaders, using as of now a "++++" kind of ranking, plus even the Leaders'panel's header has been enhanced with similar info, as of now for example "Leader 12/53 (22%)" to show how many leaders among all have this trait! Added with the very nice help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot!!
 
+Then added caching at category click for the entire session similarly to how was done in Sevopedia Leader (See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).). The data doesn't change during the entire session, and in particular for the combinations panel is as of now always the same, may as well cache it.
+
 <img src="../Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.624_sevopedia_traits (2).JPG" alt="0.624_sevopedia_traits (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.624_sevopedia_traits (3).JPG" alt="0.624_sevopedia_traits (3).JPG" width="250"></img>
