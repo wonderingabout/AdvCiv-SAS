@@ -27,36 +27,38 @@ class SevoPediaTrait:
 		self.iTrait = -1
 		self.top = main
 
-		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
-		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
-		self.W_MAIN_PANE = 200
+		# <!-- custom: Enhanced layout - Leaders at top, Statistics in center, Effects bottom-left, History bottom-right.
+		# Dynamically fills the page. Statistics panel is placeholder for future trait usage tables. (Claude Opus 4.5) -->
 
-		#self.X_LEADERS = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
-		self.X_LEADERS = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
-		self.Y_LEADERS = self.Y_MAIN_PANE
+		self.MARGIN = 10
+
+		# Leaders panel - full width at top
+		self.X_LEADERS = self.top.X_PEDIA_PAGE
+		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
 		self.W_LEADERS = self.top.R_PEDIA_PAGE - self.X_LEADERS
 		self.H_LEADERS = 110
 
-		# lines are 22 pixels high using WB font -- no idea about normal font
-		#self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
-		self.X_SPECIAL = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
-		self.Y_SPECIAL = self.Y_LEADERS + self.H_LEADERS + 10
-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
-		# <!-- custom: add more room so content fits; was 150. (GPT-5.2-Codex (summarized)) -->
-		self.H_SPECIAL = 300
+		# Statistics panel - wide center panel (placeholder for future trait statistics tables)
+		self.X_STATISTICS = self.top.X_PEDIA_PAGE
+		self.Y_STATISTICS = self.Y_LEADERS + self.H_LEADERS + self.MARGIN
+		self.W_STATISTICS = self.top.R_PEDIA_PAGE - self.X_STATISTICS
+		self.H_STATISTICS = 450
 
-		self.H_MAIN_PANE = self.Y_SPECIAL + self.H_SPECIAL - self.Y_MAIN_PANE
+		# Bottom row: Effects (left) and History (right)
+		self.Y_BOTTOM_ROW = self.Y_STATISTICS + self.H_STATISTICS + self.MARGIN
+		self.H_BOTTOM_ROW = self.top.B_PEDIA_PAGE - self.Y_BOTTOM_ROW
 
-		self.W_ICON = 150
-		self.H_ICON = 150
-		self.X_ICON = self.X_MAIN_PANE + (self.W_MAIN_PANE - self.W_ICON) / 2
-		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
-		self.ICON_SIZE = 64
+		# Effects panel - bottom left
+		self.X_SPECIAL = self.top.X_PEDIA_PAGE
+		self.Y_SPECIAL = self.Y_BOTTOM_ROW
+		self.W_SPECIAL = (self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.MARGIN) / 2
+		self.H_SPECIAL = self.H_BOTTOM_ROW
 
-		self.X_TEXT = self.X_MAIN_PANE
-		self.Y_TEXT = self.Y_SPECIAL + self.H_SPECIAL + 10
-		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_TEXT
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		# History panel - bottom right
+		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MARGIN
+		self.Y_HISTORY = self.Y_BOTTOM_ROW
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+		self.H_HISTORY = self.H_BOTTOM_ROW
 
 
 
@@ -64,19 +66,11 @@ class SevoPediaTrait:
 	def interfaceScreen(self, iTrait):
 		self.iLeader = -1
 		self.iTrait = iTrait
-		# advc.004y: Commented out. No made-up trait icons.
-		#screen = self.top.getScreen()
-		#screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
-		#screen.addDDSGFC(self.top.getNextWidgetName(), TraitUtil.getButton(self.iTrait), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		self.placeLeaders()
+		self.placeStatistics()
 		self.placeSpecial()
-		#self.placeText()
-		# <advc.004y> Show changes instead of text box (if there are any)
-		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
-		if not szText.endswith("PEDIA"):
-			self.placeChanges(szText)
+		self.placeHistory()
 
 
 
@@ -96,6 +90,16 @@ class SevoPediaTrait:
 
 
 
+	# <!-- custom: Placeholder panel for future trait statistics/math tables showing trait usage,
+	# combinations, rankings, etc. Will use simplified AI personality panel table style. (Claude Opus 4.5) -->
+	def placeStatistics(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_STATISTICS", ()), "", True, True, self.X_STATISTICS, self.Y_STATISTICS, self.W_STATISTICS, self.H_STATISTICS, PanelStyles.PANEL_STYLE_BLUE50)
+		# Placeholder - statistics tables will be added here later
+
+
+
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -103,10 +107,7 @@ class SevoPediaTrait:
 		listName = self.top.getNextWidgetName()
 		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
 		screen.enableSelect(listName, False)
-		
-		def append(text):
-			screen.appendListBoxString( listName, text, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		
+
 		if self.iLeader != -1:
 			leader = gc.getLeaderHeadInfo(self.iLeader)
 			trait = gc.getTraitInfo(self.iTrait)
@@ -137,31 +138,22 @@ class SevoPediaTrait:
 							szSpecial += "\n"
 						szSpecial += line[2:]  # strip first two spaces
 			if bFound:
-				# <!-- custom: leave top padding, based on Sevopedia terrain placeSpecial. (GPT-5.2-Codex (summarized)) -->
-				#screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+27, self.W_SPECIAL-10, self.H_SPECIAL-32, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+32, self.W_SPECIAL-10, self.H_SPECIAL-32, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+32, self.W_SPECIAL-10, self.H_SPECIAL-40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
-	def placeText(self):
+	# <!-- custom: History panel showing civilopedia text for the trait, similar to SevoPediaImprovement. (Claude Opus 4.5) -->
+	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50 )
-		# <!-- custom: Get text from TraitInfo directly (no longer concept-based). (Claude Opus 4.5) -->
+		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+
 		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
-		# advc.004y: Don't display the text key if text not found
-		if not szText.endswith("PEDIA"):
-			screen.attachMultilineText( panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# Don't display the text key if text not found
+		if szText and not szText.endswith("PEDIA"):
+			textName = self.top.getNextWidgetName()
+			screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 30, self.W_HISTORY - 14, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-	# advc.004y:
-	def placeChanges(self, szText):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName,
-				localText.getText("TXT_KEY_PEDIA_CHANGES", ()), "",
-				True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT,
-				PanelStyles.PANEL_STYLE_BLUE50 )
-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def handleInput (self, inputClass):
