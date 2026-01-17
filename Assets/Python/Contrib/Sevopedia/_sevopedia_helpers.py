@@ -25,12 +25,42 @@ HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
 HIDE_SECOND_ROW_MULTI_LIST = - 4
 
 
+
 # <!-- custom: Shared exclusion list for Sevopedia Leader and Trait pages.
 # LEADER_BARBARIAN is excluded because it's not a playable/selectable leader.
 # LEADER_DEFAULTS is not listed because it has no index (it's an XML template). (Claude Opus 4.5) -->
 EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA = (
 	"LEADER_BARBARIAN",
 )
+
+
+
+# <!-- custom: favorite leader type selectors for get_favorite_leader_counts. (GPT-5.2-Codex) -->
+FAVORITE_LEADER_TYPE_RELIGION = 0
+FAVORITE_LEADER_TYPE_CIVIC = 1
+
+
+
+# <!-- custom: Sevopedia Chart Helpers (shared across Handicap/GameSpeed/WorldSize/Era charts). (Claude Code Opus 4.5) -->
+#
+# <!-- custom: Common constants for chart tables -->
+CHART_TABLE_MARGIN = 4
+CHART_TABLE_ROW_H = 15
+CHART_TABLE_W_ICON = 24
+# <!-- custom: All known enum prefixes to strip. Grouped here for simplicity across all charts. -->
+CHART_ENUM_PREFIXES = ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_", "ERA_", "WORLDSIZE_")
+# <!-- custom: # Stable icon sorting (fixes "emoji order changes / ties shuffle")
+#
+# Civ4 table sorting uses the raw cell text. If multiple rows share the same icon,
+# tie ordering can shuffle between ascending/descending clicks.
+# We fix ties by appending an invisible sort key (icon_group + row_index) to the icon cell text.
+# IMPORTANT: We avoid ASCII control chars (0x01..0x1F) here. Some Civ4 builds can fail to render
+# *any* glyph in a table cell if such chars are present. This was the root cause of:
+#   "buttons show, but GameFont glyphs (food/citizen/gold/etc) are blank".
+# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F), which are invisible
+# and safe to include in Civ4's UI strings. (GPT-5.2-Codex + ChatGPT-5.2 Thinking) -->
+CHART_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5 invisible marks
+
 
 
 def get_leaders_index_to_type_map(gc):
@@ -106,6 +136,36 @@ def get_real_leader_maps_and_count(gc, excluded_leader_types):
 		leader_to_civ[iLeader] = iCivForLeader
 
 	return leader_ids, leader_to_civ, num_real_leaders
+
+
+# <!-- custom: Build leaders header text with X/Y (Z%) (example "Leaders 12/53 (22%)") for any Sevopedia panel. (GPT-5.2-Codex (summarized)) -->
+def format_leaders_header_text(num_with, total, headerLabel):
+	percent = 0
+	if total > 0:
+		percent = (100 * num_with) / total
+	return u"%s %d/%d (%d%%)" % (
+		headerLabel,
+		num_with,
+		total,
+		percent,
+	)
+
+
+# <!-- custom: Count leaders whose favorite type matches iFavoriteId; favoriteType is "RELIGION" or "CIVIC". (GPT-5.2-Codex) -->
+def get_favorite_leader_counts(favoriteType, iFavoriteId, gc, excluded_leader_types):
+	leader_ids, unused_leader_to_civ, total_real_leaders = get_real_leader_maps_and_count(gc, excluded_leader_types)
+	num_with_favorite = 0
+	for iLeader in leader_ids:
+		leaderInfo = gc.getLeaderHeadInfo(iLeader)
+		if favoriteType == FAVORITE_LEADER_TYPE_RELIGION:
+			if leaderInfo.getFavoriteReligion() == iFavoriteId:
+				num_with_favorite += 1
+		elif favoriteType == FAVORITE_LEADER_TYPE_CIVIC:
+			if leaderInfo.getFavoriteCivic() == iFavoriteId:
+				num_with_favorite += 1
+		else:
+			raise ValueError("favoriteType=%d is not supported; use FAVORITE_LEADER_TYPE_RELIGION or FAVORITE_LEADER_TYPE_CIVIC" % favoriteType)
+	return num_with_favorite, total_real_leaders
 
 
 
@@ -305,28 +365,6 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	textH = 30
 
 	screen.addMultilineText(textName, numTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
-
-
-
-# <!-- custom: Sevopedia Chart Helpers (shared across Handicap/GameSpeed/WorldSize/Era charts). (Claude Code Opus 4.5) -->
-#
-# <!-- custom: Common constants for chart tables -->
-CHART_TABLE_MARGIN = 4
-CHART_TABLE_ROW_H = 15
-CHART_TABLE_W_ICON = 24
-# <!-- custom: All known enum prefixes to strip. Grouped here for simplicity across all charts. -->
-CHART_ENUM_PREFIXES = ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_", "ERA_", "WORLDSIZE_")
-# <!-- custom: # Stable icon sorting (fixes "emoji order changes / ties shuffle")
-#
-# Civ4 table sorting uses the raw cell text. If multiple rows share the same icon,
-# tie ordering can shuffle between ascending/descending clicks.
-# We fix ties by appending an invisible sort key (icon_group + row_index) to the icon cell text.
-# IMPORTANT: We avoid ASCII control chars (0x01..0x1F) here. Some Civ4 builds can fail to render
-# *any* glyph in a table cell if such chars are present. This was the root cause of:
-#   "buttons show, but GameFont glyphs (food/citizen/gold/etc) are blank".
-# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F), which are invisible
-# and safe to include in Civ4's UI strings. (GPT-5.2-Codex + ChatGPT-5.2 Thinking) -->
-CHART_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5 invisible marks
 
 
 

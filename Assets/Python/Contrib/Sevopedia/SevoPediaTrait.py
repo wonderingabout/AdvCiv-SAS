@@ -244,15 +244,8 @@ class SevoPediaTrait:
 			if gc.getLeaderHeadInfo(iLeader).hasTrait(self.iTrait):
 				leadersWithTrait.append(iLeader)
 
-		percent = 0
-		if totalRealLeaders > 0:
-			percent = (100 * len(leadersWithTrait)) / totalRealLeaders
-		headerText = u"%s %d/%d (%d%%)" % (
-			localText.getText("TXT_KEY_CONCEPT_LEADERS", ()),
-			len(leadersWithTrait),
-			totalRealLeaders,
-			percent,
-		)
+		headerLabel = localText.getText("TXT_KEY_CONCEPT_LEADERS", ())
+		headerText = format_leaders_header_text(len(leadersWithTrait), totalRealLeaders, headerLabel)
 		screen.addPanel( panelName, headerText, "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50 )
 		rowListName = self.top.getNextWidgetName()
 		multiListX = self.X_LEADERS + MULTI_LIST_PANEL_OFFSET_X

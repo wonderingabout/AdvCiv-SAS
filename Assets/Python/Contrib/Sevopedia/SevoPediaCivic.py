@@ -115,12 +115,15 @@ class SevoPediaCivic:
 		hPanel = self.H_LEADERS
 
 		txtKeyPanel = "TXT_KEY_PEDIA_CATEGORY_LEADER"
+		headerLabel = localText.getText(txtKeyPanel, ())
+		numWithCivic, totalRealLeaders = get_favorite_leader_counts(FAVORITE_LEADER_TYPE_CIVIC, self.iCivic, gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+		headerText = format_leaders_header_text(numWithCivic, totalRealLeaders, headerLabel)
 
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, headerText, "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		rowListName = self.top.getNextWidgetName()
 

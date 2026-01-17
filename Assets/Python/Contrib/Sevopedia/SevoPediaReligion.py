@@ -122,12 +122,15 @@ class SevoPediaReligion:
 		hPanel = self.H_LEADERS
 
 		txtKeyPanel = "TXT_KEY_PEDIA_CATEGORY_LEADER"
+		headerLabel = localText.getText(txtKeyPanel, ())
+		numWithReligion, totalRealLeaders = get_favorite_leader_counts(FAVORITE_LEADER_TYPE_RELIGION, self.iReligion, gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+		headerText = format_leaders_header_text(numWithReligion, totalRealLeaders, headerLabel)
 
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, headerText, "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# <!-- custom: note: this doesn't seem to do anything in multilist methods and in particular no padding so do not use this here -->
 		# Additional left side padding for the button(s)
