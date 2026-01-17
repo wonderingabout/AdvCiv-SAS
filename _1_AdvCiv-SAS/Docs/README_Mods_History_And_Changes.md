@@ -5,7 +5,7 @@ To create/use/repurpose this new "Mods Info" category starting from base AdvCiv 
 ## Menu
 
 [More details on previous mods changes (civ4 BTS, K-Mod)](/_1_AdvCiv-SAS/Docs/README_Mods_History_And_Changes.md#more-details-on-previous-mods-changes-civ4-bts-k-mod)  
-[Changes from one mod to another sevopedia items/pages and mod history](/_1_AdvCiv-SAS/Docs/README_Mods_History_And_Changes.md#changes-from-one-mod-to-another-sevopedia-itemspages-and-mod-history)  
+[Changes from one mod to another Sevopedia items/pages and mod history](/_1_AdvCiv-SAS/Docs/README_Mods_History_And_Changes.md#changes-from-one-mod-to-another-sevopedia-itemspages-and-mod-history)  
 
 ## More details on previous mods changes (civ4 BTS, K-Mod)
 
@@ -22,7 +22,7 @@ Note that these are not exhaustive as would be too tedious, in particular and no
 
 I hope having a list of such changes may help players, and perhaps me while compliling, as in gathering such a list of elements, understand and perhaps enjoy the game better maybe, but as for all players maybe rather, hopefully it would help transition to new mods or give extra quick or not information for reference maybe too in particular for AdvCiv-SAS.
 
-## Changes from one mod to another sevopedia items/pages and mod history
+## Changes from one mod to another Sevopedia items/pages and mod history
 
 Note that i also added a K-Mod to base AdvCiv changes doc, but these are not exhaustive as well, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv_Base_Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual or more generally the [_0_Common_Docs/](/_0_Common_Docs/).
 

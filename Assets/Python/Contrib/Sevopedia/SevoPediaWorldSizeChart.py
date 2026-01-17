@@ -135,8 +135,9 @@ class SevoPediaWorldSizeChart:
 			# (field_name, display_label_or_None, getter_name_or_None, icon_token)
 			("GridSize",                       "Grid Size (W x H)",         None,                               "glyph:map"),
 			("GridRatio",                      "W/H Ratio*",                 None,                               "glyph:map"),
-			("GridTiles",                      "Grid Tiles*",               None,                               "glyph:map"),
 			("RatioToStandard",                "Ratio to Standard*",        None,                               "glyph:map"),
+			("RatioToLargest",                 "Ratio to Largest*",         None,                               "glyph:map"),
+			("GridTiles",                      "Grid Tiles*",               None,                               "glyph:map"),
 			("TilesPerDefaultPlayer",          "Tiles Per Default Player*", None,                               "glyph:map"),
 			("iDefaultPlayers",                "Default Players",           "getDefaultPlayers",                "glyph:citizen"),
 			("iTargetNumCities",               "Target Num Cities",         "getTargetNumCities",               "glyph:citizen"),
@@ -282,24 +283,34 @@ class SevoPediaWorldSizeChart:
 			except:
 				iStandardTiles = None
 
+		iLargestTiles = None
+		if world_types:
+			try:
+				iLargestTiles = int(parsed_data.get(world_types[-1], {}).get("GridTiles", "0"))
+			except:
+				iLargestTiles = None
+
 		# Ratio to Standard: GridTiles / Standard GridTiles (3 decimals).
+		# Ratio to Largest: GridTiles / Largest GridTiles (3 decimals).
 		# Tiles Per Default Player: GridTiles / iDefaultPlayers (rounded to int).
 		for world_type in world_types:
-			# Ratio
-			if iStandardTiles is not None and iStandardTiles > 0:
-				try:
-					iTiles = int(parsed_data.get(world_type, {}).get("GridTiles", "0"))
-					parsed_data[world_type]["RatioToStandard"] = ("%.3f" % (float(iTiles) / float(iStandardTiles)))
-				except:
-					parsed_data[world_type]["RatioToStandard"] = ""
-			else:
-				parsed_data[world_type]["RatioToStandard"] = ""
-
-			# Tiles per default player
 			try:
 				iTiles = int(parsed_data.get(world_type, {}).get("GridTiles", "0"))
 			except:
 				iTiles = 0
+
+			# Ratio
+			if iStandardTiles is not None and iStandardTiles > 0:
+				parsed_data[world_type]["RatioToStandard"] = ("%.3f" % (float(iTiles) / float(iStandardTiles)))
+			else:
+				parsed_data[world_type]["RatioToStandard"] = ""
+
+			if iLargestTiles is not None and iLargestTiles > 0:
+				parsed_data[world_type]["RatioToLargest"] = ("%.3f" % (float(iTiles) / float(iLargestTiles)))
+			else:
+				parsed_data[world_type]["RatioToLargest"] = ""
+
+			# Tiles per default player
 			try:
 				iDefaultPlayers = int(parsed_data.get(world_type, {}).get("iDefaultPlayers", "0"))
 			except:

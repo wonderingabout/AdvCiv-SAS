@@ -1,6 +1,6 @@
 # AGENTS
 
-## You don't need to look at files mentionned in this sub-section as an agent
+## You don't need to look at files mentioned in this sub-section as an agent
 
 AI, UI, or other modifications
 Created as part of AdvCiv-SAS improvements
@@ -105,7 +105,7 @@ May help to find key documentation, additionally to doing a grep or such, indexe
 **Before:**
 
 ```python
-# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for Sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
 ```
 
 **After (GPT-5.2-Codex):**

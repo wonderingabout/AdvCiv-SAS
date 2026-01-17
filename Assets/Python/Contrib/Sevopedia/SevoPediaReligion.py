@@ -129,7 +129,7 @@ class SevoPediaReligion:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# <!-- custom: note: this doesn't seem to do anything in multilist methodsand in particular no padding so do not use this here i mean for multilists -->
+		# <!-- custom: note: this doesn't seem to do anything in multilist methods and in particular no padding so do not use this here -->
 		# Additional left side padding for the button(s)
 		#screen.attachLabel(panelName, "", "  ")
 

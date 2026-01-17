@@ -46,11 +46,11 @@ Instead of:
 [Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)  
 [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
 [ICONS code XML names (may or not be exhaustive)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe)  
-[Insert an img in a text label in sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)  
+[Insert an img in a text label in Sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)  
 [Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building)  
 [(Not used anymore in advciv-sas) Example of how to add a static image file as a leader portrait](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)  
 [(Not used anymore in advciv-sas) Example of how to create a leader head .dds button from a static image file](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any-if-i-am-not-mistaken-but-if-i-may-say)  
-[.dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in sevopedia unit's unit pane('s icon frame)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#dds-button-size-comparison-analysis---trying-to-find-optimal-dds-button-size-for-a-164px--2px-due-to-smallanyways-etc-mistake-icon-frame-in-sevopedia-units-unit-panes-icon-frame)  
+[.dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in Sevopedia unit's unit pane('s icon frame)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#dds-button-size-comparison-analysis---trying-to-find-optimal-dds-button-size-for-a-164px--2px-due-to-smallanyways-etc-mistake-icon-frame-in-sevopedia-units-unit-panes-icon-frame)  
 [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)  
 [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files)  
 [How to autoplay (let the AI play for you (super fast gameplay / testing tool)) in map (loaded save file, new game, etc.) view](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)  
@@ -332,7 +332,7 @@ Please read these docs (highly recommended) if you want to know more about AI at
 - many links in the main README.md first for example maybe indeed in the [main README.md 's page link](/README.md)
 - todo: tutorial on how to compile the DLL or files for Advciv (but should not be needed if you only modify XML files)
 - [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what i use thanks to the person(s) who taught me about it) or other uses or such.
-- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o, thanks a lot Claude AI and thanks to me too or and other or and not, hopefully helpful
+- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o, thanks a lot Claude AI and thanks to me too or and other or and not, hopefully helpful
 - todo add links if i have/want(/do) more to add
 
 ## In case UnitAIs info from link above is deleted someday, here is a copy here in case
@@ -459,7 +459,7 @@ Steppes and hills fill the map, resembling Indo-Asian terrain. Forests, minor ju
 
 #### Hub
 
-One central landmass with “spokes” radiating out. Designed for multiplayer (up to ~10 players), with players starting on separate spokes for balanced connections.
+One central landmass with "spokes" radiating out. Designed for multiplayer (up to ~10 players), with players starting on separate spokes for balanced connections.
 
 #### Ice Age
 
@@ -499,7 +499,7 @@ A ring of interconnected islands surrounding a cold or snowy center. Offers a un
 
 #### Shuffle
 
-Essentially “Random” — all aspects are scrambled. Starts and continent patterns are fluid and unpredictable.
+Essentially "Random" — all aspects are scrambled. Starts and continent patterns are fluid and unpredictable.
 
 #### Team Battleground
 
@@ -642,7 +642,7 @@ This is something that may seem obvious but i didn't know it until i noticed som
 
 For example, say you want to add or change some code related to basicinfos xml file in your mod. If you do a global search with vs code at root of civ4 folder (as for me for example it is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\`) (note: not to be confounded with the BTS folder that is a subfolder of the former civ4 vanilla one at least in the steam version of civ4 bts it seems, and so that is in instead : `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\`), you'll find results in many files and folders related to such code samples you looked for.
 
-Or easier, if you use a tool like wiztree to search for said files (e.g. basicinfos xml file in this example) in root of civ4 folder (which as for me is the vanilla steam civ4 folder mentionned before), you see something as in the screenshot, so many basicinfos xml files:
+Or easier, if you use a tool like wiztree to search for said files (e.g. basicinfos xml file in this example) in root of civ4 folder (which as for me is the vanilla steam civ4 folder mentioned before), you see something as in the screenshot, so many basicinfos xml files:
 
 - one in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml` (civ 4 vanilla version of it) (+/- 800 lines)
 - and one in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\BasicInfos\CIV4BasicInfos.xml` (civ 4 warlords version of it i assume) (+/- 843 lines if i'm not mistaken)
@@ -813,9 +813,9 @@ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTag
 }
 ```
 
-## Insert an img in a text label in sevopedia
+## Insert an img in a text label in Sevopedia
 
-Code sample provided by Claude AI in one of my prompts to add YieldChanges to placeStats in sevopedia building, but the code sample surprisingly and happily, or maybe rather plesantly or both or notworks, so sharing it in case it helps others or me who rereads it or and need or want to reuse it some day, or not, or etc.
+Code sample provided by Claude AI in one of my prompts to add YieldChanges to placeStats in Sevopedia building, but the code sample surprisingly and happily, or maybe rather plesantly or both or notworks, so sharing it in case it helps others or me who rereads it or and need or want to reuse it some day, or not, or etc.
 
 Output looks like this for example: [(google drive folder screenshots link)](https://drive.google.com/drive/folders/1ZY8gTziXBsHoCjjxYRJ4DoJwTf5VHvsy?usp=sharing)
 
@@ -860,15 +860,15 @@ note: modified button path in code below to a button path known to exist in base
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 ```
 
-note 2: i have tested with a .jpg (source [Stonehenge wallpaper from https://www.wallpaperflare.com/ Current photo size: 4272 x 2848 px • Resolution:4K)](https://www.wallpaperflare.com/stonehenge-england-stone-henge-united-kingdom-grass-sky-wallpaper-ahjky/download) (drives me to quite nostalgic times, even though is in the past now) (`szPowerButton = u"<img=Art/AdvCiv_SAS/Wallpapers/Stonehenge/test.dds size=16></img>"`), also appended in the drive folder, but display doesn't work, however converting it to .dds (DXT1 with Paint.NET for example, full resolution) is now displayed accurately and successfully (.dds also appended in drive link mentionned above))
+note 2: i have tested with a .jpg (source [Stonehenge wallpaper from https://www.wallpaperflare.com/ Current photo size: 4272 x 2848 px • Resolution:4K)](https://www.wallpaperflare.com/stonehenge-england-stone-henge-united-kingdom-grass-sky-wallpaper-ahjky/download) (drives me to quite nostalgic times, even though is in the past now) (`szPowerButton = u"<img=Art/AdvCiv_SAS/Wallpapers/Stonehenge/test.dds size=16></img>"`), also appended in the drive folder, but display doesn't work, however converting it to .dds (DXT1 with Paint.NET for example, full resolution) is now displayed accurately and successfully (.dds also appended in drive link mentioned above))
 
-In the note 2 example, increasing size to for example 1024 also works, we get a very nice sevopedia background image hehe, i suspect using a lower resolution base image, perhaps 1080p, or 1440p may produce even better results (less pixelated one (based on the  [past .dds experiment/experience](/README.md#dds-button-size-comparison-analysis) where optimal size seemed to be a bit higher than max icon_size (256px on a 164px if i remember correctly, so maybe here a 1440p native image may work best? But not sure and would need to test, and in all cases,)), perhaps using another DXT conversion too or not,)
+In the note 2 example, increasing size to for example 1024 also works, we get a very nice Sevopedia background image hehe, i suspect using a lower resolution base image, perhaps 1080p, or 1440p may produce even better results (less pixelated one (based on the  [past .dds experiment/experience](/README.md#dds-button-size-comparison-analysis) where optimal size seemed to be a bit higher than max icon_size (256px on a 164px if i remember correctly, so maybe here a 1440p native image may work best? But not sure and would need to test, and in all cases,)), perhaps using another DXT conversion too or not,)
 
-note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enoughat least as proof of concept further, see the great person button code in place Stats of sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too), see screenshot(s) in drive link above for details
+note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enoughat least as proof of concept further, see the great person button code in place Stats of Sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too), see screenshot(s) in drive link above for details
 
 See also [Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml](/Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml) for details or and other or and not or yes or and other or etc, see also also [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml) for extra details or adidtional or and alternative or and related or and other or and not or etcinformation.
 
-note 4: we later also used these/this approach for/to use images as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity.. hehe or not or eys or etc or both or none or other or not, is what i want or maybe rather like to do or not, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now
+note 4: we later also used these/this approach for/to use images as buttons in our Sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity.. hehe or not or eys or etc or both or none or other or not, is what i want or maybe rather like to do or not, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in Sevopedia leader if we still use them now
 
 ## Import a nif art asset from another mod (example with how we added the impluvium's nif as an import from FFH2 mod's Adventurer's guild building)
 
@@ -904,12 +904,12 @@ Leader dimensions obtained using Paint.NET manual selection (approximately but s
 
 First, AdvCiv (+/- / AdvCiv-SAS at least for now) base art dimensions:
 
-- in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)   ;    (reverse-ratio: 1,1591)
+- in Sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)   ;    (reverse-ratio: 1,1591)
 - ingame diplomacy: 709 x 866 				(ratio: 0,8187)   ;    (reverse-ratio: 1,1214)
 
 Secondly, Realism invictus, used as reference:
 
-- in sevopedia: 510 x 620     (ratio: 0,8226)   ;    (reverse-ratio: 1,2157)
+- in Sevopedia: 510 x 620     (ratio: 0,8226)   ;    (reverse-ratio: 1,2157)
 - ingame diplomacy: 708 x 866 (ratio: 0,8175)   ;    (reverse-ratio: 1,2231)
 
 Thirdly, example of use (not guaranteed to be accurate, may or not be, may help or not, i hope though so but not guaranteed, may or not ):
@@ -953,7 +953,7 @@ image: 499 x 610
 
 - finally, save the image as a .dds file using Paint.NET still (for example), (may use for example maybeDXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried so far todo or not ) for example if you need/use transparency (i don't know a lot about this, is according to ChatGPT's info, which seems accurate about this at least ) and i don't know if gamma would be needed or best desired here too maybe, refer to ChatGPT or maybe other specialized places/sources if you want a more specific or detailed or accurate info maybe)
 
-- ingame check result, in my case looks very nice or as nice as could i think with starting image, displays well in (ingame) sevopedia leader view and ingame diplomacy
+- ingame check result, in my case looks very nice or as nice as could i think with starting image, displays well in (ingame) Sevopedia leader view and ingame diplomacy
 
 This is just an example, adapt as you see fit
 
@@ -961,7 +961,7 @@ This is just an example, adapt as you see fit
 
 Old information from my notes, as we now we use leader portraits (nif) with an animation, and while doing so also imported the corresponding .dds button that the mod where we imported the .nif animation and such from also had (this .dds button), so we don't make leader .dds buttons from our own leader static images anymore as of now at least in advciv-sas, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful to me or others maybe so adding them for reference.
 
-Fourthly, then for the leaderhead button (mini icon of the leader in the sevopedia), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon without any resize (stretching or compression of ratio or anything that alters ratio this time)) from the native image (for example .png, any size should do fine too so ideally take the original image if you sitll have it, else maybe the .dds (unstretched)) should maybe do fine anyways)
+Fourthly, then for the leaderhead button (mini icon of the leader in the Sevopedia), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon without any resize (stretching or compression of ratio or anything that alters ratio this time)) from the native image (for example .png, any size should do fine too so ideally take the original image if you sitll have it, else maybe the .dds (unstretched)) should maybe do fine anyways)
 
 So for example you can first make a 96 x 96 crop selection around his head with Paint.NET, then fine tune it (i.e. redo a crop selection on this 96 x 96 (for example .png maybe image) to 64 x 64 in a similar manner to the area you prefer to appear in the leader's final icon/button), and save it as a different file for example Ogiso_Igodo_button.dds.
 
@@ -974,7 +974,7 @@ someone else or other purpose
 
 (note: again check all this to make sure my intution or if no or such is accurate or updated, hopefully helpful)
 
-## .dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in sevopedia unit's unit pane('s icon frame)
+## .dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in Sevopedia unit's unit pane('s icon frame)
 
 Trying to implement the new AI-generated images of ChatGPT (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after the [sevopedia unit rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) i first tried to assess the size at which they display optimally.
 
@@ -984,7 +984,7 @@ Similarly, too high image size such as 1024 seems to result in a too pixelated i
 
 All image and .dds files at different sizes used in the below experiment/analysis are available in this [.dds comparison and analysis Google Drive folder link](https://drive.google.com/drive/folders/1_ACul0v892_wqODLBhjYdEoSobhvGiHZ?usp=sharing)
 
-I have taken this 1024 .png generated image for the 164px icon frame (unit pane) in sevopediaunit. But i made a small mistake, which hopefully doesn't alter too much the interpretation of the results, is that i added a + 2 to icon size, because i thought this is how borders (the blue edges are made), but now i understand they are part of the image indeed and not generated by civ4 during rendering, even though i saw such edges before, i didn't know that these are those.
+I have taken this 1024 .png generated image for the 164px icon frame (unit pane) in Sevopediaunit. But i made a small mistake, which hopefully doesn't alter too much the interpretation of the results, is that i added a + 2 to icon size, because i thought this is how borders (the blue edges are made), but now i understand they are part of the image indeed and not generated by civ4 during rendering, even though i saw such edges before, i didn't know that these are those.
 
 So i have converted it to various sizes with Paint.NET from .png to .dds, always exiting the program (Paint.NET) and reopening the original 1024 x 1024 generated .png of ChatGPT at each new size conversion, if size is smaller than original (1024), i would thus (to explain and be exhaustive) resize image, then save as .dds, then exit
 
@@ -1061,7 +1061,7 @@ I don't know if autoplay is a feature of base civ4 or bts or some mods that then
 
 Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 autoplay runs ON A ROW (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. For example in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity), if we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns.
 
-## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia tech 's placeSpecial and in tech tree view (technology advisor)
+## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in Sevopedia tech 's placeSpecial and in tech tree view (technology advisor)
 
 See screenshots of how this was implemented (not fully exhaustive but hopefully quite a bit exhaustive enough) in this [google drive folder](https://drive.google.com/drive/folders/176fGLxIWwOTRYAjafi2OGhe8VuVBZLMT?usp=sharing)
 
@@ -1074,9 +1074,9 @@ This was done by adding a new `buildBTradeString` function in (adjust to your mo
 
 And with the big help or support for ideas i found myself too of chatgpt as usual or not usual or usual but in all cases
 
-Since i didn't know how to do it, what helped me, with past CvGameTextMgr.cpp modifying experiences i successfully did such as for the power clean/dirty messages, or removing terrain modifiers since they are shown as buttons for clarity in sevopedia unit's experiences in mind, was to search for one message that is displayed seemingly specifically in sevopedia tech's placeSpecial.
+Since i didn't know how to do it, what helped me, with past CvGameTextMgr.cpp modifying experiences i successfully did such as for the power clean/dirty messages, or removing terrain modifiers since they are shown as buttons for clarity in Sevopedia unit's experiences in mind, was to search for one message that is displayed seemingly specifically in Sevopedia tech's placeSpecial.
 
-But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [__SevoPediaTech-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt). While not directly useful, it still helps to know. The info is in `.isTrade()` method. I thought at first to hardcode it in placeSpecial's code, but that would be a bit ugly and not cover the tech advisor case where i wanted to show it there while not knowing how. I asked chatgpt and it suggested me indeed this sevopedia tech approach among other several ideas. But then i also had the idea as it suggested too but in another way to modify/check more the .cpp.
+But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in Sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [__SevoPediaTech-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt). While not directly useful, it still helps to know. The info is in `.isTrade()` method. I thought at first to hardcode it in placeSpecial's code, but that would be a bit ugly and not cover the tech advisor case where i wanted to show it there while not knowing how. I asked chatgpt and it suggested me indeed this Sevopedia tech approach among other several ideas. But then i also had the idea as it suggested too but in another way to modify/check more the .cpp.
 
 So back to CvGameTextMgr.cpp, i found this "Enables Bridge Building".
 
@@ -1097,7 +1097,7 @@ Example:
 <bTrade>1</bTrade>
 ```
 
-So then with the big help of chatgpt and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in sevopedia tech and in tech advisor) is in the game now.
+So then with the big help of chatgpt and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in Sevopedia tech and in tech advisor) is in the game now.
 
 I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy if i may say to recheck but hopefully helpful).
 
@@ -1107,19 +1107,19 @@ What is very nice is that this same code change also displays it in tech advisor
 
 This bTrade feature being displayed in placeSpecial should ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod but i only glanced quick, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way)
 
-I also added the info about the full list of which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of sevopedia tech and helpful maybe too or not or yes or etc.
+I also added the info about the full list of which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of Sevopedia tech and helpful maybe too or not or yes or etc.
 
 Mods are welcome to use this quite simple but still hopefully useful code as long as they quote me and authors in [README.md#authors](/README.md#authors) as being the authors with mod name, even though it is not an obligation, it is a kind request i make, but in all cases hopefully this feature is helpful or not but not to change topic
 
-Note: later we also similarly changed the c++ so that we now also display the bRepeat info in tech advisor and sevopedia tech, see also similarly buildBRepeatString
+Note: later we also similarly changed the c++ so that we now also display the bRepeat info in tech advisor and Sevopedia tech, see also similarly buildBRepeatString
 
-## Example of DLL modification 2: missing BBAI getters expose them to sevopedia leader info in gc too for display
+## Example of DLL modification 2: missing BBAI getters expose them to Sevopedia leader info in gc too for display
 
 See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display) on how this was implemented (google drive with screenshots link there too hopefully helpful)
 
 ## Example of performance optimization of python loading time (as in when we load the code) and loading times (as in code performance due to how it is optimized from what little or not little i know or and did of it)
 
-The AI Personality feature in/of sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has) screenshots and such: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+The AI Personality feature in/of Sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has) screenshots and such: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
 ## Files
 

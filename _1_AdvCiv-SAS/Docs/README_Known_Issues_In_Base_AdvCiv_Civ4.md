@@ -44,7 +44,7 @@ hopefully helpful, thanks thanks,
 [25 - (Seemingly fixed) AIs settling too much/often on bonuses](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent)  
 [26 - (Attemptingly fixed/addressed) Tell AI settlers which terrains/features are best to settle near](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#26---attemptingly-fixedaddressed-tell-ai-settlers-which-non-home-and-non-bonus-tiles-terrains-and-features-environments-are-best-to-settle-near-for-example-good-if-a-lot-of-grass-or-flood-plains-in-city-radius-bad-if-desert-or-plains-in-city-radius-as-for-local-tile-to-settle-on-bhome-optimization-as-well-hate-to-settle-on-hill-grass-or-flood-plains-love-to-settle-on-hill-plains-or-tundra-or-desert--overridden-only-if-locally-plot-is-otherwise-really-good-eg-allows-to-have-2-bonuses-or-such-so-ideal-spot-but-we-have-to-settle-on-flood-plains-for-it-for-example-or-some-other-good-tile)  
 [26.2 - (Enhanced) AI settlers not devaluing very bad non home tiles (peak, ice cap, non hill desert without a bonus, non hill snow without a bonus) if we have enough of them in BFC](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc)  
-[27 - (now fixed) Some promotions missing in sevopedia unit's placePromotions](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#27---now-fixed-some-promotions-are-missing-in-sevopedia-units-placepromotions)  
+[27 - (now fixed) Some promotions missing in Sevopedia unit's placePromotions](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#27---now-fixed-some-promotions-are-missing-in-sevopedia-units-placepromotions)  
 [28 - (now fixed) Custom wallpaper stretched vertically at 1920x1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution)  
 [29 - (workaround) Clicking a specific spot in tech advisor at Transhumanism causes crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#29---as-of-now-with-a-workaround-clicking-on-a-specific-spot-in-tech-advisor-at-tech-transhumanisms-blue-box-causes-a-crash)  
 [30 - (Attemptingly fixed) AI workers not prioritizing bonuses to improve](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes)  
@@ -119,7 +119,7 @@ hopefully helpful, thanks thanks,
 [83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better)  
 [84 - (Added missing feature) Rivals of the active/human player that are willing to become the active/human player's vassal not showing an icon to quickly indicate that at a glance, in the Foreign advisor's glance tab (no pun)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but)  
 [85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)  
-[86 - (Fixed) Base AdvCiv bug, in sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#86---fixed-base-advciv-bug-in-sevopedia-bonus-in-the-aluminium-bonus-entry-of-all-project-tooltips-showing-the-apostolic-palace-and-redirecting-to-it-instead-of-showing-the-projects-tooltip-and-redirecting-to-said-project-with-the-help-of-chatgpt-52-thanks)  
+[86 - (Fixed) Base AdvCiv bug, in Sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#86---fixed-base-advciv-bug-in-sevopedia-bonus-in-the-aluminium-bonus-entry-of-all-project-tooltips-showing-the-apostolic-palace-and-redirecting-to-it-instead-of-showing-the-projects-tooltip-and-redirecting-to-said-project-with-the-help-of-chatgpt-52-thanks)  
 [87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)  
 [88 - (Tremendously Improved) AI always upgrading way too much units and not teching at all, sometimes for dozen turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-teching-at-all-sometimes-for-dozen-turns)  
 [89 - (Improved) In an attack stack, attack with lower value (effective strength, XP, health) units first](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first)  
@@ -130,11 +130,11 @@ hopefully helpful, thanks thanks,
 [94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
 [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
 [96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
-[97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-chop-down-a-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page)  
+[97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to Sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to Sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-chop-down-a-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
-While debugging the new ai personality feature in the sevopedia in advciv-sas (our mod), we found some information that some ai attributes seem to be shared accross all leaders:
+While debugging the new ai personality feature in the Sevopedia in advciv-sas (our mod), we found some information that some ai attributes seem to be shared accross all leaders:
 
 ```log
 PY:[DEBUG] Cached AI attribute data for leader LEADER_ZARA_YAQOB
@@ -287,15 +287,15 @@ Were totally ineffective, so i have removed them as well for as of now for wonde
 
 Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-bonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-bonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp) in `CvCityAI::AI_chooseBuilding`, as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc)
 
-## 4 - (now fixed) Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click)
+## 4 - (now fixed) Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to Sevopedia religion (nothing happens on click)
 
-Now fixed: by replacing, in sevopediaunit py file, in placeRequires function/method (of this file), `WidgetTypes.WIDGET_HELP_RELIGION` with `WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION`(,) as is done already by base advciv and successfully in sevopedia building.
+Now fixed: by replacing, in Sevopediaunit py file, in placeRequires function/method (of this file), `WidgetTypes.WIDGET_HELP_RELIGION` with `WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION`(,) as is done already by base advciv and successfully in Sevopedia building.
 
-This is a bug i have noticed in AdvCiv and after checking, many other mods, among those (few i tried): ROM 291, RFC DOC, Neoteric World (since i have it too (to check their sevopedia content or such or other or not anyways) even though i did not use anything from it at least but may be useful some day or not), History Rewritten too.
+This is a bug i have noticed in AdvCiv and after checking, many other mods, among those (few i tried): ROM 291, RFC DOC, Neoteric World (since i have it too (to check their Sevopedia content or such or other or not anyways) even though i did not use anything from it at least but may be useful some day or not), History Rewritten too.
 
-But clicking in AdvCiv in sevopediabuilding for example on any religious temple's placeRequires's religious icon/button successfully redirects to the sevopedia's religion page.
+But clicking in AdvCiv in Sevopediabuilding for example on any religious temple's placeRequires's religious icon/button successfully redirects to the Sevopedia's religion page.
 
-Among the mods i tried, only Realism Invictus's sevopedia unit's placerequires's religion button works as intended and successfully redirects to the religion's page
+Among the mods i tried, only Realism Invictus's Sevopedia unit's placerequires's religion button works as intended and successfully redirects to the religion's page
 
 I tried to import its code but their gc uses difference methods that we don't have it seems like getNumPrereqAndBonuses and such, may not be hard to fix or not, but leaving as is, finding how realism invictus does it, or finding yourself the cause if you want to investigate it, may help solve it.
 
@@ -305,7 +305,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 ## 5 - (seemingly worked around now) player name same as windows (10's for example) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled
 
-A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeCivilizations new sevopedia feature (see the [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
+A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeCivilizations new Sevopedia feature (see the [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/19T9I75vGCk58pFSR60y2Tmj69-NoFFtk?usp=sharing)
 
@@ -598,25 +598,25 @@ also note as in code comment of it edited or not or yes or to fit quite well in 
 
 did similarly for the `<ArtRef Name="building:BUILDING_HARBOR">` and `<ArtRef Name="building:BUILDING_CARTHAGE_COTHON">` seemingly duplicated too
 
-## 15 - (now fixed) Missing this technology "Cannot be traded" (bTrade) information in sevopedia tech and tech advisor
+## 15 - (now fixed) Missing this technology "Cannot be traded" (bTrade) information in Sevopedia tech and tech advisor
 
-Fixed missing this technology "Cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code) and in tech/technology advsior too, see also [UI (Ingame)](/README.md#ui-ingame) for details and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for a lot more details.
+Fixed missing this technology "Cannot be traded" information in Sevopedia tech "Special Abilities" (placeSpecial in py code) and in tech/technology advsior too, see also [UI (Ingame)](/README.md#ui-ingame) for details and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for a lot more details.
 
 See also [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category) for details or additional info.
 
-## 16 - (now fixed) some info is missing in sevopedia outside of/if not loaded from an ingame load for example "Can build research" not in sevopedia main menu but in sevopedia ingame (after map is loaded)
+## 16 - (now fixed) some info is missing in Sevopedia outside of/if not loaded from an ingame load for example "Can build research" not in Sevopedia main menu but in Sevopedia ingame (after map is loaded)
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1LuVa_Y0XBIeC1VExD7KVrY8siEFYyE3n?usp=sharing)
 
-Some info seem to be missing from sevopedia loaded from main menu (screenshot 6680 for example in drive link above) vs same sevopedia page loaded from ingame (screenshot 6681 similarly from there), for example at tech_writing, "Can Build Research" is missing from the tech_writing sevopedia page at main menu, but not missing from the same tech_writing page ingame.
+Some info seem to be missing from Sevopedia loaded from main menu (screenshot 6680 for example in drive link above) vs same Sevopedia page loaded from ingame (screenshot 6681 similarly from there), for example at tech_writing, "Can Build Research" is missing from the tech_writing Sevopedia page at main menu, but not missing from the same tech_writing page ingame.
 
-Not solving it and at least not now didn't investigate it, but good to mention it somewhere, since sevopedia is meant mostly to be used ingame hopefully fine (enougheven though not ideal), but ideally would fix or investigate it too, but not guaranteed, may or may never/not do so.
+Not solving it and at least not now didn't investigate it, but good to mention it somewhere, since Sevopedia is meant mostly to be used ingame hopefully fine (enougheven though not ideal), but ideally would fix or investigate it too, but not guaranteed, may or may never/not do so.
 
-## 17 - (now fixed) missing BBAI getters expose them to sevopedia leader info in gc too for display
+## 17 - (now fixed) missing BBAI getters expose them to Sevopedia leader info in gc too for display
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wFSJ6huis6w_xg-OmrZGE2Scw8PRhI7e?usp=sharing)
 
-Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI) victory weights in the sevopedia leader gc's methods it seems (see [Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too)
+Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI) victory weights in the Sevopedia leader gc's methods it seems (see [Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too)
 
 The XML is like this as reminder for example for leader_gandhi:
 
@@ -649,7 +649,7 @@ The XML is like this as reminder for example for leader_gandhi:
 
 To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore, after asking chatgpt too, i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example to hopefully add it in this case) (with VS Code 's global search too i noticed it i mean if i may say indeed(see screenshots for details/examples)), modified the (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already existing in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h, with chatgpt's help thanks.
 
-Now the getters are added in sevopedia leader, and we successfully see the real DLL modified values for the victory weights too, for example for leader gandhi as of now:
+Now the getters are added in Sevopedia leader, and we successfully see the real DLL modified values for the victory weights too, for example for leader gandhi as of now:
 
 (from [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) too example of output from ingame debug log)
 
@@ -663,13 +663,13 @@ Domination Victory Weight: 0
 Diplomacy Victory Weight: 79
 ```
 
-Nice to have this data as well now, as is in our XML too, we may use it to remove the leaders_data.py dependency from our intial old code that depends on this external script due to no BBAI weights before in leader info in sevopedia, and also because i didn't know at the time how to access contact fields, i hadn't thought to inspect gc and gc leader info ('s inner debugn link above in this example issue) as well perhaps for other uses maybe, for now we added the data at least.
+Nice to have this data as well now, as is in our XML too, we may use it to remove the leaders_data.py dependency from our intial old code that depends on this external script due to no BBAI weights before in leader info in Sevopedia, and also because i didn't know at the time how to access contact fields, i hadn't thought to inspect gc and gc leader info ('s inner debugn link above in this example issue) as well perhaps for other uses maybe, for now we added the data at least.
 
 Note: the value seem/are different from raw xml fields's values, this seems normal as well as the DLL alters/modifys the values in some conditions or something, may be better to replicate/display the real DLL specific/advciv(-sas in our case i.e. advciv-sas) ingame data as it is
 
-## 17.5 - (now fixed) similarly missing base advcivspecific xml fields in gc of sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold
+## 17.5 - (now fixed) similarly missing base advcivspecific xml fields in gc of Sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold
 
-Now exposed(/exposing?) these to python as well of gc 's sevopedia leader as well, similarly to how BBAI victory wieghts are now exposed too/as well: getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold
+Now exposed(/exposing?) these to python as well of gc 's Sevopedia leader as well, similarly to how BBAI victory wieghts are now exposed too/as well: getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold
 
 ## 18 - Very inconsistent naming in some assets
 
@@ -741,19 +741,19 @@ Not sure i would fix it (i would have to dig how first) nor how it would influen
 
 I don't know what the influence of the negative sign is, as otherwise 2 vs 0 should be quite minimal, but not sure is just my opinion/feel/thought which i don't know about much in this case, but the negative sign difference is more annoying, and ideally there would be a nice gradation.
 
-## 21 - (Now fixed) missing "Cannot enter" terrain or feature info in map view of unit effects, unlike in sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads, now added this info as well))
+## 21 - (Now fixed) missing "Cannot enter" terrain or feature info in map view of unit effects, unlike in Sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads, now added this info as well))
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Felp-YagsHPYY3wtVqbV4eSRpwYl6BSb?usp=sharing).
 
-Now solved. As part of adding terrain or feature restrictions to some units like chariot units and some siege units (catapults and trebuchets i.e. early siege units as of now only at least), i noticed the info is not displayed clearly in sevopedia unit's place Special (it doesn't mention this effect applies only in cultural borders, and that for all tiles regardless of whether tile is roaded or not, has no impact on the effect (i.e. roaded or unroaded in cultural borders is walkable but unroaded or roaded outside of cultural borders is not walkable regardless of road status, and unlike in some games like civ3 where adding a road fixed or unlocked the limitation))
+Now solved. As part of adding terrain or feature restrictions to some units like chariot units and some siege units (catapults and trebuchets i.e. early siege units as of now only at least), i noticed the info is not displayed clearly in Sevopedia unit's place Special (it doesn't mention this effect applies only in cultural borders, and that for all tiles regardless of whether tile is roaded or not, has no impact on the effect (i.e. roaded or unroaded in cultural borders is walkable but unroaded or roaded outside of cultural borders is not walkable regardless of road status, and unlike in some games like civ3 where adding a road fixed or unlocked the limitation))
 
-For the sevopedia unit part, it was modifying the XML as usual if i may say.
+For the Sevopedia unit part, it was modifying the XML as usual if i may say.
 
 But for the ingame part, it is first time i modify successfully (and even tried actually) the unit effects bullet points, now to also display this info, even though it is on a shorter display, we successfully loop through these terrain(s) or feature(s) and display them as such (only tested for features, but i assume would work-function similarly for terrains for example for workboat's ocean terrain restriction)
 
 It was thanks to chatgpt's help as well and my prompts and digging too, even though it struggled at times if i may say and annoyed me bit i mean, i was quite used or expected it if i may say and together we solved it(may have been harder if i was not prepared for suchmost likely)
 
-First to solve this i followed the trail of the txt key in sevopedia unit, then found it is only once and not twice, and missing in map view. So i tracked instead a txt key already in the map view unit effects bullet points, and i found the scout's (that we added quite recently or not recently but as part of advciv-sas's changes being able to walk on land impassable (peak only as of now) terrain (and explorers too i assume in this assumption too or memory from reading or something that it applies or would apply to explore units in general land onesin advciv-sas)), and there i added the method.
+First to solve this i followed the trail of the txt key in Sevopedia unit, then found it is only once and not twice, and missing in map view. So i tracked instead a txt key already in the map view unit effects bullet points, and i found the scout's (that we added quite recently or not recently but as part of advciv-sas's changes being able to walk on land impassable (peak only as of now) terrain (and explorers too i assume in this assumption too or memory from reading or something that it applies or would apply to explore units in general land onesin advciv-sas)), and there i added the method.
 
 But we needed also to modify not only (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp but also (same) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvUnit.h too as advised by/with chatgpt.
 
@@ -793,13 +793,13 @@ Note 2: example case of where i was too aggressive and caused a bug by remoing a
 
 Note 3: reverted some of them to be safe and as not necessary to fix all of them (e.g. bare except rule added to exceptions in [/ruff.toml](/ruff.toml)).
 
-## 22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS) in tech advisor (i.e. tech tree view) failing to redirect to sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example) successfully showing the building item's page
+## 22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS) in tech advisor (i.e. tech tree view) failing to redirect to Sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example) successfully showing the building item's page
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/127ReqMyucJZ2gH88ARhgTWwuh6jl4oCs?usp=sharing)
 
-An issue i have noticed during the buildings modifiers rework/rebalancing for wonders mostly, still unfinished as of now, but the issue i have noticed is that obsolete bonuses in tech tree view (tech advisor it is called it seems in civ4) have an error when clicking on them at the sevopedia bonus redirect (see screenshots for example of error), but clicking on obsolete buildings in tech tree view does not cause an error at all and successfully redirects to selected/clicked on building from tech tree view, now in the sevopedia building page.
+An issue i have noticed during the buildings modifiers rework/rebalancing for wonders mostly, still unfinished as of now, but the issue i have noticed is that obsolete bonuses in tech tree view (tech advisor it is called it seems in civ4) have an error when clicking on them at the Sevopedia bonus redirect (see screenshots for example of error), but clicking on obsolete buildings in tech tree view does not cause an error at all and successfully redirects to selected/clicked on building from tech tree view, now in the Sevopedia building page.
 
-After asking chatgpt and claude ai, i have done some quite extensive debugging, and have found the issue is we don't pass the correct iItem in pediaJump (in sevopedia main) for obsolete bonuses, but obsolete buildings have the correct iItem.
+After asking chatgpt and claude ai, i have done some quite extensive debugging, and have found the issue is we don't pass the correct iItem in pediaJump (in Sevopedia main) for obsolete bonuses, but obsolete buildings have the correct iItem.
 
 This would mean the issue is before, at the pedia jump caller's level if not before.
 
@@ -815,7 +815,7 @@ Update 2: although we fixed the obsolete bonus button in tech advisor, i noticed
 
 Fixed some seemingly mistaken flavors in forbidden palace (asset renamed in advciv-sas to forbidden_palace) in base advciv: military 5??? Or am i mistaken somehow, or is it as i expect a mistake or not too sensical flavor? In all cases, it is now as of now i meanchanged in advciv-sas to growth and gold based flavors among others or not, see xml for updated values or details.
 
-Fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions, but we (i.e. mexd...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still; such info is now displayed in sevopedia unit chart (as of now named "Combat" category, as well as in each unit's sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well, see sevopedia ingame or xml for details or updated values); hopefully or not or yes or etc i am not mistaken in doing so or it is helpful or not or yes or etc)
+Fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions, but we (i.e. mexd...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still; such info is now displayed in Sevopedia unit chart (as of now named "Combat" category, as well as in each unit's Sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well, see Sevopedia ingame or xml for details or updated values); hopefully or not or yes or etc i am not mistaken in doing so or it is helpful or not or yes or etc)
 
 ## 22.6 - (Addressed) XML tweaks and fixes
 
@@ -847,7 +847,7 @@ I found it with a global search on `UNITAI_SEA_WORKER` and some digging, with ch
 
 But i noticed that it applied not just to barbarians, but to other AI players as well. And in many cities. In particular, moscow didn't grow at all and kept producing a workboat or attempting to (then scrapping it when produced) for like 50 turns, and 2 nearby coastal cities as well, so it was really a critical and crippling bug.
 
-See existing screenshots between 1981 and 1990 for example of the issue in moscow city, and existing screenshots between 2014 and 2032 for it in other cities, it was even more widespread than i thought, hopefully fixed now by commenting out the scrapping at produced code as mentionned before in update 2 above .
+See existing screenshots between 1981 and 1990 for example of the issue in moscow city, and existing screenshots between 2014 and 2032 for it in other cities, it was even more widespread than i thought, hopefully fixed now by commenting out the scrapping at produced code as mentioned before in update 2 above .
 
 Next issue now is that AIs produce a bit too many workboats, for example there are now 3 extra workboats to improve only 2 ocean water bonuses that we don't have access to until much later (as of now tech_astronomy), so these are produced for no reason, with one extra even when tech prereq is met, and just producing them then scrapping them if extra is very inefficient and a waste of hammer as well as time to plan invasions or build anything early like a settler, worker, building, anything.
 
@@ -859,7 +859,7 @@ See also although not directly related but anwyays etc: [52 - (Beyond Tremendous
 
 Not a critical issue as it is in fact less than i thought in known issue as of now [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late) above in this doc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case). It seems some cities still have an extra workboat, but some cities don't, not sure the change made a different, but since it seems harmless, and AIs agree at least those i askedit should be so, left as such, but check to be sure.
 
-Note: change was originally done in an attempt to solve a bug i had created while disabling functionally getimprovementvalue, info about it in this doc or in the code comment at function mentionned in this known issue as of now 23.2 too but check to be sure, and since the bug is now fixed, i kept this change since is conservative, obvious, and seemingly harmless but check to be sure.
+Note: change was originally done in an attempt to solve a bug i had created while disabling functionally getimprovementvalue, info about it in this doc or in the code comment at function mentioned in this known issue as of now 23.2 too but check to be sure, and since the bug is now fixed, i kept this change since is conservative, obvious, and seemingly harmless but check to be sure.
 
 ## 24 - (Attemptingly fixed) AI Workers often build forts on bonuses, even if they already have an existing improvement (very inefficient and not immersive)
 
@@ -1012,11 +1012,11 @@ Result ingame is very good as shown in screenshots, we now choose the correct be
 
 Update: upon further review, the site it chose was actually best as per our criteria xd, as ai values the extra west grassland even if it has to incurr a few very bad tiles that were not so penalized before if at all due to a bug xd in my code if i'm not mistaken in the past. Also, to fix/enhance this i had actually used a bug to count very bad tiles with a bonus as bad, so it avoided the desert stone, but didn't mind going towards the desert no bonus xd unless we penalized it otherwise which we didn't or maybe did not sure. Still, after fixing the bug, ai prefer its starting location to settle on xddd, unless we penalize extremely heavily the very bad tiles (like -300 base value at start phase which is way too high and likely to cause issues in other sitesin our new global definesso better not), and i finally figured why: i think it simply values the non-home flatland and hill grass tiles west rather than the coast ones that we count as neutral as of now). It makes it so that the west grass tiles are about equal to the southeast ones we wanted to move towards, and all other things being equal, the start site that has desert stone in its bfc is valued much more than the south east site i wanted to move towards that ditched as in ignored the stone to go for a few more hill grassland tiles. I think my site is slightly better though, but difference is small, and this is because i don't value stone at all xd. I think it's a healthy habit for ais to value bonuses as a general rule though, and now making it aware of a few extra more bad tiles with fixed bugs and knobs/tunables, so left as such. Also, skewing too much the values will make us forsake very good sites just to optimize this local one. A better way should be to hierarchize bonuses (iron super important, stone soso especially considering we barely build any wonders, but i think it's better to keep this good habit for ai and should help much more in general sites, so ai should be stronger thanks to our changes although it started from a bug and went back to locally same site, hehe).
 
-## 27 - (now fixed) Some promotions are missing in sevopedia unit's placePromotions
+## 27 - (now fixed) Some promotions are missing in Sevopedia unit's placePromotions
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1hRe5rR9DPBH6XzwllwTLSnh9kbIQwkEG?usp=sharing)
 
-Some promotions were missing in sevopedia unit's placePromotions, for example for the generic swordsman or the zulu impi (melee units combat type), they didn't show collateral damage 1 and collateral damage 2 (as of now renamed from base advciv +/- civ4's barrage promotions).
+Some promotions were missing in Sevopedia unit's placePromotions, for example for the generic swordsman or the zulu impi (melee units combat type), they didn't show collateral damage 1 and collateral damage 2 (as of now renamed from base advciv +/- civ4's barrage promotions).
 
 So thanks to chatgpt's help, i found the cause althoguh i suspected it too intuitively hehe, but chatgpt told me the issue and provided me and in this code a working alternative condition of as of now `gc.getPromotionInfo(k).getUnitCombat(eUnitCombat)` (note: `eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()`) instead of `isPromotionValid(k, self.iUnit, False)` that was too strict, but just disabling this old too strict condition showed too many promotions even the ones these units shouldn't have access to such as of now collateral damage 3 and 4 for example.
 
@@ -1076,7 +1076,7 @@ I don't know if me playing in windowed as of now due to it being so much easier 
 
 Err logs and Dbg log don't seem to indicate anything related to this, so make sure you make enough saves regularly before browsing too much on tech advisor at least.
 
-As of now, i have found a reliable/consistent workaround, which is to click on the tech name itself, then the crash is avoided and we are successfully redirected to sevopedia tech
+As of now, i have found a reliable/consistent workaround, which is to click on the tech name itself, then the crash is avoided and we are successfully redirected to Sevopedia tech
 
 update: i have found the issue, and could reproduce it in particular with tech_agriculture, by adding an or prereq that is faulty or impossible to meet (i.e. xml asks tech_depopulation for example as of now here to research tech_agriculture, even though tech_agriculture shouldn't require any tech as of now (and tech_depopulation also requires indirectly uch earlier tech_agriculture, so it is impossible to meet this tech prereq for tech_agriculture, hence the crash when right clicking on the modified tech_agriculture's blue box as well)).
 
@@ -1100,7 +1100,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 This is an issue i had in base advciv, and this solution may not necessarily in all cases be better, but i believe and hope in most cases it helps, at least for the part of the code changed. Rewrote/refactored `CvUnitAI::AI_bestCityBuild` with gemini ai's help for most thanks to its persistence in particular (see [/README.md#gemini-ai](/README.md#gemini-ai)) for details.
 
-I have written most details there, so only adding here as less tedious to do so, a few screenshots in the google drive link folder mentionned at the top of this known issue section (as of now number 30).
+I have written most details there, so only adding here as less tedious to do so, a few screenshots in the google drive link folder mentioned at the top of this known issue section (as of now number 30).
 
 These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soon after which was the main purpose/goal of these changes (in base advciv i would have a bonus not improved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
 
@@ -1283,7 +1283,7 @@ However, after recompiling, with exact same source files, no change at all (exce
 
 At this point, or in general, i'd say my best guess would be a cosmic ray fell on my PC somehow and corrupted a bit like in the mario speedrun and as it happened to nasa.
 
-But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentionned in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe?? Added this extra clarification as part of reading claude ai's answer or the beginning of it, which gave me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases), and compile again, which in this case, again strangely but all goood maybe xd if i may say although i would have liked to know how maybe too indeed. So adding this info for reference if helps.
+But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentioned in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe?? Added this extra clarification as part of reading claude ai's answer or the beginning of it, which gave me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases), and compile again, which in this case, again strangely but all goood maybe xd if i may say although i would have liked to know how maybe too indeed. So adding this info for reference if helps.
 
 ## 38.2 - (Weird DLL XML errors at launch, solved by recompiling) The exact same DLL (cosmic ray 2? Or something else maybe or whatever maybe)
 
@@ -1366,11 +1366,11 @@ In `CvUnitAI::AI_workerMove`, i thought as suggested by chatgpt 5 too maybe work
          - Inside our cultural borders: skip threat check entirely.
            (If an enemy is already on our tile, the game captures us before this runs.)
          - Outside borders: use smaller radius = 1 (only adjacent tiles count as dangerous).
-           → This greatly reduces “false positives” from slow or harmless enemy units
+           → This greatly reduces "false positives" from slow or harmless enemy units
              far away but still inside the old radius 2 bubble.
          - If threatened, FIRST try to redirect to a different, safer city
            that still needs improvements, instead of retreating straight home.
-         - Only fall back to “retreat to city” if no safe redirection is possible.
+         - Only fall back to "retreat to city" if no safe redirection is possible.
          - This keeps workers productive more often while still avoiding capture
            in genuinely dangerous situations outside borders.
     */
@@ -1388,7 +1388,7 @@ As per chatgpt 5 's suggestion and my idea tooas part of reading its answers too
 
 So, chatgpt 5, which was released just yesterday evening more or less didn't check +/- remember in detail if afternoon or noonwhere i live, and which already helped a ton, wrote me this very nice code with a tiny bit of back and forth, i was fed up xd, yet eager to test it, so just comment out the huge mess and go xd.
 
-And the result is extremely nice, beyond a tremendous improvement. See existing screenshots between 1943 and 1958 for details. Persia AI's city C is quickly and very fast improved at turn +/- 100 (97-105 in screenshots, which looks very good and nice), and the dream is thanks to our previous improvements (no pun) in bestcitybuild, AI workers specifically chop +/- improve only grass tiles so we can populate them later with our preferred build too, not plain tiles weirdly with a cottage or such like in base advciv +/- civ4 or such other mods. So all in all this is extremely nice, and i am thankful to all who helped me like chatgpt 5, those mentionned here or not, base advciv, kmod, etc firaxis for making this framework, and i am glad it is enhanced so much. I may have to reduce handicap settings now as AI would be unbeatable now with handicap that is too high, as its AI workers are now very very efficient i think, minus etxra tweaks we'd need like late game adjust for state property or whatever chatgpt 5 mentionned too, that we do partly indirectly but check bestcitybuild function in cvunitai or future known issues after this one if any. This is extremely satisfying, although i hope to improve it further based on autoplay and what i see, but i hope AI and AI workers can be a satisfying challenge now, after all economy and working tiles is key, maybe humans could automate reliably at lower levels if lazy or want to learn and get a really good result if the code applies here as well, but in all cases.
+And the result is extremely nice, beyond a tremendous improvement. See existing screenshots between 1943 and 1958 for details. Persia AI's city C is quickly and very fast improved at turn +/- 100 (97-105 in screenshots, which looks very good and nice), and the dream is thanks to our previous improvements (no pun) in bestcitybuild, AI workers specifically chop +/- improve only grass tiles so we can populate them later with our preferred build too, not plain tiles weirdly with a cottage or such like in base advciv +/- civ4 or such other mods. So all in all this is extremely nice, and i am thankful to all who helped me like chatgpt 5, those mentioned here or not, base advciv, kmod, etc firaxis for making this framework, and i am glad it is enhanced so much. I may have to reduce handicap settings now as AI would be unbeatable now with handicap that is too high, as its AI workers are now very very efficient i think, minus etxra tweaks we'd need like late game adjust for state property or whatever chatgpt 5 mentioned too, that we do partly indirectly but check bestcitybuild function in cvunitai or future known issues after this one if any. This is extremely satisfying, although i hope to improve it further based on autoplay and what i see, but i hope AI and AI workers can be a satisfying challenge now, after all economy and working tiles is key, maybe humans could automate reliably at lower levels if lazy or want to learn and get a really good result if the code applies here as well, but in all cases.
 
 Update: see also related known issue as of nowwith extra very nice improvement(s) to wake from retreat logic causing parking in rare cases: [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean)
 
@@ -1405,7 +1405,7 @@ I think i have found several issues with AI unitAIs and overall strategy, and as
 Here are the things i changed:
 
 - disabled for AIs the unreliable unitais that are unreliable (`UNITAI_COLLATERAL` to aim for less suicides and getting baited and more focused defense or offense units, `UNITAI_PILLAGE` (no time to waste running around, this unit will not be focused attacking or defending, avoid this, inefficient), and `UNITAI_PIRATE_SEA` again not efficient and annoying, is also part of reducing naval warfare influence (see below for details), as a result we use our hammers more efficiently to have a more effective and efficient unitais. Say a swordsman will be an attacker or a defender, but not a pillager, so the stack will be stronger, and the cities more guarded, at least in theory, results seem good, as Khmer AI could pull an early rush on Medina and capture it with a strong stack.)
-- restricted settlers for AIs to be built only in capital, and only if city pop >= 5 (i.e. not <= 4). This is so they can use more efficiently the food as production, as it's much easier to produce a settler using food from the many population count additionally to existing hammer yields as well, than it is at low pop. And if city stagnates, it is very efficient too, at least food is put to use instead of stagnating. There are other advantages, such as seemingly a bit less barbarian captures, and more units early. We may use 1 or 2 spots, but barbarian captures happen much less, and secondary cities can grow more. This change is in line with the settler now being a national unit as of now (1 allowed for whole empire including existing unit, check the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for updated values or info, or sevopedia or xml). As for small new cities, it guarantees they grow as well instead of being stuck producing a settler for a long time, as hapepned many times and was the original reason why i did this to begin with, then expanded on it. I added a patch, although should never happen with the settler being a national unit and only in capital, but that if city is very small and stagnant, switch to worker instead, but since only cpaital as of now produces them and it grows fast, this shouldn't happen but if changed this patch would help as well small cities being stuck in a very lnog settler production and being stagnant, in fact it's necessary now else our capital can't produce a settler, as chatgpt 5 noticed or noted as well. Update: also as it mentionned to me to add here as well, there are exceptions such as a city somehow being stagnant, then even if pop is small, we are not using the food anyway, so may as well take our chances and build a settler, as it rightly told me to add to this doc hehe which i forogt but i think this is a quite good summary otherwise...
+- restricted settlers for AIs to be built only in capital, and only if city pop >= 5 (i.e. not <= 4). This is so they can use more efficiently the food as production, as it's much easier to produce a settler using food from the many population count additionally to existing hammer yields as well, than it is at low pop. And if city stagnates, it is very efficient too, at least food is put to use instead of stagnating. There are other advantages, such as seemingly a bit less barbarian captures, and more units early. We may use 1 or 2 spots, but barbarian captures happen much less, and secondary cities can grow more. This change is in line with the settler now being a national unit as of now (1 allowed for whole empire including existing unit, check the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for updated values or info, or Sevopedia or xml). As for small new cities, it guarantees they grow as well instead of being stuck producing a settler for a long time, as hapepned many times and was the original reason why i did this to begin with, then expanded on it. I added a patch, although should never happen with the settler being a national unit and only in capital, but that if city is very small and stagnant, switch to worker instead, but since only cpaital as of now produces them and it grows fast, this shouldn't happen but if changed this patch would help as well small cities being stuck in a very lnog settler production and being stagnant, in fact it's necessary now else our capital can't produce a settler, as chatgpt 5 noticed or noted as well. Update: also as it mentioned to me to add here as well, there are exceptions such as a city somehow being stagnant, then even if pop is small, we are not using the food anyway, so may as well take our chances and build a settler, as it rightly told me to add to this doc hehe which i forogt but i think this is a quite good summary otherwise...
 - free window: during the first as of now 75 turns at normal game speed (adjusted based on game speed), the AI will have free production of settler (minus restrictions said before). So it can take its time and grow freely. Then after this window, it will consider which strategy to take, either offense mode, or defense mode, or other maybe which i added hardcoded in cvcityAI. Based on these, it may not build settlers anymore and start to stack units. This is something i had a problem with in base advciv, of AI expanding again and again while it was near me, instead of preparing for the likely war. Hopefully AI would react better to these.
 - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place, in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai. It does seem though as of now to be taken quite well into acocunt, but test to be sure. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack), and this means its units won't wander or such and attack more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems. This is a summary i attempted to do of the changes and again didn't test too much so far; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, just to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units would be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i could have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays at a quick glance, which maybe helps making AI stronger but test to be sure.
 
@@ -1570,7 +1570,7 @@ My observation and annoyance, was that AI would often go for very inefficient or
 
 I added with chatgpt 5's help and my adjustments and prompts and such (in `CvUnitAI::AI_promotionValue`)some hard rules that in most cases don't change AI selection process, but just make it start from a more restricted pool, and in rare cases forces an always first choice when absolutely best or most efficient in most cases so going for this for AI players to simplify and for effectiveness too. This can be seen in existing screenshots between 2237 and 2403 (which are not the most representative of how bad AI choices were, but they give some context/examples of how it could often be suboptimal or ineffective promotions as explained before).
 
-Below is a summary of these by chatgpt 5 which i adjusted a bit and suggested this or that but that it otherwise very nicely for the most part put apart (no pun), check if accurate, and if it has been updated since then in function mentionned as of now above in this known issue as of 47.
+Below is a summary of these by chatgpt 5 which i adjusted a bit and suggested this or that but that it otherwise very nicely for the most part put apart (no pun), check if accurate, and if it has been updated since then in function mentioned as of now above in this known issue as of 47.
 
 ### 1) Hard Blocks (global)
 
@@ -1586,7 +1586,7 @@ Exceptions for Sentry / Woodsman / Medic / Logistics
 | UnitCombat = **RECON** *and* UnitAI ∈ { **EXPLORE**, **SPY**, **EXPLORE\_SEA**, **SPY\_SEA**, **PIRATE\_SEA** } | **Allowed** | On scouts/recon & recon-like roles, vision/mobility/woods and field medic uses are actually valuable. |
 | Any other unit/role | **Forbid** | Avoids weak picks on frontline attackers/defenders. |
 
->Note: Medic_Ambulatory is still reachable via your XML alternate prereqs (e.g., through FirstStrike2), so the “no Medic I–IV” rule doesn’t block all medic paths.
+>Note: Medic_Ambulatory is still reachable via your XML alternate prereqs (e.g., through FirstStrike2), so the "no Medic I–IV" rule doesn’t block all medic paths.
 
 ### 2) Always Pick First — Strict Offensive (City Attackers)
 
@@ -1633,7 +1633,7 @@ CITY_DEFENSE, CITY_SPECIAL
 | --- | ---: | --- |
 | **Blitzkrieg**, **Mobility Cost/Range**, **Retreat I–II** | **Forbid** | Mobility/retreat are low value for static city defense. |
 | **City Raider I–III** | **Forbid** | Offensive city-attack line; wasted on defenders. |
-| **City Bombard Damage** | **Forbid** | “Siege support” promo doesn’t help on defense. |
+| **City Bombard Damage** | **Forbid** | "Siege support" promo doesn’t help on defense. |
 | **Collateral Damage I–V** | **Forbid** | Collateral triggers on *attack*, not while defending; poor value for static defenders. |
 | **Navigator** | **Forbid** | For units that can choose it, being bulky is still more important for defenders. |
 | **Counter Archer** | **Forbid** | Narrow anti-archer line is typically inferior to CG/Combat for defense. |
@@ -1693,7 +1693,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 - **City costs (this city):** `iMaintenanceTimes100`
 - **Empire cost stats (single pass):** `iBestMaint100Global`, `iSecondBestMaint100Global`, `iNumCitiesHighMaintCountGlobal` (gate ≈ **≥ 600** ⇒ **≥ 6 gpt**)
 - **Game speed scaling:** `iGameSpeedMultiplier = GameSpeedInfo.getConstructPercent()`
-- **“Force-ish” tiebreaker:** `AI_BUILDING_ALWAYS_PICK_FIRST = 999999`
+- **"Force-ish" tiebreaker:** `AI_BUILDING_ALWAYS_PICK_FIRST = 999999`
 - **Post-build production multiplier detector:** `iTotalHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION) + Σ getBonusYieldModifier(..., YIELD_PRODUCTION)` (Forge/Factory/Ironworks-like; **not** build-time speed)
 - **Build-time speed (wonders only, used by timing):** `iProductionModifier = getProductionModifier(eBuilding)`
 
@@ -1707,10 +1707,10 @@ It only documents logic that exists in the code we just reviewed (no speculation
 | Enemy weak threshold | 80 | When ≤ and at war, allow barracks/stable pushes. |
 | Harbor trigger (food) | `iFoodDifference <= 1` | Permissive gate to force Harbor first unless city is in food-as-production mode. |
 | Pump gate (hpt) | 8 | Min hammers to justify early unit-pump buildings. |
-| Granary “rush” gate | happy≥4 & iEffectiveFood≥4 | Force-first for food-kept buildings. |
-| Health “rush” gate | iHealthLevel≤1 & happy≥2 & iEffectiveFood≥2 | Force-first for net health buildings. |
+| Granary "rush" gate | happy≥4 & iEffectiveFood≥4 | Force-first for food-kept buildings. |
+| Health "rush" gate | iHealthLevel≤1 & happy≥2 & iEffectiveFood≥2 | Force-first for net health buildings. |
 | WW soft turn cap (@ Normal) | 20 | Skip WW if estimated turns exceed cap (speed-scaled). |
-| Early “no-mod” WW window | 35 | After this, require ≥25% build-time mods to try WW. |
+| Early "no-mod" WW window | 35 | After this, require ≥25% build-time mods to try WW. |
 | Culture early-mid window | 125 | Skip pure culture if borders already workable. |
 | High-maint city cutoff | 6 gpt | Maintenance reducers and FP logic use this. |
 
@@ -1732,7 +1732,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 | **Happiness** | `getAdditionalHappinessByBuilding(...) > 0` \| \| `isNoUnhappiness()` | If **happy headroom ≥3** and **low food** (`iFoodDifference ≤1`) → **skip**. If **at war & enemy strong** → **skip**. If **at/over cap** (`iHappinessSurplus ≤ 0`) **and** `iEffectiveFood ≥2` → **ALWAYS_PICK_FIRST**. | — | Add happy when it immediately unlocks growth; otherwise hold. |
 | **Science** | Research % ≥20 **or** flat beakers **or** (Scientist slots/free) | If **at war** **or** **danger** **or** **war plan** → **skip**. | — | Don’t pause survival or momentum for beakers. |
 | **Economy (Gold)** | Gold % ≥20 **or** flat gold **or** (Merchant slots/free) and **not** previously classified | Same war/danger/war‑plan **skip**. If %‑only and city **gold rate < 6** → **skip**. | — | ROI gate for early banks/markets. |
-| **Trade‑route econ** | Adds routes **or** has trade route % (incl. foreign) | If war/danger/war‑plan → **skip**. If **foreign %** but **no foreign routes** and **doesn’t add routes** → **skip**. If **tiny base trade** (`iTradeYield ≤3`) then require **+routes**: base 3→ +1, base ≤2→ +2; otherwise **skip**. | Uses current `iTradeYield` in this city; counts “virtual” route when % mods present. | Build CH/Harbor where trade exists or where added routes will matter. |
+| **Trade‑route econ** | Adds routes **or** has trade route % (incl. foreign) | If war/danger/war‑plan → **skip**. If **foreign %** but **no foreign routes** and **doesn’t add routes** → **skip**. If **tiny base trade** (`iTradeYield ≤3`) then require **+routes**: base 3→ +1, base ≤2→ +2; otherwise **skip**. | Uses current `iTradeYield` in this city; counts "virtual" route when % mods present. | Build CH/Harbor where trade exists or where added routes will matter. |
 | **Espionage** | EP % ≥20 **or** flat EP/Spy slots/free **or** EP defense ≥20 | War/danger/war‑plan → **skip**. Difficulty skew: if **human pays much less for tech** (AI advantage, gap ≥ +30) and **EP defense** → **ALWAYS_PICK_FIRST −1000**. If **AI pays much more** (gap ≤ −20) and **EP source** → **ALWAYS_PICK_FIRST −1000**. | Gap: `iHumanResearchPercent − iAIResearchPercent`. | Hedge vs human EP when ahead; lean EP offense when behind on costs. |
 | **Culture‑only** | Flat culture **or** culture % (and not classified earlier) | If **BFC not needed** and **early‑mid window** and **existing culture ≥2** → **skip**. | Early‑mid ≈ first ~125 turns @ Normal (scaled). | Don’t overbuild fluff culture once borders are workable. |
 | **Unknown / misc** | Anything not matched above | If **war**/**danger**/**enemy strong** **or** **war plan** → **skip**. | — | Conservative default during pressure. |
@@ -1752,7 +1752,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
   - `iTurnsWW = ceil( cost / ( hpt * (1 + buildTimeMods) ) )`
   - Base cap ≈ `20` turns @ Normal, scaled by game speed.
   - Tighten by 10% when construct-percent gap `(HumanWCP − AIWCP) ≥ 20` (i.e., `cap = cap * 0.9`).
-- **Post-build production multiplier detector (for “production wonders”):**
+- **Post-build production multiplier detector (for "production wonders"):**
   - `iTotalHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION) + Σ getBonusYieldModifier(..., YIELD_PRODUCTION)`
   - Use to flag scaling wonders; when true, also require `bTop2HammerLeeway`.
 - **Build-time speed (for timing only):**  
@@ -1776,7 +1776,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 | Gate | Condition | Action | Notes |
 | --- | --- | --- | --- |
 | **War / pressure** | `bAtWar` \| \| `bDanger` \| \| `bWarPlan` \| \| `bEnemyStrong` | Skip | Don’t throw the game to a race. |
-| **Early “no-modifier” window** | After \~**35 turns @ Normal** (speed-scaled) **and** `iProductionModifier < 25` | Skip | Once the early snipe window closes, require ≥25% build-time oomph. |
+| **Early "no-modifier" window** | After \~**35 turns @ Normal** (speed-scaled) **and** `iProductionModifier < 25` | Skip | Once the early snipe window closes, require ≥25% build-time oomph. |
 | **Very-early throughput** | Inside early window **and** `iBaseHpt ≤ 7` | Skip | Not enough production to snipe. |
 | **Hammer competitiveness** | **Require `bTop2HammerLeeway`** | Skip if false | Ensures only near-top cities enter races. |
 | **Coastal-lean WW** | Sea XP/Prod, coastal routes, or sea plot yield effects present | Require **≥3 coastal cities empire-wide** | Flat empire rule to avoid marginal coastal WWs on land empires. |
@@ -1789,10 +1789,10 @@ It only documents logic that exists in the code we just reviewed (no speculation
 | Subtype | Detection | Gates / Actions | Notes |
 | --- | --- | --- | --- |
 | **General NW gate** | — | **Require `bTop3HammerLeeway`** | Keeps NWs in top-tier production cities by default. |
-| **Military pump (Heroic-Epic-like)** | Land production modifiers | If **enemyStrong/danger** → skip. Else **require `bTop2HammerLeeway`**; and if **warplan** or **(at war & enemy weak)** and **this city ≥ 2nd-best hpt**, return a strong **“pick first”** nudge. | Concentrates pumps in true hammers when pushing. |
+| **Military pump (Heroic-Epic-like)** | Land production modifiers | If **enemyStrong/danger** → skip. Else **require `bTop2HammerLeeway`**; and if **warplan** or **(at war & enemy weak)** and **this city ≥ 2nd-best hpt**, return a strong **"pick first"** nudge. | Concentrates pumps in true hammers when pushing. |
 | **Land-XP NW** | Land XP modifiers | Same pressure skips and **`bTop2HammerLeeway`**; smaller nudge when pressing. | — |
-| **Government Center (Forbidden Palace)** | `isGovernmentCenter()` (non-Palace class) | If **#cities ≤ 6** or **capital** → skip. Else, if **≥3 cities** have **maintenance ≥ 6 gpt**, and **this city’s maint ≥ 2nd-highest**, and **no war pressure**, return a modest **“pick first”** nudge. | Place where it actually cuts costs; avoid capital. |
-| **Palace move** | Palace building class | Under pressure → skip. After \~**100 turns @ Normal** and **#cities ≥ 4**, require **both**: this city’s **base hpt ≥ 1.5×** capital **and** **beakers/turn ≥ 1.5×** capital → small **“pick first”** nudge. | The “both” rule prevents oscillation. |
+| **Government Center (Forbidden Palace)** | `isGovernmentCenter()` (non-Palace class) | If **#cities ≤ 6** or **capital** → skip. Else, if **≥3 cities** have **maintenance ≥ 6 gpt**, and **this city’s maint ≥ 2nd-highest**, and **no war pressure**, return a modest **"pick first"** nudge. | Place where it actually cuts costs; avoid capital. |
+| **Palace move** | Palace building class | Under pressure → skip. After \~**100 turns @ Normal** and **#cities ≥ 4**, require **both**: this city’s **base hpt ≥ 1.5×** capital **and** **beakers/turn ≥ 1.5×** capital → small **"pick first"** nudge. | The "both" rule prevents oscillation. |
 | **Fallback** | — | If **bAtWar/bDanger/bWarPlan/bEnemyStrong** → skip. | Conservative default under pressure. |
 
 ---
@@ -1837,7 +1837,7 @@ if (isWonder) {
 
 ### Results of known issue 48
 
-You can see the difference between the 2 runs (48 is the old DLL, before the changes, and 48.2 is the new DLL, after the changes) in the screenshots as mentionned as of now above.
+You can see the difference between the 2 runs (48 is the old DLL, before the changes, and 48.2 is the new DLL, after the changes) in the screenshots as mentioned as of now above.
 
 As for the results ingame, the difference is very significant:
 
@@ -1972,7 +1972,7 @@ So this is another major AI improvement of a major issue we had in base advciv +
 
 As a result, it was weaker, and this likely contributed to barbarians successfully invading it and japan ai having a bad game.
 
-As can be seen in existing screenshots between 2742 and 2753, our ancient maceman count goes down as soon as we produce a unit, and our units are not attacked either, so this means we scrap them. I tried doing changes in `CvPlayerAI::AI_doMilitary` or other related function(s) but it was ineffective nor unfortunately helping to solve this at all. The screenhots mentionned just before were actually before these, and still same issue if not worse nor slightly better, still about the same it seems.
+As can be seen in existing screenshots between 2742 and 2753, our ancient maceman count goes down as soon as we produce a unit, and our units are not attacked either, so this means we scrap them. I tried doing changes in `CvPlayerAI::AI_doMilitary` or other related function(s) but it was ineffective nor unfortunately helping to solve this at all. The screenhots mentioned just before were actually before these, and still same issue if not worse nor slightly better, still about the same it seems.
 
 So chatgpt 5 then got the brilliant idea to add our logic in `CvUnit::canScrap`, or as i called it xd, "scrap the scrapping", or was it "scrapping the scrap" as it called it i think if i'm not mistkane but regardless, this is where we added our code, and effect was immediate, as can be seen in existing screenshots between 2757 and 2764. We don't scrap anymore. I tried to check economy by autoplaying longer, and we don't go bankrupt (at emperor difficulty with quite reasonable penalties, but that i'll reduce a bit as well now that AIs are more competent/efficient), and our military seems quite a bit stronger if i'm not mistaken although i barely glanced, and can only assume this is due to having more units throughout the game.
 
@@ -2014,7 +2014,7 @@ The results of before/after change are resumed by chatgpt 5's own analysis of ea
 >
 >Quick take
 >
->The before sequence shows automated disband right after a unit finishes (classic “produce one, delete one”).
+>The before sequence shows automated disband right after a unit finishes (classic "produce one, delete one").
 >
 >The after sequence confirms the source fix (blocking scrap for the relevant units) works: counts only go up when production finishes, and never down on the following turn — even with small negative GPT.
 
@@ -2116,15 +2116,15 @@ Sample caps (integer arithmetic)
 
 #### 4) Design notes / asymmetry with production
 
-- Asymmetric by design: we limit production in AI_chooseUnit() (e.g., naval caps by map + danger), but we don’t scrap those categories later. This prevents “produce → scrap” loops and keeps hammers focused.
+- Asymmetric by design: we limit production in AI_chooseUnit() (e.g., naval caps by map + danger), but we don’t scrap those categories later. This prevents "produce → scrap" loops and keeps hammers focused.
 - Workers are the single category where we both cap production (early generous, later tighter) and allow pruning post-Renaissance when over the target.
-- Safety rails: never scrap cargo carriers, GP, missiles, air combat, or land combat. Early global “no disband” phase protects the crucial development window.
+- Safety rails: never scrap cargo carriers, GP, missiles, air combat, or land combat. Early global "no disband" phase protects the crucial development window.
 
 #### 5) Tuning dials (all hardcoded for simplicity)
 
 | Constant | Current | Effect |
 | --- | ---: | --- |
-| `iNoDisbandAtAllTurnsNormal` | **150** | Length of early “no disband” window (scaled by speed). |
+| `iNoDisbandAtAllTurnsNormal` | **150** | Length of early "no disband" window (scaled by speed). |
 | Worker decay start era | **Renaissance (3)** | Bring forward/back to change when pruning can begin. |
 | Worker decay per era | **10%** | Linearly reduces target from Ren; floor at 60%. |
 | Worker floor | **60% of base** | Ensures we always retain a useful workforce. |
@@ -2154,7 +2154,7 @@ return true otherwise
 
 >Entry point: the (UnitAITypes, iOdds) overload now funnels to the
 >(UnitTypes, UnitAITypes) overload, so all gating lives in one place.
->The “best unit” picker remains the same; only the final “should we actually queue it?” logic is centralized.
+>The "best unit" picker remains the same; only the final "should we actually queue it?" logic is centralized.
 
 #### 0) Situation + map read (used throughout)
 
@@ -2189,7 +2189,7 @@ Caps compare empire-wide counts using AI_totalUnitAIs(...), which includes units
 | Group | AIs | Cap | Threat tweak | Notes | | | | |
 | --- | --- | ---: | --- | --- | --- | --- | --- | --- |
 | **Explorers** | `EXPLORE` | `2` (or `1` on NavalHeavy) | **Block** if any threat | | | | | |
-| **Settlers** | `SETTLE` | `1` | **Block** if any threat | “One at a time” rule | | | | |
+| **Settlers** | `SETTLE` | `1` | **Block** if any threat | "One at a time" rule | | | | |
 | **Workers** | `WORKER` | see below | Slightly lenient: **block only** when `bAtWar && bEnemyStrong` | Era-scaled cap (next table) | | | | |
 | **Missionaries** | `MISSIONARY` | `N` (≤ Renaissance), else `2` | **Block** if any threat | | | | | |
 | **Spies** | `SPY` | `N` (or `⌊1.5N⌋` on NavalHeavy) | **Block** if bAtWar | | bEnemyStrong | | bDanger; if `bWarPlan && !NavalHeavy` → **block** | Don’t stall land wars with spy spam |
@@ -2216,7 +2216,7 @@ Everything not listed above (e.g., land military) is free to build here; pruning
 
 #### 5) Asymmetry with canScrap()
 
-- Naval + most civilians: Production is capped up front; scrapping is disabled later → no “produce→scrap→produce” loops.
+- Naval + most civilians: Production is capped up front; scrapping is disabled later → no "produce→scrap→produce" loops.
 - Workers: Capped in production and may be trimmed later only if above the same target (post-Renaissance).
 - Land combat & air combat: Production allowed (no cap here for land); never scrapped later.
 
@@ -2312,7 +2312,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 This is another nice AI enhancement :). I have noticed after doing known issue as of now 53.2 that for example when continuing the game, our autoplay ai and maybe other players too produce way too many trebuchets (i had noticed the issue with cannons too before).
 
-It is also an issue quite often mentionned by players it seems, so i'm glad i could have enhanced it.
+It is also an issue quite often mentioned by players it seems, so i'm glad i could have enhanced it.
 
 Before our changes, our autoplay AI has more or less 20 trebuchets and is producing one in all or if not almost all our cities which is extremely inefficient, especially considering we are not the strongest if i remember it correctly, and trebuchets are bad at anything else other than attacking cities (bad at defense, low hammer efficiency vs a catapult, cannot attack efficiently if not attacking city tiles).
 
@@ -2348,7 +2348,7 @@ I don't know if it's for sure a result of these, but we seem to have really good
 
 Update 2: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game).
 
-Update 3: code now disabled now that we as of now have the unit `ObsoleteTech` field. Other parts of the documentation may also now be stale and not mentionned to be as such.
+Update 3: code now disabled now that we as of now have the unit `ObsoleteTech` field. Other parts of the documentation may also now be stale and not mentioned to be as such.
 
 ## 54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
 
@@ -2397,7 +2397,7 @@ Since all seemed to work well and no crash, i kept it as such. Until a few more 
 
 Kept as is until i find the cause, but if we can streghten our functio so we don't have to rely on this, i may remove it later.
 
-If i remove it (i.e. assuming we fix this specific crash and you encounter a crash), consider tinkering around `CvUnitAI::AI_bestCityBuild` or its callers, and see what happens and if it solves your issue, including but not only reenabling the safeties i mentionned or others changes if any.
+If i remove it (i.e. assuming we fix this specific crash and you encounter a crash), consider tinkering around `CvUnitAI::AI_bestCityBuild` or its callers, and see what happens and if it solves your issue, including but not only reenabling the safeties i mentioned or others changes if any.
 
 Update: fixed!!! The culprit was not our now strenghtened (and before that nicely rewritten) `CvUnitAI::AI_bestCityBuild` function but instead our reliance on old code of the `AI_betterPlotBuild` in `CvUnitAI::AI_nextCityToImprove` a bit after calling our rewritten function:
 
@@ -2482,7 +2482,7 @@ I did as in previous issues, uncommenting i.e. reenabling the hard reject in `Cv
 
 Then i tried changing a few things blindly or empirically +/- with the help of chatgpt 5 or some other ais like grok 4 or and such but no luck.
 
-After looking at other code samples and how they use ROUTE_TO, it seemed like the code at `CvUnitAI::AI_connectPlot` was very reliable, at least worth a try, i quickly glanced but it seemed so and also based on how chatgpt 5 mentionned it when i gave it some code samples among other ones.
+After looking at other code samples and how they use ROUTE_TO, it seemed like the code at `CvUnitAI::AI_connectPlot` was very reliable, at least worth a try, i quickly glanced but it seemed so and also based on how chatgpt 5 mentioned it when i gave it some code samples among other ones.
 
 So chatgpt 5 wrote some drafts, and one of them i tested seemed to be minimal, conservative, fixing our issue, while also preserving roading and efficient enough (seemingly same as before: one worker per tile, cities roaded enough, no weird worker roaming or back and forth without builds, and cities improved fast enough at turn 100 or such) so i kept the rewrite this time. It seems to enhance our roading logic too although i only checked or glanced rather and i don't understand too much this code or the c++ code in general but i think i got the main idea hehe.
 
@@ -2557,9 +2557,9 @@ The issue seems now fixed as i tested it twice and it seems to not crash anymore
 
 >**What went wrong (T283) & what we changed**
 >
->- Crash pattern: rare, late-game, masked by the “hard reject.” Likely invalid state used between target selection and mission queuing (0xC0000005).
+>- Crash pattern: rare, late-game, masked by the "hard reject." Likely invalid state used between target selection and mission queuing (0xC0000005).
 >- Root causes (probable): (1) stale/dangling `pTargetCity` when a city is razed/traded after selection; (2) attaching the **wrong missionData** on the first `ROUTE_TO` leg; (3) a bad in-loop guard referencing `pBestPlot/eBestBuild` instead of the current `pPlot/eBuild`.
->- Selection fixes: removed the in-loop “hard reject”; keep `pPlot/eBuild` checks local; store **city ID** (`iTargetCityId`) instead of a raw `pTargetCity` pointer.
+>- Selection fixes: removed the in-loop "hard reject"; keep `pPlot/eBuild` checks local; store **city ID** (`iTargetCityId`) instead of a raw `pTargetCity` pointer.
 >- Re-hydrate safely: after the loop, rebuild `pTargetCity = GET_PLAYER(getOwner()).AI_getCity(id)`; fallback to `pBestPlot->getWorkingCity()` if needed.
 >- Routing fix: use a **two-leg** `ROUTE_TO` pattern (city → plot). **First leg**: missionData = `NULL`. **Second leg**: missionData = `pBestPlot`. Don’t reuse path state.
 >- Guards added: bail if `pBestPlot == NULL` or `eBestBuild == NO_BUILD`; validate `eBestBuild` bounds; ensure same land `area()`.
@@ -2572,7 +2572,7 @@ Additionally, while i should have started with this to give more context, chatgp
 
 >Reading the code you pasted, I see three risky spots (all late-turn sensitive):
 >
->Wrong variables checked inside the city loop (the old “hard reject”)
+>Wrong variables checked inside the city loop (the old "hard reject")
 >You still have a continue; line that checks pBestPlot / eBestBuild inside the loop that’s evaluating pPlot / eBuild. That can desync control flow and leave pBestPlot/eBestBuild stale. It also needlessly skips the first viable city every time.
 >
 >Raw pointer for pTargetCity
@@ -2674,7 +2674,7 @@ This is because capturing such cities has high cost and low gains especially ear
 - other positive side effects, due to the city being destroyed, the place is not fog busted anymore (although i don't know if barbarian cities count as fog busting xd and prevent random barbarian spawn or not), so if it is far from us, it would or may mean more barbarians for our rivals (which (barbarians) are very strong as of now in advciv-sas (at least quite strong xd)) so this should help us focus our forces and energy defensively and offensively and hopefully lead to better outcomes
 - possibly other reasons/advantages if any.
 
-As a result of this, AI should be much stronger due to these saner and more efficient decisions. (note: we don't care if there are wonders or it's a holy city (the barbarian player itself cares to not raze these it seems in code if i'm not mistaken (but check to be sure)), but all other players have no reason to care if not profitable to us so they raze cities regardless purely on aforementionned criteria (far enough city and early game as of now for most)).
+As a result of this, AI should be much stronger due to these saner and more efficient decisions. (note: we don't care if there are wonders or it's a holy city (the barbarian player itself cares to not raze these it seems in code if i'm not mistaken (but check to be sure)), but all other players have no reason to care if not profitable to us so they raze cities regardless purely on aforementioned criteria (far enough city and early game as of now for most)).
 
 For example, before our changes, in existing screenshots between 255 and 259, arabia AI captures a faraway (at least more than far enough to be profitable so early i would say) (olmec) city instead of razing it, which is very bad i think, as city won't be profitable until much later, but it weakens economy and military significantly (taking the gold on capture would have been a gain and enough and then razing would have been perfect). Screenshot 259 in particular shows the spots arabia AI is considering at this point of the game around it, and the olmec city was way too far to mesh well with their empire. Destroying it would also (if barbarian cities count as fog busting as i don't know) increase barbarian presence indirectly so would have been nice. So capturing it and committing to it is very bad so early i think in this case at least..
 
@@ -2710,7 +2710,7 @@ So to dig why this happened i asked chatgpt 5 to look at the event log screensho
 >- AD 880: Rome (Julius Caesar) declares on Hatty.
 >- AD 900: Kublai declares on Hatty.
 >- AD 960: Khmer (Suryavarman) declares on Hatty.
->- AD 1040: Saladin declares on Hatty (“at the request of Kublai” → a bribe).
+>- AD 1040: Saladin declares on Hatty ("at the request of Kublai" → a bribe).
 >
 >City losses, multi-front:
 >
@@ -2733,7 +2733,7 @@ So to dig why this happened i asked chatgpt 5 to look at the event log screensho
 >
 >Takeaways (useful for AI tuning, if you want)
 >
->- Dogpile detection: If at war with ≥2 neighbors and DoWs keep coming (or bribe messages appear), switch to “survive mode”: whip walls/castles/LBs, concentrate stacks, and aggressively buy peace or bribe counter-wars.
+>- Dogpile detection: If at war with ≥2 neighbors and DoWs keep coming (or bribe messages appear), switch to "survive mode": whip walls/castles/LBs, concentrate stacks, and aggressively buy peace or bribe counter-wars.
 >- AP awareness: Heavily weight aligning (or at least avoiding infamy) with the AP religion owner on maps where AP is active; late switches (AD 1310 here) don’t help.
 >- After big capture: After taking a rival’s capital (Berlin), temporarily cool wars; otherwise it invites the coalition response we saw.
 >
@@ -2757,7 +2757,7 @@ Chatgpt 5 analyzed the event log as such (put run 2 only for concision)
 >- AD 640: DoW Kublai.
 >- AD 680: Mutal falls to Egypt (it was in Kublai’s hands). Clean, early gain.
 >- AD 700–820: A couple of short human–Egypt wars/peaces in your log; nothing sticks.
->- AD 900: Apostolic Palace completed (Hamburg). Hindu AP forms; later casts “Stop trading with Hatshepsut” (AD 1140), but it doesn’t derail her momentum.
+>- AD 900: Apostolic Palace completed (Hamburg). Hindu AP forms; later casts "Stop trading with Hatshepsut" (AD 1140), but it doesn’t derail her momentum.
 >- AD 960 → 1120: Hatshepsut DoW Suryavarman, takes Chichén Itzá (AD 1040), then makes peace. Again: decisive hit, then exit.
 >- AD 1200 → 1240: DoW Julius Caesar; by AD 1240 she captures Rome (capital), JC moves capital to Antium, and peace the same turn. That’s a huge tempo swing with minimal bleeding.
 >- AD 1260–1310: Multiple Golden Ages around the map; no dogpile forms against her.
@@ -2767,14 +2767,14 @@ Chatgpt 5 analyzed the event log as such (put run 2 only for concision)
 >Why this looks stronger
 >
 >- She avoids multi-front wars and fights sequential campaigns with fast peaces after big captures (Chichén Itzá, then Rome). That’s exactly the survival pattern we wanted.
->- The AP sanction (“stop trading with Hatshepsut”) fires but doesn’t trigger a diplomatic dogpile; she’s already out of the Khmer war by then.
+>- The AP sanction ("stop trading with Hatshepsut") fires but doesn’t trigger a diplomatic dogpile; she’s already out of the Khmer war by then.
 >- Army at AD 1400 is intact and tops the field (scoreboard shows 1345 soldiers vs ~1250 for Saladin/Bismarck). Composition is sensible for the era: 22 Longbows, 16 Horse Knights + 8 Camel Knights, 7 Trebuchets, some Pikes. Not siege-starved, not over-committed.
 >
 >Did our emergency-peace change help?
 >
 >Indirectly, yes:
 >
->- The pattern you see (decisive capture → quick peace → shift target) is exactly what our “don’t let multi-wars spiral” nudge encourages.
+>- The pattern you see (decisive capture → quick peace → shift target) is exactly what our "don’t let multi-wars spiral" nudge encourages.
 >- Even if the hard trigger didn’t fire every time, the added checks reduce the chance of her continuing a costly war while another one starts.
 
 It seems not important anymore or urgent to fix the cause (religious dogpile) as it adds some game variety, and more importantly in this game hatshepsut ai captured rome ai (surprisingly historically accurate xd although is a random generated map and although i don't know too much this timeline's real history but i know they were invovled with each other on some level) so their holy pagan city synergized nicely with hatshepsut ai's paganism as well, so may be fine to leave as such i don't know for sure, however i had the issue in base advciv of strongest ai switching religion then making an enemy of everyone stupidly so may need some tweaking possibly even though i don't know where but i could use this save file as a base for that maybe (however is not guaranteed i may or may not do so).
@@ -2868,7 +2868,7 @@ But should be better than what it was and should have been added as a pre-check 
 Also, according to chatgpt 5.1, these asserts firing are no longer the result of issues with our code and may be fine (check if accurate as i don't know too much about these), so treated as not a bug for advciv-sas (ideally would find how to silence the message if it is really safe but not a priority i mean):
 
 >So, short version: that Rheims T100 assert just means:
->“Rheims still had a forced artist recorded at a moment when no artist was legally allowed there anymore.”
+>"Rheims still had a forced artist recorded at a moment when no artist was legally allowed there anymore."
 >It’s not your original BFC-artist bug coming back; it’s a side-effect of the general forced specialist mechanism being a bit looser than the invariant your assert is trying to enforce.
 
 It thought for almost 13 minutes with the relevant .cpp files so i'd tend to think it is accurate, check to be sure.
@@ -2972,20 +2972,20 @@ Rationale for the change below:
 					// 	- Other contacts like CONTACT_ASK_FOR_HELP do pass it:
 					// So for your specific feature (making master/vassal talk more about tech), you do want to change this one line.
 					// That’s enough to:
-					// 	- Activate the old BBAI/K-Mod “we’re behind in tech → roll more often” logic.
+					// 	- Activate the old BBAI/K-Mod "we’re behind in tech → roll more often" logic.
 					// 	- Make your MASTER_TO_VASSAL / VASSAL_TO_MASTER defines actually matter.
 					// No.
 					// 	- Calls that don’t have a local rContactProbMult (PEACE_TREATY, RELIGION_PRESSURE, TRADE_BONUS, etc.) are not bugs; they just use the plain personality ContactRand, which is perfectly fine.
 					// 	- Some places (e.g. JOIN_WAR, ASK_FOR_HELP, DEFENSIVE_PACT) purposely compute an extra multiplier and pass it in.
 					// 	- UWAIAgent uses AI_contactRoll only for certain demands/pressures with its own multipliers; it’s separate and already consistent.
-					// So the only “suspicious” one from your grep is CONTACT_TRADE_TECH, because:
+					// So the only "suspicious" one from your grep is CONTACT_TRADE_TECH, because:
 					// 	- there is a rContactProbMult built right above, and
 					// 	- it’s never used in the call.
 					// That’s why I’d treat that one as an old omission and wire it up, and leave all the other 1-arg calls as they are.
 					// Short answer
-					// 	- The previous logic was already “faulty” / incomplete before we added any master–vassal stuff.
+					// 	- The previous logic was already "faulty" / incomplete before we added any master–vassal stuff.
 					// 	- Our new master–vassal tech-trade boost just depends on the same multiplier, so fixing it became important for our feature to actually work.
-					// 	- But the “bug” (building rContactProbMult and then not using it) was already there in the inherited code.
+					// 	- But the "bug" (building rContactProbMult and then not using it) was already there in the inherited code.
 					// Before
 					// if (AI_contactRoll(CONTACT_TRADE_TECH))
 					// After
@@ -3052,7 +3052,7 @@ I asked chatgpt 5.1 about this which said:
 >- Wins wars,
 >- And makes the cluster hard to exploit.
 >
->So your current master–vassal cluster-first tech logic is fully consistent with a sane vassal “interest model” in this engine.
+>So your current master–vassal cluster-first tech logic is fully consistent with a sane vassal "interest model" in this engine.
 
 Similarly, a stronger vassal is also more likely to be more useful to its master, as gemini 3 pro highlighted when i asked it about it:
 
@@ -3115,8 +3115,8 @@ Note added by chatgpt 5.1 about the scope of this change as i asked it about it 
 >AI_religionValue: central heuristic for how valuable each religion is as a state religion (internal happiness/culture + holy city + diplomatic blocs). It drives:
 >
 >- AI choice of state religion and conversion timing.
->- Trade / demand value of “adopt religion X”.
->- Espionage value of “change target’s religion”.
+>- Trade / demand value of "adopt religion X".
+>- Espionage value of "change target’s religion".
 >- Indirectly, the evaluation of state-religion-dependent civics via AI_bestReligion.
 >
 >Which means your power-weighted change is now shaping both their self-religion choice and how they respond to external pressure.
@@ -3206,7 +3206,7 @@ Hopefully regardless of which, this helps document and confirm the issue, as wel
 
 Update: somehow sometimes they appear at turn 0 and sometimes not, what matters is we reverted to base advciv code as the key information there i mean. and that code seemingly no longer crashes now. It also did happen on a standard size map if i remember it correctly not just very large ones, and works fine as is now so leaving it as is.
 
-## 86 - (Fixed) Base AdvCiv bug, in sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks
+## 86 - (Fixed) Base AdvCiv bug, in Sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1I71aSFVOj4GZIhgBde0niJwJIFmx_exC?usp=sharing).
 
@@ -3970,11 +3970,11 @@ Check if accurate.
 
 That manual excerpt is basically f1rpo explaining a **coupled difficulty model**:
 
-- If difficulty makes **research** more expensive (for the human), then **growth** and **Great People** should also get costlier “to match” (otherwise the balance drifts toward warfare / unit spam in Marathon-like ways).
+- If difficulty makes **research** more expensive (for the human), then **growth** and **Great People** should also get costlier "to match" (otherwise the balance drifts toward warfare / unit spam in Marathon-like ways).
 - And he added *two* different knobs for growth because he wanted:
 
-  - **Human**: adjust only the **base** part of growth (keep the “2 food per pop” part simple/unchanged).
-  - **AI**: allow a broader growth bonus that also affects the per-pop part (because “simplicity” doesn’t matter for AI).
+  - **Human**: adjust only the **base** part of growth (keep the "2 food per pop" part simple/unchanged).
+  - **AI**: allow a broader growth bonus that also affects the per-pop part (because "simplicity" doesn’t matter for AI).
 
 ### The crucial thing you noticed
 
@@ -3982,23 +3982,23 @@ In your SAS chart, **human research is already normalized to 100** (and a bunch 
 
 So: keeping **human** `iBaseGrowthThresholdPercent` and `iGPThresholdPercent` varying (85..125) is no longer doing what f1rpo’s rationale describes (matching human research penalties), because **you removed the thing they were meant to match**.
 
-That means in SAS those two fields become “silent player penalties” that:
+That means in SAS those two fields become "silent player penalties" that:
 
-- don’t correspond to your current “human = 100 baseline” philosophy, and
+- don’t correspond to your current "human = 100 baseline" philosophy, and
 - (for growth) also interact with **expansion**, because of this line in the manual:
 
-> “For each 1 food that the initial city growth threshold differs from 20, the cost for a Settler is adjusted by 5%.”
+> "For each 1 food that the initial city growth threshold differs from 20, the cost for a Settler is adjusted by 5%."
 
 With your current values:
 
 - Deity human: 125% of 20 → 25, difference +5 → **+25% settler cost** (if that code is still present in your DLL).
 - Settler human: 85% of 20 → 17, difference -3 → **-15% settler cost**.
 
-So `iBaseGrowthThresholdPercent` is not “just growth pacing”; it’s also (in AdvCiv’s design) an **early landgrab throttle**.
+So `iBaseGrowthThresholdPercent` is not "just growth pacing"; it’s also (in AdvCiv’s design) an **early landgrab throttle**.
 
 ### What I’d do in AdvCiv-SAS (hard, but fair)
 
-If your goal is “difficulty comes from the AI, not hidden human penalties”, then the consistent move is:
+If your goal is "difficulty comes from the AI, not hidden human penalties", then the consistent move is:
 
 1: **Normalize human**
 
@@ -4017,12 +4017,12 @@ If your goal is “difficulty comes from the AI, not hidden human penalties”, 
 - Leave AI as-is for now (`iAIGrowthPercent`: 115..75, `iAIGPThresholdPercent`: 115..75).
   This preserves your current AI advantage *shape* while removing the human penalty layer.
 
-**Option B (more “internally consistent” with your new normalization):**
+**Option B (more "internally consistent" with your new normalization):**
 
 - Human 100.
 - Rebuild AI curves deliberately (like we did for GP), *but be careful with growth* because `iAIGrowthPercent` is a stronger lever than GP threshold (it can inflate AI cities across the whole game, not just GP timing).
 
-If you want, paste your current **AI** growth-related rows (or just confirm you still have that “settler cost adjusts from growth threshold” code enabled), and I’ll recommend a specific `iAIGrowthPercent` curve that fits your current AIResearchPercent curve and your worker/production tuning.
+If you want, paste your current **AI** growth-related rows (or just confirm you still have that "settler cost adjusts from growth threshold" code enabled), and I’ll recommend a specific `iAIGrowthPercent` curve that fits your current AIResearchPercent curve and your worker/production tuning.
 
 ## 92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)
 
@@ -4068,12 +4068,12 @@ Also fixed the base advciv issue of obsolete bullets spanning vertically instead
 
 This was a problem especially as we had many bullets. Now we only show one bullet per asset type (e.g. all obsolete buildings in one bullet, then all obsolete units in another bullet, etc.). Change with the help of Claude code Sonnet 4.5 in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) thanks.
 
-## 97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to sevopedia improvement corresponding page
+## 97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to Sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to Sevopedia improvement corresponding page
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tDKR5ZqAbFrDZZ3G4YuO7CeiDbsM6mdb?usp=sharing).
 
 Fixed with the help of Claude code Opus 4.5 after i have noticed this issue in the technology advisor, by as of now adding a redirect in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp).
 
-So now right-clicking e.g. on the "Remove Jungle" button in the technology advisor successfully redirects to the sevopedia feature corresponding page, e.g. of the Jungle Feature!
+So now right-clicking e.g. on the "Remove Jungle" button in the technology advisor successfully redirects to the Sevopedia feature corresponding page, e.g. of the Jungle Feature!
 
 Update: since then, fixed to redirect to the new Sevopedia Build's corresponding entry (e.g. of the "Remove Jungle" build entry).

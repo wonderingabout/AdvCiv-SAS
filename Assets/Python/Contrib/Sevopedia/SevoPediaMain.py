@@ -110,7 +110,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.bFullScreen = True
 		if self.bFullScreen:
 			self.bWideScreen = True
-		# <!-- custom: Not much value in being able to see the elements at the edge parts of the screen, however i think the extra room can be useful to fit more data or simply enlarge the view, hopefully making it all clearer and more pleasant to see. Other mods use the entire screen for the sevopedia if i'm not mistaken and i like it fine, tested in AdvCiv-SAS and i like it very much, so removing margins now. -->
+		# <!-- custom: Not much value in being able to see the elements at the edge parts of the screen, however i think the extra room can be useful to fit more data or simply enlarge the view, hopefully making it all clearer and more pleasant to see. Other mods use the entire screen for the sevopedia, tested removing margins and i like it very much so removed them now. -->
 		self.HORIZONTAL_MARGIN = 0
 		# VERTICAL_MARGIN: Want the Advisor buttons to remain visible. BOTTOM_MARGIN could be 0, but I don't think asymmetrical margins look good.
 		self.TOP_MARGIN = 0

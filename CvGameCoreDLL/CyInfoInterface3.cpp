@@ -50,7 +50,7 @@ void CyInfoPythonInterface3()
 		.def("getConquestVictoryWeight", &CvLeaderHeadInfo::getConquestVictoryWeight, "int ()")
 		.def("getDominationVictoryWeight", &CvLeaderHeadInfo::getDominationVictoryWeight, "int ()")
 		.def("getDiplomacyVictoryWeight", &CvLeaderHeadInfo::getDiplomacyVictoryWeight, "int ()")
-		// <!-- custom: end of BBAI new additon of getters i mean for gc in sevopedia leader -->
+		// <!-- custom: end of BBAI new additon of getters for sevopedia leader -->
 
 		.def("getMaxWarRand", &CvLeaderHeadInfo::getMaxWarRand, "int ()")
 		.def("getMaxWarNearbyPowerRatio", &CvLeaderHeadInfo::getMaxWarNearbyPowerRatio, "int ()")

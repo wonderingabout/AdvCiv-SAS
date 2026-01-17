@@ -5616,7 +5616,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
 			</OrPreReqs>
-			<!-- custom: as nicely recommended by chatgpt 5 thanks (more balanced as more easily reachable, and also i meanit mentionned very relevantly if i may say thanksalchemy being related to it which historically i guess is more or less the case thanks really i mean i added it as of now as such), instead of my original TECH_BROADER_EDUCATION idea that was too strict -->
+			<!-- custom: as nicely recommended by chatgpt 5 thanks (more balanced as more easily reachable, and also i meanit mentioned very relevantly if i may say thanksalchemy being related to it which historically i guess is more or less the case thanks really i mean i added it as of now as such), instead of my original TECH_BROADER_EDUCATION idea that was too strict -->
 			<AndPreReqs>
 				<PrereqTech>TECH_MEDICINE</PrereqTech>
 			</AndPreReqs>
