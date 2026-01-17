@@ -219,8 +219,6 @@ class SevoPediaTrait:
 		self.LEADER_ICON_SIZE = 24
 		# <!-- custom: Leader button columns spacing; total column width is icon size + spacing. (GPT-5.2-Codex) -->
 		self.LEADER_BUTTON_COLUMN_SPACING = 2
-		# <!-- custom: Leader button size in the right-side leaders panel. (GPT-5.2-Codex) -->
-		self.LEADER_PANEL_BUTTON_SIZE = 64
 
 
 	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude code Opus 4.5) -->
@@ -253,7 +251,7 @@ class SevoPediaTrait:
 		multiListW = self.W_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = self.H_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_H
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, self.LEADER_PANEL_BUTTON_SIZE, self.LEADER_PANEL_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		for iLeader in leadersWithTrait:
 			self.iLeader = iLeader
 			iCiv = leaderToCiv.get(iLeader, -1)

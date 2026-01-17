@@ -398,8 +398,6 @@ class SevoPediaBonus:
 
 		rowListName = self.top.getNextWidgetName()
 
-		BUTTON_SIZE = 64 # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -410,7 +408,7 @@ class SevoPediaBonus:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
@@ -452,8 +450,6 @@ class SevoPediaBonus:
 
 		rowListName = self.top.getNextWidgetName()
 
-		BUTTON_SIZE = 64 # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -464,7 +460,7 @@ class SevoPediaBonus:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
@@ -507,8 +503,6 @@ class SevoPediaBonus:
 
 		rowListName = self.top.getNextWidgetName()
 
-		BUTTON_SIZE = 64 # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -519,7 +513,7 @@ class SevoPediaBonus:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0

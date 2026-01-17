@@ -1264,4 +1264,96 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Tag>
 		<English>[TAB]Imperialist leaders focus on expansion, influence beyond the core homeland, and the practical systems that keep far-flung holdings connected. They value reach: new cities, new routes, and new forms of control over territory. [PARAGRAPH:1]In play, this trait supports establishing a larger footprint earlier and benefiting from the networks that come with it. It can pair well with settlement planning, overseas ambitions, and trade-oriented growth, because expansion is only useful if it can be integrated. [PARAGRAPH:1]An imperial empire is strongest when it turns new land into real power: supply, administration, and economic ties that make distance manageable. The general theme is more effective expansion and integration of a large, connected realm.</English>
 	</TEXT>
+
+
+
+	<!-- custom: added new Build action texts (SevoPedia Builds page), generated with the help of ChatGPT-5.2 Thinking. Note: Text avoids hardcoded numeric effects so it stays valid across many rule sets. (ChatGPT-5.2 Thinking) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_ROAD_PEDIA</Tag>
+		<English>[TAB]Roads are basic overland infrastructure: cleared and maintained paths that make routine travel and hauling practical.[PARAGRAPH:1]A connected road network helps bind an empire together, letting people, goods, and armies move with far less friction across familiar ground.[PARAGRAPH:1]This build order lays down the route on a single tile; the bigger value comes from linking the places you care about into continuous lines.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_RAILROAD_PEDIA</Tag>
+		<English>[TAB]Railroads represent heavy transport infrastructure: graded beds, rails, and supporting works built for sustained long-distance movement.[PARAGRAPH:1]Where roads connect nearby places, rail lines tie regions together, enabling rapid strategic travel and dependable logistics across large territories.[PARAGRAPH:1]This build order extends the rail network tile by tile, with the greatest benefits appearing once major routes are continuous.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FARM_PEDIA</Tag>
+		<English>[TAB]Farms represent organized agriculture: cleared fields, irrigation where possible, planting, and seasonal maintenance.[PARAGRAPH:1]They are the classic way to turn workable land into a steady food base, supporting larger populations and more specialized cities.[PARAGRAPH:1]This is the build order given to a worker-type unit; the resulting tile improvement is documented separately in the Improvements section.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FISHING_BOATS_PEDIA</Tag>
+		<English>[TAB]Fishing boats represent the small fleets, gear, and shore support needed to harvest coastal and nearshore resources.[PARAGRAPH:1]Unlike land improvements, this build is typically performed by a naval worker unit, developing sea tiles that would otherwise remain underused.[PARAGRAPH:1]Fishing is a foundation of many coastal economies, turning nearby waters into reliable sustenance and trade goods.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WHALING_BOATS_PEDIA</Tag>
+		<English>[TAB]Whaling boats represent specialized crews, vessels, and processing needed to exploit whale resources far from shore.[PARAGRAPH:1]Compared to ordinary fishing, whaling tends to be more demanding and is often associated with later maritime development and stronger organization.[PARAGRAPH:1]This build is usually performed by a naval worker unit and is used to develop eligible whale resource tiles.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_MINE_PEDIA</Tag>
+		<English>[TAB]Mines represent excavations and supporting works for extracting underground resources such as metals, coal, and other minerals.[PARAGRAPH:1]They are a cornerstone of production and strategic materials, often determining where an empire can arm itself, build heavily, or industrialize.[PARAGRAPH:1]Use this build to develop mineral-rich tiles and to make use of resource deposits that require mining.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WORKSHOP_PEDIA</Tag>
+		<English>[TAB]Workshops represent concentrated craft and industrial labor: toolmaking, machining, and later specialized manufacturing.[PARAGRAPH:1]They help convert land into a stronger production base for units, buildings, and projects, especially once an economy can support more than subsistence farming.[PARAGRAPH:1]This build order creates the improvement; workshops are a practical sign that a city is shifting from raw output toward organized production.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_LUMBERMILL_PEDIA</Tag>
+		<English>[TAB]Lumbermills represent managed timber harvesting and processing without necessarily clearing the forest itself.[PARAGRAPH:1]They provide a long-term way to gain value from wooded land while keeping the underlying feature intact.[PARAGRAPH:1]This differs from chopping, which removes the forest feature; a lumbermill is a permanent improvement that treats forests as an ongoing resource.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WINDMILL_PEDIA</Tag>
+		<English>[TAB]Windmills represent mechanical power drawn from wind to grind grain, pump water, or run simple machinery.[PARAGRAPH:1]They are often built where open exposure is strong or where traditional farming needs help from engineered power.[PARAGRAPH:1]A windmill is a sign of practical ingenuity: turning the environment itself into work.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WATERMILL_PEDIA</Tag>
+		<English>[TAB]Watermills represent mechanical power drawn from flowing water for milling, sawing, and early industry.[PARAGRAPH:1]They are traditionally associated with rivers and reliable water sources, turning steady current into productive force.[PARAGRAPH:1]Watermills often mark the start of a more complex river economy: not just food, but processing and work performed by machines.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PLANTATION_PEDIA</Tag>
+		<English>[TAB]Plantations represent organized cultivation of high-value crops such as sugar, cotton, spices, tea, and similar goods.[PARAGRAPH:1]They usually require land management, transport links, and a stable workforce to be profitable.[PARAGRAPH:1]Use this build to develop resource tiles that depend on plantation-style agriculture and export-oriented production.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_QUARRY_PEDIA</Tag>
+		<English>[TAB]Quarries represent the extraction of stone, marble, and other building materials from exposed rock.[PARAGRAPH:1]They are closely tied to construction booms and monumental architecture, supplying the heavy material that shapes cities and fortifications.[PARAGRAPH:1]Use this build to develop stone deposits and to support projects that depend on durable building resources.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PASTURE_PEDIA</Tag>
+		<English>[TAB]Pastures represent managed grazing and animal husbandry for horses, cattle, sheep, and similar livestock.[PARAGRAPH:1]They turn open land into steady food and materials, and they often enable the practical use of animal-based resources.[PARAGRAPH:1]Use this build where herding is the natural fit: broad grasslands, open plains, and established livestock regions.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_CAMP_PEDIA</Tag>
+		<English>[TAB]Camps represent controlled access to wild resources through hunting, trapping, and early processing.[PARAGRAPH:1]They are typically built where the natural environment itself is the resource, rather than where heavy land transformation is desired.[PARAGRAPH:1]Compared to farms or pastures, camps lean on wilderness management: skilled extraction without fully reshaping the land.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WELL_PEDIA</Tag>
+		<English>[TAB]Wells represent engineered access to groundwater: digging, lining, lifting, and storage.[PARAGRAPH:1]They are historically vital in dry regions and can support settlement where surface water is scarce or unreliable.[PARAGRAPH:1]A well is simple infrastructure with outsized impact: it makes marginal land livable and turns distance from rivers into a manageable problem.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_OFFSHORE_PLATFORM_PEDIA</Tag>
+		<English>[TAB]Offshore platforms represent large-scale infrastructure at sea for extraction and processing of deep-water resources.[PARAGRAPH:1]They require advanced engineering, sustained logistics, and a strong industrial base, extending an empire's reach beyond the shoreline.[PARAGRAPH:1]This build is performed by a naval worker unit and is used to develop advanced offshore resource sites.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_COTTAGE_PEDIA</Tag>
+		<English>[TAB]Cottages represent small settlements and local economic activity at the edge of established cities.[PARAGRAPH:1]As an area is worked and protected over time, cottage-style development can mature into larger, more prosperous towns.[PARAGRAPH:1]This build action is the worker order that creates the improvement; growth and upgrade behavior belongs to the improvement itself.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FORT_PEDIA</Tag>
+		<English>[TAB]Forts represent permanent field fortifications and military outposts built to hold ground.[PARAGRAPH:1]They are placed to secure borders, protect key tiles, or create staging points for operations far from city walls.[PARAGRAPH:1]A well-sited fort shapes the map: it turns terrain into a defensible position and extends the reach of organized force.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_REMOVE_JUNGLE_PEDIA</Tag>
+		<English>[TAB]Clearing jungle removes dense vegetation that can hinder movement, settlement, and development.[PARAGRAPH:1]This action is often used to open land for agriculture and infrastructure and to make the tile easier to improve.[PARAGRAPH:1]Removing jungle changes the underlying terrain feature; it is distinct from constructing a permanent improvement.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_PEDIA</Tag>
+		<English>[TAB]Chopping removes the forest feature from a tile, converting it into open land suited to different uses.[PARAGRAPH:1]Clearing forests is commonly done to prepare terrain for farms, cottages, and other improvements, or to reshape a landscape around growing cities.[PARAGRAPH:1]This is a feature-removal build order, not a permanent improvement: the forest is gone once the work is complete.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_SCRUB_FALLOUT_PEDIA</Tag>
+		<English>[TAB]Fallout represents severe environmental contamination left by catastrophe or weapons.[PARAGRAPH:1]Scrubbing fallout is a cleanup effort that restores land so it can be worked and improved normally again.[PARAGRAPH:1]It is a slow kind of repair: not building something new, but making a damaged place usable and safe for the future.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FOREST_PRESERVE_PEDIA</Tag>
+		<English>[TAB]A forest preserve represents protected land managed for conservation, research, and long-term sustainability.[PARAGRAPH:1]Unlike chopping, preservation keeps the natural feature in place while adding an organized framework for controlled use.[PARAGRAPH:1]A preserve is a deliberate choice to value enduring terrain: not everything must be harvested immediately to be useful.</English>
+	</TEXT>
 </Civ4GameText>

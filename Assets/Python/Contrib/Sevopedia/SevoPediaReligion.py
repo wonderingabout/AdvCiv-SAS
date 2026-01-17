@@ -138,8 +138,6 @@ class SevoPediaReligion:
 
 		rowListName = self.top.getNextWidgetName()
 
-		BUTTON_SIZE = 64 # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -150,7 +148,7 @@ class SevoPediaReligion:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: (not catch them all... or maybe.. or not or yes... xd) -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):

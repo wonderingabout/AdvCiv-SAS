@@ -133,14 +133,14 @@ class SevoPediaUnit:
 		self.W_REPLACE = self.X_CIVILIZATIONS - self.X_REPLACE - self.MEDIUM_MARGIN  # Takes remaining space (same as Requires)
 		self.H_REPLACE = self.H_REQUIRES
 
-		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; check if accurate as i don't know too much about these. -->
-		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
-
+		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; currently not implemented since we only use a button size of 64px so as of now using the same variable in all our file rather than declaring and passing a different button size locally in the multilist panels that have many rows, for simplicity. -->
+		# self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 		# Row 3-4: Of Other Units panel (full width, 2 rows height) - under Row 2
 		self.X_OF_OTHER_UNITS_MODIFIERS = self.X_UNIT_PANE
 		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_REPLACE + self.H_REPLACE + self.SMALL_MARGIN
 		self.W_OF_OTHER_UNITS_MODIFIERS = self.top.R_PEDIA_PAGE - self.X_UNIT_PANE
-		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+		# self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + MULTILIST_BUTTON_SIZE
 
 		# Row 5: Special panel (left half)
 		self.X_SPECIAL = self.X_UNIT_PANE
@@ -476,8 +476,6 @@ class SevoPediaUnit:
 		rowListName = self.top.getNextWidgetName()
 
 		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel -->
-		BUTTON_SIZE = 64 # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -488,13 +486,13 @@ class SevoPediaUnit:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
@@ -517,7 +515,7 @@ class SevoPediaUnit:
 				# Handle class modifiers with x/y format
 				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
 				extraCorrectionX = get_extra_correction_x(numTxt)
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1
@@ -538,7 +536,7 @@ class SevoPediaUnit:
 
 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
 					extraCorrectionX = get_extra_correction_x(numTxt)
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					isButtonFound = True
 					iButtonIndex += 1
@@ -567,9 +565,6 @@ class SevoPediaUnit:
 
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: note: since this is meant to have multiple lines, actually passing button size as a parameter here rather than hardcoded value of say 64, so that the size of other related panels is adjusted the bigger or smaller the _MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE panel is, see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE for details -->
-		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -580,13 +575,13 @@ class SevoPediaUnit:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 
 		# Get the unit info for the current unit
 		unitInfo = gc.getUnitInfo(self.iUnit)
@@ -609,7 +604,7 @@ class SevoPediaUnit:
 				# Handle class modifiers with x/y format
 				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
 				extraCorrectionX = get_extra_correction_x(numTxt)
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1
@@ -628,7 +623,7 @@ class SevoPediaUnit:
 
 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
 					extraCorrectionX = get_extra_correction_x(numTxt)
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					isButtonFound = True
 					iButtonIndex += 1
@@ -657,8 +652,6 @@ class SevoPediaUnit:
 
 		rowListName = self.top.getNextWidgetName()
 
-		BUTTON_SIZE = 64 # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -669,13 +662,13 @@ class SevoPediaUnit:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 		
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
@@ -696,7 +689,7 @@ class SevoPediaUnit:
 
 			numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
 			extraCorrectionX = get_extra_correction_x(numTxt)
-			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 			isButtonFound = True
 			iButtonIndex += 1
@@ -717,7 +710,7 @@ class SevoPediaUnit:
 
 				numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
 				extraCorrectionX = get_extra_correction_x(numTxt)
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1
@@ -736,7 +729,7 @@ class SevoPediaUnit:
 
 			numTxt = get_numTxt_attack_defense_modifiers(iCityAttack, iCityDefense)
 			extraCorrectionX = get_extra_correction_x(numTxt)
-			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 			isButtonFound = True
 			iButtonIndex += 1
@@ -756,7 +749,7 @@ class SevoPediaUnit:
 
 				numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
 				extraCorrectionX = get_extra_correction_x(numTxt)
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1

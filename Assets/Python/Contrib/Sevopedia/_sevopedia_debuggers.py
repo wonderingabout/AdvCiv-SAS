@@ -168,7 +168,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	# as we don't need them/display them in ai personality panel; then resume at fields below: -->
 
 	print("\n\n==== FLAVORS ====")
-	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\__SevoPediaBuilding-gc-debug-content.txt for details), so no need to specify a number of values to loop over as in below code -->
+	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name, so no need to specify a number of values to loop over as in below code -->
 	for i in range(gc.getNumFlavorTypes()):
 		name = gc.getFlavorTypes(i)
 		value = info.getFlavorValue(i)

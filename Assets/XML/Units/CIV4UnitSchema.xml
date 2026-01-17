@@ -48,6 +48,7 @@
 		<element type="Type"/>
 		<element type="Description"/>
 		<element type="Help"/>
+		<element type="Civilopedia"/>
 		<element type="PrereqTech"/>
 		<element type="iTime"/>
 		<element type="iCost"/>

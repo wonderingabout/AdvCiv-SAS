@@ -2,20 +2,20 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-.vs/
-Assert/
-Assert-fast/
-Debug/
-Debug-fast/
-Debug-Opt/
-Final_Release/
-Final_Release-fast/
-obj/
-Profile/
-Profile-fast/
-Release/
-_Release-fast/
-temp_files/
+# <!-- custom: use absolute paths as unrelated folders are getting incorrectly git ignored. -->
+/CvGameCoreDLL/Project/Assert/
+/CvGameCoreDLL/Project/Assert-fast/
+/CvGameCoreDLL/Project/Debug/
+/CvGameCoreDLL/Project/Debug-fast/
+/CvGameCoreDLL/Project/Debug-Opt/
+/CvGameCoreDLL/Project/Final_Release/
+/CvGameCoreDLL/Project/Final_Release-fast/
+/CvGameCoreDLL/Project/obj/
+/CvGameCoreDLL/Project/Profile/
+/CvGameCoreDLL/Project/Profile-fast/
+/CvGameCoreDLL/Project/Release/
+/CvGameCoreDLL/Project/_Release-fast/
+/CvGameCoreDLL/Project/temp_files/
 *.opensdf
 *.sdf
 *.suo

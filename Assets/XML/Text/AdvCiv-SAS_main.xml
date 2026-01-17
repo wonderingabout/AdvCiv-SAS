@@ -2110,8 +2110,56 @@ Created as part of AdvCiv-SAS improvements
 		<English>Consumes Unit</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_IMPROVEMENT</Tag>
+		<English>Improvement</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_ROUTE</Tag>
+		<English>Route</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT</Tag>
+		<English>Feature Struct</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO</Tag>
+		<English>Feature Struct Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE</Tag>
+		<English>Feature</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE</Tag>
+		<English>Removes feature</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE</Tag>
+		<English>Remove</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE_TIME</Tag>
+		<English>Remove Time</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION</Tag>
+		<English>on remove</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD</Tag>
+		<English>Build</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD</Tag>
 		<English>Units (Any Build)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_UNITS_BUILD</Tag>
+		<English>Units (Build)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT</Tag>
+		<English>Impr.</English>
 	</TEXT>
 	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
 	<TEXT>
@@ -2553,7 +2601,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES</Tag>
-		<English>Irrigation, Hill, River, Tech, Civic, Route Tile Yield Changes</English>
+		<English>Most Yield Changes</English>
 	</TEXT>
 
 
@@ -2857,5 +2905,97 @@ Created as part of AdvCiv-SAS improvements
 		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
 		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
 		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
+	</TEXT>
+
+
+
+	<!-- custom: added new Build action texts (SevoPedia Builds page), generated with the help of ChatGPT-5.2 Thinking. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_ROAD_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a road on the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_RAILROAD_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a railroad route on the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FARM_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Farm improvement on a suitable land tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FISHING_BOATS_HELP</Tag>
+		<English>[TAB]Order a work boat or similar unit to establish a fishing improvement on the selected water tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WHALING_BOATS_HELP</Tag>
+		<English>[TAB]Order a work boat or similar unit to establish a whaling improvement on the selected water tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_MINE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Mine improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WORKSHOP_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Workshop improvement on a suitable land tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_LUMBERMILL_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Lumbermill improvement, usually on a forested tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WINDMILL_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Windmill improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WATERMILL_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Watermill improvement, commonly along rivers.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PLANTATION_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Plantation improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_QUARRY_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Quarry improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PASTURE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Pasture improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_CAMP_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Camp improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WELL_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Well improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_OFFSHORE_PLATFORM_HELP</Tag>
+		<English>[TAB]Order a work boat or similar unit to establish an offshore platform improvement on the selected water tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_COTTAGE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Cottage improvement on a suitable land tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FORT_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Fort improvement on the selected land tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to clear jungle from the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to cut down and remove forest from the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_SCRUB_FALLOUT_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to remove fallout contamination from the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to establish a forest preserve improvement on a suitable tile.</English>
 	</TEXT>
 </Civ4GameText>

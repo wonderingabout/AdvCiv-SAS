@@ -66,17 +66,17 @@ class SevoPediaTerrain:
 		self.H_BONUSES_ONLY_WITH_FEATURE = self.H_FEATURES
 
 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
-		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
 
 		self.X_RELEVANT_UNITS = self.X_FEATURES
 		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ONLY_WITH_FEATURE + self.H_BONUSES_ONLY_WITH_FEATURE + self.SMALL_MARGIN
 		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
-		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
 
 		self.X_UNITS_IMPASSABLE = self.X_FEATURES
 		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
-		self.H_UNITS_IMPASSABLE = self.H_FEATURES
+		self.H_UNITS_IMPASSABLE = self.H_FEATURES + HIDE_SECOND_ROW_MULTI_LIST
 
 		self.X_SPECIAL = self.X_INFO_PANE
 		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
@@ -400,9 +400,6 @@ class SevoPediaTerrain:
 
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
-		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -413,13 +410,13 @@ class SevoPediaTerrain:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		#isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 
 		iPeak = self.I_TERRAIN_PEAK
 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
@@ -455,7 +452,7 @@ class SevoPediaTerrain:
 
 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
 						extraCorrectionX = get_extra_correction_x(numTxt)
-						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 						#isButtonFound = True
 						iButtonIndex += 1
@@ -501,7 +498,7 @@ class SevoPediaTerrain:
 							numTxt = s
 
 					extraCorrectionX = get_extra_correction_x(numTxt)
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					#isButtonFound = True
 					iButtonIndex += 1
@@ -531,7 +528,7 @@ class SevoPediaTerrain:
 						numTxt = "_/_"  # or "" if you prefer no tag
 				
 					extraCorrectionX = get_extra_correction_x(numTxt)
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					#isButtonFound = True
 					iButtonIndex += 1
@@ -553,7 +550,7 @@ class SevoPediaTerrain:
 
 					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
 					extraCorrectionX = get_extra_correction_x(numTxt)
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					#isButtonFound = True
 					iButtonIndex += 1
@@ -578,8 +575,6 @@ class SevoPediaTerrain:
 
 		rowListName = self.top.getNextWidgetName()
 
-		BUTTON_SIZE = 64
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -590,7 +585,7 @@ class SevoPediaTerrain:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		iPeak = self.I_TERRAIN_PEAK
 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->

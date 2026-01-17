@@ -168,8 +168,6 @@ class SevoPediaPromotion:
 
 		rowListName = self.top.getNextWidgetName()
 
-		BUTTON_SIZE = 64 # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -180,13 +178,13 @@ class SevoPediaPromotion:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually
+		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 
 		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
 		# Loop through all units to find those with this promotion
@@ -227,8 +225,6 @@ class SevoPediaPromotion:
 
 		rowListName = self.top.getNextWidgetName()
 
-		BUTTON_SIZE = 64 # Size of each button
-
 		# Create the MultiList control
 		# Constants for button display
 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
@@ -239,12 +235,12 @@ class SevoPediaPromotion:
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
 
-		## <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->

@@ -32,40 +32,52 @@ class SevoPediaBuild:
 
 		self.X_BUILD_PANE = self.top.X_PEDIA_PAGE
 		self.Y_BUILD_PANE = self.top.Y_PEDIA_PAGE
-		self.W_BUILD_PANE = 210
-		self.H_BUILD_PANE = 210
+		self.W_BUILD_PANE = 330
+		self.H_BUILD_PANE = 127
 
-		self.W_ICON = 150
-		self.H_ICON = 150
-		self.X_ICON = self.X_BUILD_PANE + (self.H_BUILD_PANE - self.H_ICON) / 2
-		self.Y_ICON = self.Y_BUILD_PANE + (self.H_BUILD_PANE - self.H_ICON) / 2
+		self.W_ICON = 100
+		self.H_ICON = 100
+		self.X_ICON = self.X_BUILD_PANE + 10
+		self.Y_ICON = self.Y_BUILD_PANE + 10
 		self.ICON_SIZE = 64
+		self.X_INFO_TEXT = self.X_BUILD_PANE + 110
+		self.Y_INFO_TEXT = self.Y_ICON + 15
+		self.W_INFO_TEXT = self.W_BUILD_PANE - 120
+		self.H_INFO_TEXT = self.H_BUILD_PANE - 20
 
-		remainingW = self.top.R_PEDIA_PAGE - self.X_BUILD_PANE - self.W_BUILD_PANE - (2 * self.MEDIUM_MARGIN)
 		self.X_REQUIRES = self.X_BUILD_PANE + self.W_BUILD_PANE + self.MEDIUM_MARGIN
 		self.Y_REQUIRES = self.Y_BUILD_PANE
-		self.W_REQUIRES = (remainingW - self.MEDIUM_MARGIN) / 2
+		self.W_REQUIRES = 84
 		self.H_REQUIRES = self.H_BUILD_PANE
 
-		self.X_RESULTS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
-		self.Y_RESULTS = self.Y_BUILD_PANE
-		self.W_RESULTS = remainingW - self.W_REQUIRES - self.MEDIUM_MARGIN
-		self.H_RESULTS = self.H_BUILD_PANE
+		self.X_IMPROVEMENTS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.Y_IMPROVEMENTS = self.Y_BUILD_PANE
+		self.W_IMPROVEMENTS = 84
+		self.H_IMPROVEMENTS = self.H_BUILD_PANE
 
-		self.X_FEATURE_REMOVALS = self.X_BUILD_PANE
-		self.Y_FEATURE_REMOVALS = self.Y_BUILD_PANE + self.H_BUILD_PANE + self.SMALL_MARGIN
-		self.W_FEATURE_REMOVALS = self.top.R_PEDIA_PAGE - self.X_BUILD_PANE
-		self.H_FEATURE_REMOVALS = 110
+		self.X_UNITS_BUILD = self.X_IMPROVEMENTS + self.W_IMPROVEMENTS + self.MEDIUM_MARGIN
+		self.Y_UNITS_BUILD = self.Y_BUILD_PANE
+		self.W_UNITS_BUILD = self.top.R_PEDIA_PAGE - self.X_UNITS_BUILD
+		self.H_UNITS_BUILD = self.H_BUILD_PANE
+
+		self.X_FEATURE_STRUCTS = self.X_BUILD_PANE
+		self.Y_FEATURE_STRUCTS = self.Y_BUILD_PANE + self.H_BUILD_PANE + self.SMALL_MARGIN
+		self.W_FEATURE_STRUCTS = self.top.R_PEDIA_PAGE - self.X_FEATURE_STRUCTS
+		self.H_FEATURE_STRUCTS = 350
 
 		self.X_SPECIAL = self.X_BUILD_PANE
-		self.Y_SPECIAL = self.Y_FEATURE_REMOVALS + self.H_FEATURE_REMOVALS + self.SMALL_MARGIN
-		self.W_SPECIAL = (self.top.R_PEDIA_PAGE - self.X_BUILD_PANE - self.MEDIUM_MARGIN) / 2
+		self.Y_SPECIAL = self.Y_FEATURE_STRUCTS + self.H_FEATURE_STRUCTS + self.SMALL_MARGIN
+		self.W_SPECIAL = self.W_BUILD_PANE
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
 		self.Y_HISTORY = self.Y_SPECIAL
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.H_SPECIAL
+		self.FEATURE_STRUCT_BUTTON_BOTTOM_MARGIN = 20
+		self.FEATURE_STRUCT_BUTTON_ROW_H = 64
+		self.FEATURE_STRUCT_PANEL_HEADER_H = 28
+		self.FEATURE_STRUCT_BUTTON_TOP_REL = self.H_FEATURE_STRUCTS - self.FEATURE_STRUCT_PANEL_HEADER_H - self.FEATURE_STRUCT_BUTTON_ROW_H - self.FEATURE_STRUCT_BUTTON_BOTTOM_MARGIN
 
 
 	def interfaceScreen(self, iBuild):
@@ -73,17 +85,25 @@ class SevoPediaBuild:
 
 		self.placeBuildPane()
 		self.placeRequires()
-		self.placeResults()
-		self.placeFeatureRemovals()
+		self.placeImprovements()
+		self.placeUnitsBuild()
+		self.placeFeatureStructs()
 		self.placeSpecial()
 		self.placeHistory()
 
 
 	def placeBuildPane(self):
 		screen = self.top.getScreen()
+		buildInfo = gc.getBuildInfo(self.iBuild)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_BUILD_PANE, self.Y_BUILD_PANE, self.W_BUILD_PANE, self.H_BUILD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBuildInfo(self.iBuild).getButton(), self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		panel = self.top.getNextWidgetName()
+		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
+		screen.enableSelect(panel, False)
+		screen.appendListBoxString(panel, u"<font=4b>" + buildInfo.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, localText.getText("TXT_KEY_PEDIA_BUILD", ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def placeRequires(self):
@@ -94,20 +114,11 @@ class SevoPediaBuild:
 
 		buildInfo = gc.getBuildInfo(self.iBuild)
 		bFound = False
-		seenTechs = {}
 
 		iTech = buildInfo.getTechPrereq()
 		if iTech > -1:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
-			seenTechs[iTech] = 1
 			bFound = True
-
-		for iFeature in xrange(gc.getNumFeatureInfos()):
-			iFeatureTech = buildInfo.getFeatureTech(iFeature)
-			if iFeatureTech > -1 and not seenTechs.has_key(iFeatureTech):
-				screen.attachImageButton(panelName, "", gc.getTechInfo(iFeatureTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iFeatureTech, 1, False)
-				seenTechs[iFeatureTech] = 1
-				bFound = True
 
 		if not bFound:
 			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
@@ -117,10 +128,10 @@ class SevoPediaBuild:
 			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
-	def placeResults(self):
+	def placeImprovements(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILD_RESULTS", ()), "", False, True, self.X_RESULTS, self.Y_RESULTS, self.W_RESULTS, self.H_RESULTS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 
 		buildInfo = gc.getBuildInfo(self.iBuild)
@@ -148,54 +159,108 @@ class SevoPediaBuild:
 			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_RESULTS + (self.H_RESULTS / 2)
-			screen.addMultilineText(textName, szText, self.X_RESULTS + 7, yPanelCenter, self.W_RESULTS - 14, self.H_RESULTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
+			screen.addMultilineText(textName, szText, self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
-	def placeFeatureRemovals(self):
+	def placeUnitsBuild(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVES_FEATURES", ()), "", False, True, self.X_FEATURE_REMOVALS, self.Y_FEATURE_REMOVALS, self.W_FEATURE_REMOVALS, self.H_FEATURE_REMOVALS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_BUILD", ()), "", False, True, self.X_UNITS_BUILD, self.Y_UNITS_BUILD, self.W_UNITS_BUILD, self.H_UNITS_BUILD, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
 
-		rowListName = self.top.getNextWidgetName()
+		iActivePlayer = gc.getGame().getActivePlayer()
+		bUnitFound = False
 
-		BUTTON_SIZE = 64
-		multiListX = self.X_FEATURE_REMOVALS + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = self.Y_FEATURE_REMOVALS + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = self.W_FEATURE_REMOVALS + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = self.H_FEATURE_REMOVALS + MULTI_LIST_PANEL_ADDITIONAL_H
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		for iUnit in xrange(gc.getNumUnitInfos()):
+			unitInfo = gc.getUnitInfo(iUnit)
+			if unitInfo.isGraphicalOnly():
+				continue
+			if unitInfo.getBuilds(self.iBuild):
+				szButton = unitInfo.getButton()
+				if iActivePlayer >= 0:
+					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
+				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+				bUnitFound = True
 
-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+		if not bUnitFound:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_UNITS_BUILD + (self.H_UNITS_BUILD / 2)
+			screen.addMultilineText(textName, szText, self.X_UNITS_BUILD + 7, yPanelCenter, self.W_UNITS_BUILD - 14, self.H_UNITS_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+	def placeFeatureStructs(self):
+		screen = self.top.getScreen()
 		buildInfo = gc.getBuildInfo(self.iBuild)
-		bFound = False
-		iButtonIndex = 0
+		featureStructs = []
 
 		for iFeature in xrange(gc.getNumFeatureInfos()):
 			featureInfo = gc.getFeatureInfo(iFeature)
 			if featureInfo.isGraphicalOnly():
 				continue
 
-			iFeatureTime = buildInfo.getFeatureTime(iFeature)
-			if buildInfo.isFeatureRemove(iFeature) or iFeatureTime > 0:
-				columnIndex = 0
-				screen.appendMultiListButton(rowListName, featureInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+			featureTech = buildInfo.getFeatureTech(iFeature)
+			featureTime = buildInfo.getFeatureTime(iFeature)
+			featureProduction = buildInfo.getFeatureProduction(iFeature)
+			bRemove = buildInfo.isFeatureRemove(iFeature)
+			if bRemove or featureTech > -1 or featureTime > 0 or featureProduction > 0:
+				featureStructs.append((iFeature, featureTech, featureTime, featureProduction, bRemove))
 
-				if iFeatureTime > 0:
-					numTxt = str(iFeatureTime)
-					extraCorrectionX = get_extra_correction_x(numTxt)
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+		if len(featureStructs) == 0:
+			return
 
-				bFound = True
-				iButtonIndex += 1
+		panelCount = len(featureStructs)
+		panelW = (self.W_FEATURE_STRUCTS - ((panelCount - 1) * self.MEDIUM_MARGIN)) / panelCount
+		panelH = self.H_FEATURE_STRUCTS
+		panelY = self.Y_FEATURE_STRUCTS
+		textMarginX = 7
+		textTop = panelY + 28
+		buttonRowH = self.FEATURE_STRUCT_BUTTON_ROW_H
+		buttonTopRel = self.FEATURE_STRUCT_BUTTON_TOP_REL
 
-		if not bFound:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+		for i, (iFeature, featureTech, featureTime, featureProduction, bRemove) in enumerate(featureStructs):
+			featureInfo = gc.getFeatureInfo(iFeature)
+			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + self.MEDIUM_MARGIN))
+			panelTitle = u"%s: %s" % (localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO", ()), featureInfo.getDescription())
+			panelName = self.top.getNextWidgetName()
+			screen.addPanel(panelName, panelTitle, "", False, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+			screen.attachLabel(panelName, "", "  ")
+
+			lines = []
+			bullet = localText.getText("[ICON_BULLET]", ())
+			lines.append(u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE", ()), featureInfo.getDescription()))
+			if featureTime > 0:
+				lines.append(u"%s%s: %d" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_TIME", ()), featureTime))
+			if featureProduction > 0:
+				lines.append(u"%s+%d%s %s" % (bullet, featureProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ())))
+			if bRemove and featureTime == 0 and featureProduction == 0:
+				lines.append(u"%s%s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE", ())))
+
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_FEATURE_REMOVALS + (self.H_FEATURE_REMOVALS / 2)
-			screen.addMultilineText(textName, szText, self.X_FEATURE_REMOVALS + 7, yPanelCenter, self.W_FEATURE_REMOVALS - 14, self.H_FEATURE_REMOVALS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			text = u"\n".join(lines)
+			textH = (panelY + buttonTopRel) - textTop - 6
+			if textH < 20:
+				textH = 20
+			screen.addMultilineText(textName, text, panelX + textMarginX, textTop, panelW - (textMarginX * 2), textH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+			buttons = []
+			if featureTech > -1:
+				buttons.append(("tech", featureTech, gc.getTechInfo(featureTech).getButton()))
+			buttons.append(("feature", iFeature, featureInfo.getButton()))
+
+			if len(buttons) > 0:
+				buttonSpacing = 4
+				buttonRowW = (len(buttons) * buttonRowH) + ((len(buttons) - 1) * buttonSpacing)
+				buttonXStart = (panelW - buttonRowW) / 2
+
+				for iButtonIndex, (buttonType, buttonId, buttonArt) in enumerate(buttons):
+					x = buttonXStart + (iButtonIndex * (buttonRowH + buttonSpacing))
+					if buttonType == "tech":
+						screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonArt, x, buttonTopRel, buttonRowH, buttonRowH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, buttonId, 1)
+					else:
+						screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonArt, x, buttonTopRel, buttonRowH, buttonRowH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, buttonId, 1)
 
 
 	def placeSpecial(self):
@@ -204,17 +269,19 @@ class SevoPediaBuild:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILD_INFO", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 
 		buildInfo = gc.getBuildInfo(self.iBuild)
-		szSpecialText = buildInfo.getHelp()
-		if not szSpecialText:
-			szSpecialText = u""
-
-		szStrategy = buildInfo.getStrategy()
-		if szStrategy:
-			if szSpecialText.strip():
-				szSpecialText += u"\n"
-			szSpecialText += szStrategy
+		szSpecialText = u""
 
 		bullet = localText.getText("[ICON_BULLET]", ())
+		iImprovement = buildInfo.getImprovement()
+		if iImprovement > -1:
+			szSpecialText += u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_IMPROVEMENT", ()), gc.getImprovementInfo(iImprovement).getDescription())
+
+		iRoute = buildInfo.getRoute()
+		if iRoute > -1:
+			if szSpecialText.strip():
+				szSpecialText += u"\n"
+			szSpecialText += u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_ROUTE", ()), gc.getRouteInfo(iRoute).getDescription())
+
 		iTime = buildInfo.getTime()
 		if iTime > 0:
 			if szSpecialText.strip():
@@ -233,7 +300,7 @@ class SevoPediaBuild:
 			szSpecialText += u"%s%s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_KILL_WORKER", ()))
 
 		listName = self.top.getNextWidgetName()
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL - 13, self.W_SPECIAL - 10, self.H_SPECIAL - 10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def placeHistory(self):

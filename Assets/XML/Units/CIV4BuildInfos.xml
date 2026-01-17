@@ -4,12 +4,14 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Build Infos -->
+<!-- custom: Added new Build Help/Civilopedia text keys (GPT-5.2-Codex). Generated with the help of ChatGPT-5.2 Thinking. -->
 <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<BuildInfos>
 		<BuildInfo>
 			<Type>BUILD_ROAD</Type>
 			<Description>TXT_KEY_BUILD_ROAD</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_ROAD_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_ROAD_PEDIA</Civilopedia>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			<iTime>200</iTime>
 			<iCost>0</iCost>
@@ -28,7 +30,8 @@
 		<BuildInfo>
 			<Type>BUILD_RAILROAD</Type>
 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_RAILROAD_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_RAILROAD_PEDIA</Civilopedia>
 			<!-- custom: TECH_RAILROAD is an inefficient or inaccuratetech and is now removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner -->
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<iTime>300</iTime>
@@ -48,7 +51,8 @@
 		<BuildInfo>
 			<Type>BUILD_FARM</Type>
 			<Description>TXT_KEY_BUILD_FARM</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_FARM_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_FARM_PEDIA</Civilopedia>
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<iTime>500</iTime>
 			<iCost>0</iCost>
@@ -91,7 +95,8 @@
 		<BuildInfo>
 			<Type>BUILD_FISHING_BOATS</Type>
 			<Description>TXT_KEY_BUILD_FISHING_BOATS</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_FISHING_BOATS_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_FISHING_BOATS_PEDIA</Civilopedia>
 			<PrereqTech>TECH_FISHING</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -110,7 +115,8 @@
 		<BuildInfo>
 			<Type>BUILD_WHALING_BOATS</Type>
 			<Description>TXT_KEY_BUILD_WHALING_BOATS</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_WHALING_BOATS_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WHALING_BOATS_PEDIA</Civilopedia>
 			<PrereqTech>TECH_SEAFARING</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -129,7 +135,8 @@
 		<BuildInfo>
 			<Type>BUILD_MINE</Type>
 			<Description>TXT_KEY_BUILD_MINE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_MINE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_MINE_PEDIA</Civilopedia>
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -172,7 +179,8 @@
 		<BuildInfo>
 			<Type>BUILD_WORKSHOP</Type>
 			<Description>TXT_KEY_BUILD_WORKSHOP</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_WORKSHOP_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WORKSHOP_PEDIA</Civilopedia>
 			<!-- custom: nerf the workshop a bit as it was a bit too op, was TECH_METAL_CASTING -->
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<iTime>600</iTime>
@@ -216,7 +224,8 @@
 		<BuildInfo>
 			<Type>BUILD_LUMBERMILL</Type>
 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_LUMBERMILL_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_LUMBERMILL_PEDIA</Civilopedia>
 			<!-- custom: historically more accurate in our reworked tech tree at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill, machinery is a bit late but fine, plus buffes tech_machinery too, was TECH_GUILDS (now removed) -->
 			<!-- K-Mod: was REPLACEABLE_PARTS -->
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -238,7 +247,8 @@
 		<BuildInfo>
 			<Type>BUILD_WINDMILL</Type>
 			<Description>TXT_KEY_BUILD_WINDMILL</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_WINDMILL_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WINDMILL_PEDIA</Civilopedia>
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<iTime>500</iTime>
 			<iCost>0</iCost>
@@ -282,7 +292,8 @@
 		<BuildInfo>
 			<Type>BUILD_WATERMILL</Type>
 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_WATERMILL_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WATERMILL_PEDIA</Civilopedia>
 			<!-- custom: seems historically more accurate or meshes or fits better with our reworked tech tree sooner, was TECH_MACHINERY -->
 			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			<iTime>400</iTime>
@@ -326,7 +337,8 @@
 		<BuildInfo>
 			<Type>BUILD_PLANTATION</Type>
 			<Description>TXT_KEY_BUILD_PLANTATION</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_PLANTATION_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_PLANTATION_PEDIA</Civilopedia>
 			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<iTime>500</iTime>
 			<iCost>0</iCost>
@@ -369,7 +381,8 @@
 		<BuildInfo>
 			<Type>BUILD_QUARRY</Type>
 			<Description>TXT_KEY_BUILD_QUARRY</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_QUARRY_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_QUARRY_PEDIA</Civilopedia>
 			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine, if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>600</iTime>
@@ -413,7 +426,8 @@
 		<BuildInfo>
 			<Type>BUILD_PASTURE</Type>
 			<Description>TXT_KEY_BUILD_PASTURE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_PASTURE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_PASTURE_PEDIA</Civilopedia>
 			<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -456,7 +470,8 @@
 		<BuildInfo>
 			<Type>BUILD_CAMP</Type>
 			<Description>TXT_KEY_BUILD_CAMP</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_CAMP_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_CAMP_PEDIA</Civilopedia>
 			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -484,7 +499,8 @@
 		<BuildInfo>
 			<Type>BUILD_WELL</Type>
 			<Description>TXT_KEY_BUILD_WELL</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_WELL_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WELL_PEDIA</Civilopedia>
 			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<iTime>1000</iTime>
 			<iCost>0</iCost>
@@ -527,7 +543,8 @@
 		<BuildInfo>
 			<Type>BUILD_OFFSHORE_PLATFORM</Type>
 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_OFFSHORE_PLATFORM_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_OFFSHORE_PLATFORM_PEDIA</Civilopedia>
 			<!-- custom: was the now removed TECH_PLASTICS -->
 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<iTime>0</iTime>
@@ -547,7 +564,8 @@
 		<BuildInfo>
 			<Type>BUILD_COTTAGE</Type>
 			<Description>TXT_KEY_BUILD_COTTAGE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_COTTAGE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_COTTAGE_PEDIA</Civilopedia>
 			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -590,7 +608,8 @@
 		<BuildInfo>
 			<Type>BUILD_FORT</Type>
 			<Description>TXT_KEY_BUILD_FORT</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_FORT_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_FORT_PEDIA</Civilopedia>
 			<!-- custom: move fort building a bit later in tech, hopefully a bit less or less soon nonsensical or unfit fort building, not reworking this/the code parts that seem(ed at least at that time in advciv issues threat in the civfanatics forum (issue) i mean i had created at that time), delaying it a bit hopefully helps and or is also more consistent with fortifications era (didnt check, maybe tech_engineering is an accurate enough time for this), was TECH_MATHEMATICS -->
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<iTime>1000</iTime>
@@ -619,7 +638,8 @@
 		<BuildInfo>
 			<Type>BUILD_REMOVE_JUNGLE</Type>
 			<Description>TXT_KEY_BUILD_REMOVE_JUNGLE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_REMOVE_JUNGLE_PEDIA</Civilopedia>
 			<PrereqTech>NONE</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -649,7 +669,8 @@
 		<BuildInfo>
 			<Type>BUILD_REMOVE_FOREST</Type>
 			<Description>TXT_KEY_BUILD_REMOVE_FOREST</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_REMOVE_FOREST_PEDIA</Civilopedia>
 			<PrereqTech>NONE</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -679,7 +700,8 @@
 		<BuildInfo>
 			<Type>BUILD_SCRUB_FALLOUT</Type>
 			<Description>TXT_KEY_BUILD_SCRUB_FALLOUT</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_SCRUB_FALLOUT_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_SCRUB_FALLOUT_PEDIA</Civilopedia>
 			<PrereqTech>NONE</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -707,7 +729,8 @@
 		<BuildInfo>
 			<Type>BUILD_FOREST_PRESERVE</Type>
 			<Description>TXT_KEY_BUILD_FOREST_PRESERVE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_FOREST_PRESERVE_PEDIA</Civilopedia>
 			<!-- advc.901: was SciMethod -->
 			<PrereqTech>TECH_BIOLOGY</PrereqTech>
 			<iTime>800</iTime>

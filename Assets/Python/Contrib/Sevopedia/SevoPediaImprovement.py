@@ -74,9 +74,14 @@ class SevoPediaImprovement:
 		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
-		self.X_REQUIRES = self.X_IMPROVEMENT_PANE
-		self.Y_REQUIRES = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
-		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION
+		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE
+		self.Y_BUILD_PANEL = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
+		self.W_BUILD_PANEL = 84
+		self.H_BUILD_PANEL = self.H_REQUIRES
+
+		self.X_REQUIRES = self.X_BUILD_PANEL + self.W_BUILD_PANEL + self.MEDIUM_MARGIN
+		self.Y_REQUIRES = self.Y_BUILD_PANEL
+		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION - self.W_BUILD_PANEL - self.MEDIUM_MARGIN
 
 		self.X_MOST_YIELDS = self.X_IMPROVEMENT_PANE
 		self.Y_MOST_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
@@ -109,6 +114,7 @@ class SevoPediaImprovement:
 		self.placeSpecial()
 		self.placeBonusYields()
 		self.placeImprovementAnimation()
+		self.placeBuilds()
 		self.placeRequires()
 		self.placeMostYields()
 		self.placeTerrainMakesValids()
@@ -220,6 +226,28 @@ class SevoPediaImprovement:
 	def placeImprovementAnimation(self):
 		screen = self.top.getScreen()
 		screen.addImprovementGraphicGFC(self.top.getNextWidgetName(), self.iImprovement, self.X_IMPROVEMENT_ANIMATION, self.Y_IMPROVEMENT_ANIMATION, self.W_IMPROVEMENT_ANIMATION, self.H_IMPROVEMENT_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_IMPROVEMENT_ANIMATION, self.Z_ROTATION_IMPROVEMENT_ANIMATION, self.SCALE_ANIMATION, True)
+
+
+
+	def placeBuilds(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILD", ()), "", False, True, self.X_BUILD_PANEL, self.Y_BUILD_PANEL, self.W_BUILD_PANEL, self.H_BUILD_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+
+		bButtonFound = False
+		for iBuild in range(gc.getNumBuildInfos()):
+			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
+				buildInfo = gc.getBuildInfo(iBuild)
+				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild, False)
+				bButtonFound = True
+
+		if not bButtonFound:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_BUILD_PANEL + (self.H_BUILD_PANEL / 2)
+			screen.addMultilineText(textName, szText, self.X_BUILD_PANEL + 7, yPanelCenter, self.W_BUILD_PANEL - 14, self.H_BUILD_PANEL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
