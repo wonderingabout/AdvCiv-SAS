@@ -26,6 +26,49 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+IMPROVEMENT_LEADER_CACHE = None
+
+
+
+def precomputeImprovementLeaderCache():
+	global IMPROVEMENT_LEADER_CACHE
+
+	if IMPROVEMENT_LEADER_CACHE is not None:
+		return IMPROVEMENT_LEADER_CACHE
+
+	leaderIds, leaderToCiv, unused_total = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+	improvementData = {}
+
+	for iImprovement in range(gc.getNumImprovementInfos()):
+		weightToLeaders = {}
+		for iLeader in leaderIds:
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			iWeight = leaderInfo.getImprovementWeightModifier(iImprovement)
+			if iWeight != 0:
+				if iWeight not in weightToLeaders:
+					weightToLeaders[iWeight] = []
+				weightToLeaders[iWeight].append(iLeader)
+
+		if not weightToLeaders:
+			improvementData[iImprovement] = (None, (), 0)
+			continue
+
+		weightsSorted = sorted(weightToLeaders.keys(), reverse=True)
+		maxLeaders = 1
+		for weight in weightsSorted:
+			if len(weightToLeaders[weight]) > maxLeaders:
+				maxLeaders = len(weightToLeaders[weight])
+		improvementData[iImprovement] = (weightToLeaders, tuple(weightsSorted), maxLeaders)
+
+	IMPROVEMENT_LEADER_CACHE = {
+		"leaderIds": leaderIds,
+		"leaderToCiv": leaderToCiv,
+		"improvements": improvementData,
+	}
+
+	print("Sevopedia Improvement leader cache prebuilt. This should appear only once per gaming session.")
+	return IMPROVEMENT_LEADER_CACHE
+
 
 
 class SevoPediaImprovement:
@@ -424,16 +467,12 @@ class SevoPediaImprovement:
 
 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENT_FAVORED_BY_LEADERS", ()), "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		leaderIds, leaderToCiv, unused_total = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+		cache = IMPROVEMENT_LEADER_CACHE
+		if cache is None:
+			cache = precomputeImprovementLeaderCache()
 
-		weightToLeaders = {}
-		for iLeader in leaderIds:
-			leaderInfo = gc.getLeaderHeadInfo(iLeader)
-			iWeight = leaderInfo.getImprovementWeightModifier(self.iImprovement)
-			if iWeight != 0:
-				if iWeight not in weightToLeaders:
-					weightToLeaders[iWeight] = []
-				weightToLeaders[iWeight].append(iLeader)
+		leaderToCiv = cache["leaderToCiv"]
+		weightToLeaders, weightsSorted, maxLeaders = cache["improvements"].get(self.iImprovement, (None, (), 0))
 
 		if not weightToLeaders:
 			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
@@ -448,12 +487,6 @@ class SevoPediaImprovement:
 		tableY = yPanel + 30
 		tableW = wPanel - (2 * tableMargin)
 		tableH = hPanel - 40
-
-		weightsSorted = sorted(weightToLeaders.keys(), reverse=True)
-		maxLeaders = 1
-		for weight in weightsSorted:
-			if len(weightToLeaders[weight]) > maxLeaders:
-				maxLeaders = len(weightToLeaders[weight])
 
 		leaderColW = self.IMPROVEMENT_LEADER_ICON_SIZE + self.IMPROVEMENT_LEADER_BUTTON_SPACING
 		weightColW = 60

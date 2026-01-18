@@ -1307,9 +1307,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in specialistsList:
 				outList.append(x)
 
+		if specialistsList and greatSpecialistsList:
+			outList.append(("", -1))  # spacer between groups
+
 		if greatSpecialistsList:
-			if outList:
-				outList.append(("", -1))  # spacer between groups
 			outList.append(("Great Specialists", -1))
 			for x in greatSpecialistsList:
 				outList.append(x)
@@ -1608,6 +1609,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeImprovements(self):
 		self.list = self.getImprovementList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, gc.getImprovementInfo)
+		SevoPediaImprovement.precomputeImprovementLeaderCache()
 
 	def placeBuilds(self):
 		self.list = self.getBuildList()
@@ -1642,18 +1644,36 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return False
 
+	def SAS_isFoodYieldImprovement(self, iImprovement):
+		"""Check if improvement provides food yields from any bonus."""
+		info = gc.getImprovementInfo(iImprovement)
+		if not info or info.isGraphicalOnly():
+			return False
+
+		for iBonus in range(gc.getNumBonusInfos()):
+			bInfo = gc.getBonusInfo(iBonus)
+			if bInfo and bInfo.isGraphicalOnly():
+				continue
+			# Check if this improvement gives food yield from this bonus
+			if info.getImprovementBonusYield(iBonus, YieldTypes.YIELD_FOOD) > 0:
+				return True
+
+		return False
+
 	# <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw  thanks; plus other subgroups we added in advciv-sas. Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot -->
 	# Group improvements as:
 	# - Land (Growth): land improvements in an upgrade chain (e.g. Cottage -> Hamlet -> Village -> Town)
 	# - Land (Bonus-capable): land improvements that can interact with bonuses (trade/connect or bonus yields)
 	# - Land (Other): remaining land improvements
-	# - Water
+	# - Water (Food): water improvements that provide food (Fishing Boats, Whaling Boats)
+	# - Water (Other): other water improvements (Offshore Platform)
 	def SAS_getImprovementsGroupedByTerrain_fromBaseList(self, baseList):
 		r = []
 		landGrowth = []
 		landBonusCapable = []
 		landOther = []
-		water = []
+		waterFood = []
+		waterOther = []
 
 		# Build set of improvements that are upgraded *to* by something (to detect chain membership, incl. final node).
 		dUpgradeTargets = {}
@@ -1667,11 +1687,30 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Cache bonus-capability per improvement to avoid re-scanning bonuses repeatedly.
 		dBonusCapable = {}
 
+		# Build improvement -> build tech prereq era mapping for water improvements sorting
+		dImprToEra = {}
+		for iBuild in xrange(gc.getNumBuildInfos()):
+			buildInfo = gc.getBuildInfo(iBuild)
+			if buildInfo:
+				iImpr = buildInfo.getImprovement()
+				if iImpr >= 0:
+					iTech = buildInfo.getTechPrereq()
+					if iTech >= 0:
+						dImprToEra[iImpr] = gc.getTechInfo(iTech).getEra()
+					elif iImpr not in dImprToEra:
+						dImprToEra[iImpr] = -1
+
 		for (szName, iImprovement) in baseList:
 			info = gc.getImprovementInfo(iImprovement)
 
 			if info and info.isWater():
-				water.append((szName, iImprovement))
+				# Check if water improvement provides food yields from any bonus
+				bFood = self.SAS_isFoodYieldImprovement(iImprovement)
+				iEra = dImprToEra.get(iImprovement, -1)
+				if bFood:
+					waterFood.append((iEra, szName, iImprovement))
+				else:
+					waterOther.append((iEra, szName, iImprovement))
 				continue
 
 			# Land
@@ -1695,12 +1734,63 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				else:
 					landOther.append((szName, iImprovement))
 
+		# Sort Land (Growth) by upgrade chain order, not alphabetically
+		# Find chain root(s) and walk the upgrade path
+		def sortByUpgradeChain(growthList):
+			if not growthList:
+				return growthList
+			# Build upgrade map: iImprovement -> iUpgrade
+			upgradeMap = {}
+			allIds = set()
+			for (szName, iImprovement) in growthList:
+				allIds.add(iImprovement)
+				info = gc.getImprovementInfo(iImprovement)
+				if info and hasattr(info, "getImprovementUpgrade"):
+					iUp = info.getImprovementUpgrade()
+					if iUp != -1:
+						upgradeMap[iImprovement] = iUp
+			# Find roots (improvements not upgraded to by anything in our list)
+			roots = []
+			for (szName, iImprovement) in growthList:
+				isRoot = True
+				for tgt in upgradeMap.values():
+					if tgt == iImprovement:
+						isRoot = False
+						break
+				if isRoot:
+					roots.append(iImprovement)
+			# Walk chains from roots
+			result = []
+			visited = set()
+			for root in roots:
+				current = root
+				while current is not None and current not in visited:
+					visited.add(current)
+					for (szName, iImprovement) in growthList:
+						if iImprovement == current:
+							result.append((szName, iImprovement))
+							break
+					current = upgradeMap.get(current, None)
+			# Add any remaining (shouldn't happen, but safety)
+			for item in growthList:
+				if item[1] not in visited:
+					result.append(item)
+			return result
+
+		landGrowth = sortByUpgradeChain(landGrowth)
+
+		# Sort water improvements by tech prereq era, then extract (szName, iImprovement)
+		waterFood.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
+		waterFood = [(item[1], item[2]) for item in waterFood]
+
+		waterOther.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
+		waterOther = [(item[1], item[2]) for item in waterOther]
+
 		# Optional sorting if BUG Sort Lists is on
+		# Keep special order for: landGrowth (chain), waterFood/waterOther (era)
 		if self.isSortLists():
-			landGrowth.sort()
 			landBonusCapable.sort()
 			landOther.sort()
-			water.sort()
 
 		# Emit headers + items in alphabetical order by header name
 		if landBonusCapable:
@@ -1708,7 +1798,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landBonusCapable:
 				r.append(x)
 
-		if landBonusCapable and (landGrowth or landOther or water):
+		if landBonusCapable and (landGrowth or landOther or waterFood or waterOther):
 			r.append(("", -1))
 
 		if landGrowth:
@@ -1716,7 +1806,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landGrowth:
 				r.append(x)
 
-		if landGrowth and (landOther or water):
+		if landGrowth and (landOther or waterFood or waterOther):
 			r.append(("", -1))
 
 		if landOther:
@@ -1724,12 +1814,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landOther:
 				r.append(x)
 
-		if (landBonusCapable or landGrowth or landOther) and water:
+		if (landBonusCapable or landGrowth or landOther) and (waterFood or waterOther):
 			r.append(("", -1))
 
-		if water:
-			r.append(("Water", -1))
-			for x in water:
+		if waterFood:
+			r.append(("Water (Food)", -1))
+			for x in waterFood:
+				r.append(x)
+
+		if waterFood and waterOther:
+			r.append(("", -1))
+
+		if waterOther:
+			r.append(("Water (Other)", -1))
+			for x in waterOther:
 				r.append(x)
 
 		return r
@@ -1756,18 +1854,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# <!-- custom: in sevopedia build list, group builds mirroring the improvement/feature categories.
 	# Implemented with claude opus 4.5's help thanks a lot -->
 	# Group builds as:
-	# - Land (Growth): builds that create growth-chain improvements (Cottage->Hamlet->Village->Town)
+	# - Land (Growth): builds that create growth-chain improvements (Cottage->Hamlet->Village->Town) - sorted by upgrade chain order
 	# - Land (Bonus-capable): builds that create bonus-capable improvements (Farm, Mine, etc.)
 	# - Land (Other): builds that create other land improvements (Fort, Forest Preserve, etc.)
-	# - Water: builds that create water improvements (Fishing Boats, Offshore Platform, etc.)
-	# - Land (Route): builds that create routes (Road, Railroad)
 	# - Land (Removable): builds that remove features without creating improvements (Chop Down, Remove Jungle, Scrub Fallout)
+	# - Land (Route): builds that create routes (Road, Railroad)
+	# - Water (Food): builds that create food-yielding water improvements (Fishing Boats, Whaling Boats)
+	# - Water (Other): builds that create other water improvements (Offshore Platform)
 	def SAS_getBuildsGroupedByType_fromBaseList(self, baseList):
 		r = []
 		landGrowth = []
 		landBonusCapable = []
 		landOther = []
-		water = []
+		waterFood = []
+		waterOther = []
 		landRoute = []
 		landRemovable = []
 
@@ -1780,6 +1880,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				if iUp != -1:
 					dUpgradeTargets[iUp] = 1
 
+		# Also build improvement -> build mapping for chain ordering
+		imprToBuild = {}
+
 		for (szName, iBuild) in baseList:
 			buildInfo = gc.getBuildInfo(iBuild)
 			if not buildInfo:
@@ -1789,13 +1892,28 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iRoute = buildInfo.getRoute()
 
 			if iRoute > -1:
-				landRoute.append((szName, iBuild))
+				# Store tech prereq era for sorting (Road before Railroad)
+				iTech = buildInfo.getTechPrereq()
+				iEra = -1
+				if iTech >= 0:
+					iEra = gc.getTechInfo(iTech).getEra()
+				landRoute.append((iEra, szName, iBuild))
 			elif iImprovement > -1:
+				imprToBuild[iImprovement] = (szName, iBuild)
 				imprInfo = gc.getImprovementInfo(iImprovement)
 
 				# Check if water improvement
 				if imprInfo and imprInfo.isWater():
-					water.append((szName, iBuild))
+					bFood = self.SAS_isFoodYieldImprovement(iImprovement)
+					# Store tech prereq era for sorting
+					iTech = buildInfo.getTechPrereq()
+					iEra = -1
+					if iTech >= 0:
+						iEra = gc.getTechInfo(iTech).getEra()
+					if bFood:
+						waterFood.append((iEra, szName, iBuild))
+					else:
+						waterOther.append((iEra, szName, iBuild))
 				else:
 					# Check if growth-chain improvement
 					bGrowth = False
@@ -1805,7 +1923,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 							bGrowth = True
 
 					if bGrowth:
-						landGrowth.append((szName, iBuild))
+						landGrowth.append((szName, iBuild, iImprovement))  # include iImprovement for chain sorting
 					else:
 						# Check if bonus-capable
 						bBonusCapable = self.SAS_isBonusCapableImprovement(iImprovement)
@@ -1816,13 +1934,67 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			else:
 				landRemovable.append((szName, iBuild))
 
+		# Sort Land (Growth) by upgrade chain order, not alphabetically
+		def sortBuildsByUpgradeChain(growthList):
+			if not growthList:
+				return []
+			# Build upgrade map: iImprovement -> iUpgrade
+			upgradeMap = {}
+			allIds = set()
+			for item in growthList:
+				iImprovement = item[2]
+				allIds.add(iImprovement)
+				info = gc.getImprovementInfo(iImprovement)
+				if info and hasattr(info, "getImprovementUpgrade"):
+					iUp = info.getImprovementUpgrade()
+					if iUp != -1:
+						upgradeMap[iImprovement] = iUp
+			# Find roots (improvements not upgraded to by anything in our list)
+			roots = []
+			for item in growthList:
+				iImprovement = item[2]
+				isRoot = True
+				for tgt in upgradeMap.values():
+					if tgt == iImprovement:
+						isRoot = False
+						break
+				if isRoot:
+					roots.append(iImprovement)
+			# Walk chains from roots
+			result = []
+			visited = set()
+			for root in roots:
+				current = root
+				while current is not None and current not in visited:
+					visited.add(current)
+					for item in growthList:
+						if item[2] == current:
+							result.append((item[0], item[1]))  # (szName, iBuild)
+							break
+					current = upgradeMap.get(current, None)
+			# Add any remaining (shouldn't happen, but safety)
+			for item in growthList:
+				if item[2] not in visited:
+					result.append((item[0], item[1]))
+			return result
+
+		landGrowth = sortBuildsByUpgradeChain(landGrowth)
+
+		# Sort by tech prereq era, then extract (szName, iBuild)
+		landRoute.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
+		landRoute = [(item[1], item[2]) for item in landRoute]
+
+		waterFood.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
+		waterFood = [(item[1], item[2]) for item in waterFood]
+
+		waterOther.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
+		waterOther = [(item[1], item[2]) for item in waterOther]
+
 		# Optional sorting if BUG Sort Lists is on
+		# Keep special order for: landGrowth (chain), landRoute/waterFood/waterOther (era)
 		if self.isSortLists():
-			landGrowth.sort()
 			landBonusCapable.sort()
 			landOther.sort()
-			water.sort()
-			landRoute.sort()
 			landRemovable.sort()
 
 		# Emit headers + items in alphabetical order by header name
@@ -1831,7 +2003,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landBonusCapable:
 				r.append(x)
 
-		if landBonusCapable and (landGrowth or landOther or landRemovable or landRoute or water):
+		if landBonusCapable and (landGrowth or landOther or landRemovable or landRoute or waterFood or waterOther):
 			r.append(("", -1))
 
 		if landGrowth:
@@ -1839,7 +2011,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landGrowth:
 				r.append(x)
 
-		if landGrowth and (landOther or landRemovable or landRoute or water):
+		if landGrowth and (landOther or landRemovable or landRoute or waterFood or waterOther):
 			r.append(("", -1))
 
 		if landOther:
@@ -1847,7 +2019,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landOther:
 				r.append(x)
 
-		if landOther and (landRemovable or landRoute or water):
+		if landOther and (landRemovable or landRoute or waterFood or waterOther):
 			r.append(("", -1))
 
 		if landRemovable:
@@ -1855,7 +2027,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landRemovable:
 				r.append(x)
 
-		if landRemovable and (landRoute or water):
+		if landRemovable and (landRoute or waterFood or waterOther):
 			r.append(("", -1))
 
 		if landRoute:
@@ -1863,12 +2035,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landRoute:
 				r.append(x)
 
-		if landRoute and water:
+		if landRoute and (waterFood or waterOther):
 			r.append(("", -1))
 
-		if water:
-			r.append(("Water", -1))
-			for x in water:
+		if waterFood:
+			r.append(("Water (Food)", -1))
+			for x in waterFood:
+				r.append(x)
+
+		if waterFood and waterOther:
+			r.append(("", -1))
+
+		if waterOther:
+			r.append(("Water (Other)", -1))
+			for x in waterOther:
 				r.append(x)
 
 		return r
