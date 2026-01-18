@@ -43,67 +43,107 @@ class SevoPediaImprovement:
 
 		self.X_IMPROVEMENT_PANE = self.top.X_PEDIA_PAGE
 		self.Y_IMPROVEMENT_PANE = self.top.Y_PEDIA_PAGE
-		self.W_IMPROVEMENT_PANE = 210
-		self.H_IMPROVEMENT_PANE = 210
+		self.H_REQUIRES = 110
+		self.H_IMPROVEMENT_PANE = (2 * self.H_REQUIRES) + self.SMALL_MARGIN
+		self.W_IMPROVEMENT_PANE = self.H_IMPROVEMENT_PANE
 
 		self.W_ICON = 150
 		self.H_ICON = 150
 		self.X_ICON = self.X_IMPROVEMENT_PANE + (self.H_IMPROVEMENT_PANE - self.H_ICON) / 2
 		self.Y_ICON = self.Y_IMPROVEMENT_PANE + (self.H_IMPROVEMENT_PANE - self.H_ICON) / 2
 		self.ICON_SIZE = 64
+		self.X_INFO_TEXT = self.X_IMPROVEMENT_PANE + 8
+		self.Y_INFO_TEXT = self.Y_IMPROVEMENT_PANE + 8
+		self.W_INFO_TEXT = self.W_IMPROVEMENT_PANE - 16
+		self.H_INFO_TEXT = 60
 
 		self.W_BONUS_YIELDS = 260
-		self.W_IMPROVEMENT_ANIMATION = ((self.top.R_PEDIA_PAGE - self.top.X_PEDIA_PAGE) - self.W_BONUS_YIELDS - (2 * self.MEDIUM_MARGIN)) / 2
-		self.W_SPECIAL = self.W_IMPROVEMENT_ANIMATION - self.MEDIUM_MARGIN - self.W_IMPROVEMENT_PANE
+		self.W_MOST_YIELDS = self.W_BONUS_YIELDS
 
-		self.X_SPECIAL = self.X_IMPROVEMENT_PANE + self.W_IMPROVEMENT_PANE + self.MEDIUM_MARGIN
-		self.Y_SPECIAL = self.Y_IMPROVEMENT_PANE
-		self.H_SPECIAL = self.H_IMPROVEMENT_PANE
-
-		self.X_BONUS_YIELDS = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+		self.X_BONUS_YIELDS = self.top.R_PEDIA_PAGE - self.W_BONUS_YIELDS
 		self.Y_BONUS_YIELDS = self.Y_IMPROVEMENT_PANE
 		self.H_BONUS_YIELDS = self.top.B_PEDIA_PAGE - self.Y_BONUS_YIELDS
 
-		self.H_REQUIRES = 110
+		self.X_MOST_YIELDS = self.X_BONUS_YIELDS - self.W_MOST_YIELDS - self.MEDIUM_MARGIN
+		self.Y_MOST_YIELDS = self.Y_BONUS_YIELDS
+		self.H_MOST_YIELDS = self.H_BONUS_YIELDS
 
-		self.X_IMPROVEMENT_ANIMATION = self.X_BONUS_YIELDS + self.W_BONUS_YIELDS + self.MEDIUM_MARGIN
-		self.Y_IMPROVEMENT_ANIMATION = self.Y_IMPROVEMENT_PANE + 7
-		self.H_IMPROVEMENT_ANIMATION = self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN + (2 * self.H_REQUIRES)  - 7
+		leftAreaRight = self.X_MOST_YIELDS - self.MEDIUM_MARGIN
+		self.W_LEFT_AREA = leftAreaRight - self.X_IMPROVEMENT_PANE
+
+		self.W_BUILD_PANEL = 84
+		self.H_BUILD_PANEL = self.H_REQUIRES
+		self.W_REQUIRES = 84
+
+		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE + self.W_IMPROVEMENT_PANE + self.MEDIUM_MARGIN
+		self.Y_BUILD_PANEL = self.Y_IMPROVEMENT_PANE
+
+		self.X_REQUIRES = self.X_BUILD_PANEL
+		self.Y_REQUIRES = self.Y_BUILD_PANEL + self.H_BUILD_PANEL + self.SMALL_MARGIN
+
+		self.X_TERRAIN_MAKES_VALIDS = self.X_BUILD_PANEL + self.W_BUILD_PANEL + self.MEDIUM_MARGIN
+		self.Y_TERRAIN_MAKES_VALIDS = self.Y_IMPROVEMENT_PANE
+		self.H_TERRAIN_MAKES_VALIDS = self.H_REQUIRES
+
+		self.X_FEATURE_MAKES_VALIDS = self.X_TERRAIN_MAKES_VALIDS
+		self.Y_FEATURE_MAKES_VALIDS = self.Y_TERRAIN_MAKES_VALIDS + self.H_TERRAIN_MAKES_VALIDS + self.SMALL_MARGIN
+		self.H_FEATURE_MAKES_VALIDS = self.H_REQUIRES
+
+		self.H_TOP_RIGHT_STACK = max(self.H_TERRAIN_MAKES_VALIDS + self.SMALL_MARGIN + self.H_FEATURE_MAKES_VALIDS, self.H_BUILD_PANEL + self.SMALL_MARGIN + self.H_REQUIRES)
+		availableAfterTerrain = leftAreaRight - self.X_TERRAIN_MAKES_VALIDS
+		if availableAfterTerrain < 0:
+			availableAfterTerrain = 0
+
+		preferredAnim = min(self.H_IMPROVEMENT_PANE, self.H_TOP_RIGHT_STACK)
+		minSidePanelW = 180
+		if availableAfterTerrain - self.MEDIUM_MARGIN - preferredAnim < minSidePanelW:
+			preferredAnim = max(140, availableAfterTerrain - self.MEDIUM_MARGIN - minSidePanelW)
+		if preferredAnim < 120:
+			preferredAnim = min(availableAfterTerrain, self.H_TOP_RIGHT_STACK)
+
+		self.W_IMPROVEMENT_ANIMATION = min(preferredAnim, availableAfterTerrain)
+		self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
+		self.X_IMPROVEMENT_ANIMATION = leftAreaRight - self.W_IMPROVEMENT_ANIMATION
+		self.Y_IMPROVEMENT_ANIMATION = self.Y_IMPROVEMENT_PANE
+
+		self.W_TERRAIN_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION - self.MEDIUM_MARGIN - self.X_TERRAIN_MAKES_VALIDS
+		if self.W_TERRAIN_MAKES_VALIDS < 120:
+			self.W_TERRAIN_MAKES_VALIDS = 120
+			self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + self.MEDIUM_MARGIN
+			self.W_IMPROVEMENT_ANIMATION = leftAreaRight - self.X_IMPROVEMENT_ANIMATION
+			self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
+
+		self.W_FEATURE_MAKES_VALIDS = self.W_TERRAIN_MAKES_VALIDS
+
+		self.H_TOP_ROW = max(self.H_IMPROVEMENT_PANE, self.H_TOP_RIGHT_STACK, self.H_IMPROVEMENT_ANIMATION)
+
+		self.X_IMPROVEMENT_LEADERS = self.X_IMPROVEMENT_PANE
+		self.Y_IMPROVEMENT_LEADERS = self.Y_IMPROVEMENT_PANE + self.H_TOP_ROW + self.SMALL_MARGIN
+		self.W_IMPROVEMENT_LEADERS = leftAreaRight - self.X_IMPROVEMENT_PANE
+
+		self.H_SPECIAL = 295
+		self.H_HISTORY = 295
+		self.Y_SPECIAL = self.top.B_PEDIA_PAGE - self.H_SPECIAL
+		self.X_SPECIAL = self.X_IMPROVEMENT_PANE
+		self.W_SPECIAL = min(360, (self.W_IMPROVEMENT_LEADERS / 3) + 100)
+		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+		self.Y_HISTORY = self.Y_SPECIAL
+		self.W_HISTORY = leftAreaRight - self.X_HISTORY
+		self.H_HISTORY = self.H_SPECIAL
+
+		self.H_IMPROVEMENT_LEADERS = self.Y_SPECIAL - self.SMALL_MARGIN - self.Y_IMPROVEMENT_LEADERS
+		if self.H_IMPROVEMENT_LEADERS < 0:
+			self.H_IMPROVEMENT_LEADERS = 0
 
 		self.X_ROTATION_IMPROVEMENT_ANIMATION = -20
 		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
-		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE
-		self.Y_BUILD_PANEL = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
-		self.W_BUILD_PANEL = 84
-		self.H_BUILD_PANEL = self.H_REQUIRES
-
-		self.X_REQUIRES = self.X_BUILD_PANEL + self.W_BUILD_PANEL + self.MEDIUM_MARGIN
-		self.Y_REQUIRES = self.Y_BUILD_PANEL
-		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION - self.W_BUILD_PANEL - self.MEDIUM_MARGIN
-
-		self.X_MOST_YIELDS = self.X_IMPROVEMENT_PANE
-		self.Y_MOST_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
-		self.W_MOST_YIELDS = self.W_IMPROVEMENT_ANIMATION
-		self.H_MOST_YIELDS = self.top.B_PEDIA_PAGE - self.Y_MOST_YIELDS
-
-		self.X_TERRAIN_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION
-		self.Y_TERRAIN_MAKES_VALIDS = self.Y_IMPROVEMENT_ANIMATION + self.H_IMPROVEMENT_ANIMATION + self.SMALL_MARGIN
-		self.W_TERRAIN_MAKES_VALIDS = self.W_IMPROVEMENT_ANIMATION
-		self.H_TERRAIN_MAKES_VALIDS = self.H_REQUIRES
-
-		self.X_FEATURE_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION
-		self.Y_FEATURE_MAKES_VALIDS = self.Y_TERRAIN_MAKES_VALIDS + self.H_TERRAIN_MAKES_VALIDS + self.SMALL_MARGIN
-		self.W_FEATURE_MAKES_VALIDS = self.W_IMPROVEMENT_ANIMATION
-		self.H_FEATURE_MAKES_VALIDS = self.H_REQUIRES
-
 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
-		self.X_HISTORY = self.X_IMPROVEMENT_ANIMATION
-		self.Y_HISTORY = self.Y_FEATURE_MAKES_VALIDS + self.H_FEATURE_MAKES_VALIDS + self.SMALL_MARGIN
-		self.W_HISTORY = self.W_IMPROVEMENT_ANIMATION
-		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+		self.IMPROVEMENT_LEADER_ICON_SIZE = 24
+		self.IMPROVEMENT_LEADER_BUTTON_SPACING = 2
+		self.IMPROVEMENT_LEADER_ROW_H = 24
 
 
 
@@ -117,6 +157,7 @@ class SevoPediaImprovement:
 		self.placeBuilds()
 		self.placeRequires()
 		self.placeMostYields()
+		self.placeImprovementLeaderTable()
 		self.placeTerrainMakesValids()
 		self.placeFeatureMakesValids()
 		self.placeHistory()
@@ -125,10 +166,17 @@ class SevoPediaImprovement:
 
 	def placeImprovementPane(self):
 		screen = self.top.getScreen()
+		info = gc.getImprovementInfo(self.iImprovement)
 		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_IMPROVEMENT_PANE, self.Y_IMPROVEMENT_PANE, self.W_IMPROVEMENT_PANE, self.H_IMPROVEMENT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getImprovementInfo(self.iImprovement).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.addDDSGFC(self.top.getNextWidgetName(), info.getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		panel = self.top.getNextWidgetName()
+		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
+		screen.enableSelect(panel, False)
+		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.appendListBoxString(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT", ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_CENTER_JUSTIFY)
 
 		# <!-- custom: move base yield info from yields panel to the improvement_pane panel, prettier or/adn clearer/more accurate as well maybe (a bit like in sevopedia terrain and sevopedia feature) -->
 		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
@@ -137,7 +185,7 @@ class SevoPediaImprovement:
 		nCount = 0
 
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
-			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
+			iYieldChange = info.getYieldChange(k)
 
 			if iYieldChange != 0:
 				if iYieldChange > 0:
@@ -166,26 +214,14 @@ class SevoPediaImprovement:
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely  -->
 		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
-		screen.addPanel( panelName, "", "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_INFO", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
 
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getImprovementHelp(self.iImprovement, True)
 
-		# Show iTime for building this improvement <!-- custom: (note: not related to feature remove's iTime, here it is about the improvement's iTime (i.e. time to build this improvement))), code provided with the help of chatgpt thanks and adjustments or not too too if i may say and thanks to it i.e. to chatgpt too too too if i may say but etc -->
-		if szSpecialText.strip():
-			szSpecialText += u"\n"
-		bullet = localText.getText("[ICON_BULLET]", ())
-		for iBuild in xrange(gc.getNumBuildInfos()):
-			buildInfo = gc.getBuildInfo(iBuild)
-			if buildInfo.getImprovement() == self.iImprovement:
-				iTime = buildInfo.getTime()
-				if iTime > 0:
-					szSpecialText += u"%sBuild Time: %d" % (bullet, iTime)
-					# Improvement is unique per build, so we can stop here after first meaningful (iTime > 0) entry
-					break
+		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
 
-		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL - 13, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -193,7 +229,7 @@ class SevoPediaImprovement:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely  -->
-		screen.addPanel( panelName, "", "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SAS_BONUSS_YIELDS", ()), "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
 		info = gc.getImprovementInfo(self.iImprovement)
 		for j in range(gc.getNumBonusInfos()):
 			bFirst = True
@@ -256,20 +292,34 @@ class SevoPediaImprovement:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
+		bButtonFound = False
 		for iBuild in range(gc.getNumBuildInfos()):
 			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
 				iTech = gc.getBuildInfo(iBuild).getTechPrereq()
 				if iTech > -1:
 					screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+					bButtonFound = True
+
+		if not bButtonFound:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
+			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
 	# <!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ), also with gemini ai's help too thanks a lot as well, and adjusted or not for advciv-sas -->
 	def placeMostYields(self):
 		screen = self.top.getScreen()
-		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
-		panelName = self.top.getNextWidgetName()
-		screen.addScrollPanel(panelName, "", self.X_MOST_YIELDS - 2, self.Y_MOST_YIELDS + 20, self.W_MOST_YIELDS + 4, self.H_MOST_YIELDS - 46, PanelStyles.PANEL_STYLE_EMPTY)
+		panelX = self.X_MOST_YIELDS
+		panelY = self.Y_MOST_YIELDS
+		panelW = self.W_MOST_YIELDS
+		panelH = self.H_MOST_YIELDS
+
+		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+		scrollPanelName = self.top.getNextWidgetName()
+		screen.addScrollPanel(scrollPanelName, "", panelX - 2, panelY + 20, panelW + 4, panelH - 46, PanelStyles.PANEL_STYLE_EMPTY)
 
 		iY = 6
 		iButtonSize = 64  # Use default 64px button size for better visibility
@@ -282,8 +332,8 @@ class SevoPediaImprovement:
 			if iYieldChange != 0:
 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 		if len(sText) > 0:
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.I_CONCEPT_IRRIGATION)
-			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.I_CONCEPT_IRRIGATION)
+			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			iY += (iButtonSize + 8)
 
 		# Hills yield changes
@@ -294,8 +344,8 @@ class SevoPediaImprovement:
 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 		if len(sText) > 0:
 			iHill = self.I_TERRAIN_HILL
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getTerrainInfo(iHill).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1)
-			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getTerrainInfo(iHill).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1)
+			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			iY += (iButtonSize + 8)
 
 		# River yield changes
@@ -313,8 +363,8 @@ class SevoPediaImprovement:
 			# Ensure 'CONCEPT_RIVERS' is defined in your Civilopedia XML.
 			riversConceptID = get_concept_id("CONCEPT_RIVERS", gc)
 			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(riversConceptID, WidgetTypes, CivilopediaPageTypes)
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
-			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
+			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			iY += (iButtonSize + 8)
 
 		# Tech yield changes
@@ -325,8 +375,8 @@ class SevoPediaImprovement:
 				if iYieldChange != 0:
 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 			if len(sText):
-				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getTechInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, item, 1)
-				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getTechInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, item, 1)
+				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 		# Civic yield changes
@@ -337,8 +387,8 @@ class SevoPediaImprovement:
 				if iYieldChange != 0:
 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 			if len(sText):
-				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getCivicInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, item, 1)
-				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getCivicInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, item, 1)
+				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 		# Route yield changes
@@ -360,9 +410,91 @@ class SevoPediaImprovement:
 				if iBuild < 0:
 					raise Exception("SevoPediaImprovement: missing Build for route %s" % routeInfo.getType())
 
-				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild)
-				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild)
+				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
+
+
+	def placeImprovementLeaderTable(self):
+		screen = self.top.getScreen()
+		xPanel = self.X_IMPROVEMENT_LEADERS
+		yPanel = self.Y_IMPROVEMENT_LEADERS
+		wPanel = self.W_IMPROVEMENT_LEADERS
+		hPanel = self.H_IMPROVEMENT_LEADERS
+
+		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENT_FAVORED_BY_LEADERS", ()), "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		leaderIds, leaderToCiv, unused_total = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+
+		weightToLeaders = {}
+		for iLeader in leaderIds:
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			iWeight = leaderInfo.getImprovementWeightModifier(self.iImprovement)
+			if iWeight != 0:
+				if iWeight not in weightToLeaders:
+					weightToLeaders[iWeight] = []
+				weightToLeaders[iWeight].append(iLeader)
+
+		if not weightToLeaders:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			return
+
+		tableMargin = 8
+		tableX = xPanel + tableMargin
+		tableY = yPanel + 30
+		tableW = wPanel - (2 * tableMargin)
+		tableH = hPanel - 40
+
+		weightsSorted = sorted(weightToLeaders.keys(), reverse=True)
+		maxLeaders = 1
+		for weight in weightsSorted:
+			if len(weightToLeaders[weight]) > maxLeaders:
+				maxLeaders = len(weightToLeaders[weight])
+
+		leaderColW = self.IMPROVEMENT_LEADER_ICON_SIZE + self.IMPROVEMENT_LEADER_BUTTON_SPACING
+		weightColW = 60
+		countColW = 60
+		availableLeadersW = tableW - weightColW - countColW
+		if availableLeadersW < leaderColW * maxLeaders:
+			leaderColW = int(availableLeadersW / maxLeaders)
+			if leaderColW < 10:
+				leaderColW = 10
+
+		tableName = self.top.getNextWidgetName()
+		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, self.IMPROVEMENT_LEADER_ROW_H, self.IMPROVEMENT_LEADER_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.enableSort(tableName)
+
+		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_WEIGHT", ()), weightColW)
+		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), countColW)
+		for iCol in xrange(maxLeaders):
+			screen.setTableColumnHeader(tableName, 2 + iCol, "", leaderColW)
+
+		for weight in weightsSorted:
+			iRow = screen.appendTableRow(tableName)
+			screen.setTableText(tableName, 0, iRow, u"<font=2>%+d</font>" % weight, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			leaderCount = len(weightToLeaders[weight])
+			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % leaderCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			self._setLeaderIconCells(screen, tableName, iRow, weightToLeaders[weight], 2, maxLeaders, leaderToCiv)
+
+
+	def _setLeaderIconCells(self, screen, tableName, row, leaderIds, leaderColStart, leaderColCount, leaderToCiv):
+		for iCol in xrange(leaderColCount):
+			if iCol >= len(leaderIds):
+				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				continue
+
+			iLeader = leaderIds[iCol]
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			buttonPath = leaderInfo.getButton()
+			iCiv = leaderToCiv.get(iLeader, -1)
+			if iCiv != -1 and buttonPath:
+				screen.setTableText(tableName, leaderColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, CvUtil.FONT_LEFT_JUSTIFY)
+			else:
+				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

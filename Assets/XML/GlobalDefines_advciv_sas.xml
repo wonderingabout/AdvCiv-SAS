@@ -4,9 +4,7 @@ AI, UI, or other modifications
 Created as part of AdvCiv-SAS improvements
 (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 -->
-<!-- custom: Long_Comments_XML.txt #131 -->
-<!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentioned if so, check if accurate). -->
-<!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while -->
+<!-- custom: Long_Comments_XML.txt #131, #195 -->
 
 
 
@@ -23,17 +21,17 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later). Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such. -->
+	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later); Long_Comments_XML.txt #192 -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
+	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of "T.W. Likely"; Long_Comments_XML.txt #193 -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
+	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel; Long_Comments_XML.txt #194 -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -80,7 +78,6 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.) instead of an alphabetical unordered very long list, as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
-	<!-- custom: 1 to enable (recommended), 0 to disable -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -90,12 +87,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: in sevopedia buildings (as of now regular buildings, national wonders, world wonders), group techs by era (obtained from tech prereqs since Buildings don't have eras per-se and as chatgpt 5.2 explained to me thanks) (e.g. Ancient Era, Classical Era, No Tech Prereq (available at any era), etc.) instead of one long list -->
+	<!-- custom: Long_Comments_XML.txt #201 -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: similarly for other sevopedia pages -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -113,7 +109,6 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: in sevopedia main specialists list, group specialists by type (e.g. Engineer vs Great Engineer) based on how RFC DOC mod does it thanks -->
-	<!-- custom: 1 to enable (recommended), 0 to disable -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -126,6 +121,11 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw  thanks; plus other subgroups we added in advciv-sas. Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: group builds mirroring the improvement/feature categories: Land (Growth), Land (Bonus-capable), Land (Other), Water, Land (Route), Land (Removable). (claude opus 4.5) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
@@ -184,7 +184,6 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<!-- custom: enable buttons (i.e. images/icons for unit combats and units in the military advisor (F5 key)). -->
-	<!-- custom: 1 to enable (recommended), 0 to disable -->
 	<Define>
 		<DefineName>SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -213,7 +212,6 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>-17</iDefineIntVal>
 	</Define>
 	<!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
-	<!-- custom: 1 to enable (recommended), 0 to disable -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -221,10 +219,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: use this to tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
-	<!-- custom: e.g. with a value of 75, if the upgrade cost was 120 gold, now it would be 120 * 75 / 100 = 90 gold -->
-	<!-- custom: note 2: set to 100 to disable (since 100 percent = 1 = same value) -->
-	<!-- 75% of current cost for both human & AI -->
+	<!-- custom: Long_Comments_XML.txt #212 -->
 	<Define>
 		<DefineName>SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
@@ -232,8 +227,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
-	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
+	<!-- custom: Long_Comments_XML.txt #213 -->
 	<Define>
 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -250,7 +244,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: similarly, if you don't want to use the ObsoleteTech new XML field at all, you can disable it without having to tediously manually modify each entry one by one in XML, you can using this SAS define. If disabled (0), the value in XML ObsoleteTech will be ignored and always NONE (i.e. same behaviour as in base AdvCiv/Civ4). If enabled (1), the tech specified for each unit in its XML ObsoleteTech field will be applied e.g. NONE or TECH_BRONZE_WORKING for UNIT_WARRIOR for example. -->
+	<!-- custom: Long_Comments_XML.txt #200 -->
 	<Define>
 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -258,14 +252,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should) change AI settling preferences and recommended sites in UI as well. Are accounted as very bad tiles (check if not updated in code), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city)):
-		- peak tiles
-		- ice cap tiles
-		- desert tiles that are not hill and have no bonus, and that are not floodplains nor oasis
-		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
-	Start phase is before our first city is planted/settled/founded.
-	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect
-	-->
+	<!-- custom: Long_Comments_XML.txt #211 -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
@@ -274,7 +261,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: the lower (e.g. -200 is lower than -100) this number is, the more we penalize and think such a tile is very very bad and thus reduce the likeliness that we'll choose the candidate city site that has this tile in its BFC. This value is multiplied by the number of bad tiles if we are past the strict max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * (-100) = - 400 to its value which is as of now a bit more than what iron would give for example so quite big -->
+	<!-- custom: Long_Comments_XML.txt #207 -->
 	<Define>
 		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
 		<iDefineIntVal>-100</iDefineIntVal>
@@ -345,8 +332,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: non-bonus home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
-	<!-- custom: the higher (e.g. -100 is higher than -150) these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example, then it means we value this tile 50 value more (addition), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example -->
+	<!-- custom: Long_Comments_XML.txt #204 -->
 	<!-- custom: don't settle here, unless locally extremely good otherwise, made it even lower as some AIs still didn't listen -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS</DefineName>
@@ -507,7 +493,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot), so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site -->
+	<!-- custom: Long_Comments_XML.txt #197 -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START</DefineName>
 		<iDefineIntVal>13</iDefineIntVal>
@@ -596,8 +582,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
-	<!-- custom: 1 to enable (recommended), 0 to disable -->
+	<!-- custom: Long_Comments_XML.txt #196 -->
 	<Define>
 		<DefineName>SAS_AI_FOUND_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -646,7 +631,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_buildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not) -->
+	<!-- custom: Long_Comments_XML.txt #198 -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -783,8 +768,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_PALACE</DefineTextVal>
 	</Define>
-	<!-- custom: max number of turns (at normal, auto adjusted to other game speeds) we tolerate to not reject building a wonder. This is adjusted by various things (handicap, etc), but it grossly means that for example if value is 20 (which is computed as 20 * 150 / 100 = 30 turns in gamespeed_epic for example), if a wonder takes 21 or more turns at normal (or 31 at gamespeed_epic for example) to build, we will reject it and not build it, as it is too unlikely we'd finish it in time or fast enough or would gain enough from building it. -->
-	<!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it -->
+	<!-- custom: Long_Comments_XML.txt #205 -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
@@ -793,7 +777,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units -->
-	<!-- custom: hopefully enough just with the modifier that trebuchets use as of now (but check if accurate as i didn't check in detail) -->
+	<!-- custom: hopefully enough just with the modifier that trebuchets use as of now -->
 	<Define>
 		<DefineName>SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
@@ -840,8 +824,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example), where our code remains active. Past this turn, we don't control excess defenders anymore. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less -->
-	<!-- custom: Long_Comments_XML.txt #110 -->
+	<!-- custom: Long_Comments_XML.txt #199 -->
 	<Define>
 		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
 		<iDefineIntVal>170</iDefineIntVal>
@@ -851,13 +834,12 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases) -->
+	<!-- custom: Long_Comments_XML.txt #210 -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: if we reject unit the other flags of attempt are useless i.e. unused: we only attempt them if this excess defender unit order (to produce this unit) is not rejected by the above reject flag. -->
-	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure) -->
+	<!-- custom: Long_Comments_XML.txt #209 -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -870,8 +852,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below with the help of chatgpt 5 -->
-	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
+	<!-- custom: Long_Comments_XML.txt #208 -->
 	<Define>
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -886,7 +867,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: set to only allow offense default unitais as fallback (as of now UNITAI_COUNTER, UNITAI_ATTACK, UNITAI_ATTACK_CITY, check code for updated version if any change since then); untested but may for example reduce early longbow spam in favour of more offense units (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)): it is a trade off though as we'd have (in theory, as of now untested) less defensive units then -->
+	<!-- custom: Long_Comments_XML.txt #215 -->
 	<Define>
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -904,7 +885,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
-	<!-- custom: a bit more lenient with this one since it is strict cap (not an extra cap) and we added guards so that hopefully they are not produced if enemy is strong or such. We shouldn't restrict them too much if they are the only viable offense path, but producing more than a few they are highly likely to become ununsed, so use a low threshold. Not using this, AIs would produce tons of trebuchets (like 17-19 at turn 200 which was highly detrimental) via the no production fallback part of the code -->
+	<!-- custom: Long_Comments_XML.txt #214 -->
 	<Define>
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
@@ -917,7 +898,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
+	<!-- custom: Long_Comments_XML.txt #216 -->
 	<Define>
 		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1037,13 +1018,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: independently from multi effect bonuses valuing, also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc.) specifically; AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided with the help of chatgpt 5 thanks -->
-	<!--
-	// totally—treat AIObjective as the general “this bonus is strategically important” knob, and then layer your edge rules (iron/copper, horse/camel, elephants (low value)) on top. Because both are multiplicative, order doesn’t change the math, but putting the AIObjective block first reads nicest.
-	// - 1) Generic AIObjective bump (broad rule) -
-	// Each AIObjective point adds X%, capped at Y%
-	-->
-	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example). -->
+	<!-- custom: Long_Comments_XML.txt #206 -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1232,7 +1207,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate -->
+	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks -->
     <!-- SAS techTradeClusterKnown:
 	Devalue techs that are already available inside our master–vassal locus when an *outsider* offers them. This pushes the AI toward getting those techs from its own master/vassals instead, reinforcing cluster synergy. -->
     <!-- custom: enable (1) / disable (0) to toggle this option -->
@@ -1293,10 +1268,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
-	<!-- Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
-	<!-- This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+	<!-- custom: Long_Comments_XML.txt #217 -->
 	<Define>
 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1304,9 +1276,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro, check if accurate -->
-	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
-	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+	<!-- custom: Long_Comments_XML.txt #203 -->
 	<Define>
 		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1401,7 +1371,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: following our rework to give commerce yields to specialists as of now in civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks i mean to see if it helps, check if accurate -->
+	<!-- custom: following our rework to give commerce yields to specialists as of now in civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks. -->
 	<!-- custom: Long_Comments_XML.txt #168 -->
 	<Define>
 		<DefineName>SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT</DefineName>
@@ -1410,7 +1380,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: civic excessive oscillation tentative fix. Note: issue happened before our unlimited specialists civic valuation changes based on quick autoplay testing, but they seem more prevalent now that for example civic_caste_system is no longer an autopick and civics change more. Added this with the help of chatgpt 5 to attempt to / to help reduce oscillation. Check if accurate -->
+	<!-- custom: civic excessive oscillation tentative fix. Note: issue happened before our unlimited specialists civic valuation changes based on quick autoplay testing, but they seem more prevalent now that for example civic_caste_system is no longer an autopick and civics change more. Added this with the help of chatgpt 5 to attempt to reduce oscillation. -->
 	<!-- custom: Long_Comments_XML.txt #108 -->
 	<Define>
 		<DefineName>SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK</DefineName>
@@ -1425,7 +1395,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks; check if accurate -->
+	<!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks -->
 	<!-- custom: Long_Comments_XML.txt #107 -->
 	<Define>
 		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT</DefineName>
@@ -1464,18 +1434,12 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate -->
+	<!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1 -->
 	<Define>
 		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- convenience: block auto-assigning specific specialists for human players only.
-		Manual assignment still allowed. Off by default. -->
-	<!-- // Key points:
-		// 	- It only runs when bHuman and new_job.first (i.e. we’re hiring or switching to a specialist).
-		// 	- It uses the same iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become “last resort” for the governor, same as Citizen.
-		// 	- It doesn’t touch AI behavior at all (all your AI growth rules further down are still under !bHuman).
-		// Manual specialist assignment via the UI is still outside this path (that goes through changeSpecialistCount directly), so players can always override the governor. -->		
+	<!-- custom: Long_Comments_XML.txt #202 -->
 	<Define>
 		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SCIENTIST_SPECIALIST</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

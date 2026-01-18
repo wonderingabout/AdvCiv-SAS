@@ -74,12 +74,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUG_OPT_ACO__IGNOREBARBFREEWINS_HOVER</Tag>
 		<English>When checked, the shown odds ignore free wins against Barbarians that the handicap level may guarantee. If not checked, the shown odds are 100% when a free win applies.</English>
 	</TEXT>
-	<!-- custom: rename "Difficulty" to "Handicap" -->
-	<!-- advc.009c: Removed the final sentence: "This setting does not affect
-		 MapFinder saves." / "(diese Option hat keinen Einfluss auf
-		 MapFinder-Spielstände)" / "Questa impostazione non influenza i
-		 salvataggi di MapFinder." / "Esta opción no afecta a las partidas
-		 guardadas por MapFinder." -->
+	<!-- custom: Long_Comments_XML.txt #232 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__USEPLAYERNAME_HOVER</Tag>
 		<English>When checked, your player name is used for the saved game name along with the turn year. Otherwise the name is a concatenation of 3-letter versions of Leader Name, Handicap, Map Size, Map Type, Speed, Era, Year, Climate and Sea Level.</English>
@@ -341,8 +336,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: "Unique Units" were not unique (could be built many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
-	After futher consideration, there are no multi Civ-specific units (units that can be built only be a few civs in common) in AdvCiv-SAS, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
+	<!-- custom: Long_Comments_XML.txt #218 -->
 	<TEXT>
 		<Tag>TXT_KEY_FREE_UNITS</Tag>
 		<English>Civilization Units</English>
@@ -361,7 +355,7 @@ Created as part of AdvCiv-SAS improvements
 		<English>Outdated</English>
 	</TEXT>
 
-	<!-- custom: was "BtS Concepts", see code comments in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml (or the equivalent of this path in your mod installation path). -->
+	<!-- custom: Long_Comments_XML.txt #228 -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
 		<!-- custom: <English>Mods Information</English>-->
@@ -612,7 +606,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
 		<English>Obelisk</English>
 	</TEXT>
-	<!-- custom: rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" to match the existing "_EGYPTIAN_WAR_CHARIOT" and better match the "_EGYPTIAN_OBELISK" we renamed more clearly in the past(note: no idea how the better matching "egyptian_war_chariot" name was detected with old asset names (i don't know how these work it seems) but at least it's consistent now and hopefully clear(er too)) -->
+	<!-- custom: Long_Comments_XML.txt #231 -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT</Tag>
 		<English>War Chariot</English>
@@ -635,7 +629,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
 		<English>The Three Gorges Dam</English>
 	</TEXT>
-	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this caseeven though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe tooin this case) and we need/want a music tech wonder -->
+	<!-- custom: Long_Comments_XML.txt #229 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
 		<English>Natya Shastra</English>
@@ -671,12 +665,12 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
 		<English>Kingdom Of Benin</English>
 	</TEXT>
-	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki if i understood it correctly) with modern Benin, trying to keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
+	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki) with modern Benin, trying to keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
 		<English>Kingdom Of Benin</English>
 	</TEXT>
-	<!-- custom: i found no clear mention of an adjective, going with "people of Benin" mentioned here: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding. After asking gemini 3 pro, it recommended "Edo" (as in "Edo people") and also suggested "Bini" (as in "Bini workers"). As it advised, i also thought independently beforehand that Beninese should be avoided since the modern Benin is not to be confused with the old Kingdom of Benin. -->
+	<!-- custom: Long_Comments_XML.txt #230 -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
 		<English>Edo</English>
@@ -814,10 +808,8 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", see code comment at the pedia entry corresponding to this tag/unit for details -->
-	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
-		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
-	<TEXT> <!-- redefine -->
+	<!-- custom: Long_Comments_XML.txt #227 -->
+	<TEXT>
 		<Tag>TXT_KEY_UNIT_ROMAN_LEGIONARY</Tag>
 		<English>Legionary</English>
 	</TEXT>
@@ -902,9 +894,7 @@ Created as part of AdvCiv-SAS improvements
 		<English>Trading Post</English>
 	</TEXT>
 	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details -->
-	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
-		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_UNIT_SCANDINAVIA_VIKING</Tag>
 		<English>Viking</English>
 	</TEXT>
@@ -945,7 +935,6 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
 		<English>Counter-Archer</English>
 	</TEXT>
-	<!-- custom: rename or create subtypes for each melee type maybe or maybe not and put them all in same promotion easier? Or partly simply by having counter melee sword, or counter sword? Todo -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
 		<English>Counter-Melee</English>
@@ -959,7 +948,7 @@ Created as part of AdvCiv-SAS improvements
 		<English>Counter-Mounted</English>
 	</TEXT>
 
-	<!-- custom: use arabic numerals for/in promotions naming(/es), add missing "translations" for some promotions too (for example) combat 6, even though i just copy paste to english for ease of use (of translation) and convenience, i don't want it to be displayed as "VI" ingame but "6" so adding these extra ones. -->
+	<!-- custom: Long_Comments_XML.txt #226 -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
 		<English>Combat 1</English>
@@ -1076,7 +1065,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_UNITCOMBAT_NAVAL</Tag>
 		<English>Naval</English>
 	</TEXT>
-	<!-- custom: rename "Gunpowder Units" to "Gun" to encompass all kind of gun units not just the early ones that use gunpowder and for concision; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of smokeless powder instead -->
+	<!-- custom: Long_Comments_XML.txt #225 -->
 	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_GUN</Tag>
 		<English>Gun</English>
@@ -1519,34 +1508,26 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILDING_DEFENSE_RAISE</Tag>
 		<English>[ICON_BULLET]Raises [ICON_DEFENSE] to %d1_Mod%% against All Units (using now bIgnoreBuildingDefense 0 (for all units? Not sure.))</English>
 	</TEXT>
-	<!-- custom: about the ones below ("_DEFENSE_MOD", "_BUILDING_BOMBARD_DEFENSE"), i am not sure it is covered by <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> but updating the text as well because it is how i would want it to be ideally, hopefully clearer. Todo investigate this more if needed. -->
-	<!-- DEFENSE_MOD should be supplanted by DEFENSE_RAISE. But perhaps it
-		 won't be in a mod-mod. So let's update DEFENSE_MOD as well: Use the
-		 defense icon and state that it increases (only) building defense. -->
-	<TEXT> <!-- redefine -->
+	<!-- custom: Long_Comments_XML.txt #221 -->
+	<TEXT>
 		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD</Tag>
 		<English>[ICON_BULLET]+%d1_Mod%% Building [ICON_DEFENSE] (against pre-Renaissance Units (only? Not sure.))</English>
 	</TEXT>
 	<!-- From CIV4GameText_Warlords_Changed.xml.
 		 To be consistent with the above. -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_BUILDING_BOMBARD_DEFENSE_MOD</Tag>
 		<English>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE] Bombardment (by pre-Renaissance Units (only? Not sure.))</English>
 	</TEXT>
 	<!-- From CIV4GameTextInfos.xml. Also for consistency. Chichen Itza
 		 actually is cumulative with culture defense. -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD_ALL_CITIES</Tag>
 		<English>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in All Cities</English>
 	</TEXT>
 
 
-	<!-- custom: do not rename the tag itself as we would have to recompile and may break compatibility with other mods, we mostly (just or not)
-	wanted to rename the tag of promotioninfo itself that is much more used and prone to confusing those who read it maybe, at least me, anyways.
-	We may also have to change it in a lot more places that we would want to or need to, for other promotions with a similar case of renaming.
-	
-	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may or not do similarly for such other or similar or not texts.
-	-->
+	<!-- custom: Long_Comments_XML.txt #220 -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_EVASION_TEXT</Tag>
 		<English>[ICON_BULLET]%D1_Change%% Air Evasion Chance</English>
@@ -1735,7 +1716,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_CIV_AMERICA_SHORT_DESC</Tag>
 		<English>The USA</English>
 	</TEXT>
-	<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
+	<!-- custom: Long_Comments_XML.txt #219 -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
 		<English>US American</English>
@@ -1754,7 +1735,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
+	<!-- custom: Long_Comments_XML.txt #222 -->
 	<TEXT>
 		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
 		<English>Legendary cities</English>
@@ -2086,10 +2067,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>Builds</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BUILD_RESULTS</Tag>
-		<English>Results</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BUILD_REMOVES_FEATURES</Tag>
 		<English>Removes Features</English>
 	</TEXT>
@@ -2161,6 +2138,10 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT</Tag>
 		<English>Impr.</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_RESULTS_SHORT</Tag>
+		<English>Result</English>
+	</TEXT>
 	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>
@@ -2181,7 +2162,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: code (TXT_KEYs) for our new placeCivilizations, placeObsoletesWith, and placeReplace methods added in sevopediaunit thanks to Claude AI's code and explanations and my prompts and (very small or not but all or not) adjustments -->
+	<!-- custom: for placeCivilizations, placeObsoletesWith, and placeReplace; added in sevopediaunit with the help of Claude AI thanks -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS</Tag>
 		<English>Civs</English>
@@ -2459,7 +2440,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA) to "We fear you are trading more than us" (WFYATMTU), the former is misleading as a player can receive it even if lagging behind in techs and trying to trade, from what i understand/read/remember in the past it is actually related to how much a player trades regardless of tech progress, hopefully clearer now. -->
+	<!-- custom: Long_Comments_XML.txt #224 -->
 	<TEXT>
 		<Tag>TXT_KEY_DENIAL_TECH_WHORE</Tag>
 		<English>"We fear you are trading more than us."</English>
@@ -2603,6 +2584,30 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES</Tag>
 		<English>Most Yield Changes</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_INFO</Tag>
+		<English>Improvement Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_IMPROVEMENT</Tag>
+		<English>Improvement</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_IMPROVEMENT_FAVORED_BY_LEADERS</Tag>
+		<English>Improvement Weights (Leaders)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BONUSS_YIELDS</Tag>
+		<English>Bonus' Yields</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_COUNT</Tag>
+		<English>Count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_WEIGHT</Tag>
+		<English>Weight</English>
+	</TEXT>
 
 
 
@@ -2712,8 +2717,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: more recent change with the help of chatgpt thanks: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
-	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
+	<!-- custom: Long_Comments_XML.txt #223 -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
 		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
@@ -2732,7 +2736,7 @@ Created as part of AdvCiv-SAS improvements
 
 	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
 	<!-- advc.004w: Put only the number in parentheses, not the wonder type -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_BUILDING_WORLD_WONDER_LEFT</Tag>
 		<English>[SPACE]World Wonder (%d1_Num Left)</English>
 	</TEXT>
@@ -2766,18 +2770,18 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 
 	<!-- advc.005: was Asoka -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_ASOKA</Tag>
 		<English>Ashoka</English>
 	</TEXT>
 	<!-- 002b: Shortened leader names -->
 	<!-- custom: was Augustus (in Warlords Civ4GameTextObjects XML) -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
 		<English>Augustus Caesar</English>
 	</TEXT>
 	<!-- custom: was Willem -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
 		<English>Willem van Oranje</English>
 	</TEXT>
@@ -2790,22 +2794,22 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<!-- custom: was Alexander -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
 		<English>Alexander III</English>
 	</TEXT>
 	<!-- custom: was Tokugawa -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
 		<English>Tokugawa Ieyasu</English>
 	</TEXT>
 	<!-- custom: was Genghis in some languages or some other version -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_GENGHIS_KHAN</Tag>
 		<English>Genghis Khan</English>
 	</TEXT>
 	<!-- custom: was Isabella -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_ISABELLA</Tag>
 		<English>
 			<Text>Isabella I</Text>
@@ -2816,43 +2820,40 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: rename "Difficulty" to "Handicap" -->
-	<!-- custom: rewrite handicap descriptions texts to match reworked advciv-sas gradual handicap settings -->
-	<!-- advc.137: Originally in Civ4GameText_Help.xml. Changed only English and
-		 German. -->
-	<TEXT> <!-- redefine -->
+	<!-- custom: rename "Difficulty" to "Handicap"; Long_Comments_XML.txt #233 -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
 		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc.; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall handicap.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Tag>
 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but a bit less now, AI attitude should overall be the same or not too much harder otherwise.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_WARLORD_HELP</Tag>
 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but even less now. Warfare should start to feel even or if not should be close to it, vs barbarians but also other players.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_NOBLE_HELP</Tag>
 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This is mostly an even game setting with other players, even though barbarians are still getting stronger.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_PRINCE_HELP</Tag>
 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_MONARCH_HELP</Tag>
 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. The penalties increase in this handicap setting. Economy and overall game plan needs to be really efficient and going forward on higher handicap settings to compensate AI advantages. Barbarians are also getting stronger.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_EMPEROR_HELP</Tag>
 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. Efficiency and strategy may need to further be refined to be competitive at this handicap setting that has quite strong penalties. Barbarians are also getting stronger and may start to feel like being on a rampage if not at previous handicap settings, but this affects all players.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_IMMORTAL_HELP</Tag>
 		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Penalties are consistently and gradually as well higher than in previous handicap settings, and same for barbarians settings, even though these affect all players as well. No drastic changes otherwise. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled, as there are no free techs nor ai free techs, so this means all players start at turn 1 at this handicap setting.</English>
 	</TEXT>
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
 		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting as well.</English>
 	</TEXT>

@@ -283,20 +283,14 @@ class SevoPediaFeature:
 			if buildInfo.isFeatureRemove(self.iFeature):
 				if szSpecialText.strip():
 					szSpecialText += u"\n"
-				bullet = localText.getText("[ICON_BULLET]", ())
 
-				# <!-- custom: check iProduction and iTime separately for cases such as feature fallout that have 0 iProduction but an iTime > 0 (so we need to handle being able to display only the iTime optionally without iProduction) -->
-				removeTime = buildInfo.getFeatureTime(self.iFeature)
-				if removeTime > 0:
-					szSpecialText += u"%sRemove iTime: %d" % (bullet, removeTime)
-
-				szSpecialText += u"\n"
-
+				# <!-- custom: check iProduction separately for cases such as feature fallout that have 0 iProduction; time details are now in Build pages. (GPT-5.2-Codex (summarized)) -->
 				removeProduction = buildInfo.getFeatureProduction(self.iFeature)
 				if removeProduction > 0:
+					bullet = localText.getText("[ICON_BULLET]", ())
 					szSpecialText += u"%s+%d%s %s" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ()))
 
-				# <!-- custom: all values should be the same, no need to continue the loop after we got first strictly positive iProduction or iTime based one -->
+				# <!-- custom: all values should be the same, no need to continue after the first strictly positive iProduction. (GPT-5.2-Codex (summarized)) -->
 				break
 
 		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()

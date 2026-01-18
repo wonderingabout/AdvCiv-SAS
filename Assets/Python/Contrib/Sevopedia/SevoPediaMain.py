@@ -702,6 +702,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
 
@@ -1353,25 +1354,27 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			else:
 				landFlat.append((szName, iTerrain))
 
+		# Optional sorting if BUG Sort Lists is on
 		if self.isSortLists():
 			landFlat.sort()
 			graphicalOnlyHigh.sort()
 			water.sort()
+
+		# Emit headers + items in alphabetical order by header name
+		if graphicalOnlyHigh:
+			r.append(("GraphicalOnly (High)", -1))
+			for x in graphicalOnlyHigh:
+				r.append(x)
+
+		if graphicalOnlyHigh and landFlat:
+			r.append(("", -1))
 
 		if landFlat:
 			r.append(("Land", -1))
 			for x in landFlat:
 				r.append(x)
 
-		if landFlat and graphicalOnlyHigh:
-			r.append(("", -1))
-
-		if graphicalOnlyHigh:
-			r.append(("GraphicalOnly (High)", -1))
-			for x in graphicalOnlyHigh:
-				r.append(x)
-
-		if (landFlat or graphicalOnlyHigh) and water:
+		if (graphicalOnlyHigh or landFlat) and water:
 			r.append(("", -1))
 
 		if water:
@@ -1447,25 +1450,27 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				else:
 					landOther.append((szName, iFeature))
 
+		# Optional sorting if BUG Sort Lists is on
 		if self.isSortLists():
 			landRemovable.sort()
 			landOther.sort()
 			water.sort()
+
+		# Emit headers + items in alphabetical order by header name
+		if landOther:
+			r.append(("Land (Other)", -1))
+			for x in landOther:
+				r.append(x)
+
+		if landOther and landRemovable:
+			r.append(("", -1))
 
 		if landRemovable:
 			r.append(("Land (Removable)", -1))
 			for x in landRemovable:
 				r.append(x)
 
-		if landRemovable and landOther:
-			r.append(("", -1))
-
-		if landOther:
-			r.append(("Land (Other)", -1))
-			for x in landOther:
-				r.append(x)
-
-		if (landRemovable or landOther) and water:
+		if (landOther or landRemovable) and water:
 			r.append(("", -1))
 
 		if water:
@@ -1697,21 +1702,21 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			landOther.sort()
 			water.sort()
 
-		# Emit headers + items (same header/spacer style you already use)
-		if landGrowth:
-			r.append(("Land (Growth)", -1))
-			for x in landGrowth:
-				r.append(x)
-
-		if landGrowth and (landBonusCapable or landOther or water):
-			r.append(("", -1))
-
+		# Emit headers + items in alphabetical order by header name
 		if landBonusCapable:
 			r.append(("Land (Bonus-capable)", -1))
 			for x in landBonusCapable:
 				r.append(x)
 
-		if landBonusCapable and (landOther or water):
+		if landBonusCapable and (landGrowth or landOther or water):
+			r.append(("", -1))
+
+		if landGrowth:
+			r.append(("Land (Growth)", -1))
+			for x in landGrowth:
+				r.append(x)
+
+		if landGrowth and (landOther or water):
 			r.append(("", -1))
 
 		if landOther:
@@ -1719,7 +1724,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			for x in landOther:
 				r.append(x)
 
-		if (landGrowth or landBonusCapable or landOther) and water:
+		if (landBonusCapable or landGrowth or landOther) and water:
 			r.append(("", -1))
 
 		if water:
@@ -1748,9 +1753,133 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		return self.SAS_cacheImprovementsTuple
 
+	# <!-- custom: in sevopedia build list, group builds mirroring the improvement/feature categories.
+	# Implemented with claude opus 4.5's help thanks a lot -->
+	# Group builds as:
+	# - Land (Growth): builds that create growth-chain improvements (Cottage->Hamlet->Village->Town)
+	# - Land (Bonus-capable): builds that create bonus-capable improvements (Farm, Mine, etc.)
+	# - Land (Other): builds that create other land improvements (Fort, Forest Preserve, etc.)
+	# - Water: builds that create water improvements (Fishing Boats, Offshore Platform, etc.)
+	# - Land (Route): builds that create routes (Road, Railroad)
+	# - Land (Removable): builds that remove features without creating improvements (Chop Down, Remove Jungle, Scrub Fallout)
+	def SAS_getBuildsGroupedByType_fromBaseList(self, baseList):
+		r = []
+		landGrowth = []
+		landBonusCapable = []
+		landOther = []
+		water = []
+		landRoute = []
+		landRemovable = []
+
+		# Build set of improvements that are upgraded *to* by something (to detect chain membership, incl. final node).
+		dUpgradeTargets = {}
+		for i in xrange(gc.getNumImprovementInfos()):
+			info = gc.getImprovementInfo(i)
+			if info and hasattr(info, "getImprovementUpgrade"):
+				iUp = info.getImprovementUpgrade()
+				if iUp != -1:
+					dUpgradeTargets[iUp] = 1
+
+		for (szName, iBuild) in baseList:
+			buildInfo = gc.getBuildInfo(iBuild)
+			if not buildInfo:
+				continue
+
+			iImprovement = buildInfo.getImprovement()
+			iRoute = buildInfo.getRoute()
+
+			if iRoute > -1:
+				landRoute.append((szName, iBuild))
+			elif iImprovement > -1:
+				imprInfo = gc.getImprovementInfo(iImprovement)
+
+				# Check if water improvement
+				if imprInfo and imprInfo.isWater():
+					water.append((szName, iBuild))
+				else:
+					# Check if growth-chain improvement
+					bGrowth = False
+					if imprInfo and hasattr(imprInfo, "getImprovementUpgrade"):
+						iUp = imprInfo.getImprovementUpgrade()
+						if iUp != -1 or dUpgradeTargets.has_key(iImprovement):
+							bGrowth = True
+
+					if bGrowth:
+						landGrowth.append((szName, iBuild))
+					else:
+						# Check if bonus-capable
+						bBonusCapable = self.SAS_isBonusCapableImprovement(iImprovement)
+						if bBonusCapable:
+							landBonusCapable.append((szName, iBuild))
+						else:
+							landOther.append((szName, iBuild))
+			else:
+				landRemovable.append((szName, iBuild))
+
+		# Optional sorting if BUG Sort Lists is on
+		if self.isSortLists():
+			landGrowth.sort()
+			landBonusCapable.sort()
+			landOther.sort()
+			water.sort()
+			landRoute.sort()
+			landRemovable.sort()
+
+		# Emit headers + items in alphabetical order by header name
+		if landBonusCapable:
+			r.append(("Land (Bonus-capable)", -1))
+			for x in landBonusCapable:
+				r.append(x)
+
+		if landBonusCapable and (landGrowth or landOther or landRemovable or landRoute or water):
+			r.append(("", -1))
+
+		if landGrowth:
+			r.append(("Land (Growth)", -1))
+			for x in landGrowth:
+				r.append(x)
+
+		if landGrowth and (landOther or landRemovable or landRoute or water):
+			r.append(("", -1))
+
+		if landOther:
+			r.append(("Land (Other)", -1))
+			for x in landOther:
+				r.append(x)
+
+		if landOther and (landRemovable or landRoute or water):
+			r.append(("", -1))
+
+		if landRemovable:
+			r.append(("Land (Removable)", -1))
+			for x in landRemovable:
+				r.append(x)
+
+		if landRemovable and (landRoute or water):
+			r.append(("", -1))
+
+		if landRoute:
+			r.append(("Land (Route)", -1))
+			for x in landRoute:
+				r.append(x)
+
+		if landRoute and water:
+			r.append(("", -1))
+
+		if water:
+			r.append(("Water", -1))
+			for x in water:
+				r.append(x)
+
+		return r
+
 	def getBuildList(self):
 		if self.SAS_cacheBuildsTuple is None:
-			self.SAS_cacheBuildsTuple = tuple(self.getSortedList(gc.getNumBuildInfos(), gc.getBuildInfo))
+			baseList = self.getSortedList(gc.getNumBuildInfos(), gc.getBuildInfo)
+			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE:
+				self.SAS_cacheBuildsTuple = tuple(self.SAS_getBuildsGroupedByType_fromBaseList(baseList))
+			else:
+				self.SAS_cacheBuildsTuple = tuple(baseList)
 		return self.SAS_cacheBuildsTuple
 
 

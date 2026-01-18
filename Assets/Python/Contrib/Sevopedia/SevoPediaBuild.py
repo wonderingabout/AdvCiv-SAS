@@ -131,7 +131,7 @@ class SevoPediaBuild:
 	def placeImprovements(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_RESULTS_SHORT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 
 		buildInfo = gc.getBuildInfo(self.iBuild)
@@ -220,6 +220,8 @@ class SevoPediaBuild:
 		buttonRowH = self.FEATURE_STRUCT_BUTTON_ROW_H
 		buttonTopRel = self.FEATURE_STRUCT_BUTTON_TOP_REL
 
+		bullet = localText.getText("[ICON_BULLET]", ())
+
 		for i, (iFeature, featureTech, featureTime, featureProduction, bRemove) in enumerate(featureStructs):
 			featureInfo = gc.getFeatureInfo(iFeature)
 			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + self.MEDIUM_MARGIN))
@@ -229,7 +231,6 @@ class SevoPediaBuild:
 			screen.attachLabel(panelName, "", "  ")
 
 			lines = []
-			bullet = localText.getText("[ICON_BULLET]", ())
 			lines.append(u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE", ()), featureInfo.getDescription()))
 			if featureTime > 0:
 				lines.append(u"%s%s: %d" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_TIME", ()), featureTime))

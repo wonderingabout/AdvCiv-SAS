@@ -28,7 +28,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
 &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
 &emsp;[example 3: features category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)  
-&emsp;[example 3.5: improvements category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category)  
+&emsp;[example 3.5: improvements category (Improvement Weights (Leaders) Chart and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category-improvement-weights-leaders-chart-and-other-changes)  
 &emsp;[example 4: bonuses category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-4-bonuses-category)  
 &emsp;[example 5: religion category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-5-religion-category)  
 &emsp;[example 6: civilization category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-6-civilization-category)  
@@ -114,7 +114,7 @@ We then also used this approach to replace the old clunky base advciv's `CONCEPT
 
 #### example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")
 
-Added a new Builds category under Improvements and a dedicated Builds page with Requires, Results, Removes Features, and Build Info panels (build time/cost/consumes unit).
+Added a new Builds category under Improvements and a dedicated Builds page with Requires, Result, Removes Features, and Build Info panels (build time/cost/consumes unit).
 
 Notably among additions, it also has FeatureStruct panels and mod-agnostic new Civilopedia blurbs-based Background panel (added the new XML field `Civilopedia`> to BuildInfos; blurbs generated with the help of ChatGPT-5.2 Thinking thanks).
 
@@ -240,7 +240,7 @@ Since then, also added a new Remove as well as a new Units (Any Build) panel wit
 <img src="../Images/sevopedia/0.640_sevopedia_features (2).JPG" alt="0.640_sevopedia_features (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.640_sevopedia_features (3).JPG" alt="0.640_sevopedia_features (3).JPG" width="250"></img>
 
-### example 3.5: improvements category
+### example 3.5: improvements category (Improvement Weights (Leaders) Chart and other changes)
 
 One of the oldest Sevopedia reworks, i added it in this readme much later so i hope or i think or maybe it fits quite well or maybe well here.
 
@@ -255,6 +255,12 @@ Note: you can hover and click on the buttons in placeMostYields, as shown in one
 More recently, entries are now grouped by Land/Water (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) depending on whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks. Plus subdiving them based on growth or such (e.g. Cottages, hamlet, etc.) as i had the idea too xd as was bit too concentrated in land and we have the booleans i mean as chatgpt 5.2 mentioned that we have (booleans) more generally, and then chatgpt 5.2 found the other "Bonus-capable" idea of a subgroup we could use as well thanks a lot. Now they are nicely ordered i mean.! Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot.
 
 Then, also added a Build panel redirecting to the corresponding Sevopedia Builds page we added since then.
+
+Since then, reworked the page so we have a new layout and a new sortable Improvement Weights (Leaders) Chart, showing Weights, Count per Weight, and clickable Leader buttons for each weight and improvement, based on the Sevopedia Traits' Charts.
+
+Also beautified the Improvement pane with text based on the Sevopedia Feature implementation.
+
+Done with the help of GPT-5.2-Codex thanks a lot!
 
 <img src="../Images/sevopedia/0.720_sevopedia_improvements (1).JPG" alt="0.720_sevopedia_improvements (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.720_sevopedia_improvements (2).JPG" alt="0.720_sevopedia_improvements (2).JPG" width="250"></img>
