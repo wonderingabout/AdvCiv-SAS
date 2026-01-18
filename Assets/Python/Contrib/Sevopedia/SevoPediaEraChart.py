@@ -28,6 +28,8 @@ class SevoPediaEraChart:
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT")
 		if self.TABLE_FILL_PERCENT <= 0:
 			raise ValueError("[FATAL] SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT must be >= 1.")
+		# <!-- custom: Toggle to show/hide era button row above the table. (Claude Opus 4.5) -->
+		self.SHOW_ERA_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS") > 0)
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -42,17 +44,11 @@ class SevoPediaEraChart:
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
 
-		table = self.top.getNextWidgetName()
-		tableX = x + self.MARGIN
-		tableY = y + self.MARGIN + 4
-		tableW = w - (self.MARGIN * 2)
-		tableH = h - (self.MARGIN * 2) - 4
-
 		data = self._getTableData()
 		if not data:
 			screen.setLabel(self.top.getNextWidgetName(), "Background",
 					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
-					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
+					CvUtil.FONT_LEFT_JUSTIFY, x + self.MARGIN, y + self.MARGIN + 4, 0, FontTypes.GAME_FONT,
 					WidgetTypes.WIDGET_GENERAL, -1, -1)
 			return
 
@@ -62,6 +58,9 @@ class SevoPediaEraChart:
 		if nCols < 2:
 			return
 
+		# Calculate column widths
+		tableX = x + self.MARGIN
+		tableW = w - (self.MARGIN * 2)
 		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
 		if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
 			remainingW = max(0, totalW - self.W_ICON - self.W_FIELD)
@@ -74,6 +73,38 @@ class SevoPediaEraChart:
 		else:
 			wNum = 0
 
+		# <!-- custom: Draw era button icons above the table; size matches column width. (Claude Opus 4.5) -->
+		buttonRowH = 0
+		if self.SHOW_ERA_BUTTONS:
+			buttonSize = wNum
+			buttonRowH = buttonSize + 8
+
+			# Position for button row: inside inner panel
+			buttonRowY = y + self.MARGIN + 8
+			# Calculate X offset for first era column
+			if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+				buttonRowStartX = tableX + self.W_ICON + self.W_FIELD
+			else:
+				buttonRowStartX = tableX + self.W_FIELD
+
+			era_count = gc.getNumEraInfos()
+			for iEra in xrange(era_count):
+				if iEra >= value_cols:
+					break
+				info = gc.getEraInfo(iEra)
+				button = info.getButton()
+				if not button:
+					button = self._getEraFallbackButton(iEra)
+				if button:
+					btnX = buttonRowStartX + (iEra * wNum)
+					btnY = buttonRowY
+					screen.addDDSGFC(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		# Table starts below the button row (or at top if buttons disabled)
+		tableY = y + self.MARGIN + 4 + buttonRowH
+		tableH = h - (self.MARGIN * 2) - buttonRowH - 4
+
+		table = self.top.getNextWidgetName()
 		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSort(table)
 
@@ -376,3 +407,17 @@ class SevoPediaEraChart:
 					row[era_type] = ""
 			rows.append(row)
 		return rows
+
+	# <!-- custom: Fallback era button paths when EraInfo lacks a button. (Claude Opus 4.5) -->
+	def _getEraFallbackButton(self, iEra):
+		if iEra == 0:
+			return "Art/Movies/Era/Era01-Classical.dds"
+		elif iEra == 1:
+			return "Art/Movies/Era/Era01-Classical.dds"
+		elif iEra == 2:
+			return "Art/Movies/Era/Era02-Medeival.dds"
+		elif iEra == 3:
+			return "Art/Movies/Era/Era03-Renaissance.dds"
+		elif iEra == 4:
+			return "Art/Movies/Era/Era04-Industrial.dds"
+		return "Art/Movies/Era/Era05-Modern.dds"

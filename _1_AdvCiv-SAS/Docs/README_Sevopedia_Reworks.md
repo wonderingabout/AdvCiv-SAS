@@ -173,7 +173,10 @@ Extending on the Handicap Chart similarly, with the help of GPT-Codex-5.2.
 
 Note 2: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
 
+More recently, added optional era buttons. Idea i got from watching how the c2c mod does ingame. Done with the help of GPT-5.2-Codex and Claude code Opus 4.5.
+
 <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG" alt="0.628_sevopedia_eras_chart (2).JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 

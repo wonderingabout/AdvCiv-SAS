@@ -35,6 +35,10 @@ In particular but only, these are usually helpful:
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
 - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
 
+The root Program Files Civ4 folder is here: 
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\"
+
 Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, in particular but not only:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"

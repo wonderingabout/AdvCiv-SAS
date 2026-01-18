@@ -174,10 +174,14 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT</DefineName>
-		<iDefineIntVal>76</iDefineIntVal>
+		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
