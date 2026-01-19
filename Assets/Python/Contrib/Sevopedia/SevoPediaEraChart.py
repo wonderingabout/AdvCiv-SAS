@@ -87,6 +87,14 @@ class SevoPediaEraChart:
 			else:
 				buttonRowStartX = tableX + self.W_FIELD
 
+			playButtonPath = CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH", ()))
+			if playButtonPath:
+				playButtonX = buttonRowStartX - wNum
+				# <!-- custom: use iEra=1 (Classical) instead of 0 to avoid weird blue highlight on header row.
+				# Use MOVIE_ENTRY to redirect to movie page, not MOVIE_PLAY to autoplay. (Claude Opus 4.5) -->
+				iPackedMovie = self.top.SAS_packMovieKey(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, 1)
+				screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+
 			era_count = gc.getNumEraInfos()
 			for iEra in xrange(era_count):
 				if iEra >= value_cols:
@@ -94,11 +102,16 @@ class SevoPediaEraChart:
 				info = gc.getEraInfo(iEra)
 				button = info.getButton()
 				if not button:
-					button = self._getEraFallbackButton(iEra)
+					button = get_era_movie_path(iEra)
 				if button:
 					btnX = buttonRowStartX + (iEra * wNum)
 					btnY = buttonRowY
-					screen.addDDSGFC(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					# <!-- custom: each era button redirects to its movie entry if movie exists. (Claude Opus 4.5) -->
+					if self.top.pediaMovies.hasMovie(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, iEra):
+						iPackedEraMovie = self.top.SAS_packMovieKey(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, iEra)
+						screen.setImageButton(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedEraMovie)
+					else:
+						screen.addDDSGFC(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Table starts below the button row (or at top if buttons disabled)
 		tableY = y + self.MARGIN + 4 + buttonRowH
@@ -408,16 +421,3 @@ class SevoPediaEraChart:
 			rows.append(row)
 		return rows
 
-	# <!-- custom: Fallback era button paths when EraInfo lacks a button. (Claude Opus 4.5) -->
-	def _getEraFallbackButton(self, iEra):
-		if iEra == 0:
-			return "Art/Movies/Era/Era01-Classical.dds"
-		elif iEra == 1:
-			return "Art/Movies/Era/Era01-Classical.dds"
-		elif iEra == 2:
-			return "Art/Movies/Era/Era02-Medeival.dds"
-		elif iEra == 3:
-			return "Art/Movies/Era/Era03-Renaissance.dds"
-		elif iEra == 4:
-			return "Art/Movies/Era/Era04-Industrial.dds"
-		return "Art/Movies/Era/Era05-Modern.dds"

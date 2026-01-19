@@ -64,24 +64,31 @@ class SevoPediaReligion:
 		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
 
 		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_LEADERS + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN)
+		self.W_LEFT_COLUMN = self.W_REMAINING_CENTER_SPACE / 2
 
 		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN
 		self.Y_BUILDINGS = self.Y_RELIGION_PANE
-		self.W_BUILDINGS = self.W_REMAINING_CENTER_SPACE / 2
+		self.W_BUILDINGS = self.W_LEFT_COLUMN - 84 - self.MEDIUM_MARGIN
 		self.H_BUILDINGS = 110
 
 		self.W_REQUIRES = 84
+		self.W_MOVIE = 84
 
 		self.X_UNITS = self.X_BUILDINGS
 		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + self.SMALL_MARGIN
-		self.W_UNITS = self.W_BUILDINGS - self.W_REQUIRES - self.MEDIUM_MARGIN
+		self.W_UNITS = self.W_BUILDINGS
 		self.H_UNITS = self.H_BUILDINGS
 
-		self.X_REQUIRES = self.X_UNITS + self.W_UNITS + self.MEDIUM_MARGIN
-		self.Y_REQUIRES = self.Y_UNITS
 		self.H_REQUIRES = self.H_BUILDINGS
 
-		self.X_SPECIAL = self.X_BUILDINGS + self.W_BUILDINGS + self.MEDIUM_MARGIN
+		self.X_MOVIE = self.X_BUILDINGS + self.W_BUILDINGS + self.MEDIUM_MARGIN
+		self.Y_MOVIE = self.Y_BUILDINGS
+		self.H_MOVIE = self.H_REQUIRES
+
+		self.X_REQUIRES = self.X_MOVIE
+		self.Y_REQUIRES = self.Y_UNITS
+
+		self.X_SPECIAL = self.X_BUILDINGS + self.W_LEFT_COLUMN + self.MEDIUM_MARGIN
 		self.Y_SPECIAL = self.Y_BUILDINGS
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_LEADERS - self.MEDIUM_MARGIN
 		self.H_SPECIAL = self.H_BUILDINGS + self.SMALL_MARGIN + self.H_UNITS
@@ -99,6 +106,7 @@ class SevoPediaReligion:
 		self.placeLeaders()
 		self.placeReligionPane()
 		self.placeBuilding()
+		self.placeMovie()
 		self.placeUnit()
 		self.placeRequires()
 		self.placeSpecial()
@@ -191,6 +199,37 @@ class SevoPediaReligion:
 			#elif (iPrereq == self.iReligion and iPrereq4 > 0):
 			#	screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 
+
+
+	def placeMovie(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MOVIE_PANEL", ()), "", False, True, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# <!-- custom: use attachLabel for padding similar to Requires panel -->
+		screen.attachLabel(panelName, "", "  ")
+
+		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION
+		if self.top.pediaMovies.hasMovie(iMovieType, self.iReligion):
+			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
+			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+			check_button_path_is_valid("Sevopedia Religion Movie button", buttonPath, buttonPathTxtKey)
+
+			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iReligion)
+			buttonSize = 64
+			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+			# X: Standard centering works correctly.
+			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
+			buttonX = (self.W_MOVIE - buttonSize) / 2
+			buttonY = 10
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+		else:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
+			screen.addMultilineText(textName, szText, self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def placeUnit(self):

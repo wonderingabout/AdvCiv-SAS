@@ -354,6 +354,7 @@ def createCivilopedia():
 								SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_HINTS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_MOVIES		: pediaMainScreen,
 							})
 		global HandleNavigationMap
 		HandleNavigationMap = {
@@ -403,6 +404,7 @@ def createCivilopedia():
 							SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_HINTS			: pediaMainScreen,
 							SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
+							SevoScreenEnums.PEDIA_MOVIES			: pediaMainScreen,
 						}
 
 def linkToPedia(argsList):

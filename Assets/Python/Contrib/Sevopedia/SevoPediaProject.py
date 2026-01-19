@@ -20,6 +20,8 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -36,10 +38,14 @@ class SevoPediaProject:
 		self.X_REQUIRES = self.top.R_PEDIA_PAGE - self.W_REQUIRES
 		self.Y_REQUIRES = self.top.Y_PEDIA_PAGE
 		self.H_REQUIRES = 116
+		self.W_MOVIE = 84
+		self.X_MOVIE = self.X_REQUIRES - self.W_MOVIE - 10
+		self.Y_MOVIE = self.Y_REQUIRES
+		self.H_MOVIE = self.H_REQUIRES
 
 		self.X_PROJECT_PANE = self.top.X_PEDIA_PAGE
 		self.Y_PROJECT_PANE = self.top.Y_PEDIA_PAGE
-		self.W_PROJECT_PANE = self.top.W_PEDIA_PAGE - self.W_REQUIRES - 10
+		self.W_PROJECT_PANE = self.top.W_PEDIA_PAGE - self.W_REQUIRES - self.W_MOVIE - 20
 		self.H_PROJECT_PANE = 116
 
 		self.W_ICON = 100
@@ -71,6 +77,7 @@ class SevoPediaProject:
 		self.placeProjectPane()
 		self.placeStats()
 		self.placeRequires()
+		self.placeMovie()
 		self.placeSpecial()
 		self.placeText()
 
@@ -129,6 +136,36 @@ class SevoPediaProject:
 		iPrereq = gc.getProjectInfo(self.iProject).getTechPrereq()
 		if (iPrereq >= 0):
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False)
+
+	def placeMovie(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MOVIE_PANEL", ()), "", False, True, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# <!-- custom: use attachLabel for padding similar to Requires panel -->
+		screen.attachLabel(panelName, "", "  ")
+
+		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT
+		if self.top.pediaMovies.hasMovie(iMovieType, self.iProject):
+			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
+			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+			check_button_path_is_valid("Sevopedia Project Movie button", buttonPath, buttonPathTxtKey)
+
+			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iProject)
+			buttonSize = 64
+			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+			# X: Standard centering works correctly.
+			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
+			buttonX = (self.W_MOVIE - buttonSize) / 2
+			buttonY = 10
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+		else:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
+			screen.addMultilineText(textName, szText, self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

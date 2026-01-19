@@ -46,6 +46,7 @@ import SevoPediaHistory
 import SevoPediaProject
 import SevoPediaReligion
 import SevoPediaCorporation
+import SevoPediaMovie
 import SevoPediaIndex
 
 import UnitUpgradesGraph
@@ -101,6 +102,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# actual item ID (build/trait index) as data2. Handled in placeItems(), handleInput(), and SevoPediaIndex. -->
 		self.SAS_PEDIA_PYTHON_BUILD = 6798
 		self.SAS_PEDIA_PYTHON_TRAIT = 6799  # <!-- custom: (Claude Opus 4.5) -->
+		self.SAS_PEDIA_PYTHON_MOVIE_ENTRY = 6800
+		self.SAS_PEDIA_PYTHON_MOVIE_PLAY = 6801
+		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
+		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
+		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
+		self.SAS_PEDIA_MOVIE_TYPE_RELIGION = 4
+		self.SAS_PEDIA_MOVIE_TYPE_ERA = 5
 
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
@@ -218,6 +226,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheBuildsTuple = None
 		self.SAS_cacheTerrainsTuple = None
 		self.SAS_cacheFeaturesTuple = None
+		self.SAS_cacheMoviesTuple = None
 
 		# <!-- custom: type-to-filter search bar state variables (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_szSearchString = u""
@@ -245,6 +254,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
 		self.pediaLeader	= SevoPediaLeader.SevoPediaLeader(self)
 		self.pediaIndex     = SevoPediaIndex.SevoPediaIndex(self)
+		self.pediaMovies    = SevoPediaMovie.SevoPediaMovie(self)
 		# <!-- custom: keep a shared handicap chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
 		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
 		# <!-- custom: keep a shared game speed chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
@@ -272,6 +282,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		iconYieldCommerce = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
 		iconDefense = u"%c  " % (CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR))
 		iconGreatGeneral = u"%c  " % (CyGame().getSymbolID(FontSymbols.GREAT_GENERAL_CHAR))
+		iconOccupation = u"%c  " % (CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR))
 
 		# <!-- custom: central category wiring for list generators, screen handlers, and PEDIA_MAIN links.
 		# To add a category, insert one row in SAS_CATEGORY_DEFS: (PEDIA_ENUM, TXT_KEY, icon, listMethodName, screenClassOrInstance, PEDIA_MAIN_LINK_KEY or None).
@@ -283,6 +294,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT", iconYieldCommerce, "placeConcepts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_CONCEPT"),
 			(SevoScreenEnums.PEDIA_HINTS, "TXT_KEY_PEDIA_CATEGORY_HINTS", iconYieldCommerce, "placeHints", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_HINTS"),
 			(SevoScreenEnums.PEDIA_SHORTCUTS, "TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", iconYieldCommerce, "placeShortcuts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_SHORTCUTS"),
+			(SevoScreenEnums.PEDIA_MOVIES, "TXT_KEY_PEDIA_SAS_CATEGORY_MOVIES", iconCommerceCulture, "placeMovies", self.pediaMovies, None),
 			(SevoScreenEnums.PEDIA_ERA_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_ERA_CHART", iconDefense, "placeEraChart", self.pediaEraChart, None),
 			(SevoScreenEnums.PEDIA_HANDICAP_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", iconDefense, "placeHandicapChart", self.pediaHandicapChart, None),
 			(SevoScreenEnums.PEDIA_GAME_SPEED_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART", iconDefense, "placeGameSpeedChart", self.pediaGameSpeedChart, None),
@@ -305,9 +317,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_NATIONAL_WONDERS, "TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS", iconYieldProduction, "placeNationalWonders", SevoPediaBuilding.SevoPediaBuilding, None),
 			(SevoScreenEnums.PEDIA_WORLD_WONDERS, "TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS", iconYieldProduction, "placeWorldWonders", SevoPediaBuilding.SevoPediaBuilding, None),
 			(SevoScreenEnums.PEDIA_PROJECTS, "TXT_KEY_PEDIA_CATEGORY_PROJECT", iconYieldProduction, "placeProjects", SevoPediaProject.SevoPediaProject, "PEDIA_MAIN_PROJECT"),
-			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconCommerceCulture, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
-			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconCommerceCulture, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
-			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconCommerceCulture, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
+			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconOccupation, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
+			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconOccupation, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
+			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconOccupation, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
 			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
 		)
 
@@ -318,7 +330,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if szListMethod:
 				self.mapListGenerators[iEnum] = getattr(self, szListMethod)
 			if screenSpec:
-				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart, self.pediaWorldSizeChart, self.pediaEraChart):
+				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart, self.pediaWorldSizeChart, self.pediaEraChart, self.pediaMovies):
 					self.mapScreenFunctions[iEnum] = screenSpec
 				else:
 					self.mapScreenFunctions[iEnum] = screenSpec(self)
@@ -2429,6 +2441,90 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.isShortcutInfo(info):
 			return info
 		return None
+
+	def placeMovies(self):
+		self.list = self.getMovieList()
+		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getMovieInfo)
+
+	def getMovieList(self):
+		if self.SAS_cacheMoviesTuple is None:
+			listEntries = []
+
+			def addSection(szHeader, items):
+				if len(items) == 0:
+					return
+				if listEntries:
+					listEntries.append(("", -1))
+				listEntries.append((szHeader, -1))
+				for item in items:
+					listEntries.append(item)
+
+			victoryItems = []
+			for iVictory in range(gc.getNumVictoryInfos()):
+				info = gc.getVictoryInfo(iVictory)
+				if info and info.getMovie():
+					victoryItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_VICTORY, iVictory)))
+
+			wonderItems = []
+			for iBuilding in range(gc.getNumBuildingInfos()):
+				info = gc.getBuildingInfo(iBuilding)
+				if info and info.getMovie():
+					wonderItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_WONDER, iBuilding)))
+
+			projectItems = []
+			for iProject in range(gc.getNumProjectInfos()):
+				info = gc.getProjectInfo(iProject)
+				if info and info.getMovieArtDef():
+					projectItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_PROJECT, iProject)))
+
+			religionItems = []
+			for iReligion in range(gc.getNumReligionInfos()):
+				info = gc.getReligionInfo(iReligion)
+				if info and info.getMovieFile():
+					religionItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_RELIGION, iReligion)))
+
+			eraItems = []
+			for iEra in range(gc.getNumEraInfos()):
+				info = gc.getEraInfo(iEra)
+				if info:
+					szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
+					eraItems.append((szEraName, self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_ERA, iEra)))
+
+			if self.isSortLists():
+				victoryItems.sort()
+				wonderItems.sort()
+				projectItems.sort()
+				religionItems.sort()
+				eraItems.sort()
+
+			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_VICTORY", ()), victoryItems)
+			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_WONDER", ()), wonderItems)
+			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_PROJECT", ()), projectItems)
+			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_RELIGION", ()), religionItems)
+			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_ERA", ()), eraItems)
+
+			self.SAS_cacheMoviesTuple = tuple(listEntries)
+		return self.SAS_cacheMoviesTuple
+
+	def SAS_packMovieKey(self, iMovieType, iMovieId):
+		return (iMovieType << 16) | (iMovieId & 0xFFFF)
+
+	def SAS_unpackMovieKey(self, iPacked):
+		iMovieType = (iPacked >> 16) & 0xFFFF
+		iMovieId = iPacked & 0xFFFF
+		return (iMovieType, iMovieId)
+
+	def getMovieInfo(self, iPacked):
+		iMovieType, iMovieId = self.SAS_unpackMovieKey(iPacked)
+		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_VICTORY:
+			return gc.getVictoryInfo(iMovieId)
+		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_WONDER:
+			return gc.getBuildingInfo(iMovieId)
+		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_PROJECT:
+			return gc.getProjectInfo(iMovieId)
+		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_RELIGION:
+			return gc.getReligionInfo(iMovieId)
+		return None
 	
 	def isShortcutInfo(self, info):
 		return info.getType().find("SHORTCUTS") != -1
@@ -2550,10 +2646,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			bSAS_hasCustomData2 = False
 			# Even though you later handle data1 == -1 inside the civics block, you still do szButtonPlaceItems = info(item[1]).getButton() before any header check.
 			# When getCivicList() inserts headers and spacers, you now have rows like ("Government", -1) and ("", -1). So you end up calling gc.getCivicInfo(-1).getButton() and Civ4 blows up with Access violation - no RTTI data!. Minimal fix:
+			szButtonPlaceItems = ""
 			if data1 != -1:
-				szButtonPlaceItems = info(data1).getButton()
-			else:
-				szButtonPlaceItems = ""
+				if info == self.getMovieInfo:
+					infoObj = info(data1)
+					if infoObj:
+						szButtonPlaceItems = infoObj.getButton()
+				else:
+					szButtonPlaceItems = info(data1).getButton()
 
 			if info == gc.getBuildInfo:
 				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
@@ -2568,6 +2668,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				if data1 != -1:
 					data2 = data1
 					data1 = self.SAS_PEDIA_PYTHON_TRAIT
+					bSAS_hasCustomData2 = True
+
+			if info == self.getMovieInfo:
+				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
+				if data1 != -1:
+					data2 = data1
+					data1 = self.SAS_PEDIA_PYTHON_MOVIE_ENTRY
 					bSAS_hasCustomData2 = True
 
 			if info == gc.getConceptInfo:
@@ -2645,6 +2752,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def handleInput (self, inputClass):
+		if self.pediaMovies.isMoviePlayerOpen():
+			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_MOVIE_DONE:
+				self.pediaMovies.closeMoviePlayer()
+				return 1
+			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
+				if inputClass.getData() == int(InputTypes.KB_ESCAPE):
+					self.pediaMovies.closeMoviePlayer()
+					return 1
+			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+				if inputClass.getFunctionName() == self.pediaMovies.MOVIE_PLAYER_EXIT_ID:
+					self.pediaMovies.closeMoviePlayer()
+					return 1
+			return 1
+
 		# Forward to leader page (existing behavior).
 		if (inputClass.getPythonFile() == SevoScreenEnums.PEDIA_LEADERS):
 			return self.pediaLeader.handleInput(inputClass)
@@ -2733,6 +2854,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					item = self.list[iListIdx]
 					if item[1] != -1:
 						return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, item[1], True, False)
+			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_MOVIES:
+				iRow = inputClass.getData()
+				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
+				if iListIdx is not None:
+					item = self.list[iListIdx]
+					if item[1] != -1:
+						self.pediaJump(SevoScreenEnums.PEDIA_MOVIES, item[1], True, False)
+						self.pediaMovies.playMovie(item[1])
+						return 1
 
 		# Existing TOC/INDEX buttons.
 		if self.SAS_USE_BOTTOM_TABS:
@@ -2751,6 +2881,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: Handle trait clicks with WIDGET_PYTHON. (Claude Opus 4.5) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_TRAIT:
 				return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iData2, True, False)
+			if iData1 == self.SAS_PEDIA_PYTHON_MOVIE_ENTRY:
+				return self.pediaJump(SevoScreenEnums.PEDIA_MOVIES, iData2, True, False)
+			if iData1 == self.SAS_PEDIA_PYTHON_MOVIE_PLAY:
+				self.pediaMovies.playMovie(iData2)
+				return 1
 
 		return 0
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->

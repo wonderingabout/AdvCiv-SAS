@@ -21,6 +21,7 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 
 
+
 	<!-- custom: ❤️ emoji similarly from emojiterra. -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH</Tag>
@@ -85,7 +86,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-    <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #31 -->
+    <!-- custom: ⚔️ emoji similarly from emojiterra; GPT-5.2-Codex: Long_Comments_XML.txt #31 -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Crossed_Swords/2694_64px.dds</English>
@@ -157,9 +158,17 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: 🥉 emoji similarly from emojiterra. -->
+	<!-- custom: 🦁 emoji similarly from emojiterra. -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH</Tag>
 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Lion_Face/1f981_64px.dds</English>
+	</TEXT>
+
+
+
+	<!-- custom: ▶️ emoji similarly from emojiterra. -->
+    <TEXT>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds</English>
 	</TEXT>
 </Civ4GameText>

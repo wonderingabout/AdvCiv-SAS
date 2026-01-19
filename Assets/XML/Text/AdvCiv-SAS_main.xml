@@ -325,6 +325,42 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_ERA_CHART</Tag>
 		<English>Eras</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_MOVIES</Tag>
+		<English>Movies</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_PLAY_MOVIE</Tag>
+		<English>Play Movie</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIE_PANEL</Tag>
+		<English>Movie</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_OPEN_PEDIA_ENTRY</Tag>
+		<English>Open Pedia</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_VICTORY</Tag>
+		<English>Victories</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_WONDER</Tag>
+		<English>Wonders</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_PROJECT</Tag>
+		<English>Projects</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_RELIGION</Tag>
+		<English>Religions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_ERA</Tag>
+		<English>Eras</English>
+	</TEXT>
 
 
 

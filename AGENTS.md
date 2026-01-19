@@ -35,13 +35,17 @@ In particular but only, these are usually helpful:
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
 - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
 
-The root Program Files Civ4 folder is here: 
+The root Program Files Civ4 folder is here:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\"
 
 Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, in particular but not only:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"
+
+Civ4 BUG documentation is also provided as .txt, but it is lengthy, consider reading it for double check or grep needs or such. It helped us find the `Destroy2DSound` python function for example (with the help of Claude code Opus 4.5, although it didn't ultimately solve our issue, doc is helpful as reference (but lengthy)):
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt"
 
 Our AdvCiv-SAS documentation is mostly located here:
 
@@ -50,6 +54,10 @@ Our AdvCiv-SAS documentation is mostly located here:
 - Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
 
 May help to find key documentation, additionally to doing a grep or such, indexes like `# advc.004y: Restored (comment out to remove traits)` refer to and provide key information about a change (grep the tag e.g. `004y` in the manual).
+
+## Information Fetching online
+
+If you find yourself stuck like for audio stopping issues, feel free to ask the user to perform one or many web searches, maybe some solutions exist or insights on how solvable issues are.
 
 ## Comment Editing Rules
 
