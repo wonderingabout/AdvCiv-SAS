@@ -265,8 +265,8 @@
 			<iMaxConscriptModifier>60</iMaxConscriptModifier>
 			<iWarWearinessModifier>-35</iWarWearinessModifier>
 			<iUnitCostPercent>91</iUnitCostPercent>
-			<iGridWidth>71</iGridWidth>
-			<iGridHeight>50</iGridHeight>
+			<iGridWidth>70</iGridWidth>
+			<iGridHeight>49</iGridHeight>
 			<iTerrainGrainChange>2</iTerrainGrainChange>
 			<iFeatureGrainChange>2</iFeatureGrainChange>
 			<iResearchPercent>115</iResearchPercent>
@@ -290,8 +290,8 @@
 			<iMaxConscriptModifier>75</iMaxConscriptModifier>
 			<iWarWearinessModifier>-45</iWarWearinessModifier>
 			<iUnitCostPercent>88</iUnitCostPercent>
-			<iGridWidth>82</iGridWidth>
-			<iGridHeight>57</iGridHeight>
+			<iGridWidth>80</iGridWidth>
+			<iGridHeight>56</iGridHeight>
 			<iTerrainGrainChange>2</iTerrainGrainChange>
 			<iFeatureGrainChange>2</iFeatureGrainChange>
 			<iResearchPercent>120</iResearchPercent>
@@ -315,8 +315,8 @@
 			<iMaxConscriptModifier>90</iMaxConscriptModifier>
 			<iWarWearinessModifier>-55</iWarWearinessModifier>
 			<iUnitCostPercent>85</iUnitCostPercent>
-			<iGridWidth>91</iGridWidth>
-			<iGridHeight>64</iGridHeight>
+			<iGridWidth>90</iGridWidth>
+			<iGridHeight>63</iGridHeight>
 			<iTerrainGrainChange>2</iTerrainGrainChange>
 			<iFeatureGrainChange>2</iFeatureGrainChange>
 			<iResearchPercent>125</iResearchPercent>
@@ -340,7 +340,7 @@
 			<iMaxConscriptModifier>105</iMaxConscriptModifier>
 			<iWarWearinessModifier>-65</iWarWearinessModifier>
 			<iUnitCostPercent>82</iUnitCostPercent>
-			<iGridWidth>101</iGridWidth>
+			<iGridWidth>99</iGridWidth>
 			<iGridHeight>70</iGridHeight>
 			<iTerrainGrainChange>2</iTerrainGrainChange>
 			<iFeatureGrainChange>2</iFeatureGrainChange>

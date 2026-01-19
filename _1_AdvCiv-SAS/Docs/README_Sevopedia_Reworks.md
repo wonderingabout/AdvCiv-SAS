@@ -443,7 +443,8 @@ Minor beautified and polished it a bit and now it's quite good xd at least not t
 
 As for the grouping, since this is a nice functionnal change, i wanted to show it here as well.
 
-<img src="../Images/sevopedia/0.750_sevopedia_projects.JPG" alt="0.750_sevopedia_projects.JPG" width="250"></img>
+<img src="../Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.750_sevopedia_projects (2).JPG" alt="0.750_sevopedia_projects (2).JPG" width="250"></img>
 
 ### example 15: specialists category
 
