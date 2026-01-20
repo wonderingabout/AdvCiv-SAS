@@ -432,6 +432,9 @@ void CyInfoPythonInterface3()
 		.def("getSoundtrackSpace", &CvEraInfo::getSoundtrackSpace, "int () -")
 		.def("isFirstSoundtrackFirst", &CvEraInfo::isFirstSoundtrackFirst, "int () -")
 		.def("getNumSoundtracks", &CvEraInfo::getNumSoundtracks, "int () -")
+		// <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+		.def("getSoundtrackScriptName", &CvEraInfo::getSoundtrackScriptName, "string (int i) -")
+		// <!-- custom: End - expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 		.def("getAudioUnitVictoryScript", &CvEraInfo::getAudioUnitVictoryScript, "string () -")
 		.def("getAudioUnitDefeatScript", &CvEraInfo::getAudioUnitDefeatScript, "string () -")
 

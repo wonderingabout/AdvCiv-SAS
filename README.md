@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g., Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel, Traits Charts, Improvement Weights (Leaders) Chart, Movies (with audio support)), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g., Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel, Traits Charts, Improvement Weights (Leaders) Chart, Movies (with audio support), Music with the ~1750 audio scripts of AdvCiv-SAS that can be listened to), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and as for mechanics new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
@@ -36,7 +36,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
 &emsp;[City Screen rework](/README.md#city-screen-rework)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
-&emsp;[Some lower level Sevopedia reworks (e.g., Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support))](/README.md#some-lower-level-sevopedia-reworks-eg-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support)  
+&emsp;[Some lower level Sevopedia reworks (e.g., Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia)](/README.md#media-file-playing-eg-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia)  
 &emsp;[Other new categories](/README.md#other-new-categories)  
 &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
 &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
@@ -208,7 +208,7 @@ Additionally, also added a new specialists breakdown as of now on bottom-right. 
 
 Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
 
-### Some lower level Sevopedia reworks (e.g., Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support))
+### Some lower level Sevopedia reworks (e.g., Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia)
 
 #### Search Bar
 
@@ -238,16 +238,21 @@ See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Rework
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
 
-#### Media File playing (e.g. Movies with audio support)
+#### Media File playing (e.g. Movies with audio support, Music with ~1750 audio scripts that can be listened to in Sevopedia)
 
 Based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS, we provide a new Sevopedia Movies category with movies (bik, nif, dds) playing and additional audio support for non-bik files such as religions (nif + separate sound asset).
 
 Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable Play Button, emoji-based following our [Images As Buttons](/README.md#images-as-buttons) approach, has been provided.
 
-See [example 0.35: movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-035-movies-category-with-audio-support).
+We also added a new Sevopedia Music that allows to play ~1750 audio scripts in Sevopedia (as of now 963 AS2D and 786 AS3D audio scripts)! Search bar support allows for an easy find of the wanted tracks. And a play Button is provided. Among assets, notably but not only, each Tech's, Leader's, Civlization's, Era's music can be listened to.
+
+See [Sevopedia Reworks (Movies category (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support) and [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-ingame)
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG" alt="0.820_sevopedia_music (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG" alt="0.820_sevopedia_music (5).JPG" width="250"></img>
 
 ### Other new categories
 

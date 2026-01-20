@@ -25,6 +25,8 @@ import CvPediaScreen
 import ScreenInput
 import SevoScreenEnums
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -67,21 +69,22 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: reorganized layout (Claude code Opus 4.5):
-		# Row 1: Tech Pane (left) | Starting Civs (right)
-		# Row 2: Requires (left half) | Leads To (right half)
-		# Row 3: First to Discover (left, narrow) | Obsoletes (right, remaining width)
-		# Row 4: Enables (full width) - merged units + buildings
-		# Row 5: Special (left, W_TECH_PANE width) | History (right, remaining space)
+		# <!-- custom: reorganized layout (Claude Code Sonnet 4.5):
+		# Row 1: Tech Pane (left, wider) | Music (84px) | Starting Civs (right, remaining)
+		# Row 2: Requires (full width to Music end)
+		# Row 3: First to Discover (left, 84px) | Leads To (right, remaining to Music end)
+		# Row 4: Obsoletes (full width)
+		# Row 5: Enables (full width) - merged units + buildings
+		# Row 6: Special (left, W_TECH_PANE width) | History (right, remaining space)
 		# -->
 
 		# Standard row height for panels
 		self.H_ROW = 110
 
-		# Row 1: Tech Pane and Starting Civs
+		# Row 1: Tech Pane (increased by 150px), Music panel, and Starting Civs
 		self.X_TECH_PANE = self.top.X_PEDIA_PAGE
 		self.Y_TECH_PANE = self.top.Y_PEDIA_PAGE
-		self.W_TECH_PANE = 340
+		self.W_TECH_PANE = 490  # Increased from 340 to 490 (+150px)
 		self.H_TECH_PANE = 116
 
 		self.W_ICON = 100
@@ -94,32 +97,41 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.X_COST = self.X_TECH_PANE + 110
 		self.Y_COST = self.Y_TECH_PANE + 47
 
-		self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
+		# Music panel (84px, right of Tech Pane)
+		self.W_MUSIC = 84
+		self.X_MUSIC = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
+		self.Y_MUSIC = self.Y_TECH_PANE
+		self.H_MUSIC = self.H_TECH_PANE
+
+		# Starting Civs (right of Music panel)
+		self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.X_MUSIC + self.W_MUSIC + self.MEDIUM_MARGIN
 		self.Y_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.Y_TECH_PANE
 		self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.top.R_PEDIA_PAGE - self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
 		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.H_ROW
 
-		# Row 2: Requires (left half) | Leads To (right half)
+		# Row 2: Requires (full width to Music panel end)
 		self.X_REQUIRES = self.X_TECH_PANE
 		self.Y_REQUIRES = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
-		self.W_REQUIRES = self.top.W_PEDIA_PAGE / 2 - 5
+		# Width should align to end X position of Music panel
+		self.W_REQUIRES = (self.X_MUSIC + self.W_MUSIC) - self.X_REQUIRES
 		self.H_REQUIRES = self.H_ROW
 
-		self.X_LEADS_TO = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
-		self.Y_LEADS_TO = self.Y_REQUIRES
-		self.W_LEADS_TO = self.top.R_PEDIA_PAGE - self.X_LEADS_TO
-		self.H_LEADS_TO = self.H_ROW
-
-		# Row 3: First to Discover (left, narrow) | Obsoletes (right, remaining width)
-		# <!-- custom: First to Discover panel for religions, corporations, great people, free techs - positioned left of Obsoletes (Claude Code Opus 4.5) -->
+		# Row 3: First to Discover (left, 84px) | Leads To (right, remaining to Music end)
+		# <!-- custom: First to Discover panel for religions, corporations, great people, free techs - positioned left of Leads To (Claude Code Sonnet 4.5) -->
 		self.W_FIRST_TO_DISCOVER = 84  # Same width as SevoPediaBuilding's obsolete panel - enough for one button
 		self.X_FIRST_TO_DISCOVER = self.X_TECH_PANE
 		self.Y_FIRST_TO_DISCOVER = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
 		self.H_FIRST_TO_DISCOVER = self.H_ROW
 
-		# Obsoletes panel - dynamically positioned after First to Discover
-		self.X_OBSOLETES = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
-		self.Y_OBSOLETES = self.Y_FIRST_TO_DISCOVER
+		self.X_LEADS_TO = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
+		self.Y_LEADS_TO = self.Y_FIRST_TO_DISCOVER
+		# Leads To width extends to Music panel end
+		self.W_LEADS_TO = (self.X_MUSIC + self.W_MUSIC) - self.X_LEADS_TO
+		self.H_LEADS_TO = self.H_ROW
+
+		# Row 4: Obsoletes (full width)
+		self.X_OBSOLETES = self.X_TECH_PANE
+		self.Y_OBSOLETES = self.Y_LEADS_TO + self.H_LEADS_TO + self.SMALL_MARGIN
 		self.W_OBSOLETES = self.top.R_PEDIA_PAGE - self.X_OBSOLETES
 		self.H_OBSOLETES = self.H_ROW
 
@@ -127,7 +139,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# self.RED_X_BUTTON_SIZE = 64
 		self.RED_X_BUTTON_SIZE = 72
 
-		# Row 4: Enables (full width) - merged units + buildings
+		# Row 5: Enables (full width) - merged units + buildings
 		self.X_ENABLES = self.X_TECH_PANE
 		self.Y_ENABLES = self.Y_OBSOLETES + self.H_OBSOLETES + self.SMALL_MARGIN
 		self.W_ENABLES = self.top.R_PEDIA_PAGE - self.X_ENABLES
@@ -151,18 +163,20 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 	def interfaceScreen(self, iTech):
 		self.iTech = iTech
 
-		# Row 1
+		# Row 1: Tech Pane, Music, Starting Civs
 		self.placeTechPane()
+		self.placeMusic()
 		self.placeCivilizationsThatStartWithThisTech()
-		# Row 2
+		# Row 2: Requires
 		self.placePrereqs()
-		self.placeLeadsTo()
-		# Row 3
+		# Row 3: First to Discover, Leads To
 		self.placeFirstToDiscover()
+		self.placeLeadsTo()
+		# Row 4: Obsoletes
 		self.placeObsoletes()
-		# Row 4
+		# Row 5: Enables
 		self.placeEnables()
-		# Row 5
+		# Row 6: Special, History
 		self.placeSpecial()
 		self.placeHistory()
 
@@ -194,6 +208,39 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.appendListBoxString(listBoxName, u" <font=4b>" + techInfo.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(listBoxName, u"<font=3> " + szEra + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(listBoxName, u"<font=4>" + szCostText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeMusic(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_PANEL", ()), "", False, True, self.X_MUSIC, self.Y_MUSIC, self.W_MUSIC, self.H_MUSIC, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
+		screen.attachLabel(panelName, "", "  ")
+
+		# <!-- custom: Music system uses packed keys (unlike Movies which use separate type+id). (Claude Code Sonnet 4.5) -->
+		iMusicType = self.top.SAS_PEDIA_MUSIC_TYPE_TECH
+		iPackedMusic = self.top.SAS_packMusicKey(iMusicType, self.iTech)
+
+		if self.top.pediaMusic.hasMusic(iPackedMusic):
+			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
+			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+
+			buttonSize = 64
+			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+			# X: Standard centering works correctly.
+			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
+			buttonX = (self.W_MUSIC - buttonSize) / 2
+			buttonY = 10
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
+		else:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_MUSIC + (self.H_MUSIC / 2)
+			screen.addMultilineText(textName, szText, self.X_MUSIC + 7, yPanelCenter, self.W_MUSIC - 14, self.H_MUSIC - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

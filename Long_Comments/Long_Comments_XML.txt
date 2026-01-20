@@ -16,7 +16,7 @@ Try to keep them lean and more so in the future so our AI helpers can easily rea
 
 
 
-===== .\Assets\Config\Plot List Enhancements.xml =====
+===== \Assets\Config\Plot List Enhancements.xml =====
 ----- Comment #1 -----
 <!--option id="MH_Color_Impassable_Terrain" key="Color Impassable Terrain" 
 					type="color" default="COLOR_CLEAR" 
@@ -43,7 +43,7 @@ Try to keep them lean and more so in the future so our AI helpers can easily rea
 					type="color" default="COLOR_CYAN" 
 					get="getBarbarianUnitColor"/-->
 
-===== .\Assets\XML\AI_Variables_GlobalDefines.xml =====
+===== \Assets\XML\AI_Variables_GlobalDefines.xml =====
 ----- Comment #2 -----
 <!-- Recommended: 100 (BtS behavior)
 			 If this percentage is less than 100, all AI personality values
@@ -65,7 +65,7 @@ Try to keep them lean and more so in the future so our AI helpers can easily rea
 ----- Comment #3 -----
 <!-- custom: at first i thought some cities are not good enough but AI still settles them and cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't seem to do too much especially if increased too much. A very low value (around 300 for example) seemed to be mostly ignored too (except AI had more cities that were a bit too crammed. Trying other values, it seems 550 somehow, i don't know why, but consistently provides better city spots to the AI, would need more testing to make sure., was 600; update much later: these don't seem to do much if at all, i'd recommend modifying the DLL/.cpp or such files rather, for example i could change AI settling preferences/recommended spots in map view too it seems as well by modifying AIFoundValue::evaluate in CitySiteEvaluator.cpp and other related functions or code or other parts of the code if any other; see also the main changes guide or known issues documentation about such changes. Update: now tunable for many settings as of now in GlobalDefines_advciv_sas.xml -->
 
-===== .\Assets\XML\Art\CIV4ArtDefines_Leaderhead.xml =====
+===== \Assets\XML\Art\CIV4ArtDefines_Leaderhead.xml =====
 ----- Comment #4 -----
 <!-- custom: our old static version of Ogiso Igodo (if needed, we have now switched to Ewuare instead for accuracy with the animation and overall historical importance/reliability of the data thanks to or also as advised thanks by chatgpt, but the earlier version of the leader of the kingdom of benin used a static image at first not animations as i didn't know how to (easily) add nif animations (import them from mods i mean as of now is easiest still i didn't know how to easily do so at the time) so keeping this info here in case it helps or we want to add some static images instead of an animated leader portrait/head): add Ogiso Igodo's Art (Picture) did/done as advised to me by ChatGPT with some adjustments or not for AdvCiv-SAS
 		<LeaderheadArtInfo>
@@ -78,11 +78,11 @@ Try to keep them lean and more so in the future so our AI helpers can easily rea
 		</LeaderheadArtInfo>
 		-->
 
-===== .\Assets\XML\Art\CIV4ArtDefines_Unit.xml =====
+===== \Assets\XML\Art\CIV4ArtDefines_Unit.xml =====
 ----- Comment #5 -----
 <!-- custom: new unit based on a c2c mod ("recon_drone") not base civ4 art so ideally no need to overtweak the design so it fits quite realistically domain_land; also adjusted or not for advciv-sas, tried to do it based on a mix of advciv-sas's airship (as it is already tuned to domain_land as we want for free control of the unit on map tiles and or other advantages maybe) and the gunship as it seems this c2c mod's unit is based on the gunship i assume based on its artdefine in c2c mod so trying to replicate c2c mod's or maybe rather our art defines equivalents of the advciv-sas gunship (which as of now is same as base_advciv in art defines i mean at least ), but also not too absed on the gunship as this recon_drone in our mod is mostly if not only a civilian unit, so things like fortify or such are not intended for this unit in our mod at least as of now -->
 
-===== .\Assets\XML\GameInfo/CIV4CivicInfos.xml =====
+===== \Assets\XML\GameInfo/CIV4CivicInfos.xml =====
 ----- Comment #6 -----
 <!-- custom: vassalage civic tech prereq rationale changed as chatgpt 5.1 confirms thanks; also as a side effect closer to bts early vassalage availability, was TECH_FEUDALISM -->
 <!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (EgyptñCanaan, Hittites, Zhou ìfengjianî, Assyria, early China, etc.). These are formal overlordñsubject treaties with tribute, hostages, mutual defense, and legal obligations. -->
@@ -92,11 +92,11 @@ Of the candidates, my pick is: Put ìEnables Vassal Statesî on Drama. -->
 <!-- custom: update: at TECH_PHILOSOPHY rather as recommended by gemini 3 pro and more balanced as such (clearer military vs culture lines, philosophy was empty, and thematically more relevant as well) -->
 <!-- "While Western "Feudalism" (Knights) comes later, the concept of strict social hierarchy was defined in the Classical Era by Philosophers." + "Confucius (Kung Fuzi): His entire philosophy was about the "Five Bonds" (Ruler to Subject, Father to Son). He taught that social stability comes from everyone knowing their place and serving their superior." + "Aristotle/Plato: They wrote extensively on the "Republic" and the natural hierarchy of society." + "This creates a very strong "Social Band" in your Middle Rows:" + "Code of Laws (Courthouses) $\rightarrow$ Philosophy (Vassalage/Daoism) $\rightarrow$ Civil Service (Bureaucracy)" + "Recommendation: Move Vassalage to Philosophy. It makes the tech valuable and fits the "Social Order" theme perfectly." --> 
 
-===== .\Assets\XML\BBAI_Game_Options_GlobalDefines.xml =====
+===== \Assets\XML\BBAI_Game_Options_GlobalDefines.xml =====
 ----- Comment #7 -----
 <!-- custom: not sure what this is about exactly, cancelling defensive pacts if war is declared on them seems to make sense though, whatever peace or not happens after war if any would need to be redefined, does not seem to make much sense unless i am mistaken that a player A at war with player B can convince/compell player B at all to attack player C while player A is still at war with player B. The default BTS behavior, if i understood it correctly, seems to make much more sense unless i'm mistaken. But just like a peace treaty being enforced unbreakably, it is maybe also nice to have some kidn of rules that make agreements be enforced, but in the case of defensive pacts, it seems a bit too far fetched, and maybe could be abused by human players to manipulate AIs, or affect AI vs AI negatively to the profit of the human player as well (or maybe also AI affecting the human player negatively to a quite forced defensive pact, but if such were the case the game would probably be lost even though not sure, still it is an inconvenience as well), so make these based on trust rather if i may say rather than hard enforced obligatory obligation. As for the opposite possibility of farming defensive pacts then cancelling them (like giving defensive pact vs defensive pact + X where W is any thing in a trade) by declaring war would be too tedious and not worth the hassle or not enjoyable, i have not tried it myself so i don't know, so just mentioning this hypothetical possibility. In short,, restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding, was 1 -->
 
-===== .\Assets\XML\Buildings\CIV4BuildingInfos.xml =====
+===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 ----- Comment #8 -----
 <!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians) to have the time and space to build in this case at least i meanso accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or i mean; also adjusted considering there are lone barbarians already so barbarian cities don't need to produce too much extra else cnanot be so easily be met especially by AI players if they create settlers or buildings or such in particular, not making barbarians too weak but significantly decreasing their early impact that is already additive to lone barbairans, was 0 -->
 
@@ -112,7 +112,7 @@ Of the candidates, my pick is: Put ìEnables Vassal Statesî on Drama. -->
 ----- Comment #12 -----
 <!-- custom: since this is cumulative and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new oneit helped in this case at least)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe culturally consistent or thematically consistentwith the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas, so choosing a quite small in this casevalue that should hopefully in this casestill be significant; or so it seems that it seemms to stack (didn't check in depth), was 0 -->
 
-===== .\Assets\XML\Buildings\CIV4CityLSystem.xml =====
+===== \Assets\XML\Buildings\CIV4CityLSystem.xml =====
 ----- Comment #13 -----
 <!-- CityLSystems use the follwing ArtRef attributes:
 
@@ -146,7 +146,7 @@ Of the candidates, my pick is: Put ìEnables Vassal Statesî on Drama. -->
 
 I am not sure which i should take, but since there are redundancies i guess i should pick only one, and then warlords even though i don't know a lot about it i assume (barely at all but maybe i can make assumptions (educated maybe) or guesses that if as i researched very quick civ4 bts is based on warlords), and considering the warlords file version of it is longer, i went with((/)i.e. picked) the warlords version of this file, may revert if doesn't work, maybe is not used in BTS anymore or maybe is, but since it mentions a "TAO" asset that i would want to rename to "DAO" trying it to see if works -->
 
-===== .\Assets\XML\Buildings\CIV4PlotLSystem.xml =====
+===== \Assets\XML\Buildings\CIV4PlotLSystem.xml =====
 ----- Comment #15 -----
 <!-- Attribute Overview
      
@@ -175,11 +175,11 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			
 		-->
 
-===== .\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml =====
+===== \Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml =====
 ----- Comment #16 -----
 <!-- custom: reworked monasteries, also for better or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed); also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for better or worse (i am not a fan too but society (perhaps societies) function as such so there must be a reason or reasons i mean in this case), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage in terms of gameplay and modding as well, was TECH_SCIENTIFIC_METHOD (now removed) -->
 
-===== .\Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
 ----- Comment #17 -----
 <!-- custom: barbarians now start with free buildings (given as a civ specific lower hammer cost building equivalent of it instead (else free building applies only to the first barbarian city and not all barbarian cities)), and techs too anyways (even though they should get them free as they start (i assume from other civs or by some mechanics((?))(), still making extra sure they always start with them (i.e. with these techs))), hopefully stronger this way without interfering too much in religions at least not directly, and compensates at least partly their later start in cities hopefully
 			I tried giving them a free worker but it seems ignored by the DLL/game (whichever accurate version of this explanation it is or other is not or yes or and other or and not, ), but military units seem to work, only for the first barbarian civ, so instead not giving any specific military units, and making a few core units like the worker much cheaper for barbarians as they start later and have penalties and such of smaller and sparse cities, hopefully more interesting (gameplay) this way.
@@ -190,15 +190,15 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			Not putting the monument here and at all so it is consistent with the no tech mysticism free tech, and also the palace that all cities have should give enough culture by itself, and hopefully barbarians are more efficient this way and perhaps more realistic too (their behaviour and such maybe or tendencies or other or not or yes), as they can't bring their monuments wih themselves if they roam, and now they can focus slightly more on building units or whichever thing they should do more, also more consistent with no mysticism and such, or other reasons or not
 			-->
 
-===== .\Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
+===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
 ----- Comment #18 -----
 <!-- custom: basing Ewuare on Cyrus as recommended by chatgpt (very summarized of reasoning why by chatgpt: "	Balanced conqueror, empire-builder, tolerant, mythic, Imperialistic core trait") after i asked it (and before that fed it our entire pedia entry plus asked to do a web search and such or not such or yes such or not such), and tweaking from there (tell it chatgpt to tell me how much % to add to each field, for example +10%, -25% with reasoning why, based on this data), and adjusting as i see fit as well if i don't agree or see it slightly differently from little or not little lot or not i read about ewuare or some aspects of his life (like the name buying story xd which was very nice even though a bit cruel and unfair to not kill the parent instead of the son that was innocent but then he'd feel bitter still maybe then kill both? I don't know, but i liked this part of the story i mean, or some other solution), and also using our AI personality panel to see how ewuare ranks as well so we don't overdo or underdo when tweaking fields, also being careful of inversions seeing a few ai personality values of (other (another) leaders(leader) i mean or and such for example) -->
 
-===== .\Assets\XML\GameInfo\CIV4GameSpeedInfo.xml =====
+===== \Assets\XML\GameInfo\CIV4GameSpeedInfo.xml =====
 ----- Comment #19 -----
 <!-- custom: removed since we as of now now have the Sevopedia gamespeedchart -->
 
-===== .\Assets\XML\GameInfo\CIV4HandicapInfo.xml =====
+===== \Assets\XML\GameInfo\CIV4HandicapInfo.xml =====
 ----- Comment #20 -----
 <!-- custom: As for iAIPerEraModifier translated to english with chrome from https://gforestshade.github.io/kujira/post/civ4handicapinfo/#iaipereramodifier:
 
@@ -283,15 +283,15 @@ end of quote
 And i didn't want to recompile so i asked it as such too, and it confirmed i mean that i can do 0 rather and no recompile
 -->
 
-===== .\Assets\XML\GameInfo\CIV4HurryInfo.xml =====
+===== \Assets\XML\GameInfo\CIV4HurryInfo.xml =====
 ----- Comment #21 -----
 <!-- custom: currently, even in emperor in base advciv from my experience, it seems that slaving provides no benefits almost to the point it is easier to not slave at all and gain long term benefits of increased population and no anger, (but) the immediate cost of losing population and having anger should give more, equal rewards ideally, to the advantage of keeping yours or the player's, so increasing to 26, may increase it further. As for the association with the granary that is hinted or highlighted in base advciv docs or code comments making it a too strong combo slavery + granary, i feel/think the problem is on the granary rather, slavery itself is costly and should be quite strong, it also would help AIs that choose to slave for a short term strategy not fall behind on their costly gamble (idk if the aztecs do for example, but they'd need if they do a proper strategy framework where it's worth to do so more than to not slave at all), it is also a bit too comfortable, even though more pleasant for sure at least for/to me, to not slave and have a peaceful game. But to not make it too tedious or painful, increasing it, as i had intended despite that consideration to 26 (i thought 25 first but after all the cost of slaving is quite high and should give more benefits). In exchange, the granary is nerfed, which may also align/gives quite well/with the benefits//goals of having a more gradual game experience as in in terms of game pace, i also believe it is fairer this way, and in fact it is the granary that is a bit too strong for an early building, so nerfing the granary rather and reducing its cost, while keeping civ-specific versions of the granary stronger, so the incans for example may have more of a growth advantage with their civ-specific building (qullqa if still the same (building) in our advciv-sas mod stays same in advciv-sas), this may be adjusted further, but it was my experience in base advciv at emperor and mostly monarch difficulty; update: increasing it from 26 to 27 as with the recent military changes favouring mostly AIs due to many new unit upgrades and sooner ones too, there needs to be more strategic options to match and compete with these, 26 is probably not enough for that as 24 was way too low, so increase a bit more to 27; it's also maybe a nice middle ground between base advciv and BTS settings too, even though i would not mind to increase more or reduce it, was 24 -->
 
-===== .\Assets\XML\GameInfo\CIV4ProcessInfo.xml =====
+===== \Assets\XML\GameInfo\CIV4ProcessInfo.xml =====
 ----- Comment #22 -----
 <!-- custom: polytheism now instead of drama, maybe is more accurate/realistic to have it sooner on top of maybe helping calm revolts sooner? or more diverse strategies possible now? Trying this as it may fit better in AdvCiv-SAS. Note: not putting it in start tech else AIs build culture in their capital which is inefficient, rather than retweak all if even feasable in xml which i doubt but maybe i don't know, it seems easier to remove the culture goalpsot a bit later, at polytheism, maybe more balanced this way too as culture is a bit too easy to have at MYSTICISM maybe, plus since our tech tree rework is simplified, mysticism is a starting tech we don't have a tech(s) before it so maybe all around better or and more balanced or and more suitable or and more desirable for us in advciv-sas at least is how i'd want to try it set it; after more consideration and testing, move PROCESS_CULTURE back to TECH_MUSIC_THEORY, AI is a bit too bad or too inefficient maybe at using it too early, make it available later but also soon enough as we want/wanted. Update: back to drama since we have removed the now old TECH_MUSIC_THEORY, and since AIs handle this sometimes bad in the early game. This tech prereq change helps culture techs being stronger by condensing their effects and make them more "bulky". -->
 
-===== .\Assets\XML\GameInfo\CIV4WorldInfo.xml =====
+===== \Assets\XML\GameInfo\CIV4WorldInfo.xml =====
 ----- Comment #23 -----
 <!--WorldInfo>
 			<Type>WORLDSIZE_XXL</Type>
@@ -319,11 +319,11 @@ And i didn't want to recompile so i asked it as such too, and it confirmed i mea
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 		</WorldInfo-->
 
-===== .\Assets\XML\Technologies\CIV4TechInfos.xml =====
+===== \Assets\XML\Technologies\CIV4TechInfos.xml =====
 ----- Comment #24 -----
 <!-- custom: _COMMUNISM effect seems more relevant here (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good), removed it from TECH_COMMUNISM -->
 
-===== .\Assets\XML\Terrain\CIV4BonusInfos.xml =====
+===== \Assets\XML\Terrain\CIV4BonusInfos.xml =====
 ----- Comment #25 -----
 <!-- custom: this also helped to adjust the values in this file, for example but not only to understand latitudes in civ4 specifically: http://civ4.wikidot.com/xml:civ4bonusinfos, this also https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also among others or not https://forums.civfanatics.com/threads/bonusinfos-xml-question.494920/ helped a lot for feature terrains
 Note: for these adjustments, to match them with AdvCiv/our mod's real map, assuming the real Earth world's equator that is referred in real earth world as the latitude 0, instead not as the latitutde 0 in civ4, but centering it around the center of the inhabitable world in a civ4 map rather (that has walkable land even at north or south edge sometimes or close to it quite often), so when (i) (am) looking for the center of the world in civ, latitude 0 to me is, for example in this real earth world map https://www.google.com/search?q=world+map+latittude&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nIwwaIyYNtCgkdUPp4KniA8&ved=0ahUKEwiM1tPs7LmNAxVQUKQEHSfBCfEQ4dUDCBE&uact=5&oq=world+map+latittude&gs_lp=EgNpbWciE3dvcmxkIG1hcCBsYXRpdHR1ZGVI1wxQpwJY7wtwAXgAkAEAmAEjoAGnAqoBAjEwuAEDyAEA-AEBmAIHoAK3AcICDRAAGIAEGLEDGEMYigXCAgYQABgHGB7CAggQABgHGAoYHsICChAAGIAEGEMYigXCAgUQABiABMICBBAAGB7CAgYQABgKGB6YAwCIBgGSBwE3oAepIrIHATa4B7UBwgcDMC43yAcK&sclient=img#vhid=87Afx8YTgs-pqM&vssid=mosaic, grossly around the southern part of mexico area or the southern parth of arabian peninsula or the southern part of india grossly for example so around latitude 10 North in the real world is what i consider latitude 0 in civ4 equivalent when adjusting min max latitude if i do, then for max latitude since in our real earth world there are not much if at all inhabitable landmasses near the edges unlike in civ4, then i am using 10 north to 70 (+ 80 difference from 10N to 80S in my custom naming which i don't know if is accurate or and the scientific one or and scientific enough but maybe is hopefully accurate or understandable enough at least to me or and maybe others or not) south grossly for real world to it being 0 to 90 north in civ4 equivalent, and then 10 north to 90 north (+80 difference same but between 10N and 90N), i don't know if doing so is accurate or relevant, hopefully is,in all cases
@@ -332,18 +332,18 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 ----- Comment #26 -----
 <!-- custom: add low value for early war elephants, but not too high as not useful otherwise, and may skew too much AI valuing (setller or trading preferences for example after our changes), as the bonus is not so useful in medieval+ (no new military unit or critical building to have if i'm not mistaken but anyways); plus, bonus is available from start, which is fine since war elephants are not available until about midgame so vision does not give a critical advantage, camel units are later as well but camel bonus allows medieval and rennaissance camel units so worth more and worth hiding until tech as of now tech_animal_husbandry, as for elephants bonus, value kept low so AI values it a bit but not too much as not as important as horse or camel for example and to prevent excess skewing of AI behaviour while sitll making it aware of it: it can be a nice path when we are stuck with longbows until muskets, to have war elephants! But don't overdo it. -->
 
-===== .\Assets\XML\Terrain\CIV4FeatureInfos.xml =====
+===== \Assets\XML\Terrain\CIV4FeatureInfos.xml =====
 ----- Comment #27 -----
 <!-- custom: reduce `iDefense` (base feature jungle) as of now from 0 to -25: gotta get something out of all those jungle penalties, reduce tile defense, which would make it easier for city owners to indirectly defend their cities or attack invaders, as as outside of cities provide a more man vs man kind of warfare xd, as also in the jungle everyone is left on their own, which is quite realistic maybe too, also this doesn't affect city tile warfare as features are cleared on found so should be fine at least i want to do it so (note: as of now rival defense of +25% still applies for all features, so as of now -25 to +25 (seemingly 25 for all features but i am not 100.0% sure..., check to be sure) would be 0 total feature_jungle defense, vs 0 + 25 = 25 total defense on feature_forest), was 0 -->
 
-===== .\Assets\XML\Terrain\CIV4ImprovementInfos.xml =====
+===== \Assets\XML\Terrain\CIV4ImprovementInfos.xml =====
 ----- Comment #28 -----
 <!-- custom: rice does appear to be slightly and quite significantly less nutritious than wheat for example herehttps://foodstruct.com/compare/rice-vs-wheat, but trying to buff rice as it is currently weaker than wheat and corn, in a way that is balanced and accurate (not buffing just for sake of it), trying to come with a use case in for example https://www.reddit.com/r/ZeroWaste/comments/1fks52y/help_how_to_repurpose_a_lot_of_rice_not_for/ and https://www.reddit.com/r/Cooking/comments/1ay8l8i/i_have_a_ton_of_brown_rice_and_i_hate_it_what_can/, it's a bit far fetched but it could be used to fill items or such like sensory bins some people suggested in these links or bags or marionettes or such that wheat may not so easily be able to do, so going with this and giving hammer as if production or something, hopefully both accurate and now rice is stronger as a ressource/bonus in civ4, (like how wheat and maize/corn are or closer to it), digging a (tiny or not tiny) bit more, some other uses seem to maybe also include: https://www.beprepared.com/blogs/articles/beyond-the-bowl-20-surprising-survival-uses-of-rice?srsltid=AfmBOooJoW9HVBxY3qz7PCicqICUp8ZYSLoDtSOAszKaY6wBhl1bsR_1 so maybe the hammer/production additional bonus is indeed maybe not too far fetched, but whether it is or not, maybe is good enough for advciv-sas's goal to make rice (more at least) balanced as it should be (i think)and is a valuable ressource/bonus in history of rice too -->
 
 ----- Comment #29 -----
 <!-- custom: add BONUS_CAMEL here and whenever horse is too or in most places maybe instead or rather, similarly to deer in tundra tiles, give camel, the only representative animal of desert tiles, a quite high food yield and such, hopefully is accurate too as camels can store water in their bodies or such in similar or such or not anyway etc kind of "reservoir" if it's a word in english and if i may say or not; in all cases should be balanced to make camel a king food as in among highest food yield food and to buff desert tiles too; as for bonus improvement yield for bonus_camel, do not make it too high since bonus_camel, unlike bonus_deerfor example, is often or sometimes surrounded by other luxurious tiles, still make t worth it and buff desert tiles and environement, but not too high that it would overboost a grassland city for exmaple with plenty food and just oned sert camel tile, give a bit more hammer instead than (i had) originally planned/intended/thought but that maybe works well in this case for this bonus_camel, should be (even) more balanced this way, maybe. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Core.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Core.xml =====
 ----- Comment #30 -----
 <!-- custom: 
 Before starting, a note about translations:
@@ -429,12 +429,12 @@ Rename the tag									Original untouched; you're free to localize your version
 "
 -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Button_Icons_As_Buttons.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Button_Icons_As_Buttons.xml =====
 ----- Comment #31 -----
 <!-- custom: ‚??Ô∏ù emoji ('s choice/idea/suggestion) is from chatgpt's code
     then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example, there are also several images to choose from in the website as well for example, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say -->
 
-===== .\Assets\XML\Text\BUG_City_Screen_Options.xml =====
+===== \Assets\XML\Text\BUG_City_Screen_Options.xml =====
 ----- Comment #32 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVER_TEXT</Tag>
@@ -479,7 +479,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Selecciona el n˙mero de turnos a esperar antes de mostrar informaciÛn de decaimiento.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Main_Interface_Options.xml =====
+===== \Assets\XML\Text\BUG_Main_Interface_Options.xml =====
 ----- Comment #33 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSKEY_TEXT</Tag>
@@ -572,7 +572,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<German>Zeigt das [ICON_HEALTHY]-Symbol ¸ber den Namen von St‰dten an, deren Bevˆlkerung keine [ICON_UNHEALTHY]-Punkte generiert.</German>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Options_Screen.xml =====
+===== \Assets\XML\Text\BUG_Options_Screen.xml =====
 ----- Comment #36 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_BUILDS</Tag>
@@ -623,7 +623,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Comercio:</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Advanced_Scoreboard_Options.xml =====
+===== \Assets\XML\Text\BUG_Advanced_Scoreboard_Options.xml =====
 ----- Comment #37 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_TEXT</Tag>
@@ -642,7 +642,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Cuando se activa, muestra un puÒo naranja cuando la IA se est· preparando para la guerra.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #38 -----
 
 <!--TEXT>
@@ -660,7 +660,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>[COLOR_WARNING_TEXT]Esta caracterÌstica requiere una versiÛn m·s nueva del DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Civ4lerts_Options_advc.xml =====
+===== \Assets\XML\Text\BUG_Civ4lerts_Options_advc.xml =====
 ----- Comment #39 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGOCCUPATION_TEXT</Tag>
@@ -695,7 +695,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Muestra un aviso cuando una ciudad sea pacificada, terminando con la ocupaciÛn.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_MoreCiv4lerts_Options.xml =====
+===== \Assets\XML\Text\BUG_MoreCiv4lerts_Options.xml =====
 ----- Comment #40 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__CITYFOUNDED_TEXT</Tag>
@@ -792,7 +792,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>LÌmite de territorio para una victoria por DominaciÛn.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Not_Just_Another_Game_Clock_Options.xml =====
+===== \Assets\XML\Text\BUG_Not_Just_Another_Game_Clock_Options.xml =====
 ----- Comment #42 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_TEXT</Tag>
@@ -827,7 +827,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Muestra el porcentaje de turnos completado si la condiciÛn de Victoria por Tiempo est· habilitada</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BUG_Plot_List_Enhancements_Options.xml =====
+===== \Assets\XML\Text\BUG_Plot_List_Enhancements_Options.xml =====
 ----- Comment #43 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_LIST</Tag>
@@ -972,7 +972,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Especifica el espaciado vertical de los iconos de promociÛn en el texto flotante del panel de informaciÛn de unidades (el valor por defecto es cero, valores positivos hacia arriba). Es necesario modificar este valor al usar temas que modifican la fuente. Por ejemplo, hay que usar 6 con BlueMarble.</Spanish>
 	</TEXT!-->
 
-===== .\Assets\XML\Text\BULL_Actions_Options.xml =====
+===== \Assets\XML\Text\BULL_Actions_Options.xml =====
 ----- Comment #47 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__ASKDECLAREWARUNITS_TEXT</Tag>
@@ -1049,7 +1049,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Si se activa, los Trabajadores a los que se les ordene construir una mejora que resulte en el talado de un bosque se detendr·n cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminar·n la mejora.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BULL_City_Bar_Options.xml =====
+===== \Assets\XML\Text\BULL_City_Bar_Options.xml =====
 ----- Comment #50 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HEALTH_TEXT</Tag>
@@ -1273,7 +1273,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Si se activa, muestra el n˙mero de turnos restantes para que en la ciudad nazca una gran personaje ([ICON_GREATPEOPLE]).</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BULL_Misc_Hovers_Options.xml =====
+===== \Assets\XML\Text\BULL_Misc_Hovers_Options.xml =====
 ----- Comment #57 -----
 <!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_TEXT</Tag>
@@ -1415,7 +1415,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>Si se activa, dejar el ratÛn sobre un recurso de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrar· las razones de la IA para negarse a ese intercambio.</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\BULL_CIV4GameText.xml =====
+===== \Assets\XML\Text\BULL_CIV4GameText.xml =====
 ----- Comment #63 -----
 <!--TEXT>
 		<Tag>TXT_KEY_CITY_BAR_FOOD_GROW</Tag>
@@ -1484,7 +1484,7 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ustedes tiene un pacto defensivo[COLOR_REVERT]</Spanish>
 	</TEXT-->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #65 -----
 <!-- custom: "Interception" part of the text renamed to "Air Interception".
 	As for the other point not sure what the other point exactly is.
@@ -1501,7 +1501,7 @@ Rename the tag									Original untouched; you're free to localize your version
 	happens (/could be displayed) during combat, which depend on air evasion of
 	the air unit, putting this "Adjusted" word only here then. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Sevopedia_Lengthy.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Sevopedia_Lengthy.xml =====
 ----- Comment #66 -----
 <!-- custom: similarly replace with real pedia content for whales that completes on their existing wikipedia quote hehe, ours is from rather: https://en.wikipedia.org/wiki/Whale (while for information they seem (i.e. civ4 devs who implemented this) seem to have quoted this https://en.wikipedia.org/wiki/Whaling, missing on the (earlier) history of whales as an animal and its relationship with humans, so their pedia entry is incomplete missing the much earlier history since whales were hunted and justifiying (as well as also wanting to buff water tiles among other reasons or and not) the rewrite of this but i also wanted to update it even though is bit if not lot tedious but hopefully result satisfying or not at least to me or noti do as i want or want to do or want it to be done hehe not necessarily by me but ideally i would prefer a new entry pedia so rewriting it msyelf), also unlike them we mostly just copy paste shamelessly xd, i mean their pedia data is more exhaustive and accurate than whatever we would write, even though i could enhance pedia content with a lot of research, or maybe not or yes, i am satisfied maybe of how it looks, so keeping mostly as is and editing or not or yes or not or other or etc for advciv-sas or not as usual or as for the other ones (i.e. bonus entries) maybe rather -->
 
@@ -1531,11 +1531,11 @@ Rename the tag									Original untouched; you're free to localize your version
 ----- Comment #73 -----
 <!-- custom: replace sentimental and inaccurate TECH_ECOLOGY civ4 +/- base advciv's description with a historically and scientifically grounded one from wikipedia (i can be sentimental too and i like and learned from wikipedia i mean, i just find this wikipedia one so much more accurate and informative about not only the origins of the branch/science, but also how it relates to previous discoveries/perspectives, darwin's view from my quick glance if not mistaken in my quick read or understanding that the dominant competitors need to put in check their domination else they may struggle if they kill/consume/destroy all food sources is particularly interesting and more interesting than the sentimental and mistaken one of fight the evil pollution by the evil corporations or such one even though there is maybe ground for this, history shows it was accounted for much much sooner, most likely even in antiquity and before people were aware and conscious to preserve nature and protect it although i didn't check,which is why in particular i hate the dominant intuitive social view of ecology which i was also led to believe, instead of viewing it as a scientific field or causality of human existence where we need to coexist with nature rather than fight some evil entity admonizing ourselves if it's a word in english; based on https://en.wikipedia.org/wiki/Ecology#History -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #74 -----
 <!-- custom: remove the very unclear "Enables" text, that is at best inaccurate. For example in https://modiki.civfanatics.com/index.php/Civ4BonusInfos (and similar info in kujira's website translated to english as well, see ctrl+f "kujira" global search for details), it states about this: "The technology that enables the trading of this resource.", so i think we can rephrase it for concision to for example as below -->
 
-===== .\Assets\XML\Text\Civ4GameText_K-Mod.xml =====
+===== \Assets\XML\Text\Civ4GameText_K-Mod.xml =====
 ----- Comment #75 -----
 <!-- unused tags
 	<TEXT>
@@ -1564,7 +1564,7 @@ Rename the tag									Original untouched; you're free to localize your version
 	</TEXT>
 	[end of unused tags] -->
 
-===== .\Assets\XML\Text\CIV4GameText_Sevopedia.xml =====
+===== \Assets\XML\Text\CIV4GameText_Sevopedia.xml =====
 ----- Comment #76 -----
 <!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details; note: update: these entries are not used anymore now that we display them as buttons, commented-out in case it helps
 	<TEXT>
@@ -1605,7 +1605,7 @@ Rename the tag									Original untouched; you're free to localize your version
 	</TEXT>
 	-->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #77 -----
 <!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
 	fit to me than "Cow".
@@ -1629,11 +1629,11 @@ Rename the tag									Original untouched; you're free to localize your version
 	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the nationality/country in the name i think, but hopefully a lot clearer in code now too, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now)
 	-->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_mods.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_mods.xml =====
 ----- Comment #80 -----
 <!-- custom: also add these txt keys including also FeatureTerrainBooleans info, in accordance with if i may say toothe info in (translate to english with web browser page right click on page or such) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also chatgpt's explanation of it which used it spontaeously while doing a web search to answer my question of what this does, which would explain why the base advciv (+/- civ4? Didn't check) had the bonus_furs redundantly in terrainbooleans and featureterrainbooleans -->
 
-===== .\Assets\XML\Units\CIV4PromotionInfos.xml =====
+===== \Assets\XML\Units\CIV4PromotionInfos.xml =====
 ----- Comment #81 -----
 <!--PromotionInfo>
 			<Type>PROMOTION_DISORGANIZED</Type>
@@ -1698,11 +1698,11 @@ Rename the tag									Original untouched; you're free to localize your version
 			<Button>Art/Interface/Buttons/Promotions/broken_combat.dds</Button>
 		</PromotionInfo-->
 
-===== .\Assets\XML\Units\CIV4UnitClassInfos.xml =====
+===== \Assets\XML\Units\CIV4UnitClassInfos.xml =====
 ----- Comment #82 -----
 <!-- custom: make the settler a national unit (such as are the missionaries in civ4 +/- base advciv as well), with only one allowed simultaneously per player, so that AI doesn't spam them very inefficiently (e.g. building settlers in 2 cities at the same time is very costly, see known issue 37 for details, or building one settler when we already have one, there shouldn't be a strong reason to do so, it is more likely to cripple economy than not). Hopefully it does not inconvenience or reduce player freedom too much, but i also think it makes sense in terms of gameplay, to settle one city at a time, hopefully fine as such or not too bad or even maybe good for balance as well as tremendously helping AI in all cases i think; this is done thanks to claude ai too who helped me locate this xml spot hehe although i could maybe have found it too but it gave me feedback too and help is nice if i may say when and as i asked if i may say thanks claude ai hehe if i may say too or again here; it may also make settler timing more strategic as well, as well as also the importance to/in making sure they don't die and to escort them well maybe too, so maybe a fine or interesting change at least i want to do it as such-->
 
-===== .\Assets\XML\Units\CIV4UnitInfos.xml =====
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #83 -----
 <!-- custom: units now have terrain and feature (+/- plot types e.g. hill for some units such as of now the quechua warrior) attack or defense combat modifiers. Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular). See Sevopedia entry of each unit for details or Sevopedia terrain or Sevopedia feature page(s) to easily visualize these with the new UI additions we made there as well. For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. Note: as of now i'm using plains as a representative of savanna more or less -->
 
@@ -1744,7 +1744,7 @@ In your AdvCiv/K-Mod base the effect is ìmostly multiplicativeî, not simple add-
 ----- Comment #89 -----
 <!-- custom: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without trigegring war, that now only privateers can do at least among visible naval units; as for the effect bRivalTerritory is set to 0 in the galleon as well same as what it was, even though they have UNITAI_EXPLORE_SEA, was annoying from my memory of advciv games that caravels could send many spies in particular without ever declaring war and without me allowing them to enter my borders, hopefully much more sensical now and pleasant this way, that they have to respect water rights or something, and galleon is a bit more affordable and civilian like unit, may also help to simplify gameplay a bit as we don't need strongly/strongly needthe caravel if the galleon is cheap enough and fast enough, may help the AI indirectly or simplify gameplay perhaps, not ideal but maybe a desirable change at least for me... -->
 
-===== .\\Assets/XML/Units/UnitAI notes (Units XML) =====
+===== \Assets/XML/Units/UnitAI notes (Units XML) =====
 ----- Comment #90 -----
 <!-- custom: 
 note: below rework as of now not fully implemented not too likely as bit tedious and then would need to change buildings and such, but might be, but even if we don't implement it as below, general idea of rebalancing iPower to avoid suicidal war declarations as i had noticed (perhaps even help AI war decisions of which units to attack for example?) by myself while playing civ4 i mean base advciv mod still valid, read below for details:
@@ -1833,7 +1833,7 @@ UnitAIs and NotUnitAIs all alphabetical order (for quick copy paste then adjust 
 			</NotUnitAIs>
 -->
 
-===== .\\Assets/XML/Units/Unit combat notes (Promotions XML) =====
+===== \Assets/XML/Units/Unit combat notes (Promotions XML) =====
 ----- Comment #91 -----
 <!--
 custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it gets messy really quickly full order to take from for quick editing or copy/paste:
@@ -1903,7 +1903,7 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 
 -->
 
-===== .\\Assets/XML/BasicInfos/UnitAI notes (BasicInfos XML) =====
+===== \Assets/XML/BasicInfos/UnitAI notes (BasicInfos XML) =====
 ----- Comment #92 -----
 		<!-- custom: rename "PROPHET" to "GREAT_PROPHET":
 		- this is weird and inconsistent that "general" is "GREAT_GENERAL" and "spy" is "GREAT_SPY", while "PROPHET" is not "GREAT_PROPHET" (not best example as i am not too fond of them but is to be "fair") and "SCIENTIST" ("scientist") and such are not "GREAT_SCIENTIST" and such, but are as said before in this comment comment"SCIENTIST" instead. Why the inconsistency? Are scientists and such not great, while spy/generals are? Or is it just(?(,)) careless renaming, if not cowardice or maybe not and a mistake or some inaccuracy. But is not (for) me to assess these as i can only express my judgment thought of these and what they may be not what and how they actually are as in went in/went by? But in all cases this seems inaccurate and hopefully fixed and clearer even if a bit more if not ideally a lot more... I may make such inaccuracies too so feel free to maybe point them to me or (maybe?) not or yes or and other or and not, but in all cases
@@ -1941,7 +1941,7 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 		So hopefully to "fix" these as in making them consistent again and hopefully clear and accurate.
 		-->
 
-===== .\\Assets/XML/BasicInfos/BasicInfos notes (concept categories) =====
+===== \Assets/XML/BasicInfos/BasicInfos notes (concept categories) =====
 ----- Comment #93 -----
 My goals doing this are:
 - rename "Concepts" to "Mods Info"
@@ -2008,7 +2008,7 @@ I don't know if i did all steps correctly, but at least it works
 now.
 -->
 
-===== .\\Assets/XML/Audio/AudioDefines nested-comments crash notes =====
+===== \Assets/XML/Audio/AudioDefines nested-comments crash notes =====
 ----- Comment #94 -----
 long code comment in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Audio\AudioDefines.xml causes(d) a crash before game can fully start, recorded in C:\Users\PC\Documents\My Games\beyond the sword\Logs\audio.log :
 
@@ -2070,7 +2070,7 @@ so moving these (code comments) below in this now .txt file
 now fixed, at least game starts normally, be careful of too long (in line or char count i don't know which) xml comment in nested fields perhaps
 
 
-===== .\\Assets/XML/Text/BUG_CIV4GameText.xml =====
+===== \Assets/XML/Text/BUG_CIV4GameText.xml =====
 ----- Comment #95 -----
 
 	<!-- advc.008e: Articles before wonders are now handled by
@@ -2100,7 +2100,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BUG_CIV4GameText.xml =====
+===== \Assets/XML/Text/BUG_CIV4GameText.xml =====
 ----- Comment #96 -----
 
 	<!--TEXT>
@@ -2133,7 +2133,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		 https://forums.civfanatics.com/threads/raw-yields.281724/#post-7005748
 		 -->
 
-===== .\\Assets/XML/Text/BUG_CIV4GameText.xml =====
+===== \Assets/XML/Text/BUG_CIV4GameText.xml =====
 ----- Comment #97 -----
 
 	<!--TEXT>
@@ -2145,7 +2145,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL_Actions_Options.xml =====
+===== \Assets/XML/Text/BULL_Actions_Options.xml =====
 ----- Comment #98 -----
 
 	<!-- advc.004l: Unlikely to be merged -->
@@ -2164,7 +2164,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Spanish>Si se activa, las unidades b·rbaras adyacentes a tu territorio no provocar·n una advertencia si no pueden entrar.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL_City_Bar_Options.xml =====
+===== \Assets/XML/Text/BULL_City_Bar_Options.xml =====
 ----- Comment #99 -----
 
 	<!--TEXT>
@@ -2197,7 +2197,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Spanish>Muestra cu·ntos turnos faltan para que una ciudad pierda poblaciÛn.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL_CIV4GameText.xml =====
+===== \Assets/XML/Text/BULL_CIV4GameText.xml =====
 ----- Comment #100 -----
 
 	<!-- advc.004l: Likely won't need this -->
@@ -2242,7 +2242,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		<Spanish>Mostrar Actitudes Ocultas [espoiler]</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #101 -----
 
 	<!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 -->
@@ -2278,7 +2278,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	- LATER cities use a looser THRESH / lower RATE so good long-term sites arenít over-penalized.
 	-->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #102 -----
 
 	<!-- Important: this gate uses BASE hammers per turn (iBaseHammersPerTurn), i.e. hammers before production multipliers are applied
@@ -2296,7 +2296,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	-->
 	<!-- custom: setting to -1 effectively disables these as value will be negative, so we'll always have more hammer than say -5 min hammer so it would always be allowed then -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #103 -----
 
 	<!-- Unit: extra "gold per 10% strength gain" per 1 EXP.
@@ -2317,7 +2317,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	     - effective value = 25 gold per 10% strength gain + 20 gold per 10% strength gain
 	                       = 45 gold per 10% strength gain (then capped below) -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #104 -----
 
 	<!-- How to read this value: "gold per +1 flat strength gain".
@@ -2339,7 +2339,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	       max gold allowed = 28 gold per +1 flat strength gain * 3 flat strength gain = 84 gold.
 	       If the upgrade costs 60 gold: YES (60 <= 84) -> upgrade. -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #105 -----
 
 	<!--     How to read this value: "gold per 10% strength gain".
@@ -2356,7 +2356,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	       25 gold per 10% strength gain * (66% strength gain / 10%) = 165 gold.
 	       If the upgrade costs 20 gold: YES (20 <= 165) -> upgrade. -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #106 -----
 
 	<!-- 
@@ -2369,7 +2369,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		-> 3: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to the rightmost part of the screen on the right: it provides maximum immersion visually as potentially distracting info is removed, but we don't know anymore their tech (and the world map is now hidden as well).
 	-->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #107 -----
 
 	<!-- The Solution
@@ -2385,7 +2385,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	<!-- Increasing MULT amplifies diplomatic weight. Increasing DIVIDER_ADD reduces flavor penalty for low-religion leaders. -->
 	<!-- Multiplier for diplomatic modifier. Higher = stronger diplomatic influence. Min: 0 -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #108 -----
 
 	<!--
@@ -2412,7 +2412,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	-->
 	<!-- Absolute floor in value-points; prevents tiny swings from causing a switch when current_value is small. Raise to reduce early-game oscillation; lower to make AI more eager. -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #109 -----
 
 	<!-- Note: since it is technical and i didn't reread or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct
@@ -2436,7 +2436,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	Below code comments by chatgpt 5, check if accurate
 	-->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #110 -----
 
 	<!-- custom: as of now only applies to land unitais as are +/- were the most important to trim and that overproduce as of now with our changes -->
@@ -2447,13 +2447,13 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 	then youíd need to decouple the bEarly gate from the Renaissance+ branch (e.g. only wrap the Ancient/Class/Med tiers in if (bEarly) and leave the Renaissance+ tier under if (bNoExcessVeryCheapMilitaryUnits) alone). -->
 	<!-- custom: note 2: as of now in CvCity::doTurn, renaissance plus land tier unaffected by this as nicely noted by chatgpt 5.1 thanks. As for CvCityAI:AI_ChooseUnit, this is never applied at all for very cheap units gates -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #111 -----
 
 	<!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
 	<!-- custom: note: 0 to disable it would mean expansion phase would be over since the turn game started (this allows stricter no wonder policy to hopefully make AI stronger militarily; adjust as you see fit). Otherwise a value like 125 or similar may do fine (test to be sure, adjust as you see fit) -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #112 -----
 
 	<!-- Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
@@ -2464,43 +2464,43 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
     <!-- Enable/disable the trade-stage danger bias. -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 
-===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #113 -----
 
 			<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now... -->
 			<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
 
-===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #114 -----
 
 			Note: this as of now new free PROMOTION_CITY_BOMBARD_DAMAGE is also thematically more relevant according to chatgpt 5 as the unit fires longer range rockets above defensive lines if i understood it correctly, which may be represented by this doing more damage to defenses effect indirectly perhaps (attacking civilian houses or such means their defenses are more affected sort of maybe). In terms of gameplay, making it an anti wall unit is interesting as well without making it an op unit stack wiper so maybe fine as such, check if accurate -->
 			<!-- Houfnice (Bohemian ìhowitzerî ancestor) = short-barrel, high-arc field piece meant to lob shot over cover and into crowds; more about dropping fire behind defenses than battering walls head-on. -->
 
-===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #115 -----
 
 			in generic cannon in advciv-sas as of now. Note: for now not changed for all cannons so including the generic cannon, as bit tedious to consider, plus it would remove some of the strategic importance of iron, which is fine in itself but not needed for now if not always or not so left as such as of now for other units-->
 			<!-- "The early gunpowder artillery, like bombards and hand cannons, often used bronze (copper alloys) or wrought iron. Bronze was preferred for its mobility and shock resistance, with iron being cheaper but more brittle. The 15th-century Bohemian houfnice, key in the Hussite wars, may have used wrought iron early on but later cast in bronze." -->
 			<!-- "Hussite artillery used small field guns and howitzers, often wrought iron but sometimes bronze. By the 16th century, Habsburgs used bronze howitzers more widely, so requiring copper as an alternative to iron in Civ4 fits historically."
 
-===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #116 -----
 
 			<!-- History cue: French line infantry excelled at disciplined volley fire and square formations vs cavalry. They werenít inherently ìfastî on foot (the 2-move in BtS is really a ìdragoon flavorî abstraction). So your instinct to drop the extra move is spot-on. -->
 			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high so it seems we don't need to increase unit iCost and leave it as such otherwise -->
 
-===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #117 -----
 
 			if i am not mistaken from my memory i mean, the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense. However, we don't need to do that here, as after other changes the unit is plenty strong now already; plus with the terrain/feature modifiers civ-specific units have in our mod, we don't need to keep the old woodsman specific identity redundantly here anymore. So, also as per chatgpt 5.2's recommendation (and as i had the idea too it seems but not totally sure) thanks, adding a non-combat promotion rather that fits here so it is a strong enough as of now axeman variant as as of now the dog soldier is
 			<!-- "UNITCOMBAT_MELEE_SHOCK 50% is too much, because it turns into ìI donít need metal and I still hard-win the metal lineî too often (and it keeps scaling into later Shock units)." + It fits ìjungle scouting / ambush / raiding.î + "You already said only Yeoman currently uses it, so it wonít feel spammy." -->
 
-===== .\\Assets/XML/Units/CIV4UnitInfos.xml =====
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #118 -----
 
 		<!-- custom: removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://www.government.nl/topics/agriculture/agriculture-and-horticulture#:~:text=After%20the%20United%20States%2C%20the,its%20largest%20trade%20partner%2C%20Germany. and https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources and also civ3 making it an agricultural civ, but since it is not easily possible to make them specifically faster in building farms and cottages easily, giving them another worker boosting effect instead (see unitinfo xml for details or updated value), i believe this would work quite well with the gold profile of the AI leader too william, restoring old civ4 effect for this unit at least as of now if not always or not but look at updated value(s) in real unit info's xml for details -->
 
-===== .\\Assets/XML/GameInfo/CIV4CivicInfos.xml =====
+===== \Assets/XML/GameInfo/CIV4CivicInfos.xml =====
 ----- Comment #119 -----
 
 			<!-- Totally with you that Walls are a bit bland here. If you want ìiconic institutions of a nationî, then:
@@ -2510,7 +2510,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 				- Castle = historic fortresses, symbolic national strongholds.
 			Together they read as ìproud, mobilised nation-stateî, not just ìwe built some barracksî. -->
 
-===== .\\Assets/XML/GameInfo/CIV4CivicInfos.xml =====
+===== \Assets/XML/GameInfo/CIV4CivicInfos.xml =====
 ----- Comment #120 -----
 
 			<!-- Short version: yes, if what you want is the rise of monetized, contract-based work rather than ìthe modern proletariat.î
@@ -2528,7 +2528,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 				- Banking = financial institutions, credit, capital flows (which you now use for Protectionism ñ tariff policy, external trade design).
 				- Printing Press = information / communication, which already has Trade Bloc and feels like ìshared treaties, leagues, common rulesî. -->
 
-===== .\\Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml =====
+===== \Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml =====
 ----- Comment #121 -----
 
 		<!-- custom: example from base civ4 used as a reference:
@@ -2564,27 +2564,27 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		</LeaderheadArtInfo>
 		-->
 
-===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
 ----- Comment #122 -----
 
 <!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for exampel, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas -->
 
-===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
 ----- Comment #123 -----
 
 		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk") with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot -->
 
-===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
 ----- Comment #124 -----
 
 		<!-- custom: note: about this unit's sound assets: i can't find the korean unit audio file nor the corresponding asset, in audiodefines; i don't know too much how these work, but changing it to be safe or consistent with other units, but really i have no idea how it works and your best may be to check or ask to be sure, at least we're more likely (i guess, i don't know!xd) to get the generic as of now cannon (i hope) rather than no sound. (Didn't want to make the comment too long inside the info asset in case it breaks something (but is just a guess of mine too check to be sure)) -->
 
-===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
 ----- Comment #125 -----
 
 <!-- custom: the ART_DEF_UNIT_ARCHER_EURASIAN seems to be unused in base advciv (and in civ4 too?) remove it entirely and use the already existing and used in base advciv ART_DEF_UNIT_ARCHER_CHINESE now renamed to ART_DEF_UNIT_ARCHER_ASIAN for consistency or such, see also known issue as of now 18; (not skipping line in case it breaks art assets code, see known issues as well for examples about such behaviours); also rename ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN -->
 
-===== .\\Assets/XML/BasicInfos/CIV4NewConceptInfos.xml =====
+===== \Assets/XML/BasicInfos/CIV4NewConceptInfos.xml =====
 ----- Comment #126 -----
 
 		<!-- custom: removed entirely the entries that are composed of links
@@ -2598,23 +2598,23 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 		(or the equivalent of this folder for your civ4 installation path,
 		read the code comments there for details. -->
 
-===== .\\Assets/XML/Buildings/CIV4BuildingInfos.xml =====
+===== \Assets/XML/Buildings/CIV4BuildingInfos.xml =====
 ----- Comment #127 -----
 
 			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now, AIs produce too much units, and much of them are early defenders or units that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result, was -40 after our change to nerf barbarians as were too op -->
 
-===== .\\Assets/XML/Buildings/CIV4BuildingInfos.xml =====
+===== \Assets/XML/Buildings/CIV4BuildingInfos.xml =====
 ----- Comment #128 -----
 
 was 8 which i think is maybe too high, considering the courthouse requirement already that is quite expensive, having 6 cities is enough and costly enough too anyways, 8 makes it too unlikely to be built in too many games, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here thanks chatgpt; also 6 is a number at which it is relevant enough to build it (so AIs in particular do not build it and lose on efficiency if uneeded or not too worth and build something else instead) while not being too restrictive for players, including AI players but also human players who want to build it too
 
-===== .\\Assets/XML/Buildings/CIV4BuildingInfos.xml =====
+===== \Assets/XML/Buildings/CIV4BuildingInfos.xml =====
 ----- Comment #129 -----
 
 		<!-- custom: according to https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles castle should be relevant much later than economics, which also seems a weird tech to "correlate" it with (obsolescence of castles, i don't see a clear link).
 		It's also interesting from a gameplay standpoint i think to make them relevant longer and not too soon obsolete so they are not worth building, and stockpilers run then rampage with pre-made farming strategies, it would require to be more careful about the whole game and pace now and war plans and such or not, hopefully an interesting change. -->
 
-===== .\\Assets/XML/Terrain/CIV4BonusInfos.xml =====
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
 ----- Comment #130 -----
 
 <!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well, was 75 / 128 -->
@@ -2622,7 +2622,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 			<!-- custom: greatly increase appearence since bonus_camel is only on desert tiles which are few, hopefully buffs desert tiles without being op, since camel quite like deer are now or not noware as of now the only food representative of desert, so make sure they count and use them to buff desert tiles like increased  deer appearance in tundra tiles (bonus_deer is only on tundra tiles) is/can be also used to buff specificially tundra tiles and relatively, so apply or try to apply/balance quite bit if not lto or not but or not butfor the bonus_camel, adjust if needed based on spawn rates that seem to appear in/on map i'll adjust i mean others can adjust too if they want or not no need for me to mention this. -->
 			<!-- custom: 50 / 24 seems to work very well at first try but perhaps a bit too high still now, try to reduce it a bit; after more testing, 50 / 27 seems quite good, try to reduce base camel and increase camel per tile i.e. more frequent per x tiles; after some bit of testing or not bit lot or both bit or lot or not, this formula seems to work-function very well for bonus_camel as we don't want too many base camel, but we want more if there are more desert tiles, else base number quite low is what we'd want which this formula achieves quite well or seems to do so -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #131 -----
 
 <!-- custom: adding our own AdvCiv-SAS knobs/tunables so that players or me xdcan tweak/modify them without having to recompile each time which is tedious; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know) or check in code of relevant function(s) -->
@@ -2631,7 +2631,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 <!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or add other global define files, make sure they are added there as well and chatgpt 5 confirms it, or it won't load as it didn't seem to (load) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders), check to be sure -->
 <!-- custom: note 4: i did not add it here to avoid having issues or a complicated implementation, but a few places use the hardcoded mod name such as as of now "AdvCiv-SAS" instead for example of "AdvCiv". To find these places easily, i generally wrote a comment that has something like "our mod AdvCiv-SAS" or "mod AdvCiv-SAS" or "AdvCiv-SAS Mod" or something similar so they can be found more easily to change them in case you change the mod's name. -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #132 -----
 
 	<!-- custom: Leader AI Cache:
@@ -2639,18 +2639,18 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		
 		1 = load from predumped file (SevoPediaLeaderCachePredumped.py) (recommended for most players: fastest and cheapest for your computer as all the values are computed, but if you want to change something like adding emojis in headers, changing any xml value in leader info, you need to manually update the predumped file (set this to 0 temporarily and when you have updated the file you can set this to 1 again if you want). -->
 
-===== .\\Assets/XML/AI_Variables_GlobalDefines.xml =====
+===== \Assets/XML/AI_Variables_GlobalDefines.xml =====
 ----- Comment #133 -----
 
 <!-- custom: shriking XML comments to one line does not help performance at all even a bit it seems if i understood chatgpt's explanation, due to the parser still reading the entire line regardless, unlike with a # in python for example where rest of line is skipped, but doing so sometimes as it improves word wrap especially if screen is split for example, still less incentive to do so since no perfomance gain, (i) may or not do so inconsistenly in the xml files, see main readme.md for details in the as of now fixes section. -->
 <!-- custom: maybe most likely also much faster if i ask chatgpt to do it, todo maybe later but not guaranteed though may or may not do -->
 
-===== .\\Assets/XML/Technologies/CIV4TechInfos.xml =====
+===== \Assets/XML/Technologies/CIV4TechInfos.xml =====
 ----- Comment #134 -----
 
 <!-- custom: button import from NW mod's very very nice one in all or all in one rather. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting fine (folder name has the advciv-sas asset name or closest or close to it, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if needed)), is based on NW mod's TECH_HEAVY_WATER button -->
 
-===== .\\Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
 ----- Comment #135 -----
 
 		<!-- custom: elevation trick now that the airship is a domain land unit now
@@ -2662,12 +2662,12 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<fShadowScale>0.65</fShadowScale>
 		-->
 
-===== .\\Assets/XML/Units/CIV4PromotionInfos.xml =====
+===== \Assets/XML/Units/CIV4PromotionInfos.xml =====
 ----- Comment #136 -----
 
 <!-- custom: it is a tiny bit op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or related DLL code changes). It is also not nonsensical, perhaps even strategically interesting in this case i mean, to link the concept as in idea of/to moving/mvoe fast with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or relevant in this case i mean -->
 
-===== .\\Assets/XML/Buildings/CIV4BuildingInfos.xml =====
+===== \Assets/XML/Buildings/CIV4BuildingInfos.xml =====
 ----- Comment #137 -----
 
 <!-- custom: see in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or helpful if needed xml fields and their meaning, took it from the Doto mod, see there for details -->
@@ -2678,7 +2678,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 <!-- custom: note: also we made some AI optimizations about which buildings to build or not, some of which are hard coded. In all cases, i'd recommend if you make changes to the XML here (change a buildign's characteristics or add / remove), to also reflect these there in CvCityAI::AI_buildingValue, to help AI better optimize its building choices with your new changes -->
 <!-- custom: note: in same code part than the above, AI also won't build wonders it doesn't have a modifier for, as it would most likely be beaten by rivals for it (except during some of the early turns), with a hardcoded threshold of 25 (%), so assuming you don't have civics or religions or such giving a production modifier that is understood by the code, i'd advise not to lower bonus modifier for wonders (e.g. stone makes great wall or iron makes eiffel tower be built faster) below 25 if you want AIs to keep going for them when it has the bonus, else even if it has the bonus (and if it doesn't to), if it doesn't also have other positive modifiers to motivate it to build the wonder, it simply won't. Adjust code there if you want a lower threshold -->
 
-===== .\\Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
+===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
 ----- Comment #138 -----
 
 <!-- custom: reordered in reverse from fastest at top to slowest at bottom so they appear as such in the "Play Now" Game Speed section. -->
@@ -2697,7 +2697,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
      0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2 Thinking). See known issue as of now 92 for details. -->
 <!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See known issue as of now 92 for details. -->
 
-===== .\\Assets/XML/GameInfo/CIV4ReligionInfo.xml =====
+===== \Assets/XML/GameInfo/CIV4ReligionInfo.xml =====
 ----- Comment #139 -----
 
 <!-- custom: BTS version of the file imported cleanly from "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo\CIV4ReligionInfo.xml" and then modified for AdvCiv-SAS. -->
@@ -2715,7 +2715,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 			<MovieFile>Art/Movies/Religion/Baalism/Generic_Found.nif</MovieFile>
 -->
 
-===== .\\Assets/XML/Text/CIV4GameText_advc_hints.xml =====
+===== \Assets/XML/Text/CIV4GameText_advc_hints.xml =====
 ----- Comment #140 -----
 
 <!-- advc.008c: In BtS, this was a lengthy explanation about how to found a
@@ -2729,7 +2729,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 </TEXT>
 -->
 
-===== .\\Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
+===== \Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
 ----- Comment #141 -----
 
 	<!-- advc.069: unused -->
@@ -2750,7 +2750,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pestaùa.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
+===== \Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
 ----- Comment #142 -----
 
 	<!-- advc.004: Now unused -->
@@ -2769,7 +2769,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Muestra los puntos de ciudad planeada en el mapa normal.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
+===== \Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
 ----- Comment #143 -----
 
 	<!-- advc.004: unused -->
@@ -2781,7 +2781,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>N˙mero del icono a colocar en el centro de los bordes de las ciudades planeadas.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL_City_Bar_Options.xml =====
+===== \Assets/XML/Text/BULL_City_Bar_Options.xml =====
 ----- Comment #144 -----
 
 	<!-- Handled by advc.101; non-optional. -->
@@ -2800,7 +2800,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>Si se activa, muestra las probabilidades de que tenga lugar una revuelta en la ciudad debido a la presiÛn cultural.</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL_CIV4GameText.xml =====
+===== \Assets/XML/Text/BULL_CIV4GameText.xml =====
 ----- Comment #145 -----
 
 	<!-- advc: I'm not using this -->
@@ -2813,7 +2813,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player es peor enemigo[COLOR_REVERT]</Spanish>
 	</TEXT-->
 
-===== .\\Assets/XML/Text/BULL_CIV4GameText.xml =====
+===== \Assets/XML/Text/BULL_CIV4GameText.xml =====
 ----- Comment #146 -----
 
 	<!--TEXT>
@@ -2839,13 +2839,13 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 	</TEXT-->
 	<!-- advc: Replacing the above. Akin to keys under "Finance Advisor". -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Main.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Main.xml =====
 ----- Comment #147 -----
 
 	<!-- custom: rename "Unit Upgrades" to "Units Tree", clearer and consistent with "Promotion Upgrades Tree", while also short enough to fit well enough in the Sevopedia panel.
 	Also note that this/it is not necessarily about upgrading units but showing them, even though upgrading them may be the end result, but still, this should not be a wrong way to present things, regarding how this is just a tree that displays units and how they relate to each other (think of it as looking back maybe for example, not necessarily upgrade only, or also looking at per era units in a vertical way for example (in AdvCiv-SAS the tech tree would be designed in such a way that each era has one type of unit, and each unit is aligned vertically (in the column corresponding to) where it starts, maybe this can help this be more intuitive too) -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Main.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Main.xml =====
 ----- Comment #148 -----
 
 <!-- custom: gather all base civ4 (vanilla or BTS alike) content in the same category, was "Game Concepts".
@@ -2854,7 +2854,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 	Added the tag/mention "(Outdated)" to signify that this info is not up to date anymore, but may help for general purposes maybe especially ingame. Add this mention may also remove the burden for modders to maintain this page, as i think it is more practical for players to go online (if possible) to find/gather the data they want, while also serving my purposes.
 	Also "BtS" is one character shorter than "Game", with the other advantage (i think) of being more indicative of the fact that it relates to base civ4 (vanilla or BTS or similar), and not to other mods info (for example K-Mod, AdvCiv, AdvCiv-SAS, etc). -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Main.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Main.xml =====
 ----- Comment #149 -----
 
 <!-- custom: rename "Ivory" to "Elephants". Here the main reasons for this change: 
@@ -2863,7 +2863,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 	- 3) One could also maybe imagine that elephants the animal itself makes people happy, and not necessarily their ivory.
 	Note: since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version. -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml =====
 ----- Comment #150 -----
 
 <!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need, record the button Path as a txtKey for reference (centralized).
@@ -2875,7 +2875,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 
 See also as of now the mod's root /README.md for related info. -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
 ----- Comment #151 -----
 
 <!-- custom: moved the lengthy part of the Sevopedia changes
@@ -2888,7 +2888,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 and modified for our needs if needed. -->
 <!-- custom: imported from m-e mod (see main readme for mod abbreviation details in as of now credits section) (in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Modules\Platypedia\AdditionalText_CIV4GameText.xml) (but i also found them later in c2c mod and they are seemingly the same but the file is sadly/unfortunately way too bloated so going for the m-e mod one(s if talking about the assets themselves in thinking/saying so)) and then adjusted or not or yes or etcfor advciv-sas -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Main.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Main.xml =====
 ----- Comment #152 -----
 
 <!-- custom: The Mod XXL World (https://forums.civfanatics.com/resources/xxl-world-bts.6708/) is as of now now implemented into AdvCiv-SAS, with the help of GPT-5.2-Codex thanks. These are where TXT KEYs that are most relevant to XXL World Mod are located in AdvCiv-SAS.
@@ -2901,12 +2901,12 @@ which may be modified or not for AdvCiv-SAS -->
 some modifications). Assets imported from files (possibly from other ones too) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\XML\Text\Interface.xml and C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\XML\Text\Resources.xml
 and modified or not for our needs in advciv-sas -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Core.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Core.xml =====
 ----- Comment #153 -----
 
 <!-- custom: see code comment at (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml for details, i adjusted gemini ai's code and help; note: it is also fine if the info below is unfortunately outdated or not relevant to our mod anymore, we don't support it, but use it mostly if not only for its redirect feature/behaviour similarly to how we handle the redirect in Sevopedia unit as of now to concept_cities, if it can help all good, else we do not maintain these, but add them at least for this purpose of redirecting if i may say in our mod i.e. advciv-sas -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Main.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Main.xml =====
 ----- Comment #154 -----
 
 	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter. See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details) or (tranlslate to english ((following) web page) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
@@ -2915,17 +2915,17 @@ and modified or not for our needs in advciv-sas -->
 		 non-gunpowder-based units as "pre-Renaissance". "Gunpowder-based" is
 		 too similar to "Gunpowder" (unit class). -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
 ----- Comment #155 -----
 
 <!-- custom: rename "_BESERKER" to "_VIKING"; pedia entry based on https://rideandseek.com/who-were-the-norsemen/ (i found this entry very informative so although i am not 100% sure it is all correct it overlapped about a lot of things i read or noticed that may not be so known such as the vikings/norsemen discovering america way before christopher columbus allegedly as i assume was the case; and also the vikings title being a profession not an ethnicity/race/people but the word "norsemen" or "norse" i was familiar with finally made sense or more(so?) than it was, the word danes too) and adjusted or formatted +/- corrected formatting if any or not or yes or etcfor advciv-sas or not -->
 
-===== .\\Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
+===== \Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
 ----- Comment #156 -----
 
 <!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean., as mid-late classical was too long (late iron working or macemen, etc.), while medieval era was too short (cuirassiers appear too soon, etc.) + is a nice thematic fit to nationalism as well as per chatgpt 5.2's suggestion and possibly mine too not sure (i don't remember). It also helps more or less directly delay dragoons that appeared a bit too fast after cuirassiers, or give new strategic options instead. Note: the old ancient techs now use TECH_LITERATURE as a prereq to replace it. Also mistakenly didn't notice to also rename "MP_MUSIC" to "MP_ROMANTICISM"; now done; pedia entry similarly from https://en.wikipedia.org/wiki/Romanticism -->
 
-===== .\Assets\XML\Buildings\CIV4BuildingInfos.xml =====
+===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 ----- Comment #157 -----
 
 comment block with all or many attributes/fields infos is taken from Doto mod in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml, i don't know if all applies to us but good to have this info so adding it to our file, and thanks too for it, serves as additional info to confirm our hypothesis/observation/external civ4 doc/wiki read website that areacleanpower (all cities power) is indeed clean not 0 unhealthy
@@ -3068,23 +3068,23 @@ YieldChanges	Defines the change in city yield, using iYield. There are three iYi
 YieldModifiers	Percentage change to the yields for the entire city (e.g. 25 is 25% increase), using the iYield tag. The first tag controls food per turn, the second hammers per turn, and the third commerce per turn. (e.g the Forge provides 25% more hammers per turn)
 fVisibilityPriority	Used to give certain buildings priority when drawing them on the map. Most buildings have a value of 1.0, but the Aqueduct, for example, as a value of 10240000.0 in order to ensure that it is always drawn first.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #158 -----
 
 See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplier is 50, then the value of this candidate site that has this iAIObjective valued bonus (as of now copper, iron, horse, camel, aluminium, uranium with various values for each if i'm not mistaken) would be for example 10 * 50 = 500 extra value added to this candidate city site which is quite big, but if iAIObjective is 6, then with same 50 multiplier extra value would be 6 * 50 = 300 more points, which is still significant although bit less. Adjust as you see fit to help settlers value more or a lot more (i think negative values would devalue site but i don't know how negative values are handled by XML so better stick with positive ones unless you know what you're doing or want to test or whatever (i am not responsible of what may happen xd then although should be safe but disclaimer i am not responsible test at your own risk and make sure you can use a negative value if you still want it despite this discouragement/caution i gave))
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #159 -----
 
 	<!-- custom: note: very low food tiles like flatland desert, hill desert, snow, and including peak for example count double (2 low food tiles), whie high food tiles like flood plains or oasis count -1 as they give food. Note: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much -->
 	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city siteis updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #160 -----
 
 	<!-- custom: for each plot/tile in the candidate BFC, if they are of the type below, we add to candidate city site this value. For example, if BFC has 4 flatland (i.e. not hill) grassland tiles and the value for non-bonus non-home grassland tiles is 60, then it means the combined value of these sites to choose our BFCis 4 * 60 = 240. But if we have say 2 tundra tiles in our BFC and the value for non-bonus non-home plot/tile is for example -25, then the value for these tiles in our BFC would be in total 2 * (-25) = -50, which means our candidate site would be devalued (-50 added to its value), which is much worse than having 4 flatland grass tiles for example. Adjust these values as you see fit to tweak AI settler preferences/evaluation -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #161 -----
 
 	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details
@@ -3092,7 +3092,7 @@ See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplie
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	-->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #162 -----
 
 <!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then -->
@@ -3100,7 +3100,7 @@ See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplie
 	Enable/disable the special-case, and stop considering it after a max era.
 	Era index: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #163 -----
 
  We can afford building 1-2 units less or some similar cost (e.g. Pyramids at industrial era still not build by AIs due to previous rejects). Code added with the help of chatgpt 5.2, check if accurate -->
@@ -3113,35 +3113,35 @@ See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplie
 	- Classical cap 90: an 80-iCost WW is "cheap"; a 100-iCost WW is not.
 	- Medieval cap 150: a 140-iCost WW is "cheap"; a 175-iCost WW is not.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #164 -----
 
 	<!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable). Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #165 -----
 
 , but trebuchets are not versatile enough so do not allow them. Defense difference is not big if just for a few units, but these few catapults can many times be decisive so build a few in fallback code but not lot. See known issue as of now 53.3 for info related to previous version of these changes -->
 	<!-- custom: else as of now no restriction, facilitate cannons+ as we have a bit too few generally and they are strong enough to be considered for both defense and offense especially if we have nothing better like pikes and no muskets yet -->
 	<!-- custom: note: unit not counted in candidates if higher or equal than this value (also this doesn't count trebuchet like units in total as of now), so that we guarantee minimum catapults as much as possible as of now. E.g. if value is 4, max we allow is 3
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #166 -----
 
 For example if we have computed that max allowed for our empire without excess is 1 trbuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough tresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense especially for AI))
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #167 -----
 
 Note: the code we added in this function takes into account units in queue, not just existing ones. Note: contrary to what the name indicates, excess is not just about quantity, but also war circumstances, for example if we are at war and enemy is strong, it is very tight if not rejecting all new sieges, or if in danger or such other conditions (not added all here as bit tedious but hopefully the below help enough control siege production for this function, with the hope that other functions don't interfere too much with our logic here (it is quite centralized so effective, but sometimes maybe it would not although it seemed very effective ingame))
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #168 -----
 
 	<!-- custom: use a toned down version for the multiplier, as advised and explained to em thanks by chatgpt 5. In autoplay, the above as of now iSASCommerceWeight fixes to overpick of civic_heridetary_rule in favour of civic_representation, but representation is now overpicked. So toning down the weight with a percentage of this value customizable in defines as well -->
 	<!-- custom: e.g. if value is 50 and weight of commerce beakers is 300, then the beakers commerce multiplier will be (300 * 50) / 100 = 150 (i.e. 50% of the weight), which is a toned down version of directly using the 300 weight as a multiplier (rather than dividing it by 100 since a weight is a percentage), so aim to fix as we did the issue of civic_representation being undervalued, while also not falling on the opposite issue of civic_representation now being overpicked even late into the game, by using these toned down multipliers derived from the sas commerce weights. Adjust as you see fit -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #169 -----
 
 	<!-- Extra additive weight for GG Military Instructor in Top-N hammer cities.
@@ -3152,30 +3152,30 @@ Note: the code we added in this function takes into account units in queue, not 
 		rank 2 ? add 100 * iExperience * 980
 		rank 3 ? add 100 * iExperience * 970 -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #170 -----
 
 	<!-- custom: Example: mult 14; div = 10; add = 0; cost = 70 (a civ-specific medieval maceman) -> inflated cost = ((14 * 70) / 10) + 0 = (70 * 1.4) + 0 = 98 (horse knight takes precedence). -->
 	<!-- custom: Example 2: mult 14; div = 10; add = 0; cost = 35 (a civ-specific spearman) -> inflated cost = ((14 * 35) / 10) + 0 = (35 * 1.4) + 0 = 49 (catapult takes precedence) -->
 	<!-- custom: Example 3: mult 14; div = 10; add = 0; cost = 42 (a civ-specific swordsman) -> inflated cost = ((14 * 42) / 10) + 0 = (42 * 1.4) + 0 = 58,8 = 58 (civ-specific swordsman takes precedence over catapult, but crossbow takes precedence over our unit) -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #171 -----
 
 	<!-- custom: note: the can_scrap logic has been written with the choose_unit logic in mind (don't over or under produce this or that unit, don't scrap needlessly this or that unit in more or less same ratios or conditions minus some adjustments if any), so it is strongly recommended to have the same value for the as of now can_scrap_optimize and choose_unit (and do_turn fallback unit code logic as well since it changes production of units as well): i.e. enable all or disable, but weird results may happen such as infinite loop or such if one is enabled and not the other or vice versa, check if accurate as well if needed as this is just a guess of mine but if i remember it correctly it is indeed as such, but check to be sure if needed -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #172 -----
 
 : it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see the main changes guide or code for details), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help, or if you prefer/want 0 to disable. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE) -->
 	<!-- custom: note 2: logic applies only if these buildings are urgent, else no need to force these buildings and it would most likely be inefficient in terms of AI strength to do so
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #173 -----
 
  We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities; also this serves as a nice sanity to not fallback no production too soon when city is really small and could build other things next turn rather like a granary or such based on autoplay results in my understandig i mean.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #174 -----
 
 After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issues as of now 77 and 78 for details -->
@@ -3188,7 +3188,7 @@ After we have implemented a tentative fix to this, now also encourage vassal(s)<
 	// 	- The vassal not wasting time duplicating the masterís techs either.
 	// 	- More tech trades along that axis whenever thereís a reasonable deal.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #175 -----
 
 	You can then experiment:
@@ -3197,7 +3197,7 @@ After we have implemented a tentative fix to this, now also encourage vassal(s)<
 		50% ? fairly strong bias -->
 	<!-- custom: note: a too sharp reduction may be detrimental as we might lose more deals than we gain from protecting our techs (or profitting from them being in our monopoly network xd.), as it seemed to do in quick testing but i changed code since then so it might not be the same and lazy to retest, this value i tested provided good results in this autoplay sample vs before, test and adjust as you see fit
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #176 -----
 
 	     Unit: extra "gold per +1 flat strength gain" per 1 EXP.
@@ -3213,7 +3213,7 @@ After we have implemented a tentative fix to this, now also encourage vassal(s)<
 	     Effective value used by the flat strength gain gate:
 	     - effective value = base gold per +1 flat strength gain + extra gold allowance from XP
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #177 -----
 
 	     Reason: if upgrades get too expensive, it is often better to build new units instead (early units are cheap to rebuild, late-game tiny gains are not worth big gold).
@@ -3225,18 +3225,18 @@ After we have implemented a tentative fix to this, now also encourage vassal(s)<
 	     - final effective value becomes 50 gold per 10% strength gain -->
 	<!-- custom: for very strong 50+ str units like the robotic tnak that has 56 str, 50 gold for 5.6 str is decent i guess! (not too crazy though so about a hard limit i guess), adjust as you see fit
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #178 -----
 
  Also, the upgrade is often not even worth it, like paying 100 gold per unit or such to gain 2 str, it is much more efficient not to upgrade units at all at such costs. But if it is cheap enough, it is a good move though. Add some minimal returns checks with the help of chatgpt 5.2, to decide if we should upgrade this unit (if valuable enough) or skip doing so (if not worth). Note: similarly to how canScrap controls all possible edge cases at lowest level, using canUpgrade allows to control all possible upgrade calls rather than adding logic in many places or having weird unexpected edge cases. -->
 	<!-- custom: enable (1) / disable (0) to toggle this option.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #179 -----
 
  , moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #180 -----
 
 	     Unit: max "gold per +1 flat strength gain" after adding the XP allowance.
@@ -3246,24 +3246,24 @@ After we have implemented a tentative fix to this, now also encourage vassal(s)<
 	     - cap is 30 gold per +1 flat strength gain
 	     - final effective value becomes 30 gold per +1 flat strength gain
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #181 -----
 
  (as of now defined as no iron nor copper nor horse nor camel nor horse nor elephants), so relax threshold in these cases. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather -->
 	<!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate), so use it with that intent in mind or if you don't mind xd, else the hasBonus or possibly other functions might be used instead but check to be sure -->
 	<!-- custom: example of calculation: if you set this value to for example x=200, and max sieges is calculated to be a=5, then the new threshold will be a=5 + ((a=5 * x=200) / 100) = 5 + (5 * 2) = 5 + 10 = 15 (i.e. +200% which is the same as value multiplied by 3); note: 0 would nullify this effect as any a * 0 = 0 so value stays the same
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #182 -----
 
 <!-- custom: update: in autoplay, disabling this increases the number of wonders built from 0 wonders to 2 wonders at turn 100 in an autoplay sample. Implemented as i have noticed that even reducing cost does not increase AI willingness to build more wonders. Upon investigating, disabling SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE in XML fixes the issue and AI suddenly build a lot of wonders, there must be a better way to approach the don't build wonders we risk to waste hammers on logic. But for now making these customizable so players can enable/disble them as they see fit and for testing as well -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #183 -----
 
 e.g. if this value is 125 (at normal, so 125 * 150 / 100 = turn 187.5 at epic; or e.g. 125 * 200 / 100 = turn 250 at as of now marathon), then even if our city is not top 2 hammer city with some leeway, we will still not reject building wonder based on this (as top hammers cities are busy expanding so early i guess that would explain autoplay results). But after this turn, it will be a hard reject cause if not met, so for example from turn 126 at normal (or 188.5 at epic, or as of now 251 at marathon in this example) we'll reject building the wonder in this city if this city is not top 2 hammer with some leeway (same behaviour that caused less wonders early, hopefully core cities ar enot busy expanding anymore and can be considered more primarily, plus we don't want to die to rivals so be stricter here at middle game phase onwards as we have less room for mistakes).
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #184 -----
 
 	Notes
@@ -3277,7 +3277,7 @@ e.g. if this value is 125 (at normal, so 125 * 150 / 100 = turn 187.5 at epic; o
 	<!-- Tuning: "soft" tolerance vs "hard" refusal -->
 	<!-- <35: ignore pressure
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #185 -----
 
 	<!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather and; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine
@@ -3286,29 +3286,29 @@ e.g. if this value is 125 (at normal, so 125 * 150 / 100 = turn 187.5 at epic; o
 	-->
 	<!-- custom: Long_Comments_XML.txt #101 -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #186 -----
 
 enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the greek hoplite) are equally inflated (i.e. valorized) in the fallback unit code, so the AI players values them if buildable (even though they are generally less effective at offense (but they as civ-specific units should have in one way or another "good"/stronger stats than base units (else rebalance them) so it is maybe fine too to valorize them as well, with here the option to disable it if you prefer)). In other words, as of now between for example a greek_hoplite and and a generic unit_longbowman, enable this to choose the greek_hoplite (as it is more efficient in hammer cost, and versatile enough) rather than the longbowman as a fallback unit, but between a spearman and a longbowman as fallback unit, still favour the longbowman (as it is more versatile and slightly stronger as well even if more expensive better than stockpiling weaker units and go bankrupt)
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #187 -----
 
 , so for example instead of having a longbowman with unitai_city_defense, we'd have a longbowman with unitai_counter or whatever else it supports that is less defensive, in the hope these roaming units would help attack someone especially if we have many of them, and hopefully capture a city, lose some units so our economy improves, rather than waiting to die with too many longbows (or if not too many buildings or whatever else AI would otherwise do), used to help a lot tested ingame, but it seems not effective as of now (not sure if i refactored it wrong or something else might have changed or not), or maybe it's an edge case i saw, i recommend keeping it enabled
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #188 -----
 
  (the old code had a similar idea it seems although as per its own admittance it was a really bad code to fix i mean which hopefully i mean that we maybe did better now hopefully i mean in a way that is maybe helpful). -->
 	<!-- custom: e.g. if value is 3 and commerce culture value is 100, then when culutre rushing, commerce value would instead be 3 * 100 = 300, which is much higher than base, and since an artist may give for example 4 culture, it would then be valued by 4 * 300 = 1200 which means it would be more valued than other specialists such as an engineer of for example 3 hammer * 200 hammer value which is only 600 or a scientist of for example 3 science * 300 beakers value = 3 * 300 = 900, but which would only apply when culture in culture need though.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #189 -----
 
  (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really; also i mean check if accurate and thanks for help i mean too -->
 	<!-- custom: as for these new knobs, for this one the higher the value, the more we want to switch to this civic for each of our cities that are unhappy (it may be worth to change to such a civic if city is unhappy and we have some unhappiness in this city that is due to this civic not being adopted).
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #190 -----
 
 	<!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean, check if accurate; see also known issue as of now 77 for details -->
@@ -3317,64 +3317,67 @@ enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the gree
 			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #191 -----
 
 <!-- custom: for our new unlimited specialists valuation code, it is great at spreading more evenly civics at various stages of the game vs only civic_caste_system before, but we switch a bit too often. Yet, it is not as attractive to change civics if we'd have anarchy, so add some devaluation depending on anarchy length. E.g. if civic value is 1000 (random number as an example) and this knob's value is 10(%), and we have 2 anarchy turns to change civic, then the new civic value would be ((100 - (2 * 10)) * 1000) / 100 = (80 * 1000) / 100 = 800. But if anarchy length is 0 turns, then value remains 1000 and as attractive, as ((100 - (0 * 10)) * 1000) / 100 = 100 * 1000 / 100 = 1000 (100% value is same). In short, for example -10% civic value loss per turn of anarchy. -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #192 -----
 
 Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #193 -----
 
 , useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #194 -----
 
 . 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #195 -----
 
 <!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentioned if so, check if accurate). -->
 <!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #196 -----
 
 <!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #197 -----
 
 <!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot), so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #198 -----
 
 <!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_buildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not) -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #199 -----
 
 <!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example), where our code remains active. Past this turn, we don't control excess defenders anymore. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less -->
 	<!-- custom: Long_Comments_XML.txt #110 -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #200 -----
 
 <!-- custom: similarly, if you don't want to use the ObsoleteTech new XML field at all, you can disable it without having to tediously manually modify each entry one by one in XML, you can using this SAS define. If disabled (0), the value in XML ObsoleteTech will be ignored and always NONE (i.e. same behaviour as in base AdvCiv/Civ4). If enabled (1), the tech specified for each unit in its XML ObsoleteTech field will be applied e.g. NONE or TECH_BRONZE_WORKING for UNIT_WARRIOR for example. -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #201 -----
 
-<!-- custom: in sevopedia buildings (as of now regular buildings, national wonders, world wonders), group techs by era (obtained from tech prereqs since Buildings don't have eras per-se and as chatgpt 5.2 explained to me thanks) (e.g. Ancient Era, Classical Era, No Tech Prereq (available at any era), etc.) instead of one long list -->
+code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks -->
+    <!-- SAS techTradeClusterKnown:
+	Devalue techs that are already available inside our masterñvassal locus when an *outsider* offers them. This pushes the AI toward getting those techs from its own master/vassals instead, reinforcing cluster synergy. -->
+    <!-- custom: enable (1) / disable (0) to toggle this option -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #202 -----
 
 	<!-- convenience: block auto-assigning specific specialists for human players only.
@@ -3385,26 +3388,26 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 		// 	- It doesnít touch AI behavior at all (all your AI growth rules further down are still under !bHuman).
 		// Manual specialist assignment via the UI is still outside this path (that goes through changeSpecialistCount directly), so players can always override the governor. -->		
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #203 -----
 
 	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro -->
 	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #204 -----
 
 <!-- custom: non-bonus home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
 	<!-- custom: the higher (e.g. -100 is higher than -150) these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example, then it means we value this tile 50 value more (addition), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #205 -----
 
 <!-- custom: max number of turns (at normal, auto adjusted to other game speeds) we tolerate to not reject building a wonder. This is adjusted by various things (handicap, etc), but it grossly means that for example if value is 20 (which is computed as 20 * 150 / 100 = 30 turns in gamespeed_epic for example), if a wonder takes 21 or more turns at normal (or 31 at gamespeed_epic for example) to build, we will reject it and not build it, as it is too unlikely we'd finish it in time or fast enough or would gain enough from building it. -->
 	<!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #206 -----
 
 <!-- custom: independently from multi effect bonuses valuing, also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc.) specifically; AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided with the help of chatgpt 5 thanks -->
@@ -3415,29 +3418,29 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 	-->
 	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example). -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #207 -----
 
 <!-- custom: the lower (e.g. -200 is lower than -100) this number is, the more we penalize and think such a tile is very very bad and thus reduce the likeliness that we'll choose the candidate city site that has this tile in its BFC. This value is multiplied by the number of bad tiles if we are past the strict max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * (-100) = - 400 to its value which is as of now a bit more than what iron would give for example so quite big -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #208 -----
 
 <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below with the help of chatgpt 5 -->
 	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #209 -----
 
 <!-- custom: if we reject unit the other flags of attempt are useless i.e. unused: we only attempt them if this excess defender unit order (to produce this unit) is not rejected by the above reject flag. -->
 	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure) -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #210 -----
 
 <!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases) -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #211 -----
 
 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should) change AI settling preferences and recommended sites in UI as well. Are accounted as very bad tiles (check if not updated in code), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city)):
@@ -3449,7 +3452,7 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect
 	-->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #212 -----
 
 <!-- custom: use this to tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
@@ -3457,28 +3460,28 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 	<!-- custom: note 2: set to 100 to disable (since 100 percent = 1 = same value) -->
 	<!-- 75% of current cost for both human & AI -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #213 -----
 
 <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
 	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #214 -----
 
 <!-- custom: a bit more lenient with this one since it is strict cap (not an extra cap) and we added guards so that hopefully they are not produced if enemy is strong or such. We shouldn't restrict them too much if they are the only viable offense path, but producing more than a few they are highly likely to become ununsed, so use a low threshold. Not using this, AIs would produce tons of trebuchets (like 17-19 at turn 200 which was highly detrimental) via the no production fallback part of the code -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #215 -----
 
 <!-- custom: set to only allow offense default unitais as fallback (as of now UNITAI_COUNTER, UNITAI_ATTACK, UNITAI_ATTACK_CITY, check code for updated version if any change since then); untested but may for example reduce early longbow spam in favour of more offense units (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)): it is a trade off though as we'd have (in theory, as of now untested) less defensive units then -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #216 -----
 
 <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
 
-===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #217 -----
 
 <!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
@@ -3486,18 +3489,18 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 	<!-- This doesnít force a trade with the master/vassal ñ it just says: ìdonít buy that tech from outsiders if thereís a viable internal source.î So itís conservative: it can only reduce external tech trades, never block internal ones. -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #218 -----
 
 <!-- custom: "Unique Units" were not unique (could be built many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
 	After futher consideration, there are no multi Civ-specific units (units that can be built only be a few civs in common) in AdvCiv-SAS, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #219 -----
 
 <!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #220 -----
 
 <!-- custom: do not rename the tag itself as we would have to recompile and may break compatibility with other mods, we mostly (just or not)
@@ -3507,7 +3510,7 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may or not do similarly for such other or similar or not texts.
 	-->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #221 -----
 
 	<!-- custom: about the ones below ("_DEFENSE_MOD", "_BUILDING_BOMBARD_DEFENSE"), i am not sure it is covered by <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> but updating the text as well because it is how i would want it to be ideally, hopefully clearer. Todo investigate this more if needed. -->
@@ -3515,60 +3518,60 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 		 won't be in a mod-mod. So let's update DEFENSE_MOD as well: Use the
 		 defense icon and state that it increases (only) building defense. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #222 -----
 
 <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #223 -----
 
 <!-- custom: more recent change with the help of chatgpt thanks: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
 	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #224 -----
 
 <!-- custom: rename "We fear you are becoming too advanced." (WFYABTA) to "We fear you are trading more than us" (WFYATMTU), the former is misleading as a player can receive it even if lagging behind in techs and trying to trade, from what i understand/read/remember in the past it is actually related to how much a player trades regardless of tech progress, hopefully clearer now. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #225 -----
 
 <!-- custom: rename "Gunpowder Units" to "Gun" to encompass all kind of gun units not just the early ones that use gunpowder and for concision; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of smokeless powder instead -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #226 -----
 
 <!-- custom: use arabic numerals for/in promotions naming(/es), add missing "translations" for some promotions too (for example) combat 6, even though i just copy paste to english for ease of use (of translation) and convenience, i don't want it to be displayed as "VI" ingame but "6" so adding these extra ones. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #227 -----
 
 <!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", see code comment at the pedia entry corresponding to this tag/unit for details -->
 	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
 		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #228 -----
 
 <!-- custom: was "BtS Concepts", see code comments in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml (or the equivalent of this path in your mod installation path). -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #229 -----
 
 <!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this caseeven though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe tooin this case) and we need/want a music tech wonder -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #230 -----
 
 <!-- custom: i found no clear mention of an adjective, going with "people of Benin" mentioned here: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding. After asking gemini 3 pro, it recommended "Edo" (as in "Edo people") and also suggested "Bini" (as in "Bini workers"). As it advised, i also thought independently beforehand that Beninese should be avoided since the modern Benin is not to be confused with the old Kingdom of Benin. -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #231 -----
 
 <!-- custom: rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" to match the existing "_EGYPTIAN_WAR_CHARIOT" and better match the "_EGYPTIAN_OBELISK" we renamed more clearly in the past(note: no idea how the better matching "egyptian_war_chariot" name was detected with old asset names (i don't know how these work it seems) but at least it's consistent now and hopefully clear(er too)) -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #232 -----
 
 <!-- custom: rename "Difficulty" to "Handicap" -->
@@ -3578,9 +3581,20 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 		 salvataggi di MapFinder." / "Esta opciÛn no afecta a las partidas
 		 guardadas por MapFinder." -->
 
-===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #233 -----
 
 <!-- custom: rewrite handicap descriptions texts to match reworked advciv-sas gradual handicap settings -->
 	<!-- advc.137: Originally in Civ4GameText_Help.xml. Changed only English and
 		 German. -->
+
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #234 -----
+
+<!-- custom: extra valuing if city is in top hammer cities, and the higher the rank the more we value it: e.g. 1000 means city will be extra valued with an added value of 1000 - (10 * 1) = 990 * the military instructor's specialist experience in top 1 hammer city (mostly additive and conservative addition, so made numbers high enough to make it significant while trying to avoid overflow), or 1000 - (10 * 2) = 980 in top 2 hammer city, or 1000 - (10 * 3) = 970 in top 3 hammer city. -->
+	<!-- custom: Long_Comments_XML.txt #169 -->
+
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #235 -----
+
+<!-- custom: from the previous examples, the actual values would in fact be 990 + 500 = 1540 in top 1 hammer city if city has the heroic epic (or equivalent in your mod as per your xml building infos if you updated the define of the buildingclass name here in sas defines as well) effect building, or 980 + 500 = 1530 in top 2 hammer city if it has the heroic epic effect building, or 970 + 500 = 1520 in top 3 hammer city if it has the heroic epic effect building effect -->

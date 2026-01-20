@@ -82,12 +82,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Long_Comments_XML.txt #201 -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -108,22 +106,18 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: in sevopedia main specialists list, group specialists by type (e.g. Engineer vs Great Engineer) based on how RFC DOC mod does it thanks -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: in sevopedia bonuses list, group bonuses by their primary improvement (e.g. Farm -> Wheat/Maize; Pasture -> Sheep/Pig) based on how RFC DOC mod does it thanks -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw  thanks; plus other subgroups we added in advciv-sas. Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: group builds mirroring the improvement/feature categories: Land (Growth), Land (Bonus-capable), Land (Other), Water, Land (Route), Land (Removable). (claude opus 4.5) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -135,6 +129,27 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH</DefineName>
+		<iDefineIntVal>800</iDefineIntVal>
 	</Define>
 
 
@@ -1211,10 +1226,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks -->
-    <!-- SAS techTradeClusterKnown:
-	Devalue techs that are already available inside our master–vassal locus when an *outsider* offers them. This pushes the AI toward getting those techs from its own master/vassals instead, reinforcing cluster synergy. -->
-    <!-- custom: enable (1) / disable (0) to toggle this option -->
+	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); Long_Comments_XML.txt #201 -->
     <Define>
         <DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE</DefineName>
         <iDefineIntVal>1</iDefineIntVal>
@@ -1593,7 +1605,6 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<!-- custom: lean more on economy, in particular on hammer for these watery cities that may benefit more from these buildings as fallback buildings if we have a no production (rather than a unit or such) -->
-	<!-- custom: enable (1) / disable (0) -->
 	<Define>
 		<DefineName>SAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1629,8 +1640,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_CITY_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: extra valuing if city is in top hammer cities, and the higher the rank the more we value it: e.g. 1000 means city will be extra valued with an added value of 1000 - (10 * 1) = 990 * the military instructor's specialist experience in top 1 hammer city (mostly additive and conservative addition, so made numbers high enough to make it significant while trying to avoid overflow), or 1000 - (10 * 2) = 980 in top 2 hammer city, or 1000 - (10 * 3) = 970 in top 3 hammer city. -->
-	<!-- custom: Long_Comments_XML.txt #169 -->
+	<!-- custom: Long_Comments_XML.txt #234 -->
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING</DefineName>
 		<iDefineIntVal>1000</iDefineIntVal>
@@ -1640,7 +1650,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_HEROIC_EPIC</DefineTextVal>
 	</Define>
-	<!-- custom: from the previous examples, the actual values would in fact be 990 + 500 = 1540 in top 1 hammer city if city has the heroic epic (or equivalent in your mod as per your xml building infos if you updated the define of the buildingclass name here in sas defines as well) effect building, or 980 + 500 = 1530 in top 2 hammer city if it has the heroic epic effect building, or 970 + 500 = 1520 in top 3 hammer city if it has the heroic epic effect building effect -->
+	<!-- custom: Long_Comments_XML.txt #235 -->
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING</DefineName>
 		<iDefineIntVal>500</iDefineIntVal>

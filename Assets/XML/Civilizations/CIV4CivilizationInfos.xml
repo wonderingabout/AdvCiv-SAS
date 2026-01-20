@@ -1236,8 +1236,8 @@
 				</Leader>
 			</Leaders>
 			<DerivativeCiv>NONE</DerivativeCiv>
-			<CivilizationSelectionSound>AS3D_ETHIOPIA_SELECT</CivilizationSelectionSound>
-			<CivilizationActionSound>AS3D_ETHIOPIA_ORDER</CivilizationActionSound>
+			<CivilizationSelectionSound>AS3D_MALI_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_MALI_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
 		<!-- custom: add Kingdom Of Benin
 		source for the map (files appended in docs):

@@ -6,8 +6,10 @@
 #
 
 
+
 from CvPythonExtensions import *
 import CvUtil
+import SevoScreenEnums
 from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
@@ -90,10 +92,7 @@ class SevoPediaEraChart:
 			playButtonPath = CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH", ()))
 			if playButtonPath:
 				playButtonX = buttonRowStartX - wNum
-				# <!-- custom: use iEra=1 (Classical) instead of 0 to avoid weird blue highlight on header row.
-				# Use MOVIE_ENTRY to redirect to movie page, not MOVIE_PLAY to autoplay. (Claude Opus 4.5) -->
-				iPackedMovie = self.top.SAS_packMovieKey(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, 1)
-				screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+				screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 			era_count = gc.getNumEraInfos()
 			for iEra in xrange(era_count):
@@ -420,4 +419,3 @@ class SevoPediaEraChart:
 					row[era_type] = ""
 			rows.append(row)
 		return rows
-

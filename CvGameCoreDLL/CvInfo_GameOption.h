@@ -127,6 +127,9 @@ public:
 	int getEventChancePerTurn() const;
 	int getSoundtrackSpace() const;
 	int getNumSoundtracks() const;
+	// <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+	const TCHAR* getSoundtrackScriptName(int i) const;
+	// <!-- custom: End - expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 	const TCHAR* getAudioUnitVictoryScript() const;
 	const TCHAR* getAudioUnitDefeatScript() const;
 
@@ -244,6 +247,9 @@ protected:
 	bool m_bFirstSoundtrackFirst;
 
 	int* m_paiSoundtracks;
+	// <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+	CvString* m_paszSoundtracks;
+	// <!-- custom: End - expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 	int* m_paiCitySoundscapeScriptIds;
 };
 

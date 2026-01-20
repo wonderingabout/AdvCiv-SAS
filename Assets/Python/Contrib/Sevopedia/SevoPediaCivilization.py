@@ -1,6 +1,6 @@
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
-
+#
 #
 # Sevopedia 2.3
 #   sevotastic.blogspot.com
@@ -24,6 +24,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+
+
 class SevoPediaCivilization:
 
 	def __init__(self, main):
@@ -31,55 +33,59 @@ class SevoPediaCivilization:
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
+		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
-		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
+		rowH = 110
 
-		self.Y_TECH = self.Y_MAIN_PANE
-		self.H_TECH = 110
-
-		self.Y_LEADER = self.Y_TECH + self.H_TECH + self.MEDIUM_MARGIN  - 5
-		self.H_LEADER = self.H_TECH
-
-		self.H_MAIN_PANE = self.Y_LEADER + self.H_LEADER - self.Y_MAIN_PANE
-		self.W_MAIN_PANE = self.H_MAIN_PANE
-
-		self.Y_TEXT = self.Y_MAIN_PANE + self.H_MAIN_PANE + self.MEDIUM_MARGIN
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		self.X_CIVILIZATION_PANE = self.top.X_PEDIA_PAGE
+		self.Y_CIVILIZATION_PANE = self.top.Y_PEDIA_PAGE
+		self.H_CIVILIZATION_PANE = (2 * rowH) + self.SMALL_MARGIN
+		self.W_CIVILIZATION_PANE = self.H_CIVILIZATION_PANE
 
 		self.W_CITIES = 290
-		self.H_CITIES = self.H_MAIN_PANE + self.MEDIUM_MARGIN + self.H_TEXT
 		self.X_CITIES = self.top.R_PEDIA_PAGE - self.W_CITIES
-		self.Y_CITIES = self.Y_MAIN_PANE
+		self.Y_CITIES = self.Y_CIVILIZATION_PANE
+		self.H_CITIES = self.top.B_PEDIA_PAGE - self.Y_CITIES
 
-		self.X_TECH = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
-		self.W_TECH = (self.top.R_PEDIA_PAGE - self.X_TECH - self.W_CITIES - (2 * self.MEDIUM_MARGIN)) / 2
+		# <!-- custom: Music panel (84px, right of Civilization Pane) -->
+		self.X_MUSIC = self.X_CIVILIZATION_PANE + self.W_CIVILIZATION_PANE + self.MEDIUM_MARGIN
+		self.Y_MUSIC = self.Y_CIVILIZATION_PANE
+		self.W_MUSIC = 84
+		self.H_MUSIC = rowH
 
-		self.X_LEADER = self.X_TECH
-		self.W_LEADER = self.W_TECH
+		halfRowW = (self.top.R_PEDIA_PAGE - self.X_MUSIC - self.W_CITIES - (2 * self.MEDIUM_MARGIN)) / 2
+
+		self.X_TECH = self.X_MUSIC + self.W_MUSIC + self.MEDIUM_MARGIN
+		self.Y_TECH = self.Y_CIVILIZATION_PANE
+		self.W_TECH = halfRowW - self.W_MUSIC - self.MEDIUM_MARGIN
+		self.H_TECH = rowH
+
+		self.X_LEADER = self.X_MUSIC
+		self.Y_LEADER = self.Y_MUSIC + rowH + self.SMALL_MARGIN
+		self.W_LEADER = halfRowW
+		self.H_LEADER = rowH
 
 		self.W_ICON = 150
 		self.H_ICON = 150
-		self.X_ICON = self.X_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
-		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
+		iconCenter = (self.H_CIVILIZATION_PANE - self.H_ICON) / 2
+		self.X_ICON = self.X_CIVILIZATION_PANE + iconCenter
+		self.Y_ICON = self.Y_CIVILIZATION_PANE + iconCenter
 		self.ICON_SIZE = 64
 
 		self.X_BUILDING = self.X_TECH + self.W_TECH + self.MEDIUM_MARGIN
 		self.Y_BUILDING = self.Y_TECH
-		# <advc.004y> was 130
-		self.W_BUILDING = self.W_TECH
-		# This would split the space evenly between UU and UB
-		#self.W_BUILDING = (self.top.R_PEDIA_PAGE - self.X_BUILDING - 10) // 2
-		# </advc.004y>
-		self.H_BUILDING = self.H_TECH
+		self.W_BUILDING = halfRowW
+		self.H_BUILDING = rowH
 
-		self.X_UNIT = self.X_BUILDING
-		self.Y_UNIT = self.Y_LEADER
-		self.W_UNIT = self.W_TECH
-		self.H_UNIT = self.H_TECH
+		self.X_UNIT = self.X_LEADER + self.W_LEADER + self.MEDIUM_MARGIN
+		self.Y_UNIT = self.Y_BUILDING + rowH + self.SMALL_MARGIN
+		self.W_UNIT = halfRowW
+		self.H_UNIT = rowH
 
-		self.X_TEXT = self.X_MAIN_PANE
-		self.W_TEXT = self.W_MAIN_PANE + self.MEDIUM_MARGIN + self.W_LEADER + self.MEDIUM_MARGIN + self.W_UNIT
+		self.X_HISTORY = self.X_CIVILIZATION_PANE
+		self.Y_HISTORY = self.Y_CIVILIZATION_PANE + self.H_CIVILIZATION_PANE + self.MEDIUM_MARGIN
+		self.W_HISTORY = self.W_CIVILIZATION_PANE + self.MEDIUM_MARGIN + self.W_LEADER + self.MEDIUM_MARGIN + self.W_UNIT
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
@@ -88,24 +94,25 @@ class SevoPediaCivilization:
 
 		self.placeCivilizationPane()
 		self.placeCities()
+		self.placeMusic()
 		self.placeTech()
 		self.placeBuilding()
 		self.placeUnit()
 		self.placeLeader()
-		self.placeText()
+		self.placeHistory()
 
 
 
 	def placeCivilizationPane(self):
 		screen = self.top.getScreen()
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_CIVILIZATION_PANE, self.Y_CIVILIZATION_PANE, self.W_CIVILIZATION_PANE, self.H_CIVILIZATION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.iCivilization).getArtDefineTag()).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
-	# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive or not is imported from Middle-earth's mod's Platypedia C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py thanks and then modified or not for AdvCiv-SAS -->
+	# <!-- custom: based on Middle-earth's mod's Platypedia Civilization -->
 	def placeCities(self):
 		screen = self.top.getScreen()
 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_CONCEPT_CITIES", ()), "", True, True, self.X_CITIES, self.Y_CITIES, self.W_CITIES, self.H_CITIES, PanelStyles.PANEL_STYLE_BLUE50 )
@@ -118,6 +125,23 @@ class SevoPediaCivilization:
 				szText += "\n" + localText.getText("[ICON_BULLET]", ())
 			szText += localText.getText(Info.getCityNames(i), ())
 		screen.addMultilineText(self.top.getNextWidgetName(), szText, self.X_CITIES + 10, self.Y_CITIES + 30, self.W_CITIES, self.H_CITIES - 30, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeMusic(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_PANEL", ()), "", False, True, self.X_MUSIC, self.Y_MUSIC, self.W_MUSIC, self.H_MUSIC, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
+		screen.attachLabel(panelName, "", "  ")
+
+		buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+		buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+		buttonSize = 64
+		buttonX = (self.W_MUSIC - buttonSize) / 2
+		buttonY = 10
+		screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 
 
@@ -173,16 +197,16 @@ class SevoPediaCivilization:
 
 
 
-	def placeText(self):
+	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: also adding textName (see SevoPediaCivic.py for details) -->
 		textName = self.top.getNextWidgetName()
 		szText = gc.getCivilizationInfo(self.iCivilization).getCivilopedia()
-		# <!-- custom: similar fix as in placeText of SevoPediCivic.py, choosing a more advanced function that also allows padding, and adding padding, about all these elements, see SevoPediaCivic.py for potentially additional information -->
+		# <!-- custom: similar fix as in placeHistory of SevoPediCivic.py, choosing a more advanced function that also allows padding, and adding padding, about all these elements, see SevoPediaCivic.py for potentially additional information -->
 		# screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25 + 29, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 29, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

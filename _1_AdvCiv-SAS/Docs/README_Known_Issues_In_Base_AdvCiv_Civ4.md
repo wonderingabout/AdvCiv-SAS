@@ -131,6 +131,7 @@ hopefully helpful, thanks thanks,
 [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
 [96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
 [97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to Sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to Sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-chop-down-a-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page)  
+[98 - (Fixed) Base AdvCiv issue of De Gaulle using Louis' music instead of the music common to De Gaulle and Napoleon](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -769,7 +770,7 @@ See screenshots linked in this drive for details as well, thanks thanks.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1oOiKggm9nHVyp07QF8HM_WgXY5Gtcg44?usp=sharing) and [google drive folder link 2](https://drive.google.com/drive/folders/1fWa7xXOgnXW2w2_b6JHGcDaoSqhGHree?usp=sharing).
 
-Commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory) in configobj.py has been moved to [/Long_Comments/configobj_changelog_py_notes.txt](/Long_Comments/configobj_changelog_py_notes.txt).
+Commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory) in configobj.py has been moved to [/Long_Comments/Long_Comments_py.txt](/Long_Comments/Long_Comments_py.txt).
 
 Exceptions are for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if i comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example), and maybe some ambiguous other cases if i have forgotten them or maybe not, but in all cases hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt's explanation, and as according to/advised by chatgpt, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it. Added info if helps here.
 
@@ -4077,3 +4078,20 @@ Fixed with the help of Claude code Opus 4.5 after i have noticed this issue in t
 So now right-clicking e.g. on the "Remove Jungle" button in the technology advisor successfully redirects to the Sevopedia feature corresponding page, e.g. of the Jungle Feature!
 
 Update: since then, fixed to redirect to the new Sevopedia Build's corresponding entry (e.g. of the "Remove Jungle" build entry).
+
+## 98 - (Fixed) Base AdvCiv issue of De Gaulle using Louis' music instead of the music common to De Gaulle and Napoleon
+
+As part of implementing the new Sevopedia Music, i have noticed De Gaulle uses Napoleon music, so asked Claude code Sonnet 4.5 to fix, who then noticed that base AdvCiv path i provided uses Louis (`Louis_early`) music for De Gaulle (and not the Napoleon music that is common with De Gaulle)!
+
+However in Civ4 assets, De gaulle clearly uses `Napoleon_early` and not `Louis_early`.
+
+I had checked before in youtube, and it lists in one video for example:
+
+- "Civilization IV Themes - FRANCE - Louis XIV"
+- "Civilization IV Themes - FRANCE - Napoleon/De Gaulle"
+
+So it looks like Base AdvCiv used a different asset for Napeolon than Civ4!
+
+I relied on the youtube or similar type of lsiting rather, and so i created a new napoleon asset music as par tof AdvCiv-SAS music additions, but didn't change De Gaulle since i thought he would inherit the old music and had its own asset, my mistake to have overlooked this!
+
+Fixed by adding De Gaulle specific assets with the help of Claude code Sonnet 4.5, that now use `Napoleon_early` as a distinct music than what Louis uses (`Louis_early`), and finally by keeping Napoleon with its own new AdvCiv-SAS specific music which is neither of these so each leader has its own music.

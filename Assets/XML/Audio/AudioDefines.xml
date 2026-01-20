@@ -1641,6 +1641,27 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
+			<SoundID>DIPLO_DE_GAULLE_EARLY</SoundID>
+			<Filename>Sounds/Diplomacy/Napoleon_Early</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_DE_GAULLE_MIDDLE</SoundID>
+			<Filename>Sounds/Diplomacy/Napoleon_Middle</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_DE_GAULLE_LATE</SoundID>
+			<Filename>Sounds/Diplomacy/Napoleon_Late</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
 			<SoundID>DIPLO_FREDERICK_EARLY</SoundID>
 			<Filename>Sounds/Diplomacy/Frederick_Early</Filename>
 			<LoadType>STREAMED</LoadType>

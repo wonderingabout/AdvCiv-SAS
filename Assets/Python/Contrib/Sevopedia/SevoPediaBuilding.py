@@ -13,71 +13,7 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-
-
-			# <!-- custom: for freebonus, done according to kujira's website, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
-			#
-			# This determines the amount of resource this structure produces.
-			# If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
-			# If you want a variable number based on map size instead of a fixed number, specify -1, in which case the value of <iNumFreeBuildingBonuses> from each map size definition in \XML\GameInfo\CIV4WorldInfo.xml will be used. If you do not want to use this feature, specify 0.
-			#
-			# Example 1:
-			# <FreeBonus>NONE</FreeBonus>
-			# <iNumFreeBonuses>0</iNumFreeBonuses>
-			#
-			# Example 2: Produce hit musicals in numbers that depend on the map size.
-			# <FreeBonus>BONUS_DRAMA</FreeBonus>
-			# <iNumFreeBonuses>-1</iNumFreeBonuses>
-			#
-			# Example 3: Produce one horse.
-			# <FreeBonus>BONUS_HORSE</FreeBonus>
-			# <iNumFreeBonuses>1</iNumFreeBonuses>
-			# -->
-
-
-
-		# <!-- custom: Info about how we parse this:
-		# - BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details))):
-		# 	<bPower>0</bPower>
-		# 	<bDirtyPower>0</bDirtyPower>
-		# 	<bAreaCleanPower>1</bAreaCleanPower>
-		# And ingame in placeSpecial we see: "Provides Power ((icon/button?)) for All cities in this continent", so we parse it as a "AllC Clean" or something like this, to know if clean or dirty for all cities, i changed its values a bit to:
-		# 	<bPower>0</bPower>
-		# 	<!-- custom: test -->
-		# 	<bDirtyPower>1</bDirtyPower>
-		# 	<bAreaCleanPower>1</bAreaCleanPower>
-		# The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is, they don't seem to cumulate
-		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER). -->
-
-
-
-	# <!-- custom: logic is as follows for the below placeFreeWith function/method with the help of Claude AI thanks (note: renamed terrace to qullqa to update this explanation with the new civ-specific incan building name, everything else being the same when it comes to this explanation):
-	# example: barbarian specific granary is free with barbarian palace (barbarians only), so:
-	#
-	# if currently selected building is:
-	# 	* barbarian granary: we show in free with that the barbarian granary is free with the barbarian palace button
-	# 	* generic granary: we show in free with that the generic granary is free with "None" if a barbarian specific palace exists, else if no barbarian palace exists then we show in free with that the generic granary is free with the barbarian palace
-	# 	* other civ-specific granary (for example incan qullqa): we show in free with that the qullqa is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
-	#
-	# -
-	#
-	# Which Claude AI rephrased as such if helps too:
-	# Now the logic correctly handles your examples:
-	# For your barbarian granary → barbarian palace example:
-	#
-	# 	1. Barbarian Granary page: Shows barbarian palace (because barbarian granary is unique and barbarian palace provides it for free)
-	# 	2. Generic Granary page: Shows "None" (because the granary class has unique versions like barbarian granary, so only generic providers would be shown, but barbarian palace is unique)
-	# 	3. Incan qullqa page: Shows "None" (because qullqa is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
-	#
-	# The key logic changes:
-	#
-	# hasUniqueVersions: Checks if the current building class has any civ-specific versions
-	# For unique buildings: Only shows providers that the same civ can actually use
-	# For generic buildings: If unique versions of this building exist, only shows generic providers; otherwise shows all providers
-	# New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
-	#
-	# This should now match your intended behavior exactly!
-	# It seems to work as intended so adding this since is quite/very technical, in case it is helpful. -->
+# <!-- custom: Long_Comments_py.txt #4 -->
 
 
 
@@ -274,16 +210,7 @@ class SevoPediaBuilding:
 		numColumns = 3
 		columnWidth = self.W_STATS_PANE / numColumns
 
-		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented), taken from claude AI's message and adjusted (formatted) thanks. -->
-		# Here's what the method now does in sequence:
-		# - 1. Cost: Shows production cost
-		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Gold +x%) with power breakdown (, +y% w/ (power button))
-		# - 3. Commerce Changes, and Commerce Modifiers: Shows actual commerce amounts (+x science, gold, culture, espionage), and Shows percentage bonuses and double times (+x% and x2 times)
-		# - 4. Happiness/Unhappiness: Shows happiness effects
-		# - 5. Health/Unhealth: Shows health effects
-		# - 6. Great People: Shows great people rate changes with button and great people modifiers too
-		# -->
-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier)) (the 4th before going to a new column and back to 1st row), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such and they are still named the same now which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
+		# <!-- custom: Long_Comments_py.txt #6 -->
 
 		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY") -->
 		self.setupStatsPanel(screen, panelName, placeStatsTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
@@ -292,30 +219,7 @@ class SevoPediaBuilding:
 		y = self.Y_STATS_PANE
 		rowItemId = 0
 
-		# <!-- custom: it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all, so commenting it out
-		#if (isWorldWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
-		#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxGlobalInstances()
-		#	szBuildingType = localText.getText("TXT_KEY_PEDIA_WORLD_WONDER", ())
-		#	if (iMaxInstances > 1):
-		#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-		#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
-		#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-
-		#if (isTeamWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
-		#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxTeamInstances()
-		#	szBuildingType = localText.getText("TXT_KEY_PEDIA_TEAM_WONDER", ())
-		#	if (iMaxInstances > 1):
-		#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-		#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
-		#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-
-		#if (isNationalWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
-		#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxPlayerInstances()
-		#	szBuildingType = localText.getText("TXT_KEY_PEDIA_NATIONAL_WONDER", ())
-		#	if (iMaxInstances > 1):
-		#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-		#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
-		#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all, so commenting it out; Long_Comments_py.txt #5 -->
 
 		# <!-- custom: 1: Cost -->
 		if buildingInfo.getProductionCost() > 0:
@@ -1288,8 +1192,6 @@ class SevoPediaBuilding:
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
 		# <!-- custom: but here we also restore/add padding -->
-		#screen.addMultilineText( textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		#screen.addMultilineText( textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

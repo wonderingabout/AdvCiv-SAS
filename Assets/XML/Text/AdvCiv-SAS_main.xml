@@ -330,12 +330,20 @@ Created as part of AdvCiv-SAS improvements
 		<English>Movies</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_MUSIC</Tag>
+		<English>Music</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_PLAY_MOVIE</Tag>
 		<English>Play Movie</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MOVIE_PANEL</Tag>
 		<English>Movie</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_PANEL</Tag>
+		<English>Music</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_OPEN_PEDIA_ENTRY</Tag>
@@ -360,6 +368,34 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_ERA</Tag>
 		<English>Eras</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_TECH_QUOTES</Tag>
+		<English>Tech Quotes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_DIPLO</Tag>
+		<English>Leaders Diplo</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_PEACE</Tag>
+		<English>Leaders (Intro Peace)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_PEACE</Tag>
+		<English>Leaders (Peace)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_WAR</Tag>
+		<English>Leaders (Intro War)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_WAR</Tag>
+		<English>Leaders (War)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_MENUS_OPENING</Tag>
+		<English>Menus (Opening)</English>
 	</TEXT>
 
 

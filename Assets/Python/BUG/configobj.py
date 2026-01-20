@@ -20,7 +20,7 @@
 # this module at all.
 #
 # <!-- custom: commenting out test docstrings causes in-game errors; only remove textual info when safe, and keep docstrings if an empty class would need indentation. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
-# <!-- custom: long changelog docstring moved to (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Long_Comments\configobj_changelog_py_notes.txt . (GPT-5.2-Codex (summarized)) -->
+# <!-- custom: long changelog docstring moved to Long_Comments_py.txt #1 -->
 
 from __future__ import generators
 

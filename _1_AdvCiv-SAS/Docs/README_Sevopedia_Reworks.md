@@ -16,7 +16,6 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several Sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
 &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
 [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
-&emsp;&emsp;[example 0.35: movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-035-movies-category-with-audio-support)  
 &emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
 &emsp;&emsp;[example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)  
 &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
@@ -24,6 +23,8 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
 &emsp;&emsp;[example 0.7: World Sizes Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category)  
 &emsp;&emsp;[example 0.8: Eras Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category)  
+&emsp;&emsp;[example 0.90: Movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support)  
+&emsp;&emsp;[example 0.91: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia)  
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
 &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
@@ -103,22 +104,6 @@ Then, to make those Index Builds entries fully clickable and stable, we kept the
 <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
 
-### example 0.35: movies category (with audio support)
-
-Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click.
-
-A new screen is opened with audio from mai menu being silent, an as of now "OK" button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
-
-Play button, emoji based as in our usual as of now Images as Button approach, is added to Sevopedia Building, Project, Religions, and Eras Chart.
-
-Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
-
-See 
-
-<img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>
-
 ## Other new categories
 
 ### Widget Python 6798 to link (e.g. for Builds, for Traits)
@@ -194,6 +179,58 @@ More recently, added optional era buttons. Idea i got from watching how the c2c 
 
 <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG" alt="0.628_sevopedia_eras_chart (2).JPG" width="250"></img>
+
+### example 0.90: Movies category (with audio support)
+
+Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.
+
+A new screen is opened with audio from main menu being silent, an as of now "OK" button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
+
+Play button, emoji based as in our usual as of now Images as Button approach, is added to Sevopedia Building, Project, Religions, and Eras Chart.
+
+Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
+
+Todo:
+
+- movies era by xml order or oldest to newest
+
+<img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>
+
+### example 0.91: Music category (~1750 audio scripts playable in Sevopedia)
+
+Expanding on the Movies category, we added a new Sevopedia Music category, that allows as of now to play 963 AS2D and 786 AS3D audio scripts! So in total as of now 1749 audio files that can be listened to ingame in Sevopedia!
+
+The implementation also uses `WIDGET_PYTHON`.
+
+Also, to show script track name as of now for era tracks, we exposed getters in the DLL with changes in [CvInfo_GameOption.h](/CvGameCoreDLL/CvInfo_GameOption.h), [CvInfo_GameOption.h](/CvGameCoreDLL/CvInfo_GameOption.cpp), [CvInfo_GameOption.cpp](/CvGameCoreDLL/CvInfo_GameOption.cpp), and [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp).
+
+We added in related Sevopedia categories (as of now Tech, Leader, Civilization, Era Chart) a new Music Panel with a clickable Play button that redirects from/to Sevopedia Music.
+
+One notable feature is how we made the item list much wider so it can display the full script name, which is sometime long, plus this allows to use the search bar on item names.
+
+Can use the search bar with it too which is very handy as well!
+
+Done with the very big and nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, ChatGPT-5.2 Thinking, Gemini 2.5 pro (in VS Code).
+
+The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
+
+- In Sevopedia Music, make leaders and such buttons hoverable and clickable with a redirect like tech buttons.
+- In Sevopedia Music, parse properly from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
+- Add a custom dds or nif (liek leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
+- Search Bar desyncs when we exit an audio file playing, we as of now need to click around the top of the page so that search br is functional again
+- Maybe generalize script name for other things than era tracks
+- Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
+- in header add music id / total (liek total 1759)
+- In Sevopedia Leader, Civilization, redirect to the real track item not just to sevopedia Music page
+
+<img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.820_sevopedia_music (3).JPG" alt="0.820_sevopedia_music (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.820_sevopedia_music (4).JPG" alt="0.820_sevopedia_music (4).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.820_sevopedia_music (5).JPG" alt="0.820_sevopedia_music (5).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.820_sevopedia_music (6).JPG" alt="0.820_sevopedia_music (6).JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 

@@ -99,13 +99,17 @@ m_bNoBarbUnits(false),
 m_bNoBarbCities(false),
 m_bFirstSoundtrackFirst(false),
 m_paiCitySoundscapeScriptIds(NULL),
-m_paiSoundtracks(NULL)
+ m_paiSoundtracks(NULL),
+ m_paszSoundtracks(NULL) // <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 {}
 
 CvEraInfo::~CvEraInfo()
 {
 	SAFE_DELETE_ARRAY(m_paiCitySoundscapeScriptIds);
 	SAFE_DELETE_ARRAY(m_paiSoundtracks);
+	// <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+	SAFE_DELETE_ARRAY(m_paszSoundtracks);
+	// <!-- custom: End - expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 }
 
 int CvEraInfo::getStartingUnitMultiplier() const
@@ -167,6 +171,14 @@ int CvEraInfo::getNumSoundtracks() const
 {
 	return m_iNumSoundtracks;
 }
+
+// <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+const TCHAR* CvEraInfo::getSoundtrackScriptName(int i) const
+{
+    FAssertBounds(0, getNumSoundtracks(), i);
+    return m_paszSoundtracks ? m_paszSoundtracks[i].GetCString() : "";
+}
+// <!-- custom: End - expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 
 const TCHAR* CvEraInfo::getAudioUnitVictoryScript() const
 {
@@ -254,17 +266,26 @@ bool CvEraInfo::read(CvXMLLoadUtility* pXML)
 		pXML->SetStringList(&pszSoundTrackNames, &m_iNumSoundtracks);
 		if (m_iNumSoundtracks > 0)
 		{
+			// <!-- custom: modify to expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+			m_paszSoundtracks = new CvString[m_iNumSoundtracks];
 			m_paiSoundtracks = new int[m_iNumSoundtracks];
 			for (int j = 0; j < m_iNumSoundtracks; j++)
 			{
+				if (pszSoundTrackNames != NULL)
+					m_paszSoundtracks[j] = pszSoundTrackNames[j];
 				m_paiSoundtracks[j] = (gDLL->getAudioDisabled() ? -1 :
 						gDLL->getAudioTagIndex(pszSoundTrackNames[j], AUDIOTAG_2DSCRIPT));
 			}
 		}
-		else m_paiSoundtracks = NULL;
+		else
+		{
+			m_paiSoundtracks = NULL;
+			m_paszSoundtracks = NULL;
+		}
 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
 		SAFE_DELETE_ARRAY(pszSoundTrackNames);
 	}
+	// <!-- custom: End - modify to expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 
 	pXML->SetVariableListTagPairForAudioScripts(&m_paiCitySoundscapeScriptIds,
 			"CitySoundscapes",

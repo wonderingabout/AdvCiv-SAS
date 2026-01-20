@@ -12,12 +12,7 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# Store in LEADERS_INFO_CACHED tuples of (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way, also from using tuples or such rather than dicts), normalized value for display, and scale precomputed to enhance performance as well)
-# Categories precomputing as well as tuples: the ai_category_header that handles also emoji buttons in header label too optionally displayed if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe, this x_offset is to accomodate these emoji buttons as text if needed; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature)
-# UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check, so display is very fast despite the quite big data.
-#
-# <!-- custom: note: some code comments may be outdated as they were written when we would compute once per civ4 game launch the LEADERS_INFO_CACHED for efficiency, however since then we as of now now switched to no compute at all (use precomputed SevoPediaLeaderCachePredumped.py) (see also toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))) as it is even cheaper and should scale better with mods that have more leaders or xml attributes (if i'm not mistaken). Plus the values rarely change and are only for UI so not worth spending so much on them even if was more efficient. -->
-# <!-- custom: now refactored with the help of chatgpt 5.2 (web) and GPT-5.2-Codex thanks a lot. -->
+# <!-- custom: Long_Comments_py.txt #3 -->
 
 
 
@@ -43,7 +38,7 @@ IS_DISPLAY_AI_CATEGORY_HEADERS = True
 IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
 IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
 
-# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thingbut is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible, so do as you see fit use at your own risk, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times -->
+# <!-- custom: Long_Comments_py.txt #8 -->
 IS_DEBUG_LEADER = False
 
 # <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization, so set B_WARN to false -->
@@ -61,26 +56,7 @@ if IS_DEBUG_LEADER:
 
 
 
-# Simple system to dump leader AI personality cache to PythonDbg.log, then optionally load it from a pre-generated .py module instead of computing at runtime.
-#
-# USAGE:
-# ------
-# 1. Set IS_USE_PREDUMPED_CACHE = False (default)
-# 2. Play the game, open Sevopedia → Leaders category
-# 3. In PythonDbg.log, find the block between:
-#       # === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===
-#       ...
-#       # === SAS_LEADER_AI_CACHE_PYMODULE_END ===
-# 4. Copy that block into a new file: SevoPediaLeaderCachePredumped.py
-# 5. Place that file in your mod's Python folder
-# 6. Set IS_USE_PREDUMPED_CACHE to True (via XML SAS defines)
-# 7. Now the game loads the pre-dumped data instead of computing it
-#
-# NOTES:
-# ------
-# - If you change emoji settings or leader XML, you need to re-dump
-# - The dumped data includes: LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
-# === Cache dump/load config and helpers ===
+# <!-- custom: Long_Comments_py.txt #12 -->
 IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED") > 0)
 IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG") > 0)
 # Name of the pre-dumped module (without .py extension)
@@ -617,7 +593,7 @@ def _compute_leader_cache_internal():
 		}
 
 		# ==== ATTITUDE THRESHOLDS ====
-		# <!-- custom: here even though debug code in debugPrintLeaderHeadInfoFieldsToFetch uses a dynamic code, manually tell all the getters names instead of a dynamic code, to make sure we have them all and since they have flat getters this is consistent with how other similar kind of field/getters are handled as before in this current tuple; their names are available in the debug output example of the same debugPrintLeaderHeadInfoFieldsToFetch, see there for details -->
+		# <!-- custom: Long_Comments_py.txt #9 -->
 		fields_attitude_thresholds = {
 			# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#demandtributeattitudethreshold -->
 			"getDemandTributeAttitudeThreshold": ("ScaryNoTrib", True),
@@ -937,7 +913,7 @@ def _compute_leader_cache_internal():
 			36: "Recent W",			# MEMORY_DECLARED_WAR_RECENT
 		}
 
-		# <!-- custom: a minimal sanity check before merging the index_labels (not checking if some indexes are missing here in the dictionary as we'd likely i assumeget a key error later otherwise -->
+		# <!-- custom: a minimal sanity check before merging the index_labels (not checking if some indexes are missing here in the dictionary as we'd likely i assume get a key error later otherwise -->
 		check_overlapping_keys_between_dicts(positive_memory_index_labels, negative_memory_index_labels)
 		# ✅ Combined dictionary
 		positive_and_negative_memory_index_labels = {}
@@ -994,8 +970,6 @@ def _compute_leader_cache_internal():
 				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_flavor, max_value_flavor, b_invert_flavors, symbol_flavors, all_symbols, parsed_name_flavor, label_with_raw_value_flavor, iLeader, leader_info_cached)
 
 			# <!-- custom: for contact fields, normalize the aggregated contact probs, do not normalize the rands nor the delays (would be redundant, as we don't display them with scale symbols or such, just the raw value in label is enough); to export raw fields (rand and delay, uncomment the related rand and delay lines below (untested but probably works-functions else tweak bit) to export them to UI if want to display them (then you'd need to uncomment or add if missing them in UI categories too)) -->
-			# b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
-			# symbol_contact_rands_delays = all_symbols["RAW_SCALE_SYMBOL"]
 
 			b_invert_4_aggregated_contact_probs = False
 			symbol_aggregated_contact_probs = all_symbols["AGGREGATED_SCALE_SYMBOL"]
@@ -1004,34 +978,7 @@ def _compute_leader_cache_internal():
 				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
 				label_contact = contact_index_labels[i]
 
-				# parsed_name_rand = "iContactRand%s" % suffix # → iContactRandJoinWar
-				# raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
-				# label_raw_rand = "(%d)" % raw_value_rand
-				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-				# 	label_with_raw_value_rand = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand, 19)
-				# else:
-				# 	label_with_raw_value_rand = "%s %s" % (label_contact, label_raw_rand)
-				# min_value_rand = leader_info_minimums[parsed_name_rand]
-				# max_value_rand = leader_info_maximums[parsed_name_rand]
-				# compute_and_store_leader_info_cached_tuple(raw_value_rand, min_value_rand, max_value_rand, b_invert_contact_rands, symbol_contact_rands_delays, all_symbols, parsed_name_rand, label_with_raw_value_rand, iLeader, leader_info_cached)
-
-				# parsed_name_delay = "iContactDelay%s" % suffix # → iContactDelayJoinWar
-				# raw_value_delay = loopLeaderHeadInfo.getContactDelay(i)
-				# min_value_delay = leader_info_minimums[parsed_name_delay]
-				# max_value_delay = leader_info_maximums[parsed_name_delay]
-				# label_raw_delay = "(%d)" % raw_value_delay
-				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-				# 	label_with_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_delay, 19)
-				# else:
-				# 	label_with_raw_value_delay = "%s %s" % (label_contact, label_raw_delay)
-				# compute_and_store_leader_info_cached_tuple(raw_value_delay, min_value_delay, max_value_delay, b_invert_contact_delays, symbol_contact_rands_delays, all_symbols, parsed_name_delay, label_with_raw_value_delay, iLeader, leader_info_cached)
-
-				# <!-- custom: then back to aggregated contact fields, the ones that we display at least as of now , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores
-				# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display -->
 				parsed_name_4_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix # → iAggregatedRawContactProbJoinWar
-
 				# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated contact probs caching -->
 				parsed_name_4_aggregated_contact_prob = "iAggregatedContactProb%s" % suffix # → iAggregatedContactProbJoinWar
 
@@ -1051,9 +998,7 @@ def _compute_leader_cache_internal():
 				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
 				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
 
-				# <!-- custom: note to chatgpt 5 or other AIs or readers xd: chatgpt 5 told me to change parsed_name_4_aggregated_contact_prob to parsed_name_4_aggregated_raw_contact_prob claiming it was a real bug, but doing it created an error ingame, and undoing it as it told me later solved the error. So i think or at least it seems like this is not a bug. Chatgpt 5 may have received a truncated prompt or something though as it mentioned ... in code which was not the case if i'm not mistaken; after i sent it an entire file as appended file rather, it told me to not do this change as this would cause an error if i'm not mistaken, so this is now reverted to how it was before and seems to run fine as such. I don't remember enough of the code to be sure, but it seems like this is as intended to use raw aggregated values in order to store normalized aggregated ones under a field name that does not use "raw" in it anymore as it is the normalized aggregated value we are storing and displaying in UI now, no longer the intermediate for calculations raw aggregated value if i'm not mistaken, but check to be sure; seems to run fine as such but check to be sure. Thanks for all help chatgpt 5 you helped me lot, confirmed current logic, and helped me find a nice performance optimization as of now with loopLeaderHeadInfo -->
-				# Conclusion: it was not a bug in your code.
-				# Your original line was correct:
+				# <!-- custom: note: chatgpt 5 told me to change parsed_name_4_aggregated_contact_prob to parsed_name_4_aggregated_raw_contact_prob claiming it was a real bug, but doing it created an error ingame; Long_Comments_py.txt #11; so not a bug -->
 				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, all_symbols, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
 
 			# <!-- custom: for memory fields, we display only aggregated positive/negative memory affections and resentments.
@@ -1062,9 +1007,6 @@ def _compute_leader_cache_internal():
 			# overlap with positive memory affections / negative memory resentments given positive memories have positive attitude_percent
 			# and negative memories have negative attitude_percent. They are also niche and would clutter the dump/cache; the pipeline
 			# still supports them if you add their parsed_name fields to the UI category order below (test to be sure). (GPT-5.2-Codex (summarized)) -->
-			# b_invert_memory_attitude_percents, b_invert_memory_decays = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
-			#symbol_memory_attitude_percents_decays = all_symbols["RAW_SCALE_SYMBOL"]
-
 			b_invert_4_positive_and_negative_memory_affections_and_resentments = False
 			symbol_aggregated_positive_and_negative_memory_affections_and_resentments = all_symbols["AGGREGATED_SCALE_SYMBOL"]
 
@@ -1086,37 +1028,6 @@ def _compute_leader_cache_internal():
 						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
 						label_memory = positive_and_negative_memory_index_labels[i]
 
-						# <!-- custom: for positive and negative memory affection and resentment fields, normalize the aggregated positive and negative memory affections and resentments, do not normalize the atittude percents nor the decays (would be redundant similarly as for contact fields) (also export of these raw fields (attitude percents and decays is untested as we don't need them at least untested as of now i meansimilarly to contact field, may or not function, i assume it would or with minimal tweaks or fixes if any are needed, plus would need to add UI logic or ordering to display them rather if want in another mod for example, unlikely we would in advciv-sas as redundant with aggregated fields as said before in this code comment too even though not 100% sure sure but most likely)) -->
-
-						# <!-- custom: export raw attitude percents and decays only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations -->
-						# parsed_name_attitude_percent = "iMemoryAttitudePercent%s" % suffix # → iMemoryAttitudePercentDeclaredWar
-						# if parsed_name_attitude_percent not in leader_info_cached:
-						# 	raw_value_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
-						# 	label_raw_attitude_percent = "(%d)" % raw_value_attitude_percent
-						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-						# 		label_with_raw_value_attitude_percent = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent, 19)
-						# 	else:
-						# 		label_with_raw_value_attitude_percent = "%s %s" % (label_memory, label_raw_attitude_percent)
-						# 	min_value_attitude_percent = leader_info_minimums[parsed_name_attitude_percent]
-						# 	max_value_attitude_percent = leader_info_maximums[parsed_name_attitude_percent]
-						# 	compute_and_store_leader_info_cached_tuple(raw_value_attitude_percent, min_value_attitude_percent, max_value_attitude_percent, b_invert_memory_attitude_percents, symbol_memory_attitude_percents_decays, all_symbols, parsed_name_attitude_percent, label_with_raw_value_attitude_percent, iLeader, leader_info_cached)
-
-						# parsed_name_decay = "iMemoryDecay%s" % suffix # → iMemoryDecayDeclaredWar
-						# if parsed_name_decay not in leader_info_cached:
-						# 	raw_value_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
-						# 	label_raw_decay = "(%d)" % raw_value_decay
-						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-						# 		label_with_raw_value_decay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_decay, 19)
-						# 	else:
-						# 		label_with_raw_value_decay = "%s %s" % (label_memory, label_raw_decay)
-						# 	min_value_decay = leader_info_minimums[parsed_name_decay]
-						# 	max_value_decay = leader_info_maximums[parsed_name_decay]
-						# 	compute_and_store_leader_info_cached_tuple(raw_value_decay, min_value_decay, max_value_decay, b_invert_memory_decays, symbol_memory_attitude_percents_decays, all_symbols, parsed_name_decay, label_with_raw_value_decay, iLeader, leader_info_cached)
-
-						# <!-- custom: then back to aggregated positive and negative memory affection and resentment fields, the ones that we display at least as of now , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering --> pass: normalize final scores
-						# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display -->
 						# <!-- custom: note: unlike for min max exports (compute and store) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays, see also min max code of memory fields at step 1 step 2 or similar code comments for details -->
 						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
 
@@ -1521,28 +1432,11 @@ class SevoPediaLeader:
 
 		self.X_LEADERHEAD_PANE = self.top.X_PEDIA_PAGE
 		self.Y_LEADERHEAD_PANE = self.top.Y_PEDIA_PAGE
-		# <!-- custom: for the ratio of the portrait, make it (at least i chose to make it
-		# explained after this anyways) match the ingame diplomacy portrait ratio
-		# 240 / 290 = 0,8278
-		# i have measured this on my (4K but anyways) screen in windowed mode (for dev mod but anyways)
-		# - in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)     ;    (reverse-ratio: 1,1591)
-		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)     ;    (reverse-ratio: 1,1214)
-		# (extracted from the more detailed notes in modding ressources's readme about art design, please look at it or the filename containing these note samples or similar for details)
-		#
-		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not )) (while also increasing the portrait/picture which i think is a bit small currently, maybe more immersive or pleasant or not )
-		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 that i measured in game diplomacy (see above, anyways), while also increasing size (of the portrait anyways) anyways)
-		#
-		# This looks good but i want to try to increase it more (portrait size ):
-		# Now 327 / 400 = 0,8175 (which is very close to 0,8187 while also a bigger picture, anyways)
-		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm) not being straight for example, if we replace animations with images like with/for Ewuare (Kingdom of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it more or not, maybe leaving as is at least for now or not
-		#
-		# Actually all this calculation is not exactly accurate because W_LEADERHEAD_PANE and W_LEADERHEAD are different in this base advciv / sevopedia(?) code, but hopefully accurate enough and ratio should be much closer now to the ingame diplomacy ratio, hopefully less stretched but not sure or guaranteed, should be for images i send as replacements of animations though as i base them on the ingame diplomacy's ratio, not the old sevopedia leader portait ratio so now the new sevopedia ratio for the leader portrait i have added is hopefully much much closer to the old and as of now still existing ratio of the ingame diplomacy leader portrait, which i don't think i'm changing anytime soon as it is most likely more tedious for questionable gain, so using this one as a basis rather, not that is undoable but probably much harder and not necessarily worth it, and if animations are based on the diplomacy ingame ratio rather then they may also display better in the sevopedia with my new sevopedia ratio, (which intuitively or from a quick glance seems to be the case, image looks less compressed on its sides but not sure or guaranteed, check yourself if want to be sure or not, but i hope this helps, and that being said, anyways) anyways -->
-		#
+		# <!-- custom: for the ratio of the portrait, aim to match closely the ingame diplomacy portrait ratio; Long_Comments_py.txt #2 -->
 		self.W_LEADERHEAD_PANE = 327
 		self.H_LEADERHEAD_PANE = 400
 
-		# <!-- custom:
-		# 1) (most) absolute dimensions first -->
+		# <!-- custom: 1) (most) absolute dimensions first -->
 
 		# <!-- custom: make room to add AI personality panel -->
 		self.W_AI_PERSONALITY = 290
@@ -1558,8 +1452,7 @@ class SevoPediaLeader:
 		self.H_FAVORITES = 110
 		self.N_AI_TABLE_NUM = 3
 
-		# <!-- custom:
-		# 2) (most) relative dimensions or positions then -->
+		# <!-- custom: 2) (most) relative dimensions or positions then -->
 
 		self.W_LEADERHEAD = self.W_LEADERHEAD_PANE - 30
 		self.H_LEADERHEAD = self.H_LEADERHEAD_PANE - 34
@@ -1577,8 +1470,16 @@ class SevoPediaLeader:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
+		# Music panel (84px, right of Favorites)
+		self.W_MUSIC = 84
+
 		self.X_FAVORITES = self.X_LEADERHEAD_PANE
-		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN
+		# Reduce Favorites width to make room for Music panel (84px + margin)
+		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.W_MUSIC - (2 * self.SMALL_MARGIN)
+
+		self.X_MUSIC = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
+		self.Y_MUSIC = self.Y_FAVORITES
+		self.H_MUSIC = self.H_FAVORITES
 
 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
 		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
@@ -1592,8 +1493,7 @@ class SevoPediaLeader:
 		self.H_AI_LINE_HEIGHT = 22
 		self.H_AI_CATEGORY_SPACING = 10
 		self.W_AI_LEFT_SIDE_PADDING = 12
-		# <!-- custom: removing or rather having an empty header, the header disappears entirely, but if you want to use a header, you can just type any value in the related txt keys such as TXT_KEY_AI_PERSONALITY_RIGHT_PANEL and such anyways. This or maybe rather not doing this (having an non-empty txt key header) would take some room though so you'd have to adjust self.H_AI_UPPER_PADDING to the value below commented-out or simialr depending the upper padding you want.
-		# Since i (accidentally found) it frees more room, i want to try using it as such, as i really need the extra room, and not so much the header name (the other two header txt keys were going to be either redunant naming or empty so maybe this is (also) a good opportunity to gain space/room in the ai personality panel, anyways -->
+		# <!-- custom: Long_Comments_py.txt #4 -->
 		#self.H_AI_UPPER_PADDING = 36
 		self.H_AI_UPPER_PADDING = 15
 
@@ -1601,17 +1501,11 @@ class SevoPediaLeader:
 		self.AI_PANEL_MIDDLE_TXT_KEY = "TXT_KEY_AI_PERSONALITY_MIDDLE_PANEL"
 		self.AI_PANEL_LEFT_TXT_KEY = "TXT_KEY_AI_PERSONALITY_LEFT_PANEL"
 
-		# <!-- custom: traits have the green color somehow,
-		#
-		# (i (should/would) (maybe)) do not comment-out until i find how so i
-		#
-		# can feed it / = ask ChatGPT about it if it has ideas -->
 		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + self.SMALL_MARGIN
 		self.Y_TRAITS = self.Y_LEADERHEAD_PANE
 		self.W_TRAITS = self.W_HISTORY - self.W_LEADERHEAD_PANE - self.SMALL_MARGIN
 		self.H_TRAITS = self.H_LEADERHEAD_PANE
 
-		# <!-- custom: move the civ (flag) closer to favourite civis and religions or somewhere else, more beautiful and less cumbersome this way maybe i think, anyways -->
 		self.X_CIV = self.X_HISTORY + self.W_HISTORY - self.CIV_MARGIN - self.W_CIV
 		# <!-- custom: put the flag/civ at the middle Y of the favourites panel -->
 		# <!-- custom: quite high as compared to favourites panel's lowest point -->
@@ -1625,12 +1519,12 @@ class SevoPediaLeader:
 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or clearer or helpful or not or other etc anyways, -->
 		self.placeLeaderHeadPane()
 		self.placeFavorites()
+		self.placeMusic()
 		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
 
-		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached (but we still want the excluded leaders to be excluded from computation as it could and most likely will most often if not always affect the ranking and scores normalized of other leaders with this additional item
-		# This is especially useful for iLeader of LEADER_BARBARIAN (iLeader 0 at least as of now if i'm not mistaken) in particular that is somehow accessible in the sevopedia civilization category from the barbarian civ (which is also useful because we now display their city names for example, see sevopedia civilization for details about how we place city names in it now) -->
+		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
 		#
 		if (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
 			self.placeAIPersonalityPanel(iLeader)
@@ -1667,6 +1561,23 @@ class SevoPediaLeader:
 		iReligion = gc.getLeaderHeadInfo(self.iLeader).getFavoriteReligion()
 		if iReligion > -1:
 			screen.attachImageButton(panel, "", gc.getReligionInfo(iReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1, False)
+
+
+
+	def placeMusic(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_PANEL", ()), "", False, True, self.X_MUSIC, self.Y_MUSIC, self.W_MUSIC, self.H_MUSIC, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
+		screen.attachLabel(panelName, "", "  ")
+
+		buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+		buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+		buttonSize = 64
+		buttonX = (self.W_MUSIC - buttonSize) / 2
+		buttonY = 10
+		screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 
 

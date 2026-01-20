@@ -24,50 +24,7 @@ def get_positive_memory_indexes_to_types():
 
 
 def get_negative_memory_indexes_to_types():
-	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any -->
-	#
-	# "You have rejected another civilization's technology."
-	# occurs to the civilization that has received a technology each time a contacted civilization acquires a technology through trade.
-	#
-	# In BtS, this diplomatic event does not have an attitude modifier assigned to it.
-	# Instead, it is used as a so-called "over-advance counter" for technology trades. See also
-	# <iNoTechTradeThreshold> .
-	#
-	# <MemoryDecay>
-	# 	<MemoryType>MEMORY_RECEIVED_TECH_FROM_ANY</MemoryType>
-	# 	<iMemoryRand>20</iMemoryRand>
-	# </MemoryDecay>
-	#
-	# and our debug ingame in sevopedia shows (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py for details):
-	# Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): Attitude 0, Decay 20
-	#
-	# here is also chatgpt's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc:
-	#
-	# "
-	# 🧠 What it does
-	# Each time any contacted civilization receives a technology via trade, all other AI civilizations that have met them (including the trading partner itself) increase a hidden memory counter called MEMORY_RECEIVED_TECH_FROM_ANY by 1 
-	# modiki.civfanatics.com +8; groups.google.com +8; civ4wiki.com +8.
-	#
-	# This doesn't directly adjust diplomatic attitude; instead, it's a "tech‑overexposure" counter influencing whether AI will trade techs with you later .
-	#
-	# 🕰️ How it operates
-	# When one AI gets a tech from you, every AI that knows them—including the one receiving it—gets this memory += 1 
-	# kirk.zulan.net +5; groups.google.com +5; forum.gamer.com.tw +5.
-	#
-	# Over time, the counter randomly decays, with the <iMemoryRand>20</iMemoryRand> tag setting the rate (i.e., each turn there's a chance to decrease by 1) 
-	# modiki.civfanatics.com +3; forums.civfanatics.com +3; gforestshade.github.io +3.
-	#
-	# ⚙️ Effect in gameplay
-	# It functions as a throttle: after trading techs a bunch, your "received from any" memory builds up, making AI increasingly reluctant to trade with you until it decays enough.
-	#
-	# There's no attitude hit attached, so your relationships don’t visibly worsen—but the memory can block or refuse future tech trades.
-	# "
-	#
-	# based on this, if the higher it is, the higher no tech trade can happen, then i would classify it as negative memory even though is not strictly a memory it seems but maybe is strictly a memory
-	#
-	# <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
-	# <!-- custom: 26 entries total -->
-
+	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any ; Long_Comments_py.txt #7 -->
 	return {
 		0: "MEMORY_DECLARED_WAR",
 		1: "MEMORY_DECLARED_WAR_ON_FRIEND",
