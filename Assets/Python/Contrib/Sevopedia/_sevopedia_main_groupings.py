@@ -13,9 +13,15 @@
 #   import _sevopedia_main_groupings as SAS_MainGroupings
 #   ... then call SAS_MainGroupings.<func>(..., gc, self.isSortLists(), ...)
 #
+# <!-- custom: For grouping helpers that accept a prebuilt baseList, SevoPediaMain already applies BUG 'Sort Lists' ordering once via getSortedList()/getUnfilteredSortedList().
+# These helpers therefore preserve the incoming order and do not re-sort, avoiding redundant work when list grouping is enabled. (ChatGPT-5.2 Thinking) -->
+
+
 
 from CvPythonExtensions import *
 from _sevopedia_helpers import SAS_isFeatureRemovable
+
+
 
 def SAS_isFoodYieldImprovement(iImprovement, gc):
 	# Check if improvement provides food yields from any bonus.
@@ -118,11 +124,6 @@ def SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, hig
 		else:
 			landFlat.append((szName, iTerrain))
 
-	# Optional sorting if BUG Sort Lists is on
-	if bSortLists:
-		landFlat.sort()
-		graphicalOnlyHigh.sort()
-		water.sort()
 
 	# Emit headers + items in alphabetical order by header name
 	if graphicalOnlyHigh:
@@ -192,11 +193,6 @@ def SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, gra
 			else:
 				landOther.append((szName, iFeature))
 
-	# Optional sorting if BUG Sort Lists is on
-	if bSortLists:
-		landRemovable.sort()
-		landOther.sort()
-		water.sort()
 
 	# Emit headers + items in alphabetical order by header name
 	if landOther:
@@ -248,11 +244,6 @@ def SAS_getBonusesGroupedByImprovement_fromBaseList(baseList, gc, bSortLists):
 			groups[key] = tmp
 		tmp.append((szName, iBonus))
 
-	# Optional sorting within each improvement-group (when BUG "Sort Lists" is ON)
-	if bSortLists:
-		for k in groups.keys():
-			groups[k].sort()
-		noImprovement.sort()
 
 	# Order headers:
 	#  - primarily by first improvement id (so this generally follows ImprovementInfos XML order),
@@ -427,11 +418,6 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, gc, bSortLists):
 	waterOther.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
 	waterOther = [(item[1], item[2]) for item in waterOther]
 
-	# Optional sorting if BUG Sort Lists is on
-	# Keep special order for: landGrowth (chain), waterFood/waterOther (era)
-	if bSortLists:
-		landBonusCapable.sort()
-		landOther.sort()
 
 	# Emit headers + items in alphabetical order by header name
 	if landBonusCapable:
@@ -612,12 +598,6 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, gc, bSortLists):
 	waterOther.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
 	waterOther = [(item[1], item[2]) for item in waterOther]
 
-	# Optional sorting if BUG Sort Lists is on
-	# Keep special order for: landGrowth (chain), landRoute/waterFood/waterOther (era)
-	if bSortLists:
-		landBonusCapable.sort()
-		landOther.sort()
-		landRemovable.sort()
 
 	# Emit headers + items in alphabetical order by header name
 	if landBonusCapable:
@@ -853,10 +833,6 @@ def SAS_getTechsGroupedByEra(gc, bSortLists, localText=None):
 			groups[iEra] = []
 		groups[iEra].append((szName, iTech))
 
-	# Optional sorting within each era group
-	if bSortLists:
-		for k in groups.keys():
-			groups[k].sort()
 
 	# Emit era groups in order
 	for iEra in range(iNumEras):
@@ -905,11 +881,6 @@ def SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=No
 				groups[iEra] = []
 			groups[iEra].append((szName, iUnit))
 
-	# Optional sorting within each bucket
-	if bSortLists:
-		noTech.sort()
-		for k in groups.keys():
-			groups[k].sort()
 
 	# "No Tech Prerequisite" group first
 	if noTech:
@@ -963,11 +934,6 @@ def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localTex
 				groups[iEra] = []
 			groups[iEra].append((szName, iBuilding))
 
-	# Optional sorting within each bucket
-	if bSortLists:
-		noTech.sort()
-		for k in groups.keys():
-			groups[k].sort()
 
 	# "No Tech Prereq" group first
 	if noTech:
@@ -1015,11 +981,6 @@ def SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText
 				groups[iEra] = []
 			groups[iEra].append((szName, iProject))
 
-	# Optional sorting within each bucket
-	if bSortLists:
-		noTech.sort()
-		for k in groups.keys():
-			groups[k].sort()
 
 	# "No Tech Prereq" group first
 	if noTech:
@@ -1068,11 +1029,6 @@ def SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localTex
 				groups[iEra] = []
 			groups[iEra].append((szName, iReligion))
 
-	# Optional sorting within each bucket
-	if bSortLists:
-		noTech.sort()
-		for k in groups.keys():
-			groups[k].sort()
 
 	# "No Tech Prerequisite" group first
 	if noTech:
@@ -1126,10 +1082,6 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, bSortLists, local
 				groups[iEra] = []
 			groups[iEra].append((szName, iCorporation))
 
-	if bSortLists:
-		noTech.sort()
-		for k in groups.keys():
-			groups[k].sort()
 
 	if noTech:
 		corpsList.append((lt.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))

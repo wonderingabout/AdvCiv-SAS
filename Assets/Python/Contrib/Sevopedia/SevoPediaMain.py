@@ -58,6 +58,8 @@ import BugUtil
 from _sevopedia_helpers import *
 import _sevopedia_main_groupings as SAS_MainGroupings
 
+
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -878,7 +880,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_getUnitAvailabilityEra(self, iUnit, iNumUnitAndTechs, iNumBuildingAndTechs):
 		return SAS_MainGroupings.SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs, gc)
 	def SAS_getUnitsGroupedByEra_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getUnitAvailabilityEra)
+		return SAS_MainGroupings.SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getUnitAvailabilityEra)
 
 
 	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
@@ -992,7 +994,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# <!-- custom: helper we can reuse for regular buildings, national wonders, world wonders, with the help of chatgpt 5.2 thanks -->
 	def SAS_getBuildingsGroupedByEra_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getBuildingAvailabilityEra)
+		return SAS_MainGroupings.SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getBuildingAvailabilityEra)
 
 	def getBuildingList(self):
 		if self.SAS_cacheRegularBuildingsTuple is None:
@@ -1057,7 +1059,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# Helper we can reuse for project lists, with the help of chatgpt 5.2 thanks.
 	def SAS_getProjectsGroupedByEra_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getProjectAvailabilityEra)
+		return SAS_MainGroupings.SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getProjectAvailabilityEra)
 
 	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getProjectList(self):
@@ -1094,7 +1096,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getTerrainsGroupedByLandWater_fromBaseList(self, baseList):
 		return SAS_MainGroupings.SAS_getTerrainsGroupedByLandWater_fromBaseList(
-			baseList, gc, self.isSortLists(), self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
+			baseList, gc, False, self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
 
 
 	def getTerrainList(self):
@@ -1120,7 +1122,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getFeaturesGroupedByLandWater_fromBaseList(self, baseList):
 		return SAS_MainGroupings.SAS_getFeaturesGroupedByLandWater_fromBaseList(
-			baseList, gc, self.isSortLists(), self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
+			baseList, gc, False, self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
 
 
 	def getFeatureList(self):
@@ -1142,7 +1144,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getBonusesGroupedByImprovement_fromBaseList(self, baseList):
 		return SAS_MainGroupings.SAS_getBonusesGroupedByImprovement_fromBaseList(
-			baseList, gc, self.isSortLists())
+			baseList, gc, False)
 
 
 	def getBonusList(self):
@@ -1173,7 +1175,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getImprovementsGroupedByTerrain_fromBaseList(self, baseList):
 		return SAS_MainGroupings.SAS_getImprovementsGroupedByTerrain_fromBaseList(
-			baseList, gc, self.isSortLists())
+			baseList, gc, False)
 
 
 	def getImprovementList(self):
@@ -1207,7 +1209,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# - Water (Other): builds that create other water improvements (Offshore Platform)
 	def SAS_getBuildsGroupedByType_fromBaseList(self, baseList):
 		return SAS_MainGroupings.SAS_getBuildsGroupedByType_fromBaseList(
-			baseList, gc, self.isSortLists())
+			baseList, gc, False)
 
 
 	def getBuildList(self):
@@ -1349,7 +1351,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# Helper we can reuse for religions.
 	def SAS_getReligionsGroupedByEra_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getReligionAvailabilityEra)
+		return SAS_MainGroupings.SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getReligionAvailabilityEra)
 
 	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getReligionList(self):
@@ -1371,7 +1373,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_getCorporationAvailabilityEra(self, iCorporation, iNumBuildingAndTechs):
 		return SAS_MainGroupings.SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs, gc)
 	def SAS_getCorporationsGroupedByEra_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getCorporationAvailabilityEra)
+		return SAS_MainGroupings.SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getCorporationAvailabilityEra)
 
 	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getCorporationList(self):
