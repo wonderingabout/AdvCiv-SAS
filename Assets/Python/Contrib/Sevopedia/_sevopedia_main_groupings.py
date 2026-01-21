@@ -1431,11 +1431,11 @@ def SAS_getMusicListAndTables(gc, localText, bSortLists, packMusicKey, unpackMus
 			iPeaceIntroId = -1
 			iPeaceId = -1
 			try:
-				iPeaceIntroId = leaderInfo.getIntroMusicPeace(iEra)
+				iPeaceIntroId = leaderInfo.getDiploPeaceIntroMusicScriptIds(iEra)
 			except:
 				iPeaceIntroId = -1
 			try:
-				iPeaceId = leaderInfo.getMusicPeace(iEra)
+				iPeaceId = leaderInfo.getDiploPeaceMusicScriptIds(iEra)
 			except:
 				iPeaceId = -1
 
@@ -1471,11 +1471,11 @@ def SAS_getMusicListAndTables(gc, localText, bSortLists, packMusicKey, unpackMus
 			iWarIntroId = -1
 			iWarId = -1
 			try:
-				iWarIntroId = leaderInfo.getIntroMusicWar(iEra)
+				iWarIntroId = leaderInfo.getDiploWarIntroMusicScriptIds(iEra)
 			except:
 				iWarIntroId = -1
 			try:
-				iWarId = leaderInfo.getMusicWar(iEra)
+				iWarId = leaderInfo.getDiploWarMusicScriptIds(iEra)
 			except:
 				iWarId = -1
 
