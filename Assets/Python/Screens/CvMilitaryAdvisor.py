@@ -146,7 +146,9 @@ class CvMilitaryAdvisor:
 		# Position: Screen Height - Bottom Panel - Bar Height - Padding
 		self.Y_GREAT_GENERAL_BAR = self.H_SCREEN - 55 - self.H_GREAT_GENERAL_BAR - 15
 
-		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = None
+		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it doesn't work in many ingame py file (tech chooser, main interface for those i tried), so use safer pattern reliably rather -->
+		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
+
 
 
 	def getScreen(self):
@@ -165,10 +167,6 @@ class CvMilitaryAdvisor:
 			return
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-
-		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)) -->
-		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS is None:
-			self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
 
 		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + "</font>"
 		self.TITLE = u"<font=4b>" + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + "</font>"

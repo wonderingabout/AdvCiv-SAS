@@ -230,6 +230,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
 		<iDefineIntVal>-17</iDefineIntVal>
 	</Define>
+	<!-- custom: hide the unit bar (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS</DefineName>

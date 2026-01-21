@@ -353,6 +353,27 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if szLinkKey:
 				self.SAS_mainLinkToCategory[szLinkKey] = iEnum
 
+		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or such -->
+		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
+		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
+		self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
+		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
+		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
+		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY") > 0)
+		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY") > 0)
+		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY") > 0)
+		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY") > 0)
+
 
 
 	# <!-- custom: type-to-filter search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->
@@ -724,23 +745,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		eYellow = gc.getInfoTypeForString("COLOR_YELLOW")
 		self.TOC_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + u"</font>"
 		self.INDEX_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + u"</font>"
-
-		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or such -->
-		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
-		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
-		self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
-		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
 
 		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
@@ -2611,10 +2615,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
 				addSection(szEraName, eraItems)
 
-			bIntroPeaceFirstOnly = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY") > 0)
-			bPeaceFirstOnly = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY") > 0)
-			bIntroWarFirstLeaderOnly = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY") > 0)
-			bWarFirstLeaderOnly = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY") > 0)
 			leaderIntroPeaceItems = []
 			leaderPeaceItems = []
 			leaderIntroWarItems = []
@@ -2637,7 +2637,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 							szEraName = szEraName[:-len(" Era")]
 					iPeaceIntroId = leaderInfo.getDiploPeaceIntroMusicScriptIds(iEra)
 					if iPeaceIntroId > 0:
-						if (not bIntroPeaceFirstOnly) or (not bAddedIntroPeace):
+						if (not self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY) or (not bAddedIntroPeace):
 							szLabel = szLeaderName
 							if szEraName:
 								szLabel = szLabel + " (" + szEraName + ")"
@@ -2648,7 +2648,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 					iPeaceId = leaderInfo.getDiploPeaceMusicScriptIds(iEra)
 					if iPeaceId > 0:
-						if (not bPeaceFirstOnly) or (not bAddedPeace):
+						if (not self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY) or (not bAddedPeace):
 							szLabel = szLeaderName
 							if szEraName:
 								szLabel = szLabel + " (" + szEraName + ")"
@@ -2659,7 +2659,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 					iWarIntroId = leaderInfo.getDiploWarIntroMusicScriptIds(iEra)
 					if iWarIntroId > 0:
-						if bIntroWarFirstLeaderOnly:
+						if self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY:
 							if iWarIntroLeaderChosen == -1:
 								iWarIntroLeaderChosen = iLeader
 							if iWarIntroLeaderChosen != iLeader:
@@ -2673,7 +2673,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 					iWarId = leaderInfo.getDiploWarMusicScriptIds(iEra)
 					if iWarId > 0:
-						if bWarFirstLeaderOnly:
+						if self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY:
 							if iWarLeaderChosen == -1:
 								iWarLeaderChosen = iLeader
 							if iWarLeaderChosen != iLeader:

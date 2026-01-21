@@ -3071,4 +3071,12 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Tag>
 		<English>[TAB]Order a worker-type unit to establish a forest preserve improvement on a suitable tile.</English>
 	</TEXT>
+
+
+
+	<!-- custom: simplify defense text to only show the char for concision and quicker read, was "%F1 Defense: %D2%%" -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_CITY_DEFENSE</Tag>
+		<English>%F1: %D2%%</English>
+	</TEXT>
 </Civ4GameText>

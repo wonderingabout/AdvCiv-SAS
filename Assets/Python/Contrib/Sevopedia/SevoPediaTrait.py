@@ -32,6 +32,7 @@ IS_SHOW_ZERO_TRAIT_PAIRS_LEFT = (gc.getDefineINT("SAS_SEVOPEDIA_TRAIT_SHOW_ZERO_
 TRAIT_STATISTICS_CACHE = None
 
 
+
 def precomputeTraitStatisticsCache():
 	# Precompute and cache trait statistics data. Called once from SevoPediaMain.placeTraits()
 	# on first Traits category click. Returns the cache dict.

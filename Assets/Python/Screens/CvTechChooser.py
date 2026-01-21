@@ -193,7 +193,7 @@ class CvTechChooser:
 		# Create a new screen, called TechChooser, using the file CvTechChooser.py for input
 		screen = self.getScreen()
 
-		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it somehow doesn't work unlike in some other files -->
 		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE is None:
 			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE")
 		
@@ -210,7 +210,7 @@ class CvTechChooser:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
 			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
 		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE == 2:
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 1
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 105
 			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
 		else:
 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 0

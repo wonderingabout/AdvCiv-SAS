@@ -449,9 +449,8 @@ class CvMainInterface:
 		# self.SIDE_PANELS_WIDTH = 297
 		self.SIDE_PANELS_WIDTH = 341
 
-		# <!-- custom: fetching the define once may be cheaper (not sure). (GPT-5.2-Codex (summarized)) -->
 		# <!-- custom: initialize cheaply once. -->
-		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here; might also be cheaper than fetching gc each call (not sure). (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here. (GPT-5.2-Codex (summarized)) -->
 		self.iBarExtraRows = None
 		self.iBarExtraRowsExtraManualAdjust = None
 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
@@ -461,8 +460,10 @@ class CvMainInterface:
 		self.iCityBuildBarPinnedRow = None
 		# <!-- custom: add buttons in the city screen production queue elements. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
+		# <!-- custom: optional UI convenience: hide the unit plot list bar while a city is selected to avoid overlapping with multi-row build bars. (ChatGPT-5.2 Thinking) -->
+		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION = None
 
-		
+
 
 ############## Basic operational functions ###################
 
@@ -1619,12 +1620,14 @@ class CvMainInterface:
 		xResolution = self.xResolution
 		yResolution = self.yResolution
 
-		# <!-- custom: compute cheaply once that fetching the define once is cheaper -->
+		# <!-- custom: compute cheaply once so it is cheaper. Note: done here rather than in init since it somehow doesn't work unlike in some other files -->
 		if self.iBarExtraRows is None:
 			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
 		if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS is None:
 			self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS") > 0)
+		if self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION is None:
+			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION") > 0)
 
 		lTop = gRect("Top")
 
@@ -3019,6 +3022,19 @@ class CvMainInterface:
 		screen = self.screen
 		self.updatePlotListButtons_Hide(screen)
 		self.updatePlotListButtons_Common(screen)
+
+		# <!-- custom: optionally hide the unit plot list bar only while a city is selected (ChatGPT-5.2 Thinking) -->
+		# This avoids overlap when the city build bar is configured to show extra rows.
+		if (self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION and CyInterface().isCitySelection()):
+			# Make sure any navigation arrows are hidden too (they are shown only in the draw methods).
+			screen.hide("PlotListMinus")
+			screen.hide("PlotListPlus")
+			screen.hide(self.PLE.PLOT_LIST_MINUS_NAME)
+			screen.hide(self.PLE.PLOT_LIST_PLUS_NAME)
+			screen.hide(self.PLE.PLOT_LIST_UP_NAME)
+			screen.hide(self.PLE.PLOT_LIST_DOWN_NAME)
+			return 0
+
 # BUG - draw methods
 		#sDrawMethod = self.DRAW_METHODS[PleOpt.getDrawMethod()]
 		# <advc.069> Replacing the above (getDrawMethod removed)
