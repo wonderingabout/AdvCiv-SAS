@@ -143,6 +143,8 @@ Because of these and perhaps other related or other things or not, i believe thi
 
 Note: technically should be in modding ressources but fits also here as well so duplicated this entry of the doc with a link there to this.
 
+Update: since then the computing the values logic from sevopedia leader to [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py) so it is tidier.
+
 ## If you want to mod
 
 If you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)).

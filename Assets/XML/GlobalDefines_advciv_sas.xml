@@ -29,7 +29,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of "T.W. Likely"; Long_Comments_XML.txt #193 -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel; Long_Comments_XML.txt #194 -->
 	<Define>
