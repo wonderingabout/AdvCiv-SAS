@@ -2,7 +2,7 @@
 
 Below are more detailed examples of the Sevopedia reworks.
 
-Not always listed in each specific Sevopedia category as would be tedious and redundant and all, but several Sevopedia pages now have their entries optionally groupable (as of now default) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings.
+Not always listed in each specific Sevopedia category as would be tedious and redundant and all, but several Sevopedia pages now have their entries optionally groupable (as of now default) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings. See [_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py).
 
 Note: some many minor changes such as in Sevopedia traits beautification changes may not be mentioned here for concision or effectiveness.
 
