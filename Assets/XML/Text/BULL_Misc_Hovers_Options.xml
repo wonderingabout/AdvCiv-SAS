@@ -147,21 +147,7 @@
 		<Italian>Quando è selezionato, nel testo a comparsa di ogni tipo di Commercio viene mostrato (quando necessario) il relativo subtotale (il totale prima dei modificatori).</Italian>
 		<Spanish>Muestra el subtotal para cada tipo de comercio en su texto flotante.</Spanish>
 	</TEXT>
-	<!-- advc.078: Not optional -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__GREATPEOPLERATEBREAKDOWN_TEXT</Tag>
-		<English>Rate Breakdown</English>
-		<German>Aufschlüsselung der Rate</German>
-		<Italian>Natalità dei Grandi Personaggi</Italian>
-		<Spanish>Detalle de probabilidades</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__GREATPEOPLERATEBREAKDOWN_HOVER</Tag>
-		<English>When checked, displays the individual [ICON_GREATPEOPLE] rate per turn for each type in the hover.</English>
-		<German>Zeigt im Tooltip die [ICON_GREATPEOPLE]/Runde für jede einzelne Art Große Persönlichkeit an</German>
-		<Italian>Quando è selezionato, nel testo a comparsa di ogni tipo di Grande Personaggio viene mostrato il tasso individuale di [ICON_GREATPEOPLE] per turno.</Italian>
-		<Spanish>Permite consultar información individual de cada tipo de [ICON_GREATPEOPLE] en el texto flotante.</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #263 -->
 	
 	<!-- advc.004: German shortened -->
 	<TEXT>

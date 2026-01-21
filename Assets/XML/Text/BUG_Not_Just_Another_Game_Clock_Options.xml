@@ -368,17 +368,7 @@
 		<Italian>Quando è selezionato, viene visualizzata la data in gioco e il numero di turni di Età dell'Oro rimasti.</Italian>
 		<Spanish>Muestra la fecha de juego y el número de turnos restantes de la Edad de Oro.</Spanish>
 	</TEXT>
-	
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTERNATETEXT_TEXT</Tag>
-		<English>Alternate Game Clock</English>
-		<French>Alterner l'Horloge</French>
-		<German>Anzeige abwechseln</German>
-		<Italian>Orologio alternativo</Italian>
-		<Spanish>Reloj Alternativo</Spanish>
-	</TEXT-->
-	<!-- advc.067: Merging the above with TXT_KEY_BUG_OPTLABEL_NJAGC_ALTERNATE
-		 in 'BUG_Options_Screen.xml' -->
+	<!-- custom: Long_Comments_XML.txt #249 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTERNATETEXT_TEXT</Tag>
 		<English>Alternate View</English>
@@ -398,22 +388,7 @@
 		<English>When checked, NJAGC alternates between the settings in the left column and those on the right. The two dropdown menus determine for how many seconds each view is shown.</English>
 		<German>Lässt die Zeitanzeige zwischen den Einstellungen in der linken Spalte und jenen in der rechten Spalte wechseln. Die beiden Aufklappmenüs steuern die jeweilige Anzeigedauer.</German>
 	</TEXT>
-	
-	<!-- advc.067: unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTTIMING_TEXT</Tag>
-		<English>Period (in seconds)</English>
-		<French>Rythme (en secondes)</French>
-		<German>Intervall (in Sekunden)</German>
-		<Italian>Periodo (in secondi)</Italian>
-		<Spanish>Período (en segundos)</Spanish>
-	</TEXT-->
-	
-	<!-- advc.067: Rewritten; old translations:
-		 <French>Sélectionnez la rythme à laquelle l'horloge alterne entre les deux vues.</French>
-		 <Italian>Determina perr quanti secondi viene visualizzata ciascuna delle due versioni dell'orologio (se la visualizzazione alternativa è abilitata).</Italian>
-		 <Spanish>Permite seleccionar el tiempo que cada una de las vistas de reloj se mostrará cuando se emplea el modo alternante.</Spanish>
-		 -->
+	<!-- custom: Long_Comments_XML.txt #250 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTTIMING_HOVER</Tag>
 		<English>The duration in seconds for which the settings on the right are used if [COLOR_HIGHLIGHT_TEXT]Alternate View[COLOR_REVERT] is enabled.</English>

@@ -111,14 +111,7 @@
 	<German>(K-Mod) In der Bauauftragsliste einer Stadt können [Strg] und [Umschalt] benutzt werden, um Einträge hoch und runter zu bewegen, und [Alt] um Einträge endlos bauen zu lassen.</German>
 	<Spanish>(K-Mod) En la cola de construcción, usa [CTRL] y [MAYÚS] para mover objetos arriba y abajo; y [ALT] para alternar si los objetos deben repetirse o no.</Spanish>
 </TEXT>
-<!-- replacement text for the inaccurate barbarian tip (changed english and german only)-->
-<!-- advc.008c: Replacement text had been invalidated by advc.300. Now the
-	 original hint ("Barbarians can appear anywhere a tile is obscured by fog
-	 of war, so never assume a tile you can't see is safe, even if you checked
-	 it the turn before!") is correct again. I'm overwriting hint 14 instead
-	 because it's bad advice: "Be careful in signing Open Border agreements -
-	 make sure your 'friend' isn't mapping out your land for sale to the 
-	 highest bidder!" -->
+<!-- custom: Long_Comments_XML.txt #277 -->
 <TEXT>
 	<Tag>TXT_KEY_HINT_14</Tag>
 	<English>Barbarians do not appear in tiles that are visible to any civilization. Carefully positioned lookouts can significantly reduce the barbarian activity in an area.</English>
@@ -127,13 +120,7 @@
 	<Italian>I Barbari possono apparire in un qualsiasi spazio oscurato dalla nebbia di guerra. Non essere mai certo che uno spazio non visibile sia sicuro, anche se hai controllato durante il turno precedente!</Italian>
 	<Spanish>Los bárbaros no reaparecerán en dos pasos de cualquiera de las unidades. Con el posicionamiento cuidadoso de batidores puedes bloquear completamente grupos de pillaje que se formen en tu área.</Spanish>
 </TEXT>
-<!-- replacement text for the double-click tip, because I've changed the functionality of double-click -->
-<!-- advc.008c: The K-Mod text was "Double clicking a stack of units will wake
-	 them all up." (And German: " Ein Doppelklick auf einen Einheitenstapel
-	 weckt sie alle auf.") My text hopefully makes clearer that the 3D models or
-	 the flag (in cities - to avoid entering the city screen) needs to be
-	 clicked, not the unit icons. Will also wake up a single unit if there
-	 isn't a stack. I've left the Spanish text alone. -->
+<!-- custom: Long_Comments_XML.txt #278 -->
 <TEXT>
 	<Tag>TXT_KEY_HINT_INTERFACE_6</Tag>
 	<English>(K-Mod) Double-click a tile to wake all units up. For city tiles, this only works if you double-click the units' flag.</English>

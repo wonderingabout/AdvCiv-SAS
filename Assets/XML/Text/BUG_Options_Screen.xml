@@ -120,27 +120,13 @@
 		<Italian>Unit Info Pane:</Italian>
 		<Spanish>Unit Info Pane:</Spanish>
 	</TEXT>
-
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_TECHWINDOW</Tag>
-		<English>Tech Splash Screen:</English>
-		<German>Technologie-Popup:</German>
-		<Italian>Scheda della scoperta tecnologica:</Italian>
-		<Spanish>Tecnologías:</Spanish>
-	</TEXT-->
-	<!-- advc.060: Replacing the above b/c I want to list the SS screen as a
-		 kind of splash screen (though it really isn't) -->
+	<!-- custom: Long_Comments_XML.txt #254 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_TECHWINDOW</Tag>
 		<English>Splash Screens:</English>
 		<German>Splash-Screens:</German>
 	</TEXT>
-
-	<!--TEXT> advc.009c
-		<Tag>TXT_KEY_BUG_OPTLABEL_BUFFY</Tag>
-		<English>BUFFY:</English>
-	</TEXT-->
-	
+	<!-- custom: Long_Comments_XML.txt #255 -->
 	<!-- advc.120c: Based on TXT_KEY_TECH_DRAMA_STRATEGY in
 		 CIV4GameText_Strategy.xml -->
 	<TEXT>
@@ -236,11 +222,7 @@
 		<English>City Billboards:</English>
 		<German>Städte-Balken:</German>
 	</TEXT>
-	<!-- advc.009c: Commented out -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_MAPFINDER</Tag>
-		<English>MapFinder:</English>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #251 -->
 	
 	<!-- Advisors Tab -->
 	
@@ -414,15 +396,7 @@
 	
 	<!-- Clock Tab -->
 	
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPTTAB_NJAGC</Tag>
-		<English>Clock</English>
-		<French>Horloge</French>
-		<German>Uhr</German>
-		<Italian>Orologio</Italian>
-		<Spanish>Reloj</Spanish>
-	</TEXT-->
-	<!-- advc.002k: Year notation doesn't fit under "Clock" -->
+	<!-- custom: Long_Comments_XML.txt #253 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_NJAGC</Tag>
 		<English>Time</English>
@@ -483,17 +457,7 @@
 		<Spanish>Columnas Adicionales:</Spanish>
 	</TEXT>
 	
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_SCORES_ICONS</Tag>
-		<English>[SPACE]</English>
-		<French>Icons:</French>
-		<German>Symbole:</German>
-		<Italian>Icone:</Italian>
-		<Spanish>Iconos:</Spanish>
-	</TEXT-->
-	<!-- advc.004: Replacing the above (which is now entirely unused).
-		 Same as TXT_KEY_FOREIGN_ADVISOR_RELATIONS in
-		 CIV4GameTextInfos.xml (but that one misses the colon). -->
+	<!-- custom: Long_Comments_XML.txt #252 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_SCORES_RELATIONS</Tag>
 		<English>Relations:</English>

@@ -68,24 +68,7 @@
 		<English>When checked, a flashing message "Press ENTER to end turn" is shown once all units and cities have been given orders (as in BtS). Otherwise, the "End Turn" button still pulses as it does in BtS, but no message is shown.</English>
 		<German>Blinkanzeige "Runde beenden mit EINGABETASTE" (wie in BtS), sobald alle Einheiten und Städte Befehle erhalten haben. Die rote Rundenende-Schaltfläche pulsiert auch wenn diese Option nicht angekreuzt ist.</German>
 	</TEXT>
-	
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEWARNING_TEXT</Tag>
-		<English>Gold Rate Warning</English>
-		<German>"Gold/Runde"-Warnung</German>
-		<Italian>Calo dell'Oro</Italian>
-		<Spanish>Advertencia Oro</Spanish>
-	</TEXT-->
-	<!-- advc.004: Rewritten (English, German); hopefully makes clearer how
-		 this differs from BtS. -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEWARNING_HOVER</Tag>
-		<English>When checked, a negative gold rate is shown in red only if the deficit exceeds the gold reserves in your treasury. Otherwise (sufficient reserves), a negative gold rate is shown in yellow.</English>
-		<German>Färbt bei negativem Einkommen die [ICON_GOLD]/Runde-Anzeige nur dann rot ein, wenn das Defizit größer ist als der Goldvorrat. Andernfalls, d.h. wenn der Goldvorrat das Defizit auffangen kann, wird die [ICON_GOLD]/Runde-Anzeige gelb eingefärbt.</German>
-		<Italian>Quando è selezionato, mostra il tasso di crescita dell'oro in giallo se è negativo ma non abbastanza da mandarvi in rosso.</Italian>
-		<Spanish>Muestra tu oro en amarillo si el cambio este turno es negativo pero no suficiente para llevar tu tesoro por debajo de cero.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: Long_Comments_XML.txt #246 -->
 	<!-- advc.070 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__POSITIVEGOLDRATECOLOR_TEXT</Tag>
@@ -147,17 +130,7 @@
 		<Italian>Quando è selezionato, mostra il progresso e la città del prossimo Grande Personaggio.</Italian>
 		<Spanish>When checked, displays the progress and city of the next Great Person.</Spanish>
 	</TEXT>
-
-	<!-- advc.004: Unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GPBAR_TYPES_TEXT</Tag>
-		<English>GP Bar Types</English>
-		<French>Types de Barre PI</French>
-		<German>Anzeigemethode</German>
-		<Italian>Tipi di Grandi Personaggi</Italian>
-		<Spanish>Barra de Tipo de GP</Spanish>
-	</TEXT-->
-
+	<!-- custom: Long_Comments_XML.txt #247 -->
 	<!-- advc.004: Minor changes. Would be nice to state explicitly that this
 		 setting also applies to the city screen, but the text is already
 		 rather long. -->

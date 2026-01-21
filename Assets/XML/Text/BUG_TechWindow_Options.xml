@@ -4,15 +4,7 @@
 	Copyright (c) 2009 The BUG Mod.
 -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_TEXT</Tag>
-		<English>View</English>
-		<French>View</French>
-		<German>Ansicht</German>
-		<Italian>Visualizzazione</Italian>
-		<Spanish>Vista</Spanish>
-	</TEXT-->
-	<!-- advc.060: Replacing the above b/c the heading no longer says "Tech" -->
+	<!-- custom: Long_Comments_XML.txt #259 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_TEXT</Tag>
 		<English>Tech</English>

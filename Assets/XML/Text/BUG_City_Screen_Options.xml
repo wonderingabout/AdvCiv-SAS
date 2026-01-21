@@ -213,21 +213,7 @@
 		<Italian>Quando è selezionato, mostra solo le religioni presenti nella città e consente di visualizzare oltre sette religioni.</Italian>
 		<Spanish>Muestra solamente las religiones que estén presentes en la ciudad, y permite más de siete religiones.</Spanish>
 	</TEXT>
-	<!-- advc.004: Obsolete, see above. -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ONLYPRESENTCORPORATIONS_TEXT</Tag>
-		<English>Only Present Corporations</English>
-		<German>Nur vorhandene KGs</German>
-		<Italian>Solo Corporazioni Presenti</Italian>
-		<Spanish>Sólo Corporaciones Presentes</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ONLYPRESENTCORPORATIONS_HOVER</Tag>
-		<English>When checked, the city screen displays only icons of corporations that are present in the city.</English>
-		<German>Lässt den Stadtbildschirm (rechts oben) nur Symbole jener Kapitalgesellschaften anzeigen, die in der Stadt vertreten sind.</German>
-		<Italian>Quando è selezionato, mostra solo le religioni presenti nella città e consente di visualizzare oltre sette corporazioni.</Italian>
-		<Spanish>Si se activa, muestra sólo las corporaciones que están presentes en la ciudad y permite más de siete corporaciones.</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #243 -->
 
 	<!-- advc.097: New option -->
 	<TEXT>
@@ -295,14 +281,7 @@
 	</TEXT>
 
 	<!-- BUG Production Decay -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUE_TEXT</Tag>
-		<English>Queue</English>
-		<French>Queue</French>
-		<German>Produktionsliste</German>
-		<Italian>Coda</Italian>
-		<Spanish>Avisos</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #244 -->
 	<!-- advc.094: Now refers to both queue and hover text -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUE_TEXT</Tag>

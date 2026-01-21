@@ -87,23 +87,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando una Civiltà è disponibile a diventare Vassallo del giocatore.</Italian>
 		<Spanish>Muestra un aviso cuando una civilización está dispuesta a convertirse en tu vasallo.</Spanish>
 	</TEXT>
-
-	<!-- advc.004: Now unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__PEACETRADE_TEXT</Tag>
-		<English>Peace Treaty</English>
-		<German>Friedensvertrag</German>
-		<Italian>Trattato di Pace</Italian>
-		<Spanish>Tratado de Paz</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__PEACETRADE_HOVER</Tag>
-		<English>Displays an alert when a civilization is willing to sign a Peace Treaty.</English>
-		<German>Meldet, wenn eine Zivilisation einem "Friedensvertrag" zustimmen wird</German>
-		<Italian>Quando è selezionato, viene visualizzato un avviso quando una Civiltà è disponibile a firmare un Trattato di Pace.</Italian>
-		<Spanish>Muestra un aviso cuando una civilización está dispuesta a firmar un Tratado de Paz.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: Long_Comments_XML.txt #248 -->	
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__SURRENDERTRADE_TEXT</Tag>
 		<English>Capitulation</English>

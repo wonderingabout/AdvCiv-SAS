@@ -21,7 +21,7 @@
 		<Italian>Quando è selezionato, vengono attivate le scorciatoie da tastiera e le funzionalità del Livello Strategico.</Italian>
 		<Spanish>Si se activa, las características y atajos del mapa estratégico pueden ser usados.</Spanish>
 	</TEXT>
-	<!-- custom: Long_Comments_XML.txt #142 -->	
+	<!-- custom: Long_Comments_XML.txt #142 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPDRAWDOTS_TEXT</Tag>
 		<English>Draw City Dots</English>
@@ -46,7 +46,7 @@
 		<Italian>Icona delle Citt&#224;</Italian>
 		<Spanish>Icono Ciudad</Spanish>
 	</TEXT>
-	<!-- custom: Long_Comments_XML.txt #143 -->		
+	<!-- custom: Long_Comments_XML.txt #143 -->
 	<!-- advc.004: Was "Brightness"; "Transparenz" in German -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPBRIGHTNESS_TEXT</Tag>

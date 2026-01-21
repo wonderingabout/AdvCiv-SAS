@@ -298,23 +298,7 @@
 		<Italian>Determina la quantità d'oro per turno che costituisce il limite per la visualizzazione dell'avviso.</Italian>
 		<Spanish>Determina la cantidad de oro turno que hará mostrar una alerta.</Spanish>
 	</TEXT>
-	<!-- unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__GOLDTRADETHRESH_TEXT</Tag>
-		<English>Threshold</English>
-		<French>Seuil</French>
-		<German>Schwelle</German>
-		<Italian>Quantit&#224;</Italian>
-		<Spanish>Cantidad</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__GOLDPERTURNTRADETHRESH_TEXT</Tag>
-		<English>Threshold</English>
-		<French>Seuil</French>
-		<German>Schwelle</German>
-		<Italian>Quantit&#224;</Italian>
-		<Spanish>Cantidad</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #245 -->
 	
 	<!-- advc.071 -->
 	<!-- Italian, Spanish based on TXT_KEY_BUG_OPT_REMINDER__DISPLAYMETHOD_LIST

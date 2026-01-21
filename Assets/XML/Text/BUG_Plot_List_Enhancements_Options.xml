@@ -93,13 +93,7 @@
 		<Spanish>Vista por defecto</Spanish>
 	</TEXT>
 	
-	<!-- advc.069: Switched the order of the last two.
-		 was "Single Row|Multiple Rows|Vertical Groups|Horizontal Groups"
-		 - nice, but too long. Old translations:
-		 <French>Une Ligne|Plusieurs Lignes|Groupes Verticaux|Groupes Horizontaux</French>
-		 <Italian>Riga singola|Righe multiple|Gruppi verticali|Gruppi orizzontali</Italian>
-		 <Spanish>Fila Simple|Filas M�ltiples|Grupos Verticales|Grupos Horizontales</Spanish>
-		 -->
+	<!-- custom: Long_Comments_XML.txt #256 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DEFAULT_VIEW_MODE_LIST</Tag>
 		<English>Single Row|Wrapped Row|Multi Rows|Multi Columns</English>
@@ -406,12 +400,9 @@
 		<Italian>Visualizza le azioni delle Unit� sulle loro icone.</Italian>
 		<Spanish>Coloca un indicador debajo de las unidades mostrando su acci�n actual.</Spanish>
 	</TEXT>
-	
 	<!-- advc.069: unused -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #45 -->
-
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #46 -->
-
 	<!-- advc.069: Had to shorten German -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__UNIT_NAME_COLOR_TEXT</Tag>

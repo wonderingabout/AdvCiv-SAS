@@ -1631,7 +1631,7 @@
 			<Path>Art/Interface/screens/medallion_Chevron20.dds</Path>
 		</InterfaceArtInfo>	
 
-<!-- BUG - specialists  - end  -->		
+<!-- BUG - specialists  - end  -->
 
 <!-- BUG - Raw Yields - start -->
 
@@ -1672,9 +1672,9 @@
 			<Path>Art/Interface/RawYields/button_highlight.dds</Path>
 		</InterfaceArtInfo>
 
-<!-- BUG - Raw Yields - end -->			
+<!-- BUG - Raw Yields - end -->
 
-<!-- BUG - Wonders Tab - start -->			
+<!-- BUG - Wonders Tab - start -->
 		<InterfaceArtInfo>
 			<Type>BUG_WORLDWONDER_OFF</Type>
 			<Path>Art/BUG/World_Off.dds</Path>
@@ -1699,14 +1699,14 @@
 			<Type>BUG_PROJECT_ON</Type>
 			<Path>Art/BUG/Projects_On.dds</Path>
 		</InterfaceArtInfo>
-<!-- BUG - Wonders Tab - end -->			
+<!-- BUG - Wonders Tab - end -->
 
-<!-- BUG - Main Interface - BUG_Options_Screen - Start -->			
+<!-- BUG - Main Interface - BUG_Options_Screen - Start -->
 		<InterfaceArtInfo>
 			<Type>BUG_OPTIONS_SCREEN_BUTTON</Type>
 			<Path>Art/BUG/options.dds</Path>
 		</InterfaceArtInfo>
-<!-- BUG - Main Interface - BUG_Options_Screen - end -->			
+<!-- BUG - Main Interface - BUG_Options_Screen - end -->
 
 		<InterfaceArtInfo>
 			<Type>QUESTION_MARK</Type>

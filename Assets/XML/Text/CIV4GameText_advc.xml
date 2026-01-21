@@ -1714,18 +1714,7 @@
 		<Spanish>([NUM1:Abolido:Abolida]: %s1_CvcName.)</Spanish>
 	</TEXT>
 	
-	<!-- advc.099: Overwrites CIV4GameTextInfos.xml. Since its culture
-		 remains in the game, it isn't accurate to say the civ was
-		 "destroyed". (Or better "vanquished"?) --> 
-	<!--TEXT>
-		<Tag>TXT_KEY_MISC_CIV_DESTROYED</Tag>
-		<English>The %s1_CivAdj civilization has been conquered!!</English>
-		<French>Les %s1_CivAdj est &#233;t&#233; conquis!!</French>
-		<German>Die %s1:3_CivAdj Zivilisation wurde erobert!!</German>
-		<Italian>La civilt&#224; %s1:4_CivAdj &#232; stato conquistata!!</Italian>
-		<Spanish>&#161;La civilizaci&#243;n %s1:2_CivAdj ha sido conquistada!</Spanish>
-	</TEXT-->
-	<!-- Next try; similar to TXT_KEY_MISC_DEFEAT in CIV4GameText_Misc1.xml: -->
+	<!-- custom: Long_Comments_XML.txt #265 -->
 	<TEXT>
 		<Tag>TXT_KEY_PLAYER_ELIMINATED</Tag>
 		<English>%s1_Plyr has been defeated!!</English>
@@ -2386,21 +2375,7 @@
 		</Spanish>
 	</TEXT>
 
-	<!-- advc.005b: From CIV4GameText_Warlords.xml.
-		 I'm removing the roman numerals. It's clear enough e.g. which
-		 Gustav Adolph is meant, and if not, I don't mind the ambuigity.
-		 They're not in the game as rulers (those are the AI leaders),
-		 but as generals. Also for that reason, Boudica and Charlemagne are
-		 replaced. Wanted famous replacements in about the same period,
-		 and of the same gender. The Vietnamese Hai Ba Trung is to
-		 conceal the fact that they're two people - the two "Ladies
-		 Trung". Players who know about the Trung rebellion won't mind,
-		 and those who don't won't be confused by their GG supposedly
-		 consisting of two persons. Attila is already included through
-		 the Huns event - would've been an obvious replacement for
-		 Charlemagne otherwise. Went with Jan Zizka - don't know if
-		 he's famous enough. Other ideas from High/Late Medieval times:
-		 Eulji Mundeok, Tancred, Richard Lionheart. -->
+	<!-- custom: Long_Comments_XML.txt #266 -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_GREAT_PERSON_NEBUCHADREZZAR</Tag>
 		<English>Nebuchadnezzar</English>
@@ -2726,14 +2701,7 @@
 		<Spanish></Spanish>
 	</TEXT>
 
-	<!-- advc.005c: Based on TXT_KEY_IMPROVEMENT_CITY_RUINS in
-	Civ4GameTextInfos_Objects.xml. First attempt (weird for tribal
-	city names like Saxons):
-		Ruins of %s1City_Name
-		Ruines de %s1City_Name
-		Ruinen von %s1City_Name
-		Rovine di %s1City_Name
-		Ruinas de %s1City_Name -->
+	<!-- custom: Long_Comments_XML.txt #267 -->
 	<TEXT>
 		<Tag>TXT_KEY_IMPROVEMENT_CITY_RUINS_NAMED</Tag>
 		<English>City Ruins (%s1City_Name)</English>
@@ -3041,15 +3009,7 @@
 		<Italian>Visualizza un avviso ogni volta che un comandante AI diventa disposto a iniziare una guerra su sua richiesta.</Italian>
 		<Spanish>Muestra una alerta cada vez que un líder de IA se convierte dispuesto a iniciar una guerra a petición suya.</Spanish>
 	</TEXT>
-	<!-- Prior to v0.93: -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__WARTRADE_HOVER</Tag>
-		<English>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war at your request.</English>
-		<French>Affiche une alerte lorsqu'un chef d'IA devient (ou cesse d'être) prêt à déclencher une guerre à votre demande.</French>
-		<German>Mitteilung, wenn ein KI-Gegner bereit (oder nicht mehr bereit) ist, einem anderen Gegner auf Ihren Wunsch den Krieg zu erklären.</German>
-		<Italian>Visualizza un avviso ogni volta che un comandante AI diventa (o smette di essere) disposto a iniziare una guerra su sua richiesta.</Italian>
-		<Spanish>Muestra una alerta cada vez que un líder de IA se convierte (o deja de estar) dispuesto a iniciar una guerra a petición suya.</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #268 -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR</Tag>
 		<English>%s1_TeamName can be convinced to start a war against</English>
@@ -3641,15 +3601,7 @@
 		<Italian>Gioca ora</Italian>
 		<Spanish>Jugar ya</Spanish>
 	</TEXT>
-	<!-- Don't gray this out after all: -->
-	<!--TEXT>
-		<Tag>TXT_KEY_MAIN_MENU_SCENARIO</Tag>
-		<English>[COLOR_PLAYER_GRAY]Play Scenario[COLOR_REVERT]</English>
-		<French>[COLOR_PLAYER_GRAY]Jouer un sc&#233;nario[COLOR_REVERT]</French>
-		<German>[COLOR_PLAYER_GRAY]Szenario spielen[COLOR_REVERT]</German>
-		<Italian>[COLOR_PLAYER_GRAY]Gioca uno scenario[COLOR_REVERT]</Italian>
-		<Spanish>[COLOR_PLAYER_GRAY]Jugar un escenario[COLOR_REVERT]</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #269 -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_MAIN_MENU_UPDATES</Tag>
 		<English>[COLOR_PLAYER_GRAY]Check for updates[COLOR_REVERT]</English>

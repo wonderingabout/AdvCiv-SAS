@@ -25,24 +25,7 @@
 		<Spanish>Cuando está activada, PCA de PieceOfMind muestra información más detallada de probabilidades de combate cuando pasas el ratón sobre una unidad a atacar.</Spanish>
 	</TEXT>
 	
-	<!-- advc.048: unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACO__DEBUG_TEXT</Tag>
-		<English>Debug</English>
-		<French>Debug</French>
-		<German>Debug</German>
-		<Italian>Debug</Italian>
-		<Spanish>Depuración</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ACO__DEBUG_HOVER</Tag>
-		<English>When checked, shows debugging information in the combat odds calculations.</English>
-		<French>When checked, shows debugging information in the combat odds calculations.</French>
-		<German>Zeigt Debug-Information bei der Berechnung der Siegchancen an</German>
-		<Italian>Quando è selezionato, mostra le informazioni di debug nel calcolo delle Probabilità di Combattimento.</Italian>
-		<Spanish>Cuando está activada muestra la información de depuración en el cálculo de Probabilidades de Combate.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: Long_Comments_XML.txt #236 -->
 	<!-- advc.048: was "Force Original Odds" and in German
 		 "Originale Berechnung" -->
 	<TEXT>

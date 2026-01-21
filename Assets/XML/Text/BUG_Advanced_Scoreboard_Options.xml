@@ -27,17 +27,7 @@
 		<Spanish>Cuando está activada, las civilizaciones menores son mostradas (algunos escenarios consideran a ciertas civilizaciones como menores).</Spanish>
 	</TEXT>
 	
-	<!-- [advc.099] -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_SCORES__SHOWDEAD_TEXT</Tag>
-		<English>Show</English>
-		<French>Montrer</French>
-		<German>Anzeigen</German>
-		<Italian>Mostra</Italian>
-		<Spanish>Mostrar</Spanish>
-	</TEXT-->
-	<!-- Replacing the above (and TXT_KEY_BUG_OPTLABEL_SCORES_DEAD_CIVS in BUG
-		 Options Screen.xml) -->
+	<!-- custom: Long_Comments_XML.txt #237 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_SCORES__SHOWDEAD_TEXT</Tag>
 		<English>Show Defeated</English>

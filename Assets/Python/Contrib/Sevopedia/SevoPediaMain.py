@@ -1026,7 +1026,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getWorldWonderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
 
-	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks -->	
+	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks -->
 	def getWorldWonderList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 			if self.SAS_cacheWorldWondersTuple is None:

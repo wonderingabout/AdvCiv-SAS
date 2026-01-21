@@ -6,25 +6,5 @@
 	Copyright (c) 2009 The BUG Mod.
 -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-
-<!-- advc (note): None of these options are currently shown, and I don't
-	 think AdvCiv is going to restore them, as they solve problems that the mod
-	 addresses differently. -->
-
-<!-- Ask Declare War -->
-	<!-- advc: Unlikely to become an option -->
-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #47 -->
-
-<!-- Sentry Healing -->
-	<!-- advc.004l: Unlikely to be merged -->
-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #48 -->
-
-<!-- Ignore Harmless Barbarians -->
-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #98 -->
-
-<!-- PreChop -->
-	<!-- advc.011b: Unlikely to be merged (although having prechop always enabled
-		 could be more convenient than the current solution). -->
-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #49 -->
-
+	<!-- custom: Long_Comments_XML.txt #260 -->
 </Civ4GameText>

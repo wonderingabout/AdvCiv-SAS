@@ -36,9 +36,7 @@
 	</TEXT>
 	
 	<!-- View Modes -->
-	<!-- Outdated translations:
-		 <Italian>[COLOR_HIGHLIGHT_TEXT]Cambia modalità di visualizzazione[COLOR_REVERT][NEWLINE]Scegli come vengono visualizzate le icone delle Unità: riga singola, righe multiple o gruppi di colonne o righe</Italian>
-		 <Spanish>[COLOR_HIGHLIGHT_TEXT]Modo Cambiar Vista[COLOR_REVERT][NEWLINE]Permite seleccionar cómo mostrar los iconos de unidad: en una sola fila, en múltiples filas o apiladas en columnas o filas separadas.</Spanish>-->
+	<!-- custom: Long_Comments_XML.txt #274 -->
 	<TEXT>
 		<Tag>TXT_KEY_PLE_VIEW_MODE</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Switch View[COLOR_REVERT][NEWLINE]Icon arrangement: single row, wrapped row, one row per group or one column per group.</English>
@@ -439,12 +437,7 @@
 	</TEXT>
 	
 	<!-- Grouping Modes -->
-	<!-- advc.069: Not sure if this button functions as intended. Disables
-		 upgrade and promotion mode, and cycles between grouping options.
-		 Was:
-		 <English>[COLOR_HIGHLIGHT_TEXT]Switch to Standard Mode[COLOR_REVERT][NEWLINE]View normal unit icons and issue orders</English>
-		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht aktivieren[COLOR_REVERT][NEWLINE]Anzeige der normalen Einheitensymbole und Aktionsschaltflächen</German>
-		 -->
+	<!-- custom: Long_Comments_XML.txt #275 -->
 	<TEXT>
 		<Tag>TXT_KEY_PLE_GRP_STANDARD</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Switch to Standard Mode[COLOR_REVERT][NEWLINE]Disable upgrade/ promotion mode</English>
@@ -452,10 +445,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Passa alla Modalità Standard[COLOR_REVERT][NEWLINE]Visualizza tutte le icone di Unit&#224;</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar a Modo Estándar[COLOR_REVERT][NEWLINE]Mostrar iconos normales de unidades y dar órdenes</Spanish>
 	</TEXT>
-	<!-- was:
-		 <English>[COLOR_HIGHLIGHT_TEXT]Standard Mode[COLOR_REVERT][NEWLINE]Toggle how units are grouped: by unit type or selection group</English>
-		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht[COLOR_REVERT][NEWLINE]Auswahl der Art der Gruppierung: nach Einheitentyp oder nach Einheitenverband</German>
-	-->
+	<!-- custom: Long_Comments_XML.txt #276 -->
 	<TEXT>
 		<Tag>TXT_KEY_PLE_GRP_STANDARD_ON</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Standard Mode[COLOR_REVERT][NEWLINE]Click to toggle grouping (by type or by selection)</English>

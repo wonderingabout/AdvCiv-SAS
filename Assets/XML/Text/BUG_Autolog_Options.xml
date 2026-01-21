@@ -21,13 +21,13 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__ENABLED_HOVER</Tag>
 		<English>Enables the Autolog mod, which logs various game events to a text file when active. Only events visible to your civilization are logged (the mod was created by Eotinb "with succession games in mind").</English>
 		<French>En activant, plusieurs évènements du jeu sont loggés dans un fichier texte grâce au mod AutoLog de eotinb.</French>
-		<German>Aktiviert den Autolog-Mod, welcher verschiedene Spielereignisse in einer Textdatei protokollieren kann. Nur Ereignisse, die für Ihre Zivilisation sichtbar sind, werden protokolliert. (Damit eignet sich Autolog für "Succession Games" in Webforen.)</German>
+		<German>Aktiviert den Autolog-Mod, welcher verschiedene Spielereignisse in einer Textdatei protokollieren kann. Nur Ereignisse, die fÿr Ihre Zivilisation sichtbar sind, werden protokolliert. (Damit eignet sich Autolog fÿr "Succession Games" in Webforen.)</German>
 		<Italian>Quando è selezionato, vari eventi di gioco vengono registrati in un file  (utilizzando l'AutoLog Mod di Eotinb).</Italian>
 		<Spanish>Si se activa, determinados eventos de juego son registrados en un fichero de texto empleando el mod de AutoLog de eotinb.</Spanish>
 	</TEXT>
 	
 	<!-- advc.004: "Start Automatically" is a nice option name, but not quite 
-		 what this does. -->	
+		 what this does. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__SILENT_TEXT</Tag>
 		<English>Always Log</English>
@@ -40,7 +40,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__SILENT_HOVER</Tag>
 		<English>When checked, logging is always active. Otherwise, logging can be started or stopped manually by pressing [Alt + L]. When manually enabled, logging also stops when exiting the game or loading a saved game.</English>
 		<French>En activant, Autolog est démarré automatiquement sans message à l'écran.</French>
-		<German>Aktiviert die Protokollierung dauerhaft. Ist diese Option nicht angekreuzt, kann die Protokollierung mit der Tastenkombination [ALT + L] gestartet werden und endet dann beim Laden eines Spielstandes, beim Verlassen des Spiels oder bei erneutem Drücken von [Alt + L].</German>
+		<German>Aktiviert die Protokollierung dauerhaft. Ist diese Option nicht angekreuzt, kann die Protokollierung mit der Tastenkombination [ALT + L] gestartet werden und endet dann beim Laden eines Spielstandes, beim Verlassen des Spiels oder bei erneutem Drÿcken von [Alt + L].</German>
 		<Italian>Quando è selezionato, il Registro Automatico viene avviato automaticamente; quando non è selezionato, il Registro Automatico deve essere avviato (ed eventualmente arrestato) utilizzando il comando [Alt + L].</Italian>
 		<Spanish>Si se activa, el registrado comienza automáticamente sin esperar al comienzo o parada manual que puede emplearse usando [Alt + L].</Spanish>
 	</TEXT>
@@ -89,7 +89,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FILEPATH_HOVER</Tag>
 		<English>Directory of the log file (fully qualified path, e.g. C:\folder\subfolder). If left blank, the default directory shown on the "System" tab is used.</English>
 		<French>Le Répertoire ou le fichier de log sera sauvegardé (chemin complet, p.ex. C:\folder\subfolder ou vide).</French>
-		<German>Verzeichnis für die Protokolldatei (vollständige Pfadangabe, z.B. C:\Ordner\Unterordner). Bei leerem Feld wird das Standardverzeichnis verwendet, dessen Pfad auf dem Reiter "System" angezeigt wird.</German>
+		<German>Verzeichnis fÿr die Protokolldatei (vollständige Pfadangabe, z.B. C:\Ordner\Unterordner). Bei leerem Feld wird das Standardverzeichnis verwendet, dessen Pfad auf dem Reiter "System" angezeigt wird.</German>
 		<Italian>Cartella dove è localizzato il file di registro (percorso completo (ad esempio C:\cartella\sottocartella) o vuoto).</Italian>
 		<Spanish>Directorio en el que guardar los registros (ruta absoluta, por ejemplo C:\folder\subfolder) o en blanco.</Spanish>
 	</TEXT>
@@ -116,7 +116,7 @@
 	
 	<!-- advc.004: Was:
 		 <English>Forum Tags, With " around color codes|Forum Tags, No " around color codes</English>
-		 <German>Klartext|HTML-Code|Foren-Code, mit Anführungszeichen (") um Farbcodes|Foren-Code, ohne Anführungszeichen (") um Farbcodes</German>
+		 <German>Klartext|HTML-Code|Foren-Code, mit Anfÿhrungszeichen (") um Farbcodes|Foren-Code, ohne Anfÿhrungszeichen (") um Farbcodes</German>
 		 Will explain that in hover text. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FORMAT_LIST</Tag>
@@ -130,7 +130,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FORMAT_HOVER</Tag>
 		<English>The format of the log output. The CivFanatics forums support BBCode with color codes in quotation marks.</English>
 		<French>Le style du log.</French>
-		<German>Bestimmt die Formatierung, in der das Protokoll erstellt wird. Die englischsprachigen CivFanatics-Foren erfordern BBCode mit Farbangaben als Strings, also in Anführungszeichen.</German>
+		<German>Bestimmt die Formatierung, in der das Protokoll erstellt wird. Die englischsprachigen CivFanatics-Foren erfordern BBCode mit Farbangaben als Strings, also in Anfÿhrungszeichen.</German>
 		<Italian>Lo stile di visualizzazione del registro.</Italian>
 		<Spanish>Formato de salida del registro.</Spanish>
 	</TEXT>
@@ -150,7 +150,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__COLORCODING_HOVER</Tag>
 		<English>When checked, log entries are color-coded using code tags (depending on the output format; no colors in plain text output).</English>
 		<French>En activant, les commentaires sont colorés pour les forums.</French>
-		<German>Verwendet Farb-Tags (abhängig vom Ausgabeformat; keine Farben bei Klartext-Ausgabe), um das Protokoll übersichtlicher zu gestalten. </German>
+		<German>Verwendet Farb-Tags (abhängig vom Ausgabeformat; keine Farben bei Klartext-Ausgabe), um das Protokoll ÿbersichtlicher zu gestalten. </German>
 		<Italian>Quando è selezionato, viene applicato il codice cromatico per i post nel Forum.</Italian>
 		<Spanish>Cuando se activa, se emplean códigos de color para posts de foro en los comentarios.</Spanish>
 	</TEXT>
@@ -296,13 +296,7 @@
 		<Spanish>Proyectos Completados</Spanish>
 	</TEXT>
 	
-	<!-- advc.004: was
-		 <English>When checked, will log completion of projects (certain wonders are technically projects - other wonders are treated like normal buildings).</English>
-		 <German>Protokolliert fertiggestellte Wunder (bestimmte Wunder sind eigentlich Projekte, während andere Wunder wie normale Gebäude behandelt werden)</German>
-		 These should be handled like the other production items, but
-		 perhaps there's a onCityBuilding event missing or sth. (fixme?).
-		 Doesn't hurt to have a separate option for SS parts, but the
-		 generic production alerts should cover these in any case. -->
+	<!-- custom: Long_Comments_XML.txt #241 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPROJECTS_HOVER</Tag>
 		<English>When checked, will log when one of your cities completes a project (e.g. a Spaceship Part).</English>
@@ -334,7 +328,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYFOUNDED_TEXT</Tag>
 		<English>City Founded</English>
 		<French>Fondation</French>
-		<German>Stadtgründungen</German>
+		<German>Stadtgrÿndungen</German>
 		<Italian>Città fondate</Italian>
 		<Spanish>Fundación de Ciudades</Spanish>
 	</TEXT>
@@ -342,7 +336,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYFOUNDED_HOVER</Tag>
 		<English>When checked, will log when you found a city.</English>
 		<French>En activant, la fondation d'une ville sera noté dans le log.</French>
-		<German>Protokolliert Ihre Stadtgründungen.</German>
+		<German>Protokolliert Ihre Stadtgrÿndungen.</German>
 		<Italian>Quando è selezionato, il Registro Automatico registra quando fondi una Città.</Italian>
 		<Spanish>Cuando esté activa, se registran las ciudades que fundes.</Spanish>
 	</TEXT>
@@ -434,7 +428,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYWHIPSTATUS_HOVER</Tag>
 		<English>When checked, will log when you sacrifice population to hurry a production order or to draft a military unit, and when the anger resulting from sacrificed population decreases.</English>
 		<French>En activant, l'utilisation du fouet dans vos villes sera noté dans le log, ainsi que le décroissement de la colère.</French>
-		<German>Protokolliert die Opferung von Bürgern zur Beschleunigung der Produktion oder zur Einberufung, und das Abklingen der Unzufriedenheit darüber.</German>
+		<German>Protokolliert die Opferung von Bÿrgern zur Beschleunigung der Produktion oder zur Einberufung, und das Abklingen der Unzufriedenheit darÿber.</German>
 		<Italian>Quando è selezionato, il Registro Automatico registra quando compi Sacrifici in una tua Città o quando la rabbia da Sacrifici diminuisce in una tua Città.</Italian>
 		<Spanish>Si está activa, se registrarán los sacrificios para apresurar la producción en una ciudad y los descensos de infelicidad debida a sacrificios.</Spanish>
 	</TEXT>
@@ -498,7 +492,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGGP_TEXT</Tag>
 		<English>Great Person Birth</English>
 		<French>Personnages Illustres</French>
-		<German>Große Persönlichkeit</German>
+		<German>Groÿe Persönlichkeit</German>
 		<Italian>Grandi Personaggi</Italian>
 		<Spanish>Grandes Personas</Spanish>
 	</TEXT>
@@ -506,7 +500,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGGP_HOVER</Tag>
 		<English>When checked, will log the birth of Great People in your cities.</English>
 		<French>En activant, la naissance des personnages illustres dans vos villes sera noté dans le log.</French>
-		<German>Protokolliert das Erscheinen Großer Persönlichkeiten in Ihren Städten.</German>
+		<German>Protokolliert das Erscheinen Groÿer Persönlichkeiten in Ihren Städten.</German>
 		<Italian>Quando è selezionato, il Registro Automatico registra la nascita di Grandi Personaggi nelle tue Città.</Italian>
 		<Spanish>Cuando esta opción está activa, se registran los nacimientos de Grandes Personas en tus ciudades.</Spanish>
 	</TEXT>
@@ -561,7 +555,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGATTITUDE_HOVER</Tag>
 		<English>When checked, will log any change in AI attitude (e.g. Cautious) toward you and between AI leaders known to you.</English>
 		<French>En activant, tout changement d'attitude entre les civilisations que vous connaissez sera noté dans le log.</French>
-		<German>Protokolliert jede Veränderung der KI-Einstellungswerte (z.B. "vorsichtig") Ihnen gegenüber und zwischen den Ihnen bekannten KI-Spielern.</German>
+		<German>Protokolliert jede Veränderung der KI-Einstellungswerte (z.B. "vorsichtig") Ihnen gegenÿber und zwischen den Ihnen bekannten KI-Spielern.</German>
 		<Italian>Quando è selezionato, il Registro Automatico registra ogni cambio di atteggiamento fra le Civiltà che ti sono note.</Italian>
 		<Spanish>Si se activa, se registran los cambios de actitud de civilizaciones que conozcas.</Spanish>
 	</TEXT>
@@ -662,7 +656,7 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPILLAGE_TEXT</Tag>
 		<English>Pillaging</English>
 		<French>Pillage</French>
-		<German>Plünderung</German>
+		<German>Plÿnderung</German>
 		<Italian>Saccheggi</Italian>
 		<Spanish>Pillaje</Spanish>
 	</TEXT>
@@ -673,28 +667,12 @@
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPILLAGE_HOVER</Tag>
 		<English>When checked, will log when you pillage a tile or if one one of your tiles is pillaged.</English>
 		<French>En activant, vos pillages et ceux de vos améliorations seront notés dans le log.</French>
-		<German>Protokolliert Plünderungen durch Ihre Einheiten und Plünderungen Ihrer Geländefelder durch feindliche Einheiten.</German>
+		<German>Protokolliert Plÿnderungen durch Ihre Einheiten und Plÿnderungen Ihrer Geländefelder durch feindliche Einheiten.</German>
 		<Italian>Quando è selezionato, il Registro Automatico registra i saccheggi effettuate da te o quando i tuoi miglioramenti vengono saccheggiati.</Italian>
 		<Spanish>Permite registrar los pillajes que realices o el pillaje de tus mejoras.</Spanish>
 	</TEXT>
 
-	<!-- advc.004: unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTRADEALL_TEXT</Tag>
-		<English>Trade/Demands</English>
-		<French>Trade/Demands</French>
-		<German>Handel / Forderungen</German>
-		<Italian>Commercio</Italian>
-		<Spanish>Intercambios/Exigencias</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTRADEALL_HOVER</Tag>
-		<English>When checked, will log all AI-initiated trade offers and demands along with your responses.</English>
-		<French>When checked, will log all AI-initiated trade offers and demands along with your responses.</French>
-		<German>Protokolliert alle von anderen Zivilisationen angeregte Handelsangebote und Forderungen zusammen mit den Reaktionen der eigenen Zivilisation</German>
-		<Italian>Quando è selezionato, il Registro Automatico registra tutte le offerte e le richieste commerciali delle altre Civiltà e le vostre risposte.</Italian>
-		<Spanish>Permite registrar los intercambios y exigencias iniciados por IAs así como tus respuestas.</Spanish>
-	</TEXT-->
+
 	
 	<!-- advc.004: German was "Handelsangebote" -->
 	<TEXT>

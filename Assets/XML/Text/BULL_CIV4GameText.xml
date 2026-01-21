@@ -81,15 +81,7 @@
 		<Italian>%d1[ICON_COMMERCE] da %d2 rotte commerciali estere</Italian>
 		<Spanish>%d1[ICON_COMMERCE] por %d2 rutas internacionales</Spanish>
 	</TEXT>
-	<!-- advc.086: Don't use this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALISTS</Tag>
-		<English>The Total Gold from Specialists</English>
-		<French>The Total Gold from Specialists</French>
-		<German>Gesamteinkommen durch Spezialisten</German>
-		<Italian>Oro totale dagli Specialisti</Italian>
-		<Spanish>Oro total obtenido de especialistas</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #261 -->
 	<!-- advc.086: Leading NEWLINEs removed -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALIST_GOLD</Tag>
@@ -625,16 +617,7 @@
 	</TEXT>
 
 <!-- Feature Health -->
-	<!-- advc.059 handles this -->
-	<!--TEXT>
-		<Tag>TXT_KEY_ACTION_CHANGE_IN_CITY</Tag>
-		<English>[ICON_BULLET]%s1 in %s2_CityName</English>
-		<French>[ICON_BULLET]%s1 &#224; %s2_CityName</French>
-		<German>[ICON_BULLET]%s1 in %s2_CityName</German>
-		<Italian>[ICON_BULLET]%s1 a %s2_CityName</Italian>
-		<Spanish>[ICON_BULLET]%s1 en %s2_CityName</Spanish>
-	</TEXT-->
-
+	<!-- custom: Long_Comments_XML.txt #262 -->
 <!-- Delete/Fortify/Sleep All Units Actions -->
 	<TEXT>
 		<Tag>TXT_KEY_SAME_UNITS_TYPE</Tag>

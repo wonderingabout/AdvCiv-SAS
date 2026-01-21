@@ -752,25 +752,7 @@
 		<Italian>Mostra i raggi d'azione delle citt&#224; selezionando un colono</Italian>
 		<Spanish>Para ver los radios urbanos al seleccionar a un colono</Spanish>
 	</TEXT>
-	<!-- "Extra" instead of "Detailed" -->
-	<!--TEXT>
-		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO</Tag>
-		<English>Extra City Info</English>
-		<French>Infos d&#233;taill&#233;es sur la ville</French>
-		<German>Zusätzliche Stadt-Info</German>
-		<Italian>Informazioni dettagliate sulla citt&#224;</Italian>
-		<Spanish>Informaci&#243;n detallada de la ciudad</Spanish>
-	</TEXT-->
-	<!-- List the extra info. (I've searched the code; this should be
-		 everything.) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO_HELP</Tag>
-		<English>Shows some additional information about cities on the main map, namely, on the production bar, the number of production turns left; on the food bar, the number of turns until growth; and shows icons that highlight the cities with the highest research, gold and production rate.</English>
-		<French>Voir les informations d&#233;taill&#233;es de la barre des villes.</French>
-		<German>Zeigt auf der Hauptkarte Zusatzinformationen über Ihre Städte an, nämlich: Auf dem Produktionsbalken die Anzahl der Züge bis zur Fertigstellung, auf dem Nahrungsbalken die Anzahl der Züge bis zum Bevölkerungszuwachs, und hebt durch Symbole die Städte mit der höchsten Forschungsrate, Goldrate und Produktionsrate hervor.</German>
-		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
-		<Spanish>Mostrar informaci&#243;n adicional en la barra de la ciudad.</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #264 -->
 	<!-- advc.002f: The annoying indicator icons are now handled by BUG. So, next version: -->
 	<TEXT>
 		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO</Tag>
