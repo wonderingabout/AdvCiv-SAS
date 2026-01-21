@@ -3,10 +3,12 @@ Created as part of AdvCiv-SAS improvements
 (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 in sevopediabuilding, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
-printObjAttrs(gc.getFeatureInfo(self.iFeature))
+printObjAttrs(gc.getBuildingInfo(self.iBuilding))
 returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
 
 
+
+[DEBUG] Beginning of show obj inner fields.
 
 __class__
 
@@ -363,3 +365,5 @@ isStateReligion
 isTeamShare
 
 isWater
+
+[DEBUG] End of show show obj inner fields.

@@ -37,7 +37,7 @@ class SevoPediaUnit:
 	def __init__(self, main):
 		self.iUnit = -1
 		self.top = main
-		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
 
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
@@ -720,12 +720,12 @@ class SevoPediaUnit:
 		iCityDefense = unitInfo.getCityDefenseModifier()
 
 		if iCityAttack != 0 or iCityDefense != 0:
-			citiesConceptID = get_concept_id("CONCEPT_CITIES", gc)
+			citiesConceptID = get_concept_id("CONCEPT_CITIES")
 			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(citiesConceptID, WidgetTypes, CivilopediaPageTypes)
 
 			# Column index (always 0 when numLists=1)
 			columnIndex = 0
-			screen.appendMultiListButton(rowListName, get_citiesResolvedButtonPath(localText), columnIndex, widgetType, widgetID1, widgetID2, False)
+			screen.appendMultiListButton(rowListName, get_citiesResolvedButtonPath(), columnIndex, widgetType, widgetID1, widgetID2, False)
 
 			numTxt = get_numTxt_attack_defense_modifiers(iCityAttack, iCityDefense)
 			extraCorrectionX = get_extra_correction_x(numTxt)

@@ -24,6 +24,8 @@ import SevoScreenEnums
 
 from _sevopedia_helpers import *
 
+
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -172,7 +174,7 @@ class SevoPediaBuilding:
 
 
 	def setupStatsPanel(self, screen, panelName, txtKey, panelStyle):
-		screen.addPanel(panelName,localText.getText(txtKey, ()), "", True, True, self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, panelStyle,)
+		screen.addPanel(panelName, localText.getText(txtKey, ()), "", True, True, self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, panelStyle,)
 
 
 

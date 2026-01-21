@@ -6,12 +6,12 @@
 #
 # SevoPedia main-list grouping helpers.
 # - Purpose: keep SevoPediaMain.py smaller/cleaner by moving "grouping once" logic here.
-# - Design: NO imports from SevoPediaMain (avoids circular deps). Callers pass `gc` + a few flags.
+# - Design: NO imports from SevoPediaMain (avoids circular deps). Use module-scope `gc` + a few flags.
 # - Python: keep Civ4/BUG Python 2.4 compatibility (xrange, cmp sorts, etc.).
 #
 # Expected usage from SevoPediaMain:
 #   import _sevopedia_main_groupings as SAS_MainGroupings
-#   ... then call SAS_MainGroupings.<func>(..., gc, self.isSortLists(), ...)
+#   ... then call SAS_MainGroupings.<func>(..., self.isSortLists(), ...)
 #
 # <!-- custom: For grouping helpers that accept a prebuilt baseList, SevoPediaMain already applies BUG 'Sort Lists' ordering once via getSortedList()/getUnfilteredSortedList().
 # These helpers therefore preserve the incoming order and do not re-sort, avoiding redundant work when list grouping is enabled. (ChatGPT-5.2 Thinking) -->
@@ -19,11 +19,16 @@
 
 
 from CvPythonExtensions import *
-from _sevopedia_helpers import SAS_isFeatureRemovable
+from _sevopedia_helpers import *
 
 
 
-def SAS_isFoodYieldImprovement(iImprovement, gc):
+gc = CyGlobalContext()
+localText = CyTranslator()
+
+
+
+def SAS_isFoodYieldImprovement(iImprovement):
 	# Check if improvement provides food yields from any bonus.
 	info = gc.getImprovementInfo(iImprovement)
 	if not info or info.isGraphicalOnly():
@@ -47,7 +52,7 @@ def SAS_isFoodYieldImprovement(iImprovement, gc):
 # - Water (Food): water improvements that provide food (Fishing Boats, Whaling Boats)
 # - Water (Other): other water improvements (Offshore Platform)
 
-def SAS_isBonusCapableImprovement(iImprovement, gc):
+def SAS_isBonusCapableImprovement(iImprovement):
 	info = gc.getImprovementInfo(iImprovement)
 	if not info or info.isGraphicalOnly():
 		return False
@@ -80,7 +85,7 @@ def SAS_isBonusCapableImprovement(iImprovement, gc):
 # This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping.
 # Unlike a "primary improvement" heuristic, we keep multi-improvement cases exhaustive by using
 # a combined header like: "Well, Offshore Platform".
-def SAS_getTradingImprovementsForBonus(iBonus, gc):
+def SAS_getTradingImprovementsForBonus(iBonus):
 	bInfo = gc.getBonusInfo(iBonus)
 	if not bInfo or bInfo.isGraphicalOnly():
 		return []
@@ -104,7 +109,7 @@ def SAS_getTradingImprovementsForBonus(iBonus, gc):
 # For multi-improvement bonuses (e.g. Oil: Well + Offshore Platform), we use a combined header.
 # <!-- custom: we did this change because RFC DOC used another water/land tie breaker logic that would display Oil only under "Well", but the player needs to know too that "Offshore Platform" is another improvement trades for Oil. Also, if some mod mod added another improvement trades on land (e.g. Farm + Pasture for Milk (imaginary example)) then the water/land tie breaking would not be effective as well, and we'd miss the info that both improvements support this. This is the only case in our mod (Oil) that has more than one improvement trades., so we don't need to complicate the logic further, while hopefully providing this logic in a bit cleaner or more relevant way to us than in RFC DOC mod (although their code helps lot and with chatgpt 5.2's help too and my help too xd i mean thanks to them and me xd as well) -->
 
-def SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, highIds):
+def SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList, bSortLists, highIds):
 	r = []
 	landFlat = []
 	graphicalOnlyHigh = []
@@ -159,7 +164,7 @@ def SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, hig
 # - Many land features are valid on hills, so if we treat every isWater terrain as water here,
 #   we'd misclassify many land features as "Water".
 # - Therefore we exclude our GraphicalOnly (High) terrains from the water-terrain scan used here. -->
-def SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, graphicalOnlyHighIds):
+def SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList, bSortLists, graphicalOnlyHighIds):
 	r = []
 	landRemovable = []
 	landOther = []
@@ -188,7 +193,7 @@ def SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, gra
 			water.append((szName, iFeature))
 		else:
 			# Land feature: split removable vs other
-			if SAS_isFeatureRemovable(iFeature, gc):
+			if SAS_isFeatureRemovable(iFeature):
 				landRemovable.append((szName, iFeature))
 			else:
 				landOther.append((szName, iFeature))
@@ -223,7 +228,7 @@ def SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, gra
 #   Pasture -> Sheep/Horse/...
 # For multi-improvement bonuses (e.g. Oil: Well + Offshore Platform), we use a combined header.
 # <!-- custom: we did this change because RFC DOC used another water/land tie breaker logic that would display Oil only under "Well", but the player needs to know too that "Offshore Platform" is another improvement trades for Oil. Also, if some mod mod added another improvement trades on land (e.g. Farm + Pasture for Milk (imaginary example)) then the water/land tie breaking would not be effective as well, and we'd miss the info that both improvements support this. This is the only case in our mod (Oil) that has more than one improvement trades., so we don't need to complicate the logic further, while hopefully providing this logic in a bit cleaner or more relevant way to us than in RFC DOC mod (although their code helps lot and with chatgpt 5.2's help too and my help too xd i mean thanks to them and me xd as well) -->
-def SAS_getBonusesGroupedByImprovement_fromBaseList(baseList, gc, bSortLists):
+def SAS_getBonusesGroupedByImprovement_fromBaseList(baseList, bSortLists):
 	bonusesList = []
 
 	noImprovement = []
@@ -231,7 +236,7 @@ def SAS_getBonusesGroupedByImprovement_fromBaseList(baseList, gc, bSortLists):
 
 	# One pass over bonuses preserves XML order within each group when Sort Lists is OFF.
 	for (szName, iBonus) in baseList:
-		lImpr = SAS_getTradingImprovementsForBonus(iBonus, gc)
+		lImpr = SAS_getTradingImprovementsForBonus(iBonus)
 		if not lImpr:
 			noImprovement.append((szName, iBonus))
 			continue
@@ -299,7 +304,7 @@ def SAS_getBonusesGroupedByImprovement_fromBaseList(baseList, gc, bSortLists):
 # - Land (Other): remaining land improvements
 # - Water (Food): water improvements that provide food (Fishing Boats, Whaling Boats)
 # - Water (Other): other water improvements (Offshore Platform)
-def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, gc, bSortLists):
+def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, bSortLists):
 	r = []
 	landGrowth = []
 	landBonusCapable = []
@@ -337,7 +342,7 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, gc, bSortLists):
 
 		if info and info.isWater():
 			# Check if water improvement provides food yields from any bonus
-			bFood = SAS_isFoodYieldImprovement(iImprovement, gc)
+			bFood = SAS_isFoodYieldImprovement(iImprovement)
 			iEra = dImprToEra.get(iImprovement, -1)
 			if bFood:
 				waterFood.append((iEra, szName, iImprovement))
@@ -358,7 +363,7 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, gc, bSortLists):
 			if dBonusCapable.has_key(iImprovement):
 				bBonusCapable = dBonusCapable[iImprovement]
 			else:
-				bBonusCapable = SAS_isBonusCapableImprovement(iImprovement, gc)
+				bBonusCapable = SAS_isBonusCapableImprovement(iImprovement)
 				dBonusCapable[iImprovement] = bBonusCapable
 
 			if bBonusCapable:
@@ -469,7 +474,7 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, gc, bSortLists):
 # - Land (Route): builds that create routes (Road, Railroad)
 # - Water (Food): builds that create food-yielding water improvements (Fishing Boats, Whaling Boats)
 # - Water (Other): builds that create other water improvements (Offshore Platform)
-def SAS_getBuildsGroupedByType_fromBaseList(baseList, gc, bSortLists):
+def SAS_getBuildsGroupedByType_fromBaseList(baseList, bSortLists):
 	r = []
 	landGrowth = []
 	landBonusCapable = []
@@ -512,7 +517,7 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, gc, bSortLists):
 
 			# Check if water improvement
 			if imprInfo and imprInfo.isWater():
-				bFood = SAS_isFoodYieldImprovement(iImprovement, gc)
+				bFood = SAS_isFoodYieldImprovement(iImprovement)
 				# Store tech prereq era for sorting
 				iTech = buildInfo.getTechPrereq()
 				iEra = -1
@@ -534,7 +539,7 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, gc, bSortLists):
 					landGrowth.append((szName, iBuild, iImprovement))  # include iImprovement for chain sorting
 				else:
 					# Check if bonus-capable
-					bBonusCapable = SAS_isBonusCapableImprovement(iImprovement, gc)
+					bBonusCapable = SAS_isBonusCapableImprovement(iImprovement)
 					if bBonusCapable:
 						landBonusCapable.append((szName, iBuild))
 					else:
@@ -660,24 +665,10 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, gc, bSortLists):
 # <!-- custom: Era / category grouping helpers (Techs, Units, Buildings, Projects, Religions, Corporations, Specialists, Civics)
 #
 # Notes:
-# - Callers pass `gc` explicitly (no globals, no SevoPediaMain imports).
-# - `localText` is optional; if omitted we create/use a CyTranslator() instance.
 # - For era-tiered lists that depend on "availability era" logic, callers pass a callback:
 #     getEraFn(itemId, *extraCounts) -> iEra (>=0), -1 for "no tech prereq", or None to skip. (ChatGPT-5.2 Thinking) -->
 
 
-
-try:
-	_SAS_localText = CyTranslator()
-except:
-	_SAS_localText = None
-
-def _SAS_getLocalText(localText):
-	if localText is not None:
-		return localText
-	if _SAS_localText is not None:
-		return _SAS_localText
-	return CyTranslator()
 
 # # <!-- custom: Availability-era helpers (used by era groupings). These were previously methods on SevoPediaMain; moved here to keep groupings self-contained. (ChatGPT-5.2 Thinking) -->
 _SAS_cacheCorporationHQBuildingByCorp = None
@@ -685,7 +676,7 @@ _SAS_cacheCorporationHQBuildingByCorp = None
 # In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
 # This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
 # Map each corporation to its founding (HQ) building once, then reuse; used for grouping corporations by era.
-def SAS_getCorporationHQBuilding(iCorporation, gc):
+def SAS_getCorporationHQBuilding(iCorporation):
 	global _SAS_cacheCorporationHQBuildingByCorp
 	if _SAS_cacheCorporationHQBuildingByCorp is None:
 		m = {}
@@ -699,7 +690,7 @@ def SAS_getCorporationHQBuilding(iCorporation, gc):
 		_SAS_cacheCorporationHQBuildingByCorp = m
 	return _SAS_cacheCorporationHQBuildingByCorp.get(iCorporation, -1)
 
-def SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs, gc):
+def SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs):
 	info = gc.getBuildingInfo(iBuilding)
 	if not info or info.isGraphicalOnly():
 		return None  # caller should skip
@@ -748,7 +739,7 @@ def SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs, gc):
 
 	return iEra  # -1 means "no tech prereq bucket"
 
-def SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs, gc):
+def SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs):
 	info = gc.getUnitInfo(iUnit)
 	if not info or info.isGraphicalOnly():
 		return None  # caller should skip
@@ -770,7 +761,7 @@ def SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs, gc
 	# PrereqBuilding availability era (reuses building-era helper, so it includes SpecialBuilding tech + religion tech, etc.)
 	iPrereqBuilding = info.getPrereqBuilding()
 	if iPrereqBuilding >= 0:
-		iBuildingEra = SAS_getBuildingAvailabilityEra(iPrereqBuilding, iNumBuildingAndTechs, gc)
+		iBuildingEra = SAS_getBuildingAvailabilityEra(iPrereqBuilding, iNumBuildingAndTechs)
 		if iBuildingEra is not None and iBuildingEra > iEra:
 			iEra = iBuildingEra
 
@@ -790,7 +781,7 @@ def SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs, gc
 	return iEra  # -1 means "no tech prereq bucket"
 
 # Compute the "availability era" for a corporation, based on its founding building's prereq tech era.
-def SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs, gc):
+def SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs):
 	cInfo = gc.getCorporationInfo(iCorporation)
 	if not cInfo or cInfo.isGraphicalOnly():
 		return None  # caller should skip
@@ -798,9 +789,9 @@ def SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs, gc):
 	iEra = -1
 
 	# In AdvCiv-SAS, corporations are typically gated by the founding building techs (see CIV4BuildingInfos.xml <FoundsCorporation>).
-	iHQBuilding = SAS_getCorporationHQBuilding(iCorporation, gc)
+	iHQBuilding = SAS_getCorporationHQBuilding(iCorporation)
 	if iHQBuilding >= 0:
-		iBuildingEra = SAS_getBuildingAvailabilityEra(iHQBuilding, iNumBuildingAndTechs, gc)
+		iBuildingEra = SAS_getBuildingAvailabilityEra(iHQBuilding, iNumBuildingAndTechs)
 		if iBuildingEra is not None and iBuildingEra > iEra:
 			iEra = iBuildingEra
 
@@ -808,9 +799,7 @@ def SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs, gc):
 
 
 
-def SAS_getTechsGroupedByEra(gc, bSortLists, localText=None):
-	lt = _SAS_getLocalText(localText)
-
+def SAS_getTechsGroupedByEra(bSortLists):
 	techsList = []
 
 	iNumEras = gc.getNumEraInfos()
@@ -839,22 +828,21 @@ def SAS_getTechsGroupedByEra(gc, bSortLists, localText=None):
 
 		if techsList:
 			techsList.append(("", -1))  # spacer between eras
-		techsList.append((gc.getEraInfo(iEra).getDescription() + " " + lt.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		techsList.append((gc.getEraInfo(iEra).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
 
 		for x in tmp:
 			techsList.append(x)
 
 	return techsList
 
-def SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=None, getUnitAvailabilityEraFn=None):
+def SAS_getUnitsGroupedByEra_fromBaseList(baseList, bSortLists, getUnitAvailabilityEraFn=None):
 	# getUnitAvailabilityEraFn signature:
 	#   fn(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs) -> iEra / -1 / None
-	lt = _SAS_getLocalText(localText)
 
 	# Default to the shared availability-era helper in this module (no SevoPediaMain dependency).
 	if getUnitAvailabilityEraFn is None:
 		def getUnitAvailabilityEraFn(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs):
-			return SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs, gc)
+			return SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs)
 
 	unitsList = []
 
@@ -881,7 +869,7 @@ def SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=No
 
 	# "No Tech Prerequisite" group first
 	if noTech:
-		unitsList.append((lt.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+		unitsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
 		for x in noTech:
 			unitsList.append(x)
 
@@ -894,21 +882,20 @@ def SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=No
 		if unitsList:
 			unitsList.append(("", -1))
 
-		unitsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + lt.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		unitsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
 		for x in tmp:
 			unitsList.append(x)
 
 	return unitsList
 
-def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=None, getBuildingAvailabilityEraFn=None):
+def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, bSortLists, getBuildingAvailabilityEraFn=None):
 	# getBuildingAvailabilityEraFn signature:
 	#   fn(iBuilding, iNumAndTechs) -> iEra / -1 / None
-	lt = _SAS_getLocalText(localText)
 
 	# Default to the shared availability-era helper in this module (no SevoPediaMain dependency).
 	if getBuildingAvailabilityEraFn is None:
 		def getBuildingAvailabilityEraFn(iBuilding, iNumAndTechs):
-			return SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs, gc)
+			return SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs)
 
 	buildingsList = []
 
@@ -934,7 +921,7 @@ def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localTex
 
 	# "No Tech Prereq" group first
 	if noTech:
-		buildingsList.append((lt.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+		buildingsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
 		for x in noTech:
 			buildingsList.append(x)
 
@@ -947,16 +934,15 @@ def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localTex
 		if buildingsList:
 			buildingsList.append(("", -1))
 
-		buildingsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + lt.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		buildingsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
 		for x in tmp:
 			buildingsList.append(x)
 
 	return buildingsList
 
-def SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=None, getProjectAvailabilityEraFn=None):
+def SAS_getProjectsGroupedByEra_fromBaseList(baseList, bSortLists, getProjectAvailabilityEraFn=None):
 	# getProjectAvailabilityEraFn signature:
 	#   fn(iProject) -> iEra / -1 / None
-	lt = _SAS_getLocalText(localText)
 
 	projectsList = []
 
@@ -981,7 +967,7 @@ def SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText
 
 	# "No Tech Prereq" group first
 	if noTech:
-		projectsList.append((lt.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+		projectsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
 		for x in noTech:
 			projectsList.append(x)
 
@@ -994,16 +980,15 @@ def SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText
 		if projectsList:
 			projectsList.append(("", -1))
 
-		projectsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + lt.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		projectsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
 		for x in tmp:
 			projectsList.append(x)
 
 	return projectsList
 
-def SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=None, getReligionAvailabilityEraFn=None):
+def SAS_getReligionsGroupedByEra_fromBaseList(baseList, bSortLists, getReligionAvailabilityEraFn=None):
 	# getReligionAvailabilityEraFn signature:
 	#   fn(iReligion) -> iEra / -1 / None
-	lt = _SAS_getLocalText(localText)
 
 	religionsList = []
 
@@ -1029,7 +1014,7 @@ def SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localTex
 
 	# "No Tech Prerequisite" group first
 	if noTech:
-		religionsList.append((lt.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+		religionsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
 		for x in noTech:
 			religionsList.append(x)
 
@@ -1042,22 +1027,21 @@ def SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localTex
 		if religionsList:
 			religionsList.append(("", -1))
 
-		religionsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + lt.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		religionsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
 		for x in tmp:
 			religionsList.append(x)
 
 	return religionsList
 
 # Helper to group corporations by era for Sevopedia lists, mirroring the building/unit/tech patterns.
-def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=None, getCorporationAvailabilityEraFn=None):
+def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, bSortLists, getCorporationAvailabilityEraFn=None):
 	# getCorporationAvailabilityEraFn signature:
 	#   fn(iCorporation, iNumBuildingAndTechs) -> iEra / -1 / None
-	lt = _SAS_getLocalText(localText)
 
 	# Default to the shared availability-era helper in this module (no SevoPediaMain dependency).
 	if getCorporationAvailabilityEraFn is None:
 		def getCorporationAvailabilityEraFn(iCorporation, iNumBuildingAndTechs):
-			return SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs, gc)
+			return SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs)
 
 	corpsList = []
 
@@ -1081,7 +1065,7 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, bSortLists, local
 
 
 	if noTech:
-		corpsList.append((lt.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+		corpsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
 		for x in noTech:
 			corpsList.append(x)
 
@@ -1093,7 +1077,7 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, bSortLists, local
 		if corpsList:
 			corpsList.append(("", -1))
 
-		corpsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + lt.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		corpsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
 		for x in tmp:
 			corpsList.append(x)
 
@@ -1103,9 +1087,7 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, bSortLists, local
 # Notes (kept conservative)
 # 	- “Great specialists” detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
 # 	- I reused TXT_KEY_PEDIA_CATEGORY_SPECIALIST for the regular header (so it’s localized), and I used the literal string "Great Specialists" for the great header (since your mod likely doesn’t have RFC’s TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST). If you want, you can later add your own TXT_KEY and swap that line to localText.getText("TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST", ()).
-def SAS_getSpecialistsGroupedByType(gc, bSortLists, localText=None):
-	lt = _SAS_getLocalText(localText)
-
+def SAS_getSpecialistsGroupedByType(bSortLists):
 	specialistsList = []
 	greatSpecialistsList = []
 
@@ -1132,7 +1114,7 @@ def SAS_getSpecialistsGroupedByType(gc, bSortLists, localText=None):
 
 	if specialistsList:
 		# Reuse the category label for a localized "Specialists" header.
-		outList.append((lt.getText("TXT_KEY_PEDIA_CATEGORY_SPECIALIST", ()), -1))
+		outList.append((localText.getText("TXT_KEY_PEDIA_CATEGORY_SPECIALIST", ()), -1))
 		for x in specialistsList:
 			outList.append(x)
 
@@ -1150,7 +1132,7 @@ def SAS_getSpecialistsGroupedByType(gc, bSortLists, localText=None):
 # Step 2: Replace getCivicList() with “category + era tiers” (behind a SAS define)
 # Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
 # In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
-def SAS_getCivicsGroupedByCivicOption(gc, bSortLists):
+def SAS_getCivicsGroupedByCivicOption(bSortLists):
 	civicsList = []
 	iNumCivics = gc.getNumCivicInfos()
 	iNumOptions = gc.getNumCivicOptionInfos()
@@ -1199,7 +1181,7 @@ def _SAS_addSection(listEntries, szHeader, items):
 		listEntries.append(x)
 
 
-def SAS_getMoviesListGroupedByType(gc, localText, bSortLists, packMovieKey, unpackMovieKey, iTypeVictory, iTypeWonder, iTypeProject, iTypeReligion, iTypeEra):
+def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTypeVictory, iTypeWonder, iTypeProject, iTypeReligion, iTypeEra):
 	# Return the Movies left-list entries with section headers (Victory/Wonder/Project/Religion/Era).
 	# Implementation detail: we build a single flat base list first, then split into sections.
 	#
@@ -1311,7 +1293,7 @@ def _SAS_extractTagValue(line, tagName):
 	return line[start:end].strip()
 
 
-def SAS_getMusicListAndTables(gc, localText, bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
+def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
 	# Return:
 	#   (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks)
 	#

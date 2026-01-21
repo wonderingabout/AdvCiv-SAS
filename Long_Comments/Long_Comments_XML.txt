@@ -2871,7 +2871,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 See also /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation.
 
 See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there). -->
-<!-- custom: note: sometimes the localtext fetching can break if not converted to a string (such as with `str(`, or sometimes you need to do it later and not just when you import the localText path, or something along those lines. If you encounter issues, consider hardcoding the path directly in the button rather such as `szRankImg = u"<img=Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds size=16></img>"` in cvinfoscreen.py for example as claude opus 4.5 found to be the issue, until i implemented properly using localText.
+<!-- custom: note: sometimes the localText fetching can break if not converted to a string (such as with `str(`, or sometimes you need to do it later and not just when you import the localText path, or something along those lines. If you encounter issues, consider hardcoding the path directly in the button rather such as `szRankImg = u"<img=Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds size=16></img>"` in cvinfoscreen.py for example as claude opus 4.5 found to be the issue, until i implemented properly using localText.
 
 See also as of now the mod's root /README.md for related info. -->
 

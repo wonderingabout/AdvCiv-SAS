@@ -134,13 +134,13 @@ class SevoPediaFeature:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.H_SPECIAL
 
-		self.I_FEATURE_ICE = getInfoTypeOrFail("FEATURE_ICE", gc)
-		self.I_FEATURE_FOREST = getInfoTypeOrFail("FEATURE_FOREST", gc)
-		self.I_FEATURE_JUNGLE = getInfoTypeOrFail("FEATURE_JUNGLE", gc)
+		self.I_FEATURE_ICE = getInfoTypeOrFail("FEATURE_ICE")
+		self.I_FEATURE_FOREST = getInfoTypeOrFail("FEATURE_FOREST")
+		self.I_FEATURE_JUNGLE = getInfoTypeOrFail("FEATURE_JUNGLE")
 
-		self.I_PROMOTION_WOODSMAN1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1", gc)
-		self.I_PROMOTION_WOODSMAN2 = getInfoTypeOrFail("PROMOTION_WOODSMAN2", gc)
-		self.I_PROMOTION_WOODSMAN3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3", gc)
+		self.I_PROMOTION_WOODSMAN1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1")
+		self.I_PROMOTION_WOODSMAN2 = getInfoTypeOrFail("PROMOTION_WOODSMAN2")
+		self.I_PROMOTION_WOODSMAN3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3")
 
 
 

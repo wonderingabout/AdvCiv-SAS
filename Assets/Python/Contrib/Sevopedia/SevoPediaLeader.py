@@ -285,7 +285,7 @@ class SevoPediaLeader:
 
 	def setupAIPanel(self, screen, txtKey, xPanel):
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName,localText.getText(txtKey, ()),"", True, True, xPanel, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY, self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKey, ()),"", True, True, xPanel, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY, self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
 
 
 

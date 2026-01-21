@@ -131,7 +131,7 @@ class SevoPediaReligion:
 
 		txtKeyPanel = "TXT_KEY_PEDIA_CATEGORY_LEADER"
 		headerLabel = localText.getText(txtKeyPanel, ())
-		numWithReligion, totalRealLeaders = get_favorite_leader_counts(FAVORITE_LEADER_TYPE_RELIGION, self.iReligion, gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+		numWithReligion, totalRealLeaders = get_favorite_leader_counts(FAVORITE_LEADER_TYPE_RELIGION, self.iReligion, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
 		headerText = format_leaders_header_text(numWithReligion, totalRealLeaders, headerLabel)
 
 		screen = self.top.getScreen()

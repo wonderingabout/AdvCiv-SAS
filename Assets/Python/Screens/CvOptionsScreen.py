@@ -1084,7 +1084,7 @@ class CvOptionsScreen:
 		
 		# Edit Box ProfileName
 		# advc.076: Txt key was TXT_KEY_OPTIONS_SCREEN_PROFILE_NAME
-		tab.attachLabel("ProfilePanelVBox","ProfilesName",localText.getText("TXT_KEY_OPTIONS_SCREEN_EDIT_PROFILE", ()))
+		tab.attachLabel("ProfilePanelVBox","ProfilesName", localText.getText("TXT_KEY_OPTIONS_SCREEN_EDIT_PROFILE", ()))
 		
 		#szCallbackIFace = ""
 		szEditBoxDesc = UserProfile.getProfileName()

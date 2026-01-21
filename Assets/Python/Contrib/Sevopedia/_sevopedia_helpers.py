@@ -1,8 +1,20 @@
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
-#
+
+
+
+from CvPythonExtensions import *
+
 import re
+
+
+
+gc = CyGlobalContext()
+localText = CyTranslator()
+
+
+
 #
 # <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
 #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
@@ -64,7 +76,7 @@ CHART_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5
 
 
 
-def get_leaders_index_to_type_map(gc):
+def get_leaders_index_to_type_map():
 	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
 	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
 
@@ -76,7 +88,7 @@ def get_leaders_index_to_type_map(gc):
 
 
 
-def get_leader_index_from_leader_type(leader_type, gc):
+def get_leader_index_from_leader_type(leader_type):
 	# Given a leader_type string (e.g. "LEADER_ALEXANDER"), return its iLeader index.
 	# Raises ValueError if not found. Compatible with Python 2.4 and Civ4 DLL.
 	# <!-- custom: note: LEADER_DEFAULTS doesn't seem to have a leader index at all, so don't use it for this function -->
@@ -90,7 +102,7 @@ def get_leader_index_from_leader_type(leader_type, gc):
 
 
 
-def get_leader_index_safe(leader_type, gc):
+def get_leader_index_safe(leader_type):
 	# Returns leader index for a leader_type string, or -1 if not found.
 	# Unlike get_leader_index_from_leader_type, this does not raise - useful for
 	# exclusion lists that may include non-indexed types like LEADER_DEFAULTS.
@@ -100,24 +112,24 @@ def get_leader_index_safe(leader_type, gc):
 	return -1
 
 
-def get_leader_indexes_from_leader_types(leader_types, gc):
+def get_leader_indexes_from_leader_types(leader_types):
 	# Given a list/tuple of leader types, return tuple of valid leader indexes.
 	# Silently skips types that don't exist (e.g. LEADER_DEFAULTS has no index).
 	result = []
 	for leader_type in leader_types:
-		idx = get_leader_index_safe(leader_type, gc)
+		idx = get_leader_index_safe(leader_type)
 		if idx != -1:
 			result.append(idx)
 	return tuple(result)
 
 
-def get_excluded_leader_indexes(leader_types, gc):
-	return get_leader_indexes_from_leader_types(leader_types, gc)
+def get_excluded_leader_indexes(leader_types):
+	return get_leader_indexes_from_leader_types(leader_types)
 
 
-def get_real_leader_maps_and_count(gc, excluded_leader_types):
+def get_real_leader_maps_and_count(excluded_leader_types):
 	# Returns (leaderIds, leaderToCiv, numRealLeaders).
-	excluded_leader_indexes = set(get_leader_indexes_from_leader_types(excluded_leader_types, gc))
+	excluded_leader_indexes = set(get_leader_indexes_from_leader_types(excluded_leader_types))
 	leader_ids = []
 	leader_to_civ = {}
 	num_real_leaders = 0
@@ -153,8 +165,8 @@ def format_leaders_header_text(num_with, total, headerLabel):
 
 
 # <!-- custom: Count leaders whose favorite type matches iFavoriteId; favoriteType is "RELIGION" or "CIVIC". (GPT-5.2-Codex) -->
-def get_favorite_leader_counts(favoriteType, iFavoriteId, gc, excluded_leader_types):
-	leader_ids, unused_leader_to_civ, total_real_leaders = get_real_leader_maps_and_count(gc, excluded_leader_types)
+def get_favorite_leader_counts(favoriteType, iFavoriteId, excluded_leader_types):
+	leader_ids, unused_leader_to_civ, total_real_leaders = get_real_leader_maps_and_count(excluded_leader_types)
 	num_with_favorite = 0
 	for iLeader in leader_ids:
 		leaderInfo = gc.getLeaderHeadInfo(iLeader)
@@ -170,7 +182,7 @@ def get_favorite_leader_counts(favoriteType, iFavoriteId, gc, excluded_leader_ty
 
 
 
-def get_leader_type_from_leader_index(iLeader, gc):
+def get_leader_type_from_leader_index(iLeader):
 	# Given an iLeader index (e.g. 1), return the leader_type string (e.g. "LEADER_ALEXANDER").
 	# Raises IndexError if the index is out of bounds.
 	# Compatible with Python 2.4 and Civ4 DLL.
@@ -209,7 +221,7 @@ def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPat
 # <!-- custom: added with the help of chatgpt 5.2 thanks to help separate Land features in sevopedia into as of now Land (Removable) and Land (Other) -->
 # A feature is "removable" if there exists a Build that removes it (e.g. Chop Forest, Clear Jungle, Remove Fallout).
 # We do this via CvBuildInfo because CvFeatureInfo in our DLL does not expose getRemoveTech().
-def SAS_isFeatureRemovable(iFeature, gc):
+def SAS_isFeatureRemovable(iFeature):
 	for iBuild in range(gc.getNumBuildInfos()):
 		buildInfo = gc.getBuildInfo(iBuild)
 		if not buildInfo or buildInfo.isGraphicalOnly():
@@ -226,7 +238,7 @@ def SAS_isFeatureRemovable(iFeature, gc):
 
 
 # <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me based on previous parts of this code comment and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd. -->
-def getInfoTypeOrFail(tag, gc):
+def getInfoTypeOrFail(tag):
 	iType = gc.getInfoTypeForString(tag)
 	if iType == -1:
 		raise ValueError("Missing XML tag: '%s'" % tag)
@@ -234,7 +246,7 @@ def getInfoTypeOrFail(tag, gc):
 
 
 
-def get_citiesResolvedButtonPath(localText):
+def get_citiesResolvedButtonPath():
 	citiesConfigButtonPathTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH"
 	# <!-- custom: add str() wrapper else (i.e. without it) we get an error (it seems) (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons (from err log):
 	#
@@ -253,7 +265,7 @@ def get_citiesResolvedButtonPath(localText):
 
 
 
-def get_concept_id(concept_type, gc):
+def get_concept_id(concept_type):
 	# <!-- custom: Find the concept ID, for example for concept_type "CONCEPT_CITIES" (LLM) -->
 	for i in range(gc.getNumConceptInfos()):
 		if gc.getConceptInfo(i).getType() == concept_type:

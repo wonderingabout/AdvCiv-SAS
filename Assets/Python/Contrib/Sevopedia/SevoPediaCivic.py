@@ -116,7 +116,7 @@ class SevoPediaCivic:
 
 		txtKeyPanel = "TXT_KEY_PEDIA_CATEGORY_LEADER"
 		headerLabel = localText.getText(txtKeyPanel, ())
-		numWithCivic, totalRealLeaders = get_favorite_leader_counts(FAVORITE_LEADER_TYPE_CIVIC, self.iCivic, gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+		numWithCivic, totalRealLeaders = get_favorite_leader_counts(FAVORITE_LEADER_TYPE_CIVIC, self.iCivic, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
 		headerText = format_leaders_header_text(numWithCivic, totalRealLeaders, headerLabel)
 
 		screen = self.top.getScreen()

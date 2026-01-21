@@ -24,8 +24,8 @@ class SevoPediaBuild:
 	def __init__(self, main):
 		self.iBuild = -1
 		self.top = main
-		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD", gc)
-		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD", gc)
+		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
+		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
 
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5

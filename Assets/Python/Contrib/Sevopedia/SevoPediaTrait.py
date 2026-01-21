@@ -237,7 +237,7 @@ class SevoPediaTrait:
 	def placeLeaders(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		leaderIds, leaderToCiv, totalRealLeaders = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+		leaderIds, leaderToCiv, totalRealLeaders = get_real_leader_maps_and_count(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
 		leadersWithTrait = []
 		for iLeader in leaderIds:
 			if gc.getLeaderHeadInfo(iLeader).hasTrait(self.iTrait):
@@ -271,7 +271,7 @@ class SevoPediaTrait:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_STATISTICS", ()), "", True, True, self.X_STATISTICS, self.Y_STATISTICS, self.W_STATISTICS, self.H_STATISTICS, PanelStyles.PANEL_STYLE_BLUE50)
 
-		leaderToCiv = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)[1]
+		leaderToCiv = get_real_leader_maps_and_count(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)[1]
 
 		pairingData = self._buildTraitPairingData()
 

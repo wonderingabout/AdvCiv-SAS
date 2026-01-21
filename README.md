@@ -360,7 +360,7 @@ Basically, what i did was downloading them (usually .png and usually from [emoji
 	</TEXT>
 ```
 
-With a dynamic implementation based on `localtext`, so that if path changes in the future or for centralization purposes or such, it makes it easier as such. For example (from [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)),adding emojis or other images or such as buttons:
+With a dynamic implementation based on `localText`, so that if path changes in the future or for centralization purposes or such, it makes it easier as such. For example (from [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)),adding emojis or other images or such as buttons:
 
 ```py
 		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->

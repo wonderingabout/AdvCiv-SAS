@@ -2867,7 +2867,7 @@ class CvInfoScreen:
 									if (iPlayerTeam == gc.getPlayer(self.iActivePlayer).getTeam() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iPlayerTeam)):								
 										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationShortDescription(0),szCityName])
 									else:
-										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,localText.getText("TXT_KEY_UNKNOWN", ()),localText.getText("TXT_KEY_UNKNOWN", ())])
+										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop, localText.getText("TXT_KEY_UNKNOWN", ()), localText.getText("TXT_KEY_UNKNOWN", ())])
 	#								print("Adding World wonder to list: %s, %d, %s" %(pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationAdjective(0)))
 									self.iNumWonders += 1
 
@@ -2889,7 +2889,7 @@ class CvInfoScreen:
 									if (iPlayerTeam == gc.getPlayer(self.iActivePlayer).getTeam() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iPlayerTeam)):								
 										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationShortDescription(0), szCityName])
 									else:
-										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,localText.getText("TXT_KEY_UNKNOWN", ()), localText.getText("TXT_KEY_UNKNOWN", ())])
+										self.aaWondersBuilt.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop, localText.getText("TXT_KEY_UNKNOWN", ()), localText.getText("TXT_KEY_UNKNOWN", ())])
 									self.iNumWonders += 1
 
 		# This array used to store which players have already used up a team's slot so team projects don't get added to list more than once
@@ -2920,7 +2920,7 @@ class CvInfoScreen:
 								if (iTeamLoop == gc.getPlayer(self.iActivePlayer).getTeam() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iTeamLoop)):								
 									self.aaWondersBuilt.append([-9999,iProjectLoop,gc.getPlayer(iPlayerLoop).getCivilizationShortDescription(0),szCityName])
 								else:
-									self.aaWondersBuilt.append([-9999,iProjectLoop,localText.getText("TXT_KEY_UNKNOWN", ()),localText.getText("TXT_KEY_UNKNOWN", ())])
+									self.aaWondersBuilt.append([-9999,iProjectLoop, localText.getText("TXT_KEY_UNKNOWN", ()), localText.getText("TXT_KEY_UNKNOWN", ())])
 								self.iNumWonders += 1
 
 		# Sort wonders in order of date built
@@ -3009,7 +3009,7 @@ class CvInfoScreen:
 									if iPlayerTeam == self.iActiveTeam or bRevealed or self.pActiveTeam.isHasMet(iPlayerTeam) or bDebug:
 										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,True,pPlayer.getCivilizationShortDescription(0),pCity, iPlayerLoop])
 									else:
-										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,False,localText.getText("TXT_KEY_UNKNOWN", ()),pCity,gc.getBARBARIAN_PLAYER()])
+										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,False, localText.getText("TXT_KEY_UNKNOWN", ()),pCity,gc.getBARBARIAN_PLAYER()])
 										# kekm: Replaced hardcoded 18 with barbarian player
 	#								print("Adding World wonder to list: %s, %d, %s" %(pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationAdjective(0)))
 									self.iNumWonders += 1
@@ -3068,7 +3068,7 @@ class CvInfoScreen:
 									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,True,gc.getPlayer(iPlayerLoop).getCivilizationShortDescription(0),None, iPlayerLoop])
 								else:
 									# advc.001: Last param was 9999
-									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,False,localText.getText("TXT_KEY_UNKNOWN", ()), None, gc.getBARBARIAN_PLAYER()])
+									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,False, localText.getText("TXT_KEY_UNKNOWN", ()), None, gc.getBARBARIAN_PLAYER()])
 								self.iNumWonders += 1
 
 		# Sort wonders in order of date built

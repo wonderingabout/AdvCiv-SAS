@@ -29,10 +29,10 @@ IS_DEBUG_LEADER = False
 B_WARN = False
 
 if IS_DEBUG_LEADER:
-	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map(gc)))
+	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map()))
 
 # <!-- custom: Use shared exclusion list from _sevopedia_helpers. (Claude Opus 4.5) -->
-EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_excluded_leader_indexes(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA, gc)
+EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_excluded_leader_indexes(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
 
 # <!-- custom: more consistently and reliably exclude leaders by having a ready list of such leaders we can call -->
 if IS_DEBUG_LEADER:
@@ -477,7 +477,7 @@ def _compute_leader_cache_internal():
 
 		for excluded_leader_index in excluded_leaders_indexes_from_calculations:
 			if (excluded_leader_index in leaders_dict_keys):
-				excluded_leader_type = get_leader_type_from_leader_index(excluded_leader_index, gc)
+				excluded_leader_type = get_leader_type_from_leader_index(excluded_leader_index)
 				raise KeyError("[FATAL] During sanity checks testing, excluded_leader_index=%d (excluded_leader_type=%s), was assessed to not be properly excluded from the calculations and its corresponding leader_index is still part of the leaders_dict_keys=%s, please make sure this excluded leader is not part of the leaders_dict_name=%s." % (excluded_leader_index, excluded_leader_type, str(leaders_dict_keys), leaders_dict_name))
 
 
@@ -1074,7 +1074,7 @@ def _compute_leader_cache_internal():
 
 
 
-	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_path_txt_key, ai_category_header, localText):
+	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_path_txt_key, ai_category_header):
 		if not IS_DISPLAY_AI_CATEGORY_HEADERS:
 			return (None, 0)
 		# If the header is disabled (None), keep the exact same "no header" tuple semantics.
@@ -1097,7 +1097,7 @@ def _compute_leader_cache_internal():
 
 			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
 
-	def get_ai_category(icon_button_path_txt_key, ai_category_header, ai_category_key_order, localText):
+	def get_ai_category(icon_button_path_txt_key, ai_category_header, ai_category_key_order):
 		ai_category_header_line, ai_category_x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(
 			icon_button_path_txt_key,
 			ai_category_header,
@@ -1314,7 +1314,7 @@ def _compute_leader_cache_internal():
 
 
 	# <!-- custom: Python 2.4 global lookup is brittle; keep these helper names stable to avoid NameError at runtime when refactoring. (GPT-5.2-Codex) -->
-	def get_ai_categories(localText):
+	def get_ai_categories():
 		def get_header_text(header_key_or_text):
 			if header_key_or_text is None:
 				return None
@@ -1323,7 +1323,7 @@ def _compute_leader_cache_internal():
 			return header_key_or_text
 
 		# === AI Panel's Categories (display order) ===
-		# Note: icon_button_path_txt_key values are TXT_KEYs that resolve (via localText) to an image path.
+		# Note: icon_button_path_txt_key values are TXT_KEYs that resolve via localText to an image path.
 		# We keep them local here for clarity and to avoid any global "emoji mapping" state.
 
 		right_defs = (
@@ -1369,23 +1369,23 @@ def _compute_leader_cache_internal():
 
 		if IS_DISPLAY_AI_CATEGORY_HEADERS:
 			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in right_defs:
-				right_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order, localText))
+				right_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
 			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in middle_defs:
-				middle_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order, localText))
+				middle_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
 			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in left_defs:
-				left_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order, localText))
+				left_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
 		else:
 			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in right_defs:
-				right_categories.append(get_ai_category(None, None, ai_category_key_order, localText))
+				right_categories.append(get_ai_category(None, None, ai_category_key_order))
 			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in middle_defs:
-				middle_categories.append(get_ai_category(None, None, ai_category_key_order, localText))
+				middle_categories.append(get_ai_category(None, None, ai_category_key_order))
 			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in left_defs:
-				left_categories.append(get_ai_category(None, None, ai_category_key_order, localText))
+				left_categories.append(get_ai_category(None, None, ai_category_key_order))
 
 		return (tuple(right_categories), tuple(middle_categories), tuple(left_categories))
 
 	# === AI Panel's Categories ===
-	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText)
+	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories()
 
 	# <!-- custom: final return. Note that this caching, even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players if i'm not mistaken in SevoPediaMain's placeLeaders. -->
 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short -->

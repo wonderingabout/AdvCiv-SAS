@@ -88,15 +88,15 @@ class SevoPediaTerrain:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.H_SPECIAL
 
-		self.I_TERRAIN_PEAK = getInfoTypeOrFail("TERRAIN_PEAK", gc)
-		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL", gc)
-		self.I_TERRAIN_COAST = getInfoTypeOrFail("TERRAIN_COAST", gc)
-		self.I_TERRAIN_OCEAN = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
+		self.I_TERRAIN_PEAK = getInfoTypeOrFail("TERRAIN_PEAK")
+		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
+		self.I_TERRAIN_COAST = getInfoTypeOrFail("TERRAIN_COAST")
+		self.I_TERRAIN_OCEAN = getInfoTypeOrFail("TERRAIN_OCEAN")
 
-		self.I_PROMOTION_HILLS_MASTER1 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER1", gc)
-		self.I_PROMOTION_HILLS_MASTER2 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER2", gc)
-		self.I_PROMOTION_HILLS_MASTER3 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER3", gc)
-		self.I_PROMOTION_NAVIGATOR = getInfoTypeOrFail("PROMOTION_NAVIGATOR", gc)
+		self.I_PROMOTION_HILLS_MASTER1 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER1")
+		self.I_PROMOTION_HILLS_MASTER2 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER2")
+		self.I_PROMOTION_HILLS_MASTER3 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER3")
+		self.I_PROMOTION_NAVIGATOR = getInfoTypeOrFail("PROMOTION_NAVIGATOR")
 
 
 

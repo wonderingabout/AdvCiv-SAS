@@ -36,7 +36,7 @@ def precomputeImprovementLeaderCache():
 	if IMPROVEMENT_LEADER_CACHE is not None:
 		return IMPROVEMENT_LEADER_CACHE
 
-	leaderIds, leaderToCiv, unused_total = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+	leaderIds, leaderToCiv, unused_total = get_real_leader_maps_and_count(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
 	improvementData = {}
 
 	for iImprovement in range(gc.getNumImprovementInfos()):
@@ -76,10 +76,10 @@ class SevoPediaImprovement:
 	def __init__(self, main):
 		self.iImprovement = -1
 		self.top = main
-		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD", gc)
-		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD", gc)
-		self.I_CONCEPT_IRRIGATION = getInfoTypeOrFail("CONCEPT_IRRIGATION", gc)
-		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
+		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
+		self.I_CONCEPT_IRRIGATION = getInfoTypeOrFail("CONCEPT_IRRIGATION")
+		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
 
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
@@ -404,7 +404,7 @@ class SevoPediaImprovement:
 			# This button now links to the Civilopedia concept for Rivers.
 			# Its tooltip and click behavior are handled by the built-in Civ4 widget system.
 			# Ensure 'CONCEPT_RIVERS' is defined in your Civilopedia XML.
-			riversConceptID = get_concept_id("CONCEPT_RIVERS", gc)
+			riversConceptID = get_concept_id("CONCEPT_RIVERS")
 			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(riversConceptID, WidgetTypes, CivilopediaPageTypes)
 			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
 			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
