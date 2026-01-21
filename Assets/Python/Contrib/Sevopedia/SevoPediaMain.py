@@ -1446,369 +1446,45 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getMusicList()
 		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getMusicInfo)
 
+
 	def getMovieList(self):
+		# <!-- custom: build base list in groupings module, then add headers there. (ChatGPT-5.2 Thinking) -->
 		if self.SAS_cacheMoviesTuple is None:
-			listEntries = []
-
-			def addSection(szHeader, items):
-				if len(items) == 0:
-					return
-				if listEntries:
-					listEntries.append(("", -1))
-				listEntries.append((szHeader, -1))
-				for item in items:
-					listEntries.append(item)
-
-			victoryItems = []
-			for iVictory in range(gc.getNumVictoryInfos()):
-				info = gc.getVictoryInfo(iVictory)
-				if info and info.getMovie():
-					victoryItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_VICTORY, iVictory)))
-
-			wonderItems = []
-			for iBuilding in range(gc.getNumBuildingInfos()):
-				info = gc.getBuildingInfo(iBuilding)
-				if info and info.getMovie():
-					wonderItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_WONDER, iBuilding)))
-
-			projectItems = []
-			for iProject in range(gc.getNumProjectInfos()):
-				info = gc.getProjectInfo(iProject)
-				if info and info.getMovieArtDef():
-					projectItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_PROJECT, iProject)))
-
-			religionItems = []
-			for iReligion in range(gc.getNumReligionInfos()):
-				info = gc.getReligionInfo(iReligion)
-				if info and info.getMovieFile():
-					religionItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_RELIGION, iReligion)))
-
-			eraItems = []
-			for iEra in range(gc.getNumEraInfos()):
-				info = gc.getEraInfo(iEra)
-				if info:
-					szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
-					eraItems.append((szEraName, self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_ERA, iEra)))
-
-			if self.isSortLists():
-				victoryItems.sort()
-				wonderItems.sort()
-				projectItems.sort()
-				religionItems.sort()
-				eraItems.sort()
-
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_VICTORY", ()), victoryItems)
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_WONDER", ()), wonderItems)
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_PROJECT", ()), projectItems)
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_RELIGION", ()), religionItems)
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_ERA", ()), eraItems)
-
+			listEntries = SAS_MainGroupings.SAS_getMoviesListGroupedByType(
+				gc, localText, self.isSortLists(),
+				self.SAS_packMovieKey, self.SAS_unpackMovieKey,
+				self.SAS_PEDIA_MOVIE_TYPE_VICTORY,
+				self.SAS_PEDIA_MOVIE_TYPE_WONDER,
+				self.SAS_PEDIA_MOVIE_TYPE_PROJECT,
+				self.SAS_PEDIA_MOVIE_TYPE_RELIGION,
+				self.SAS_PEDIA_MOVIE_TYPE_ERA
+			)
 			self.SAS_cacheMoviesTuple = tuple(listEntries)
 		return self.SAS_cacheMoviesTuple
 
+
 	def getMusicList(self):
+		# <!-- custom: build music base lists + section headers in groupings module to keep this file clean. (ChatGPT-5.2 Thinking) -->
 		if self.SAS_cacheMusicTuple is None:
-			listEntries = []
-			self.SAS_musicEraTracks = []
-			self.SAS_musicLeaderTracks = []
-			self.SAS_musicScriptTracks = []
-			self.SAS_musicScript3DTracks = []
-
-			def addSection(szHeader, items):
-				if len(items) == 0:
-					return
-				if listEntries:
-					listEntries.append(("", -1))
-				listEntries.append((szHeader, -1))
-				for item in items:
-					listEntries.append(item)
-
-			techItemsByEra = {}
-			for iTech in range(gc.getNumTechInfos()):
-				info = gc.getTechInfo(iTech)
-				szSound = ""
-				if info:
-					try:
-						szSound = info.getSound()
-					except:
-						szSound = ""
-				if szSound and szSound != "NONE":
-					iEra = info.getEra()
-					techItemsByEra.setdefault(iEra, []).append((info.getDescription(), self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_TECH, iTech)))
-
-			for iEra in range(gc.getNumEraInfos()):
-				info = gc.getEraInfo(iEra)
-				if not info:
-					continue
-				techItems = techItemsByEra.get(iEra, [])
-				if self.isSortLists():
-					techItems.sort()
-				szEraName = info.getDescription()
-				if szEraName.endswith(" Era"):
-					szEraName = szEraName[:-len(" Era")]
-				addSection("Quotes (" + szEraName + ")", techItems)
-
-			for iEra in range(gc.getNumEraInfos()):
-				info = gc.getEraInfo(iEra)
-				if not info:
-					continue
-				eraItems = []
-				numTracks = 0
-				try:
-					numTracks = info.getNumSoundtracks()
-				except:
-					numTracks = 0
-				for iTrack in range(numTracks):
-					iTrackId = -1
-					try:
-						iTrackId = info.getSoundtracks(iTrack)
-					except:
-						iTrackId = -1
-					if iTrackId != -1:
-						iPackedTrack = len(self.SAS_musicEraTracks)
-						self.SAS_musicEraTracks.append((iEra, iTrackId, iTrack))
-						szTrackName = ""
-						try:
-							szTrackName = info.getSoundtrackScriptName(iTrack)
-						except:
-							szTrackName = ""
-						szLabel = "Track %02d" % (iTrack + 1)
-						if szTrackName:
-							szLabel = szLabel + " - " + szTrackName
-						eraItems.append((szLabel, self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_ERA, iPackedTrack)))
-
-				if self.isSortLists():
-					eraItems.sort()
-
-				szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
-				addSection(szEraName, eraItems)
-
-			leaderIntroPeaceItems = []
-			leaderPeaceItems = []
-			leaderIntroWarItems = []
-			leaderWarItems = []
-			iWarIntroLeaderChosen = -1
-			iWarLeaderChosen = -1
-			for iLeader in range(gc.getNumLeaderHeadInfos()):
-				leaderInfo = gc.getLeaderHeadInfo(iLeader)
-				if not leaderInfo:
-					continue
-				szLeaderName = leaderInfo.getDescription()
-				bAddedIntroPeace = False
-				bAddedPeace = False
-				for iEra in range(gc.getNumEraInfos()):
-					eraInfo = gc.getEraInfo(iEra)
-					szEraName = ""
-					if eraInfo:
-						szEraName = eraInfo.getDescription()
-						if szEraName.endswith(" Era"):
-							szEraName = szEraName[:-len(" Era")]
-					iPeaceIntroId = leaderInfo.getDiploPeaceIntroMusicScriptIds(iEra)
-					if iPeaceIntroId > 0:
-						if (not self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY) or (not bAddedIntroPeace):
-							szLabel = szLeaderName
-							if szEraName:
-								szLabel = szLabel + " (" + szEraName + ")"
-							iTrackId = len(self.SAS_musicLeaderTracks)
-							self.SAS_musicLeaderTracks.append((iLeader, iEra, "Peace Intro", iPeaceIntroId, szLabel))
-							leaderIntroPeaceItems.append((szLabel, self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_LEADER, iTrackId)))
-							bAddedIntroPeace = True
-
-					iPeaceId = leaderInfo.getDiploPeaceMusicScriptIds(iEra)
-					if iPeaceId > 0:
-						if (not self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY) or (not bAddedPeace):
-							szLabel = szLeaderName
-							if szEraName:
-								szLabel = szLabel + " (" + szEraName + ")"
-							iTrackId = len(self.SAS_musicLeaderTracks)
-							self.SAS_musicLeaderTracks.append((iLeader, iEra, "Peace", iPeaceId, szLabel))
-							leaderPeaceItems.append((szLabel, self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_LEADER, iTrackId)))
-							bAddedPeace = True
-
-					iWarIntroId = leaderInfo.getDiploWarIntroMusicScriptIds(iEra)
-					if iWarIntroId > 0:
-						if self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY:
-							if iWarIntroLeaderChosen == -1:
-								iWarIntroLeaderChosen = iLeader
-							if iWarIntroLeaderChosen != iLeader:
-								continue
-						szLabel = szLeaderName
-						if szEraName:
-							szLabel = szLabel + " (" + szEraName + ")"
-						iTrackId = len(self.SAS_musicLeaderTracks)
-						self.SAS_musicLeaderTracks.append((iLeader, iEra, "War Intro", iWarIntroId, szLabel))
-						leaderIntroWarItems.append((szLabel, self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_LEADER, iTrackId)))
-
-					iWarId = leaderInfo.getDiploWarMusicScriptIds(iEra)
-					if iWarId > 0:
-						if self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY:
-							if iWarLeaderChosen == -1:
-								iWarLeaderChosen = iLeader
-							if iWarLeaderChosen != iLeader:
-								continue
-						szLabel = szLeaderName
-						if szEraName:
-							szLabel = szLabel + " (" + szEraName + ")"
-						iTrackId = len(self.SAS_musicLeaderTracks)
-						self.SAS_musicLeaderTracks.append((iLeader, iEra, "War", iWarId, szLabel))
-						leaderWarItems.append((szLabel, self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_LEADER, iTrackId)))
-
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_PEACE", ()), leaderIntroPeaceItems)
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_PEACE", ()), leaderPeaceItems)
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_WAR", ()), leaderIntroWarItems)
-			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_WAR", ()), leaderWarItems)
-
-			def extractTagValue(szLine, szTag):
-				startTag = "<" + szTag + ">"
-				endTag = "</" + szTag + ">"
-				iStart = szLine.find(startTag)
-				if iStart == -1:
-					return None
-				iStart += len(startTag)
-				iEnd = szLine.find(endTag, iStart)
-				if iEnd == -1:
-					return None
-				return szLine[iStart:iEnd].strip()
-
-			scriptGroups = {
-				"Scripts (Opening, 2D)": [],
-				"Scripts (Songs, 2D)": [],
-				"Scripts (Diplo, 2D)": [],
-				"Scripts (Tech, 2D)": [],
-				"Scripts (Tutorial, 2D)": [],
-				"Scripts (Builds, 2D)": [],
-				"Scripts (Units, 2D)": [],
-				"Scripts (Interface, 2D)": [],
-				"Scripts (Ambient, 2D)": [],
-				"Scripts (Goody, 2D)": [],
-				"Scripts (Events, 2D)": [],
-				"Scripts (SFX, 2D)": [],
-				"Scripts (Other, 2D)": [],
-			}
-
-			szScript = None
-			szSound = None
-			labelSeenCounts = {}
-			try:
-				f = open("Assets/XML/Audio/Audio2DScripts.xml", "r")
-				for line in f:
-					if "<ScriptID>" in line:
-						szScript = extractTagValue(line, "ScriptID")
-					elif "<SoundID>" in line:
-						szSound = extractTagValue(line, "SoundID")
-					elif "</Script2DSound>" in line:
-						if szScript and szSound:
-							if szSound.startswith("SONG_OPENING"):
-								szGroup = "Scripts (Opening, 2D)"
-							elif szSound.startswith("SONG_"):
-								szGroup = "Scripts (Songs, 2D)"
-							elif szSound.startswith("DIPLO_") or szScript.startswith("AS2D_DIPLO_"):
-								szGroup = "Scripts (Diplo, 2D)"
-							elif szSound.startswith("SND_TECH"):
-								szGroup = "Scripts (Tech, 2D)"
-							elif szScript.startswith("AS2D_TUTORIAL"):
-								szGroup = "Scripts (Tutorial, 2D)"
-							elif szScript.startswith("AS2D_BUILD"):
-								szGroup = "Scripts (Builds, 2D)"
-							elif szScript.startswith("AS2D_UNIT"):
-								szGroup = "Scripts (Units, 2D)"
-							elif szScript.startswith("AS2D_IF"):
-								szGroup = "Scripts (Interface, 2D)"
-							elif szSound.startswith("SND_AMB") or szSound.startswith("SND_OCEAN") or szSound.startswith("SND_CROWD") or szSound.startswith("SND_MARCH") or szSound.startswith("SND_TOWNMUSIC"):
-								szGroup = "Scripts (Ambient, 2D)"
-							elif szSound.startswith("SND_GOODY"):
-								szGroup = "Scripts (Goody, 2D)"
-							elif szSound.startswith("SND_VICTORY") or szSound.startswith("SND_LOSS") or szSound.startswith("SND_WONDER") or szSound.startswith("SND_CITY") or szSound.startswith("SND_CULTURE") or szSound.startswith("SND_NUKE") or szSound.startswith("SND_GOLDAGEEND") or szSound.startswith("SND_MELTDOWN") or szSound.startswith("SND_ALARM") or szSound.startswith("SND_CONTACT"):
-								szGroup = "Scripts (Events, 2D)"
-							elif szSound.startswith("SND_"):
-								szGroup = "Scripts (SFX, 2D)"
-							else:
-								szGroup = "Scripts (Other, 2D)"
-							szLabel = szSound
-
-							groupCounts = labelSeenCounts.get(szGroup)
-							if groupCounts is None:
-								groupCounts = {}
-								labelSeenCounts[szGroup] = groupCounts
-							szBaseLabel = szLabel
-							iLabelCount = groupCounts.get(szBaseLabel, 0)
-							if iLabelCount > 0:
-								szLabel = szLabel + " (" + szScript + ")"
-							groupCounts[szBaseLabel] = iLabelCount + 1
-
-							iTrackId = len(self.SAS_musicScriptTracks)
-							self.SAS_musicScriptTracks.append((szScript, szSound, szLabel))
-							scriptGroups[szGroup].append((szLabel, self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_SCRIPT, iTrackId)))
-						szScript = None
-						szSound = None
-				f.close()
-			except:
-				scriptGroups = {}
-
-			for szHeader in ("Scripts (Opening, 2D)", "Scripts (Songs, 2D)", "Scripts (Diplo, 2D)", "Scripts (Tech, 2D)", "Scripts (Tutorial, 2D)", "Scripts (Builds, 2D)", "Scripts (Units, 2D)", "Scripts (Interface, 2D)", "Scripts (Ambient, 2D)", "Scripts (Goody, 2D)", "Scripts (Events, 2D)", "Scripts (SFX, 2D)", "Scripts (Other, 2D)"):
-				items = scriptGroups.get(szHeader, [])
-				if self.isSortLists() and szHeader != "Scripts (Other, 2D)":
-					items.sort()
-				addSection(szHeader, items)
-
-			# 3D Scripts - same approach as 2D
-			script3DGroups = {
-				"Scripts (Units, 3D)": [],
-				"Scripts (Ambience, 3D)": [],
-				"Scripts (Improvements, 3D)": [],
-				"Scripts (Civilizations, 3D)": [],
-				"Scripts (Other, 3D)": [],
-			}
-
-			szScript3D = None
-			szSound3D = None
-			labelSeenCounts3D = {}
-			try:
-				f = open("Assets/XML/Audio/Audio3DScripts.xml", "r")
-				for line in f:
-					if "<ScriptID>" in line:
-						szScript3D = extractTagValue(line, "ScriptID")
-					elif "<SoundID>" in line:
-						szSound3D = extractTagValue(line, "SoundID")
-					elif "</Script3DSound>" in line:
-						if szScript3D and szSound3D:
-							if szScript3D.startswith("AS3D_UN_"):
-								szGroup3D = "Scripts (Units, 3D)"
-							elif szScript3D.startswith("AS3D_SS_"):
-								szGroup3D = "Scripts (Ambience, 3D)"
-							elif szScript3D.startswith("AS3D_IMPROV"):
-								szGroup3D = "Scripts (Improvements, 3D)"
-							elif szScript3D.endswith("_SELECT") or szScript3D.endswith("_ORDER"):
-								szGroup3D = "Scripts (Civilizations, 3D)"
-							else:
-								szGroup3D = "Scripts (Other, 3D)"
-							szLabel3D = szSound3D
-
-							groupCounts3D = labelSeenCounts3D.get(szGroup3D)
-							if groupCounts3D is None:
-								groupCounts3D = {}
-								labelSeenCounts3D[szGroup3D] = groupCounts3D
-							szBaseLabel3D = szLabel3D
-							iLabelCount3D = groupCounts3D.get(szBaseLabel3D, 0)
-							if iLabelCount3D > 0:
-								szLabel3D = szLabel3D + " (" + szScript3D + ")"
-							groupCounts3D[szBaseLabel3D] = iLabelCount3D + 1
-
-							iTrackId3D = len(self.SAS_musicScript3DTracks)
-							self.SAS_musicScript3DTracks.append((szScript3D, szSound3D, szLabel3D))
-							script3DGroups[szGroup3D].append((szLabel3D, self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D, iTrackId3D)))
-						szScript3D = None
-						szSound3D = None
-				f.close()
-			except:
-				script3DGroups = {}
-
-			for szHeader3D in ("Scripts (Units, 3D)", "Scripts (Ambience, 3D)", "Scripts (Improvements, 3D)", "Scripts (Civilizations, 3D)", "Scripts (Other, 3D)"):
-				items3D = script3DGroups.get(szHeader3D, [])
-				if self.isSortLists() and szHeader3D != "Scripts (Other, 3D)":
-					items3D.sort()
-				addSection(szHeader3D, items3D)
-
+			(
+				listEntries,
+				self.SAS_musicEraTracks,
+				self.SAS_musicLeaderTracks,
+				self.SAS_musicScriptTracks,
+				self.SAS_musicScript3DTracks
+			) = SAS_MainGroupings.SAS_getMusicListAndTables(
+				gc, localText, self.isSortLists(),
+				self.SAS_packMusicKey, self.SAS_unpackMusicKey,
+				self.SAS_PEDIA_MUSIC_TYPE_TECH,
+				self.SAS_PEDIA_MUSIC_TYPE_ERA,
+				self.SAS_PEDIA_MUSIC_TYPE_LEADER,
+				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT,
+				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D,
+				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY,
+				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY,
+				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY,
+				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY
+			)
 			self.SAS_cacheMusicTuple = tuple(listEntries)
 		return self.SAS_cacheMusicTuple
 
@@ -1838,6 +1514,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return gc.getProjectInfo(iMovieId)
 		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_RELIGION:
 			return gc.getReligionInfo(iMovieId)
+		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_ERA:
+			return gc.getEraInfo(iMovieId)
 		return None
 	
 	def getMusicInfo(self, iPacked):
@@ -1974,7 +1652,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if info:
 				return info.getButton()
 		return ""
-		return gc.getTechInfo(iTech)
 	
 	def isShortcutInfo(self, info):
 		return info.getType().find("SHORTCUTS") != -1
