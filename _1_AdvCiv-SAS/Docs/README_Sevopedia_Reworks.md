@@ -212,6 +212,8 @@ One notable feature is how we made the item list much wider so it can display th
 
 Can use the search bar with it too which is very handy as well!
 
+Note: some sounds appear twice such as Tech, Leader, Era sounds. This is because an audio script may exist in the game's audio assets while not being allocated to any real asset (e.g., as of now the space elevator remains, or the tutorial sounds we don't use in our mod). Ideally should clean these up (if it does not create issues to do so), but having the real XML info entry (e.g. `<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>`) vs a list of audio scripts in 2D or 3D allows to make sure each ingame asset has a corresponding audio as well as being able to check in-game which it is.
+
 Done with the very big and nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, ChatGPT-5.2 Thinking, Gemini 2.5 pro (in VS Code).
 
 The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
@@ -223,7 +225,7 @@ The implementation still needs some minor polish, but it is as of now entirely f
 - Maybe generalize script name for other things than era tracks
 - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
 - in header add music id / total (liek total 1759)
-- In Sevopedia Leader, Civilization, redirect to the real track item not just to sevopedia Music page
+- In Sevopedia Leader, Civilization, and Eras (to first era sound), redirect to the real track item not just to sevopedia Music page
 - Escape key sends us back to main menu instead of same sevopdeia entry and category, same for movies (OK button works fine though)
 
 <img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>

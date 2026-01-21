@@ -1,18 +1,8 @@
-# Sid Meier's Civilization 4
-# Copyright Firaxis Games 2005
-#
-# Sevopedia 2.3
-#   sevotastic.blogspot.com
-#   sevotastic@yahoo.com
-#
-# additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
-#
 # AI Utilities or Personality Panel for normalization and general helpers for the Sevopedia Leader category
 # Extracted from SevoPediaLeader.py to keep that file lean (AdvCiv-SAS).
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # <!-- custom: Long_Comments_py.txt #3 -->
-#
 
 
 
