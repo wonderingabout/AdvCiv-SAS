@@ -126,8 +126,8 @@ I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS lates
 
 Edited the .thm files so the main menu's home page feels more modern and utlizes more of the screen for display, and in a prettier way too (removes the very ugly blue panel, adds darker and bolder text, etc.). See also [/README.md#ai-generated-images](/README.md#ai-generated-images).
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.400_main_menu_home (1).JPG" alt="0.400_main_menu_home (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.400_main_menu_home (2).JPG" alt="0.400_main_menu_home (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG" alt="0.300_main_menu_home (2).JPG" width="250"></img>
 
 ### "Play Now" rework
 
@@ -139,12 +139,12 @@ Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_
 
 Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge, as well as the `Arena` new World sizes (that are based on the XXL World's world sizes). See [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll).
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (1).JPG" alt="0.401_main_menu_play_now (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (2).JPG" alt="0.401_main_menu_play_now (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (3).JPG" alt="0.401_main_menu_play_now (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (4).JPG" alt="0.401_main_menu_play_now (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (5).JPG" alt="0.401_main_menu_play_now (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (6).JPG" alt="0.401_main_menu_play_now (6).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG" alt="0.310_main_menu_play_now (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (2).JPG" alt="0.310_main_menu_play_now (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (3).JPG" alt="0.310_main_menu_play_now (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (4).JPG" alt="0.310_main_menu_play_now (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (5).JPG" alt="0.310_main_menu_play_now (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (6).JPG" alt="0.310_main_menu_play_now (6).JPG" width="250"></img>
 
 ## UI (Ingame)
 
@@ -202,7 +202,6 @@ Additionally, also added a new specialists breakdown as of now on bottom-right. 
 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG" alt="0.400_city_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
 
 ## UI (Main Sevopedia reworks)
 

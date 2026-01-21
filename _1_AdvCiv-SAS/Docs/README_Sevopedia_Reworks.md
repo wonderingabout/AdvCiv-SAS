@@ -224,6 +224,7 @@ The implementation still needs some minor polish, but it is as of now entirely f
 - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
 - in header add music id / total (liek total 1759)
 - In Sevopedia Leader, Civilization, redirect to the real track item not just to sevopedia Music page
+- Escape key sends us back to main menu instead of same sevopdeia entry and category, same for movies (OK button works fine though)
 
 <img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>

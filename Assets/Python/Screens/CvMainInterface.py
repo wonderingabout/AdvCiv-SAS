@@ -444,7 +444,7 @@ class CvMainInterface:
 		self.iFoVPos_Prev = -1 # advc.090
 # BUG - field of view slider - end
 
-				# <!-- custom: use more side space for side panels rather than city plots we do not need to show beyond BFC. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: use more side space for side panels rather than city plots we do not need to show beyond BFC. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		# <!-- custom: extend past the current inner edge of the bottom panels so the bonus panels fit; even columns were overlapping text. Ideally also widen that panel, but start here. (GPT-5.2-Codex (summarized)) -->
 		# self.SIDE_PANELS_WIDTH = 297
 		self.SIDE_PANELS_WIDTH = 341
@@ -461,6 +461,7 @@ class CvMainInterface:
 		self.iCityBuildBarPinnedRow = None
 		# <!-- custom: add buttons in the city screen production queue elements. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
+
 		
 
 ############## Basic operational functions ###################
@@ -504,6 +505,39 @@ class CvMainInterface:
 			screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
 		self.xResolution = screen.getXResolution()
 		self.yResolution = screen.getYResolution()
+
+		# <!-- custom: cache for perf opt with the help of ChatGPT-5.2 Thinking thanks. Note: putting them in init function causes python errors, putting them here in initState seemingly solves them. -->
+		self.colorResearchStored = gc.getInfoTypeForString("COLOR_RESEARCH_STORED")
+		self.colorResearchRate = gc.getInfoTypeForString("COLOR_RESEARCH_RATE")
+		self.colorEmpty = gc.getInfoTypeForString("COLOR_EMPTY")
+		self.colorNegativeRate = gc.getInfoTypeForString("COLOR_NEGATIVE_RATE")
+		self.colorGreatPeopleStored = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED")
+		self.colorGreatPeopleRate = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE")
+		self.colorGreatCultureStored = gc.getInfoTypeForString("COLOR_CULTURE_STORED")
+		self.colorGreatCultureRate = gc.getInfoTypeForString("COLOR_CULTURE_RATE")
+		self.colorRed = gc.getInfoTypeForString("COLOR_RED")
+		self.colorYellow = gc.getInfoTypeForString("COLOR_YELLOW")
+		self.colorGreen = gc.getInfoTypeForString("COLOR_GREEN")
+		self.colorAltHighlightText = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
+		self.colorBuildingText = gc.getInfoTypeForString("COLOR_BUILDING_TEXT")
+		#
+		self.hurryPopulation = gc.getInfoTypeForString("HURRY_POPULATION")
+		self.hurryGold = gc.getInfoTypeForString("HURRY_GOLD")
+		#
+		self.overlayFortifyPath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_FORTIFY").getPath()
+		self.overlayHasmovedPath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_HASMOVED").getPath()
+		self.overlayMovePath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_MOVE").getPath()
+		self.overlayNomovePath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_NOMOVE").getPath()
+		self.backgroundTransparentPath = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
+		self.buttonsCreategroupPath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CREATEGROUP").getPath()
+		self.buttonsSplitgroupPath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_SPLITGROUP").getPath()
+		#
+		self.szTextWaiting = localText.getText("SYSTEM_WAITING", ())
+		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
+		self.szTextWaitingForYou = localText.getText("SYSTEM_WAITING_FOR_YOU", ())
+		#
+		self.szTextDraftText = "<font=1>" + localText.getText("TXT_KEY_DRAFT", ()) + "</font>"
+
 		# <advc.092>
 		gSetRectangle("Top", RectLayout(None, 0, 0, self.xResolution, self.yResolution))
 		self.bScaleHUD = MainOpt.isEnlargeHUD()
@@ -1859,72 +1893,71 @@ class CvMainInterface:
 
 		self.addStackedBar("TwoLineResearchBar", WidgetTypes.WIDGET_RESEARCH)
 		screen.setStackedBarColors("TwoLineResearchBar", InfoBarTypes.INFOBAR_STORED,
-				gc.getInfoTypeForString("COLOR_RESEARCH_STORED"))
+				self.colorResearchStored)
 		screen.setStackedBarColors("TwoLineResearchBar", InfoBarTypes.INFOBAR_RATE,
-				gc.getInfoTypeForString("COLOR_RESEARCH_RATE"))
+				self.colorResearchRate)
 		screen.setStackedBarColors("TwoLineResearchBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.setStackedBarColors("TwoLineResearchBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("TwoLineResearchBar")
 # BUG - Great General Bar - start
 		self.addStackedBar("TwoLineGGBar", WidgetTypes.WIDGET_HELP_GREAT_GENERAL)
 		screen.setStackedBarColors("TwoLineGGBar", InfoBarTypes.INFOBAR_STORED,
-				#gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
-				gc.getInfoTypeForString("COLOR_NEGATIVE_RATE"))
+				self.colorNegativeRate)
 		screen.setStackedBarColors("TwoLineGGBar", InfoBarTypes.INFOBAR_RATE,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.setStackedBarColors("TwoLineGGBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.setStackedBarColors("TwoLineGGBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("TwoLineGGBar")
 # BUG - Great General Bar - end
 # BUG - Great Person Bar - start
 		self.addStackedBar("TwoLineGPBar", WidgetTypes.WIDGET_GP_PROGRESS_BAR)
 		screen.setStackedBarColors("TwoLineGPBar", InfoBarTypes.INFOBAR_STORED,
-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
+				self.colorGreatPeopleStored)
 		screen.setStackedBarColors("TwoLineGPBar", InfoBarTypes.INFOBAR_RATE,
-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
+				self.colorGreatPeopleRate)
 		screen.setStackedBarColors("TwoLineGPBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.setStackedBarColors("TwoLineGPBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("TwoLineGPBar")
 # BUG - Great Person Bar - end
 # BUG - Bars on single line for higher resolution screens - start
 		self.addStackedBar("OneLineGGBar", WidgetTypes.WIDGET_HELP_GREAT_GENERAL)
 		screen.setStackedBarColors("OneLineGGBar", InfoBarTypes.INFOBAR_STORED,
-				#gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
-				gc.getInfoTypeForString("COLOR_NEGATIVE_RATE"))
+				#self.colorGreatPeopleStored)
+				self.colorNegativeRate)
 		screen.setStackedBarColors("OneLineGGBar",
-				InfoBarTypes.INFOBAR_RATE, gc.getInfoTypeForString("COLOR_EMPTY"))
+				InfoBarTypes.INFOBAR_RATE, self.colorEmpty)
 		screen.setStackedBarColors("OneLineGGBar",
-				InfoBarTypes.INFOBAR_RATE_EXTRA, gc.getInfoTypeForString("COLOR_EMPTY"))
+				InfoBarTypes.INFOBAR_RATE_EXTRA, self.colorEmpty)
 		screen.setStackedBarColors("OneLineGGBar",
-				InfoBarTypes.INFOBAR_EMPTY, gc.getInfoTypeForString("COLOR_EMPTY"))
+				InfoBarTypes.INFOBAR_EMPTY, self.colorEmpty)
 		screen.hide("OneLineGGBar")
 
 		self.addStackedBar("OneLineResearchBar", WidgetTypes.WIDGET_RESEARCH)
 		screen.setStackedBarColors("OneLineResearchBar", InfoBarTypes.INFOBAR_STORED,
-				gc.getInfoTypeForString("COLOR_RESEARCH_STORED"))
+				self.colorResearchStored)
 		screen.setStackedBarColors("OneLineResearchBar", InfoBarTypes.INFOBAR_RATE,
-				gc.getInfoTypeForString("COLOR_RESEARCH_RATE"))
+				self.colorResearchRate)
 		screen.setStackedBarColors("OneLineResearchBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.setStackedBarColors("OneLineResearchBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("OneLineResearchBar")
 
 		self.addStackedBar("OneLineGPBar", WidgetTypes.WIDGET_GP_PROGRESS_BAR)
 		screen.setStackedBarColors("OneLineGPBar", InfoBarTypes.INFOBAR_STORED,
-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
+				self.colorGreatPeopleStored)
 		screen.setStackedBarColors("OneLineGPBar", InfoBarTypes.INFOBAR_RATE,
-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
+				self.colorGreatPeopleRate)
 		screen.setStackedBarColors("OneLineGPBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.setStackedBarColors("OneLineGPBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("OneLineGPBar")
 # BUG - Bars on single line for higher resolution screens - end
 
@@ -1941,9 +1974,9 @@ class CvMainInterface:
 		screen.setStackedBarColorsAlpha("PopulationBar", InfoBarTypes.INFOBAR_RATE,
 				gc.getYieldInfo(YieldTypes.YIELD_FOOD).getColorType(), 0.8)
 		screen.setStackedBarColors("PopulationBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
-				gc.getInfoTypeForString("COLOR_NEGATIVE_RATE"))
+				self.colorNegativeRate)
 		screen.setStackedBarColors("PopulationBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("PopulationBar")
 
 		self.addStackedBar("ProductionBar", WidgetTypes.WIDGET_HELP_PRODUCTION)
@@ -1954,29 +1987,29 @@ class CvMainInterface:
 		screen.setStackedBarColors("ProductionBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
 				gc.getYieldInfo(YieldTypes.YIELD_FOOD).getColorType())
 		screen.setStackedBarColors("ProductionBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("ProductionBar")
 
 		self.addStackedBar("GreatPeopleBar", WidgetTypes.WIDGET_HELP_GREAT_PEOPLE)
 		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_STORED,
-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
+				self.colorGreatPeopleStored)
 		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_RATE,
-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
+				self.colorGreatPeopleRate)
 		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("GreatPeopleBar")
 
 		self.addStackedBar("CultureBar", WidgetTypes.WIDGET_HELP_CULTURE)
 		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_STORED,
-				gc.getInfoTypeForString("COLOR_CULTURE_STORED"))
+				self.colorGreatCultureStored)
 		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_RATE,
-				gc.getInfoTypeForString("COLOR_CULTURE_RATE"))
+				self.colorGreatCultureRate)
 		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_EMPTY,
-				gc.getInfoTypeForString("COLOR_EMPTY"))
+				self.colorEmpty)
 		screen.hide("CultureBar")
 
 		# (BUG - Limit/Extra Religions: Removed BtS code for adding
@@ -2364,7 +2397,7 @@ class CvMainInterface:
 				elif (CyInterface().shouldDisplayWaitingOthers() and
 						# advc.127: No "Waiting" message during Auto Play
 						not gc.getPlayer(gc.getGame().getActivePlayer()).isHumanDisabled()):
-					acOutput = localText.getText("SYSTEM_WAITING", ())
+					acOutput = self.szTextWaiting
 					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
 					screen.setEndTurnState("EndTurnText", acOutput)
 					bShow = True
@@ -2373,7 +2406,7 @@ class CvMainInterface:
 					if (ReminderEventManager.g_turnReminderTexts):
 						acOutput = u"%s" % ReminderEventManager.g_turnReminderTexts
 					elif MainOpt.isShowEndTurnMessage(): # advc.002n
-						acOutput = localText.getText("SYSTEM_END_TURN", ())
+						acOutput = self.szTextEndTurn
 					# advc.002n: So that toggling the option immediately hides the message
 					else:
 						acOutput = ""
@@ -2382,22 +2415,22 @@ class CvMainInterface:
 					screen.setEndTurnState("EndTurnText", acOutput)
 					bShow = True
 				elif (CyInterface().shouldDisplayWaitingYou()):
-					acOutput = localText.getText("SYSTEM_WAITING_FOR_YOU", ())
+					acOutput = self.szTextWaitingForYou
 					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
 					screen.setEndTurnState("EndTurnText", acOutput)
 					bShow = True
 # BUG - Options - start
 				# advc.004: Option disabled
-				elif False:#MainOpt.isShowOptionsKeyReminder()
-					if BugPath.isMac():
-						acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC",
-								(BugPath.getModName(),))
-					else:
-						acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER",
-								(BugPath.getModName(),))
-					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
-					screen.setEndTurnState("EndTurnText", acOutput)
-					bShow = True
+				# elif MainOpt.isShowOptionsKeyReminder()
+				# 	if BugPath.isMac():
+				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC",
+				# 				(BugPath.getModName(),))
+				# 	else:
+				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER",
+				# 				(BugPath.getModName(),))
+				# 	#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
+				# 	screen.setEndTurnState("EndTurnText", acOutput)
+				# 	bShow = True
 # BUG - Options - end
 		if bShow:
 			screen.showEndTurn("EndTurnText")
@@ -3188,14 +3221,14 @@ class CvMainInterface:
 								(bGGIndicator and pLoopUnit.getLeaderUnitType() >= 0)) # </advc.069>
 						if ((pLoopUnit.getTeam() != gc.getGame().getActiveTeam()) or
 								pLoopUnit.isWaiting()):
-							szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_FORTIFY").getPath()
+							szFileName = self.overlayFortifyPath
 						elif (pLoopUnit.canMove()):
 							if (pLoopUnit.hasMoved()):
-								szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_HASMOVED").getPath()
+								szFileName = self.overlayHasmovedPath
 							else:
-								szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_MOVE").getPath()
+								szFileName = self.overlayMovePath
 						else:
-							szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_NOMOVE").getPath()
+							szFileName = self.overlayNomovePath
 						szString = "PlotListButton" + str(iCount)
 						#screen.changeImageButton(szString, gc.getUnitInfo(pLoopUnit.getUnitType()).getButton())
 						# advc.003l: Replacing the above
@@ -3226,11 +3259,11 @@ class CvMainInterface:
 							screen.setBarPercentage(szStringHealth, InfoBarTypes.INFOBAR_STORED,
 									float(pLoopUnit.currHitPoints()) / float(pLoopUnit.maxHitPoints()))
 							if (pLoopUnit.getDamage() >= ((pLoopUnit.maxHitPoints() * 2) / 3)):
-								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_RED"))
+								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, self.colorRed)
 							elif (pLoopUnit.getDamage() >= (pLoopUnit.maxHitPoints() / 3)):
-								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_YELLOW"))
+								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, self.colorYellow)
 							else:
-								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_GREEN"))
+								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, self.colorGreen)
 							screen.show(szStringHealth)
 
 						# Adds the overlay first
@@ -3408,7 +3441,7 @@ class CvMainInterface:
 
 				self.setStyledButton("Conscript", "Button_CityT1_Style",
 						WidgetTypes.WIDGET_CONSCRIPT, -1, -1,
-						None, "<font=1>" + localText.getText("TXT_KEY_DRAFT", ()) + "</font>")
+						None, self.szTextDraftText)
 				screen.hide("Conscript")
 
 				for i in range(2):
@@ -3694,12 +3727,12 @@ class CvMainInterface:
 		iAppended = 0
 		if CyInterface().canCreateGroup():
 			self.screen.appendMultiListButton("BottomButtonList",
-					ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CREATEGROUP").getPath(), 0,
+					self.buttonsCreategroupPath, 0,
 					WidgetTypes.WIDGET_CREATE_GROUP, -1, -1, False)
 			iAppended += 1
 		if CyInterface().canDeleteGroup():
 			self.screen.appendMultiListButton("BottomButtonList",
-					ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_SPLITGROUP").getPath(), 0,
+					self.buttonsSplitgroupPath, 0,
 					WidgetTypes.WIDGET_DELETE_GROUP, -1, -1, False)
 			iAppended += 1
 		return iAppended
@@ -4787,7 +4820,7 @@ class CvMainInterface:
 
 		screen.setHelpTextArea(HLEN(390), FontTypes.SMALL_FONT,
 				0, 0, -2.2, True,
-				ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath(),
+				self.backgroundTransparentPath,
 				True, True,
 				CvUtil.FONT_LEFT_JUSTIFY, 0)
 
@@ -4952,8 +4985,8 @@ class CvMainInterface:
 # BUG - Whip Assist - start
 			else:
 				iProductionTurns = pHeadSelectedCity.getProductionTurnsLeft() # advc.004x
-				HURRY_WHIP = gc.getInfoTypeForString("HURRY_POPULATION")
-				HURRY_BUY = gc.getInfoTypeForString("HURRY_GOLD")
+				HURRY_WHIP = self.hurryPopulation
+				HURRY_BUY = self.hurryGold
 				if (CityScreenOpt.isShowWhipAssist() and
 						pHeadSelectedCity.canHurry(HURRY_WHIP, False)):
 					iHurryPop = pHeadSelectedCity.hurryPopulation(HURRY_WHIP)
@@ -5094,7 +5127,7 @@ class CvMainInterface:
 			screen.show("HappinessText")
 		if (not pHeadSelectedCity.isProductionProcess()):
 			# advc.064: Moved up
-			HURRY_WHIP = gc.getInfoTypeForString("HURRY_POPULATION")
+			HURRY_WHIP = self.hurryPopulation
 			iNeeded = pHeadSelectedCity.getProductionNeeded()
 			iStored = pHeadSelectedCity.getProduction()
 			screen.setBarPercentage("ProductionBar",
@@ -6096,7 +6129,7 @@ class CvMainInterface:
 					WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus)
 			szAmount = (u"<font=2>"
 					+ localText.changeTextColor(str(iAmount),
-					gc.getInfoTypeForString("COLOR_YELLOW"))
+					self.colorYellow)
 					+ "</font>")
 			self.setLabel("CityBonusAmount" + szIndex, "BonusBack0", szAmount,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.1,
@@ -6684,7 +6717,7 @@ class CvMainInterface:
 			bConcealCiv = pPlayer.wasCivRandomlyChosen()
 			bConcealLeader = pPlayer.wasLeaderRandomlyChosen()
 			if bConcealCiv:
-				kGPColor = gc.getColorInfo(gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
+				kGPColor = gc.getColorInfo(self.colorGreatPeopleStored)
 				rgba = kGPColor.getColor()
 				iUnmetR = int(255 * rgba.r)
 				iUnmetG = int(255 * rgba.g)
@@ -6750,9 +6783,9 @@ class CvMainInterface:
 				if iScoreDelta != 0:
 					if iScoreDelta > 0:
 						# advc.085: To match the color I (might) use for tech progress. Was just GREEN.
-						iColorType = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
+						iColorType = self.colorAltHighlightText
 					elif iScoreDelta < 0:
-						iColorType = gc.getInfoTypeForString("COLOR_RED")
+						iColorType = self.colorRed
 					szScoreDelta = "%+d" % iScoreDelta
 					if iColorType >= 0:
 						szScoreDelta = localText.changeTextColor(szScoreDelta, iColorType)
@@ -6830,7 +6863,7 @@ class CvMainInterface:
 				if pTeam.isAtWar(eActiveTeam):
 					szBuffer += "("
 					szBuffer += localText.getColorText("TXT_KEY_CONCEPT_WAR",
-							(), gc.getInfoTypeForString("COLOR_RED")).upper()
+							(), self.colorRed).upper()
 					szBuffer += ")"
 					if bAlignIcons:
 						scores.setWar()
@@ -7000,7 +7033,7 @@ class CvMainInterface:
 				# K-Mod end
 				# advc.085: Make city counts gray
 				szTempBuffer = localText.changeTextColor(szTempBuffer,
-						gc.getInfoTypeForString("COLOR_BUILDING_TEXT"))
+						self.colorBuildingText)
 				szBuffer = szBuffer + " " + szTempBuffer
 				if bAlignIcons:
 					scores.setNumCities(szTempBuffer)
@@ -7351,11 +7384,15 @@ class CvMainInterface:
 		else:
 			iButtonSize = BTNSZ(iButtonSize, 0.5)
 			iButtonSpace = HSPACE(iButtonSpace)
-		# Helper rect to determine left margin
-		lMaxOrgs = RowLayout(gRect("CityOrgArea"),
-				RectLayout.CENTER, 0, iMaxOrgs, iButtonSpace, iButtonSize)
-		if lMaxOrgs.width() <= gRect("CityOrgArea").width():
-			iLMargin = lMaxOrgs.x() - gRect("CityOrgArea").x()
+		# Helper rect to determine left margin.
+		# <!-- custom: dynamically anchor to the left edge of the panel depending on its width instead of weirdly statically floating if width changes with the help of ChatGPT-5.2 Thinking thanks -->
+		# Left-anchored org icons: start at the left edge of CityOrgArea.
+		# (Works well even when there are many possible religions/corps.)
+		lRow = RowLayout(gRect("CityOrgArea"),
+				RectLayout.LEFT, 0, iButtonsPerRow, iButtonSpace, iButtonSize)
+		if lRow.width() <= gRect("CityOrgArea").width():
+			iLMargin = 0
+
 		else:
 			iLMargin = 0
 		aResult = []
