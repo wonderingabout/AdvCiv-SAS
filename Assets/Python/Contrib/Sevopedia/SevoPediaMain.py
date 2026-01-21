@@ -605,7 +605,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return
 
 		if (iCategory == SevoScreenEnums.PEDIA_BUILDINGS):
-			iCategory += self.pediaBuilding.getBuildingType(iItem)
+			iCategory += self.getBuildingType(iItem)
 		elif (iCategory == SevoScreenEnums.PEDIA_BTS_CONCEPTS):
 			iCategory = self.determineNewConceptSubCategory(iItem)
 			BugUtil.debug("Switching to category %d" % iCategory)
@@ -968,6 +968,24 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getBuildingList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
 
+	# <!-- custom: moved away from SevoPediaBuilding as they are unused there and cleaner to centralize logic here, with the help of ChatGPT-5.2 Thinking thanks -->
+	def getBuildingType(self, iBuilding):
+		if isWorldWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType()):
+			return 2
+		elif isNationalWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType()):
+			return 1
+		else:
+			return 0
+
+	def getBuildingSortedList(self, iBuildingType):
+		list2 = []
+		for iBuilding in range(gc.getNumBuildingInfos()):
+			if self.getBuildingType(iBuilding) == iBuildingType:
+				list2.append((gc.getBuildingInfo(iBuilding).getDescription(), iBuilding))
+		if self.isSortLists():
+			list2.sort()
+		return list2
+
 	# Compute the "availability era" for a building, factoring in tech prereqs, special building tech, and religion founding tech.
 	def SAS_getBuildingAvailabilityEra(self, iBuilding, iNumAndTechs):
 		return SAS_MainGroupings.SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs, gc)
@@ -976,10 +994,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_getBuildingsGroupedByEra_fromBaseList(self, baseList):
 		return SAS_MainGroupings.SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getBuildingAvailabilityEra)
 
-
 	def getBuildingList(self):
 		if self.SAS_cacheRegularBuildingsTuple is None:
-			baseList = self.pediaBuilding.getBuildingSortedList(0)
+			baseList = self.getBuildingSortedList(0)
 			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 				self.SAS_cacheRegularBuildingsTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
 			else:
@@ -995,12 +1012,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getNationalWonderList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 			if self.SAS_cacheNationalWondersTuple is None:
-				baseList = self.pediaBuilding.getBuildingSortedList(1)
+				baseList = self.getBuildingSortedList(1)
 				self.SAS_cacheNationalWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
 			return self.SAS_cacheNationalWondersTuple
 		else:
 			if self.SAS_cacheNationalWondersTuple is None:
-				self.SAS_cacheNationalWondersTuple = tuple(self.pediaBuilding.getBuildingSortedList(1))
+				self.SAS_cacheNationalWondersTuple = tuple(self.getBuildingSortedList(1))
 			return self.SAS_cacheNationalWondersTuple
 
 
@@ -1012,12 +1029,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getWorldWonderList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
 			if self.SAS_cacheWorldWondersTuple is None:
-				baseList = self.pediaBuilding.getBuildingSortedList(2)
+				baseList = self.getBuildingSortedList(2)
 				self.SAS_cacheWorldWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
 			return self.SAS_cacheWorldWondersTuple
 		else:
 			if self.SAS_cacheWorldWondersTuple is None:
-				self.SAS_cacheWorldWondersTuple = tuple(self.pediaBuilding.getBuildingSortedList(2))
+				self.SAS_cacheWorldWondersTuple = tuple(self.getBuildingSortedList(2))
 			return self.SAS_cacheWorldWondersTuple
 
 

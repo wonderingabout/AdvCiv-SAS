@@ -18,7 +18,7 @@ from CvPythonExtensions import *
 from _sevopedia_helpers import SAS_isFeatureRemovable
 
 def SAS_isFoodYieldImprovement(iImprovement, gc):
-	"""Check if improvement provides food yields from any bonus."""
+	# Check if improvement provides food yields from any bonus.
 	info = gc.getImprovementInfo(iImprovement)
 	if not info or info.isGraphicalOnly():
 		return False

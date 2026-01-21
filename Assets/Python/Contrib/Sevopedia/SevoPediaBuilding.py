@@ -1196,33 +1196,5 @@ class SevoPediaBuilding:
 
 
 
-	def getBuildingType(self, iBuilding):
-		if isWorldWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType()):
-			return 2
-		elif isNationalWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType()):
-			return 1
-		else:
-			return 0
-
-
-
-	def getBuildingSortedList(self, iBuildingType):
-		list1 = []
-		numInfos = 0
-		for iBuilding in range(gc.getNumBuildingInfos()):
-			if self.getBuildingType(iBuilding) == iBuildingType:
-				list1.append(iBuilding)
-				numInfos += 1
-		list2 = [(0,0)] * numInfos
-		i = 0
-		for iBuilding in list1:
-			list2[i] = (gc.getBuildingInfo(iBuilding).getDescription(), iBuilding)
-			i += 1
-		if self.top.isSortLists():
-			list2.sort()
-		return list2
-
-
-
 	def handleInput (self, inputClass):
 		return 0
