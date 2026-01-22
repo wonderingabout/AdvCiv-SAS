@@ -220,7 +220,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.pediaFuture = []
 		self.SAS_lastPediaJump = None
 
-		# <!-- custom: compute once to be computationally more efficient , and added with the help of chatgpt 5.2 thanks. -->
+		# <!-- custom: compute once to be computationally more efficient, and added with the help of chatgpt 5.2 thanks. -->
 		self.SAS_cacheCivicsTuple = None
 		self.SAS_cacheTechsTuple = None
 		self.SAS_cacheRegularBuildingsTuple = None
@@ -1887,26 +1887,56 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def handleInput (self, inputClass):
 		if self.pediaMusic.isMusicPlayerOpen():
-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
-				if inputClass.getData() == int(InputTypes.KB_ESCAPE):
+			# <!-- custom: While the full-screen music player overlay is open, consume input here so
+			# Civ4 does not treat ESC/ENTER as "close civilopedia" and bounce to the main menu. (ChatGPT-5.2 Thinking) -->
+			iNotify = inputClass.getNotifyCode()
+
+			if iNotify == NotifyCode.NOTIFY_CHARACTER:
+				iKey = inputClass.getData()
+				if iKey == int(InputTypes.KB_ESCAPE) or iKey == int(InputTypes.KB_RETURN):
 					self.pediaMusic.closeMusicPlayer()
 					return 1
-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
-				if inputClass.getFunctionName() == self.pediaMusic.MUSIC_PLAYER_EXIT_ID:
+				# Some keyboards send a distinct numpad enter key code.
+				try:
+					if iKey == int(InputTypes.KB_NUMPADENTER):
+						self.pediaMusic.closeMusicPlayer()
+						return 1
+				except:
+					pass
+
+			if iNotify == NotifyCode.NOTIFY_CLICKED:
+				szName = inputClass.getFunctionName()
+				# Exit button, or click anywhere on the overlay (image/title/background) to close.
+				if szName == self.pediaMusic.MUSIC_PLAYER_EXIT_ID or szName.startswith("MusicPlayer"):
 					self.pediaMusic.closeMusicPlayer()
 					return 1
 			return 1
 
 		if self.pediaMovies.isMoviePlayerOpen():
-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_MOVIE_DONE:
+			# Same idea as music: keep ESC/ENTER/clicks inside the overlay so we return to the
+			# same SevoPedia entry instead of exiting SevoPedia (or bouncing to the main menu).
+			iNotify = inputClass.getNotifyCode()
+
+			if iNotify == NotifyCode.NOTIFY_MOVIE_DONE:
 				self.pediaMovies.closeMoviePlayer()
 				return 1
-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
-				if inputClass.getData() == int(InputTypes.KB_ESCAPE):
+
+			if iNotify == NotifyCode.NOTIFY_CHARACTER:
+				iKey = inputClass.getData()
+				if iKey == int(InputTypes.KB_ESCAPE) or iKey == int(InputTypes.KB_RETURN):
 					self.pediaMovies.closeMoviePlayer()
 					return 1
-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
-				if inputClass.getFunctionName() == self.pediaMovies.MOVIE_PLAYER_EXIT_ID:
+				try:
+					if iKey == int(InputTypes.KB_NUMPADENTER):
+						self.pediaMovies.closeMoviePlayer()
+						return 1
+				except:
+					pass
+
+			if iNotify == NotifyCode.NOTIFY_CLICKED:
+				szName = inputClass.getFunctionName()
+				# Exit button, or click anywhere on the overlay (movie/nif/dds/title/background) to close.
+				if szName == self.pediaMovies.MOVIE_PLAYER_EXIT_ID or szName.startswith("MoviePlayer"):
 					self.pediaMovies.closeMoviePlayer()
 					return 1
 			return 1

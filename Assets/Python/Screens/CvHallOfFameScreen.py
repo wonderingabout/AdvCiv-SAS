@@ -279,7 +279,7 @@ class CvHallOfFameScreen:
 		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_STARTING_ERA", ()), 100)
 		iColumn += 1
 		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_GAME_SPEED", ()), 105)
-#		screen.setTableColumnHeader(self.TABLE_ID, , "", 73)
+#		screen.setTableColumnHeader(self.TABLE_ID,, "", 73)
 
 		# count the filtered replays
 		iNumGames = 0

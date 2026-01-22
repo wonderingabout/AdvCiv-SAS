@@ -134,6 +134,17 @@ class SevoPediaMovie:
 		CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, False)
 
 		screen = CyGInterfaceScreen(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES)
+
+		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+		try:
+			screen.enableWorldSounds(True)
+		except:
+			pass
+		try:
+			screen.setScreenGroup(1)
+		except:
+			pass
+
 		self.SAS_isMoviePlayerOpen = True
 
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
@@ -176,6 +187,16 @@ class SevoPediaMovie:
 				self.SAS_movieSoundId = None
 
 		screen.setButtonGFC(self.MOVIE_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+
+		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+		try:
+			screen.setEscapeKey(self.MOVIE_PLAYER_EXIT_ID)
+		except:
+			pass
+		try:
+			screen.setReturnKey(self.MOVIE_PLAYER_EXIT_ID)
+		except:
+			pass
 
 
 

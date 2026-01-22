@@ -66,9 +66,9 @@ bool KmodPathFinderLegacy::GeneratePath(int x1, int y1, int x2, int y2)
 {
 	PROFILE_FUNC();
 
-	FAssertBounds(0, kMap.getGridWidth() , x1);
+	FAssertBounds(0, kMap.getGridWidth(), x1);
 	FAssertBounds(0, kMap.getGridHeight(), y1);
-	FAssertBounds(0, kMap.getGridWidth() , x2);
+	FAssertBounds(0, kMap.getGridWidth(), x2);
 	FAssertBounds(0, kMap.getGridHeight(), y2);
 
 	end_node = NULL;
@@ -266,7 +266,7 @@ void KmodPathFinderLegacy::Reset()
 
 void KmodPathFinderLegacy::AddStartNode()
 {
-	/*FAssertBounds(0, map_width , start_x);
+	/*FAssertBounds(0, map_width, start_x);
 	FAssertBounds(0, map_height, start_y);*/ // Now sufficiently safe
 
 	// add initial node.

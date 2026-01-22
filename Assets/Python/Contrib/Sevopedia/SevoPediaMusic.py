@@ -182,6 +182,17 @@ class SevoPediaMusic:
 			szSoundScript = ""
 
 		screen = CyGInterfaceScreen(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC)
+
+		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+		try:
+			screen.enableWorldSounds(True)
+		except:
+			pass
+		try:
+			screen.setScreenGroup(1)
+		except:
+			pass
+
 		self.SAS_isMusicPlayerOpen = True
 
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
@@ -229,6 +240,16 @@ class SevoPediaMusic:
 				self.SAS_musicSoundId = None
 
 		screen.setButtonGFC(self.MUSIC_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+
+		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+		try:
+			screen.setEscapeKey(self.MUSIC_PLAYER_EXIT_ID)
+		except:
+			pass
+		try:
+			screen.setReturnKey(self.MUSIC_PLAYER_EXIT_ID)
+		except:
+			pass
 
 
 

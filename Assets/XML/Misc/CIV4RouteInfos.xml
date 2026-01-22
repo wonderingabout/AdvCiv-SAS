@@ -4,7 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Route Infos -->
-<!-- custom: note: we have also added them as conceptinfos entries in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml , so that we can redirect to them and show their tool tip without implementing them exhaustively, in sevopedia improvement (similar approach although unrelated as of now in sevopedia unit's concept_cities), see these places's code or code comments for details -->
+<!-- custom: note: we have also added them as conceptinfos entries in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml, so that we can redirect to them and show their tool tip without implementing them exhaustively, in sevopedia improvement (similar approach although unrelated as of now in sevopedia unit's concept_cities), see these places's code or code comments for details -->
 <Civ4RouteInfos xmlns="x-schema:CIV4MiscSchema.xml">
 	<RouteInfos>
 		<RouteInfo>

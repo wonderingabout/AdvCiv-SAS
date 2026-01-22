@@ -701,7 +701,7 @@
 			<iPlacementOrder>6</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>10</iMinAreaSize>
-			<!-- custom: adjusted using as a base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/ , and as part of renaming clam to the more general molluscs, then now using as a base for molluscs now; Long_Comments_XML.txt #301, was 0/50 -->
+			<!-- custom: adjusted using as a base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/, and as part of renaming clam to the more general molluscs, then now using as a base for molluscs now; Long_Comments_XML.txt #301, was 0/50 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>80</iMaxLatitude>
 			<Rands>

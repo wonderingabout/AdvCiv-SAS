@@ -216,17 +216,18 @@ Note: some sounds appear twice such as Tech, Leader, Era sounds. This is because
 
 Done with the very big and nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, ChatGPT-5.2 Thinking, Gemini 2.5 pro (in VS Code).
 
+As of now, click on "OK" or Right-click to stop the media playing; press Escape or Enter key for main menu
+
 The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
 
 - In Sevopedia Music, make leaders and such buttons hoverable and clickable with a redirect like tech buttons.
 - In Sevopedia Music, parse properly from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
 - Add a custom dds or nif (liek leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
-- Search Bar desyncs when we exit an audio file playing, we as of now need to click around the top of the page so that search br is functional again. Note: for non-dds and non-nif movies or musics, is minor since click successfully returns to same entry's page it seems, but ideally to fix. Else to fix as well with a higher priority. OK button works fine though but still would be nice to fix it.
+- Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
 - Maybe generalize script name for other things than era tracks
 - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
 - in header add music id / total (liek total 1759)
 - In Sevopedia Leader, Civilization, and Eras (to first era sound), redirect to the real track item not just to sevopedia Music page
-- Escape key sends us back to main menu instead of same sevopdeia entry and category, same for movies (OK button works fine though)
 
 <img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>

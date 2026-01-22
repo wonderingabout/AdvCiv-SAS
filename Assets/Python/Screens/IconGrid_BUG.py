@@ -412,7 +412,7 @@ class IconGrid_BUG:
 						widgetData1 = rowData.cells[startIndex + offset].textWidgetData1
 						widgetData2 = rowData.cells[startIndex + offset].textWidgetData2
 						# (could use setText here for a clickable widget) </advc>
-						self.screen.setLabel(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "" , text, CvUtil.FONT_LEFT_JUSTIFY, currentX + 6, textY, 0, FontTypes.GAME_FONT, widgetType, widgetData1, widgetData2)
+						self.screen.setLabel(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "", text, CvUtil.FONT_LEFT_JUSTIFY, currentX + 6, textY, 0, FontTypes.GAME_FONT, widgetType, widgetData1, widgetData2)
 						currentX += self.textColWidth[startIndex + offset] + self.colSpace
 					# <advc.ctr>
 					elif self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN:
@@ -421,7 +421,7 @@ class IconGrid_BUG:
 							textY += self.rowHeaderHeight
 						# Clear all lines
 						for iLine in range(MULTI_TEXT_MAX_LINES * 2):
-							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iLine), "" , "", CvUtil.FONT_LEFT_JUSTIFY, currentX, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iLine), "", "", CvUtil.FONT_LEFT_JUSTIFY, currentX, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 						iCount = 0
 						for textData in rowData.cells[startIndex + offset].multiText:
 							text = "<font=%i>%s</font>" % (rowData.cells[startIndex + offset].font, textData.text)
@@ -430,7 +430,7 @@ class IconGrid_BUG:
 							if iCount >= MULTI_TEXT_MAX_LINES:
 								offsetX = self.textColWidth[startIndex + offset] / 2
 							offsetY = (iCount % MULTI_TEXT_MAX_LINES) * MULTI_TEXT_LINE_HEIGHT
-							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "" , text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
+							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "", text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
 							iCount += 1
 							if iCount > MULTI_TEXT_MAX_LINES * 2:
 								break
@@ -516,7 +516,7 @@ class IconGrid_BUG:
 					textY = self.firstRowY + (self.totalRowHeight + self.rowSpace) * rowIndex + 8
 					# Clear all lines
 					for iLine in range(MULTI_TEXT_MAX_LINES * 2):
-						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iLine), "" , "", CvUtil.FONT_LEFT_JUSTIFY, currentX, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iLine), "", "", CvUtil.FONT_LEFT_JUSTIFY, currentX, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 					iCount = 0
 					for textData in rowData.cells[startIndex + offset].multiText:
 						text = "<font=%i>%s</font>" % (rowData.cells[startIndex + offset].font, textData.text)
@@ -525,7 +525,7 @@ class IconGrid_BUG:
 						if iCount >= MULTI_TEXT_MAX_LINES:
 							offsetX = self.textColWidth[startIndex + offset] / 2
 						offsetY = (iCount % MULTI_TEXT_MAX_LINES) * MULTI_TEXT_LINE_HEIGHT
-						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "" , text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
+						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "", text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
 						iCount += 1
 						if iCount > MULTI_TEXT_MAX_LINES * 2:
 							break

@@ -1247,7 +1247,7 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
-	<!-- [advc.005f] If set to 1 , change 005f (see manual) is enabled. 0
+	<!-- [advc.005f] If set to 1, change 005f (see manual) is enabled. 0
 		 disables the change (recommended). -->
 	<Define>
 		<DefineName>ENABLE_005F</DefineName>
@@ -1532,7 +1532,7 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
-	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say or if accurate, see also (adjust to your mod path) CIV4GameSpeedInfo.xml for details -->
+	<!-- custom: first tried -100 000, now reduced to -50 000 since we have less early start games if i may say or if accurate, see also (adjust to your mod path) CIV4GameSpeedInfo.xml for details -->
 	<Define>
 		<DefineName>START_YEAR</DefineName>
 		<iDefineIntVal>-50000</iDefineIntVal>

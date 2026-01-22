@@ -2071,7 +2071,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
 {
 	CvWString szTemp;
 	CvActionInfo const& kAction = GC.getActionInfo(widgetDataStruct.m_iData1);
-	szTemp.Format(SETCOLR L"%s" ENDCOLR , TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+	szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
 			kAction.getHotKeyDescription().c_str());
 	szBuffer.assign(szTemp);
 	CvDLLInterfaceIFaceBase& kUI = *gDLL->getInterfaceIFace();

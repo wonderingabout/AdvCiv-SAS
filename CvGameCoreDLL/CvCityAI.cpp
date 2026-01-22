@@ -1355,7 +1355,7 @@ void CvCityAI::AI_chooseProduction()
 	floatingDefenderWeight.set(UNITAI_CITY_COUNTER, 100);
 	//floatingDefenderWeight.set(UNITAI_CITY_SPECIAL, 0);
 	floatingDefenderWeight.set(UNITAI_RESERVE, 100);
-	// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too for details for details or additional/related info -->
+	// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit, bestunitai, and this function too for details for details or additional/related info -->
 	if (bMinor || bBarbarian)
 	{
 		floatingDefenderWeight.set(UNITAI_COLLATERAL, 80); // K-Mod, down from 100.
@@ -1391,7 +1391,7 @@ void CvCityAI::AI_chooseProduction()
 		defensiveWeight.set(UNITAI_ATTACK, 100);
 		defensiveWeight.set(UNITAI_RESERVE, 60);
 		//defensiveWeight.push_back(std::make_pair(UNITAI_COLLATERAL, 60));
-		// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too for details for details or additional/related info -->
+		// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit, bestunitai, and this function too for details for details or additional/related info -->
 		if (bMinor || bBarbarian)
 		{
 			defensiveWeight.set(UNITAI_COLLATERAL, 80);
@@ -2066,7 +2066,7 @@ void CvCityAI::AI_chooseProduction()
 			UnitAIWeightMap panicDefenderWeight; // advc: Was vector of pairs "defensiveTypes"
 			panicDefenderWeight.set(UNITAI_RESERVE, 100);
 			panicDefenderWeight.set(UNITAI_COUNTER, 100);
-			// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too for details for details or additional/related info -->
+			// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit, bestunitai, and this function too for details for details or additional/related info -->
 			if (bMinor || bBarbarian)
 			{
 				panicDefenderWeight.set(UNITAI_COLLATERAL, 100);
@@ -3938,7 +3938,7 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
 	PROFILE_FUNC();
 	FAssertMsg(eUnitAI != NO_UNITAI, "UnitAI is not assigned a valid value");
 
-	// <!-- custom: it seems that sometimes the settler or such bestunits are forced and bypass our new logic that is simpler in bestunit( , and that is also an attempt to fix ai producing settlers in small sizes cities, that currently take +/- 50 turns to complete and ruin AI growth and potential, instead of big cities that could produce them fast (see code comments at bestUnit for details). Instead of rewriting everything tediously, try to fix current issue(s) instead/rather by making the below GrowMore logic closer to ours; also rewrite this below to be our economy rather than workers or such, assume there are always good cities to settle, and let workers handle best tiles, and settlers handle best found value, focus only on if we should produce a settler or not based on our economy or such rather; see code comments we added in AI_chooseProduction as well where logic was moved for details (change parent callers rather then hack this one in a not clean not reliable way) -->
+	// <!-- custom: it seems that sometimes the settler or such bestunits are forced and bypass our new logic that is simpler in bestunit, and that is also an attempt to fix ai producing settlers in small sizes cities, that currently take +/- 50 turns to complete and ruin AI growth and potential, instead of big cities that could produce them fast (see code comments at bestUnit for details). Instead of rewriting everything tediously, try to fix current issue(s) instead/rather by making the below GrowMore logic closer to ours; also rewrite this below to be our economy rather than workers or such, assume there are always good cities to settle, and let workers handle best tiles, and settlers handle best found value, focus only on if we should produce a settler or not based on our economy or such rather; see code comments we added in AI_chooseProduction as well where logic was moved for details (change parent callers rather then hack this one in a not clean not reliable way) -->
 
 	// <!-- custom: old code now commented out -->
 	// bool bGrowMore = false;

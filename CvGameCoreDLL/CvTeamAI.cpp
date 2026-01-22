@@ -6248,7 +6248,7 @@ void CvTeamAI::AI_doWar()
 					// advc: Took these inequations times 2 to reduce rounding errors
 					if (2 * iOurValue > iTheirValue && 2 * iTheirValue > iOurValue)
 					{
-						if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) making peace due to time and endWarVal %d vs their %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) , iOurValue, iTheirValue);
+						if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) making peace due to time and endWarVal %d vs their %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iOurValue, iTheirValue);
 						makePeace(eEnemy);
 						continue;
 					}

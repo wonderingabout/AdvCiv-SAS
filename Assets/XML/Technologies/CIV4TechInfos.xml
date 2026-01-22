@@ -2298,7 +2298,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<!-- advc.131b -->
 			<!-- custom: if AIs want to get an early lighthouse or moai or galleys, it may not be so useless in some contexts
-			Rebalance the priorities of techs elsewhere (such as in free tech handicaps for example) , was -100 -->
+			Rebalance the priorities of techs elsewhere (such as in free tech handicaps for example), was -100 -->
 			<iAIWeight>-20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.301 -->
@@ -3397,7 +3397,7 @@
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<!-- custom: was 0 -->
 			<bIrrigation>1</bIrrigation>
-			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress was made in irrigation technology around 0 AD/BC. +/- 1000 years, so maybe this fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example , was 0 -->
+			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress was made in irrigation technology around 0 AD/BC. +/- 1000 years, so maybe this fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example, was 0 -->
 			<bIgnoreIrrigation>1</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>8</iGridX>

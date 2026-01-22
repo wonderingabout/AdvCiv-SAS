@@ -771,7 +771,7 @@ class CvTechChooser:
 		# Open Borders
 		if ( gc.getTechInfo(i).isOpenBordersTrading() ):
 			szOpenBordersButton = self.getNextWidgetName("OpenBorders")
-			screen.addDDSGFCAt( szOpenBordersButton , szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OPEN_BORDERS, i, -1, False )
+			screen.addDDSGFCAt( szOpenBordersButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OPEN_BORDERS, i, -1, False )
 			fX += X_INCREMENT
 
 		j = 0
@@ -780,7 +780,7 @@ class CvTechChooser:
 		# Defensive Pact
 		if ( gc.getTechInfo(i).isDefensivePactTrading() ):
 			szDefensivePactButton = self.getNextWidgetName("DefensivePact")
-			screen.addDDSGFCAt( szDefensivePactButton , szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_DEFENSIVE_PACT, i, -1, False )
+			screen.addDDSGFCAt( szDefensivePactButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_DEFENSIVE_PACT, i, -1, False )
 			fX += X_INCREMENT
 
 		j = 0
@@ -789,7 +789,7 @@ class CvTechChooser:
 		# Permanent Alliance
 		if ( gc.getTechInfo(i).isPermanentAllianceTrading() ):
 			szPermanentAllianceButton = self.getNextWidgetName("PermanentAlliance")
-			screen.addDDSGFCAt( szPermanentAllianceButton , szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_PERMANENT_ALLIANCE, i, -1, False )
+			screen.addDDSGFCAt( szPermanentAllianceButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_PERMANENT_ALLIANCE, i, -1, False )
 			fX += X_INCREMENT
 
 		j = 0
@@ -798,7 +798,7 @@ class CvTechChooser:
 		# Vassal States
 		if ( gc.getTechInfo(i).isVassalStateTrading() ):
 			szVassalStateButton = self.getNextWidgetName("VassalState")
-			screen.addDDSGFCAt( szVassalStateButton , szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_VASSAL_STATE, i, -1, False )
+			screen.addDDSGFCAt( szVassalStateButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_VASSAL_STATE, i, -1, False )
 			fX += X_INCREMENT
 
 		j = 0
