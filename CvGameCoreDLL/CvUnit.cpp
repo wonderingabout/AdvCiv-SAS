@@ -3312,7 +3312,7 @@ bool CvUnit::canScrap() const
 			return false;
 		}
 
-		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in known issue as of now 23 if i'm not mistaken that we fixed, but then in known issue as of now 53 i noticed a privateer loop and AI dying because of it. Since we now handle properly max naval units among other units being produced, we don't fear overproducing them too much, at least not too hard, but we i.e. i xdfear invisible scrapping. There should almost never be good cases where scrapping is worth, and these should be handled as exceptions rather than the main rule. Just in known issue as of now 52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd). Really, i feel or it seems to me like scrapping should be handled as an exception not as a "i don't know what to do with this weird unit let's just scrap it xd". "No! Don't scrap it xd, figure out what to do with it, most often the risk of loop or such far outweigh having 1 or 2 extra units anyway i think), if fearing financial trouble or such, please implement it in your code, as for me as of now i consider/assume assume AIs develop well and build these formulas based on iNumCities or such for scaling, the benefits seem to far outweigh the risks/costs, and please read known isue as of now 53 for details; also, since we are only adding pre checks and not changing the logic otherwise, should be fine-->
+		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in known issue as of now 23 that we fixed, but then in known issue as of now 53 i noticed a privateer loop and AI dying because of it. Since we now handle properly max naval units among other units being produced, we don't fear overproducing them too much, at least not too hard, but we i.e. i xdfear invisible scrapping. There should almost never be good cases where scrapping is worth, and these should be handled as exceptions rather than the main rule. Just in known issue as of now 52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd). Really, i feel or it seems to me like scrapping should be handled as an exception not as a "i don't know what to do with this weird unit let's just scrap it xd". "No! Don't scrap it xd, figure out what to do with it, most often the risk of loop or such far outweigh having 1 or 2 extra units anyway i think), if fearing financial trouble or such, please implement it in your code, as for me as of now i consider/assume assume AIs develop well and build these formulas based on iNumCities or such for scaling, the benefits seem to far outweigh the risks/costs, and please read known isue as of now 53 for details; also, since we are only adding pre checks and not changing the logic otherwise, should be fine-->
 		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well))) but just in case -->
 		CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
 		const bool bBarbarian = kPlayer.isBarbarian();
@@ -3455,7 +3455,7 @@ bool CvUnit::canScrap() const
 				}
 				else
 				{
-					// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply-->
+					// <!-- custom: +1 since we start eras at 0 so renaissance is first era where our decay starts to apply-->
 					// clamp to avoid negative
 					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
@@ -11005,7 +11005,7 @@ int CvUnit::getSubUnitsAlive(int iDamage) const
 
 void CvUnit::read(FDataStreamBase* pStream)
 {
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -11140,7 +11140,7 @@ void CvUnit::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 8; // advc.313: Disorganized promo removed, advc.enum: bugfix.
 

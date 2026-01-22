@@ -1220,7 +1220,7 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<!-- custom: button from c2c mod as nicely recommended by chatgpt 5.1 among my candidates thanks -->
 			<Button>Art/AdvCiv_SAS/Civics/Protectionism/charters.dds</Button>
-			<!-- custom: note: with the old strict no foreign trade version of this civic, tech prereq could't be too early else AI players would pick it too often which slowed tech pace in autoplay as it was an isolationism civic if i'm not mistaken unlike our reworked one, also it's fine to have it later now that it has competitors civics i mean; plus also this way the as of now free specialist effect is more balanced and not as op so maybe fine as such and better in this way as well i mean. -->
+			<!-- custom: note: with the old strict no foreign trade version of this civic, tech prereq could't be too early else AI players would pick it too often which slowed tech pace in autoplay as it was an isolationism civic unlike our reworked one, also it's fine to have it later now that it has competitors civics i mean; plus also this way the as of now free specialist effect is more balanced and not as op so maybe fine as such and better in this way as well i mean. -->
 			<TechPrereq>TECH_BANKING</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- K-Mod: was MEDIUM -->

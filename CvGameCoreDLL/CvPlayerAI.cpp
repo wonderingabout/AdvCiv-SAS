@@ -1752,7 +1752,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 	// --- 2) SAS early far-barb rule (minimal) ---
     if (!bBarbarian && !bEverOwned && bBarbCity /* <!-- custom: no need to care about these, raze regardless if not in our interest to keep the city --> !kCity.isHolyCity() && !kCity.hasActiveWorldWonder() */)
     {
-		// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too if i'm not mistaken as chatgpt 5 added here (but check if accurate)-->
+		// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too as chatgpt 5 added here (but check if accurate)-->
         if (bIsolated && bEarlyPhase)
 		{
             bRaze = true;
@@ -12397,13 +12397,13 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		{
 			const CvBuildingClassInfo& kCls = GC.getInfo(eLoopBuildingClass);
 
-			// <!-- custom: to not cause overvaluing, exclude building classes that are rare (not built in many cities) such as world wonders, national wonders, and cathedrals (handled below since they are not limited but just rarely built due to their cost and restrictions (in XML iMaxGlobalInstances and such are -1 so not limited if i'm not mistaken so need to handle it in another way if i'm not mistaken)) as of now which are the only ones i can think of. This is because our nice change caused incense to be a bit overpriced due to effect with buddhist stupa and pagan cathedral which are buildings we rarely build, so no need to value bonuses too much more just because of these. So to simplify, just ignore these cases; we also save some computation nicely too if i may say by early exiting -->
+			// <!-- custom: to not cause overvaluing, exclude building classes that are rare (not built in many cities) such as world wonders, national wonders, and cathedrals (handled below since they are not limited but just rarely built due to their cost and restrictions (in XML iMaxGlobalInstances and such are -1 so not limited so need to handle it in another way if i'm not mistaken)) as of now which are the only ones i can think of. This is because our nice change caused incense to be a bit overpriced due to effect with buddhist stupa and pagan cathedral which are buildings we rarely build, so no need to value bonuses too much more just because of these. So to simplify, just ignore these cases; we also save some computation nicely too if i may say by early exiting -->
 			// Skip world wonders, national wonders (player-limited)
 			// Skip world wonders, team wonders, national wonders
 			if (kCls.isLimited())
 				continue;
 
-			// <!-- custom: e.g. if justinian player gains happiness from horse bonus if he builds his civ-specific stable as of now if i'm not mistaken that it is the case as of now for example, then we have more leverage vs him and he badly needs our bonus more.. Is sad but is business i mean and maybe just how it is; so on our end make sure we maximize and squeeze the best from him so he can get this bonus. Ugly and terrible but is business i mean and hopefully AI playing smarter -->
+			// <!-- custom: e.g. if justinian player gains happiness from horse bonus if he builds his civ-specific stable as of now for example, then we have more leverage vs him and he badly needs our bonus more.. Is sad but is business i mean and maybe just how it is; so on our end make sure we maximize and squeeze the best from him so he can get this bonus. Ugly and terrible but is business i mean and hopefully AI playing smarter -->
 			// Use the building the BUYER can actually build for this class
 			BuildingTypes eB = (BuildingTypes)GC.getInfo(getCivilizationType()).getCivilizationBuildings(eLoopBuildingClass);
 			if (eB == NO_BUILDING)
@@ -14043,7 +14043,7 @@ uint CvPlayerAI::AI_unitImpassables(UnitTypes eUnit) const
 	uint uiCount = 0;
 	// <advc.057>
 	uint const uiCountBits = 3;
-	// <!-- custom: note: as part of cleaning up the old uiFlag code, not deleting these uiFlagBits code "bits" xd (no pun) though as recommended by claude ai and chatgpt 5 as according to chatgpt 5 for example this isn't using the savegame uiFlag so kept as such if i'm not mistaken, check if accurate --> 
+	// <!-- custom: note: as part of cleaning up the old uiFlag code, not deleting these uiFlagBits code "bits" xd (no pun) though as recommended by claude ai and chatgpt 5 as according to chatgpt 5 for example this isn't using the savegame uiFlag so kept as such --> 
 	uint const uiFlagBits = std::numeric_limits<uint>::digits - uiCountBits;
 	uint const uiTerrains = (uint)GC.getNumTerrainInfos();
 	FAssert(uiTerrains + ((uint)GC.getNumFeatureInfos()) <= uiFlagBits);
@@ -15104,7 +15104,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 		if (kU.getUnitCombatType() != eCombat)
 			continue;
 
-		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose if i'm not mistaken in my thinking, check if accurate as this is just a guess of mine but seems to run fine so far; chatgpt 5 seems to agree as well, check if accurate as well i mean -->
+		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose i'm guessing; chatgpt 5 seems to agree as well, check if accurate as well i mean -->
 		// Totally fair—queued builds can get canceled or reshuffled, so “counting makings” can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
 		iTotal += iHave; // count once per class
 	}
@@ -24270,7 +24270,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 {
 	CvPlayer::read(pStream);
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -24358,7 +24358,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	pStream->Read(&m_bWasFinancialTrouble);
 	pStream->Read(&m_iTurnLastProductionDirty);
 
-	// <!-- custom: note: lone bracket was as such, left as is if i'm not mistaken as it is not related to our uiflag logic, check if accurate -->
+	// <!-- custom: note: lone bracket was as such, left as is as it is not related to our uiflag logic, check if accurate -->
 	{
 		m_aeAICitySites.clear();
 		uint uiSize;
@@ -24444,7 +24444,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
 	CvPlayer::write(pStream);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 
 	uiFlag = 22; // advc.130w: Cache for expansionist hate

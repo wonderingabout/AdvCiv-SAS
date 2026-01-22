@@ -461,12 +461,12 @@ class CvInfoScreen:
 		self.W_WONDER_SPECIAL_PANE = 420
 		self.H_WONDER_SPECIAL_PANE = 140 - 15
 
-		# <!-- custom: moved from drawWondersTab to init for consistency/clarity if i'm not mistaken in doing so. -->
+		# <!-- custom: moved from drawWondersTab to init for consistency/clarity. -->
 		# (Pane geometry for Top Cities + Wonders is computed above in the TOP CITIES section.)
 		# self.X_WONDERS_RIGHT_PANE / self.Y_WONDERS_RIGHT_PANE / self.W_WONDERS_RIGHT_PANE / self.H_WONDERS_RIGHT_PANE
 		# Info about this wonder, e.g. name, cost, etc. (scale the legacy 460x620 right pane layout)
 
-		# <!-- custom: comment-out the alternative else block and unindent similarly to how was done for the stats tab coordinates as of now in init as well. So i applied this here as well in the wonders tab to simplify if i'm not mistaken in doing so (not sure, check if accurate). -->
+		# <!-- custom: comment-out the alternative else block and unindent similarly to how was done for the stats tab coordinates as of now in init as well. So i applied this here as well in the wonders tab to simplify -->
 		# if AdvisorOpt.isShowInfoWonders():
 		self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 20
 		self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20

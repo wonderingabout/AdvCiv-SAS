@@ -8,10 +8,8 @@
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #25 -->
 <!-- custom: due to the preexisting warning below, disabling bonuses we don't need/want rather than removing them altogether, so they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally) without removing them, the assets affected by this change are rebalanced with another effect instead or left as is if deemed fine to do so As for why they are removed, it is tedious (at leats to me if i may say) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less -->
 <!-- WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem -->
-
 <!-- advc.129: Changed bonus class of Gold, Silver and Gems from "General"
 	 to new class "Precious". -->
-
 <Civ4BonusInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<BonusInfos>
 		<BonusInfo> <!-- custom: type: BONUS_ALUMINUM (useful for VS Code upper tree view while scrolling) -->
@@ -145,7 +143,7 @@
 			</YieldChanges>
 			<!-- advc.036: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: not as important as bonus_iron but really not far, if all fails we can produce axemen, macemen, possibly other units so definitely value it. Note: this iAIObjectivefield is now used by workers to decide which plot to work first or which city to move to, was 0 -->
+			<!-- custom: not as important as bonus_iron but really not far, if all fails we can produce axemen, macemen, possibly other units so definitely value it. Note: this iAIObjective field is now used by workers to decide which plot to work first or which city to move to, was 0 -->
 			<iAIObjective>8</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -219,7 +217,7 @@
 			<iPlacementOrder>1</iPlacementOrder>
 			<iConstAppearance>100</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to very quick search/glance(s) in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=horse+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcm7YBMd-acKwfINglfHLIEBS3uuGX7ss47YoPO_wBTDDjEnhAAMFdqu7_7Wnbrthcipt1FZgx-Ds9i3kT7LAua9LHD1K_U-I_N7EJCJlKSj7gP-cN0EaCn8iR1GAkszdJp66tDl_Aeh47HSxfppG_tOLjC_eNwt9-VBAZzdtPXHqzfpg8A&sa=X&ved=2ahUKEwjnyNzl2bmNAxU2UaQEHb9HNBAQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88#vhid=xvOqTuO9uw01DM&vssid=mosaic , was 9 / 68 -->
+			<!-- custom: Long_Comments_XML.txt #298, was 9 / 68 -->
 			<!-- advc.129: was 0 -->
 			<iMinLatitude>0</iMinLatitude>
 			<!-- advc.129: was 90 -->
@@ -231,9 +229,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well, was 75 / 128 -->
-			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula), was 50 / 128 -->
-			<!-- custom: after the _camel formula change and in general now that we have enough bonus_camel, and hopefully not too much, to balance out and make stronger desert tiles, we don't need as much horse, reduce it a bit, was 50 / 192 -->
-			<!-- advc.129: was 100 -->
+			<!-- custom: Long_Comments_XML.txt #297 -->
 			<iPlayer>30</iPlayer>
 			<!-- advc.129: was 256 -->
 			<iTilesPer>180</iTilesPer>
@@ -705,7 +701,7 @@
 			<iPlacementOrder>6</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>10</iMinAreaSize>
-			<!-- custom: adjusted using as a base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/ , and as part of renaming clam to the more general molluscs, then now using as a base for molluscs now for example https://www.google.com/search?q=molluscs+world+map&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nmYwaNsujfiR1Q-jz5jJDQ&ved=0ahUKEwjb9cHOyLmNAxUNfKQEHaMnJtkQ4dUDCBE&uact=5&oq=molluscs+world+map&gs_lp=EgNpbWciEm1vbGx1c2NzIHdvcmxkIG1hcEiiFlAAWPAVcAF4AJABAJgBNaABgAOqAQIxMLgBA8gBAPgBAZgCBqAC0gHCAgYQABgHGB7CAg0QABiABBixAxhDGIoFwgIIEAAYBxgKGB7CAggQABgFGAcYHpgDAJIHATagB4cbsgcBNbgH0QHCBwUwLjUuMcgHCQ&sclient=img#vhid=_qbhSp5j1uBWbM&vssid=mosaic , was 0/50 -->
+			<!-- custom: adjusted using as a base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/ , and as part of renaming clam to the more general molluscs, then now using as a base for molluscs now; Long_Comments_XML.txt #301, was 0/50 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>80</iMaxLatitude>
 			<Rands>
@@ -715,7 +711,7 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<iPlayer>0</iPlayer>
-			<!-- custom: buff water ressources, and molluscs should be more general and widespread than clam(s) alone is(are?), was 0 / 32 -->
+			<!-- custom: buff water ressources, and molluscs should be more general and widespread than clam alone is, was 0 / 32 -->
 			<iTilesPer>26</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
@@ -807,7 +803,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: buff cow presence towards the edges when seems relevant or possible to do so, according to/using https://www.google.com/search?q=cow+world+map&sca_esv=04268fcd01117b60&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=5pswaO_-A9P5kdUP4fDG0AQ&ved=0ahUKEwjvic22-7mNAxXTfKQEHWG4EUoQ4dUDCBE&uact=5&oq=cow+world+map&gs_lp=EgNpbWciDWNvdyB3b3JsZCBtYXAyCBAAGBMYBxgeMggQABgTGAcYHjIHEAAYgAQYEzIKEAAYExgFGAcYHjIKEAAYExgFGAcYHjIKEAAYExgFGAcYHkiGA1AAWIYCcAB4AJABAJgBMqABgQGqAQEzuAEDyAEA-AEBmAIDoAKHAcICBhAAGAcYHsICCBAAGAcYChgemAMAkgcBM6AHxA-yBwEzuAeHAcIHAzAuM8gHBA&sclient=img#vhid=9hlMhu2993mhWM&vssid=mosaic , was 9 / 50 -->
+			<!-- custom: buff cow presence towards the edges when seems relevant or possible to do so; Long_Comments_XML.txt #300, was 9 / 50 -->
 			<!-- advc.129: was 0 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>65</iMaxLatitude>
@@ -874,7 +870,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and molluscs are for example, was 0 / 32 -->
+			<!-- custom: buff water ressources, less pronounced in less general bonuses (as fish and molluscs are for example, was 0 / 32 -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>30</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -916,7 +912,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to very quick search in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=deer+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcpTTqBUdyVgzq0c3_k8z34FKdUNCNiw5OX_lAsIf8VARnD9D5GX4da1rijxFZl6bQwFge1sId2k_KUaS3y2xIjhlPnpGKiJa1IRCtKpMP3kDHobIPV1kPLIRJvmUh7guUKzir7QVb-qVCgHxvp6hJaZuXmi70P5qniE11OO4djUFFIltjA&sa=X&ved=2ahUKEwjN4r-x2bmNAxV3QaQEHYYHI8sQtKgLegQIEhAB&biw=2048&bih=1023&dpr=1.88#vhid=EKEnB7XJ0KxTwM&vssid=mosaic, and to buff specifically the edges of the map since seems possible or maybe rather relevant here at least for advciv-sas, was 30 / 90 -->
+			<!-- custom: Long_Comments_XML.txt #299, was 30 / 90 -->
 			<iMinLatitude>45</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>
@@ -1014,7 +1010,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<!-- custom: interesting read that summarizes quite well what i glanced through if i may say or if it's a word maybe rather in english, https://www.january.ai/blog/pork-vs-beef , pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo or in improvementinfos too for details -->
+		<!-- custom: interesting read that summarizes quite well what i glanced through if i may say or if it's a word maybe rather in english, https://www.january.ai/blog/pork-vs-beef, pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo or in improvementinfos too for details -->
 		<BonusInfo> <!-- custom: type: BONUS_PIG (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_PIG</Type>
 			<Description>TXT_KEY_BONUS_PIG</Description>
@@ -1036,7 +1032,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted using https://www.google.com/search?q=all+pigs+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=1YIwaMzbC5qakdUPzfjw2Qc&ved=0ahUKEwiMmubC47mNAxUaTaQEHU08PHsQ4dUDCBE&uact=5&oq=all+pigs+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKWFsbCBwaWdzIG5hdHVyYWwgaGFiaXRhdCBpbiB0aGUgd29ybGQgbWFwSLcZUNwFWPcYcAF4AJABAJgBI6AB0QOqAQIxNrgBA8gBAPgBAZgCAKACAJgDAIgGAZIHAKAH0AWyBwC4BwDCBwDIBwA&sclient=img#vhid=fAqsKwsbKGnyUM&vssid=mosaic , and to buff edges of the map, pig in a large sense (boar and such), can probably be more widespread than that, was 9 / 50 -->
+			<!-- custom: Long_Comments_XML.txt #302, and to buff edges of the map, pig in a large sense (boar and such), can probably be more widespread than that, was 9 / 50 -->
 			<!-- advc.129: was 10 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>70</iMaxLatitude>
@@ -1100,7 +1096,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to https://www.google.com/search?sca_esv=d68d1b3088278740&rlz=1C1GCEA_enFR1111FR1111&q=rice+natural+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtci1AK0oIkDPIMLSzNdfCsScXRDO9E92u6oQy0ZUCTVtFdzRg-C6HN8C63vx8nYX9s-qoP0iE8VkwFQOGgctLLxMbKATUbgZLQyYfx64LEnfqULbDUPajcQia8TKaZuoNhizdrYogk8tOMhcjKRK_WJwA0yKkaZ6G3hJccOaKX8s1Ovvg5A&sa=X&ved=2ahUKEwjGs-bM97mNAxUhT6QEHXAwMxYQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88 , and to buff rice a bit if relevant here and possible indeed about/for rice since it is quite weak indeed  of it being how it (rice) works, was 0 / 40 -->
+			<!-- custom: Long_Comments_XML.txt #303, and to buff rice a bit if relevant here and possible indeed about/for rice since it is quite weak indeed  of it being how it (rice) works, was 0 / 40 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>55</iMaxLatitude>
 			<Rands>
@@ -1161,7 +1157,7 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to https://www.google.com/search?q=all+sheep+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=DIMwaN3ECd2okdUP257t0AU&ved=0ahUKEwjd-oDd47mNAxVdVKQEHVtPG1oQ4dUDCBE&uact=5&oq=all+sheep+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKmFsbCBzaGVlcCBuYXR1cmFsIGhhYml0YXQgaW4gdGhlIHdvcmxkIG1hcEicD1C1BljLDnACeACQAQCYATGgAcABqgEBNrgBA8gBAPgBAZgCAKACAJgDAIgGAZIHAKAHjgKyBwC4BwDCBwDIBwA&sclient=img#vhid=UsBOuEc69S-vbM&vssid=mosaic , was 25 / 90 -->
+			<!-- custom: Long_Comments_XML.txt #304, was 25 / 90 -->
 			<!-- advc.129: was 30 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>60</iMaxLatitude>
@@ -1322,7 +1318,7 @@
 			<iPlacementOrder>5</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to https://www.google.com/search?q=all+furs+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=vYMwaMTaB7Ti7M8P4KW_uQ0&ved=0ahUKEwiErbKx5LmNAxU0MfsDHeDSL9cQ4dUDCBE&uact=5&oq=all+furs+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKWFsbCBmdXJzIG5hdHVyYWwgaGFiaXRhdCBpbiB0aGUgd29ybGQgbWFwSPITUNULWI8PcAN4AJABAJgBMqABkgGqAQE0uAEDyAEA-AEBmAIAoAIAmAMAiAYBkgcAoAe0AbIHALgHAMIHAMgHAA&sclient=img#vhid=K2fNe9ardOxFWM&vssid=mosaic , was 35 / 90 -->
+			<!-- custom: Long_Comments_XML.txt #305, was 35 / 90 -->
 			<!-- advc.021b: was 0 -->
 			<iMinLatitude>45</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
@@ -1425,7 +1421,7 @@
 					<bTerrain>1</bTerrain>
 				</TerrainBoolean>
 			</TerrainBooleans>
-			<!-- custom: changed as recommended/suggested by chatgpt after asking it too, and also after that where i found some info for example here https://www.beldiamond.com/blogs/guidance/where-do-precious-gemstones-come-from?srsltid=AfmBOooKdFeP12k24LvXWWNp9GGZqRQ94ZhK5frfS8ui2gCy3VuVODyj; strategically may make river economy more viable or if already is viable more versatile, was FEATURE_JUNGLE 1; note: it may also indirectly help address some AI issues i have noticed mentioned in some base advciv or such code comments now that gemstones spawn on various terrains including feature less ones if i may say and am not mistaken in saying or thinking so, at least in all cases i find it an interesting design as such in particular for flood_plains that are now more versatile on top of it being more realistic perhaps immersive as hinted or suggested by chatgpt to add them i mean mentionning something like this / meaning something similar i mean -->
+			<!-- custom: strategically may make river economy more viable or if already is viable more versatile, was FEATURE_JUNGLE 1; based on a suggestion of chatgpt; Long_Comments_XML.txt #306 -->
 			<FeatureBooleans>
 				<FeatureBoolean>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -1904,7 +1900,7 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: now that this (grapes) is based on grapes not on wine anymore, it makes more sense to give food instead of gold, buffing wine (now grapes) at same that was/were bit weak so wishable hopefully at least is what i want for grapes -->
+			<!-- custom: now that this is based on grapes not on wine anymore, it makes more sense to give food instead of gold, buffing wine (now grapes) at same that was/were bit weak so wishable hopefully at least is what i want for grapes -->
 			<YieldChanges>
 				<iYieldChange>1</iYieldChange>
 				<iYieldChange>0</iYieldChange>
@@ -1917,7 +1913,7 @@
 			<iPlacementOrder>5</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to https://www.google.com/search?q=all+grapes+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=aoQwaNLKG9XZ7M8P4aypwQM&ved=0ahUKEwjSp4WE5bmNAxXVLPsDHWFWKjgQ4dUDCBE&uact=5&oq=all+grapes+natural+habitat+in+the+world+map&gs_lp=EgNpbWciK2FsbCBncmFwZXMgbmF0dXJhbCBoYWJpdGF0IGluIHRoZSB3b3JsZCBtYXBItxlQ8AVYnxhwAngAkAEAmAE0oAHOAaoBATe4AQPIAQD4AQGYAgCgAgCYAwCIBgGSBwCgB7sCsgcAuAcAwgcAyAcA&sclient=img , was 20 / 50 -->
+			<!-- custom: Long_Comments_XML.txt #307, was 20 / 50 -->
 			<iMinLatitude>0</iMinLatitude>
 			<!-- custom: buffing edge of the map a bit more too as seems relevant here too -->
 			<iMaxLatitude>55</iMaxLatitude>
@@ -1974,7 +1970,7 @@
 			<iPlacementOrder>6</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>10</iMinAreaSize>
-			<!-- custom: whales seem to be about everywhere from/at quick glance (https://www.google.com/search?sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&q=whales+world+map&udm=2&fbs=ABzOT_BnMAgCWdhr5zilP5f1cnRvJ3SHQcDVxkdpDyHwlRhdNVOjEWzQMZQu8do521nGzcQgBp5tOxxfClTcp75NgQri0b8KncTgS81NVO6dQ1nU7PHYR-u9eJ1OtyHSItVdXIOv5zjT8TvPQJxoan_TZNn3v_MIzpNnqoB1UZj62hrYDAIm1EdLYtJOnT4QYj3A6ylt5nHWOO7chh5XeQK_4urorE6XLg&sa=X&ved=2ahUKEwjrgL_NyLmNAxW_TqQEHdzYBegQtKgLegQIFhAB&biw=2048&bih=1023&dpr=1.88#vhid=nAr4_WbajdaO-M&vssid=mosaic), buff minLatitude, was 50 -->
+			<!-- custom: whales seem to be about everywhere; Long_Comments_XML.txt #308, was 50 -->
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>
@@ -1983,8 +1979,7 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too and flat, always constant spanwing, was 67 -->
-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and molluscs are for example), but since it was 0, using a higher than 0 value to not disable it according to/as said in (english verison rather translated web page using google chrome (for example is what i used, see docs for details) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often, reduce it a bit now from 0 / 26 to value(s) below that. -->
+			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too and flat, always constant spanwing, was 67; buff water bonuses. Since it was 0, using a higher than 0 value to not disable it according to https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often, reduce it a bit now from 0 / 26 to value(s) below that. -->
 			<iPlayer>0</iPlayer>
 			<iTilesPer>29</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -2095,7 +2090,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, a bit if not lot at elast for/to metedious to maintain/manage for small gains, as for camels it can be directly used to buff desert tiles or be an alternative mount to the horse and opens the door to having camel mounts multiple/many ones/units, may also have some interactions with wonders or such or not such or yes such; is based on BONUS_HORSE's xml and adjusted and such (for example only in desert to boost these tiles and as seems quite accurate), was BONUS_MOVIES -->
+		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, a bit if not lot at least for/to metedious to maintain for small gains, as for camels it can be directly used to buff desert tiles or be an alternative mount to the horse; Long_Comments_XML.txt #310, was BONUS_MOVIES -->
 		<BonusInfo> <!-- custom: type: BONUS_CAMEL (useful for VS Code upper tree view while scrolling) -->
 			<Type>BONUS_CAMEL</Type>
 			<Description>TXT_KEY_BONUS_CAMEL</Description>
@@ -2105,7 +2100,7 @@
 			<TechReveal>TECH_ANIMAL_HUSBANDRY</TechReveal>
 			<TechCityTrade>TECH_ANIMAL_HUSBANDRY</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: now giving food like most if not all food strategic animals, hammer is adjusted through their specific improvement (for example pasture) rather; giving more food than horse ressource to make it a super nutritious food ressource, should be accurate even though i dindt check... storing water + flesh meat in desert, i could be mistaken too if i may say or maybe not or not too much but in all cases -->
+			<!-- custom: now giving food like most if not all food strategic animals, hammer is adjusted through their specific improvement (for example pasture) rather; giving more food than horse ressource to make it a super nutritious food ressource, should be accurate even though i dindt check... storing water + flesh meat in desert, i could be mistaken too if i may say or maybe not or not too much -->
 			<YieldChanges>
 				<iYieldChange>3</iYieldChange>
 				<iYieldChange>0</iYieldChange>
@@ -2113,14 +2108,14 @@
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- custom: unlike horse, don't seek hard camel, but take it naturally if it's there maybe -->
-			<!-- custom: not as important as bonus_horse but really not far, we can't build chariots and cavalry as of now, but if all fails we can produce camel archers, horse knights, and camel knights, a very strong bonus to value especially if we don't have it, but even if we do we could trade it or keep as extra in case so to simplify it value it just as much. Note: this iAIObjectivefield is now used by workers to decide which plot to work first or which city to move to, was 0 -->
+			<!-- custom: not as important as bonus_horse but really not far, we can't build chariots and cavalry as of now, but if all fails we can produce camel archers, horse knights, and camel knights, a very strong bonus to value especially if we don't have it, but even if we do we could trade it or keep as extra in case so to simplify it value it just as much, was 0 -->
 			<iAIObjective>8</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iPlacementOrder>1</iPlacementOrder>
 			<iConstAppearance>100</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<!-- custom: adjusted according to very quick search/glance(s) in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=horse+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcm7YBMd-acKwfINglfHLIEBS3uuGX7ss47YoPO_wBTDDjEnhAAMFdqu7_7Wnbrthcipt1FZgx-Ds9i3kT7LAua9LHD1K_U-I_N7EJCJlKSj7gP-cN0EaCn8iR1GAkszdJp66tDl_Aeh47HSxfppG_tOLjC_eNwt9-VBAZzdtPXHqzfpg8A&sa=X&ved=2ahUKEwjnyNzl2bmNAxU2UaQEHb9HNBAQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88#vhid=xvOqTuO9uw01DM&vssid=mosaic , was 9 / 68 -->
+			<!-- custom: Long_Comments_XML.txt #309, was 9 / 68 -->
 			<!-- advc.129: was 0 -->
 			<iMinLatitude>0</iMinLatitude>
 			<!-- advc.129: was 90 -->

@@ -1660,7 +1660,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: not functionnal as of now if i am not mistaken as workers are non-fighters as of now in advciv-sas but added for flavor as in for theme and for accuracy or exhaustiveness -->
+			<!-- custom: not functionnal as of nowas workers are non-fighters as of now in advciv-sas but added for flavor as in for theme and for accuracy or exhaustiveness -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -7215,7 +7215,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<!-- custom: persia_immortal now based on the swordsman, historically more accurate if i am not mistaken in timeline and main unit than civ4's chariot-based unit -->
+		<!-- custom: persia_immortal now based on the swordsman, historically more accuratein timeline and main unit than civ4's chariot-based unit -->
 		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_PERSIA_IMMORTAL (useful for VS Code upper tree view while scrolling) -->
 			<Class>UNITCLASS_SWORDSMAN</Class>
 			<Type>UNIT_PERSIA_IMMORTAL</Type>
@@ -7322,7 +7322,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost to indicate they always spawn more (sort of immortal if i am not mistaken in my attempt to emulate it/this at least is how i want it), but not too much to not make them too op either ideally, as the swordsman is still a strong as of now unit; see also related known issue as of now 67 for details -->
+			<!-- custom: reduce cost to indicate they always spawn more (sort of immortal), but not too much to not make them too op either ideally, as the swordsman is still a strong as of now unit; see also related known issue as of now 67 for details -->
 			<iCost>38</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -7392,7 +7392,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or such, check if accurate; see also code comment at the generic axeman for details and additional/related info, was empty in the generic swordsman; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such -->
+			<!-- custom: considering its higher base stats than the spearman, make modifiers lower and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or such, check if accurate; see also code comment at the generic axeman for details and additional/related info, was empty in the generic swordsman; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but still significant edge plus cost reduction to help too, hopefully balanced as such -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -8624,7 +8624,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: the impi or zulu civilization is overall and especially if i am not mistaken from my quick in this case memories of what i read about it the aggressive profile at least for leader shaka, also allow upgrade to macemen as well -->
+			<!-- custom: the impi or zulu civilization is overall aggressive in profile at least for leader shaka, also allow upgrade to macemen as well -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_PIKEMAN</UnitClassUpgradeType>
@@ -9241,7 +9241,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: same as the generic spearman; since mounted units seldom/rarelydefend cities, this is not op in combination with as of now city attack modifiers i think; note: give them an offensive melee effect so alexander can use them as such (maybe pericles too who knows), but i added it as a combat modifier rather than free promotion else may stack with the pikeman effect at/afterupgrade and be bit too op, so better as such, and hoplite is as of now strong enough already if i'm not mistaken -->
+			<!-- custom: same as the generic spearman; since mounted units seldom/rarelydefend cities, this is not op in combination with as of now city attack modifiers i think; note: give them an offensive melee effect so alexander can use them as such (maybe pericles too who knows), but i added it as a combat modifier rather than free promotion else may stack with the pikeman effect at/afterupgrade and be bit too op, so better as such, and hoplite is as of now strong enough already -->
 			<!-- custom: see code comment at the generic spearman for details or related info-->
 			<UnitCombatMods>
 				<UnitCombatMod>
@@ -9589,7 +9589,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks if i am not mistaken especially with our changes -->
+			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacksespecially with our changes -->
 			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
 			<UnitAIs>
 				<UnitAI>
@@ -9830,7 +9830,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks if i am not mistaken especially with our changes -->
+			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacksespecially with our changes -->
 			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
 			<UnitAIs>
 				<UnitAI>
@@ -9845,7 +9845,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: important to keep if all else fails (no camel, no horse, no copper, no iron), the longbows are one of the best options except perhaps catapults later in tech, so do not punish very bad bonuses start if we are otherwise doing well and a longbow rush could help if i am not mistaken and keep this UNITAI_COUNTER to hopefully help that-->
+				<!-- custom: important to keep if all else fails (no camel, no horse, no copper, no iron), the longbows are one of the best options except perhaps catapults later in tech, so do not punish very bad bonuses start if we are otherwise doing well and a longbow rush could helpand keep this UNITAI_COUNTER to hopefully help that-->
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -10065,7 +10065,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks if i am not mistaken especially with our changes; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE -->
+			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacksespecially with our changes; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE -->
 			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
 			<UnitAIs>
 				<UnitAI>
@@ -10329,7 +10329,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks if i am not mistaken especially with our changes; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE -->
+			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacksespecially with our changes; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE -->
 			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
 			<UnitAIs>
 				<UnitAI>
@@ -10587,7 +10587,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending if i'm not mistaken -->
+			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending -->
 			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
 			<UnitAIs>
 				<UnitAI>
@@ -10602,7 +10602,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: can be useful for versatile defense, and possibly offense as well, against melee units maybe if i am not mistaken in my guess-->
+				<!-- custom: can be useful for versatile defense, and possibly offense as well, against melee units maybe -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -10788,7 +10788,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending if i'm not mistaken -->
+			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending -->
 			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
 			<UnitAIs>
 				<UnitAI>
@@ -11024,7 +11024,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending if i'm not mistaken -->
+			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending -->
 			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
 			<UnitAIs>
 				<UnitAI>
@@ -11204,7 +11204,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<!-- custom: note: unlike the generic crossbow, this unit is combat type bow (long) as it is historically if i am not mistaken and based on my understanding of chatgpt 5's (check if accurate) historical recalling/explanation of it too to me -->
+			<!-- custom: note: unlike the generic crossbow, this unit is combat type bow (long) as it is historicallyand based on my understanding of chatgpt 5's (check if accurate) historical recalling/explanation of it too to me -->
 			<Combat>UNITCOMBAT_ARCHER_BOW_LONG</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
@@ -11260,9 +11260,9 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending if i'm not mistaken -->
+			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending -->
 			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
-			<!-- custom: this civ-specific variant is also a solid defensive choice unlike the generic crossbowman as of now; very hammer efficient and with a stronger focus on defense. With the no bonus requirement, it's a nice alternative for the english empire if they don't have bonuses, or simply to better fit their more defensive profile so added as of now defensive unitais, and removed very offensive ones if i am not mistaken and as chatgpt 5 recommends as well (check if accurate) in my thinking (check too or not maybe)-->
+			<!-- custom: this civ-specific variant is also a solid defensive choice unlike the generic crossbowman as of now; very hammer efficient and with a stronger focus on defense. With the no bonus requirement, it's a nice alternative for the english empire if they don't have bonuses, or simply to better fit their more defensive profile so added as of now defensive unitais, and removed very offensive onesand as chatgpt 5 recommends as well (check if accurate) in my thinking (check too or not maybe)-->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
@@ -11272,7 +11272,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: can be useful for versatile defense, and possibly offense as well, against melee units maybe if i am not mistaken in my guess-->
+				<!-- custom: can be useful for versatile defense, and possibly offense as well, against melee units maybe -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -11312,7 +11312,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 65 in the advciv-sas generic crossbowman, as they were cheaper units and historically longbows were cheaper to produce or such if i'm not mistaken but check if accurate -->
+			<!-- custom: was 65 in the advciv-sas generic crossbowman, as they were cheaper units and historically longbows were cheaper to produce or such  -->
 			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -12703,7 +12703,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: was "MOUNTED" 25 but now these are split so adjust accordingly if i am not mistaken in my thinking. -->
+			<!-- custom: was "MOUNTED" 25 but now these are split so adjust accordingly -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -13569,7 +13569,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_GUN</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: more suited as a flexible unit if i'm not mistaken -->
+			<!-- custom: more suited as a flexible unit -->
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
@@ -15065,7 +15065,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed according to/as in for example in (translate to english with web browser right click or such/similar thing) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too -->
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
 			<FeatureImpassables>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -15287,7 +15287,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed according to/as in for example in (translate to english with web browser right click or such/similar thing) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too -->
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
 			<FeatureImpassables>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -15391,7 +15391,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<!-- custom: a bit inflated if matched up vs longbows, but otherwise this beats an axeman and is matched evenly vs a swordsman more or less if i am not mistaken in our mod, was 4 -->
+			<!-- custom: a bit inflated if matched up vs longbows, but otherwise this beats an axeman and is matched evenly vs a swordsman more or lessin our mod, was 4 -->
 			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
@@ -18070,7 +18070,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: was UNITCOMBAT_MELEE 50, which is very nonsensical in civ4 terms since barely any medieval challenging enough remains at this time, we should focus on other effects instead to make this civ-specific unit strong enough if i'm not mistaken in my thinking-->
+			<!-- custom: was UNITCOMBAT_MELEE 50, which is very nonsensical in civ4 terms since barely any medieval challenging enough remains at this time, we should focus on other effects instead to make this civ-specific unit strong enough -->
 			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
@@ -19062,7 +19062,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: remove pillage, very inefficient and tedious, focus on city attack (note: disabled in DLL if i'm not mistaken but just in case removed here as well) -->
+			<!-- custom: remove pillage, very inefficient and tedious, focus on city attack (note: disabled in DLL but just in case removed here as well) -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -19259,7 +19259,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: remove pillage, very inefficient and tedious, focus on city attack (note: disabled in DLL if i'm not mistaken but just in case removed here as well) -->
+			<!-- custom: remove pillage, very inefficient and tedious, focus on city attack (note: disabled in DLL but just in case removed here as well) -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -19454,7 +19454,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: remove pillage, very inefficient and tedious, focus on city attack (note: disabled in DLL if i'm not mistaken but just in case removed here as well) -->
+			<!-- custom: remove pillage, very inefficient and tedious, focus on city attack (note: disabled in DLL but just in case removed here as well) -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -19712,7 +19712,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed according to/as in for example in (translate to english with web browser right click or such/similar thing) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too -->
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
 			<FeatureImpassables>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -19952,7 +19952,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed according to/as in for example in (translate to english with web browser right click or such/similar thing) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too -->
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
 			<FeatureImpassables>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -21127,7 +21127,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same if i am not mistaken), this is also convenient as it walking on water tiles may confuse the AI possibly or be tedious or super hassle to maintian or simply implement with all the unitAIs or such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
+			<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same), this is also convenient as it walking on water tiles may confuse the AI possibly or be tedious or super hassle to maintian or simply implement with all the unitAIs or such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
 			<bCanMoveImpassable>1</bCanMoveImpassable>
 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
 			<bFlatMovementCost>0</bFlatMovementCost>

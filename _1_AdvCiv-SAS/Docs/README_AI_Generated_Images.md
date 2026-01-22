@@ -64,7 +64,7 @@ First to generate our main menu image/theme, i used as advised by chatgpt Creato
 
 <img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" width="150" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp"></img>
 
-Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc), else would have lost the image :/ Phew if i may say but i thankfully escaped this...
+Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt, else would have lost the image :/ Phew i thankfully escaped this...
 
 ## Then using then Pixelcut AI to expand it to 1920 x 1080 with new details very nicely
 

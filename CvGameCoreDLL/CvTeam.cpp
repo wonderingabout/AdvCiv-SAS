@@ -5853,7 +5853,7 @@ void CvTeam::read(FDataStreamBase* pStream)
 {
 	reset(); // Init data before load
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -6004,7 +6004,7 @@ void CvTeam::write(FDataStreamBase* pStream)
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Team(%d)", getID()));
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 19; // advc.enum: Bugfix in bool-valued ArrayEnumMap
 

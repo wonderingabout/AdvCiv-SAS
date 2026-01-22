@@ -99,7 +99,7 @@ In case the information of this second link disappears someday, here is a copy o
 
 Thanks for help thanks
 
-Here is now (I like this theatrical performance of an announcer i am performing xd and very excited to do so in my mind) an example of how to download one, for an audio asset for example here ! (,) As if i'm not mistaken civ4 expects .mp3 files of a music without copyright claim on it, or "royalty free music" as it seems they call it (note: to be honest i think it's kinda shit (the music) but it is helpful and maybe not too bad, but thanks for that), for/to download(ing/) the entire media file as mp3 in this case if i'm not mistaken.
+Here is now (I like this theatrical performance of an announcer i am performing xd and very excited to do so in my mind) an example of how to download one, for an audio asset for example here ! (,) As civ4 expects .mp3 files of a music without copyright claim on it, or "royalty free music" as it seems they call it (note: to be honest i think it's kinda shit (the music) but it is helpful and maybe not too bad, but thanks for that), for/to download(ing/) the entire media file as mp3 in this case if i'm not mistaken.
 
 But while writing this, it now played this very nice or cool/relaxing soft if as they say if i may say too in this caseor not or etc, from [this youtube playlist](https://www.youtube.com/watch?v=MM2-z8inpY8&list=PLfP6i5T0-DkLlj5LDluZcpP9n6YlATpSG&index=3) for example; also adding what i know of yt-dlp or not or yessuch as using `-x`
 
@@ -109,7 +109,7 @@ But while writing this, it now played this very nice or cool/relaxing soft if as
 yt-dlp -x https://www.youtube.com/watch?v=MM2-z8inpY8 --audio-format mp3 --add-metadata
 ```
 
-Please note that it is also possible to set a start time and end time, like i mean you don't have to have the whole file but say from 00:30 to 00:55 section/part of the media file if you want, see the first reddit link in this readme.md section for details if i'm not mistaken and still available...
+Please note that it is also possible to set a start time and end time, like i mean you don't have to have the whole file but say from 00:30 to 00:55 section/part of the media file if you want, see the first reddit link in this readme.md section for details still available...
 
 Here is an example of how to download same video/media file but from seconds 15 to seconds 45 (i.e. from 00:15 to 00:45 of the video/media file), not sure is best way to do it, may or not be, but at least seems to work; but since i couldn't find how exactly to download not best audio AND only a part of the video, then i asked chatgpt who told me how to do it so:
 
@@ -235,7 +235,7 @@ git tag -fa "$TAG" "$SHA" \
 # force-push because we’re updating an existing remote tag object
 git push --force origin "$TAG"
 # if you’re not correcting an existing remote tag:
-# if not force pushing then before you'd need to rather do instead if i'm not mistaken git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so(but check if accurate)), so i put all comments here for reliability and clarity
+# if not force pushing then before you'd need to rather do instead git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so(but check if accurate)), so i put all comments here for reliability and clarity
 # and then next line you could do (no force push if new tag that did not existing before): 
 # git push origin "$TAG"
 ```
@@ -264,7 +264,7 @@ git tag -fa "$TAG" "$SHA" \
 # force-push because we’re updating an existing remote tag object
 git push --force origin "$TAG"
 # if you’re not correcting an existing remote tag:
-# if not force pushing then before you'd need to rather do instead if i'm not mistaken git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so(but check if accurate)), so i put all comments here for reliability and clarity
+# if not force pushing then before you'd need to rather do instead git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so(but check if accurate)), so i put all comments here for reliability and clarity
 # and then next line you could do (no force push if new tag that did not existing before): 
 # git push origin "$TAG"
 ```
@@ -275,7 +275,7 @@ Similarly, i have found it very useful to keep a .txt copy of the docs i use, in
 
 When doing a global search with VS Code for anything, as long as this manual.txt for example (or other files) are in the mods folders (anywhere, this/her is an example, anyways), then i can and may often (not guaranteed but maybe) also find useful information as part of my global search results.
 
-Not necessarily for all docs, or may if you want, but sure is very convenient, hopefully helpful tip or maybe not but in all cases etc anyways.
+Not necessarily for all docs, or may if you want, but sure is very convenient, hopefully helpful tip or maybe not etc anyways.
 
 #### advciv id changes manual.txt results
 
@@ -513,7 +513,7 @@ Earth-like layout—multiple continents with islands. Players usually start on s
 
 When calling `getMapScriptName()` or checking the selected script in the DLL (e.g., `updatePangaea()`), Civ4 uses the **filename without `.py`** — e.g., `Pangaea.py` → `"Pangaea"`. If you want to treat multiple map types the same way in AI logic (e.g., `"Continents"` like `"Pangaea"`), explicitly check for each name.
 
-Examples of usage based on real mod existing samples in the mod (for example in [/CvGameCoreDLL/CvInitCore.cpp](/CvGameCoreDLL/CvInitCore.cpp) if i'm not mistaken but check to be sure) before our changes hehe, if i'm not mistaken (check to be sure):
+Examples of usage based on real mod existing samples in the mod (for example in [/CvGameCoreDLL/CvInitCore.cpp](/CvGameCoreDLL/CvInitCore.cpp)) before our changes hehe:
 
 ```cpp
 bool const isPangea = GC.getInitCore().isPangaea();
@@ -532,7 +532,7 @@ Note: not static map type although would have been computationally nice, but to 
 
 As for implementation, see what i did for example in as of now `isNavalHeavyMap` and `isLandHeavyMap` but check if it is accurate or there is a better way to characterize maps or not
 
-See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-general-suicide-or-such-tendencies-etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-general-suicide-or-such-tendencies-etc).
+See also [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc).
 
 ## Where to find Python errors or debug (so no need to copy them either if you need to ask chatgpt or such or a forum)
 
@@ -654,7 +654,7 @@ Sometimes the differences are small, sometimes the differences are huge as here,
 
 In this case i guess they changed the way old code worked or split it among other files or did some massive change that would explain the difference, but check if accurate as these are also just guesses of mine that may be accurate but i don't know for sure.
 
-Also as a corollary of this, if you see many versions of an asset, say `UNIT_WARRIOR` in different versions of unit infos, and you want to import it in your mod and modify it if not already there, generally i would say import latest version of it (so the BTS one), or you could even fetch it / steal it xd from other mods if they are okay with it (generally are but check as this is also just a guess, as for my mod generally fine too but read copyright and license section if you are in doubt or as the absolute reference despite what i said here in [README.md#license-and-reuse](/README.md#license-and-reuse) for the assets or any form of content i added or modified (or removed too but then you can't steal it xd if i may say unless you steal the idea then same applies maybe or not as removing maybe doesn't require asking as weird as it is maybe but in all cases check if accurate too in license section of this mod's main readme if in doubt or to be sure)).
+Also as a corollary of this, if you see many versions of an asset, say `UNIT_WARRIOR` in different versions of unit infos, and you want to import it in your mod and modify it if not already there, generally i would say import latest version of it (so the BTS one), or you could even fetch it / steal it xd from other mods if they are okay with it (generally are but check as this is also just a guess, as for my mod generally fine too but read copyright and license section if you are in doubt or as the absolute reference despite what i said here in [README.md#license-and-reuse](/README.md#license-and-reuse) for the assets or any form of content i added or modified (or removed too but then you can't steal it xd if i may say unless you steal the idea then same applies maybe or not as removing maybe doesn't require asking as weird as it is maybe check if accurate too in license section of this mod's main readme if in doubt or to be sure)).
 
 Hopefully helpful.
 
@@ -961,7 +961,7 @@ This is just an example, adapt as you see fit
 
 Old information from my notes, as we now we use leader portraits (nif) with an animation, and while doing so also imported the corresponding .dds button that the mod where we imported the .nif animation and such from also had (this .dds button), so we don't make leader .dds buttons from our own leader static images anymore as of now at least in advciv-sas, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful to me or others maybe so adding them for reference.
 
-Fourthly, then for the leaderhead button (mini icon of the leader in the Sevopedia), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon without any resize (stretching or compression of ratio or anything that alters ratio this time)) from the native image (for example .png, any size should do fine too so ideally take the original image if you sitll have it, else maybe the .dds (unstretched)) should maybe do fine anyways)
+Fourthly, then for the leaderhead button (mini icon of the leader in the Sevopedia), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon without any resize (stretching or compression of ratio or anything that alters ratio this time)) from the native image (for example .png, any size should do fine too so ideally take the original image if you still have it, else maybe the .dds (unstretched)) should maybe do fine anyways)
 
 So for example you can first make a 96 x 96 crop selection around his head with Paint.NET, then fine tune it (i.e. redo a crop selection on this 96 x 96 (for example .png maybe image) to 64 x 64 in a similar manner to the area you prefer to appear in the leader's final icon/button), and save it as a different file for example Ogiso_Igodo_button.dds.
 
@@ -1055,7 +1055,7 @@ This feature is extremely useful to see how changes feel ingame or how AI player
 
 I don't know the specifics, but in most mods you need to enable chipotle cheat code in CivilizationIV.ini (applies once for all mods and seemingly base bts too but i don't know for sure so check).
 
-Then ingame (save file load, new map, etc), press ctrl+z if your mod has this shortcut and you enter debug mode, then press ctrl+shift+x if i'm not mistaken and you can specify the number of turns to autoplay, say 50 or 100 turns or any number (toggle (i.e. press this again) during autoplay to stop it before it completes if you want to do so).
+Then ingame (save file load, new map, etc), press ctrl+z if your mod has this shortcut and you enter debug mode, then press ctrl+shift+x you can specify the number of turns to autoplay, say 50 or 100 turns or any number (toggle (i.e. press this again) during autoplay to stop it before it completes if you want to do so).
 
 I don't know if autoplay is a feature of base civ4 or bts or some mods that then most mods implemented check to know more (you could ask chatbots like chatgpt or such if you don't know, but their answers may be inaccurate or lead you astray, so double check or such even though they could be accurate or do web search for you or such but check to be sure) (or your best bet may be alternatively to check in cfc or such forums somewhere or google it xd)
 
@@ -1101,7 +1101,7 @@ So then with the big help of chatgpt and my own ideas too and digging, but and a
 
 I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy if i may say to recheck but hopefully helpful).
 
-After all done, recompile the DLL, fix errors if any such as i had forgotten to add the .h (header? After checking it seems to be this too indeede)during compile, then again recompile (no fastdep as they seem to cause errors as well sometimes) cleanly (ideally todo add tutorial on how to compile DLL for civ4 advciv at least as i had intended to but not sure, i would, however ideally i would greatly want to do sobut not guaranteed may or may not do as sad as is or is not but in all cases is maybe as is or not or yes or not or other or etc but in all cases), delete the old DLL rather than overwrite, in case we need to revert to old DLL or such, we have it as backup rather than it being lost if we simply copy pasted and overwrote old DLL
+After all done, recompile the DLL, fix errors if any such as i had forgotten to add the .h (header? After checking it seems to be this too indeede)during compile, then again recompile (no fastdep as they seem to cause errors as well sometimes) cleanly (ideally todo add tutorial on how to compile DLL for civ4 advciv at least as i had intended to but not sure, i would, however ideally i would greatly want to do sobut not guaranteed may or may not do as sad as is or is not is maybe as is or not or yes or not or other or etc but in all cases), delete the old DLL rather than overwrite, in case we need to revert to old DLL or such, we have it as backup rather than it being lost if we simply copy pasted and overwrote old DLL
 
 What is very nice is that this same code change also displays it in tech advisor (tech tree view, F6 key ingame) which i also wanted to do and didn't know how, so this is also my first successful modification of the ingame behaviour of the tech tree view (minus the iGridX and iGridY i did before as well as part of modding)
 
@@ -1109,7 +1109,7 @@ This bTrade feature being displayed in placeSpecial should ideally have been par
 
 I also added the info about the full list of which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of Sevopedia tech and helpful maybe too or not or yes or etc.
 
-Mods are welcome to use this quite simple but still hopefully useful code as long as they quote me and authors in [README.md#authors](/README.md#authors) as being the authors with mod name, even though it is not an obligation, it is a kind request i make, but in all cases hopefully this feature is helpful or not but not to change topic
+Mods are welcome to use this quite simple but still hopefully useful code as long as they quote me and authors in [README.md#authors](/README.md#authors) as being the authors with mod name, even though it is not an obligation, it is a kind request i make, hopefully this feature is helpful or not but not to change topic
 
 Note: later we also similarly changed the c++ so that we now also display the bRepeat info in tech advisor and Sevopedia tech, see also similarly buildBRepeatString
 

@@ -331,7 +331,7 @@
 			<KFM></KFM>
 		</MiscArtInfo>
 		<!-- advc.002b: Set modified theme as default -->
-		<!-- custom: rename "AdvCiv" to "AdvCiv-SAS" so our mod AdvCiv-SAS (for quick search: "AdvCiv-SAS Mod") if i'm not mistaken that we need to do so. -->
+		<!-- custom: rename "AdvCiv" to "AdvCiv-SAS" so our mod AdvCiv-SAS (for quick search: "AdvCiv-SAS Mod") -->
 		<MiscArtInfo>
 			<Type>DEFAULT_THEME_NAME</Type>
 			<Path>Mods/AdvCiv-SAS/Resource/Civ4.thm</Path>

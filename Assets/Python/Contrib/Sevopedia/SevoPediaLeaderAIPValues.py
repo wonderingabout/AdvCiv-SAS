@@ -795,8 +795,8 @@ def _compute_leader_cache_internal():
 
 	def get_symbol_scale(score, symbol):
 		# <!-- custom: examples:
-		# - with symbol "+" and value 64 (/100), returns "++++++" if i'm not mistaken anyways
-		# - with symbol "#" and value 39 (/100), returns "###" if i'm not mistaken anyways
+		# - with symbol "+" and value 64 (/100), returns "++++++"
+		# - with symbol "#" and value 39 (/100), returns "###"
 		# -->
 		return symbol * (score // 10)
 
@@ -1387,7 +1387,7 @@ def _compute_leader_cache_internal():
 	# === AI Panel's Categories ===
 	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories()
 
-	# <!-- custom: final return. Note that this caching, even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players if i'm not mistaken in SevoPediaMain's placeLeaders. -->
+	# <!-- custom: final return. Note that this caching, even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players. -->
 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short -->
 	print("Sevopedia Leader cache prebuilt cache prebuilt. This should appear only once per gaming session.")
 

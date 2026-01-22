@@ -1,10 +1,10 @@
-<?xml version="1.0"?>
+<!-- custom: comments moved as of now here in this file for concision and as they were too lengthy. Values not updated here, see there in the real XML file for updated values -->
+<!-- <?xml version="1.0"?> -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Global Defines -->
-<!-- custom: comments moved to as of now to (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Long_Comments\ for concision and as they were too lengthy. Values not updated there, see this XML file here for updated values -->
-<Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+<!-- <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml"> -->
 	<Define>
 		<DefineName>USE_CANNOT_FOUND_CITY_CALLBACK</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -105,6 +105,7 @@
 		<DefineName>USE_ON_UNIT_LOST_CALLBACK</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- K-Mod extras -->
 	<Define>
 		<DefineName>USE_AI_UNIT_UPDATE_CALLBACK</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -169,6 +170,8 @@
 		<DefineName>USE_DO_COMBAT_CALLBACK</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+
+	<!-- advc.003y: start -->
 	<Define>
 		<DefineName>USE_CITIES_DESTROY_FEATURES_CALLBACK</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -253,4 +256,5 @@
 		<DefineName>USE_UNIT_BUILD_IMPROVEMENT_CALLBACK</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-</Civ4Defines>
+	<!-- advc.003y: end -->
+<!-- </Civ4Defines> -->

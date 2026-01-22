@@ -4,13 +4,9 @@
 #
 Long XML comments (consolidated)
 Purpose: keep XML files readable by moving very long comments into this file.
-Threshold: comments >= ~700 characters (inner length) are moved here, or possibly less if the comment is really unneeded.
-No threshold for unused XML code (no threshold required, always move them).
 
 Note: Python long comments may be consolidated into a separate file later.
 Initial consolidation and formatting by GPT-5.2-Codex (VS Code extension).
-Moved on: 2025-12-23 10:49:55
-Source root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
 
 Try to keep them lean and more so in the future so our AI helpers can easily read the SAS defines, as well as help readability and possibly perf if any gain.
 
@@ -330,7 +326,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 -->
 
 ----- Comment #26 -----
-<!-- custom: add low value for early war elephants, but not too high as not useful otherwise, and may skew too much AI valuing (setller or trading preferences for example after our changes), as the bonus is not so useful in medieval+ (no new military unit or critical building to have if i'm not mistaken but anyways); plus, bonus is available from start, which is fine since war elephants are not available until about midgame so vision does not give a critical advantage, camel units are later as well but camel bonus allows medieval and rennaissance camel units so worth more and worth hiding until tech as of now tech_animal_husbandry, as for elephants bonus, value kept low so AI values it a bit but not too much as not as important as horse or camel for example and to prevent excess skewing of AI behaviour while sitll making it aware of it: it can be a nice path when we are stuck with longbows until muskets, to have war elephants! But don't overdo it. -->
+<!-- custom: add low value for early war elephants, but not too high as not useful otherwise, and may skew too much AI valuing (setller or trading preferences for example after our changes), as the bonus is not so useful in medieval+ (no new military unit or critical building to have); plus, bonus is available from start, which is fine since war elephants are not available until about midgame so vision does not give a critical advantage, camel units are later as well but camel bonus allows medieval and rennaissance camel units so worth more and worth hiding until tech as of now tech_animal_husbandry, as for elephants bonus, value kept low so AI values it a bit but not too much as not as important as horse or camel for example and to prevent excess skewing of AI behaviour while still making it aware of it: it can be a nice path when we are stuck with longbows until muskets, to have war elephants! But don't overdo it. -->
 
 ===== \Assets\XML\Terrain\CIV4FeatureInfos.xml =====
 ----- Comment #27 -----
@@ -1624,7 +1620,7 @@ Rename the tag									Original untouched; you're free to localize your version
 	- BUILDINGCLASS_OBELISK (when relating(related?) to the monument building class and not the (non existent(/existing?))(egyptian) obelisk building class) (and all similar entries such as art file(i.e. XML asset) tag names and such) to BUILDINGCLASS_MONUMENT
 	- BUILDING_OBELISK (when relating(related?) to the monument building and not the (egyptian) obelisk building) (same as above) to BUILDING_MONUMENT
 	- (so) exceptions being: TXT_KEY_BUILDING_OBELISK to TXT_KEY_BUILDING_EGYPTIAN_OBELISK (to match the existing civ4 format that (quite if not lotat least and still to go back on topic) makes/made sense)
-	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be more confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not,and hopefully a lot clearer now, and helpful or not, but in all cases or not)
+	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be more confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not,and hopefully a lot clearer now, and helpful or not)
 
 	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the nationality/country in the name i think, but hopefully a lot clearer in code now too, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now)
 	-->
@@ -1707,7 +1703,7 @@ Rename the tag									Original untouched; you're free to localize your version
 <!-- custom: units now have terrain and feature (+/- plot types e.g. hill for some units such as of now the quechua warrior) attack or defense combat modifiers. Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular). See Sevopedia entry of each unit for details or Sevopedia terrain or Sevopedia feature page(s) to easily visualize these with the new UI additions we made there as well. For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. Note: as of now i'm using plains as a representative of savanna more or less -->
 
 ----- Comment #84 -----
-<!-- custom: note about collateral damage calculation in advciv and by extension in our mod xd if i'm not mistaken since i as of now didn't change it, according to chatgpt 5 thanks, and about whether it is additive or multiplicative or other, after feeding it our relevant code (which i found in CvUnit::collateralCombat if i was not mistaken in how i found it  (check if accurate as i don't know too much about these but i could or not be right), manual, and it doing a quite extensive web search:
+<!-- custom: note about collateral damage calculation in advciv and by extension in our mod xd since i as of now didn't change it, according to chatgpt 5 thanks, and about whether it is additive or multiplicative or other, after feeding it our relevant code (which i found in CvUnit::collateralCombat if i was not mistaken in how i found it  (check if accurate as i don't know too much about these but i could or not be right), manual, and it doing a quite extensive web search:
 
 "
 Great catch digging into your own DLL + notes — that settles it.
@@ -1906,7 +1902,7 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 ===== \Assets/XML/BasicInfos/UnitAI notes (BasicInfos XML) =====
 ----- Comment #92 -----
 		<!-- custom: rename "PROPHET" to "GREAT_PROPHET":
-		- this is weird and inconsistent that "general" is "GREAT_GENERAL" and "spy" is "GREAT_SPY", while "PROPHET" is not "GREAT_PROPHET" (not best example as i am not too fond of them but is to be "fair") and "SCIENTIST" ("scientist") and such are not "GREAT_SCIENTIST" and such, but are as said before in this comment comment"SCIENTIST" instead. Why the inconsistency? Are scientists and such not great, while spy/generals are? Or is it just(?(,)) careless renaming, if not cowardice or maybe not and a mistake or some inaccuracy. But is not (for) me to assess these as i can only express my judgment thought of these and what they may be not what and how they actually are as in went in/went by? But in all cases this seems inaccurate and hopefully fixed and clearer even if a bit more if not ideally a lot more... I may make such inaccuracies too so feel free to maybe point them to me or (maybe?) not or yes or and other or and not, but in all cases
+		- this is weird and inconsistent that "general" is "GREAT_GENERAL" and "spy" is "GREAT_SPY", while "PROPHET" is not "GREAT_PROPHET" (not best example as i am not too fond of them but is to be "fair") and "SCIENTIST" ("scientist") and such are not "GREAT_SCIENTIST" and such, but are as said before in this comment comment"SCIENTIST" instead. Why the inconsistency? Are scientists and such not great, while spy/generals are? Or is it just careless renaming, if not cowardice or maybe not and a mistake or some inaccuracy. But is not (for) me to assess these as i can only express my judgment thought of these and what they may be not what and how they actually are as in went in/went by? But this seems inaccurate and hopefully fixed and clearer even if a bit more if not ideally a lot more... I may make such inaccuracies too so feel free to maybe point them to me or (maybe?) not or yes or and other or and not, but in all cases
 
 		- it is also especially weird that the TXT though as the correct name, for example "TXT_KEY_UNIT_GREAT_PROPHET" so we don't rename these as confusing as the discrepancy or maybe rather mismatch, same as with the obelisk sometimes naming the monument while other times monument was used for that in base civ4/advciv too
 
@@ -4246,18 +4242,254 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 	 clicked, not the unit icons. Will also wake up a single unit if there
 	 isn't a stack. I've left the Spanish text alone. -->
 
-===== \Assets/XML/TechDiffusion_GlobalDefines.xml =====
+===== \Assets/XML/Terrain/CIV4ImprovementInfos.xml =====
 ----- Comment #279 -----
 
-	<!-- These two options are independent of TECH_DIFFUSION_ENABLE.
-		 If set to 1, then a team's research rate is decreased if relatively
-		 few players have already discovered the tech being researched.
-		 Only non-capitulated major civs count. It doesn't matter whether
-		 the researching team has met them. If no player has the tech, the
-		 full era-specific penalty defined in Civ4EraInfos.xml gets applied.
-		 If at least a quarter of the players have the tech, no penalty
-		 applies. Otherwise, the penalty scales proportionally with he number
-		 of players that have the tech.
-		 0 (AdvCiv default) disables these ground-breaking penalties.
-		 Note: When a ground-breaking penalty coincides with a bonus from tech
-		 diffusion, only the sum of the two modifiers is shown by the UI. -->
+<!-- custom: +1 for the extra wine correlation indirectly (enhanced by other buildings so no need to boost it too much and is historically concordant to when wine commerce became more widespread from my memories of my research; also i wanted to put it on farms and did so originally, but grapes spawn on hills too so the plantation is a better fit to allow to improve grapes on hills as well, chatgpt also says to me from what i understand of its explanation that it is more accurate to use plantations rather than farms, still is needed for our mod but maybe fits well as well, perhaps better as it said even maybe. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #280 -----
+
+		<!-- All other elements are optional (minOccurs 0). So that mods with
+			 additional civs need to define only the geo coordinates,
+			 which are easy to look up on Wikipedia (though the minutes stated
+			 there will have to be converted to tenths of degrees through
+			 multiplication by 5/3). -->
+		<!-- Annual, in millimeters. I've mostly tried to find the present-day
+			 precipitation average of the modern country or countries
+			 corresponding to the civ.
+			 This translates into a preference for terrain and feature types.
+			 The ids of those types are obtained from the Global Warming
+			 definitions in GlobalDefinesAlt.xml. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #281 -----
+
+		<!-- A percentage expressing how much the climate varies across the
+			 (core) territory of the civilization. Again, this results in a
+			 bias for terrain and feature types, so not all kinds of variations
+			 should be equally reflected by the percentage. Large civs should
+			 tend to have higher variation values (because players will
+			 associate them with diverse biomes), but the degree of variation
+			 within smaller subareas should also matter. For example, Western
+			 Russia does not have much variation, whereas Korea is quite varied
+			 for a small country. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #282 -----
+
+		<!-- Percentage expressing how maritime the civ is. The game -mostly-
+			 aims at that ratio of sea tiles (or land tiles on a different
+			 landmass than the starting tiles) among the tiles surrounding the
+			 starting tile. To choose the values, I've looked at the
+			 approximate ratios on Earth within a 550 km radius around the
+			 capitals (that surface area, conveniently, covers about 1 mio.
+			 square kilometers), then made adjustments based on the capitals'
+			 distance from the coast, length of the coastline and the civs'
+			 naval histories. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #283 -----
+
+		<!-- Percentage expressing the importance of having a major river
+			 (as in: one of the world's biggest or most prominent river systems)
+			 near the civ's starting tile. 0 means that it doesn't matter
+			 whether there's a major river. A negative percentage discourages
+			 starts near major rivers. The default value is -25. (Civs not
+			 strongly associated with a river should, ideally, have only
+			 minor rivers near their starting plots.) -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #284 -----
+
+		<!-- Highest elevation in meters that is within the historical
+			 territory of the civ and not too far away from its core.
+			 Translates into an affinity for Peaks.
+			 Using prominence, or the highest elevation minus the average of
+			 the civ's whole (core) territory, would be slightly more helpful,
+			 but it really doesn't make much of a difference for the civs that
+			 we have, and maximal elevation is easy to research. (I've mainly
+			 used a table of extreme elevations per country on Wikipedia.) -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #285 -----
+
+		<!-- Percentage of the civ's core area that has a mountainous relief.
+			 (This is a matter of gradients, not absolute elevation. E.g. an
+			 altiplano is not considered mountainous in this context.)
+			 Translates into an affinity for hills and peaks.
+			 (I use crude approximations based on some world map showing that
+			 info on a per-country basis.) -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #286 -----
+
+		<!-- In units of 1000 square kilometer. Hard to say which borders to
+			 use. Results in a (slight) bias for or against starting tiles
+			 with (somewhat) more space for expansion than the average.
+			 The specific numbers don't matter much, just the order of
+			 magnitude. For empires, the largest extent can vastly exceed
+			 the pre-imperial or core area. I've been picking modest sizes
+			 in these cases, also taking into account whether the conquered
+			 peoples are represented in the game as civs. In any case, a civ
+			 should have to do some actual conquering to become a veritable
+			 empire. However, small sizes, say, less than 250 thousand square
+			 kilometers, should be reserved for civs that are only thought of
+			 as small, including colonial empires like Portugal. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #287 -----
+
+		<!-- Target ratio of the horizontal to the vertical dimension of the
+			 civ's space for expansion, as a percentage. E.g. 150 means that
+			 the civ should have 50% more space for expansion in west-east
+			 direction than in north-south direction. Should not necessarily
+			 be used for civs that expanded into a particular direction as
+			 empires (e.g. Persia) because having space in that direction
+			 can mean that they'll conquer neighboring civs in just the
+			 perpendicular (counter-historical) direction. I'm also never
+			 setting a preference for civs with a small area because their
+			 shape didn't matter much historically. For large civs, like
+			 Egypt, the shape mattered more as it caused them to span multiple
+			 climate zones. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #288 -----
+
+		<!-- To make preferences for bonus resources easier to specify.
+			 Use ARTSTYLE_... strings here to avoid having to define a new
+			 global type for the regions. Using the artstyles already assigned
+			 for CivilizationInfos wouldn't (always) work since those are based
+			 on culture, not geography. Moreover, a mod might add and assign
+			 new artstyles (but I doubt that it would eliminate any of the
+			 existing ones). -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #289 -----
+
+		<!-- Gregorian year number. Negative sign for BC(E). When in doubt,
+			 it should be the year in which the leader took control of the bulk
+			 of his or her domain. Should ideally also have ruled for several
+			 years after. Optional - the DLL treats the date as (entirely) unknown
+			 when none is stated. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #290 -----
+
+	<!-- Always nice to have some means of encouraging or discouraging a
+		 a particular outcome for no particular reason. +100 is a "high"
+		 bias in favor (but not the highest possible), -100 is a
+		 maximal bias against. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #291 -----
+
+		<!-- "CIVILIZATION_..." type name of the civilization that the
+			 TruCiv info refers to. Not linking those two info types in the
+			 inverse direction because I want to keep all the TruCiv XML code
+			 in one place. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #292 -----
+
+		<!-- Latitude and longitude of the civ's capital, given as degrees
+			 at times 10 precision. I.e. _not_ given as minutes. -->
+		<!-- Can take any values between -900 and +900.
+			 Negative sign for southern hemisphere. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #293 -----
+
+		<!-- Exclusive until, i.e. when the game starts in this era or later,
+			 the discouragement is ignored. Use NONE when the bonus resource is
+			 supposed to be discouraged regardless of the start era. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #294 -----
+
+		<!-- "BONUS_..." type name of the bonus resource that the
+			 TruBonus info refers to. -->
+
+===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
+----- Comment #295 -----
+
+		<!-- Applies the biases only to instances of the bonus resource
+			 that get placed on land. This only makes sense for
+			 bonus resources that can be placed on both land and water. -->
+
+===== \Assets/XML/Terrain/CIV4ImprovementInfos.xml =====
+----- Comment #296 -----
+
+			<!-- custom: food can quickly become op, give it at most food related improvements except the farm; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this casein a way that is hopefully not op and that maybe thematically makes sense -->
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #297 -----
+
+			<!-- custom: reduce frequency even more now that we are adding bonus_camel, not necessarily a huge lot more nor does it need to be strictly i mean similar to bonus_horse's ratio (partly because is only on desert tiles for camel unlike horse that is on many types of tiles if am not mistaken too, so lower bonus_horse repartition/frequency a bit more while making bonus_camel follow its own formula), was 50 / 128 -->
+			<!-- custom: after the _camel formula change and in general now that we have enough bonus_camel, and hopefully not too much, to balance out and make stronger desert tiles, we don't need as much horse, reduce it a bit, was 50 / 192 -->
+			<!-- advc.129: was 100 -->
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #298 -----
+
+adjusted according to very quick search/glance(s) in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=horse+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcm7YBMd-acKwfINglfHLIEBS3uuGX7ss47YoPO_wBTDDjEnhAAMFdqu7_7Wnbrthcipt1FZgx-Ds9i3kT7LAua9LHD1K_U-I_N7EJCJlKSj7gP-cN0EaCn8iR1GAkszdJp66tDl_Aeh47HSxfppG_tOLjC_eNwt9-VBAZzdtPXHqzfpg8A&sa=X&ved=2ahUKEwjnyNzl2bmNAxU2UaQEHb9HNBAQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88#vhid=xvOqTuO9uw01DM&vssid=mosaic 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #299 -----
+
+adjusted according to very quick search in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=deer+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcpTTqBUdyVgzq0c3_k8z34FKdUNCNiw5OX_lAsIf8VARnD9D5GX4da1rijxFZl6bQwFge1sId2k_KUaS3y2xIjhlPnpGKiJa1IRCtKpMP3kDHobIPV1kPLIRJvmUh7guUKzir7QVb-qVCgHxvp6hJaZuXmi70P5qniE11OO4djUFFIltjA&sa=X&ved=2ahUKEwjN4r-x2bmNAxV3QaQEHYYHI8sQtKgLegQIEhAB&biw=2048&bih=1023&dpr=1.88#vhid=EKEnB7XJ0KxTwM&vssid=mosaic, and to buff specifically the edges of the map since seems possible or maybe rather relevant here at least for advciv-sas
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #300 -----
+
+, according to/using https://www.google.com/search?q=cow+world+map&sca_esv=04268fcd01117b60&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=5pswaO_-A9P5kdUP4fDG0AQ&ved=0ahUKEwjvic22-7mNAxXTfKQEHWG4EUoQ4dUDCBE&uact=5&oq=cow+world+map&gs_lp=EgNpbWciDWNvdyB3b3JsZCBtYXAyCBAAGBMYBxgeMggQABgTGAcYHjIHEAAYgAQYEzIKEAAYExgFGAcYHjIKEAAYExgFGAcYHjIKEAAYExgFGAcYHkiGA1AAWIYCcAB4AJABAJgBMqABgQGqAQEzuAEDyAEA-AEBmAIDoAKHAcICBhAAGAcYHsICCBAAGAcYChgemAMAkgcBM6AHxA-yBwEzuAeHAcIHAzAuM8gHBA&sclient=img#vhid=9hlMhu2993mhWM&vssid=mosaic 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #301 -----
+
+ for example https://www.google.com/search?q=molluscs+world+map&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nmYwaNsujfiR1Q-jz5jJDQ&ved=0ahUKEwjb9cHOyLmNAxUNfKQEHaMnJtkQ4dUDCBE&uact=5&oq=molluscs+world+map&gs_lp=EgNpbWciEm1vbGx1c2NzIHdvcmxkIG1hcEiiFlAAWPAVcAF4AJABAJgBNaABgAOqAQIxMLgBA8gBAPgBAZgCBqAC0gHCAgYQABgHGB7CAg0QABiABBixAxhDGIoFwgIIEAAYBxgKGB7CAggQABgFGAcYHpgDAJIHATagB4cbsgcBNbgH0QHCBwUwLjUuMcgHCQ&sclient=img#vhid=_qbhSp5j1uBWbM&vssid=mosaic 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #302 -----
+
+adjusted using https://www.google.com/search?q=all+pigs+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=1YIwaMzbC5qakdUPzfjw2Qc&ved=0ahUKEwiMmubC47mNAxUaTaQEHU08PHsQ4dUDCBE&uact=5&oq=all+pigs+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKWFsbCBwaWdzIG5hdHVyYWwgaGFiaXRhdCBpbiB0aGUgd29ybGQgbWFwSLcZUNwFWPcYcAF4AJABAJgBI6AB0QOqAQIxNrgBA8gBAPgBAZgCAKACAJgDAIgGAZIHAKAH0AWyBwC4BwDCBwDIBwA&sclient=img#vhid=fAqsKwsbKGnyUM&vssid=mosaic 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #303 -----
+
+adjusted according to https://www.google.com/search?sca_esv=d68d1b3088278740&rlz=1C1GCEA_enFR1111FR1111&q=rice+natural+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtci1AK0oIkDPIMLSzNdfCsScXRDO9E92u6oQy0ZUCTVtFdzRg-C6HN8C63vx8nYX9s-qoP0iE8VkwFQOGgctLLxMbKATUbgZLQyYfx64LEnfqULbDUPajcQia8TKaZuoNhizdrYogk8tOMhcjKRK_WJwA0yKkaZ6G3hJccOaKX8s1Ovvg5A&sa=X&ved=2ahUKEwjGs-bM97mNAxUhT6QEHXAwMxYQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #304 -----
+
+adjusted according to https://www.google.com/search?q=all+sheep+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=DIMwaN3ECd2okdUP257t0AU&ved=0ahUKEwjd-oDd47mNAxVdVKQEHVtPG1oQ4dUDCBE&uact=5&oq=all+sheep+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKmFsbCBzaGVlcCBuYXR1cmFsIGhhYml0YXQgaW4gdGhlIHdvcmxkIG1hcEicD1C1BljLDnACeACQAQCYATGgAcABqgEBNrgBA8gBAPgBAZgCAKACAJgDAIgGAZIHAKAHjgKyBwC4BwDCBwDIBwA&sclient=img#vhid=UsBOuEc69S-vbM&vssid=mosaic 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #305 -----
+
+adjusted according to https://www.google.com/search?q=all+furs+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=vYMwaMTaB7Ti7M8P4KW_uQ0&ved=0ahUKEwiErbKx5LmNAxU0MfsDHeDSL9cQ4dUDCBE&uact=5&oq=all+furs+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKWFsbCBmdXJzIG5hdHVyYWwgaGFiaXRhdCBpbiB0aGUgd29ybGQgbWFwSPITUNULWI8PcAN4AJABAJgBMqABkgGqAQE0uAEDyAEA-AEBmAIAoAIAmAMAiAYBkgcAoAe0AbIHALgHAMIHAMgHAA&sclient=img#vhid=K2fNe9ardOxFWM&vssid=mosaic 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #306 -----
+
+changed as suggested by chatgpt after asking it too, and also after that where i found some info for example here https://www.beldiamond.com/blogs/guidance/where-do-precious-gemstones-come-from?srsltid=AfmBOooKdFeP12k24LvXWWNp9GGZqRQ94ZhK5frfS8ui2gCy3VuVODyj; note: it may also indirectly help address some AI issues i have noticed mentioned in some base advciv or such code comments now that gemstones spawn on various terrains including feature less ones if i may say and am not mistaken in saying or thinking so, at least in all cases i find it an interesting design as such in particular for flood_plains that are now more versatile on top of it being more realistic perhaps immersive as hinted or suggested by chatgpt to add them i mean mentionning something like this / meaning something similar i mean
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #307 -----
+
+adjusted according to https://www.google.com/search?q=all+grapes+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=aoQwaNLKG9XZ7M8P4aypwQM&ved=0ahUKEwjSp4WE5bmNAxXVLPsDHWFWKjgQ4dUDCBE&uact=5&oq=all+grapes+natural+habitat+in+the+world+map&gs_lp=EgNpbWciK2FsbCBncmFwZXMgbmF0dXJhbCBoYWJpdGF0IGluIHRoZSB3b3JsZCBtYXBItxlQ8AVYnxhwAngAkAEAmAE0oAHOAaoBATe4AQPIAQD4AQGYAgCgAgCYAwCIBgGSBwCgB7sCsgcAuAcAwgcAyAcA&sclient=img 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #308 -----
+
+ from/at quick glance (https://www.google.com/search?sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&q=whales+world+map&udm=2&fbs=ABzOT_BnMAgCWdhr5zilP5f1cnRvJ3SHQcDVxkdpDyHwlRhdNVOjEWzQMZQu8do521nGzcQgBp5tOxxfClTcp75NgQri0b8KncTgS81NVO6dQ1nU7PHYR-u9eJ1OtyHSItVdXIOv5zjT8TvPQJxoan_TZNn3v_MIzpNnqoB1UZj62hrYDAIm1EdLYtJOnT4QYj3A6ylt5nHWOO7chh5XeQK_4urorE6XLg&sa=X&ved=2ahUKEwjrgL_NyLmNAxW_TqQEHdzYBegQtKgLegQIFhAB&biw=2048&bih=1023&dpr=1.88#vhid=nAr4_WbajdaO-M&vssid=mosaic), buff minLatitude
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #309 -----
+
+adjusted according to very quick search/glance(s) in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=horse+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcm7YBMd-acKwfINglfHLIEBS3uuGX7ss47YoPO_wBTDDjEnhAAMFdqu7_7Wnbrthcipt1FZgx-Ds9i3kT7LAua9LHD1K_U-I_N7EJCJlKSj7gP-cN0EaCn8iR1GAkszdJp66tDl_Aeh47HSxfppG_tOLjC_eNwt9-VBAZzdtPXHqzfpg8A&sa=X&ved=2ahUKEwjnyNzl2bmNAxU2UaQEHb9HNBAQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88#vhid=xvOqTuO9uw01DM&vssid=mosaic 
+
+===== \Assets/XML/Terrain/CIV4BonusInfos.xml =====
+----- Comment #310 -----
+
+and opens the door to having camel mounts multiple/many ones/units, may also have some interactions with wonders or such or not such or yes such; is based on BONUS_HORSE's xml and adjusted and such (for example only in desert to boost these tiles and as seems quite accurate)

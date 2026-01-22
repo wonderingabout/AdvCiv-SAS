@@ -611,7 +611,7 @@ void CvCity::doTurn()
 
 	doProduction(!bForceProduction);
 
-	// <!-- custom: also cache these as is done in this file in other functions since we reuse them if i'm not mistaken in doing so-->
+	// <!-- custom: also cache these as is done in this file in other functions since we reuse them -->
 	CvGame const& kGame = GC.getGame();
 
 	// Early-game window (scaled by game speed TrainPercent)
@@ -655,7 +655,7 @@ void CvCity::doTurn()
 		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
 		const bool bOceanCoastal = isCoastal(iOceanThresh); // excludes lakes
 
-		// <!-- custom: save some computation, don't run what's next unless we have a coastal city, which should remove most if i'm not mistaken but is just a guess so check to be sure -->
+		// <!-- custom: save some computation, don't run what's next unless we have a coastal city, which should remove most but is just a guess so check to be sure -->
 		if (bOceanCoastal && !isFoodProduction())
 		{
 			// Threshold: 1 = low food or worse.
@@ -823,7 +823,7 @@ void CvCity::doTurn()
 
 					static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
 
-					// <!-- custom: it seems we need to cast to CvPlayerAI (i don't know much about these so check if accurate, but chatgpt 5 recommended this after i asked it about the compile error we had before adding it, but check if accurate) (with .AI() it seems if i understood it correctly but check if accurate or to be sure) as as of now this function is in CvPlayerAI not CvPlayer, we also seem to do .AI() in other parts of this CvCity.cpp so maybe fine as such but check if accurate or to be sure. As for us this fixes our compile error that it was not a member of a class if i'm not mistaken so left as such as well but check if accurate or to be sure -->
+					// <!-- custom: it seems we need to cast to CvPlayerAI (i don't know much about these so check if accurate, but chatgpt 5 recommended this after i asked it about the compile error we had before adding it, but check if accurate) (with .AI() it seems if i understood it correctly but check if accurate or to be sure) as as of now this function is in CvPlayerAI not CvPlayer, we also seem to do .AI() in other parts of this CvCity.cpp so maybe fine as such but check if accurate or to be sure. As for us this fixes our compile error that it was not a member of a class so left as such as well but check if accurate or to be sure -->
 					const int iSiegesAllNonTrebuchetsLike = kOwner.AI().AI_countUnitsByCombatNoTrebuchetsLike(eUnitCombatSiege);
 					const int iSiegesAllTrebuchetsLike = kOwner.AI().AI_countTrebuchetsLike();
 
@@ -867,7 +867,7 @@ void CvCity::doTurn()
 							iCapTrebsPreRenaissance += (iCapTrebsPreRenaissance * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
 						}
 
-						// <!-- custom: simplified version of the AI_ChooseUnit code if i'm not mistaken in my thinking-->
+						// <!-- custom: simplified version of the AI_ChooseUnit code -->
 						// regardless of bonuses, fewer trebs if there’s no war plan
 						if (!bWarPlan)
 						{
@@ -1021,7 +1021,7 @@ void CvCity::doTurn()
 			}
 			else if (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
 			{
-				// <!-- custom: simplify and strengthen formula for the human player, as we don't want this to fire mid game needlessly after we have our BFC if i'm not mistaken in my thinking of how to do this -->
+				// <!-- custom: simplify and strengthen formula for the human player, as we don't want this to fire mid game needlessly after we have our BFC -->
 				const int iForcedArtists = getForceSpecialistCount(eArtist);
 
 				// <!-- custom: save some computation, only run this if we are in no BFC -->
@@ -1046,7 +1046,7 @@ void CvCity::doTurn()
 					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure) so do not prevent that here), i.e. very early for BFC and if artist was forced -->
 					const int iCityCulture = getCulture(getOwner());
 					// Culture needed to *reach* that level
-					// <!-- custom: this way we're adjusted to game speed such as BFC being as of now at 10 in normal, 20 in marathon, 6 in quick, if i'm not mistaken in my thinking/understanding. Check if accurate -->
+					// <!-- custom: this way we're adjusted to game speed such as BFC being as of now at 10 in normal, 20 in marathon, 6 in quick -->
 					// That automatically incorporates:
 					// 	- Game speed,
 					// 	- Start era,
@@ -11791,7 +11791,7 @@ bool CvCity::isMeltdownBuildingSuperseded(BuildingTypes eDangerBuilding) const
 
 void CvCity::read(FDataStreamBase* pStream)
 {
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves. Since i am still testing, i would like to use same save files and it seems safe enough plus we targeted and removed most excess code so maybe fine as such (check if accurate as i don't know too much about these). -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves. Since i am still testing, i would like to use same save files and it seems safe enough plus we targeted and removed most excess code so maybe fine as such (check if accurate as i don't know too much about these). -->
 	uint uiFlag=0;
 	pStream->Read(&uiFlag);
 
@@ -12015,7 +12015,7 @@ void CvCity::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("City(%d,%d)", getX(), getY()));
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 17; // advc.313: Disorganized promo removed, advc.enum: bugfix.
 	pStream->Write(uiFlag);

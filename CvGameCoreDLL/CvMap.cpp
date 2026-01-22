@@ -274,7 +274,7 @@ void CvMap::setupGraphical() // graphical only setup
 			getPlotByIndex(i).setupGraphical();
 		}
 	}
-	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file if i'm not mistaken in doing so -->
+	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file -->
 	// <!-- custom: note: not using const as it causes a compile error: "CvMap.cpp(287): error C2662: 'CvGame::setUpdateTimer' : cannot convert 'this' pointer from 'const CvGame' to 'CvGame &'" -->
 	CvGame& kGame = GC.getGame();
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
@@ -1232,7 +1232,7 @@ void CvMap::invalidateBorderDangerCache(TeamTypes eTeam)
 // read object from a stream. used during load
 void CvMap::read(FDataStreamBase* pStream)
 {
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -1316,7 +1316,7 @@ void CvMap::write(FDataStreamBase* pStream)
 {
 	REPRO_TEST_BEGIN_WRITE("Map");
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 7; // advc.enum: Extra plot yields, costs moved from CvGame
 

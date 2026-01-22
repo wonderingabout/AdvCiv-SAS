@@ -7,5 +7,5 @@
 resource_path "Mods\AdvCiv-SAS\Resource";
 /* For some obscure reason, the includes in Civ4Theme.thm can't be moved here
    - both Civ4.thm and Civ4Theme.thm are necessary. */
-/* <!-- custom: rename "AdvCiv" to "AdvCiv-SAS" so our mod AdvCiv-SAS (for quick search: "AdvCiv-SAS Mod") if i'm not mistaken that we need to do so. --> */
+/* <!-- custom: rename "AdvCiv" to "AdvCiv-SAS" so our mod AdvCiv-SAS (for quick search: "AdvCiv-SAS Mod"). --> */
 include "Mods\AdvCiv-SAS\Resource\Civ4Theme.thm";

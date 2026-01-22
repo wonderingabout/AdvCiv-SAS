@@ -14371,7 +14371,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 {
 	reset();
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -14591,7 +14591,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	m_groupCycle.Read(pStream);
 	m_researchQueue.Read(pStream);
 
-	// <!-- custom: lone bracket left as is as seemingly not related to the uiflag cleanup we (i.e. me) are doing here if i'm not mistaken, check if accurate -->
+	// <!-- custom: lone bracket left as is as seemingly not related to the uiflag cleanup we are doing here -->
 	{
 		m_cityNames.clear();
 		CvWString szBuffer;
@@ -14668,7 +14668,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	FOR_EACH_ENUM(PlayerHistory)
 	{
 		PlayerHistory& kHist = m_playerHistory[eLoopPlayerHistory];
-		// <!-- custom: note: i just replaced the old uiflag check with false since it was not true (checking for low uiflag number), ideally chatgpt 5 says one can, if want sot optimize or clean up further, go in the callee as it calls it (no pun) and remove old parameter references then remove the parameter entirly if i'm not mistaken in my undrstanding of it, as well as other related things it suggested, check if accurate, as for me i am going for the simple(st?) and reliable fix -->
+		// <!-- custom: note: i just replaced the old uiflag check with false since it was not true (checking for low uiflag number), ideally chatgpt 5 says one can, if want sot optimize or clean up further, go in the callee as it calls it (no pun) and remove old parameter references then remove the parameter entirely, as well as other related things it suggested -->
 		kHist.read(pStream, getID(), false);
 	} // </advc.004s>
 
@@ -14808,7 +14808,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
 
 	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerPt1(%d)", getID()));
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 
 	uiFlag = 22; // advc: Bugs fixed with civ-wide special commerce rate cache

@@ -938,7 +938,7 @@
 						<iYieldChange>2</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
-				<!-- custom: +1 for the extra wine correlation indirectly (enhanced by other buildings so no need to boost it too much and is historically concordant to when wine commerce became more widespread from my memories of my research; also i wanted to put it on farms and did so originally, but grapes spawn on hills too so the plantation is a better fit to allow to improve grapes on hills as well, chatgpt also says to me from what i understand of its explanation that it is more accurate to use plantations rather than farms, still is needed for our mod but maybe fits well as well, perhaps better as it said even maybe. -->
+				<!-- custom: Long_Comments_XML.txt #279 -->
 				<BonusTypeStruct>
 					<BonusType>BONUS_GRAPES</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
@@ -953,7 +953,7 @@
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: food can quickly become op, give it at most food related improvements except the farm; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this casein a way that is hopefully not op and that maybe thematically makes sense -->
+			<!-- custom: Long_Comments_XML.txt #296 -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>

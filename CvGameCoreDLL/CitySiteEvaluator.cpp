@@ -783,13 +783,13 @@ int AIFoundValue::evaluate()
 			}
 		}
 		iPlotValue += evaluateYield(aiNatureYield, &p, bCanNeverImprove); // (K-Mod: iTempValue in BtS)
-		// <!-- custom: note: if i'm not mistaken bHome means it is the tile where we'll plant our city, which chatgpt 5 confirmed too as the "home plot" but check to be sure -->
+		// <!-- custom: note: bHome means it is the tile where we'll plant our city, which chatgpt 5 confirmed too as the "home plot" but check to be sure -->
 		if (bHome)
 		{
 			// <advc.031> Count home plot yield twice b/c it's immediately available
 			iPlotValue *= 2;
 			iValue += iPlotValue;
-			// <!-- custom: removed foundOnResourceValue, now code added directly here; and if i'm not mistaken this is the place where we can tell AI to not settle on bonuses and how so; also merging the bonus has improvement vs no improvement logic at the common part of penalty calculation and using aiNatureYield instead for it rather than aiBonusImprovementYield as in old code as advised by chatgpt 5, splitting it only later at the finer calculation (with fixp and such quite similarly to how it was in the old code); also nature yield shouldn't be that much to begin with, what we want most is to count improved yields and the base +1 are quite minor, if they are hard or tricky to take into account at least for me and i'd rather avoid it, we have our yields here xd -->
+			// <!-- custom: removed foundOnResourceValue, now code added directly here; and this is the place where we can tell AI to not settle on bonuses and how so; also merging the bonus has improvement vs no improvement logic at the common part of penalty calculation and using aiNatureYield instead for it rather than aiBonusImprovementYield as in old code as advised by chatgpt 5, splitting it only later at the finer calculation (with fixp and such quite similarly to how it was in the old code); also nature yield shouldn't be that much to begin with, what we want most is to count improved yields and the base +1 are quite minor, if they are hard or tricky to take into account at least for me and i'd rather avoid it, we have our yields here xd -->
 			// if (eBonus != NO_BONUS)
 			// {
 			// 	// Replacing K-Mod code that had adjusted the home plot yield
@@ -873,7 +873,7 @@ int AIFoundValue::evaluate()
 					IFLOG logBBAI("Warning: no mapped improvement for bonus %S", GC.getInfo(eBonus).getDescription());
 				}
 
-				// <!-- custom: we now fetch bonusspecific improvement directly from our ideal map, regardless of if available or not for better or worse, but assume AI can always improve bonuses so it doesn't discard/dismiss those it can't improve yet if i'm not mistaken in my understanding so disable this (can probably remove but check if accurate) -->
+				// <!-- custom: we now fetch bonusspecific improvement directly from our ideal map, regardless of if available or not for better or worse, but assume AI can always improve bonuses so it doesn't discard/dismiss those it can't improve yet so disable this (can probably remove but check if accurate) -->
 				// // <!-- custom: improvement specific logic here only, as in old code of the now merged here and removed thereAIFoundValue::foundOnResourceValue -->
 				// // Improvement-specific penalty for lost yield potential
 				// if (eBonusImprovement != NO_IMPROVEMENT)
@@ -891,7 +891,7 @@ int AIFoundValue::evaluate()
 				// 	r -= 13;
 				// iValue -= r;
 				// IFLOG logBBAI("Penalty (substracted to iValue) %d for founding on bonus", r);
-				// <!-- custom: note: opposite sign now, adding a negative value is clearer than substracting then guessing or constantly checking if we're substracting or not if i'm not mistaken in my guess/thinking (no pun) -->
+				// <!-- custom: note: opposite sign now, adding a negative value is clearer than guessing if we're substracting or not -->
 				iValue += r;
 				IFLOG logBBAI("Penalty (added to iValue) %d for founding on bonus", r); // adds a negative -> penalty ✅
 			}
@@ -1106,7 +1106,7 @@ int AIFoundValue::evaluate()
 					}
 				}
 				// <!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now -->
-				// <!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such and is if i'm not mistaken i meanbut in all cases -->
+				// <!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such and is -->
 			}
 			else
 			{
@@ -1200,7 +1200,7 @@ int AIFoundValue::evaluate()
 			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but better mess the code Hopefully this improves things and thanks to chatgpt 5, without messing everything up; return a positive value just in case; below example given by chatgpt 5, check if accurate -->
 			//return 0;
 			// Example:
-			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 if i'm not mistaken -->.
+			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 -->.
 			// “8 snow here” → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
 			// A truly good inland site just returns, e.g., iValue=1800 (>> <!-- custom:44 -->), so it wins.
 			// <!-- custom: update: i tried this code to enhance it for archipelago or such very rare land starts but then moscow (see known issue as of now 44 for details) goes back to settling on its water location again, then just disabling it, dig it if you want to improve it, i believe our results are in most if not all cases much better and it was just an extra polish. -->

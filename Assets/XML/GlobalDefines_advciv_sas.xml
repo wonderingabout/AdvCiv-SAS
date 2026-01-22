@@ -5,9 +5,6 @@ Created as part of AdvCiv-SAS improvements
 (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 -->
 <!-- custom: Long_Comments_XML.txt #131, #195 -->
-
-
-
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
 	<!-- custom: enable/disable to show trait icons (chars) before trait names in the Sevopedia leader Traits section. 0 is disabled (no icons), any other value e.g. 1 is enabled (shows icons like in the Traits category). -->
 	<Define>

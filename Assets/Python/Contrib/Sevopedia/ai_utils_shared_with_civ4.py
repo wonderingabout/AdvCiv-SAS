@@ -277,7 +277,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw, forced to zero aggregation has yet to be determined. Values of these are contact_delay_raw=%d, adjusted_delay=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, str(force_zero_adjusted_values)))
 
 		if contact_rand_raw <= 0:
-			# <!-- custom: (and else,) if rand is <=0, AI has a compatible delay but still never engages due to rand, so probability of contact is still 0. Only outside of these edge cases can the contact probabiltiy be computed if i'm not mistaken, else should be 0 as in this code block/check if i'm not mistaken anyways. -->
+			# <!-- custom: (and else,) if rand is <=0, AI has a compatible delay but still never engages due to rand, so probability of contact is still 0. Only outside of these edge cases can the contact probabiltiy be computed if i'm not mistaken, else should be 0 as in this code block/check. -->
 			# Can try, but refuses to ever engage → Aggregated ContactProb = 0
 			adjusted_rand = 0
 			force_zero_adjusted_values = True # Forced 0 aggregation
@@ -329,7 +329,7 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
 
 
 
-# <!-- custom: the adjust formula for memory fields is different than the contact adjust system we use in advciv-sas too for contacts, because memory fields use a positive/negative memory field while there are no positive/negative contacts (all contacts are handled the same way computationally (only displayed as offers or demands but the values are computationally treated the same between all contact types, unlike memory types that are aggregated differently based on whether they fit in positive or in negative memory types, so the adjust formula is different read after bracket(s) for rest of the explanation)), so we don't hardcode aggregated values to extremes like 0 or 999 in contact fields, and use instead a different kind of adjustment, of raw memory attitude percents and memory decays, if i'm not mistaken -->
+# <!-- custom: the adjust formula for memory fields is different than the contact adjust system we use in advciv-sas too for contacts, because memory fields use a positive/negative memory field while there are no positive/negative contacts (all contacts are handled the same way computationally (only displayed as offers or demands but the values are computationally treated the same between all contact types, unlike memory types that are aggregated differently based on whether they fit in positive or in negative memory types, so the adjust formula is different read after bracket(s) for rest of the explanation)), so we don't hardcode aggregated values to extremes like 0 or 999 in contact fields, and use instead a different kind of adjustment, of raw memory attitude percents and memory decays, -->
 def get_adjusted_memory_values(raw_attitude_percent, raw_decay, is_affection, is_debug, mem_type):
 	# Step 1: Clamp invalid affection/resentment signs to 0
 	adjusted_attitude_percent = raw_attitude_percent

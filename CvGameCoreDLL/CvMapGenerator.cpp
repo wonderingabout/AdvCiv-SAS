@@ -239,7 +239,7 @@ void CvMapGenerator::addRivers()
 
 	gDLL->NiTextOut("Adding Rivers...");
 
-	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file if i'm not mistaken in doing so -->
+	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file -->
 	// <!-- custom: note: not using const as it causes a compile error: "CvMapGenerator.cpp(287): error C2662: 'CvMap::findWater' : cannot convert 'this' pointer from 'const CvMap' to 'CvMap &'" -->
 	CvMap& kMap = GC.getMap();
 	const int nPlots = kMap.numPlots();

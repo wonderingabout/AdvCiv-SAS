@@ -7795,7 +7795,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 	UnitTypes eR = NO_UNIT;
 	int iBestValue = 0;
 	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
-	// <!-- custom: hoist for performance optimization if i'm not mistaken -->
+	// <!-- custom: hoist for performance optimization -->
 	static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
 	static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
 	for (int i = 0; i < kCiv.getNumUnits(); i++)
@@ -8928,7 +8928,7 @@ void CvGame::read(FDataStreamBase* pStream)
 {
 	reset(NO_HANDICAP);
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -9163,7 +9163,7 @@ void CvGame::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 27; // advc.130w: RivalVassalAttitude tweak
 
@@ -9334,7 +9334,7 @@ void CvGame::onAllGameDataRead()
 		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
 	// </advc.opt>
 	GC.getAgents().gameStart(true); // advc.agent
-	// <!-- custom: removed old m_uiSaveFlag code if i'm not mistaken -->
+	// <!-- custom: removed old m_uiSaveFlag code -->
 
 	// <advc.003m>
 	for (TeamIter<> it; it.hasNext(); ++it)

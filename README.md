@@ -630,7 +630,7 @@ According to chatgpt 5, these may not have been MAF and the .dmp file (see for d
 
 If not, it might be a bug to fix or something. I don't know too much about these, but i fixed a few such reproducible bugs through (painfully xd but successfully seemingly did) trial and error.
 
-Our game should be as of now mostly if not really stable, i very rarely encounter crashes, and if they do it's generally very late in the game. Now i know if i'm not mistaken that some of these could simply be "temporary" crashes and not real bugs per se to fix i'd say if i'm not mistaken, but as i don't know too much about these check if accurate, and i don't guarantee no crash at all to happen, just from experience it seems really rare now to the point i'd consider the game stable, as for the few that had said crashes i didn't test if they are temporary or not now but they might/may be.
+Our game should be as of now mostly if not really stable, i very rarely encounter crashes, and if they do it's generally very late in the game. Now i know that some of these could simply be "temporary" crashes and not real bugs per se to fix, but as i don't know too much about these check if accurate, and i don't guarantee no crash at all to happen, just from experience it seems really rare now to the point i'd consider the game stable, as for the few that had said crashes i didn't test if they are temporary or not now but they might/may be.
 
 ## Not supported in AdvCiv-SAS
 
@@ -645,7 +645,7 @@ I use the default github branch's commit count as version number.
 
 For example, in our mod's github default branch's main page [our mod's github default branch's main page](https://github.com/wonderingabout/AdvCiv-SAS), as of now there are 5187 commits, so this is AdvCiv-SAS 5187.
 
-Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version if i'm not mistaken as well; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
+Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
 
 ## Copyright and Disclaimer
 

@@ -2305,7 +2305,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: not a lengthy description per sebut putting here as fits the theme maybe or not but in all cases -->
+	<!-- custom: not a lengthy description per sebut putting here as fits the theme maybe or not -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Tag>
 		<English>[TAB]See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details.</English>

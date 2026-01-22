@@ -28,7 +28,7 @@
 *.AVIF  export-ignore
 *.heic  export-ignore
 *.HEIC  export-ignore
-# <!-- custom: Paint.NET files in capitalization as well if i'm not mistaken and as chatgpt 5.1 confirms and corrected me too thanks -->
+# <!-- custom: Paint.NET files in capitalization as well as chatgpt 5.1 confirms and corrected me too thanks -->
 # Paint.NET files in any casing
 *.pdn  export-ignore
 *.PDN  export-ignore

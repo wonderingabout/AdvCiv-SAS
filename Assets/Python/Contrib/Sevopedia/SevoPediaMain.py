@@ -220,7 +220,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.pediaFuture = []
 		self.SAS_lastPediaJump = None
 
-		# <!-- custom: compute once to be computationally more efficient if i'm not mistaken in my thinking, and added with the help of chatgpt 5.2 thanks. -->
+		# <!-- custom: compute once to be computationally more efficient , and added with the help of chatgpt 5.2 thanks. -->
 		self.SAS_cacheCivicsTuple = None
 		self.SAS_cacheTechsTuple = None
 		self.SAS_cacheRegularBuildingsTuple = None

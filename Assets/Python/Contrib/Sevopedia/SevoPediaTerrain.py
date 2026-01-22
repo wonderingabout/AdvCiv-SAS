@@ -601,7 +601,7 @@ class SevoPediaTerrain:
 				unitInfoDomain = unitInfo.getDomainType()
 				passTech = (unitInfo.getTerrainPassableTech(iPeak) != -1)
 
-				# <!-- custom: "boat with legs" edge case handled in as of now relevant units if i'm not mistaken and as chatgpt 5 says as well, if no boat unit at all has legs, as is as of now in advciv-sas, then they would instead be displayed in this units impassable panel for exhaustiveness and notsimply omitted if i understood it correctly, check if accurate-->
+				# <!-- custom: "boat with legs" edge case handled in as of now relevant units as chatgpt 5 says as well, if no boat unit at all has legs, as is as of now in advciv-sas, then they would instead be displayed in this units impassable panel for exhaustiveness and notsimply omitted if i understood it correctly, check if accurate-->
 				# Peak — Units Impassable (show land w/out bypass; all sea unless All-Terrain)
 				blocked = (
 					(not unitInfo.isCanMoveAllTerrain()) and (

@@ -1235,7 +1235,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						iValue += 18000;
 					}
 				}
-				// <!-- custom: else fall back to general rule: ignore until better conditions, we can't build bonus specific build nor the farm alternatively, ignore for now if i'm not mistaken -->
+				// <!-- custom: else fall back to general rule: ignore until better conditions, we can't build bonus specific build nor the farm alternatively, ignore for now -->
 				else
 				{
 					continue;
@@ -1249,7 +1249,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// <!-- custom: avoid 1 just in case it creates weird issues -->
 			if (iValue >= 10000)
 			{
-				// <!-- custom: make sure we improve it first before anything else if i'm not mistaken -->
+				// <!-- custom: make sure we improve it first before anything else -->
 				iValue += (2000 * iAIObjectiveBonus);
 			}
 		}
@@ -1350,7 +1350,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					{
 						eBestSupposedBuild = eBuildFarm;
 
-						// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them but in all cases -->
+						// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
 						iValue += 1700 + (100 * (-1 * iEstimatedCityFoodDifference));
 					}
 					// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
@@ -1432,7 +1432,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
-							// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefully as this is a strong choice i would say especially in later game -->
+							// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe, shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefully as this is a strong choice i would say especially in later game -->
 							iValue += 1650;
 
 							if (bImprovementWorkshopCostsNoFood)
@@ -1889,7 +1889,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					{
 						// <!-- custom: chop first, think later -->
 						eBestSupposedBuild = eBuildRemoveJungle;
-						// <!-- custom: encourage chopping jungle the more city pop and unhealthy or unhealthiness (i.e. difference) we have); the health pressure to grow population would need to optimize unhealthiness as we can, and good builds should already have been handled: grab the last unhealthy points we can to grow further, in our mod gives production too so all nice if i'm not mistaken -->
+						// <!-- custom: encourage chopping jungle the more city pop and unhealthy or unhealthiness (i.e. difference) we have); the health pressure to grow population would need to optimize unhealthiness as we can, and good builds should already have been handled: grab the last unhealthy points we can to grow further, in our mod gives production too so all nice -->
 						iValue += (75 * (-1 * iCityHealthCalculatedDifference)) + (75 * (iCityPopulation - 6));
 					}
 					else
@@ -2966,7 +2966,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	bool bCanRetreat = true; // advc.opt: Try only once (uses of this variable not marked with comments)
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: cache this since we seem to check it many times, if i'm not mistaken in my thinking-->
+	// <!-- custom: cache this since we seem to check it many times, -->
 	const bool bWeOwnThisPlot = (getPlot().getOwner() == getOwner());
 
 	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD. Fix to unstick these "retreaters" at start of turn. See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
@@ -10629,7 +10629,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		// bool const bWarPlan = kOwner.AI_isFocusWar();
 
 		// <!-- custom: and the `AI().` "prefix" i mean thing we added before in other file still does not fix the compile error in this file, so using an existing pattern to check danger in this file -->
-		// <!-- custom: we have a crash in the first few turns after implementing this pCity code, maybe this is because don't have a city yet but try to promote anyway? Add this guard as a nice sanity check as well if i'm not mistaken and as chatgpt 5 recommended as well after reviewing it as well -->
+		// <!-- custom: we have a crash in the first few turns after implementing this pCity code, maybe this is because don't have a city yet but try to promote anyway? Add this guard as a nice sanity check as well as chatgpt 5 recommended as well after reviewing it as well -->
 		CvCityAI const* pCity = getPlot().AI_getPlotCity();
 		bool const bDanger = ((pCity != NULL) && pCity->AI_isDanger());	// method lives on CvCityAI <!-- custom: see as of now above code comment for details -->
 		// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
@@ -10847,7 +10847,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		// on sea:
 		// 	- non defense unitais (versatile attack/defense utility)
 		//	- defense unitais as well (naval defensive units can move, they are not as often parked to cities)
-		// so forbid retreat promotions only for defense land unitais, and otherwise allow for versatility if i'm not mistaken in my thinking and thanks to chatgpt 5's related review which gave me this idea thanks-->
+		// so forbid retreat promotions only for defense land unitais, and otherwise allow for versatility and thanks to chatgpt 5's related review which gave me this idea -->
 		if (bStrictDefenseLandUnitAI || bMostlyDefensiveLandUnitAI)
 		{
 			if ((ePromotion == ePromotionRetreat1) ||
@@ -10860,7 +10860,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		// <!-- custom: for naval unitais, combat promotions are often the best choice, followed by navigator -->
 		if (bOffenseNavalUnitAI || bDefenseNavalUnitAI)
 		{
-			// <!-- custom: navigator is useful for naval defense unitais if i'm not mistaken and as recommended by chatgpt 5 but check to be sure-->
+			// <!-- custom: navigator is useful for naval defense unitais as recommended by chatgpt 5 but check to be sure-->
 			if (ePromotion == ePromotionCombat1)
 			{
 				return AI_PROMOTION_ALWAYS_PICK_FIRST + 5000;
@@ -17224,7 +17224,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 //		...
 //	}
 
-	// <!-- custom: also cache these as is done in this file in other functions since we reuse them if i'm not mistaken in doing so-->
+	// <!-- custom: also cache these as is done in this file in other functions since we reuse them -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvGame const& kGame = GC.getGame();
 
@@ -19170,7 +19170,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 	FAssert(pBestPlot != NULL);
 	FAssertEnumBounds(eBestBuild);
 
-	// <!-- custom: chatgpt 5 hinted in its thoughts if i'm not mistaken that we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, i don't know exactly which if it's this caller or the other caller, but leaving it as such since we don't crash anymore at turn 77 -->
+	// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, i don't know exactly which if it's this caller or the other caller, but leaving it as such since we don't crash anymore at turn 77 -->
 	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		return false;  // belt-and-suspenders
 
@@ -19461,10 +19461,10 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
             continue; // nothing useful to do in this city right now
         }
         FAssert(pPlot != NULL && eBuild != NO_BUILD);
-		// <!-- custom: chatgpt 5 hinted in its thoughts if i'm not mistaken that we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such -->
+		// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such -->
 		if (pPlot == NULL || eBuild == NO_BUILD)
 			continue;
-		// <!-- custom: old hard reject mentioned in known issues (for those that mention this hard reject) 55, 56, 57, 58, 59, 60, we reverted all these changes due to worker efficiency being worse and it being too hard or tedious to fix, so we shouldn't have crashes anymore, but if ever need consider uncommenting this, although very suboptimal as it rejects everything if i'm not mistaken based on chatgpt 5's explanation and what i understood of it, but it often helped temporarily fix crashes until i could pinpoint and do a more selective or proper fix, so kept commented out rather than removed in case it helps debug code someday or such. Crashes should now be unlikely to happen as i reverted our changes and reliance on old base advciv code like the AI_getBestBuild check in this function too not just our rewritten function's check, even if bit less efficient like roading bonsues a bit later or such, is not worth all the issues we get later trying to improve it at least not easy to do so so left as such, hopefully efficient enough-->
+		// <!-- custom: old hard reject mentioned in known issues (for those that mention this hard reject) 55, 56, 57, 58, 59, 60, we reverted all these changes due to worker efficiency being worse and it being too hard or tedious to fix, so we shouldn't have crashes anymore, but if ever need consider uncommenting this, although very suboptimal as it rejects everything based on chatgpt 5's explanation and what i understood of it, but it often helped temporarily fix crashes until i could pinpoint and do a more selective or proper fix, so kept commented out rather than removed in case it helps debug code someday or such. Crashes should now be unlikely to happen as i reverted our changes and reliance on old base advciv code like the AI_getBestBuild check in this function too not just our rewritten function's check, even if bit less efficient like roading bonsues a bit later or such, is not worth all the issues we get later trying to improve it at least not easy to do so so left as such, hopefully efficient enough-->
 		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		// 	continue;
 
@@ -20251,7 +20251,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 
 	FAssert(eBuild != NO_BUILD);
 
-	// <!-- custom: even if we reverted the changes causing such crash now, i kept this safety in case it helps and doesn't break anything, consider disabling it if workers behave weirdly or it seems suboptimal to keep, i don't know too much about these but chatgpt 5 says it's fine and even good perhaps if i'm not mistaken in my remembering of what it said but check if accurate -->
+	// <!-- custom: even if we reverted the changes causing such crash now, i kept this safety in case it helps and doesn't break anything, consider disabling it if workers behave weirdly or it seems suboptimal to keep, based on chatgpt 5's review thanks -->
 	// <!-- custom: was added in an attempt to fix crash at turn 95, in the end it didn't help fix but since doesn't seem to break anything may as well keep it just to be safe, hopefully it doesn't break anything, also code is by chatgpt 5, check if accurate and see related crash we attempted to fix info in known issue as of now 58 for details -->
 	// Hard guard – don't trust callers in Release
 	if (eBuild == NO_BUILD)
@@ -20277,7 +20277,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 		return eBuild;
 	}
 
-	// <!-- custom: note: this is used several times in our code; one such cases is when we want to road a bonus in a city radius (from CvUnitAI::AI_bestCityBuild function i assume). In that case, the new bSentinelRoad in CvUnitAI::AI_improveCity takes over so we can move to the tile, build the chosen build_road in CvUnitAI::AI_bestCityBuild, and then road to nearest path to trade network if i understood it correctly based on chatgpt 5's explanation and what i understood of this in general too hehe, but check if accurate and; so in such a case we now override this code. However, do not remove it or comment-out, as it can (maybe, check if accurate) still be useful for example if we have a bonus in cultural borders but not in the BFC of any city, then CvUnitAI::AI_bestCityBuild function would not pick these up yet we still need the road, and in such other cases perhaps, so fall back to these if i'm not mistaken -->
+	// <!-- custom: note: this is used several times in our code; one such cases is when we want to road a bonus in a city radius (from CvUnitAI::AI_bestCityBuild function i assume). In that case, the new bSentinelRoad in CvUnitAI::AI_improveCity takes over so we can move to the tile, build the chosen build_road in CvUnitAI::AI_bestCityBuild, and then road to nearest path to trade network if i understood it correctly based on chatgpt 5's explanation and what i understood of this in general too hehe, but check if accurate and; so in such a case we now override this code. However, do not remove it or comment-out, as it can (maybe, check if accurate) still be useful for example if we have a bonus in cultural borders but not in the BFC of any city, then CvUnitAI::AI_bestCityBuild function would not pick these up yet we still need the road, and in such other cases perhaps, so fall back to these -->
 	// IMPROVED LOGIC: Road improved bonuses that aren't connected yet
 	BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
 	if (eBonus != NO_BONUS && 

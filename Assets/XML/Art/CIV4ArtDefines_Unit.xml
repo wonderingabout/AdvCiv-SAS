@@ -1951,7 +1951,7 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: art import from RFC DOC mod's ART_DEF_UNIT_DRAGOON thanks. Note: .kfm is base advciv +/- civ4's one if i'm not mistaken as per rfc doc mod's unitartinfo in xml if i'm not mistaken -->
+		<!-- custom: art import from RFC DOC mod's ART_DEF_UNIT_DRAGOON thanks. Note: .kfm is base advciv +/- civ4's one as per rfc doc mod's unitartinfo in xml -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DRAGOON</Type>
 			<Button>Art/AdvCiv_SAS/Units/Dragoon/Dragoon.dds</Button>

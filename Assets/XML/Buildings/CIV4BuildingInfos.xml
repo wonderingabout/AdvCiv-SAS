@@ -2509,7 +2509,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: note: told AIs to never build this if i'm not mistaken in the DLL in as of now CvCityAI::AI_buildingValue if we don't have any of the required bonuses to produce units with it, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this-->
+			<!-- custom: note: told AIs to never build this in the DLL in as of now CvCityAI::AI_buildingValue if we don't have any of the required bonuses to produce units with it, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this-->
 			<!-- custom: see code comment at BUILDING_BARRACKS for details, was 0 -->
 			<iAIWeight>75</iAIWeight>
 			<iCost>60</iCost>
@@ -3647,7 +3647,7 @@
 				<iYield>0</iYield>
 			</YieldModifiers>
 			<CommerceChanges/>
-			<!-- custom: reworked as part of the slavery+granary rework or rebalance(ing), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, but in all cases i want to rework it as such now), maybe will turn out well, or not, or yes or etc, was was 0, 0, 1 -->
+			<!-- custom: reworked as part of the slavery+granary rework or rebalance(ing), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, i want to rework it as such now), maybe will turn out well, or not, or yes or etc, was was 0, 0, 1 -->
 			<!-- custom: was 0, 0, 1 (note: as for the below advc comment of base advciv, it applies to the old <iCommerce>1</iCommerce> line now removed entirely as part of our rework in advciv-sas) -->
 			<!-- advc.908b: was 2 -->
 			<ObsoleteSafeCommerceChanges/>
@@ -10659,7 +10659,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it, since we reworked the building to be such and the thematic theme fits the extra culture (same as how it fits the madrassa), use a bit higher value than the base university if i'm not mistaken but i think is good for balance and variety of gameplay or and such -->
+			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it, since we reworked the building to be such and the thematic theme fits the extra culture (same as how it fits the madrassa), use a bit higher value than the base university but i think is good for balance and variety of gameplay or and such -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -10701,7 +10701,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: add flavor growth, reduce flavor science, same as the ROMAN_FORUM, GPP goes with growth, same as in advciv comment of it too and i got idea of it indepently i.e. of french_salon giving gpp based on what forum does hehe if i'm not mistaken and assumed flavor_growth by myself too (quite proudly but...), was science 10 -->
+			<!-- custom: add flavor growth, reduce flavor science, same as the ROMAN_FORUM, GPP goes with growth, same as in advciv comment of it too and i got idea of it indepently i.e. of french_salon giving gpp based on what forum does hehe assumed flavor_growth by myself too (quite proudly but...), was science 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -29292,7 +29292,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: can't give this a too high military flavor else military leaders would build it instead of building units, still it's strong enough with the early drafting to have military laders consider it if i'm not mistaken but not too strong flavor else they would not build units anymore, was flavors science 5 growth 2 culture 2 -->
+			<!-- custom: can't give this a too high military flavor else military leaders would build it instead of building units, still it's strong enough with the early drafting to have military laders consider it but not too strong flavor else they would not build units anymore, was flavors science 5 growth 2 culture 2 -->
 			<!-- advc.020: Was 10 Religion, but mainly unlocks Free Religion
 				 (Science), and possibly Pacifism (Growth, Culture). -->
 			<Flavors>

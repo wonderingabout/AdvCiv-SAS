@@ -836,7 +836,7 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <!-- custom: code/performance optimization: hoist -->
 	static const int iNUKE_FEATURE = GC.getDefineINT("NUKE_FEATURE");
-	// <!-- custom: also static const the enum as it shouldn't change if i'm not mistaken and as chatgpt 5 agrees as well after i asked it but check if accurate as i don't know too much about these but it does seem so but check to be sure-->
+	// <!-- custom: also static const the enum as it shouldn't change as chatgpt 5 agrees as well after i asked it but check if accurate as i don't know too much about these but it does seem so but check to be sure-->
 	static const FeatureTypes eNUKE_FEATURE = (FeatureTypes)iNUKE_FEATURE;
 
 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
@@ -7244,7 +7244,7 @@ void CvPlot::read(FDataStreamBase* pStream)
 {
 	//reset(); // advc: Constructor handles that
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -7398,7 +7398,7 @@ void CvPlot::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 13; // advc.enum: new enum map save behavior
 

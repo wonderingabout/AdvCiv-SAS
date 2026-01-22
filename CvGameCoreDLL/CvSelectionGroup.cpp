@@ -299,7 +299,7 @@ void CvSelectionGroup::doTurn()
 			int iBestWaitTurns = 0;
 			FOR_EACH_UNIT_IN(pUnit, *this)
 			{
-				// <!-- custom: seems like this can be made const if i'm not mistaken -->
+				// <!-- custom: seems like this can be made const -->
 				const int iWaitTurns = (iMIN_TIMER_UNIT_DOUBLE_MOVES -
 						(GC.getGame().getTurnSlice() - pUnit->getLastMoveTurn()));
 				if (iWaitTurns > iBestWaitTurns)
@@ -4572,7 +4572,7 @@ void CvSelectionGroup::read(FDataStreamBase* pStream)
 
 void CvSelectionGroup::write(FDataStreamBase* pStream)
 {
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 3; // advc.pf (MOVE_ROUTE_TO removed)
 

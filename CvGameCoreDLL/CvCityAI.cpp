@@ -4572,7 +4572,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 {
 	PROFILE_FUNC();
 
-	// <!-- custom: cache as eOwner as per chatgpt 5.2's recommendation to avoid reuse (not applied to things like ->getOwner() though as they look like method calls and not variables if i'm not mistaken (check if accurate as i don't know too much about these)). -->
+	// <!-- custom: cache as eOwner as per chatgpt 5.2's recommendation to avoid reuse (not applied to things like ->getOwner() though as they look like method calls and not variables). -->
 	PlayerTypes const eOwner = getOwner();
 	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
 	// <!-- custom: use this pattern i found somewhere in the code, in case it is safer, and cache repetitive calls for performance optimization. Note: also cache GET_TEAM(getTeam()) to kTeam. Note 2: we had issues in the past in AdvCiv-SAS when caching these to a CvTeam cast (i don't know too much about these, check if accurate), that were solved using a CvTeamAI cast rather, so preferring this whenever it seems safe enough (check if accurate). I applied this to all GET_TEAM calls i spotted in this file +/- additional kOwner or kPlayer extra caching when needed, and after specifically testing this in autoplay, we get the exact same outcome vs before (t341 win, exact same score at scores it seems as well, so this also looks good to merge) -->
@@ -4857,7 +4857,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						{
 							return 0;
 						}
-						// <!-- custom: i don't know if we can trust this boolean's corresponding function, but assuming it is, if we're threatened, prepare units rather in case or something else, no point if we get surprised attacked while building this and get captured without ever barely any units xd, build units rather in such cases at least simplify as such here, should most often help AI if i'm not mistaken and hopefully-->
+						// <!-- custom: i don't know if we can trust this boolean's corresponding function, but assuming it is, if we're threatened, prepare units rather in case or something else, no point if we get surprised attacked while building this and get captured without ever barely any units xd, build units rather in such cases at least simplify as such here, should most often help AI hopefully-->
 						if (bDanger)
 						{
 							return 0;
@@ -4874,7 +4874,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 						}
 					}
 				}
-				// <!-- custom: else let city handle what it wants, it is unclear that going early for barracks is the better choice, especially if low on hammer, we won't produce any units with it if i'm not mistaken or barely any units, so leave free choice rather here (e.g. a granary could be better, as we grow faster so more tiles to work so more units indirectly stronger army as we want if we can grow or we'd slow more, or a library could be better so we unlock next offensive or defensive unit that will save us or make us win or gain big advantage or gain a longtemr scientific advantage/gain overall maybe too), so don't always favour barracks-like buildings, except in cases where we expect significant and quite reliable gains in this case at least i mean -->
+				// <!-- custom: else let city handle what it wants, it is unclear that going early for barracks is the better choice, especially if low on hammer, we won't produce any units with it or barely any units, so leave free choice rather here (e.g. a granary could be better, as we grow faster so more tiles to work so more units indirectly stronger army as we want if we can grow or we'd slow more, or a library could be better so we unlock next offensive or defensive unit that will save us or make us win or gain big advantage or gain a longtemr scientific advantage/gain overall maybe too), so don't always favour barracks-like buildings, except in cases where we expect significant and quite reliable gains in this case at least i mean -->
 			}
 
 			// --- Hard rule: don't build Stables without horses/camels <!-- custom: or elephants as it noticed and suggested itself while i had forgotten as in overlooked it rather as i didn't think of it at all xd in this case -->--------------------
@@ -5012,7 +5012,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: i have noticed cities low in health, high or medium in happiness so growth potential, overlooking critical happiness buildings for much less relevant things like a customs house or such. To address this, if we have too much health, don't waste time building this and use the hammer for more important and urgent/effective tasks (at least other buildings maybe), and inversely if i'm not mistaken if we badly need the health and can grow or can grow enough at least, rush as in favour heavily as in for us force it as best to simplify, but try to not overdo it to not kill versatility or most importantly versatility in case other strategies (war, etc) are locally better(e.g. aqueduct as of now buffed in our mod so quite good in helping a city grow quite a bit more, grocer, etc if any more) -->
+			// <!-- custom: i have noticed cities low in health, high or medium in happiness so growth potential, overlooking critical happiness buildings for much less relevant things like a customs house or such. To address this, if we have too much health, don't waste time building this and use the hammer for more important and urgent/effective tasks (at least other buildings maybe), and inversely if we badly need the health and can grow or can grow enough at least, rush as in favour heavily as in for us force it as best to simplify, but try to not overdo it to not kill versatility or most importantly versatility in case other strategies (war, etc) are locally better(e.g. aqueduct as of now buffed in our mod so quite good in helping a city grow quite a bit more, grocer, etc if any more) -->
 			// <!-- custom: note: if i'm not mistaken, as per chatgpt 5's explanation, iGood and iBad are returned as outer parameters by the below function, check if accurate -->
 			int iHealthGood = 0, iHealthBad = 0;
 			// NOTE: getAdditionalHealthByBuilding returns the NET health this building would give
@@ -5297,7 +5297,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 				// 1) Foreign % only helps if we actually have foreign trade in THIS city <!-- custom: and if no routes are added otherwise as chatgpt 5 added after i asked it about it hehe thanks still but really i mean thanks anwyays etc hehe thanks -->
 				// ...but don't veto here if the building ALSO adds routes; let ROI check handle it.
-				// <!-- custom: reuse bForeignTrade as recommended by chatgpt 5 (in another thread but thanks still), as indeed we can know people but not have open borders with them, so no trade then. I'm a bit reluctant to use it in case it is inaccurate, but may as well do so and whatever happens xd, at worse we won't reject the building so shouldn't harm too much if i'm not mistaken and ideally -->
+				// <!-- custom: reuse bForeignTrade as recommended by chatgpt 5 (in another thread but thanks still), as indeed we can know people but not have open borders with them, so no trade then. I'm a bit reluctant to use it in case it is inaccurate, but may as well do so and whatever happens xd, at worse we won't reject the building so shouldn't harm too much ideally -->
 				// Right now you use iHasMetCount > 0. That doesn’t guarantee foreign trade (you still need connection / open borders). You already computed bForeignTrade earlier—use it.
 				if (bHasAnyForeignTradeRouteModifier && !bForeignTrade && !bTradeRouteAdder)
 				{
@@ -5494,7 +5494,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 		}
-		// <!-- custom: wonders (i.e. world + national) if i'm not mistaken -->
+		// <!-- custom: wonders (i.e. world + national) -->
 		else if (bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
 			// <!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then -->
@@ -5867,7 +5867,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: note: ideally should handle commerce modifier wonders, but hopefully the hammer minimum requirements filter out most of the cities, still it is possible that a city is low hammer and high gold for example or vice versa, in such case it would be bad to build the wrong of each, but left as is for now if not always or not as bit tedious; there is also a risk they may never be built since we are already restricting enough, hopefully commerce and hammer overlap nicely or nicely enough, else maybe fine all in all considered to leave as such but in all cases -->
+			// <!-- custom: note: ideally should handle commerce modifier wonders, but hopefully the hammer minimum requirements filter out most of the cities, still it is possible that a city is low hammer and high gold for example or vice versa, in such case it would be bad to build the wrong of each, but left as is for now if not always or not as bit tedious; there is also a risk they may never be built since we are already restricting enough, hopefully commerce and hammer overlap nicely or nicely enough, else maybe fine all in all considered to leave as such -->
 
 			// <!-- custom: note: cultural wonders (world and national) not handled, let AI decide if it wants them or not; may skew too much the balance or gameplay otherwise, and is less code to code (repetition) too (not that i would mind too much had purpose in this case i mean) -->
 
@@ -8045,7 +8045,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							kBuilding.getGlobalCorporationCommerce());
 					if (iExpectedSpread > 0)
 					{
-						// <!-- custom: note: be careful, this is from another loop so increment variable name and redefine it as a new variable if i'm not mistaken in my thinking-->
+						// <!-- custom: note: be careful, this is from another loop so increment variable name and redefine it as a new variable -->
 						const int iLoopCommerceRateRank2 = findCommerceRateRank(eLoopCommerce);
 						FOR_EACH_ENUM(Commerce)
 						{
@@ -11886,7 +11886,7 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(
 			(eLoopDefaultUnitAI == UNITAI_CITY_SPECIAL) ||
 			(eLoopDefaultUnitAI == UNITAI_RESERVE)
 		);
-		// <!-- custom: note: we don't reject defense units if offense only yet, or vice versa if offense units if defense only if i'm not mistaken as well, as we still want to compute and store defense units, in case we can build no offense unit at all, then we'd still want to build a defense unit rather than nothing -->
+		// <!-- custom: note: we don't reject defense units if offense only yet, or vice versa if offense units if defense only, as we still want to compute and store defense units, in case we can build no offense unit at all, then we'd still want to build a defense unit rather than nothing -->
 		const bool bSuitableDefaultUnitAI = (bOffenseDefaultUnitAI || bDefenseDefaultUnitAI);
 
 		if (!bSuitableDefaultUnitAI)
@@ -12877,12 +12877,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (bRenaissancePlus)
 						{
-							// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply-->
+							// <!-- custom: +1 since we start eras at 0 so renaissance is first era where our decay starts to apply-->
 							// clamp to avoid negative
 							const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
 
 							// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks; scale * 100 for rounding error/precision asa chatgpt 5 described suggested although i may have had or not or yes or etcsame idea or not or yes or etc -->
-							// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me or more easily)) --> -10% per era -->
+							// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but i like how predictable and simple this is if all good, rather than (0.9^n)*x based on chatgpt 5's explanation of what compound is thanks, and prefer linear if all good as is simple and predictable (at least to me or more easily)) --> -10% per era -->
 							const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value-->
 							const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
 							// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so) for all -->
@@ -13572,7 +13572,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 				? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworked_it->second.second, YIELD_FOOD)
 				: getCityIndexPlot((CityPlotTypes)unworked_it->second.second)->getYield(YIELD_FOOD);
 
-			// <!-- custom: seemingly a bug found by claude ai; i am not sure this is really a bug, but in all cases indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs with screenshots there in the google drive) -->
+			// <!-- custom: seemingly a bug found by claude ai; i am not sure this is really a bug, indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs with screenshots there in the google drive) -->
 			// OLD: Only avoid starvation if we're not already starving
 			// if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
 			// NEW: Always check if job change improves/worsens food situation
@@ -14557,16 +14557,16 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 	{
 		/*  Each surplus happy point increases food’s weight.
 			Pop-1 cities with +5 happy <!-- custom: increase quite a lot / significantly --> the attractiveness of food.   */
-		// <!-- custom: for example if i'm not mistaken with 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other mulitplicative calculations in this function but only glanced and from my memory of it so check to be sure) but still encouraging growth, testing it to see if excessive or not ingame or if solves known issue as of now 40 among other issues or not; in short favour growth if we are happy (i.e and have room to grow if i'm not mistaken in this case at least), and the happier we are the more we want to use it to grow (even if production is lower as a result short term) -->
+		// <!-- custom: for example with 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other mulitplicative calculations in this function but only glanced and from my memory of it so check to be sure) but still encouraging growth, testing it to see if excessive or not ingame or if solves known issue as of now 40 among other issues or not; in short favour growth if we are happy (i.e and have room to grow), and the happier we are the more we want to use it to grow (even if production is lower as a result short term) -->
 		// <!-- custom: update: this change seems very effective, china ai grows its city very fast, although at another spot, and has 3 cities at turn 50 now not just 2 with high pop. These cities opt for high food at low pop, then at high pop they seem to successfully switch or focus on hammer a lot more, i am very happy of these changes, i think AI is stronger and reacts more dynamically to its environment now, without being too food focused. At turn 60, China AI has a 4th city growing as well already, very nice; i did another run in autoplay as welland the results seem even better. China AI settled its city C at same location, improved the copper, although a bit later, then continuously ignored it, grew, and slaved a few times, while still favouring growth and being way over happiness cap in this cap; at turn 100 it has a few more buildings than when it stayed passively low pop on copper. It seemed also as said before to adopt a produciton profile again at hgiher pop, beijing would produce the great wall :) looking inside beijing the hammer production is decent: most high hammer tiles are worked, while most are still food tiles, but this seems very efficient or nice :) i am very happy of these changes and result, and i think AI is quite a lot stronger now, see also known issue as of now 40 for details or additional info -->
-		// <!-- custom: note: if happiness surplus is exactly 1, this seems to do nothing as noted by chatgpt 3-o if i may say and if i'm not mistaken which although it annoyed me bit with math xd it helped me lot so thanks a lot chagpt 3-o too (:)), as we multiply by 1, but since i'm satisfied with these results, leaving it as such, probably not too bad or maybe even fine as such as 1 happiness is about full no happy almost anyways if i'm not mistaken -->
+		// <!-- custom: note: if happiness surplus is exactly 1, this seems to do nothing as noted by chatgpt 3-o if i may say and which although it annoyed me bit with math xd it helped me lot so thanks a lot chagpt 3-o too (:)), as we multiply by 1, but since i'm satisfied with these results, leaving it as such, probably not too bad or maybe even fine as such as 1 happiness is about full no happy almost anyways -->
 		iFoodValue *= iHappySurplus;
 
 		/*  Optional: nudge hammers downward when the city is very happy
 			so a lone 6-hammer hill won’t override a 3-food pasture.           */
 		if (iHappySurplus >= 3)
 		{
-			// <!-- custom: so for example if i'm not mistaken with 9 happy and 1 unhappy, we'd have 9 - 1 = 8 happy surplus, so we'd want to reduce hammer value a lot and capitalize on our happiness to grow, and so it production value would be divided by 8 - 1 = 7 so we'd have iProductionValue reduced to 1 / 7 = 14.3 % (approximately) of its former value, so we'd grow much more ideally, but if happiness suprplus is say only 3 (for example 9 happy and 6 unhappy), the extra divider would be 3 - 1 = 2, so we'd have iProductionValue reduced to = 1 / 2 = 50% of its former value which is fine i think, we still have some room to grow after all, better use that and capitalize on long term -->
+			// <!-- custom: so for example with 9 happy and 1 unhappy, we'd have 9 - 1 = 8 happy surplus, so we'd want to reduce hammer value a lot and capitalize on our happiness to grow, and so it production value would be divided by 8 - 1 = 7 so we'd have iProductionValue reduced to 1 / 7 = 14.3 % (approximately) of its former value, so we'd grow much more ideally, but if happiness suprplus is say only 3 (for example 9 happy and 6 unhappy), the extra divider would be 3 - 1 = 2, so we'd have iProductionValue reduced to = 1 / 2 = 50% of its former value which is fine i think, we still have some room to grow after all, better use that and capitalize on long term -->
 			iProductionValue /= (iHappySurplus - 1);
 		}
 	}
@@ -16009,7 +16009,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 							}
 						}
 					}
-					// <!-- custom: although this pushes a unit order outside of our AI_chooseUnit rewritten code, it seems caller outside (i.e. of AI_buildGovernorChooseProduction) is only applied if player is human, so does not affect other AI players so fine to keep as such i'd say if i'm not mistaken as this shouldn't interfere with our logic there if i understood it correctly, and chatgpt 5 confirms it xd, but check to be sure as this is just from a quite quick glance and i don't know too much about these although in this case i mean i mean it seems accurate/correct of me but check to be sure -->
+					// <!-- custom: although this pushes a unit order outside of our AI_chooseUnit rewritten code, it seems caller outside (i.e. of AI_buildGovernorChooseProduction) is only applied if player is human, so does not affect other AI players so fine to keep as such i'd say as this shouldn't interfere with our logic there if i understood it correctly, and chatgpt 5 confirms it xd, but check to be sure as this is just from a quite quick glance and i don't know too much about these although in this case i mean i mean it seems accurate/correct of me but check to be sure -->
 					// You’re right: AI_buildGovernorChooseProduction() is the human city-governor routine. It only runs when a human city has production automation on. For AI civs (Japan in your save), production flows through the regular AI_chooseProduction(), which then calls your AI_chooseUnit(...) paths. So the “governor pushOrder bypass” isn’t what’s creating AI longbows.
 					//
 					// otherwise, we're ready to build the unit
@@ -17728,7 +17728,7 @@ void CvCityAI::read(FDataStreamBase* pStream)
 {
 	CvCity::read(pStream);
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -17789,7 +17789,7 @@ void CvCityAI::write(FDataStreamBase* pStream)
 {
 	CvCity::write(pStream);
 
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 9; // advc.131d
 
