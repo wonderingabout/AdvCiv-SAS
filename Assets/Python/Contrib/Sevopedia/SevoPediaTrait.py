@@ -216,10 +216,8 @@ class SevoPediaTrait:
 		self.W_HISTORY = self.R_CONTENT - self.X_HISTORY
 		self.H_HISTORY = H_BOTTOM_ROW
 
-		# <!-- custom: Leader icon size for statistics tables. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
-		self.LEADER_ICON_SIZE = 24
-		# <!-- custom: Leader button columns spacing; total column width is icon size + spacing. (GPT-5.2-Codex) -->
-		self.LEADER_BUTTON_COLUMN_SPACING = 2
+		# <!-- custom: Row height for statistics tables. Icon size and spacing now use centralized INCHART_* constants. (Claude Opus 4.5) -->
+		# LEADER_ICON_SIZE and LEADER_BUTTON_COLUMN_SPACING replaced by INCHART_ICON_SIZE and INCHART_ICON_SPACING from _sevopedia_helpers
 
 
 	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude code Opus 4.5) -->
@@ -278,12 +276,8 @@ class SevoPediaTrait:
 		# === LEFT TABLE: Pairings for current trait ===
 		if pairingData:
 			maxLeadersLeft = max([len(d[3]) for d in pairingData])
-			if maxLeadersLeft < 1:
-				maxLeadersLeft = 1
-			leaderColWLeft = self.LEADER_ICON_SIZE + self.LEADER_BUTTON_COLUMN_SPACING
-			availableLeadersWLeft = self.STATS_LEFT_TABLE_W - self.STATS_LEFT_COL_TRAIT - self.STATS_LEFT_COL_PAIR - self.STATS_LEFT_COL_TOTAL
-			if availableLeadersWLeft < leaderColWLeft * maxLeadersLeft:
-				leaderColWLeft = int(availableLeadersWLeft / maxLeadersLeft)
+			fixedColsWLeft = self.STATS_LEFT_COL_TRAIT + self.STATS_LEFT_COL_PAIR + self.STATS_LEFT_COL_TOTAL
+			leaderColWLeft, maxLeadersLeft = inchart_calc_icon_col_width(self.STATS_LEFT_TABLE_W, fixedColsWLeft, maxLeadersLeft)
 
 			leftPanelName = self.top.getNextWidgetName()
 			screen.addPanel(leftPanelName, "", "", True, True, self.STATS_PANEL_X, self.STATS_PANEL_Y, self.STATS_LEFT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
@@ -295,8 +289,7 @@ class SevoPediaTrait:
 			screen.setTableColumnHeader(leftTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TRAIT_HEADER", ()), self.STATS_LEFT_COL_TRAIT)
 			screen.setTableColumnHeader(leftTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_LEFT_COL_PAIR)
 			screen.setTableColumnHeader(leftTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), self.STATS_LEFT_COL_TOTAL)
-			for iCol in xrange(maxLeadersLeft):
-				screen.setTableColumnHeader(leftTableName, 3 + iCol, "", leaderColWLeft)
+			inchart_set_icon_column_headers(screen, leftTableName, 3, maxLeadersLeft, leaderColWLeft)
 
 			for otherTrait, pairCount, totalCount, leaderIds in pairingData:
 				iRow = screen.appendTableRow(leftTableName)
@@ -307,18 +300,14 @@ class SevoPediaTrait:
 				screen.setTableText(leftTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 				screen.setTableText(leftTableName, 2, iRow, u"<font=2>%d</font>" % totalCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-				self._setLeaderIconCells(screen, leftTableName, iRow, leaderIds, 3, maxLeadersLeft, leaderToCiv)
+				inchart_set_icon_cells(screen, leftTableName, iRow, leaderIds, 3, maxLeadersLeft, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
 		# === RIGHT TABLE: All trait combinations globally ===
 		# <!-- custom: Use cached all-pairs data for efficiency. (Claude Opus 4.5) -->
 		allPairsData, (minCount, maxCount), maxLeadersRight = self._getAllTraitPairsData()
 		if allPairsData:
-			if maxLeadersRight < 1:
-				maxLeadersRight = 1
-			leaderColWRight = self.LEADER_ICON_SIZE + self.LEADER_BUTTON_COLUMN_SPACING
-			availableLeadersWRight = self.STATS_RIGHT_TABLE_W - self.STATS_RIGHT_COL_COMBO - self.STATS_RIGHT_COL_COUNT - self.STATS_RIGHT_COL_RANK
-			if availableLeadersWRight < leaderColWRight * maxLeadersRight:
-				leaderColWRight = int(availableLeadersWRight / maxLeadersRight)
+			fixedColsWRight = self.STATS_RIGHT_COL_COMBO + self.STATS_RIGHT_COL_COUNT + self.STATS_RIGHT_COL_RANK
+			leaderColWRight, maxLeadersRight = inchart_calc_icon_col_width(self.STATS_RIGHT_TABLE_W, fixedColsWRight, maxLeadersRight)
 			tableWRight = self.STATS_RIGHT_TABLE_W
 
 			rightPanelName = self.top.getNextWidgetName()
@@ -331,8 +320,7 @@ class SevoPediaTrait:
 			screen.setTableColumnHeader(rightTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COMBO", ()), self.STATS_RIGHT_COL_COMBO)
 			screen.setTableColumnHeader(rightTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_RIGHT_COL_COUNT)
 			screen.setTableColumnHeader(rightTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), self.STATS_RIGHT_COL_RANK)
-			for iCol in xrange(maxLeadersRight):
-				screen.setTableColumnHeader(rightTableName, 3 + iCol, "", leaderColWRight)
+			inchart_set_icon_column_headers(screen, rightTableName, 3, maxLeadersRight, leaderColWRight)
 
 			for trait1, trait2, pairCount, leaderIds in allPairsData:
 				iRow = screen.appendTableRow(rightTableName)
@@ -345,30 +333,13 @@ class SevoPediaTrait:
 				screen.setTableText(rightTableName, 0, iRow, pairText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				screen.setTableText(rightTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-				# Ranking bar
-				if maxCount > minCount:
-					normalized = (pairCount - minCount) * 100 / (maxCount - minCount)
-				else:
-					normalized = 50
-				numPlus = (normalized + 10) / 20
-				screen.setTableText(rightTableName, 2, iRow, u"<font=2>%s</font>" % (u"+" * numPlus), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				# Ranking bar using centralized helper
+				rankingBar = inchart_calc_ranking_bar(pairCount, minCount, maxCount)
+				screen.setTableText(rightTableName, 2, iRow, u"<font=2>%s</font>" % rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-				self._setLeaderIconCells(screen, rightTableName, iRow, leaderIds, 3, maxLeadersRight, leaderToCiv)
+				inchart_set_icon_cells(screen, rightTableName, iRow, leaderIds, 3, maxLeadersRight, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
-	def _setLeaderIconCells(self, screen, tableName, row, leaderIds, leaderColStart, leaderColCount, leaderToCiv):
-		for iCol in xrange(leaderColCount):
-			if iCol >= len(leaderIds):
-				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				continue
-
-			iLeader = leaderIds[iCol]
-			leaderInfo = gc.getLeaderHeadInfo(iLeader)
-			buttonPath = leaderInfo.getButton()
-			iCiv = leaderToCiv.get(iLeader, -1)
-			if iCiv != -1 and buttonPath:
-				screen.setTableText(tableName, leaderColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, CvUtil.FONT_LEFT_JUSTIFY)
-			else:
-				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+	# <!-- custom: _setLeaderIconCells removed - now uses centralized inchart_set_icon_cells from _sevopedia_helpers -->
 
 	def _buildTraitPairingData(self):
 		# <!-- custom: Build per-trait pairing data using cached traitLeaders mapping.

@@ -4508,3 +4508,88 @@ and opens the door to having camel mounts multiple/many ones/units, may also hav
 ----- Comment #312 -----
 
 <!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere in advciv (nor even civ4 actually), and since we don't use it anymore in sevopedia unit now (hide the field rather entirely, may as well remove it now) -->
+
+===== \Assets/XML/Technologies/CIV4TechInfos.xml =====
+----- Comment #313 -----
+
+<!-- custom: added this extra as of now tech_electricity prereq nicely i mean recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking. Also, as i explained to chatgpt 5 as it asked me i mean, tech_nationalism also seems to be a great fit as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time)) though), and tech_liberalism is a bit too soon for that (tech chatgpt 5 suggested as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time -->
+
+===== \Assets/XML/Technologies/CIV4TechInfos.xml =====
+----- Comment #314 -----
+
+move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or startegically interesting as such
+
+===== \Assets/XML/Interface/CIV4ColorVals.xml =====
+----- Comment #315 -----
+
+		<!--ColorVal>
+			<Type>COLOR_CITY_BROWN</Type>
+			<fRed>0.70</fRed>
+			<fGreen>0.45</fGreen>
+			<fBlue>0.00</fBlue>
+			<fAlpha>1.00</fAlpha>
+		</ColorVal-->
+		<!-- advc.210a: White for now.
+			 Replacing the unused color above in order to stay compatible
+			 with the BtS replay format. -->
+
+===== \Assets/XML/GameInfo/CIV4ReligionInfo.xml =====
+----- Comment #316 -----
+
+move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC.)
+
+===== \Assets/XML/GameInfo/CIV4ProcessInfo.xml =====
+----- Comment #317 -----
+
+since we can build libraries with writing, it would not be too weird if research could be built from that time/tech too. Maybe would allow more strategic diversity/depth especially at higher levels. Would need testing to see how AIs would handle it but is maybe fine (would need to test to see / be sure). Plus, we have removed alphabet from our new tech tree now (as is an inefficient tech, and replaced it much later with tech naturalism todo see dcs for details)
+
+===== \Assets/XML/GameInfo/CIV4ProcessInfo.xml =====
+----- Comment #318 -----
+
+<!-- custom: ideally we'd want it to be tech_mysticism assuming we have one or a few techs before it (i.e. before tech_mysticism), but using tech_polytheism instead so some civ can compete for it rather than a random one seemingly getting it at start if many start with mysticism -->
+
+===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
+----- Comment #319 -----
+
+			<!-- advc.910: Changed most of the turn count. Now sum up to a
+				 max turn of 335 instead of 330. -->
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
+			<!--
+			Awesome—sticking with Quick = 330 turns makes sense. Here’s a clean, monotonic, integer-years-per-turn Quick calendar that mirrors your Normal/Epic/Marathon pivots (ends at 2105 CE), uses only 12-month multiples, and totals 330 turns.
+
+			Why this works:
+			- Total turns = 330 exactly.
+			- Keeps your pivots (1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105).
+			- Integer years/turn everywhere (?1y), no odd 1.3/1.5 steps.
+			- Monotonic: years/turn never go up as time advances (they step down to 1y/turn at the end).
+			- Late game uses 24 or 12 months/turn only, so the calendar feels clean.
+			-->
+
+===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
+----- Comment #320 -----
+
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
+			<!--
+			ya, gotcha — your Epic should “fade fast” in Prehistory like Normal/Marathon, keep only clean integer years/turn (?1), never speed back up, and use 0.5y/turn only at the very end. Here’s a redesigned EPIC (750 turns) block that matches that vibe. Early bands use the same coarse steps as Normal (so it fades quickly), then we add resolution from Classical ? Medieval ? Renaissance to land exactly at 750.
+
+			Why this fixes the feel:
+			- Same early fade as Normal/Marathon. First 7 bands reuse Normal’s 5,000?2,500?1,000?…?125 y/turn steps, so Prehistory isn’t over-detailed.
+			- Clean math. Every ?1y step is an integer; months/turn are all multiples of 12; only the two final bands use 6-month turns.
+			- Monotonic. Years/turn never increase as time advances.
+			- Pivots line up. 1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105 stay intact.
+			- Exactly 750 turns. (I checked the sum.)
+			-->
+
+===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
+----- Comment #321 -----
+
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
+			<!--
+			love it—here’s a Marathon = 1000 turns timeline that keeps everything clean (integer years/turn whenever >1), strictly monotonic (never speeds up later), and uses 6-month steps for all sub-year pacing (no need for 4-month trimesters).
+
+			Notes:
+			- Total turns = 1000 (checked).
+			- Years/turn never increase as time moves forward.
+			- All >1y steps are integers; sub-year steps are 6 months.
+			- Same historical pivots as your Normal/Epic (e.g., 1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105).
+			-->

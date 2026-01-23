@@ -4310,7 +4310,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			</OrPreReqs>
-			<!-- custom: added this extra as of now tech_electricity prereq nicely i mean recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking. Also, as i explained to chatgpt 5 as it asked me i mean, tech_nationalism also seems to be a great fit as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time)) though), and tech_liberalism is a bit too soon for that (tech chatgpt 5 suggested as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time -->
+			<!-- custom: Long_Comments_XML.txt #313 -->
 			<AndPreReqs>
 				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			</AndPreReqs>
@@ -5660,7 +5660,7 @@
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
-			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or startegically interesting as such, was 0 -->
+			<!-- custom: Long_Comments_XML.txt #314, was 0 -->
 			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>

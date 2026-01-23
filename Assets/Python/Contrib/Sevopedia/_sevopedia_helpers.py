@@ -6,6 +6,7 @@
 
 from CvPythonExtensions import *
 
+import CvUtil
 import re
 
 
@@ -481,3 +482,176 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
 	if len(out) == 0:
 		return none_text
 	return ", ".join(out)
+
+
+
+# <!-- custom: In-Category Chart Helpers (InChart) - shared across Traits, Tech, Improvement charts.
+# These are charts that appear WITHIN a category item page (e.g. leader pairing table in Traits),
+# as opposed to "Chart as category" pages like Handicap Chart where the chart IS the category.
+# Centralized here to reduce code duplication and ensure consistent styling. (Claude Opus 4.5) -->
+
+# <!-- custom: In-Category Chart Constants -->
+INCHART_ICON_SIZE = 24              # Icon button size in table cells (leaders, civs, techs)
+INCHART_ICON_SPACING = 2            # Spacing between icon columns
+INCHART_ROW_HEIGHT = 24             # Table row height
+INCHART_TABLE_MARGIN = 8            # Margin around table inside panel
+INCHART_TABLE_INNER = 6             # Inner padding for tables
+INCHART_MIN_ICON_COL_WIDTH = 16     # Minimum icon column width after scaling
+
+
+
+def inchart_calc_icon_col_width(tableW, fixedColsW, maxIcons, iconSize=None, iconSpacing=None):
+	# Calculate icon column width, scaling down if necessary to fit.
+	# tableW: total table width
+	# fixedColsW: sum of fixed column widths (non-icon columns)
+	# maxIcons: maximum number of icon columns needed
+	# iconSize: icon size (defaults to INCHART_ICON_SIZE)
+	# iconSpacing: spacing between icons (defaults to INCHART_ICON_SPACING)
+	# Returns: (iconColW, maxIcons) - column width and adjusted max icons (at least 1)
+	if iconSize is None:
+		iconSize = INCHART_ICON_SIZE
+	if iconSpacing is None:
+		iconSpacing = INCHART_ICON_SPACING
+
+	if maxIcons < 1:
+		maxIcons = 1
+
+	iconColW = iconSize + iconSpacing
+	availableW = tableW - fixedColsW
+
+	if availableW < iconColW * maxIcons:
+		iconColW = max(INCHART_MIN_ICON_COL_WIDTH, int(availableW / maxIcons))
+
+	return iconColW, maxIcons
+
+
+
+def inchart_set_icon_column_headers(screen, tableName, startCol, numCols, colWidth):
+	# Set empty column headers for icon columns (common pattern in all in-category charts).
+	# screen: CyGInterfaceScreen
+	# tableName: name of the table widget
+	# startCol: column index to start at
+	# numCols: number of icon columns to add
+	# colWidth: width for each column
+	for iCol in xrange(numCols):  # noqa: F821
+		screen.setTableColumnHeader(tableName, startCol + iCol, "", colWidth)
+
+
+
+def inchart_show_no_content_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
+	# Display "None" or custom text when a panel has no content to show.
+	# screen: CyGInterfaceScreen
+	# selfTop: reference to main pedia class (for getNextWidgetName)
+	# panelX, panelY, panelW, panelH: panel dimensions
+	# txtKey: optional custom text key (defaults to TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE)
+	if txtKey is None:
+		txtKey = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+
+	textName = selfTop.getNextWidgetName()
+	szText = localText.getText(txtKey, ())
+	yPanelCenter = panelY + (panelH / 2)
+	screen.addMultilineText(
+		textName, szText,
+		panelX + 7, yPanelCenter,
+		panelW - 14, panelH - 20,
+		WidgetTypes.WIDGET_GENERAL, -1, -1,
+		CvUtil.FONT_LEFT_JUSTIFY
+	)
+
+
+
+def inchart_calc_ranking_bar(value, minVal, maxVal, maxPlus=5):
+	# Calculate ranking bar string (+ symbols) for a value within a range.
+	# value: the value to rank
+	# minVal: minimum value in range
+	# maxVal: maximum value in range
+	# maxPlus: maximum number of + symbols (default 5)
+	# Returns: unicode string of + symbols
+	if maxVal > minVal:
+		normalized = (value - minVal) * 100 / (maxVal - minVal)
+	else:
+		normalized = 50
+
+	# Convert normalized (0-100) to plus count (0-maxPlus)
+	# Formula: (normalized + 10) / 20 gives 0-5 range for normalized 0-100
+	numPlus = (normalized + 10) / (100 / maxPlus)
+	if numPlus < 0:
+		numPlus = 0
+	if numPlus > maxPlus:
+		numPlus = maxPlus
+
+	return u"+" * numPlus
+
+
+
+# <!-- custom: Icon type constants for inchart_set_icon_cells -->
+INCHART_ICON_TYPE_LEADER = 0
+INCHART_ICON_TYPE_CIV = 1
+INCHART_ICON_TYPE_TECH = 2
+
+
+
+def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount, iconType, extraData=None):
+	# Generic helper to set icon cells in a table row.
+	# screen: CyGInterfaceScreen
+	# tableName: name of the table widget
+	# row: row index
+	# itemIds: list of item IDs (leader IDs, civ IDs, or tech IDs)
+	# colStart: column index to start placing icons
+	# colCount: total number of icon columns (fills empty cells if itemIds is shorter)
+	# iconType: INCHART_ICON_TYPE_LEADER, INCHART_ICON_TYPE_CIV, or INCHART_ICON_TYPE_TECH
+	# extraData: dict with extra data (e.g. {"leaderToCiv": {...}} for leaders)
+	#
+	# For leaders: extraData should contain "leaderToCiv" mapping iLeader -> iCiv
+	# For civs/techs: extraData is not required
+
+	for iCol in xrange(colCount):  # noqa: F821
+		if iCol >= len(itemIds):
+			# Empty cell
+			screen.setTableText(tableName, colStart + iCol, row, "", "",
+				WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			continue
+
+		itemId = itemIds[iCol]
+		buttonPath = ""
+		widgetType = WidgetTypes.WIDGET_GENERAL
+		widgetData1 = -1
+		widgetData2 = -1
+
+		if iconType == INCHART_ICON_TYPE_LEADER:
+			leaderInfo = gc.getLeaderHeadInfo(itemId)
+			buttonPath = leaderInfo.getButton()
+			if extraData:
+				leaderToCiv = extraData.get("leaderToCiv", {})
+			else:
+				leaderToCiv = {}
+			iCiv = leaderToCiv.get(itemId, -1)
+			if iCiv != -1 and buttonPath:
+				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER
+				widgetData1 = itemId
+				widgetData2 = iCiv
+			else:
+				buttonPath = ""
+
+		elif iconType == INCHART_ICON_TYPE_CIV:
+			civInfo = gc.getCivilizationInfo(itemId)
+			buttonPath = civInfo.getButton()
+			if buttonPath:
+				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV
+				widgetData1 = itemId
+				widgetData2 = -1
+
+		elif iconType == INCHART_ICON_TYPE_TECH:
+			techInfo = gc.getTechInfo(itemId)
+			buttonPath = techInfo.getButton()
+			if buttonPath:
+				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH
+				widgetData1 = itemId
+				widgetData2 = -1
+
+		if buttonPath:
+			screen.setTableText(tableName, colStart + iCol, row, "", buttonPath,
+				widgetType, widgetData1, widgetData2, CvUtil.FONT_LEFT_JUSTIFY)
+		else:
+			screen.setTableText(tableName, colStart + iCol, row, "", "",
+				WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

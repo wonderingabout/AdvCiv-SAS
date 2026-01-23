@@ -184,9 +184,9 @@ class SevoPediaImprovement:
 
 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
-		self.IMPROVEMENT_LEADER_ICON_SIZE = 24
-		self.IMPROVEMENT_LEADER_BUTTON_SPACING = 2
-		self.IMPROVEMENT_LEADER_ROW_H = 24
+		# <!-- custom: Leader icon sizes now use centralized INCHART_* constants from _sevopedia_helpers.
+		# IMPROVEMENT_LEADER_ICON_SIZE, IMPROVEMENT_LEADER_BUTTON_SPACING, IMPROVEMENT_LEADER_ROW_H replaced by
+		# INCHART_ICON_SIZE, INCHART_ICON_SPACING, INCHART_ROW_HEIGHT -->
 
 
 
@@ -475,61 +475,37 @@ class SevoPediaImprovement:
 		weightToLeaders, weightsSorted, maxLeaders = cache["improvements"].get(self.iImprovement, (None, (), 0))
 
 		if not weightToLeaders:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 			return
 
-		tableMargin = 8
+		tableMargin = INCHART_TABLE_MARGIN
 		tableX = xPanel + tableMargin
 		tableY = yPanel + 30
 		tableW = wPanel - (2 * tableMargin)
 		tableH = hPanel - 40
 
-		leaderColW = self.IMPROVEMENT_LEADER_ICON_SIZE + self.IMPROVEMENT_LEADER_BUTTON_SPACING
 		weightColW = 60
 		countColW = 60
-		availableLeadersW = tableW - weightColW - countColW
-		if availableLeadersW < leaderColW * maxLeaders:
-			leaderColW = int(availableLeadersW / maxLeaders)
-			if leaderColW < 10:
-				leaderColW = 10
+		fixedColsW = weightColW + countColW
+		leaderColW, maxLeaders = inchart_calc_icon_col_width(tableW, fixedColsW, maxLeaders)
 
 		tableName = self.top.getNextWidgetName()
-		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, self.IMPROVEMENT_LEADER_ROW_H, self.IMPROVEMENT_LEADER_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, INCHART_ROW_HEIGHT, INCHART_ROW_HEIGHT, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSort(tableName)
 
 		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_WEIGHT", ()), weightColW)
 		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), countColW)
-		for iCol in xrange(maxLeaders):
-			screen.setTableColumnHeader(tableName, 2 + iCol, "", leaderColW)
+		inchart_set_icon_column_headers(screen, tableName, 2, maxLeaders, leaderColW)
 
 		for weight in weightsSorted:
 			iRow = screen.appendTableRow(tableName)
 			screen.setTableText(tableName, 0, iRow, u"<font=2>%+d</font>" % weight, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			leaderCount = len(weightToLeaders[weight])
 			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % leaderCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-			self._setLeaderIconCells(screen, tableName, iRow, weightToLeaders[weight], 2, maxLeaders, leaderToCiv)
+			inchart_set_icon_cells(screen, tableName, iRow, weightToLeaders[weight], 2, maxLeaders, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
 
-	def _setLeaderIconCells(self, screen, tableName, row, leaderIds, leaderColStart, leaderColCount, leaderToCiv):
-		for iCol in xrange(leaderColCount):
-			if iCol >= len(leaderIds):
-				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				continue
-
-			iLeader = leaderIds[iCol]
-			leaderInfo = gc.getLeaderHeadInfo(iLeader)
-			buttonPath = leaderInfo.getButton()
-			iCiv = leaderToCiv.get(iLeader, -1)
-			if iCiv != -1 and buttonPath:
-				screen.setTableText(tableName, leaderColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, CvUtil.FONT_LEFT_JUSTIFY)
-			else:
-				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
+	# <!-- custom: _setLeaderIconCells removed - now uses centralized inchart_set_icon_cells from _sevopedia_helpers -->
 
 	# <!-- custom: new addition thanks to chatgpt; as for logic this is how it works-functions based on chatgpt's explanation as well as my own research/findings in (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids: if some terrains are specified then the improvement is only allowed on these terrains, else improvement is allowed on all terrains; not sure i got it all right (in particular in the case of irrigation or such conditions seemingly allowing the improvement on a terrain even if not listed here), so i am not sure it is all accurate but maybe is, check to be sure, and adjust this if needed; i implemented it as such and also added an explicative text that maybe the restriction could be elsewhere if not in improvementinfos. -->
 	def placeTerrainMakesValids(self):
