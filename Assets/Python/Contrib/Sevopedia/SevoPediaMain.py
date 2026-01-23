@@ -1746,6 +1746,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return -1
 		return self.SAS_firstCivScript3DMusicKey
 
+	def SAS_getFirstCivMusicKey(self, iCiv):
+		# Returns the packed music key for the first civ-specific entry (Select/Order) in the Music list.
+		if self.SAS_musicCivTracks is None:
+			self.getMusicList()
+		if self.SAS_musicCivTracks is None or len(self.SAS_musicCivTracks) == 0:
+			return -1
+		for iMusicId, track in enumerate(self.SAS_musicCivTracks):
+			iTrackCiv, _, _, _, _ = track
+			if iTrackCiv == iCiv:
+				return self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_CIV, iMusicId)
+		return -1
+
 	def isShortcutInfo(self, info):
 		return info.getType().find("SHORTCUTS") != -1
 

@@ -160,12 +160,15 @@ class SevoPediaMusic:
 			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
 			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
 			iSoundId = self.top.SAS_getMusicSoundId(self.iMusic)
+			szNote = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_CIV_VARIANT_NOTE", ())
 			if iSoundId != -1:
 				szText = szTitleText + u"\nSound ID: %d" % iSoundId
 			elif szScript:
 				szText = szTitleText + u"\n" + szScript
 			else:
 				szText = szTitleText
+			if szNote:
+				szText = szText + u"\n\n" + szNote
 		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
 			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
 			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)

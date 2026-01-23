@@ -400,6 +400,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Order</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_VARIANT_NOTE</Tag>
+		<English>Note: Civ selection/action sounds can include several variants. Replay to hear different samples.</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING</Tag>
 		<English>Menus (Opening)</English>
 	</TEXT>

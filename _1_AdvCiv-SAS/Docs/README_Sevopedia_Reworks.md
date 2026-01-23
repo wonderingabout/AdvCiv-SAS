@@ -218,7 +218,6 @@ As of now, click on "OK" or Right-click to stop the media playing; press Escape 
 
 The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
 
-- Link directly from sevopedia civilization to sevopedia music's corresponding civilziation entry
 - Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
 - Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
 - Maybe generalize script name for other things than era tracks

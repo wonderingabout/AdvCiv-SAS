@@ -141,8 +141,8 @@ class SevoPediaCivilization:
 		buttonSize = 64
 		buttonX = (self.W_MUSIC - buttonSize) / 2
 		buttonY = 10
-		# <!-- custom: redirect to first civilization 3D script in Sevopedia Music category (GPT-5.2-Codex) -->
-		iMusicKey = self.top.SAS_getFirstCivScript3DMusicKey()
+		# <!-- custom: redirect to the first civ-specific sound entry in Sevopedia Music. (GPT-5.2-Codex (summarized)) -->
+		iMusicKey = self.top.SAS_getFirstCivMusicKey(self.iCivilization)
 		if iMusicKey != -1:
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
 		else:
