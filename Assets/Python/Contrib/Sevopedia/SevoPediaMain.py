@@ -1650,7 +1650,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if info:
 				return info.getButton()
 		return ""
-	
+
+	def SAS_getMusicLeaderId(self, iPacked):
+		# Returns the leader ID if this is a leader music type, otherwise returns -1
+		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_LEADER:
+			if (self.SAS_musicLeaderTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicLeaderTracks)):
+				return -1
+			iLeader, _, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
+			return iLeader
+		return -1
+
 	def isShortcutInfo(self, info):
 		return info.getType().find("SHORTCUTS") != -1
 

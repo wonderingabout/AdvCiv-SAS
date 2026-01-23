@@ -1270,6 +1270,11 @@ def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTy
 		elif iType == iTypeEra:
 			eraItems.append((szName, iPacked))
 
+	# <!-- custom: Sort eraItems by era index (chronological order) regardless of bSortLists
+	# (Era order should always be Ancient -> Classical -> Medieval -> etc.) (Claude code Sonnet 4.5) -->
+	if eraItems:
+		eraItems.sort(key=lambda x: unpackMovieKey(x[1])[1])
+
 	listEntries = []
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_VICTORY", ()), victoryItems)
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_WONDER", ()), wonderItems)

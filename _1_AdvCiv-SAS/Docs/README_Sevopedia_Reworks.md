@@ -190,10 +190,6 @@ Play button, emoji based as in our usual as of now Images as Button approach, is
 
 Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
 
-Todo:
-
-- movies era by xml order or oldest to newest
-
 <img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>
@@ -220,7 +216,6 @@ As of now, click on "OK" or Right-click to stop the media playing; press Escape 
 
 The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
 
-- In Sevopedia Music, make leaders and such buttons hoverable and clickable with a redirect like tech buttons.
 - In Sevopedia Music, parse properly from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
 - Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
 - Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
