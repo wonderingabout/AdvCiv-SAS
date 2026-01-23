@@ -1181,6 +1181,14 @@ def _SAS_addSection(listEntries, szHeader, items):
 		listEntries.append(x)
 
 
+def _SAS_appendSoundLabel(szLabel, szSoundScript, iSoundId):
+	if szSoundScript:
+		return szLabel + " - " + szSoundScript
+	if iSoundId != -1:
+		return szLabel + " - Sound ID %d" % iSoundId
+	return szLabel
+
+
 def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTypeVictory, iTypeWonder, iTypeProject, iTypeReligion, iTypeEra):
 	# Return the Movies left-list entries with section headers (Victory/Wonder/Project/Religion/Era).
 	# Implementation detail: we build a single flat base list first, then split into sections.
@@ -1325,7 +1333,8 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 		if not szSound or szSound == "NONE":
 			continue
 		iEra = info.getEra()
-		techBase.append((info.getDescription(), packMusicKey(iTypeTech, iTech), iEra))
+		szLabel = _SAS_appendSoundLabel(info.getDescription(), szSound, -1)
+		techBase.append((szLabel, packMusicKey(iTypeTech, iTech), iEra))
 
 	if bSortLists:
 		techBase.sort()
@@ -1433,6 +1442,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				if szEraName:
 					szLabel += " (" + szEraName + ")"
 				if (not bLeaderIntroPeaceFirstOnly) or (not bAddedIntroPeace):
+					szLabel = _SAS_appendSoundLabel(szLabel, "", iPeaceIntroId)
 					iTrackId = len(musicLeaderTracks)
 					musicLeaderTracks.append((iLeader, iEra, "Peace Intro", iPeaceIntroId, szLabel))
 					leaderIntroPeaceItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
@@ -1443,6 +1453,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				if szEraName:
 					szLabel += " (" + szEraName + ")"
 				if (not bLeaderPeaceFirstOnly) or (not bAddedPeace):
+					szLabel = _SAS_appendSoundLabel(szLabel, "", iPeaceId)
 					iTrackId = len(musicLeaderTracks)
 					musicLeaderTracks.append((iLeader, iEra, "Peace", iPeaceId, szLabel))
 					leaderPeaceItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
@@ -1477,6 +1488,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				szLabel = szLeaderName
 				if szEraName:
 					szLabel += " (" + szEraName + ")"
+				szLabel = _SAS_appendSoundLabel(szLabel, "", iWarIntroId)
 				iTrackId = len(musicLeaderTracks)
 				musicLeaderTracks.append((iLeader, iEra, "War Intro", iWarIntroId, szLabel))
 				leaderIntroWarItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
@@ -1490,6 +1502,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				szLabel = szLeaderName
 				if szEraName:
 					szLabel += " (" + szEraName + ")"
+				szLabel = _SAS_appendSoundLabel(szLabel, "", iWarId)
 				iTrackId = len(musicLeaderTracks)
 				musicLeaderTracks.append((iLeader, iEra, "War", iWarId, szLabel))
 				leaderWarItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
@@ -1527,8 +1540,9 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				except:
 					szScript = selVal
 			iTrackId = len(musicCivTracks)
-			musicCivTracks.append((iCiv, iSoundId, szScript, szCivName + " (" + szSelectLabel + ")", True))
-			civItems.append((szCivName + " (" + szSelectLabel + ")", packMusicKey(iTypeCiv, iTrackId)))
+			szLabel = _SAS_appendSoundLabel(szCivName + " (" + szSelectLabel + ")", szScript, iSoundId)
+			musicCivTracks.append((iCiv, iSoundId, szScript, szLabel, True))
+			civItems.append((szLabel, packMusicKey(iTypeCiv, iTrackId)))
 
 		actVal = civInfo.getActionSoundScriptId()
 		if actVal != -1 and actVal != "" and actVal != "NONE":
@@ -1548,8 +1562,9 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				except:
 					szScript = actVal
 			iTrackId = len(musicCivTracks)
-			musicCivTracks.append((iCiv, iSoundId, szScript, szCivName + " (" + szOrderLabel + ")", True))
-			civItems.append((szCivName + " (" + szOrderLabel + ")", packMusicKey(iTypeCiv, iTrackId)))
+			szLabel = _SAS_appendSoundLabel(szCivName + " (" + szOrderLabel + ")", szScript, iSoundId)
+			musicCivTracks.append((iCiv, iSoundId, szScript, szLabel, True))
+			civItems.append((szLabel, packMusicKey(iTypeCiv, iTrackId)))
 
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS", ()), civItems)
 
