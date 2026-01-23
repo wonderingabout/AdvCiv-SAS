@@ -364,32 +364,105 @@ Created as part of AdvCiv-SAS improvements
 		<English>Eras</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_TECH_QUOTES</Tag>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES</Tag>
 		<English>Tech Quotes</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_DIPLO</Tag>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_DIPLO</Tag>
 		<English>Leaders Diplo</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_PEACE</Tag>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_PEACE</Tag>
 		<English>Leaders (Intro Peace)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_PEACE</Tag>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_PEACE</Tag>
 		<English>Leaders (Peace)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_WAR</Tag>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_WAR</Tag>
 		<English>Leaders (Intro War)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_WAR</Tag>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_WAR</Tag>
 		<English>Leaders (War)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_MENUS_OPENING</Tag>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING</Tag>
 		<English>Menus (Opening)</English>
+	</TEXT>
+	<!-- custom: script headers for music category (Claude code Sonnet 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OPENING_2D</Tag>
+		<English>Scripts (Opening, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SONGS_2D</Tag>
+		<English>Scripts (Songs, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_DIPLO_2D</Tag>
+		<English>Scripts (Diplo, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TECH_2D</Tag>
+		<English>Scripts (Tech, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TUTORIAL_2D</Tag>
+		<English>Scripts (Tutorial, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_BUILDS_2D</Tag>
+		<English>Scripts (Builds, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_2D</Tag>
+		<English>Scripts (Units, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_INTERFACE_2D</Tag>
+		<English>Scripts (Interface, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENT_2D</Tag>
+		<English>Scripts (Ambient, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_GOODY_2D</Tag>
+		<English>Scripts (Goody, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_EVENTS_2D</Tag>
+		<English>Scripts (Events, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SFX_2D</Tag>
+		<English>Scripts (SFX, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_2D</Tag>
+		<English>Scripts (Other, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_3D</Tag>
+		<English>Scripts (Units, 3D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENCE_3D</Tag>
+		<English>Scripts (Ambience, 3D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_IMPROVEMENTS_3D</Tag>
+		<English>Scripts (Improvements, 3D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_CIVILIZATIONS_3D</Tag>
+		<English>Scripts (Civilizations, 3D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_3D</Tag>
+		<English>Scripts (Other, 3D)</English>
 	</TEXT>
 
 
@@ -417,20 +490,17 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Long_Comments_XML.txt #148 -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
-		<!-- custom: <English>Concepts (Outdated)</English>-->
 		<English>Outdated</English>
 	</TEXT>
 
 	<!-- custom: Long_Comments_XML.txt #228 -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
-		<!-- custom: <English>Mods Information</English>-->
 		<English>Mods Info</English>
 	</TEXT>
 	
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_TECH</Tag>
-		<!-- custom: <English>Technologies</English>-->
 		<English>Techs</English>
 	</TEXT>
 	<TEXT>
@@ -443,12 +513,10 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>
-		<!-- custom: <English>Resources</English>-->
 		<English>Bonuses</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CIV</Tag>
-		<!-- custom: <English>Civilizations</English>-->
 		<English>Civs</English>
 	</TEXT>
 	<TEXT>
@@ -1487,7 +1555,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you('d) need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
+	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you'd need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
 	<TEXT>
 		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
 		<English></English>

@@ -92,7 +92,12 @@ class SevoPediaEraChart:
 			playButtonPath = CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH", ()))
 			if playButtonPath:
 				playButtonX = buttonRowStartX - wNum
-				screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+				# <!-- custom: redirect to first era track (Track 01 of Ancient era) in Sevopedia Music category -->
+				iFirstEraMusicKey = self.top.SAS_getFirstEraMusicKey()
+				if iFirstEraMusicKey != -1:
+					screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iFirstEraMusicKey)
+				else:
+					screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 			era_count = gc.getNumEraInfos()
 			for iEra in xrange(era_count):

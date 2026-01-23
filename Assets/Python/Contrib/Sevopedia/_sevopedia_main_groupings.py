@@ -1300,7 +1300,7 @@ def _SAS_extractTagValue(line, tagName):
 
 def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
 	# Return:
-	#   (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks)
+	#   (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
 	#
 	# These tables are required by SevoPediaMusic for Play button behavior and for showing Track IDs.
 	#
@@ -1347,7 +1347,8 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 		szEraName = info.getDescription()
 		if szEraName.endswith(" Era"):
 			szEraName = szEraName[:-len(" Era")]
-		_SAS_addSection(listEntries, "Quotes (" + szEraName + ")", items)
+		szQuotesHeader = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES", ())
+		_SAS_addSection(listEntries, szQuotesHeader + " (" + szEraName + ")", items)
 
 	# Era soundtrack tracks (grouped by Era)
 	for iEra in range(gc.getNumEraInfos()):
@@ -1492,27 +1493,41 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				musicLeaderTracks.append((iLeader, iEra, "War", iWarId, szLabel))
 				leaderWarItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
 
-	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_PEACE", ()), leaderIntroPeaceItems)
-	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_PEACE", ()), leaderPeaceItems)
-	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_WAR", ()), leaderIntroWarItems)
-	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_WAR", ()), leaderWarItems)
+	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_PEACE", ()), leaderIntroPeaceItems)
+	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_PEACE", ()), leaderPeaceItems)
+	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_WAR", ()), leaderIntroWarItems)
+	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_WAR", ()), leaderWarItems)
 
 	
 	# Sound scripts (2D) - keep grouping/labels identical to the original SevoPediaMain implementation.
+	# <!-- custom: use TXT_KEYs for section groupings (GPT-5.2-Codex) -->
+	_SCRIPT_2D_OPENING = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OPENING_2D"
+	_SCRIPT_2D_SONGS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SONGS_2D"
+	_SCRIPT_2D_DIPLO = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_DIPLO_2D"
+	_SCRIPT_2D_TECH = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TECH_2D"
+	_SCRIPT_2D_TUTORIAL = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TUTORIAL_2D"
+	_SCRIPT_2D_BUILDS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_BUILDS_2D"
+	_SCRIPT_2D_UNITS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_2D"
+	_SCRIPT_2D_INTERFACE = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_INTERFACE_2D"
+	_SCRIPT_2D_AMBIENT = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENT_2D"
+	_SCRIPT_2D_GOODY = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_GOODY_2D"
+	_SCRIPT_2D_EVENTS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_EVENTS_2D"
+	_SCRIPT_2D_SFX = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SFX_2D"
+	_SCRIPT_2D_OTHER = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_2D"
 	scriptGroups = {
-		"Scripts (Opening, 2D)": [],
-		"Scripts (Songs, 2D)": [],
-		"Scripts (Diplo, 2D)": [],
-		"Scripts (Tech, 2D)": [],
-		"Scripts (Tutorial, 2D)": [],
-		"Scripts (Builds, 2D)": [],
-		"Scripts (Units, 2D)": [],
-		"Scripts (Interface, 2D)": [],
-		"Scripts (Ambient, 2D)": [],
-		"Scripts (Goody, 2D)": [],
-		"Scripts (Events, 2D)": [],
-		"Scripts (SFX, 2D)": [],
-		"Scripts (Other, 2D)": [],
+		_SCRIPT_2D_OPENING: [],
+		_SCRIPT_2D_SONGS: [],
+		_SCRIPT_2D_DIPLO: [],
+		_SCRIPT_2D_TECH: [],
+		_SCRIPT_2D_TUTORIAL: [],
+		_SCRIPT_2D_BUILDS: [],
+		_SCRIPT_2D_UNITS: [],
+		_SCRIPT_2D_INTERFACE: [],
+		_SCRIPT_2D_AMBIENT: [],
+		_SCRIPT_2D_GOODY: [],
+		_SCRIPT_2D_EVENTS: [],
+		_SCRIPT_2D_SFX: [],
+		_SCRIPT_2D_OTHER: [],
 	}
 
 	szScript = None
@@ -1528,29 +1543,29 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 			elif "</Script2DSound>" in line:
 				if szScript and szSound:
 					if szSound.startswith("SONG_OPENING"):
-						szGroup = "Scripts (Opening, 2D)"
+						szGroup = _SCRIPT_2D_OPENING
 					elif szSound.startswith("SONG_"):
-						szGroup = "Scripts (Songs, 2D)"
+						szGroup = _SCRIPT_2D_SONGS
 					elif szSound.startswith("DIPLO_") or szScript.startswith("AS2D_DIPLO_"):
-						szGroup = "Scripts (Diplo, 2D)"
+						szGroup = _SCRIPT_2D_DIPLO
 					elif szSound.startswith("SND_TECH"):
-						szGroup = "Scripts (Tech, 2D)"
+						szGroup = _SCRIPT_2D_TECH
 					elif szScript.startswith("AS2D_TUTORIAL"):
-						szGroup = "Scripts (Tutorial, 2D)"
+						szGroup = _SCRIPT_2D_TUTORIAL
 					elif szScript.startswith("AS2D_BUILD"):
-						szGroup = "Scripts (Builds, 2D)"
+						szGroup = _SCRIPT_2D_BUILDS
 					elif szScript.startswith("AS2D_UNIT"):
-						szGroup = "Scripts (Units, 2D)"
+						szGroup = _SCRIPT_2D_UNITS
 					elif szScript.startswith("AS2D_IF"):
-						szGroup = "Scripts (Interface, 2D)"
+						szGroup = _SCRIPT_2D_INTERFACE
 					elif (
 						szSound.startswith("SND_AMB") or szSound.startswith("SND_OCEAN") or
 						szSound.startswith("SND_CROWD") or szSound.startswith("SND_MARCH") or
 						szSound.startswith("SND_TOWNMUSIC")
 					):
-						szGroup = "Scripts (Ambient, 2D)"
+						szGroup = _SCRIPT_2D_AMBIENT
 					elif szSound.startswith("SND_GOODY"):
-						szGroup = "Scripts (Goody, 2D)"
+						szGroup = _SCRIPT_2D_GOODY
 					elif (
 						szSound.startswith("SND_VICTORY") or szSound.startswith("SND_LOSS") or
 						szSound.startswith("SND_WONDER") or szSound.startswith("SND_CITY") or
@@ -1558,11 +1573,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 						szSound.startswith("SND_GOLDAGEEND") or szSound.startswith("SND_MELTDOWN") or
 						szSound.startswith("SND_ALARM") or szSound.startswith("SND_CONTACT")
 					):
-						szGroup = "Scripts (Events, 2D)"
+						szGroup = _SCRIPT_2D_EVENTS
 					elif szSound.startswith("SND_"):
-						szGroup = "Scripts (SFX, 2D)"
+						szGroup = _SCRIPT_2D_SFX
 					else:
-						szGroup = "Scripts (Other, 2D)"
+						szGroup = _SCRIPT_2D_OTHER
 
 					szLabel = szSound
 
@@ -1587,23 +1602,30 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 		scriptGroups = {}
 
 	for szHeader in (
-		"Scripts (Opening, 2D)", "Scripts (Songs, 2D)", "Scripts (Diplo, 2D)", "Scripts (Tech, 2D)",
-		"Scripts (Tutorial, 2D)", "Scripts (Builds, 2D)", "Scripts (Units, 2D)", "Scripts (Interface, 2D)",
-		"Scripts (Ambient, 2D)", "Scripts (Goody, 2D)", "Scripts (Events, 2D)", "Scripts (SFX, 2D)",
-		"Scripts (Other, 2D)"
+		_SCRIPT_2D_OPENING, _SCRIPT_2D_SONGS, _SCRIPT_2D_DIPLO, _SCRIPT_2D_TECH,
+		_SCRIPT_2D_TUTORIAL, _SCRIPT_2D_BUILDS, _SCRIPT_2D_UNITS, _SCRIPT_2D_INTERFACE,
+		_SCRIPT_2D_AMBIENT, _SCRIPT_2D_GOODY, _SCRIPT_2D_EVENTS, _SCRIPT_2D_SFX,
+		_SCRIPT_2D_OTHER
 	):
 		items = scriptGroups.get(szHeader, [])
-		if bSortLists and szHeader != "Scripts (Other, 2D)":
+		if bSortLists and szHeader != _SCRIPT_2D_OTHER:
 			items.sort()
-		_SAS_addSection(listEntries, szHeader, items)
+		szDisplayHeader = localText.getText(szHeader, ())
+		_SAS_addSection(listEntries, szDisplayHeader, items)
 
 	# Sound scripts (3D) - keep grouping/labels identical to the original SevoPediaMain implementation.
+	# <!-- custom: use TXT_KEYs for section groupings (GPT-5.2-Codex) -->
+	_SCRIPT_3D_UNITS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_3D"
+	_SCRIPT_3D_AMBIENCE = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENCE_3D"
+	_SCRIPT_3D_IMPROVEMENTS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_IMPROVEMENTS_3D"
+	_SCRIPT_3D_CIVILIZATIONS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_CIVILIZATIONS_3D"
+	_SCRIPT_3D_OTHER = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_3D"
 	script3DGroups = {
-		"Scripts (Units, 3D)": [],
-		"Scripts (Ambience, 3D)": [],
-		"Scripts (Improvements, 3D)": [],
-		"Scripts (Civilizations, 3D)": [],
-		"Scripts (Other, 3D)": [],
+		_SCRIPT_3D_UNITS: [],
+		_SCRIPT_3D_AMBIENCE: [],
+		_SCRIPT_3D_IMPROVEMENTS: [],
+		_SCRIPT_3D_CIVILIZATIONS: [],
+		_SCRIPT_3D_OTHER: [],
 	}
 
 	szScript3D = None
@@ -1619,15 +1641,15 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 			elif "</Script3DSound>" in line:
 				if szScript3D and szSound3D:
 					if szScript3D.startswith("AS3D_UN_"):
-						szGroup3D = "Scripts (Units, 3D)"
+						szGroup3D = _SCRIPT_3D_UNITS
 					elif szScript3D.startswith("AS3D_SS_"):
-						szGroup3D = "Scripts (Ambience, 3D)"
+						szGroup3D = _SCRIPT_3D_AMBIENCE
 					elif szScript3D.startswith("AS3D_IMPROV"):
-						szGroup3D = "Scripts (Improvements, 3D)"
+						szGroup3D = _SCRIPT_3D_IMPROVEMENTS
 					elif szScript3D.endswith("_SELECT") or szScript3D.endswith("_ORDER"):
-						szGroup3D = "Scripts (Civilizations, 3D)"
+						szGroup3D = _SCRIPT_3D_CIVILIZATIONS
 					else:
-						szGroup3D = "Scripts (Other, 3D)"
+						szGroup3D = _SCRIPT_3D_OTHER
 
 					szLabel3D = szSound3D
 
@@ -1651,10 +1673,14 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 	except:
 		script3DGroups = {}
 
-	for szHeader3D in ("Scripts (Units, 3D)", "Scripts (Ambience, 3D)", "Scripts (Improvements, 3D)", "Scripts (Civilizations, 3D)", "Scripts (Other, 3D)"):
+	firstCivScript3DKey = -1
+	for szHeader3D in (_SCRIPT_3D_UNITS, _SCRIPT_3D_AMBIENCE, _SCRIPT_3D_IMPROVEMENTS, _SCRIPT_3D_CIVILIZATIONS, _SCRIPT_3D_OTHER):
 		items3D = script3DGroups.get(szHeader3D, [])
-		if bSortLists and szHeader3D != "Scripts (Other, 3D)":
+		if bSortLists and szHeader3D != _SCRIPT_3D_OTHER:
 			items3D.sort()
-		_SAS_addSection(listEntries, szHeader3D, items3D)
+		if (szHeader3D == _SCRIPT_3D_CIVILIZATIONS) and items3D and (firstCivScript3DKey == -1):
+			firstCivScript3DKey = items3D[0][1]
+		szDisplayHeader3D = localText.getText(szHeader3D, ())
+		_SAS_addSection(listEntries, szDisplayHeader3D, items3D)
 
-	return (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks)
+	return (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)

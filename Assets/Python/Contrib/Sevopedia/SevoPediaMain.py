@@ -243,6 +243,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_musicLeaderTracks = None
 		self.SAS_musicScriptTracks = None
 		self.SAS_musicScript3DTracks = None
+		self.SAS_firstCivScript3DMusicKey = None
 
 		# <!-- custom: type-to-filter search bar state variables (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_szSearchString = u""
@@ -1469,7 +1470,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_musicEraTracks,
 				self.SAS_musicLeaderTracks,
 				self.SAS_musicScriptTracks,
-				self.SAS_musicScript3DTracks
+				self.SAS_musicScript3DTracks,
+				self.SAS_firstCivScript3DMusicKey
 			) = SAS_MainGroupings.SAS_getMusicListAndTables(
 				self.isSortLists(),
 				self.SAS_packMusicKey, self.SAS_unpackMusicKey,
@@ -1660,6 +1662,36 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iLeader, _, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
 			return iLeader
 		return -1
+
+	def SAS_getLeaderPeaceMusicKey(self, iLeader):
+		# Returns the packed music key for a leader's "Peace" music entry, or -1 if not found
+		# Ensure music cache is populated first
+		if self.SAS_musicLeaderTracks is None:
+			self.getMusicList()
+		if self.SAS_musicLeaderTracks is None or len(self.SAS_musicLeaderTracks) == 0:
+			return -1
+		for iMusicId, track in enumerate(self.SAS_musicLeaderTracks):
+			trackLeader, _, trackType, _, _ = track
+			if trackLeader == iLeader and trackType == "Peace":
+				return self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_LEADER, iMusicId)
+		return -1
+
+	def SAS_getFirstEraMusicKey(self):
+		# Returns the packed music key for the first era track (Track 01 of Ancient era), or -1 if not found
+		# Ensure music cache is populated first
+		if self.SAS_musicEraTracks is None:
+			self.getMusicList()
+		if self.SAS_musicEraTracks is None or len(self.SAS_musicEraTracks) == 0:
+			return -1
+		return self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_ERA, 0)
+
+	def SAS_getFirstCivScript3DMusicKey(self):
+		# Returns the packed music key for the first item in the Civilizations 3D scripts grouping.
+		if self.SAS_firstCivScript3DMusicKey is None:
+			self.getMusicList()
+		if self.SAS_firstCivScript3DMusicKey is None:
+			return -1
+		return self.SAS_firstCivScript3DMusicKey
 
 	def isShortcutInfo(self, info):
 		return info.getType().find("SHORTCUTS") != -1

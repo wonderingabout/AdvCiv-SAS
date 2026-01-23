@@ -207,7 +207,12 @@ class SevoPediaLeader:
 		buttonSize = 64
 		buttonX = (self.W_MUSIC - buttonSize) / 2
 		buttonY = 10
-		screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+		# <!-- custom: redirect to leader's peace music entry in Sevopedia Music category -->
+		iMusicKey = self.top.SAS_getLeaderPeaceMusicKey(self.iLeader)
+		if iMusicKey != -1:
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
+		else:
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 
 
