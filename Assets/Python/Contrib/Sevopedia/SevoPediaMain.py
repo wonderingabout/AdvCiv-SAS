@@ -117,8 +117,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_MUSIC_TYPE_TECH = 1
 		self.SAS_PEDIA_MUSIC_TYPE_ERA = 2
 		self.SAS_PEDIA_MUSIC_TYPE_LEADER = 3
-		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT = 4
-		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D = 5
+		self.SAS_PEDIA_MUSIC_TYPE_CIV = 4
+		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT = 5
+		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D = 6
 
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
@@ -241,6 +242,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheMusicTuple = None
 		self.SAS_musicEraTracks = None
 		self.SAS_musicLeaderTracks = None
+		self.SAS_musicCivTracks = None
 		self.SAS_musicScriptTracks = None
 		self.SAS_musicScript3DTracks = None
 		self.SAS_firstCivScript3DMusicKey = None
@@ -1469,6 +1471,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				listEntries,
 				self.SAS_musicEraTracks,
 				self.SAS_musicLeaderTracks,
+				self.SAS_musicCivTracks,
 				self.SAS_musicScriptTracks,
 				self.SAS_musicScript3DTracks,
 				self.SAS_firstCivScript3DMusicKey
@@ -1478,6 +1481,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_PEDIA_MUSIC_TYPE_TECH,
 				self.SAS_PEDIA_MUSIC_TYPE_ERA,
 				self.SAS_PEDIA_MUSIC_TYPE_LEADER,
+				self.SAS_PEDIA_MUSIC_TYPE_CIV,
 				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT,
 				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D,
 				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY,
@@ -1534,6 +1538,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				return None
 			iLeader, _, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
 			return gc.getLeaderHeadInfo(iLeader)
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
+				return None
+			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
+			return gc.getCivilizationInfo(iCiv)
 		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
 			return None
 		return None
@@ -1552,6 +1561,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if (self.SAS_musicScriptTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScriptTracks)):
 				return ""
 			szScript, _, _ = self.SAS_musicScriptTracks[iMusicId]
+			return szScript
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
+				return ""
+			_, _, szScript, _, _ = self.SAS_musicCivTracks[iMusicId]
 			return szScript
 		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
 			if (self.SAS_musicScript3DTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScript3DTracks)):
@@ -1572,6 +1586,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				return -1
 			_, _, _, iSoundId, _ = self.SAS_musicLeaderTracks[iMusicId]
 			return iSoundId
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
+				return -1
+			_, iSoundId, _, _, _ = self.SAS_musicCivTracks[iMusicId]
+			return iSoundId
 		return -1
 
 	def SAS_getMusicEra(self, iPacked):
@@ -1591,6 +1610,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				return -1
 			_, iEra, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
 			return iEra
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+			return -1
 		return -1
 
 	def SAS_getMusicTitle(self, iPacked):
@@ -1626,6 +1647,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				return u""
 			_, _, szLabel = self.SAS_musicScriptTracks[iMusicId]
 			return unicode(szLabel)
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
+				return u""
+			_, _, _, szLabel, _ = self.SAS_musicCivTracks[iMusicId]
+			return unicode(szLabel)
 		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
 			if (self.SAS_musicScript3DTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScript3DTracks)):
 				return u""
@@ -1651,6 +1677,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			info = gc.getLeaderHeadInfo(iLeader)
 			if info:
 				return info.getButton()
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
+				return ""
+			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
+			info = gc.getCivilizationInfo(iCiv)
+			if info:
+				return info.getButton()
 		return ""
 
 	def SAS_getMusicLeaderId(self, iPacked):
@@ -1662,6 +1695,26 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iLeader, _, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
 			return iLeader
 		return -1
+
+	def SAS_getMusicCivId(self, iPacked):
+		# Returns the civ ID if this is a civ music type, otherwise returns -1
+		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
+				return -1
+			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
+			return iCiv
+		return -1
+
+	def SAS_isMusicSound3D(self, iPacked):
+		# Returns True when a sound id should be played as 3D audio.
+		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
+		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
+				return False
+			_, _, _, _, bIs3D = self.SAS_musicCivTracks[iMusicId]
+			return bIs3D
+		return False
 
 	def SAS_getLeaderPeaceMusicKey(self, iLeader):
 		# Returns the packed music key for a leader's "Peace" music entry, or -1 if not found

@@ -210,13 +210,15 @@ Can use the search bar with it too which is very handy as well!
 
 Note: some sounds appear twice such as Tech, Leader, Era sounds. This is because an audio script may exist in the game's audio assets while not being allocated to any real asset (e.g., as of now the space elevator remains, or the tutorial sounds we don't use in our mod). Ideally should clean these up (if it does not create issues to do so), but having the real XML info entry (e.g. `<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>`) vs a list of audio scripts in 2D or 3D allows to make sure each ingame asset has a corresponding audio as well as being able to check in-game which it is.
 
+Later on, added civilizations parsing as well similarly with buttons. Note: the same item can be replayed many times and has a different sound (i.e. multiple select and order sounds per civilization)
+
 Done with the very big and nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, ChatGPT-5.2 Thinking, Gemini 2.5 pro (in VS Code).
 
 As of now, click on "OK" or Right-click to stop the media playing; press Escape or Enter key for main menu
 
 The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
 
-- In Sevopedia Music, parse properly Civilization tracks from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
+- Link directly from sevopedia civilization to sevopedia music's corresponding civilziation entry
 - Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
 - Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
 - Maybe generalize script name for other things than era tracks

@@ -87,6 +87,12 @@ class SevoPediaMusic:
 					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
 				else:
 					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
+				iCivId = self.top.SAS_getMusicCivId(self.iMusic)
+				if iCivId != -1:
+					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCivId, 1)
+				else:
+					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			else:
 				screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -150,6 +156,16 @@ class SevoPediaMusic:
 				szText = szTitleText + u"\nTrack ID: %d" % iTrackId
 			else:
 				szText = szTitleText
+		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
+			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
+			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
+			iSoundId = self.top.SAS_getMusicSoundId(self.iMusic)
+			if iSoundId != -1:
+				szText = szTitleText + u"\nSound ID: %d" % iSoundId
+			elif szScript:
+				szText = szTitleText + u"\n" + szScript
+			else:
+				szText = szTitleText
 		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
 			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
 			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
@@ -157,6 +173,20 @@ class SevoPediaMusic:
 			iMusicType, iMusicId = self.top.SAS_unpackMusicKey(self.iMusic)
 			if (self.top.SAS_musicScriptTracks is not None) and (iMusicId >= 0) and (iMusicId < len(self.top.SAS_musicScriptTracks)):
 				_, szSoundId, _ = self.top.SAS_musicScriptTracks[iMusicId]
+			if szSoundId:
+				if szTitleText == szSoundId:
+					szText = szTitleText + u"\n" + szScript
+				else:
+					szText = szTitleText + u"\n" + szSoundId + u"\n" + szScript
+			else:
+				szText = szTitleText + u"\n" + szScript
+		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
+			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
+			szSoundId = ""
+			iMusicType, iMusicId = self.top.SAS_unpackMusicKey(self.iMusic)
+			if (self.top.SAS_musicScript3DTracks is not None) and (iMusicId >= 0) and (iMusicId < len(self.top.SAS_musicScript3DTracks)):
+				_, szSoundId, _ = self.top.SAS_musicScript3DTracks[iMusicId]
 			if szSoundId:
 				if szTitleText == szSoundId:
 					szText = szTitleText + u"\n" + szScript
@@ -233,7 +263,11 @@ class SevoPediaMusic:
 			self.SAS_is3DSound = False
 			try:
 				if iSoundId != -1:
-					self.SAS_musicSoundId = CyAudioGame().Play2DSoundWithId(iSoundId)
+					if self.top.SAS_isMusicSound3D(iMusic):
+						self.SAS_musicSoundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
+						self.SAS_is3DSound = True
+					else:
+						self.SAS_musicSoundId = CyAudioGame().Play2DSoundWithId(iSoundId)
 				elif szSoundScript.startswith("AS3D_"):
 					# 3D scripts need Play3DSound
 					self.SAS_musicSoundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)

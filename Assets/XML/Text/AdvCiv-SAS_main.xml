@@ -388,6 +388,18 @@ Created as part of AdvCiv-SAS improvements
 		<English>Leaders (War)</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS</Tag>
+		<English>Civilizations</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_SELECT</Tag>
+		<English>Select</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_ORDER</Tag>
+		<English>Order</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING</Tag>
 		<English>Menus (Opening)</English>
 	</TEXT>

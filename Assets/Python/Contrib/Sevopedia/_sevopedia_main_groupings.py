@@ -1298,15 +1298,16 @@ def _SAS_extractTagValue(line, tagName):
 	return line[start:end].strip()
 
 
-def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
+def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeCiv, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
 	# Return:
-	#   (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
+	#   (listEntries, musicEraTracks, musicLeaderTracks, musicCivTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
 	#
 	# These tables are required by SevoPediaMusic for Play button behavior and for showing Track IDs.
 	#
 	listEntries = []
 	musicEraTracks = []
 	musicLeaderTracks = []
+	musicCivTracks = []
 	musicScriptTracks = []
 	musicScript3DTracks = []
 
@@ -1498,6 +1499,60 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_WAR", ()), leaderIntroWarItems)
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_WAR", ()), leaderWarItems)
 
+	# <!-- custom: Civilizations (Selection/Action sounds from CIV4CivilizationInfos.xml) (GPT-5.2-Codex) -->
+	civItems = []
+	szSelectLabel = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_CIV_SELECT", ())
+	szOrderLabel = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_CIV_ORDER", ())
+	for iCiv in range(gc.getNumCivilizationInfos()):
+		civInfo = gc.getCivilizationInfo(iCiv)
+		if not civInfo or civInfo.isGraphicalOnly():
+			continue
+		szCivName = civInfo.getDescription()
+
+		selVal = civInfo.getSelectionSoundScriptId()
+		if selVal != -1 and selVal != "" and selVal != "NONE":
+			iSoundId = -1
+			szScript = ""
+			try:
+				if isinstance(selVal, (int, long)):
+					iSoundId = selVal
+				else:
+					szScript = selVal
+			except:
+				try:
+					if isinstance(selVal, int):
+						iSoundId = selVal
+					else:
+						szScript = selVal
+				except:
+					szScript = selVal
+			iTrackId = len(musicCivTracks)
+			musicCivTracks.append((iCiv, iSoundId, szScript, szCivName + " (" + szSelectLabel + ")", True))
+			civItems.append((szCivName + " (" + szSelectLabel + ")", packMusicKey(iTypeCiv, iTrackId)))
+
+		actVal = civInfo.getActionSoundScriptId()
+		if actVal != -1 and actVal != "" and actVal != "NONE":
+			iSoundId = -1
+			szScript = ""
+			try:
+				if isinstance(actVal, (int, long)):
+					iSoundId = actVal
+				else:
+					szScript = actVal
+			except:
+				try:
+					if isinstance(actVal, int):
+						iSoundId = actVal
+					else:
+						szScript = actVal
+				except:
+					szScript = actVal
+			iTrackId = len(musicCivTracks)
+			musicCivTracks.append((iCiv, iSoundId, szScript, szCivName + " (" + szOrderLabel + ")", True))
+			civItems.append((szCivName + " (" + szOrderLabel + ")", packMusicKey(iTypeCiv, iTrackId)))
+
+	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS", ()), civItems)
+
 	
 	# Sound scripts (2D) - keep grouping/labels identical to the original SevoPediaMain implementation.
 	# <!-- custom: use TXT_KEYs for section groupings (GPT-5.2-Codex) -->
@@ -1683,4 +1738,4 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 		szDisplayHeader3D = localText.getText(szHeader3D, ())
 		_SAS_addSection(listEntries, szDisplayHeader3D, items3D)
 
-	return (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
+	return (listEntries, musicEraTracks, musicLeaderTracks, musicCivTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
