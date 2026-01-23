@@ -4493,3 +4493,18 @@ adjusted according to very quick search/glance(s) in https://www.google.com/sear
 ----- Comment #310 -----
 
 and opens the door to having camel mounts multiple/many ones/units, may also have some interactions with wonders or such or not such or yes such; is based on BONUS_HORSE's xml and adjusted and such (for example only in desert to boost these tiles and as seems quite accurate)
+
+===== \Assets/XML/Text/AdvCiv-SAS_main.xml =====
+----- Comment #311 -----
+
+	<!-- custom: generic one (english version only) we replace one was:
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH</Tag>
+		<English>[ICON_BULLET]Provides Power with [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s1_BonusName[\LINK][COLOR_REVERT]</English>
+	</TEXT>
+	-->
+
+===== \Assets/XML/Text/AdvCiv-SAS_main.xml =====
+----- Comment #312 -----
+
+<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere in advciv (nor even civ4 actually), and since we don't use it anymore in sevopedia unit now (hide the field rather entirely, may as well remove it now) -->

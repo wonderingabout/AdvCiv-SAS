@@ -1,4 +1,4 @@
-# --- Game speed chart page for Sevopedia (AdvCiv-SAS) ---
+# Game speed chart page for Sevopedia (AdvCiv-SAS)
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
@@ -129,9 +129,8 @@ class SevoPediaGameSpeedChart:
 		return data
 
 	def _buildTableFromGameData(self):
-		# ---------------------------------------------------------------------
 		# Central configuration (single source of truth)
-		# ---------------------------------------------------------------------
+
 		#
 		# row_specs drives:
 		# - which XML fields we display (and in what order)
@@ -193,9 +192,7 @@ class SevoPediaGameSpeedChart:
 			if getter_name is None:
 				derived_field_keys[k] = True
 
-		# ---------------------------------------------------------------------
 		# Icon libraries
-		# ---------------------------------------------------------------------
 		# Each icon definition includes a "sort group" so sorting by the icon column is meaningful.
 		# (The group is also embedded into an invisible tie-breaker so ordering is fully deterministic.)
 		localText = CyTranslator()
@@ -270,9 +267,7 @@ class SevoPediaGameSpeedChart:
 			(glyph, iGroup) = glyph_by_name.get(name, ("", 0))
 			return (chart_font2(glyph) + chart_sort_key(iGroup, iRowIndex), "")
 
-		# ---------------------------------------------------------------------
 		# Extract data from DLL infos
-		# ---------------------------------------------------------------------
 		# Collect available game speed types in their DLL order.
 		speed_types = []
 		for i in xrange(gc.getNumGameSpeedInfos()):
@@ -365,9 +360,7 @@ class SevoPediaGameSpeedChart:
 			if k == "TotalTurns":
 				field_order.extend(calendar_fields)
 
-		# ---------------------------------------------------------------------
 		# Build table
-		# ---------------------------------------------------------------------
 		table = []
 		header = [""]
 		if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:

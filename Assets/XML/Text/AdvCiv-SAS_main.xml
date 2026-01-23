@@ -2197,6 +2197,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Units (Any Build)</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_UNITS_REMOVE</Tag>
+		<English>Units (Remove)</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_UNITS_BUILD</Tag>
 		<English>Units (Build)</English>
 	</TEXT>
@@ -2224,6 +2228,16 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS</Tag>
 		<English>Always</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_YES</Tag>
+		<English>Yes</English>
+	</TEXT>
+
+	<!-- custom: Sevopedia Tech tradeable panel (Claude Opus 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_TRADEABLE_PANEL</Tag>
+		<English>Tradeable</English>
 	</TEXT>
 
 
@@ -2352,12 +2366,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: generic one (english version only) we replace one was:
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH</Tag>
-		<English>[ICON_BULLET]Provides Power with [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s1_BonusName[\LINK][COLOR_REVERT]</English>
-	</TEXT>
-	-->
+	<!-- custom: Long_Comments_XML.txt #311 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH</Tag>
 		<English>[ICON_BULLET]Provides power ([ICON_POWER]) with [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s1_BonusName[\LINK][COLOR_REVERT] (from any city as long as this bonus is connected to your trade network)</English>
@@ -2385,7 +2394,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: remove the common provides power part from the areacleanpower message, and add mention that area clean power (areacleanpower) (all cities clean power) also applies to all cities, (note: ) perhaps differently in terms of unhealthiness bonus or not-->
+	<!-- custom: remove the common provides power part from the areacleanpower message, and add mention that area clean power (areacleanpower) (all cities clean power) also applies to all cities, (note: ) perhaps differently in terms of unhealthiness bonus or not -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES</Tag>
 		<English>(clean power ([ICON_POWER])) for All Cities on this Continent: </English>
@@ -2478,7 +2487,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM</Tag>
 		<English>unlimited</English>
 	</TEXT>
-	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere in advciv (nor even civ4 actually), and since we don't use it anymore in sevopedia unit now (hide the field rather entirely, may as well remove it now) -->
+	<!-- custom: Long_Comments_XML.txt #312 -->
 
 
 
@@ -2512,7 +2521,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>"We fear you are trading more than us."</English>
 	</TEXT>
 
-	<!-- custom: do not change the tag name unless we need to, we mostly only want to change the content (text here) inside the tag -->
 	<TEXT>
 		<Tag>TXT_KEY_MISSION_INTERCEPT</Tag>
 		<English>Air Intercept</English>
@@ -2564,7 +2572,31 @@ Created as part of AdvCiv-SAS improvements
 		<English>Rank</English>
 	</TEXT>
 
-
+	<!-- custom: Sevopedia Tech statistics tables (Claude Opus 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_STARTING_TECH_HEADER</Tag>
+		<English>Starting Tech</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_STARTING_TECHS</Tag>
+		<English>No starting techs found.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER</Tag>
+		<English>Untradeable</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_UNTRADEABLE_TECHS</Tag>
+		<English>No untradeable techs.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_TECH_COMBOS_HEADER</Tag>
+		<English>Tech Combos</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_COMBOS_FOUND</Tag>
+		<English>No combinations found.</English>
+	</TEXT>
 
 	<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot, check if accurate -->
 	<TEXT>
@@ -2622,7 +2654,6 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS</Tag>
 		<English>FeatureMakesValids</English>
 	</TEXT>
-	<!-- custom: clarify that the restriction can be elsewhere (maybe in bonus infos for example?), not only see sevopedia improvement for details -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION</Tag>
 		<English>No Restriction in ImprovementInfo 's TerrainMakesValids</English>
@@ -2645,7 +2676,6 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM</Tag>
 		<English>Improvements</English>
 	</TEXT>
-	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES</Tag>
 		<English>Most Yield Changes</English>
@@ -2669,6 +2699,10 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_COUNT</Tag>
 		<English>Count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ALL</Tag>
+		<English>All</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_WEIGHT</Tag>

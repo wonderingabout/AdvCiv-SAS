@@ -15,7 +15,6 @@
 #
 # <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see modding ressources readme at /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md (or whichever path it may be if changed path or modifications i did or may have done additionally or kept as is).
 #
-# Without the DLL modification, i assume it would still run fine, just you would not have the bullet point at the tech, for example Future tech, that it cannot be traded in placeSpecial, but only the summary at the end of the list of all non tradeable tech that uses the already existing in base advcivgc.getTechInfo(iTech).isTrade(), but which info of (this tech is not tradeable) is in base advciv not displayed in the placeSpecial bullet of the currently selected tech unless you modify DLL as explained before -->
 
 
 
@@ -31,32 +30,139 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-IS_SHOW_NON_TRADEABLE_TECHS_LIST = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST") > 0)
 IS_SHOW_OBSOLETES_RED_X = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_OBSOLETES_RED_X") > 0)
 
 
 
-# <!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time the list as string of untradeable techs; note also: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak my previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd -->
-def getPrecomputedUntradeableTechsText():
-	untradeableTechs = []
+# <!-- custom: Module-level cache for tech statistics. Computed once on first Techs category click.
+# Similar pattern to SevoPediaTrait's TRAIT_STATISTICS_CACHE. (Claude Opus 4.5) -->
+# startingTechData: list of (techId, civCount, [civIds]) - all starting techs sorted by civ count
+# startingTechCombos: list of (tech1, tech2, count, [civIds]) - all starting tech combinations globally
+# untradeableTechsByEra: dict of eraId -> (techCount, [techIds]) - untradeable techs grouped by era
+# totalTechsByEra: dict of eraId -> totalTechCount - all techs per era (for "All" column)
+TECH_STATISTICS_CACHE = None
 
-	if IS_SHOW_NON_TRADEABLE_TECHS_LIST:
-		for iTech in xrange(gc.getNumTechInfos()):
-			if not gc.getTechInfo(iTech).isTrade():
-				techDesc = gc.getTechInfo(iTech).getDescription()
-				untradeableTechs.append(techDesc)
 
-		untradeableTechs.sort()
+def precomputeTechStatisticsCache():
+	# Precompute and cache tech statistics data. Called once from SevoPediaMain.placeTechs()
+	# on first Techs category click. Returns the cache dict.
+	global TECH_STATISTICS_CACHE
 
-		untradeableTechsText = u""
+	if TECH_STATISTICS_CACHE is not None:
+		return TECH_STATISTICS_CACHE
 
-		untradeableTechsText += localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
+	numTechs = gc.getNumTechInfos()
+	numCivs = gc.getNumCivilizationInfos()
+	numEras = gc.getNumEraInfos()
 
-		bullet = localText.getText("[ICON_BULLET]", ())
-		for tech in untradeableTechs:
-			untradeableTechsText += u"\n%s%s" % (bullet, tech)
+	# Build techId -> [civIds] mapping for starting techs
+	startingTechToCivs = {}
+	for iTech in xrange(numTechs):
+		startingTechToCivs[iTech] = []
 
-	return untradeableTechsText
+	# Build civId -> [techIds] mapping for playable civs
+	civToStartingTechs = {}
+	playableCivIds = []
+	for iCiv in xrange(numCivs):
+		civ = gc.getCivilizationInfo(iCiv)
+		if not (civ.isPlayable() or civ.isAIPlayable()):
+			continue
+		playableCivIds.append(iCiv)
+		civTechs = []
+		for iTech in xrange(numTechs):
+			if civ.isCivilizationFreeTechs(iTech):
+				civTechs.append(iTech)
+				startingTechToCivs[iTech].append(iCiv)
+		civToStartingTechs[iCiv] = sorted(civTechs)
+
+	# Build starting tech data for top-left table (all techs that are starting techs)
+	startingTechData = []
+	for iTech in xrange(numTechs):
+		civIds = startingTechToCivs[iTech]
+		if civIds:
+			startingTechData.append((iTech, len(civIds), sorted(civIds)))
+
+	# Sort by civ count descending, then by tech name
+	startingTechData.sort(key=lambda x: (-x[1], gc.getTechInfo(x[0]).getDescription()))
+
+	# Calculate max civs for top-left table column sizing
+	startingTechMaxCivs = 0
+	if startingTechData:
+		startingTechMaxCivs = max([d[1] for d in startingTechData])
+
+	# Build starting tech combinations (for right table - all pairs globally)
+	pairToCivs = {}
+	for iCiv, techs in civToStartingTechs.items():
+		if len(techs) < 2:
+			continue
+		for i in xrange(len(techs)):
+			for j in xrange(i + 1, len(techs)):
+				pair = (techs[i], techs[j])
+				if pair not in pairToCivs:
+					pairToCivs[pair] = []
+				pairToCivs[pair].append(iCiv)
+
+	# Build sorted all-pairs data (startingTechCombos)
+	startingTechCombos = []
+	for (t1, t2), civIds in pairToCivs.items():
+		startingTechCombos.append((t1, t2, len(civIds), sorted(civIds)))
+
+	# Sort by count descending, then by tech names
+	def combo_sort_key(entry):
+		t1, t2, count, civIds = entry
+		name1 = gc.getTechInfo(t1).getDescription()
+		name2 = gc.getTechInfo(t2).getDescription()
+		return (-count, name1, name2)
+	startingTechCombos.sort(key=combo_sort_key)
+
+	# Calculate max civs for ranking bar normalization
+	combosMaxCivs = 0
+	if startingTechCombos:
+		combosMaxCivs = max([len(d[3]) for d in startingTechCombos])
+	combosMinMax = (0, 0)
+	if startingTechCombos:
+		counts = [d[2] for d in startingTechCombos]
+		combosMinMax = (min(counts), max(counts))
+
+	# Build untradeable techs grouped by era: eraId -> (techCount, [techIds])
+	# Also count total techs per era for the "All" column
+	untradeableTechsByEra = {}
+	totalTechsByEra = {}
+	for iEra in xrange(numEras):
+		untradeableTechsByEra[iEra] = []
+		totalTechsByEra[iEra] = 0
+
+	for iTech in xrange(numTechs):
+		techInfo = gc.getTechInfo(iTech)
+		iEra = techInfo.getEra()
+		if iEra >= 0 and iEra < numEras:
+			totalTechsByEra[iEra] += 1
+			if not techInfo.isTrade():
+				untradeableTechsByEra[iEra].append(iTech)
+
+	# Sort each era's techs by name and convert to (count, techIds) tuple
+	untradeableTechsByEraFinal = {}
+	maxUntradeableTechs = 0
+	for iEra in xrange(numEras):
+		techIds = untradeableTechsByEra[iEra]
+		techIds.sort(key=lambda t: gc.getTechInfo(t).getDescription())
+		untradeableTechsByEraFinal[iEra] = (len(techIds), techIds)
+		if len(techIds) > maxUntradeableTechs:
+			maxUntradeableTechs = len(techIds)
+
+	TECH_STATISTICS_CACHE = {
+		"startingTechData": tuple(startingTechData),
+		"startingTechMaxCivs": startingTechMaxCivs,
+		"startingTechCombos": tuple(startingTechCombos),
+		"combosMinMax": combosMinMax,
+		"combosMaxCivs": combosMaxCivs,
+		"untradeableTechsByEra": untradeableTechsByEraFinal,
+		"maxUntradeableTechs": maxUntradeableTechs,
+		"totalTechsByEra": totalTechsByEra,
+	}
+
+	print("Sevopedia Tech statistics cache prebuilt. This should appear only once per gaming session.")
+	return TECH_STATISTICS_CACHE
 
 
 
@@ -69,22 +175,18 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: reorganized layout (Claude Code Sonnet 4.5):
-		# Row 1: Tech Pane (left, wider) | Music (84px) | Starting Civs (right, remaining)
-		# Row 2: Requires (full width to Music end)
-		# Row 3: First to Discover (left, 84px) | Leads To (right, remaining to Music end)
-		# Row 4: Obsoletes (full width)
-		# Row 5: Enables (full width) - merged units + buildings
-		# Row 6: Special (left, W_TECH_PANE width) | History (right, remaining space)
+		# <!-- custom: SevopediaTech layout rework (starting-tech stats tables)
+		# Row 1: Tech Pane (left) | Requires | Leads To
+		# Row 2: First to D (84px) | Obsoletes (wide) | Music (84px)
+		# Row 3: Enables (full width)
+		# Row 4: Starting tech statistics (two tables: techs + combinations)
+		# Row 5: Special Abilities | Background
+		# (GPT-5.2 Thinking)
 		# -->
 
-		# Standard row height for panels
-		self.H_ROW = 110
-
-		# Row 1: Tech Pane (increased by 150px), Music panel, and Starting Civs
 		self.X_TECH_PANE = self.top.X_PEDIA_PAGE
 		self.Y_TECH_PANE = self.top.Y_PEDIA_PAGE
-		self.W_TECH_PANE = 490  # Increased from 340 to 490 (+150px)
+		self.W_TECH_PANE = 380
 		self.H_TECH_PANE = 116
 
 		self.W_ICON = 100
@@ -94,95 +196,123 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		self.ICON_SIZE = 64
 
-		self.X_COST = self.X_TECH_PANE + 110
-		self.Y_COST = self.Y_TECH_PANE + 47
+		# Row 1 right region
+		self.Y_REQUIRES = self.Y_TECH_PANE
+		self.H_REQUIRES = self.H_TECH_PANE
+		self.Y_LEADS_TO = self.Y_TECH_PANE
+		self.H_LEADS_TO = self.H_TECH_PANE
 
-		# Music panel (84px, right of Tech Pane)
-		self.W_MUSIC = 84
-		self.X_MUSIC = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
-		self.Y_MUSIC = self.Y_TECH_PANE
-		self.H_MUSIC = self.H_TECH_PANE
+		self.W_LEADS_TO = 300
+		self.X_LEADS_TO = self.top.R_PEDIA_PAGE - self.W_LEADS_TO
+		self.X_REQUIRES = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
+		self.W_REQUIRES = self.X_LEADS_TO - self.MEDIUM_MARGIN - self.X_REQUIRES
+		if self.W_REQUIRES < 50:
+			# Safety fallback if the page is too narrow.
+			self.W_REQUIRES = 50
 
-		# Starting Civs (right of Music panel)
-		self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.X_MUSIC + self.W_MUSIC + self.MEDIUM_MARGIN
-		self.Y_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.Y_TECH_PANE
-		self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.top.R_PEDIA_PAGE - self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
-		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.H_ROW
-
-		# Row 2: Requires (full width to Music panel end)
-		self.X_REQUIRES = self.X_TECH_PANE
-		self.Y_REQUIRES = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
-		# Width should align to end X position of Music panel
-		self.W_REQUIRES = (self.X_MUSIC + self.W_MUSIC) - self.X_REQUIRES
-		self.H_REQUIRES = self.H_ROW
-
-		# Row 3: First to Discover (left, 84px) | Leads To (right, remaining to Music end)
-		# <!-- custom: First to Discover panel for religions, corporations, great people, free techs - positioned left of Leads To (Claude Code Sonnet 4.5) -->
-		self.W_FIRST_TO_DISCOVER = 84  # Same width as SevoPediaBuilding's obsolete panel - enough for one button
+		# Row 2: First to D | Tradeable | Obsoletes | Music
+		self.H_ROW = 110
+		self.Y_FIRST_TO_DISCOVER = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
 		self.X_FIRST_TO_DISCOVER = self.X_TECH_PANE
-		self.Y_FIRST_TO_DISCOVER = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+
+		self.W_FIRST_TO_DISCOVER = 84
 		self.H_FIRST_TO_DISCOVER = self.H_ROW
 
-		self.X_LEADS_TO = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
-		self.Y_LEADS_TO = self.Y_FIRST_TO_DISCOVER
-		# Leads To width extends to Music panel end
-		self.W_LEADS_TO = (self.X_MUSIC + self.W_MUSIC) - self.X_LEADS_TO
-		self.H_LEADS_TO = self.H_ROW
+		# <!-- custom: Tradeable panel showing if tech can be traded (Claude Opus 4.5) -->
+		self.X_TRADEABLE = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
+		self.Y_TRADEABLE = self.Y_FIRST_TO_DISCOVER
+		self.W_TRADEABLE = 84
+		self.H_TRADEABLE = self.H_ROW
 
-		# Row 4: Obsoletes (full width)
-		self.X_OBSOLETES = self.X_TECH_PANE
-		self.Y_OBSOLETES = self.Y_LEADS_TO + self.H_LEADS_TO + self.SMALL_MARGIN
-		self.W_OBSOLETES = self.top.R_PEDIA_PAGE - self.X_OBSOLETES
+		self.Y_MUSIC = self.Y_FIRST_TO_DISCOVER
+		self.W_MUSIC = 84
+		self.H_MUSIC = self.H_ROW
+		self.X_MUSIC = self.top.R_PEDIA_PAGE - self.W_MUSIC
+
+		self.Y_OBSOLETES = self.Y_FIRST_TO_DISCOVER
+		self.X_OBSOLETES = self.X_TRADEABLE + self.W_TRADEABLE + self.MEDIUM_MARGIN
+		self.W_OBSOLETES = self.X_MUSIC - self.MEDIUM_MARGIN - self.X_OBSOLETES
 		self.H_OBSOLETES = self.H_ROW
 
 		# <!-- custom: note: Now that we switched to the thinner ChatGPT 5.2 based model, 64 is a bit too small, so extending it to fit buttons -->
 		# self.RED_X_BUTTON_SIZE = 64
 		self.RED_X_BUTTON_SIZE = 72
 
-		# Row 5: Enables (full width) - merged units + buildings
+		# Row 3: Enables (full width)
 		self.X_ENABLES = self.X_TECH_PANE
-		self.Y_ENABLES = self.Y_OBSOLETES + self.H_OBSOLETES + self.SMALL_MARGIN
+		self.Y_ENABLES = self.Y_FIRST_TO_DISCOVER + self.H_ROW + self.SMALL_MARGIN
 		self.W_ENABLES = self.top.R_PEDIA_PAGE - self.X_ENABLES
 		self.H_ENABLES = self.H_ROW
 
-		# Row 5: Special (left, W_TECH_PANE width) | History (right, remaining space)
+		# Row 4: Starting tech statistics tables (2 left stacked, 1 right)
+		# <!-- custom: Statistics panel - blue panels without headers, tables inside. Left side wider (~200px more than right). (Claude Opus 4.5) -->
+		self.X_STATS = self.X_TECH_PANE
+		self.Y_STATS = self.Y_ENABLES + self.H_ENABLES + self.SMALL_MARGIN
+		self.W_STATS = self.top.R_PEDIA_PAGE - self.X_STATS
+		# Stats height - reduced by 20px to give more room to Special/History
+		self.H_STATS = 380
+
+		# Stats sub-panels layout - blue panels without headers, margin separation
+		STATS_MARGIN = 8
+		STATS_INNER = 6
+		self.STATS_ROW_H = 24
+		self.STATS_MARGIN = STATS_MARGIN
+		self.STATS_INNER = STATS_INNER
+
+		# Left side wider (about 200px more than right): ~60% of total width
+		self.STATS_LEFT_W = int(self.W_STATS * 0.60)
+		self.STATS_LEFT_X = self.X_STATS + STATS_MARGIN
+		self.STATS_LEFT_TOP_Y = self.Y_STATS + STATS_MARGIN
+		# Top-left reduced, bottom-left gets more room (0.44 ratio gives ~1-2px to bottom)
+		self.STATS_LEFT_TOP_H = int((self.H_STATS - 3 * STATS_MARGIN) * 0.44)
+		self.STATS_LEFT_BOTTOM_Y = self.STATS_LEFT_TOP_Y + self.STATS_LEFT_TOP_H + STATS_MARGIN
+		self.STATS_LEFT_BOTTOM_H = self.H_STATS - 2 * STATS_MARGIN - self.STATS_LEFT_TOP_H - STATS_MARGIN
+
+		# Right side (narrower - remaining width)
+		self.STATS_RIGHT_X = self.STATS_LEFT_X + self.STATS_LEFT_W + STATS_MARGIN
+		self.STATS_RIGHT_Y = self.Y_STATS + STATS_MARGIN
+		self.STATS_RIGHT_W = self.W_STATS - self.STATS_LEFT_W - 3 * STATS_MARGIN
+		self.STATS_RIGHT_H = self.H_STATS - 2 * STATS_MARGIN
+
+		# Button sizes for statistics tables
+		self.CIV_ICON_SIZE = 24
+		self.TECH_ICON_SIZE = 24
+		self.CIV_BUTTON_COLUMN_SPACING = 2
+
+		# Bottom row: Special / History (reduced height by 120px)
 		self.X_SPECIAL = self.X_TECH_PANE
-		self.Y_SPECIAL = self.Y_ENABLES + self.H_ENABLES + self.SMALL_MARGIN
+		self.Y_SPECIAL = self.Y_STATS + self.H_STATS + self.SMALL_MARGIN
 		self.W_SPECIAL = self.W_TECH_PANE
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
-
-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
 		self.Y_HISTORY = self.Y_SPECIAL
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.H_SPECIAL
 
+		# <!-- custom: for multiline text vertical adjustment after panel header -->
+		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+
 
 
 	def interfaceScreen(self, iTech):
 		self.iTech = iTech
 
-		# Row 1: Tech Pane, Music, Starting Civs
 		self.placeTechPane()
-		self.placeMusic()
-		self.placeCivilizationsThatStartWithThisTech()
-		# Row 2: Requires
 		self.placePrereqs()
-		# Row 3: First to Discover, Leads To
-		self.placeFirstToDiscover()
 		self.placeLeadsTo()
-		# Row 4: Obsoletes
+		self.placeFirstToDiscover()
+		self.placeTradeable()
 		self.placeObsoletes()
-		# Row 5: Enables
+		self.placeMusic()
 		self.placeEnables()
-		# Row 6: Special, History
+		self.placeStartingTechStatistics()
+
 		self.placeSpecial()
 		self.placeHistory()
 
 
 
-	# <!-- custom: split this more cleanly as a separate method from interfaceScreen in assessing so if i may say and also as in other parts of our code as well; also Era display code bit/part in this caseimported from rfc doc mod and adjusted or not for advciv-sas-->
 	def placeTechPane(self):
 		screen = self.top.getScreen()
 		techInfo = gc.getTechInfo(self.iTech)
@@ -191,8 +321,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), techInfo.getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-		#screen.setLabel(self.top.getNextWidgetName(), "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_COST + 25, self.Y_COST, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		listBoxName = self.top.getNextWidgetName()
 		szEra = gc.getEraInfo(techInfo.getEra()).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
@@ -315,6 +443,34 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_FIRST_TO_DISCOVER + (self.H_FIRST_TO_DISCOVER / 2)
 			screen.addMultilineText(textName, szText, self.X_FIRST_TO_DISCOVER + 7, yPanelCenter, self.W_FIRST_TO_DISCOVER - 14, self.H_FIRST_TO_DISCOVER - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	# <!-- custom: Tradeable panel showing if this tech can be traded. Shows "Yes" if tradeable,
+	# or No Entry emoji icon if not tradeable. (Claude Opus 4.5) -->
+	def placeTradeable(self):
+		screen = self.top.getScreen()
+		techInfo = gc.getTechInfo(self.iTech)
+
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_TRADEABLE_PANEL", ()), "", False, True, self.X_TRADEABLE, self.Y_TRADEABLE, self.W_TRADEABLE, self.H_TRADEABLE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+
+		if techInfo.isTrade():
+			# Tech is tradeable - show "Yes" text
+			txtName = self.top.getNextWidgetName()
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_YES", ())
+			yPanelCenter = self.Y_TRADEABLE + (self.H_TRADEABLE / 2)
+			screen.addMultilineText(txtName, szText, self.X_TRADEABLE + 7, yPanelCenter, self.W_TRADEABLE - 14, self.H_TRADEABLE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		else:
+			# Tech is not tradeable - show emoji icon
+			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH"
+			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+
+			buttonSize = 64
+			buttonX = (self.W_TRADEABLE - buttonSize) / 2
+			buttonY = 10
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -756,10 +912,291 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	# <!-- custom: add non-tradeable (<bTrade>) tech list at the end of placeSpecial, addition with the help of chatgpt thanks. -->
-	# <!-- custom: Note: We intentionally keep all textual info here (units, buildings, civics, bonuses, builds, promotions)
-	# even though they're also displayed as buttons in the Enables panel. This duplication is helpful because
-	# users find it easier to read and scan the textual list for quick reference. (Claude code Opus 4.5) -->
+	# <!-- custom: Statistics panel with three tables wrapped in outer blue panel:
+	# Top-Left: All starting techs with civ count and civ buttons
+	# Bottom-Left: Untradeable techs grouped by era (era name, tech count, tech buttons)
+	# Right: All starting tech combinations globally with count, ranking bar, and civs
+	# (Claude Opus 4.5) -->
+	def placeStartingTechStatistics(self):
+		screen = self.top.getScreen()
+
+		cache = TECH_STATISTICS_CACHE
+		if cache is None:
+			return
+
+		# Outer background panel wrapping all 3 charts (like SevoPediaTrait)
+		outerPanelName = self.top.getNextWidgetName()
+		screen.addPanel(outerPanelName, "", "", True, True, self.X_STATS, self.Y_STATS, self.W_STATS, self.H_STATS, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# === TOP-LEFT TABLE: All starting techs with civ buttons ===
+		self._placeStartingTechsTable(screen, cache)
+
+		# === BOTTOM-LEFT TABLE: Untradeable techs by era ===
+		self._placeUntradeableTechsByEraTable(screen, cache)
+
+		# === RIGHT TABLE: All starting tech combinations ===
+		self._placeStartingTechCombosTable(screen, cache)
+
+
+	def _placeStartingTechsTable(self, screen, cache):
+		# Top-left table: shows ALL starting techs with civ count and civ buttons
+		# Blue panel without header, table inside
+		startingTechData = cache["startingTechData"]
+		startingTechMaxCivs = cache["startingTechMaxCivs"]
+
+		# Panel dimensions
+		panelX = self.STATS_LEFT_X
+		panelY = self.STATS_LEFT_TOP_Y
+		panelW = self.STATS_LEFT_W
+		panelH = self.STATS_LEFT_TOP_H
+
+		# Add blue panel without header (empty title)
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, "", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+
+		if not startingTechData:
+			# No starting techs found - show message
+			txtName = self.top.getNextWidgetName()
+			screen.addMultilineText(txtName, localText.getText("TXT_KEY_PEDIA_SAS_NO_STARTING_TECHS", ()), panelX + 10, panelY + 10, panelW - 20, panelH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			return
+
+		# Table dimensions inside panel
+		tableX = panelX + self.STATS_INNER
+		tableY = panelY + self.STATS_INNER
+		tableW = panelW - 2 * self.STATS_INNER
+		tableH = panelH - 2 * self.STATS_INNER
+
+		# Column widths: Starting Tech (button + name) | Count | Civ buttons...
+		# Tech column should be compact - just enough for button + long tech name
+		colTechW = 160
+		colCountW = 40
+		maxCivs = startingTechMaxCivs
+		if maxCivs < 1:
+			maxCivs = 1
+		civColW = self.CIV_ICON_SIZE + self.CIV_BUTTON_COLUMN_SPACING
+		availableCivW = tableW - colTechW - colCountW
+		if availableCivW < civColW * maxCivs:
+			civColW = max(16, availableCivW / maxCivs)
+
+		# Create table
+		tableName = self.top.getNextWidgetName()
+		screen.addTableControlGFC(tableName, 2 + maxCivs, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.enableSort(tableName)
+
+		# Column headers: "Starting Tech" in first column (implicit panel title)
+		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_STARTING_TECH_HEADER", ()), colTechW)
+		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW)
+		for iCol in xrange(maxCivs):
+			screen.setTableColumnHeader(tableName, 2 + iCol, "", civColW)
+
+		for iTech, civCount, civIds in startingTechData:
+			iRow = screen.appendTableRow(tableName)
+			techInfo = gc.getTechInfo(iTech)
+
+			techText = u"<font=2>%s</font>" % techInfo.getDescription()
+			screen.setTableText(tableName, 0, iRow, techText, techInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			self._setCivIconCells(screen, tableName, iRow, civIds, 2, maxCivs)
+
+
+	def _placeUntradeableTechsByEraTable(self, screen, cache):
+		# Bottom-left table: untradeable techs grouped by era
+		# Blue panel without header, table inside
+		# Columns: Era name | Count (untradeable) | All (total techs in era) | Tech buttons...
+		untradeableTechsByEra = cache["untradeableTechsByEra"]
+		maxUntradeableTechs = cache["maxUntradeableTechs"]
+		totalTechsByEra = cache["totalTechsByEra"]
+
+		# Panel dimensions
+		panelX = self.STATS_LEFT_X
+		panelY = self.STATS_LEFT_BOTTOM_Y
+		panelW = self.STATS_LEFT_W
+		panelH = self.STATS_LEFT_BOTTOM_H
+
+		# Add blue panel without header (empty title)
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, "", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Check if any untradeable techs exist
+		totalUntradeable = sum([data[0] for data in untradeableTechsByEra.values()])
+		if totalUntradeable == 0:
+			txtName = self.top.getNextWidgetName()
+			screen.addMultilineText(txtName, localText.getText("TXT_KEY_PEDIA_SAS_NO_UNTRADEABLE_TECHS", ()), panelX + 10, panelY + 10, panelW - 20, panelH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			return
+
+		# Table dimensions inside panel
+		tableX = panelX + self.STATS_INNER
+		tableY = panelY + self.STATS_INNER
+		tableW = panelW - 2 * self.STATS_INNER
+		tableH = panelH - 2 * self.STATS_INNER
+
+		# Column widths: Era name | Count (untradeable) | All (total) | Tech buttons...
+		# Use same width as top-left table's first column (160) for vertical alignment
+		colEraW = 160
+		colCountW = 40
+		colAllW = 40
+		maxTechs = maxUntradeableTechs
+		if maxTechs < 1:
+			maxTechs = 1
+		techColW = self.TECH_ICON_SIZE + self.CIV_BUTTON_COLUMN_SPACING
+		availableTechW = tableW - colEraW - colCountW - colAllW
+		if availableTechW < techColW * maxTechs:
+			techColW = max(16, availableTechW / maxTechs)
+
+		# Create table (3 fixed columns + tech button columns)
+		tableName = self.top.getNextWidgetName()
+		screen.addTableControlGFC(tableName, 3 + maxTechs, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.enableSort(tableName)
+
+		# Column headers: "Untradeable" | "Count" | "All" | tech buttons...
+		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER", ()), colEraW)
+		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), colCountW)
+		screen.setTableColumnHeader(tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_ALL", ()), colAllW)
+		for iCol in xrange(maxTechs):
+			screen.setTableColumnHeader(tableName, 3 + iCol, "", techColW)
+
+		numEras = gc.getNumEraInfos()
+		for iEra in xrange(numEras):
+			techCount, techIds = untradeableTechsByEra.get(iEra, (0, []))
+			if techCount == 0:
+				continue
+
+			iRow = screen.appendTableRow(tableName)
+			eraInfo = gc.getEraInfo(iEra)
+
+			# Era name column with DDS icon
+			# <!-- custom: Tried WIDGET_PYTHON to navigate to Era Chart page but couldn't get it to work
+			# with table cells (works for setImageButtonAt but not setTableText). Keeping as simple
+			# display-only DDS button for now. Can revisit in the future. (Claude Opus 4.5) -->
+			eraButtonPath = get_era_movie_path(iEra)
+			eraText = u"<font=2>%s</font>" % eraInfo.getDescription()
+			screen.setTableText(tableName, 0, iRow, eraText, eraButtonPath, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+			# Untradeable tech count column
+			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % techCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			# All techs in era column
+			totalInEra = totalTechsByEra.get(iEra, 0)
+			screen.setTableText(tableName, 2, iRow, u"<font=2>%d</font>" % totalInEra, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			# Tech button columns (starting at column 3)
+			self._setTechIconCells(screen, tableName, iRow, techIds, 3, maxTechs)
+
+
+	def _placeStartingTechCombosTable(self, screen, cache):
+		# Right table: all starting tech combinations globally
+		# Blue panel without header, table inside
+		startingTechCombos = cache["startingTechCombos"]
+		combosMinMax = cache["combosMinMax"]
+		combosMaxCivs = cache["combosMaxCivs"]
+
+		# Panel dimensions
+		panelX = self.STATS_RIGHT_X
+		panelY = self.STATS_RIGHT_Y
+		panelW = self.STATS_RIGHT_W
+		panelH = self.STATS_RIGHT_H
+
+		# Add blue panel without header (empty title)
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, "", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+
+		if not startingTechCombos:
+			txtName = self.top.getNextWidgetName()
+			screen.addMultilineText(txtName, localText.getText("TXT_KEY_PEDIA_SAS_NO_COMBOS_FOUND", ()), panelX + 10, panelY + 10, panelW - 20, panelH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			return
+
+		# Table dimensions inside panel
+		tableX = panelX + self.STATS_INNER
+		tableY = panelY + self.STATS_INNER
+		tableW = panelW - 2 * self.STATS_INNER
+		tableH = panelH - 2 * self.STATS_INNER
+
+		# Column widths
+		if combosMaxCivs > 0:
+			maxCivsRight = combosMaxCivs
+		else:
+			maxCivsRight = 1
+		colComboW = int(tableW * 0.50)
+		colCountW = 40
+		colRankW = 70
+		civColW = self.CIV_ICON_SIZE + self.CIV_BUTTON_COLUMN_SPACING
+		availableCivW = tableW - colComboW - colCountW - colRankW
+		if availableCivW < civColW * maxCivsRight:
+			civColW = max(16, availableCivW / maxCivsRight)
+
+		# Create table
+		tableName = self.top.getNextWidgetName()
+		screen.addTableControlGFC(tableName, 3 + maxCivsRight, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.enableSort(tableName)
+
+		# Column headers: "Tech Combos" in first column (implicit panel title)
+		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TECH_COMBOS_HEADER", ()), colComboW)
+		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW)
+		screen.setTableColumnHeader(tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), colRankW)
+		for iCol in xrange(maxCivsRight):
+			screen.setTableColumnHeader(tableName, 3 + iCol, "", civColW)
+
+		minCount, maxCount = combosMinMax
+		for tech1, tech2, civCount, civIds in startingTechCombos:
+			iRow = screen.appendTableRow(tableName)
+
+			tech1Info = gc.getTechInfo(tech1)
+			tech2Info = gc.getTechInfo(tech2)
+
+			# Combination text with tech icons using <img> tags (size=24 to match button columns)
+			comboText = u"<font=2><img=%s size=24> %s + <img=%s size=24> %s</font>" % (
+				tech1Info.getButton(), tech1Info.getDescription(),
+				tech2Info.getButton(), tech2Info.getDescription())
+			screen.setTableText(tableName, 0, iRow, comboText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+			# Count
+			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			# Ranking bar
+			if maxCount > minCount:
+				normalized = (civCount - minCount) * 100 / (maxCount - minCount)
+			else:
+				normalized = 50
+			numPlus = (normalized + 10) / 20
+			screen.setTableText(tableName, 2, iRow, u"<font=2>%s</font>" % (u"+" * numPlus), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			# Civ icons
+			self._setCivIconCells(screen, tableName, iRow, civIds, 3, maxCivsRight)
+
+
+	def _setCivIconCells(self, screen, tableName, row, civIds, civColStart, civColCount):
+		# Helper to set civ icon cells in a table row
+		for iCol in xrange(civColCount):
+			if iCol >= len(civIds):
+				screen.setTableText(tableName, civColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				continue
+
+			iCiv = civIds[iCol]
+			civInfo = gc.getCivilizationInfo(iCiv)
+			buttonPath = civInfo.getButton()
+			if buttonPath:
+				screen.setTableText(tableName, civColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			else:
+				screen.setTableText(tableName, civColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+	def _setTechIconCells(self, screen, tableName, row, techIds, techColStart, techColCount):
+		# Helper to set tech icon cells in a table row
+		for iCol in xrange(techColCount):
+			if iCol >= len(techIds):
+				screen.setTableText(tableName, techColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				continue
+
+			iTech = techIds[iCol]
+			techInfo = gc.getTechInfo(iTech)
+			buttonPath = techInfo.getButton()
+			if buttonPath:
+				screen.setTableText(tableName, techColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			else:
+				screen.setTableText(tableName, techColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -767,13 +1204,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		listName = self.top.getNextWidgetName()
 
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
-
-		if IS_SHOW_NON_TRADEABLE_TECHS_LIST:
-			# <!-- custom: add the list as string of all untradeable techs if this tech is untradeable; see also sevopedia main precomputing / cache building for untradeable techs text for details -->
-			if (not gc.getTechInfo(self.iTech).isTrade()):
-				if szSpecialText.strip():
-					szSpecialText += u"\n\n"
-				szSpecialText += UNTRADEABLE_TECHS_TEXT
 
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 3, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

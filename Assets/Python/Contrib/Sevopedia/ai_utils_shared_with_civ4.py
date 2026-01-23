@@ -1,4 +1,4 @@
-# --- AI Utilities for normalization and general helpers ---
+# AI Utilities for normalization and general helpers
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
@@ -131,7 +131,7 @@ def test_expected_shifting_pre_normalize_to_100():
 
 
 
-# --- Attribute normalization ---
+# Attribute normalization
 def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 	# Normalizes an AI attribute value to a 0-100 integer scale.
 	#
@@ -165,7 +165,7 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 	# Returns:
 	# - final_score (int): Normalized integer 0-100.
 
-	# --- Pre-checks ---
+	# Pre-checks
 	if (min_val is None) or (max_val is None):
 		raise ValueError(u"[FATAL] min_val=%s or max_val=%s cannot be None, failed to fetch the real value if any exist, check your XML or fetching code." % (str(min_val), str(max_val)))
 
@@ -180,14 +180,14 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 			print("[WARNING] Attribute %s has an identical min and max value (%d). All normalized values will be 50." % (attr_name, min_val))
 		return 50
 
-	# --- Shift min_val, value, and max_val, if needed, before we normalize ---
+	# Shift min_val, value, and max_val, if needed, before we normalize
 	shifted_value = None
 	shifted_min, shifted_value, shifted_max = get_shifted_values(min_val, value, max_val)
 
 	if (shifted_value is None):
 		raise ValueError("[FATAL] In attr_name=%s, shifted_value=%s has not been initialized properly and is still None: shifted_min=%d, shifted_value=%d, shifted_max=%d, min_val=%d, value=%d, max_val=%d" % (attr_name, shifted_value, shifted_min, shifted_value, shifted_max, min_val, value, max_val))
 
-	# --- Normalize ---
+	# Normalize
 	if shifted_min != 0:
 		raise ValueError("[FATAL] For attr_name=%s, distribution has not shifted to a shifted_min of 0 before normalization: shifted_min=%d, shifted_value=%d, shifted_max=%d, min_val=%d, value=%d, max_val=%d" % (attr_name, shifted_min, shifted_value, shifted_max, min_val, value, max_val))
 	if shifted_value < 0:
@@ -310,19 +310,19 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
 	if force_zero_adjusted_values:
 		return 0
 	else:
-		# --- Weight configuration ---
+		# Weight configuration
 		# MAIN_WEIGHT represents the primary importance (e.g. randomness of contact)
 		# The secondary weight (e.g. delay) is auto-balanced to ensure the total is 1.0
 		MAIN_WEIGHT = 0.8
 		SECONDARY_WEIGHT = 1.0 - MAIN_WEIGHT
 
-		# --- Sanity check: weights must sum to exactly 1.0 ---
+		# Sanity check: weights must sum to exactly 1.0
 		weight_sum = MAIN_WEIGHT + SECONDARY_WEIGHT
 		if not abs(weight_sum - 1.0) < 1e-6:
 			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"
 				% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
 
-		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 anyway ---
+		# Aggregate score: round for consistency, since we later normalize as int 0–100 anyway
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_rand_norm_score + SECONDARY_WEIGHT * adjusted_value_delay_norm_score
 		# <!-- custom: no reason to strictly round the raw values since they will be normalized later anyways which would/should be an int and as of now the raw aggregated contact prob is only stored before that at min max storage stage (before their normalization as said before in this sentence), but no reason not to, since most if not indeed all fields are int, and it is an approximation (aggregation) to begin with, values close enough like 78.123456 vs 78.234567 could be considered to be the same 78 for example in my understanding, so round them now even though makes data a bit more inaccurate. -->
 		return int(round(raw_aggregated))
@@ -385,18 +385,18 @@ def get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score
 	else:
 		# <!-- custom: see the same/similar function but for contact types' code code comments for details; approximation of the ratios based on kujira's website (translate(d?) to english with chrome web browser or such) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%9a%84%e5%87%ba%e6%9d%a5%e4%ba%8b%e3%81%ab%e3%82%88%e3%82%8b%e6%85%8b%e5%ba%a6%e8%a3%9c%e6%ad%a3 and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memoryattitudepercents and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memorydecays quite similarly to contact code -->
 
-		# --- Weight configuration ---
+		# Weight configuration
 		# MAIN_WEIGHT represents the primary importance (e.g. randomness of contact)
 		# The secondary weight (e.g. delay) is auto-balanced to ensure the total is 1.0
 		MAIN_WEIGHT = 0.8
 		SECONDARY_WEIGHT = 1.0 - MAIN_WEIGHT
 
-		# --- Sanity check: weights must sum to exactly 1.0 ---
+		# Sanity check: weights must sum to exactly 1.0
 		weight_sum = MAIN_WEIGHT + SECONDARY_WEIGHT
 		if not abs(weight_sum - 1.0) < 1e-6:
 			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
 
-		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 ---
+		# Aggregate score: round for consistency, since we later normalize as int 0–100
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_attitude_percent_norm_score + SECONDARY_WEIGHT * adjusted_value_decay_norm_score
 		# <!-- custom: similarly round, see the aggregated contact prob similar function to this. -->
 		return int(round(raw_aggregated))

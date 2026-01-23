@@ -263,8 +263,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time and from what i understand of chatgpt's explanation. -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
-		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes. -->
-		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
+		# <!-- custom: tech statistics cache for starting tech pairs/combos and untradeable techs by era tables. (Claude Opus 4.5) -->
+		self.IS_TECH_STATISTICS_PREBUILT = False
 		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
 
 		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
@@ -849,11 +849,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getTechList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, gc.getTechInfo)
 
-		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code. -->
-		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
-			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
-			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
-			print("Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
+		# <!-- custom: precompute tech statistics cache for starting tech pairs/combos and untradeable techs by era tables. (Claude Opus 4.5) -->
+		if not self.IS_TECH_STATISTICS_PREBUILT:
+			SevoPediaTech.precomputeTechStatisticsCache()
+			self.IS_TECH_STATISTICS_PREBUILT = True
 
 	# Helper to group techs by era (single-pass bucketing).
 	# Yep — techs are the easiest one to refactor “like buildings/units”, because a tech already has its era (getEra()), so we just do a single pass, bucket into groups[iEra], then emit era headers in era order.

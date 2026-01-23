@@ -827,7 +827,7 @@ def _compute_leader_cache_internal():
 	def compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums):
 		# Loops over all leaders and normalizes each attribute to a 0-100 scale, using previously computed min/max per attribute and inversion flags.
 
-		# --- Symbol settings ---
+		# Symbol settings
 		all_symbols = {
 			"RAW_SCALE_SYMBOL": "+",
 			"AGGREGATED_SCALE_SYMBOL": "#",

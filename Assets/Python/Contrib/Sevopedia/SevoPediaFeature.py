@@ -92,10 +92,10 @@ class SevoPediaFeature:
 		self.W_BUILD_REMOVES = 84
 		self.H_BUILD_REMOVES = self.H_INFO_PANE
 
-		self.X_UNITS_ANY_BUILD = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
-		self.Y_UNITS_ANY_BUILD = self.Y_INFO_PANE
-		self.W_UNITS_ANY_BUILD = self.top.R_PEDIA_PAGE - self.X_UNITS_ANY_BUILD
-		self.H_UNITS_ANY_BUILD = self.H_INFO_PANE
+		self.X_UNITS_REMOVE = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
+		self.Y_UNITS_REMOVE = self.Y_INFO_PANE
+		self.W_UNITS_REMOVE = self.top.R_PEDIA_PAGE - self.X_UNITS_REMOVE
+		self.H_UNITS_REMOVE = self.H_INFO_PANE
 
 		self.X_FEATURES = self.X_INFO_PANE
 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
@@ -229,7 +229,7 @@ class SevoPediaFeature:
 			screen.addMultilineText(textName, szText, self.X_BUILD_REMOVES + 7, yPanelCenter, self.W_BUILD_REMOVES - 14, self.H_BUILD_REMOVES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD", ()), "", False, True, self.X_UNITS_ANY_BUILD, self.Y_UNITS_ANY_BUILD, self.W_UNITS_ANY_BUILD, self.H_UNITS_ANY_BUILD, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_REMOVE", ()), "", False, True, self.X_UNITS_REMOVE, self.Y_UNITS_REMOVE, self.W_UNITS_REMOVE, self.H_UNITS_REMOVE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 
 		bUnitFound = False
@@ -260,8 +260,8 @@ class SevoPediaFeature:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_UNITS_ANY_BUILD + (self.H_UNITS_ANY_BUILD / 2)
-			screen.addMultilineText(textName, szText, self.X_UNITS_ANY_BUILD + 7, yPanelCenter, self.W_UNITS_ANY_BUILD - 14, self.H_UNITS_ANY_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			yPanelCenter = self.Y_UNITS_REMOVE + (self.H_UNITS_REMOVE / 2)
+			screen.addMultilineText(textName, szText, self.X_UNITS_REMOVE + 7, yPanelCenter, self.W_UNITS_REMOVE - 14, self.H_UNITS_REMOVE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

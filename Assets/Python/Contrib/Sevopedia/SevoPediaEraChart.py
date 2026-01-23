@@ -1,4 +1,4 @@
-# --- Era chart page for Sevopedia (AdvCiv-SAS) ---
+# Era chart page for Sevopedia (AdvCiv-SAS)
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #

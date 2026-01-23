@@ -309,7 +309,7 @@ class SevoPediaLeader:
 		for ai_category in ai_categories:
 			ai_category_header_line, ai_category_x_offset, ai_category_key_order = ai_category
 
-			# --- AI Category Header Line ---
+			# AI Category Header Line
 			if ai_category_header_line is not None:
 				xOffsetButton = xLabel + ai_category_x_offset
 				screen.setText(self.top.getNextWidgetName(), "", ai_category_header_line, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -326,7 +326,7 @@ class SevoPediaLeader:
 
 
 
-	# --- Place AI Personality Panel (using precomputed scales) ---
+	# Place AI Personality Panel (using precomputed scales)
 	# Renders the full AI Personality panel in the Sevopedia Leader page using precomputed <!-- custom: leader info tuples in leaders_info_cached --> for the given leader.
 	def placeAIPersonalityPanel(self, iLeader):
 		screen = self.top.getScreen()

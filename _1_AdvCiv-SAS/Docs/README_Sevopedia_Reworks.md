@@ -28,6 +28,7 @@ Note 2: in below sample examples, click the images to view them full size.
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
 &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
+&emsp;[example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)  
 &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
 &emsp;[example 3: features category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)  
 &emsp;[example 3.5: improvements category (Improvement Weights (Leaders) Chart and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category-improvement-weights-leaders-chart-and-other-changes)  
@@ -37,12 +38,11 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 7: unit list category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category)  
 &emsp;[example 8: buildings category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category)  
 &emsp;[example 9: terrains category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category)  
-&emsp;[example 10: techs category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category)  
+&emsp;[example 10: specialists category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-specialists-category)  
 &emsp;[example 11: shortcuts category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
 &emsp;[example 12: promotions category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-12-promotions-category)  
 &emsp;[example 13: civics category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-13-civics-category)  
 &emsp;[example 14: projects category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-14-projects-category)  
-&emsp;[example 15: specialists category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-specialists-category)  
 
 ## Some Lower Level Changes or new features
 
@@ -274,6 +274,20 @@ Also added caching at category click for the entire session similarly to how was
 <img src="../Images/sevopedia/0.624_sevopedia_traits (2).JPG" alt="0.624_sevopedia_traits (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.624_sevopedia_traits (3).JPG" alt="0.624_sevopedia_traits (3).JPG" width="250"></img>
 
+### example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)
+
+This is a more recent refactor and beautify that adds era information and such other beautifications. The info pane (top left info of the tech, era, cost as of now) in particular is imported from rfc doc mod and modified/beautified/adjusted further or not for advciv-sas.
+
+More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
+
+And after that, added a new Obsoletes panel with the help of Claude code Sonnet 4.5, that notably shows a new thinner RedX art than in Civ4 (as it was too bold and hard to read at 64px) for any asset that has a button this tech obsoletes. ChatGPT 5.2 very impressively helped adding such a feature. See [README.md#redx-new-art-button](/README.md#redx-new-art-button).
+
+Also, with the help of Claude Opus 4.5 thanks a lot, i reworked and beautified, as well as reordered the panels for a much cleaner and prettier read! Then, merged the old Units Enabled and Buildings Enabled into a new Enables Panel enriched with more information (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and then also added with the additional help of GPT-5.2-Codex thanks a lot too a new First to Discover panel (Founds Religion, Receives a Great Person, Receives a Free Tech).
+
+Since then, redesigned the UI to free some vertical and horizontal room. Then added new sortable Starting Techs Charts, and clickable buttons, mirroring the Traits' (showing Civilization pairs and combinations for each starting tech or starting tech combination) Charts approach. Also added a new Untradeable Techs Charts showing the count of untradeable, total of any tech in the era for comparison, plus per era untradeable techs as tech button columns. Done with the help of ChatGPT-5.2 Thinking and Claude code Opus 4.5 thanks a lot!
+
+Also added an Untradeable panel with an emoji to visually clearly and quickly indicate if the currently selected tech is tradeable or not.
+
 ### example 2: unit chart category
 
 (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
@@ -295,7 +309,7 @@ Note: ice feature (named "ice cap" feature as of now in advciv-sas) which is imp
 
 Also added Land/Water grouping similarly than for Sevopedia terrain entries, and then i also got the idea to subdivide Land entries into as of now Land (Removable) and Land (Other), reads much clearer like how as of now Land (Growth) was for cottages and such; done with the help of chatgpt 5.2 thanks.
 
-Since then, also added a new Remove as well as a new Units (Any Build) panel with the help of GPT-5.2-Codex thanks a lot :) Hellow fellow AIs btw, although i'm human xd but why not. Thanks for help in designing this :)
+Since then, also added a new Remove as well as a new Units (Remove) panel with the help of GPT-5.2-Codex thanks a lot.
 
 <img src="../Images/sevopedia/0.640_sevopedia_features (1).JPG" alt="0.640_sevopedia_features (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.640_sevopedia_features (2).JPG" alt="0.640_sevopedia_features (2).JPG" width="250"></img>
@@ -428,21 +442,19 @@ And then, fixed the Hills' Improvements' RFC DOC mod's formula with the help of 
 
 See also the [features category rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)
 
-### example 10: techs category
-
-This is a more recent refactor and beautify that adds era information and such other beautifications. The info pane (top left info of the tech, era, cost as of now) in particular is imported from rfc doc mod and modified/beautified/adjusted further or not for advciv-sas.
-
-Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if Sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) with the help of gemini ai thanks; see similar precomputing logic or its explanation at sevoepdia reworks's Sevopedia leader readme section for details.
-
-More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
-
-And after that, added a new Obsoletes panel with the help of Claude code Sonnet 4.5, that notably shows a new thinner RedX art than in Civ4 (as it was too bold and hard to read at 64px) for any asset that has a button this tech obsoletes. ChatGPT 5.2 very impressively helped adding such a feature. See [README.md#redx-new-art-button](/README.md#redx-new-art-button).
-
-Also, with the help of Claude Opus 4.5 thanks a lot, i reworked and beautified, as well as reordered the panels for a much cleaner and prettier read! Then, merged the old Units Enabled and Buildings Enabled into a new Enables Panel enriched with more information (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and then also added with the additional help of GPT-5.2-Codex thanks a lot too a new First to Discover panel (Founds Religion, Receives a Great Person, Receives a Free Tech).
-
 <img src="../Images/sevopedia/0.710_sevopedia_techs (1).JPG" alt="0.710_sevopedia_techs (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.710_sevopedia_techs (2).JPG" alt="0.710_sevopedia_techs (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.710_sevopedia_techs (3).JPG" alt="0.710_sevopedia_techs (3).JPG" width="250"></img>
+
+### example 10: specialists category
+
+Beautified it (removed the ugly blue panel around the buttons as we did in previous reworks), and added the grouping (by specialist type (as of now normal vs great specialists.)) similarly to how we said as of now at the top of this file. Based on how the RFC DOC mod does it and done with the help of chatgpt 5.2 thanks.
+
+Then, more recently, i added new Extra Slots and Extra Yields panel based on the Middle-earth mod's code and adjusted for AdvCiv-SAS with the help of GPT-5.2-Codex thanks a lot!
+
+<img src="../Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.760_sevopedia_specialists (2).JPG" alt="0.760_sevopedia_specialists (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.760_sevopedia_specialists (3).JPG" alt="0.760_sevopedia_specialists (3).JPG" width="250"></img>
 
 ### example 11: shortcuts category
 
@@ -486,13 +498,3 @@ As for the grouping, since this is a nice functionnal change, i wanted to show i
 
 <img src="../Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.750_sevopedia_projects (2).JPG" alt="0.750_sevopedia_projects (2).JPG" width="250"></img>
-
-### example 15: specialists category
-
-Beautified it (removed the ugly blue panel around the buttons as we did in previous reworks), and added the grouping (by specialist type (as of now normal vs great specialists.)) similarly to how we said as of now at the top of this file. Based on how the RFC DOC mod does it and done with the help of chatgpt 5.2 thanks.
-
-Then, more recently, i added new Extra Slots and Extra Yields panel based on the Middle-earth mod's code and adjusted for AdvCiv-SAS with the help of GPT-5.2-Codex thanks a lot!
-
-<img src="../Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.760_sevopedia_specialists (2).JPG" alt="0.760_sevopedia_specialists (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.760_sevopedia_specialists (3).JPG" alt="0.760_sevopedia_specialists (3).JPG" width="250"></img>

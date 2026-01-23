@@ -1,4 +1,4 @@
-# --- World size chart page for Sevopedia (AdvCiv-SAS) ---
+# World size chart page for Sevopedia (AdvCiv-SAS)
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
@@ -272,11 +272,9 @@ class SevoPediaWorldSizeChart:
 			parsed_data[world_type] = world_dict
 
 
-		# -----------------------------------------------------------------
 		# Derived rows (AdvCiv-SAS: XXL-inspired extra world sizes, adjusted for SAS; e.g. SAS24/SAS32/SAS40/SAS48)
 		# Computed fields are marked in the UI with a trailing \"*\".
 		# Added with help from ChatGPT (GPT-5.2 Thinking)
-		# -----------------------------------------------------------------
 		iStandardTiles = None
 		if parsed_data.has_key("WORLDSIZE_STANDARD"):
 			try:

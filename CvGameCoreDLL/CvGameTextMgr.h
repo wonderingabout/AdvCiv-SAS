@@ -230,9 +230,9 @@ public:
 	void buildPermanentAllianceString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildVassalStateString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildBridgeString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
-	// <!-- custom: add the <bTrade> tech info xml flag in sevopedia tech's placeSpecial -->
+	// <!-- custom: add the <bTrade> tech info in the tech effect's bullets (technology advisor, Sevopedia, etc.) -->
 	void buildBTradeString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
-	// <!-- custom: similarly also add the <bRepeat> tech info xml flag in sevopedia tech's placeSpecial -->
+	// <!-- custom: similarly also add the <bRepeat> tech info effect's bullets (technology advisor, Sevopedia, etc.) -->
 	void buildBRepeatString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildIrrigationString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildIgnoreIrrigationString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);

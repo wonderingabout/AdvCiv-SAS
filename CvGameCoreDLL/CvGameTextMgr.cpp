@@ -8281,10 +8281,10 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	//	Enables bridge building...
 	buildBridgeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech ; (<bTrade> in XML in tech info 's xml) -->
+	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech ; (<bTrade> in XML in tech info's bullets) -->
 	buildBTradeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech ; (<bRepeat> in XML in tech info 's xml) -->
+	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech ; (<bRepeat> in XML in tech info's bullets) -->
 	buildBRepeatString(szBuffer, eTech, true, bPlayerContext);
 
 	//	Can spread irrigation...

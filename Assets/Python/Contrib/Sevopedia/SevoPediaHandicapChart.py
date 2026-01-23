@@ -1,4 +1,4 @@
-# --- Handicap chart page for Sevopedia (AdvCiv-SAS) ---
+# Handicap chart page for Sevopedia (AdvCiv-SAS)
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
@@ -131,9 +131,7 @@ class SevoPediaHandicapChart:
 		return data
 
 	def _buildTableFromGameData(self):
-		# --------------------------------------------------------------------
 		# Centralized chart spec
-		# --------------------------------------------------------------------
 		# One place to maintain BOTH:
 		#   - which CvHandicapInfo Python getters we read
 		#   - which icon token (btn:* / glyph:*) we show for that row
@@ -387,9 +385,7 @@ class SevoPediaHandicapChart:
 
 		rows = self._expandTechRows(new_rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names)
 
-		# --------------------------------------------------------------------
 		# One-time render prep (kept local; cache stores only final table cells)
-		# --------------------------------------------------------------------
 		icon_cell_for_key = None
 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
 			game = CyGame()
