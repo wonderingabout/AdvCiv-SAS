@@ -216,7 +216,7 @@ class SevoPediaMusic:
 		iEra = self.top.SAS_getMusicEra(iMusic)
 		szImagePath = ""
 		if iEra != -1:
-			szImagePath = get_era_movie_path(iEra)
+			szImagePath = gc.getEraInfo(iEra).getButton()
 		if szImagePath:
 			screen.addDDSGFC("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_GENERAL, -1, -1)
 

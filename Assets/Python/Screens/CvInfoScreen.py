@@ -735,7 +735,7 @@ class CvInfoScreen:
 		self.szCityIconStats = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.szFoundCityIconStats = "Art/Interface/Buttons/Actions/FoundCity.dds"
 		self.szRazeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH", ()))  # 🔥
-		self.szReligionIconStats = "Art/Interface/Buttons/General/ConvertReligion.dds"  # 🕊️
+		self.szReligionIconStats = "Art/Interface/Buttons/General/ConvertReligion.dds"
 		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
 
 	def reset(self):

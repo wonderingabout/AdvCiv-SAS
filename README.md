@@ -46,7 +46,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Images as buttons](/README.md#images-as-buttons)  
 &emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
 [Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)  
-&emsp;[New optional XML fields (e.g. ObsoleteTech for units)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units)  
+&emsp;[New optional XML fields (e.g. ObsoleteTech for units, Button for eras)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras)  
 [Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)  
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
 &emsp;[World map with civs](/README.md#world-map-with-civs)  
@@ -443,7 +443,9 @@ See also for details:
 - [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)
 - [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for details
 
-### New optional XML fields (e.g. ObsoleteTech for units)
+### New optional XML fields (e.g. ObsoleteTech for units, Button for eras)
+
+#### ObsoleteTech for units
 
 We also added in AdvCiv-SAS with GPT-5.2-Codex's help new XML optional fields such as `<ObsoleteTech>` for units.
 
@@ -456,6 +458,16 @@ If you don't want to use this `ObsoleteTech` feature without having to tediously
 Should have been the base in Civ4!
 
 See Sevopedia Unit and Sevopedia Tech for screenshots. See also [KI#93](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping).
+
+#### Button for eras
+
+Similarly added a new `<Button>` in XML.
+
+Allows to cleanly add era buttons in Sevopedia Movies and other places without hardcoding the path everytime.
+
+Civ4 already supported it, no idea why it was not the default!
+
+Change in [CIV4GameInfoSchema.xml](/Assets/XML/GameInfo/CIV4GameInfoSchema.xml), [CIV4EraInfos.xml](/Assets/XML/GameInfo/CIV4EraInfos.xml), [CvEraMovieScreen.py](/Assets/Python/Screens/CvEraMovieScreen.py). Added with the help of GPT-5.2 Thinking and Claude code Sonnet 4.5, thanks a lot!
 
 ## AI-generated images
 

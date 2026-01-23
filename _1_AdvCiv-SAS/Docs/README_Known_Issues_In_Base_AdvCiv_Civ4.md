@@ -4044,7 +4044,7 @@ Not updating every issue here, but since then a much cleaner fix to abherrent ob
 
 Initial version at [commit/a134450486e0104df9473d46017ebc6e4d7bc553](https://github.com/wonderingabout/AdvCiv-SAS/commit/a134450486e0104df9473d46017ebc6e4d7bc553).
 
-See details at [README.md#new-optional-xml-fields-eg-obsoletetech-for-units](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units)
+See details at [README.md#new-optional-xml-fields-eg-obsoletetech-for-units](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras)
 
 ## 94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)
 

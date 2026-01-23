@@ -352,21 +352,6 @@ def get_extra_correction_x_inbetween_buttons(button_size):
 
 
 
-# <!-- custom: note: era button path also used in CvEraMovieScreen.py -->
-def get_era_movie_path(iEra):
-	if iEra == 0:
-		return "Art/Movies/Era/Era01-Classical.dds"
-	if iEra == 1:
-		return "Art/Movies/Era/Era01-Classical.dds"
-	if iEra == 2:
-		return "Art/Movies/Era/Era02-Medeival.dds"
-	if iEra == 3:
-		return "Art/Movies/Era/Era03-Renaissance.dds"
-	if iEra == 4:
-		return "Art/Movies/Era/Era04-Industrial.dds"
-	return "Art/Movies/Era/Era05-Modern.dds"
-
-
 
 def get_multilist_max_buttons_per_row(panelWidth, buttonsize):
 	totalButtonWidth = buttonsize + HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING

@@ -175,7 +175,7 @@ Extending on the Handicap Chart similarly, with the help of GPT-Codex-5.2.
 
 Note 2: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
 
-More recently, added optional era buttons. Idea i got from watching how the c2c mod does ingame. Done with the help of GPT-5.2-Codex and Claude code Opus 4.5.
+More recently, added optional era buttons. Idea i got from watching how the c2c mod does ingame. Done with the help of GPT-5.2-Codex, Claude code Opus 4.5, and Claude code Sonnet 4.5 thanks.
 
 <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG" alt="0.628_sevopedia_eras_chart (2).JPG" width="250"></img>
@@ -192,7 +192,7 @@ Implementation based on the Middle-earth mod's Platypedia's Movies category and 
 
 Todo:
 
-- movies era by xml order or oldest to newest
+- movies era by xml order or oldest to newest, and make them redirect to sevopedia eras chart
 
 <img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>

@@ -1251,6 +1251,8 @@
 		<element type="Type"/>
 		<element type="Description"/>
 		<element type="Strategy"/>
+		<!-- custom: add Button to show Sevopedia Movie item buttons, as GPT-5.2 Thinking recommends thanks; "That should make the Movies era rows get icons without any Python churn, because your list code already does infoObj.getButton() for era-movie entries."; note: era button path also used in CvEraMovieScreen.py -->
+		<element type="Button"/>
 		<element type="bNoGoodies"/>
 		<!-- advc.314: Set to 0 by default in the DLL. If set to 1, then
 			 goody huts can provide progress toward techs from this era

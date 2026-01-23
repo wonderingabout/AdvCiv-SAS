@@ -1069,7 +1069,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: Tried WIDGET_PYTHON to navigate to Era Chart page but couldn't get it to work
 			# with table cells (works for setImageButtonAt but not setTableText). Keeping as simple
 			# display-only DDS button for now. Can revisit in the future. (Claude Opus 4.5) -->
-			eraButtonPath = get_era_movie_path(iEra)
+			eraButtonPath = eraInfo.getButton()
 			eraText = u"<font=2>%s</font>" % eraInfo.getDescription()
 			screen.setTableText(tableName, 0, iRow, eraText, eraButtonPath, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

@@ -100,8 +100,6 @@ class SevoPediaEraChart:
 					break
 				info = gc.getEraInfo(iEra)
 				button = info.getButton()
-				if not button:
-					button = get_era_movie_path(iEra)
 				if button:
 					btnX = buttonRowStartX + (iEra * wNum)
 					btnY = buttonRowY

@@ -1641,7 +1641,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_ERA:
 			iEra = self.SAS_getMusicEra(iPacked)
 			if iEra != -1:
-				return get_era_movie_path(iEra)
+				return gc.getEraInfo(iEra).getButton()
 		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_LEADER:
 			if (self.SAS_musicLeaderTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicLeaderTracks)):
 				return ""

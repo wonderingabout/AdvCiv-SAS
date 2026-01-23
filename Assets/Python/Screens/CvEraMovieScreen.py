@@ -52,16 +52,8 @@ class CvEraMovieScreen:
 		screen.setButtonGFC("EraExit" + str(iEra), localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 		# Play the movie
-		if iEra == 1:
-			szMovie = "Art/Movies/Era/Era01-Classical.dds"
-		elif iEra == 2:
-			szMovie = "Art/Movies/Era/Era02-Medeival.dds"
-		elif iEra == 3:
-			szMovie = "Art/Movies/Era/Era03-Renaissance.dds"
-		elif iEra == 4:
-			szMovie = "Art/Movies/Era/Era04-Industrial.dds"
-		else:
-			szMovie = "Art/Movies/Era/Era05-Modern.dds"
+		# <!-- custom: remove old hardcoded era button path, now use the new XML field <Button> we added -->
+		szMovie = gc.getEraInfo(iEra).getButton()
 
 		screen.addDDSGFC("EraMovieMovie" + str(iEra), szMovie, 27, 50, 720, 540, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 

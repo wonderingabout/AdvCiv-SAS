@@ -305,7 +305,7 @@ class SevoPediaMovie:
 			return (szMovieFile, szMovieKind, szSoundScript)
 
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
-			szMovieFile = get_era_movie_path(iMovieId)
+			szMovieFile = gc.getEraInfo(iMovieId).getButton()
 			if not szMovieFile:
 				return None
 			return (szMovieFile, "dds", "AS2D_NEW_ERA")
@@ -338,7 +338,7 @@ class SevoPediaMovie:
 			info = gc.getReligionInfo(iMovieId)
 			return (info is not None) and bool(info.getMovieFile())
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
-			return bool(get_era_movie_path(iMovieId))
+			return bool(gc.getEraInfo(iMovieId).getButton())
 		return False
 
 	def getPediaJumpWidget(self, iMovieType, iMovieId):
