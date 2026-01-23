@@ -1423,7 +1423,7 @@
 			<TradeYieldModifiers/>
 			<CommerceModifiers/>
 			<CapitalCommerceModifiers/>
-			<!-- custom: market globally improves not just one specialist liek as of now in trade_bloc, was empty -->
+			<!-- custom: market globally improves not just one specialist like as of now in trade_bloc, was empty -->
 			<SpecialistExtraCommerces>
 				<iCommerce>1</iCommerce>
 				<iCommerce>0</iCommerce>

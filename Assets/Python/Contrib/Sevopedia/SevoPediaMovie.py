@@ -348,6 +348,9 @@ class SevoPediaMovie:
 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iMovieId, 1)
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iMovieId, 1)
+		# <!-- custom: this successfully works: redirects to Sevopedia Eras Chart category, that has no item and only a chart (like Promotions Tree for example). Done with the very nice help of Claude code Sonnet 4.5 thanks a lot! -->
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
+			return (WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
 		return (WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def handleInput (self, inputClass):

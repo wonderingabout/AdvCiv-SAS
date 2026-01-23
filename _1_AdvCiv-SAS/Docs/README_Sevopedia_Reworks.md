@@ -192,7 +192,7 @@ Implementation based on the Middle-earth mod's Platypedia's Movies category and 
 
 Todo:
 
-- movies era by xml order or oldest to newest, and make them redirect to sevopedia eras chart
+- movies era by xml order or oldest to newest
 
 <img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
@@ -222,12 +222,12 @@ The implementation still needs some minor polish, but it is as of now entirely f
 
 - In Sevopedia Music, make leaders and such buttons hoverable and clickable with a redirect like tech buttons.
 - In Sevopedia Music, parse properly from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
-- Add a custom dds or nif (liek leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
+- Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
 - Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
 - Maybe generalize script name for other things than era tracks
 - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
-- in header add music id / total (liek total 1759)
-- In Sevopedia Leader, Civilization, and Eras (to first era sound), redirect to the real track item not just to sevopedia Music page
+- in header add music id / total (like total 1759)
+- In Sevopedia Leader, Civilization, and Eras Chart (to first era sound), redirect to the real track item not just to sevopedia Music page
 
 <img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>
