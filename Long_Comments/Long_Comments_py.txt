@@ -800,3 +800,20 @@ and undoing it as it told me later solved the error. So i think or at least it s
 # - If you change emoji settings or leader XML, you need to re-dump
 # - The dumped data includes: LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
 # === Cache dump/load config and helpers ===
+
+===== \Assets\Python\Screens\CvInfoScreen.py =====
+----- Comment #13 -----
+
+			# print("InfoScreenHistory cityFounded hide=%d player=%d revealedOwner=%d plot=%d,%d" % (bHideCityFounded, iPlayer, (pPlot is not None and pPlot.getRevealedOwner(self.iActiveTeam, False) or -1), iX, iY))
+			# <!-- custom: this was very hard to solve, countless AIs faield to do so xd, despite early previous success before caching. The key point is barbarian cities like "Hun" and "Cimmerian" were founded, we explored the plot, left, they spawned, but we didn't revisit since then, nor do we have vision, so on our map we see no city at all in this area, and it's not full flag unexplored either.
+			# Lines like:
+			# InfoScreenHistory show msg=556 player=11 type=1 color=53 plot=42,19 hiddenPlot=0 text=u'Cimmerian is founded.'
+			# Or:
+			# InfoScreenHistory show msg=605 player=11 type=1 color=53 plot=41,13 hiddenPlot=0 text=u'Hun is founded.'
+			# helped us solve it, added for reference, but we didn't test these debug lines with new code, just we could now successfully write a fix with it. GPT-5.2-Codex's comment below thanks a lot:
+			# I changed the approach to hide city‑founded messages unless the plot’s revealed owner matches the message’s player. This should hide barbarian city spawns when you don’t see barbarian culture, while still allowing founded messages for cities you can legitimately see.
+			# Change in CvInfoScreen.py:
+			# Added iCityFoundedMessage and a bHideCityFounded gate using pPlot.getRevealedOwner(self.iActiveTeam, False).
+			# If revealed owner doesn’t match the message’s player (or coords missing), the city‑founded line is hidden.
+			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild” toggle for testing.
+			# -->

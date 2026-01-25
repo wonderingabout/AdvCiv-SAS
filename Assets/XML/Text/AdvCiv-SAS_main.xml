@@ -3191,4 +3191,23 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_MAIN_CITY_DEFENSE</Tag>
 		<English>%F1: %D2%%</English>
 	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_INFO_HISTORY</Tag>
+		<English>History</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_INFO_HISTORY_EMPTY</Tag>
+		<English>No history entries yet.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON</Tag>
+		<English>Log</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_INFO_HISTORY_UNKNOWN_CITY</Tag>
+		<English>an unknown city</English>
+	</TEXT>
 </Civ4GameText>

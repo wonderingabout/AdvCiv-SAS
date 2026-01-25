@@ -18,6 +18,7 @@ import CvScreenEnums
 #import time
 import math
 import copy # advc.091
+import re
 
 from PyHelpers import PyPlayer
 
@@ -117,12 +118,14 @@ class CvInfoScreen:
 
 		self.PAGE_NAME_LIST = [
 			"TXT_KEY_INFO_GRAPH",
+			"TXT_KEY_INFO_HISTORY",
 			"TXT_KEY_DEMO_SCREEN_TITLE",
 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
 			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
 			]
 		self.PAGE_DRAW_LIST = [
 			self.drawGraphTab,
+			self.drawHistoryTab,
 			self.drawDemographicsTab,
 			self.drawTopCitiesTab,
 			self.drawStatsTab,
@@ -142,9 +145,10 @@ class CvInfoScreen:
 		self.iNumWondersPermanentWidgets = 0
 
 		self.iGraphID			= 0
-		self.iDemographicsID	= 1
-		self.iTopCitiesID		= 2
-		self.iStatsID			= 3
+		self.iHistoryID			= 1
+		self.iDemographicsID	= 2
+		self.iTopCitiesID		= 3
+		self.iStatsID			= 4
 
 		self.iActiveTab = -1
 #		self.iActiveTab = self.iGraphID
@@ -168,6 +172,16 @@ class CvInfoScreen:
 		for t in self.RANGE_SCORES:
 			self.scoreCache.append(None)
 
+		# <!-- custom: History tab cache - precompiled regex patterns for performance (Claude Opus 4.5) -->
+		self.RE_COLOR_OPEN = re.compile(r"<color=.*?>")
+		self.RE_COLOR_CLOSE = re.compile(r"</color>")
+
+		# <!-- custom: History tab aggressive cache - instance vars instead of dict for speed (Claude Opus 4.5) -->
+		self.historyCacheEntries = None  # List of formatted display strings
+		self.historyCacheActivePlayer = -1
+		self.historyCacheBRevealAll = False
+		self.historyCacheNumMessages = 0
+
 		self.GRAPH_H_LINE = "GraphHLine"
 		self.GRAPH_V_LINE = "GraphVLine"
 
@@ -176,6 +190,7 @@ class CvInfoScreen:
 
 		self.graphLeftButtonID = ""
 		self.graphRightButtonID = ""
+		self.szHistoryDbgLogPrettySummaryButton = ""
 
 		# <!-- custom: originally was only used by the graph tab, now used by other tabs as well, moved up for clarity and in case we use it in other tabs. -->
 		# <!-- custom: note: old tabs' dimensions and some related code comments removed for readability. -->
@@ -183,7 +198,7 @@ class CvInfoScreen:
 		self.Y_MARGIN = 80
 		self.SMALL_MARGIN = 20
 
-################################################## GRAPH ###################################################
+# GRAPH
 
 		# <!-- custom: add "_GRAPH_" to the name to not confuse it with the "_WONDERS_" dropdown and avoid future mistakes if i'm not mistaken. -->
 		self.H_GRAPH_DROPDOWN = 35
@@ -208,6 +223,29 @@ class CvInfoScreen:
 		self.Y_GRAPH = self.Y_MARGIN
 		self.W_GRAPH = self.W_SCREEN - self.X_GRAPH - self.X_MARGIN
 		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
+
+		# History tab layout - vertically centered between header and footer panels
+		# Shared panel height (used by TechTopPanel and TechBottomPanel, both are 55px)
+		self.PANEL_HEIGHT = 55
+
+		# Content area boundaries (between the two panels)
+		self.CONTENT_Y_TOP = self.PANEL_HEIGHT  # Header panel bottom
+		self.CONTENT_Y_BOTTOM = self.H_SCREEN - self.PANEL_HEIGHT  # Footer panel top
+
+		# Gap from panel edges to table (same for top and bottom = symmetric)
+		self.HISTORY_TABLE_VERTICAL_GAP = 28
+
+		# Table positioning - truly centered
+		self.X_HISTORY_TABLE = self.X_MARGIN
+		self.Y_HISTORY_TABLE = self.CONTENT_Y_TOP + self.HISTORY_TABLE_VERTICAL_GAP
+		self.W_HISTORY_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
+		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
+
+		# LOG button - positioned in top header bar (0-55px height)
+		self.W_HISTORY_TABLE_LOG_BUTTON = 48
+		self.H_HISTORY_TABLE_LOG_BUTTON = 28
+		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
+		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
 
 		self.W_LEFT_BUTTON = 20
 		self.H_LEFT_BUTTON = 20
@@ -264,7 +302,7 @@ class CvInfoScreen:
 		self.Y_3_IN_1_CHART_ADJ = [0, 0, 1]
 #BUG: Change Graphs - end
 
-############################################### DEMOGRAPHICS ###############################################
+		# DEMOGRAPHICS
 
 		# <!-- custom: rename self.X_CHART and such to self.X_DEMOGRAPHICS_CHART and such for clarity and most importantly to avoid future errors. -->
 		# <!-- custom: note: deleted seemingly unused self.BUTTON_SIZE if i'm not mistaken. -->
@@ -314,7 +352,7 @@ class CvInfoScreen:
 		self.iShowingPlayer = -1
 		self.aiDropdownPlayerIDs = []
 
-############################################### TOP CITIES ###############################################
+		# TOP CITIES
 
 		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
 		self.W_WONDERS_RIGHT_PANE = 640
@@ -390,7 +428,7 @@ class CvInfoScreen:
 		# <!-- custom: wonder panel Y offset from city desc panel, added with claude opus 4.5's help thanks. -->
 		self.Y_CITIES_WONDER_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap
 
-############################################### WONDERS ###############################################
+		# WONDERS
 
 		# <!-- custom: in many of these variable names, add "_WONDERS_" or "_WONDER_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
 		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
@@ -489,10 +527,7 @@ class CvInfoScreen:
 		self.iWonderID = -1 			# BuildingType ID of the active wonder, e.g. Palace is 0, Globe Theater is 66
 		self.iActiveWonderCounter = 0	# Screen ID for this wonder (0, 1, 2, etc.) - different from the above variable
 
-############################################### STATISTICS ###############################################
-
-		# STATISTICS TAB
-
+		# STATISTICS
 		# <!-- custom: moved from drawStatsTab to init for consistency/clarity. -->
 		# Bottom Chart
 		#BUG: improvements - start
@@ -586,6 +621,9 @@ class CvInfoScreen:
 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), gc.getInfoTypeForString("COLOR_PLAYER_GRAY")).upper()
 		
 		self.TEXT_ENTIRE_HISTORY = localText.getText("TXT_KEY_INFO_ENTIRE_HISTORY", ())
+		self.TEXT_HISTORY_EMPTY = localText.getText("TXT_KEY_INFO_HISTORY_EMPTY", ())
+		self.TEXT_HISTORY_UNKNOWN_CITY = localText.getText("TXT_KEY_INFO_HISTORY_UNKNOWN_CITY", ())
+		self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON = localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ())
 		
 		self.TEXT_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ())
 		self.TEXT_POWER = localText.getText("TXT_KEY_POWER", ())
@@ -738,6 +776,11 @@ class CvInfoScreen:
 		self.szReligionIconStats = "Art/Interface/Buttons/General/ConvertReligion.dds"
 		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
 
+		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
+		self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
+		# <!-- custom: cache toggle; when disabled, history entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
+		self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE") > 0)
+
 	def reset(self):
 
 		# City Members
@@ -847,7 +890,6 @@ class CvInfoScreen:
 		self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
 		self.iActiveTeam = self.pActivePlayer.getTeam()
 		self.pActiveTeam = gc.getTeam(self.iActiveTeam)
-
 		# advc.007: Don't reveal all when perspective switched (I guess this is possible when the game ends while in Debug mode)	
 		self.bRevealAll = (self.iActiveTeam == gc.getGame().getActiveTeam() and (CyGame().isDebugMode() or CyGame().getGameState() == GameStateTypes.GAMESTATE_OVER)) # advc.077
 
@@ -901,9 +943,7 @@ class CvInfoScreen:
 			self.PAGE_DRAW_LIST[self.iActiveTab]()
 		#
 
-#############################################################################################################
-#################################################### GRAPH ##################################################
-#############################################################################################################
+	# GRAPH
 
 	def drawGraphTab(self):
 
@@ -917,6 +957,207 @@ class CvInfoScreen:
 
 		self.drawPermanentGraphWidgets()
 		self.drawGraphs()
+
+	# HISTORY
+
+	# <!-- custom: History cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
+	def buildHistoryCache(self, bForceRebuild = False):
+		replayInfo = CyGame().getReplayInfo()
+		if replayInfo.isNone():
+			replayInfo = CyReplayInfo()
+			replayInfo.createInfo(self.iActivePlayer)
+
+		iNumMessages = replayInfo.getNumReplayMessages()
+
+		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+			# Check if cache is still valid
+			if (not bForceRebuild and
+				self.historyCacheEntries is not None and
+				self.historyCacheActivePlayer == self.iActivePlayer and
+				self.historyCacheBRevealAll == self.bRevealAll and
+				self.historyCacheNumMessages == iNumMessages):
+				# Cache is valid, no rebuild needed
+				return self.historyCacheEntries
+
+		# Rebuild cache
+		entries = []
+
+		if iNumMessages <= 0:
+			if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+				self.historyCacheEntries = entries
+				self.historyCacheActivePlayer = self.iActivePlayer
+				self.historyCacheBRevealAll = self.bRevealAll
+				self.historyCacheNumMessages = iNumMessages
+			return entries
+
+		# Build unknown colors dict once
+		dUnknownColors = {}
+		if not self.bRevealAll:
+			for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+				pLoopPlayer = gc.getPlayer(iPlayer)
+				if pLoopPlayer.isEverAlive():
+					if not self.pActiveTeam.isHasMet(pLoopPlayer.getTeam()):
+						eColor = replayInfo.getColor(iPlayer)
+						if eColor != -1:
+							dUnknownColors[eColor] = True
+
+		# Cache game text manager and map references
+		gameTextMgr = CyGameTextMgr()
+		cyMap = CyMap()
+		iCalendar = replayInfo.getCalendar()
+		iStartYear = replayInfo.getStartYear()
+		iGameSpeed = replayInfo.getGameSpeed()
+		iBarbarianPlayer = gc.getBARBARIAN_PLAYER()
+		iCityFoundedMessage = getattr(ReplayMessageTypes, "REPLAY_MESSAGE_CITY_FOUNDED", -1)
+		iReligionFoundedMessage = getattr(ReplayMessageTypes, "REPLAY_MESSAGE_RELIGION_FOUNDED", -1)
+
+		# Iterate backwards (newest first) so no reverse needed later
+		for iMessage in range(iNumMessages - 1, -1, -1):
+			iPlayer = replayInfo.getReplayMessagePlayer(iMessage)
+			iX = replayInfo.getReplayMessagePlotX(iMessage)
+			iY = replayInfo.getReplayMessagePlotY(iMessage)
+			eColor = replayInfo.getReplayMessageColor(iMessage)
+			eMessageType = replayInfo.getReplayMessageType(iMessage)
+			bAllowHiddenPlotMessage = (eMessageType == iReligionFoundedMessage)
+			szText = None
+			szTextNoColor = None
+
+			bPlotHidden = False
+			pPlot = None
+			if iX > -1 and iY > -1:
+				pPlot = cyMap.plot(iX, iY)
+				if pPlot is not None:
+					if not pPlot.isRevealed(self.iActiveTeam, False):
+						bPlotHidden = True
+
+			bHideCityFounded = False
+			if eMessageType == iCityFoundedMessage:
+				if iX == -1 or iY == -1 or pPlot is None:
+					bHideCityFounded = True
+				else:
+					iRevealedOwner = pPlot.getRevealedOwner(self.iActiveTeam, False)
+					if iRevealedOwner != iPlayer:
+						bHideCityFounded = True
+			# <!-- custom: hide "city founded" unless revealed owner matches the replay message player; this avoids barbarian spoilers when the plot is revealed but ownership is not. Finding a reliable barbarian hide required checking revealed owner rather than plot visibility alone; optional debug line left for future verification, not tested with this exact code path. (GPT-5.2-Codex); Long_Comments_py.txt #13 -->
+			if (not bAllowHiddenPlotMessage and
+				not self.bRevealAll and
+				(bPlotHidden or eColor in dUnknownColors)):
+				szText = replayInfo.getReplayMessageText(iMessage)
+				if szText:
+					szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
+					if " has been founded in " in szTextNoColor.lower():
+						bAllowHiddenPlotMessage = True
+
+			bHide = False
+			if not self.bRevealAll:
+				if bHideCityFounded:
+					bHide = True
+				if (not bAllowHiddenPlotMessage and iPlayer == iBarbarianPlayer and (bPlotHidden or iX == -1 or iY == -1)):
+					bHide = True
+				if not bAllowHiddenPlotMessage and bPlotHidden:
+					bHide = True
+				if iPlayer != -1:
+					pLoopPlayer = gc.getPlayer(iPlayer)
+					if pLoopPlayer.isEverAlive():
+						if not self.pActiveTeam.isHasMet(pLoopPlayer.getTeam()):
+							bHide = True
+				if not bHide and iX > -1 and iY > -1:
+					iOwner = pPlot.getOwner()
+					if iOwner != -1:
+						pOwner = gc.getPlayer(iOwner)
+						if pOwner.isEverAlive():
+							if not self.pActiveTeam.isHasMet(pOwner.getTeam()):
+								bHide = True
+				if not bHide and eColor in dUnknownColors and not bAllowHiddenPlotMessage:
+					bHide = True
+
+			if bHide:
+				continue
+
+			if szText is None:
+				szText = replayInfo.getReplayMessageText(iMessage)
+			if szText == "":
+				continue
+
+			iTurnMsg = replayInfo.getReplayMessageTurn(iMessage)
+			szEventDate = gameTextMgr.getDateStr(iTurnMsg, False, iCalendar, iStartYear, iGameSpeed)
+
+			# Use precompiled regex patterns
+			if szTextNoColor is None:
+				szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
+			szText = szTextNoColor
+
+			if not self.bRevealAll and pPlot is not None:
+				pCity = pPlot.getPlotCity()
+				if pCity is not None:
+					bCityOwnerMet = False
+					iCityOwner = pCity.getOwner()
+					if iCityOwner != -1:
+						pCityOwner = gc.getPlayer(iCityOwner)
+						if pCityOwner.isEverAlive():
+							if self.pActiveTeam.isHasMet(pCityOwner.getTeam()):
+								bCityOwnerMet = True
+					if not bCityOwnerMet or bPlotHidden:
+						szCityName = pCity.getName()
+						if szCityName:
+							szText = szText.replace(szCityName, self.TEXT_HISTORY_UNKNOWN_CITY)
+
+			szFormattedText = localText.changeTextColor(u"<font=2>" + szEventDate + u": " + szText + u"</font>", eColor)
+			entries.append(szFormattedText)
+
+		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+			# Store in instance vars (faster than dict)
+			self.historyCacheEntries = entries
+			self.historyCacheActivePlayer = self.iActivePlayer
+			self.historyCacheBRevealAll = self.bRevealAll
+			self.historyCacheNumMessages = iNumMessages
+		return entries
+
+	def drawHistoryTab(self):
+		screen = self.getScreen()
+		self.szHistoryList = self.getNextWidgetName()
+		screen.addListBoxGFC(self.szHistoryList, "", self.X_HISTORY_TABLE, self.Y_HISTORY_TABLE, self.W_HISTORY_TABLE, self.H_HISTORY_TABLE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSelect(self.szHistoryList, False)
+
+		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
+			self.szHistoryDbgLogPrettySummaryButton = self.getNextWidgetName()
+			szLabel = u"<font=2>" + self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + u"</font>"
+			screen.setButtonGFC(self.szHistoryDbgLogPrettySummaryButton, szLabel, "", self.X_HISTORY_TABLE_LOG_BUTTON, self.Y_HISTORY_TABLE_LOG_BUTTON, self.W_HISTORY_TABLE_LOG_BUTTON, self.H_HISTORY_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+
+		# Build or reuse cache
+		aEntries = self.buildHistoryCache(not self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE)
+
+		if not aEntries:
+			szText = u"<font=2>" + self.TEXT_HISTORY_EMPTY + u"</font>"
+			screen.appendListBoxString(self.szHistoryList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			return
+
+		# Cache is already in display order (newest first) - use append which is O(1)
+		# Local reference to method avoids repeated attribute lookup
+		fnAppend = screen.appendListBoxString
+		szWidget = self.szHistoryList
+		for szFormattedText in aEntries:
+			fnAppend(szWidget, szFormattedText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+	def dbgLogPrettySummary(self):
+		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+			aEntries = self.historyCacheEntries
+		else:
+			aEntries = self.buildHistoryCache(True)
+		if not aEntries:
+			print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_EMPTY")
+			return
+		print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_BEGIN")
+		# Strip font/color tags from cached display strings for clean log output
+		# Entries are newest-first, reverse for chronological log output
+		reFont = re.compile(r"</?font[^>]*>")
+		reColor = re.compile(r"</?color[^>]*>")
+		aLines = []
+		for szEntry in reversed(aEntries):
+			szClean = reFont.sub("", szEntry)
+			szClean = reColor.sub("", szClean)
+			aLines.append(u"- " + szClean)
+		print("\n".join(aLines))
+		print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_END")
 
 	def drawPermanentGraphWidgets(self):
 
@@ -1631,9 +1872,7 @@ class CvInfoScreen:
 	def showTotalScoreGraph(self, iPlayer):
 		return ((gc.getGame().getGameTurn() - self.pActiveTeam.getHasMetTurn(gc.getPlayer(iPlayer).getTeam()) >= 5 and AdvisorOpt.isPartialScoreGraphs()) or self.pActivePlayer.hasEverSeenDemographics(iPlayer))
 
-#############################################################################################################
-################################################# DEMOGRAPHICS ##############################################
-#############################################################################################################
+	# DEMOGRAPHICS
 
 	def drawDemographicsTab(self):
 		self.drawTextChart()
@@ -2211,9 +2450,7 @@ class CvInfoScreen:
 		# </advc.077>
 		return
 
-#############################################################################################################
-################################################## TOP CITIES ###############################################
-#############################################################################################################
+	# TOP CITIES
 
 	def drawTopCitiesTab(self):
 
@@ -2439,9 +2676,7 @@ class CvInfoScreen:
 
 		return
 
-#############################################################################################################
-################################################### WONDERS #################################################
-#############################################################################################################
+	# WONDERS
 
 	def drawWondersTab(self):
 		screen = self.getScreen()
@@ -2618,7 +2853,7 @@ class CvInfoScreen:
 		panelName = self.getNextWidgetName()
 		screen.addPanel( panelName, "", "", true, true, self.X_WONDERS_STATS_PANE, self.Y_WONDERS_STATS_PANE, self.W_WONDERS_STATS_PANE, self.H_WONDERS_STATS_PANE, PanelStyles.PANEL_STYLE_IN )
 
-############################################### DISPLAY SINGLE WONDER ###############################################
+		# DISPLAY SINGLE WONDER
 
 		# Set default wonder if any exist in this list
 		if (len(self.aiWonderListBoxIDs) > 0 and self.iWonderID == -1):
@@ -2627,7 +2862,7 @@ class CvInfoScreen:
 		# Only display/do the following if a wonder is actively being displayed
 		if (self.iWonderID > -1):
 
-############################################### DISPLAY PROJECT MODE ###############################################
+		# DISPLAY PROJECT MODE
 
 			if (self.szWonderDisplayMode == self.szWDM_Project):
 
@@ -2701,7 +2936,7 @@ class CvInfoScreen:
 
 			else:
 
-	############################################### DISPLAY WONDER MODE ###############################################
+	# DISPLAY WONDER MODE
 
 				pWonderInfo = gc.getBuildingInfo(self.iWonderID)
 
@@ -3201,9 +3436,7 @@ class CvInfoScreen:
 				screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
-#############################################################################################################
-################################################## STATISTICS ###############################################
-#############################################################################################################
+	# STATISTICS
 
 	def drawStatsTab(self):
 		screen = self.getScreen()
@@ -3220,7 +3453,7 @@ class CvInfoScreen:
 		self.iNumBuildingStatsChartRows = iNumBuildings
 		self.iNumImprovementStatsChartRows = iNumImprovements
 
-################################################### CALCULATE STATS ###################################################
+# CALCULATE STATS
 
 		iMinutesPlayed = CyGame().getMinutesPlayed()
 		iHoursPlayed = iMinutesPlayed / 60
@@ -3283,7 +3516,7 @@ class CvInfoScreen:
 					if (iType != ImprovementTypes.NO_IMPROVEMENT):
 						aiImprovementsCurrent[iType] += 1
 
-################################################### TOP PANEL ###################################################
+		# TOP PANEL
 
 		# Add Panel
 		szTopPanelWidget = self.getNextWidgetName()
@@ -3380,7 +3613,7 @@ class CvInfoScreen:
 		screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 		# K-Mod end
 
-################################################### BOTTOM PANEL ###################################################
+		# BOTTOM PANEL
 
 		# Create Tables
 		szUnitsTable = self.getNextWidgetName()
@@ -3556,9 +3789,7 @@ class CvInfoScreen:
 				iRow += 1
 #BUG: improvements - end
 
-#############################################################################################################
-##################################################### OTHER #################################################
-#############################################################################################################
+	# OTHER
 
 	def drawLine (self, screen, canvas, x0, y0, x1, y1, color, bThreeLines):
 		if bThreeLines:
@@ -3666,7 +3897,7 @@ class CvInfoScreen:
 			iSelected = inputClass.getData()
 #			print("iSelected : %d" %(iSelected))
 
-############################### WONDERS / TOP CITIES TAB ###############################
+			# WONDERS / TOP CITIES TAB
 
 			if (self.iActiveTab == self.iTopCitiesID):
 
@@ -3697,7 +3928,7 @@ class CvInfoScreen:
 
 
 
-################################## GRAPH TAB ###################################
+			# GRAPH TAB
 
 			elif (self.iActiveTab == self.iGraphID):
 
@@ -3752,6 +3983,10 @@ class CvInfoScreen:
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
 
 			######## Screen 'Tabs' for Navigation ########
+
+			if self.iActiveTab == self.iHistoryID and szWidgetName == self.szHistoryDbgLogPrettySummaryButton and code == NotifyCode.NOTIFY_CLICKED:
+				self.dbgLogPrettySummary()
+				return 0
 
 			# (K-Mod version)
 			if (inputClass.getButtonType() == WidgetTypes.WIDGET_GENERAL):
