@@ -257,6 +257,9 @@ void CyGamePythonInterface()
 		.def("getReplayMessageColor", &CyGame::getReplayMessageColor)
 		.def("getReplayMessageText", &CyGame::getReplayMessageText)
 		.def("getNumReplayMessages", &CyGame::getNumReplayMessages)
+		// <!-- custom: add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
+		.def("getReplayMessagesFiltered", &CyGame::getReplayMessagesFiltered)
+		// <!-- custom: End - add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
 		.def("getReplayInfo", &CyGame::getReplayInfo, python::return_value_policy<python::manage_new_object>())
 		.def("hasSkippedSaveChecksum", &CyGame::hasSkippedSaveChecksum)
 		.def("saveReplay", &CyGame::saveReplay)

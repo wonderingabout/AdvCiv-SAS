@@ -9,6 +9,10 @@
 #include "CyDeal.h"
 #include "CyReplayInfo.h"
 #include "CvMap.h" // advc.enum
+// <!-- custom: add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
+#include <vector>
+#include <boost/python/tuple.hpp>
+// <!-- custom: End - add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
 
 void CyGame::updateScore(bool bForce)
 {
@@ -1044,6 +1048,21 @@ uint CyGame::getNumReplayMessages() const
 {
 	return m_kGame.getNumReplayMessages();
 }
+
+// <!-- custom: add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
+boost::python::list CyGame::getReplayMessagesFiltered(int iTeam, bool bRevealAll) const
+{
+	std::vector<CvWString> aText;
+	std::vector<ColorTypes> aColors;
+	m_kGame.getReplayMessagesFiltered((TeamTypes)iTeam, bRevealAll, aText, aColors);
+
+	boost::python::list kList;
+	const size_t iCount = std::min(aText.size(), aColors.size());
+	for (size_t i = 0; i < iCount; ++i)
+		kList.append(boost::python::make_tuple(std::wstring(aText[i].GetCString()), (int)aColors[i]));
+	return kList;
+}
+// <!-- custom: End - add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
 
 CyReplayInfo* CyGame::getReplayInfo() const
 {

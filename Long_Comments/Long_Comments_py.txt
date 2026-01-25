@@ -804,6 +804,7 @@ and undoing it as it told me later solved the error. So i think or at least it s
 ===== \Assets\Python\Screens\CvInfoScreen.py =====
 ----- Comment #13 -----
 
+			# <!-- custom: hide "city founded" unless revealed owner matches the replay message player; this avoids barbarian spoilers when the plot is revealed but ownership is not. Finding a reliable barbarian hide required checking revealed owner rather than plot visibility alone; optional debug line left for future verification, not tested with this exact code path. (GPT-5.2-Codex) -->
 			# print("InfoScreenHistory cityFounded hide=%d player=%d revealedOwner=%d plot=%d,%d" % (bHideCityFounded, iPlayer, (pPlot is not None and pPlot.getRevealedOwner(self.iActiveTeam, False) or -1), iX, iY))
 			# <!-- custom: this was very hard to solve, countless AIs faield to do so xd, despite early previous success before caching. The key point is barbarian cities like "Hun" and "Cimmerian" were founded, we explored the plot, left, they spawned, but we didn't revisit since then, nor do we have vision, so on our map we see no city at all in this area, and it's not full flag unexplored either.
 			# Lines like:

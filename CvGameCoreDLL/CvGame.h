@@ -863,6 +863,10 @@ public:
 	LPCWSTR getReplayMessageText(uint i) const;
 	uint getNumReplayMessages() const;
 	ColorTypes getReplayMessageColor(uint i) const;
+	// <!-- custom: add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
+	void getReplayMessagesFiltered(TeamTypes eTeam, bool bRevealAll,
+			std::vector<CvWString>& aText, std::vector<ColorTypes>& aColors) const;
+	// <!-- custom: End - add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
 	// <advc>
 	void onAllGameDataRead();
 	bool isAllGameDataRead() const { return m_bAllGameDataRead; }

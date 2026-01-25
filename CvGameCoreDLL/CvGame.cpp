@@ -28,6 +28,10 @@
 #include "CvHallOfFameInfo.h" // advc.106i
 #include "BBAILog.h" // BBAI
 #include "CvBugOptions.h" // K-Mod
+// <!-- custom: add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
+#include <cwctype>
+#include <set>
+// <!-- custom: End - add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
 
 /*	<advc.007c> Use this CvGame instance instead of GC.getGame() for RNG calls.
 	(Won't matter so long as CvGame is a singleton class.) */
@@ -8922,6 +8926,201 @@ uint CvGame::getNumReplayMessages() const
 {
 	return m_listReplayMessages.size();
 }
+
+// <!-- custom: add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
+namespace
+{
+	void stripColorTags(CvWString& szText)
+	{
+		while (true)
+		{
+			size_t pos = szText.find(L"<color=");
+			if (pos == std::wstring::npos)
+				break;
+			size_t end = szText.find(L">", pos);
+			if (end == std::wstring::npos)
+				break;
+			szText.erase(pos, end - pos + 1);
+		}
+		static const wchar* const kCloseTag = L"</color>";
+		while (true)
+		{
+			size_t pos = szText.find(kCloseTag);
+			if (pos == std::wstring::npos)
+				break;
+			szText.erase(pos, wcslen(kCloseTag));
+		}
+	}
+
+	bool containsFoundedIn(CvWString const& szText)
+	{
+		CvWString szLower = szText;
+		for (size_t i = 0; i < szLower.size(); ++i)
+			szLower[i] = static_cast<wchar>(std::towlower(szLower[i]));
+		return (szLower.find(L" has been founded in ") != std::wstring::npos);
+	}
+
+	void replaceAll(CvWString& szText, CvWString const& szFind, CvWString const& szReplace)
+	{
+		if (szFind.empty())
+			return;
+		size_t pos = 0;
+		while ((pos = szText.find(szFind, pos)) != std::wstring::npos)
+		{
+			szText.replace(pos, szFind.length(), szReplace);
+			pos += szReplace.length();
+		}
+	}
+}
+
+void CvGame::getReplayMessagesFiltered(TeamTypes eTeam, bool bRevealAll,
+	std::vector<CvWString>& aText, std::vector<ColorTypes>& aColors) const
+{
+	aText.clear();
+	aColors.clear();
+
+	if (eTeam == NO_TEAM)
+		return;
+
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	const int iNumMessages = (int)getNumReplayMessages();
+	if (iNumMessages <= 0)
+		return;
+
+	std::set<ColorTypes> unknownColors;
+	if (!bRevealAll)
+	{
+		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
+		{
+			CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			if (!kPlayer.isEverAlive())
+				continue;
+			if (kTeam.isHasMet(kPlayer.getTeam()))
+				continue;
+			ColorTypes eColor = kPlayer.getPlayerTextColor();
+			if (eColor != NO_COLOR)
+				unknownColors.insert(eColor);
+		}
+	}
+
+	// <!-- custom: see Long_Comments_py.txt #13 -->
+	const PlayerTypes eBarbarianPlayer = BARBARIAN_PLAYER;
+	const CvWString szUnknownCity = gDLL->getText("TXT_KEY_INFO_HISTORY_UNKNOWN_CITY");
+	for (int iMessage = iNumMessages - 1; iMessage >= 0; --iMessage)
+	{
+		if (!isValidReplayIndex(iMessage))
+			continue;
+
+		const ReplayMessageTypes eMessageType = getReplayMessageType((uint)iMessage);
+		const PlayerTypes ePlayer = getReplayMessagePlayer((uint)iMessage);
+		const int iX = getReplayMessagePlotX((uint)iMessage);
+		const int iY = getReplayMessagePlotY((uint)iMessage);
+		const ColorTypes eColor = getReplayMessageColor((uint)iMessage);
+
+		bool bAllowHiddenPlotMessage = false;
+		bool bPlotHidden = false;
+		CvPlot* pPlot = NULL;
+		if (iX > INVALID_PLOT_COORD && iY > INVALID_PLOT_COORD)
+		{
+			pPlot = GC.getMap().plot(iX, iY);
+			if (pPlot != NULL && !pPlot->isRevealed(eTeam, false))
+				bPlotHidden = true;
+		}
+
+		bool bHideCityFounded = false;
+		if (eMessageType == REPLAY_MESSAGE_CITY_FOUNDED)
+		{
+			if (iX == INVALID_PLOT_COORD || iY == INVALID_PLOT_COORD || pPlot == NULL)
+				bHideCityFounded = true;
+			else
+			{
+				PlayerTypes eRevealedOwner = pPlot->getRevealedOwner(eTeam, false);
+				if (eRevealedOwner != ePlayer)
+					bHideCityFounded = true;
+			}
+		}
+
+		CvWString szText = getReplayMessageText((uint)iMessage);
+		if (!bAllowHiddenPlotMessage && !bRevealAll &&
+			(bPlotHidden || unknownColors.find(eColor) != unknownColors.end()))
+		{
+			if (!szText.empty())
+			{
+				stripColorTags(szText);
+				if (containsFoundedIn(szText))
+					bAllowHiddenPlotMessage = true;
+			}
+		}
+
+		bool bHide = false;
+		if (!bRevealAll)
+		{
+			if (bHideCityFounded)
+				bHide = true;
+			if (!bAllowHiddenPlotMessage && ePlayer == eBarbarianPlayer &&
+				(bPlotHidden || iX == INVALID_PLOT_COORD || iY == INVALID_PLOT_COORD))
+				bHide = true;
+			if (!bAllowHiddenPlotMessage && bPlotHidden)
+				bHide = true;
+			if (ePlayer != NO_PLAYER)
+			{
+				CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+				if (kPlayer.isEverAlive() && !kTeam.isHasMet(kPlayer.getTeam()))
+					bHide = true;
+			}
+			if (!bHide && pPlot != NULL)
+			{
+				PlayerTypes eOwner = pPlot->getOwner();
+				if (eOwner != NO_PLAYER)
+				{
+					CvPlayer const& kOwner = GET_PLAYER(eOwner);
+					if (kOwner.isEverAlive() && !kTeam.isHasMet(kOwner.getTeam()))
+						bHide = true;
+				}
+			}
+			if (!bHide && !bAllowHiddenPlotMessage &&
+				unknownColors.find(eColor) != unknownColors.end())
+				bHide = true;
+		}
+
+		if (bHide)
+			continue;
+		if (szText.empty())
+			continue;
+
+		stripColorTags(szText);
+		if (!bRevealAll && pPlot != NULL)
+		{
+			CvCity* pCity = pPlot->getPlotCity();
+			if (pCity != NULL)
+			{
+				bool bCityOwnerMet = false;
+				PlayerTypes eCityOwner = pCity->getOwner();
+				if (eCityOwner != NO_PLAYER)
+				{
+					CvPlayer const& kCityOwner = GET_PLAYER(eCityOwner);
+					if (kCityOwner.isEverAlive() && kTeam.isHasMet(kCityOwner.getTeam()))
+						bCityOwnerMet = true;
+				}
+				if (!bCityOwnerMet || bPlotHidden)
+				{
+					CvWString const szCityName = pCity->getName();
+					if (!szCityName.empty())
+						replaceAll(szText, szCityName, szUnknownCity);
+				}
+			}
+		}
+
+		CvWString szEventDate;
+		GAMETEXT.setDateStr(szEventDate, getReplayMessageTurn((uint)iMessage), false,
+				getCalendar(), getStartYear(), getGameSpeedType());
+		CvWString szFormatted = CvWString::format(L"<font=2>%s: %s</font>",
+				szEventDate.GetCString(), szText.GetCString());
+		aText.push_back(szFormatted);
+		aColors.push_back(eColor);
+	}
+}
+// <!-- custom: End - add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
 
 
 void CvGame::read(FDataStreamBase* pStream)

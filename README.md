@@ -162,6 +162,8 @@ We added in AdvCiv-SAS a new History Tab in the Info Screen:
 - added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
 - Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
 
+For the python-only implementation (easier to implement but slower; still decently fast though), see [commit/5b47e97bffcff9165953acc4337469d8a46b1a5a](https://github.com/wonderingabout/AdvCiv-SAS/commit/5b47e97bffcff9165953acc4337469d8a46b1a5a).
+
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG" alt="0.5160_info_screen_history (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG" alt="0.5160_info_screen_history (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG" alt="0.5161_info_screen_history_dbg_log.PNG" width="250"></img>

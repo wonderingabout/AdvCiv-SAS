@@ -261,6 +261,9 @@ public:
 	ColorTypes getReplayMessageColor(int i) const;
 	std::wstring getReplayMessageText(int i) const;
 	uint getNumReplayMessages() const;
+	// <!-- custom: add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
+	boost::python::list getReplayMessagesFiltered(int iTeam, bool bRevealAll) const;
+	// <!-- custom: End - add History Tab in the Info Screen: DLL implementation (GPT-5.2-Codex) -->
 	CyReplayInfo* getReplayInfo() const;
 	bool hasSkippedSaveChecksum() const;
 
