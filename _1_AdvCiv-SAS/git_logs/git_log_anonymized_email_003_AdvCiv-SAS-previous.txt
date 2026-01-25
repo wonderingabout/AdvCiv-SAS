@@ -1275,7 +1275,7 @@ more versatility/balance enhancements
 - change tech_feudalism's prereqs from TECH_CIVIL_SERVICE AND TECH_DRAMA to TECH_CONSTITUTION AND (TECH_CIVIL_SERVICE OR TECH_POSTAXIAL_RELIGION)
 - change one of tech_democracy's preqs from TECH_CONSTITUTION to TECH_FEUDALISM
 - change tech_chivalry's prereqs from TECH_FEUDALISM to TECH_CIVIL_SERVICE AND TECH_DRAMA. Keep it in the as of now 1200 iCost column.
-- change one of UNITCLASS_PIKEMAN's tech prereqs from TECH_CHIVALRY to TECH_FEUDALISM: "<!-- custom: changed and separated from as of noww medieval mounted units as nicely recommended by chatgpt 5.1 thanks" + "<!-- Optional clean-up (if you want even sharper flavor):" + "Move Pikeman here instead of on Chivalry. Pikes historically are mass infantry / town militias / Swiss etc., raised under feudal lords but not part of the knightly code. Mechanically it also says: “Feudal order gives you both noble courts and organized infantry.” -->"
+- change one of UNITCLASS_PIKEMAN's tech prereqs from TECH_CHIVALRY to TECH_FEUDALISM: "<!-- custom: changed and separated from as of now medieval mounted units as nicely recommended by chatgpt 5.1 thanks" + "<!-- Optional clean-up (if you want even sharper flavor):" + "Move Pikeman here instead of on Chivalry. Pikes historically are mass infantry / town militias / Swiss etc., raised under feudal lords but not part of the knightly code. Mechanically it also says: “Feudal order gives you both noble courts and organized infantry.” -->"
 - change BUILDING_TAJ_MAHAL's tech prereq from TECH_FEUDALISM to TECH_LATER_ABRAHAMISM
 - remove TECH_MACHINERY's additional TECH_CIVIL_SERVICE tech prereq: the beeline is fine, it leads to nothing after it anyway, and the tech could be used for tech trading or its effects or such
 

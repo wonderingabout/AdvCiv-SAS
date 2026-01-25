@@ -212,6 +212,19 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: show the History panel "Log" button; click to write the visible (spoiler-filtered) history lines to PythonDbg.log. -->
+	<Define>
+		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: History tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
@@ -243,7 +256,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Long_Comments_XML.txt #213 -->
+	<!-- custom: Enable/Disable e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc: Long_Comments_XML.txt #213 -->
 	<Define>
 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1163,8 +1176,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- (1) Master: devalue techs that our vassals already know -->
-	<!-- custom: e.g. if value is 25 then this means that if one of our vassals has the tech, we only value the tech iValue * 25 / 100 = 25% of its value (meaning we value it a lot less as it lost 75% of its value (since we can get it from our vassal if needed. I assume this means we'd be much less inclined to research it or to buy it at a high price at trading with rivals but i don't know exactly how this value is used and i didn't check too much so check to be sure and for exhaustiveness) -->
+	<!-- (1) Master: devalue techs that our vassals already know; Long_Comments_XML.txt #339 -->
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
@@ -1490,7 +1502,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledgling") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess (more or less 10 total culture), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC) -->
+	<!-- custom: Long_Comments_XML.txt #337 -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
@@ -1500,7 +1512,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually. The human player can reassign a non-forced artist if they want then. E.g. if BFC is 10 city culture at gamespeed_normal and 20 at marathon and 6 at quick, and if our value of sanity is 4, then it means if we have 10 + 4 = 14 so 15+ culture in city at game speed normal (or 20 + 4 = 24 so 25+ at marathon, or 6 + 4 = 10 so 11+ at quick) and we still didn't unassign the artist, then do it for the human player ourselves -->
+	<!-- custom: Long_Comments_XML.txt #338 -->
 	<Define>
 		<DefineName>SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

@@ -2463,7 +2463,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #113 -----
 
-			<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now... -->
+			<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in instead of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file)) -->
 			<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
@@ -3459,7 +3459,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #213 -----
 
-<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
+<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). Use this to enable/disable. Added with the help of chatgpt 5.2 thanks -->
 	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
@@ -4593,3 +4593,96 @@ since we can build libraries with writing, it would not be too weird if research
 			- All >1y steps are integers; sub-year steps are 6 months.
 			- Same historical pivots as your Normal/Epic (e.g., 1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105).
 			-->
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #322 -----
+
+<!-- custom: changed and separated from as of now medieval mounted units as nicely recommended by chatgpt 5.1 thanks. From a balance standpoint helps nicely balance out tech as of now chivalry so it is no longer op or a mandatory/one-sidedmilitary path which should help versatility, was TECH_ENGINEERING -->
+			<!-- Optional clean-up (if you want even sharper flavor):
+			Move Pikeman here instead of on Chivalry. Pikes historically are mass infantry / town militias / Swiss etc., raised under feudal lords but not part of the knightly code. Mechanically it also says: “Feudal order gives you both noble courts and organized infantry.” -->
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #323 -----
+
+longbowmen, so make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in known issue as of now 53.2.2 for details, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentioned there, which is still too much when we are stronger but already better, so kept as such; note: also, i removed UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #324 -----
+
+, as confirmed to be accurate / relevant enough by chatgpt 5 after asking it, was BONUS_IRON. -->
+			<!-- yes—adding Copper as an OR-resource (Copper OR Iron) for your UU crossbows makes both historical and gameplay sense. Crossbows (Benin, China): the bow arms are wood/laminate; the metal is mainly in the prod/trigger, stirrup, bolts, armor bits. Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel). Iron isn’t strictly required.
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #325 -----
+
+ (so here the UNITCLASS_SAM_INFANTRY) from this seemingly offensive type of unit, this should mostly help the AI so they don't waste their precious infantry units just to build SAM, even though i never played so late into the game i assume it's how it would go and that SAM is generally quite bad (at least the ground foot first sam unit or much less valuable than foot gun infantry, may also be fine for human players if they don't want a sam from an infantry as well); also add the UNITCLASS_PARATROOPER so that it appears in units tree plus is now an alternative unit path, was UNITCLASS_SAM_INFANTRY and UNITCLASS_MECHANIZED_INFANTRY
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #326 -----
+
+<!-- custom: according to the wikipedia description, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or a related to this unit code comment or similar other place(s if any other or not) -->
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #327 -----
+
+ (doesn't receive defensive effects, plus takes a longbowman slot inefficiently as well i mean), and wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly). For chariot class units in particular, it may have made sense when longbows were available much later, but now in our modthey are available at about same time in tech as axeman class units, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities)
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #328 -----
+
+, but may have trouble to take cover or navigate the terrain still or may find it hard to hide or protect their heavy in size in this case mount so more targetable by ennemies, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry, was empty
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #329 -----
+
+terrain +/- features, quite little bonus for the arabian civilization's civ-specific unit as they are a desertic civilzation so more accustomed/knowledgeable in this case to this; note: made defense not too op for balance, else no point to build defensive units (ideally would increase defense a bit more but hopefully fine as such) or such, also maybe thematically accurate how arabs expanded quite heavily so hopefully fine to have higher attack for that purpose as well
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #330 -----
+
+<!-- custom: according to quick read somewhere, it seems camel units would scare horse units resulting in a stalemate, it also seems they are generally more useful and efficient units than horse units at least in the desert, trying to give promotions that show/reflect this (and in this case specifically for the arabian camel unit else we would need to balance horse units similarly or give them some other kind of boost or rework) while being balanced. -->
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #331 -----
+
+, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw, but eastern europe is cold, so symbolize as having if relevant enough a bit of tundra in civ4 terms (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details)
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #332 -----
+
+, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later)
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #333 -----
+
+added most unitai types that are not pure city attack type of, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify), see known issue as of now 53.3 for details
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #334 -----
+
+<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same), this is also convenient as it walking on water tiles may confuse the AI possibly or be tedious or super hassle to maintian or simply implement with all the unitAIs or such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #335 -----
+
+<!-- custom: now requires only tech_flight, removed tech_radio, doesn't seem critically necessary historically and in terms of timeline from very quick glances of/about it and vs first fighters (again didn't look in depth), from gameplay standpoint they can be used sooner and tech_flight is now stronger, while tech_radio is now weaker as the main path -->
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #336 -----
+
+<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in instead of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file)) -->
+
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #337 -----
+
+<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledgling") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess (more or less 10 total culture), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC) -->
+
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #338 -----
+
+<!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually. The human player can reassign a non-forced artist if they want then. E.g. if BFC is 10 city culture at gamespeed_normal and 20 at marathon and 6 at quick, and if our value of sanity is 4, then it means if we have 10 + 4 = 14 so 15+ culture in city at game speed normal (or 20 + 4 = 24 so 25+ at marathon, or 6 + 4 = 10 so 11+ at quick) and we still didn't unassign the artist, then do it for the human player ourselves -->
+
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #339 -----
+
+<!-- custom: e.g. if value is 25 then this means that if one of our vassals has the tech, we only value the tech iValue * 25 / 100 = 25% of its value (meaning we value it a lot less as it lost 75% of its value (since we can get it from our vassal if needed. I assume this means we'd be much less inclined to research it or to buy it at a high price at trading with rivals but i don't know exactly how this value is used and i didn't check too much so check to be sure and for exhaustiveness) -->

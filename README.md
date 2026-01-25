@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (item grouping, new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g., Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel and other in-category charts, Movies (with audio support), Music with the ~1750 audio scripts of AdvCiv-SAS that can be listened to), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
 
-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and as for mechanics new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and as for mechanics new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc); new Advisor screens (e.g. History Tab in the Info Screen Advisor).
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
 
@@ -31,7 +31,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Home page](/README.md#home-page)  
 &emsp;["Play Now" rework](/README.md#play-now-rework)  
 [UI (Ingame)](/README.md#ui-ingame)  
-&emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
+&emsp;[Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
 &emsp;[City Screen rework](/README.md#city-screen-rework)  
@@ -148,15 +148,31 @@ Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge,
 
 ## UI (Ingame)
 
-### Main Advisors reworks
+### Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)
 
 Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors' display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.).
+
+#### New Advisors (e.g. History Tab in the Info Screen Advisor)
+
+We added in AdvCiv-SAS a new History Tab in the Info Screen:
+
+- shows a spoiler-free (religion founded by an unknown city, city founded but unexplored, etc.) if not known (not in debug, not yet revealed, etc.) account (based on the replay screen's data (except you don't need to retire to see it now), notably keeping its colored text for each player, but filtered) of the key moments that happened each turn.
+- unlike the Event Log (which was cumbersome to open and maximize as well btw), information is preserved on save reload.
+- has an optional "LOG" button you can click on ingame to optionally export to `PythonDbg.log` text file the output
+- added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
+- Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
+
+Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG" alt="0.5160_info_screen_history (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG" alt="0.5160_info_screen_history (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG" alt="0.5161_info_screen_history_dbg_log.PNG" width="250"></img>
+
+#### Advisor reworks
 
 For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it. Notably, it also features the new "Remove Jungle" and "Chop Down a Forest" buttons (from the Middle-Earth mod thanks!).
 
 Also refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
-
-Some examples below:
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.514_foreign_advisor_relations.JPG" alt="0.514_foreign_advisor_relations.JPG" width="250"></img>
@@ -166,9 +182,9 @@ Some examples below:
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (5).JPG" alt="0.516_info_screen (5).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (1).JPG" alt="0.517_victory_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (2).JPG" alt="0.517_victory_screen (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
@@ -768,14 +784,6 @@ GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG" alt="gpt_codex_summarizing (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG" alt="gpt_codex_summarizing (2).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG" alt="gpt_codex_summarizing (3).PNG" width="250"></img>
-
-#### code comments summarizing
-
-Another example of code comments summarizing (from [commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98](https://github.com/wonderingabout/AdvCiv-SAS/commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98):
-
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG" alt="codex_ gpt_5.2_comments_correct (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG" alt="codex_ gpt_5.2_comments_correct (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG" alt="codex_ gpt_5.2_comments_correct (3).PNG" width="250"></img>
 
 ### Claude AI
 

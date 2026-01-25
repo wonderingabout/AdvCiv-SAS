@@ -140,7 +140,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
 - When doing performance optimizations, checking only, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
 - When doing performance optimizations, use local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
-- Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
+- Use specific t names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.asse
 - Avoid fluff like `================`, keep it nice and simple and clean.
 
 ### Python (Civ4)
@@ -158,6 +158,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
 
 ## XML
+
+- Any new XML text should to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) and only in `<English>`. Move the ones we modify in other files to our files too and remove other languages while doing so.
 
 ## C++
 
