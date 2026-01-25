@@ -133,6 +133,7 @@ hopefully helpful, thanks thanks,
 [97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to Sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to Sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-chop-down-a-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page)  
 [98 - (Fixed) Base AdvCiv issue of De Gaulle using Louis' music instead of the music common to De Gaulle and Napoleon](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon)  
 [99 - (Fixed) Base AdvCiv bug of K-Mod unwrapped in TEXT XML text](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#99---fixed-base-advciv-bug-of-k-mod-unwrapped-in-text-xml-text)  
+[100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2302,8 +2303,6 @@ So overall very good results it seems!
 
 While doing this, i also enhanced the code of the fallback unit choice `CvCity::doTurn()` in as of now [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure) with quite similar logic as well (actually improved it while doing changes here and then ported these improvements in a relevant wayto the chooseunit function).
 
-Note: i noticed during testing rare crashes at turn 90-100 in a few autoplay maps, disappears after reloading a recent save file, so did not dig further, but i found for info in the .dmp file with windbg which i don't know too much about the culprit to likely be `CvSelectionGroup::plot` or something near it, but check if accurate, and since it is only a ["temporary" crash](/README.md#temporary-crashes), not investigating further.
-
 Update: we as of now now favour civ-specific counter units just as much, with an optional config flag not to in sas defines.
 
 Update 2: see another example of windbg usage to bugfix (i don't know too much about these but seems to help looking at these error messages and .dmp analyze results and feeding them to chatgpt 5 or such other ai for review, check if accurate): [Known issue #71](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#71---seemingly-fixed-base-advciv-bug-of-calling-cvbuildinfoisfeatureremove-when-efeature-is-not-a-valid-feature-then-firing-a-failed-assert)
@@ -4102,3 +4101,13 @@ Fixed by adding De Gaulle specific assets with the help of Claude code Sonnet 4.
 ```
 
 Fixed this based advciv bug, as of now in [Civ4GameText_K-Mod.xml](/Assets/XML/Text/Civ4GameText_K-Mod.xml).
+
+## 100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1UlG0EloFY2b9bFoAb6Mw9d9Y_BaHbM0b?usp=sharing).
+
+Finally found and fixed the fairly rare but very nasty and annoying `CvSelectionGroup::plot` recurring and reproducible crash.
+
+Fixed with the help of GPT-5.2-Codex and Claude code Opus 4.5 thanks a lot, as part of implementing Terrain Yield Changes, and committed just the fix separately.
+
+See files for details about the fix.

@@ -2335,7 +2335,7 @@ commit 0371c03865c847a5d0183bbc731d4c1d22a5f5e7
 Author: wonderingabout <hidden>
 Date:   2025-09-08 14:58:27 +0200
 
-add 48 civs DLL with instructions on how to download and use + google drive folder link of screenshots of test run and such
+add 48 civs DLL with instructions on how to download and use
 Addresses https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16863316
 
 commit 41a7bd8b7fa99a53c45078a4ff7f03e9937a6119
@@ -6317,7 +6317,7 @@ anyway/=regardless as other categories need space/word too.
 I said is extreme (a bit i said too the word but anyways) but maybe
 is not, these don't serve much purpsoe except displaying the category
 header labels which they do, i'd rather take the space in the sevopedia
-that is directly useful adn helpful hopefully but anyways.
+that is directly useful and helpful hopefully but anyways.
 
 May increase it a bit to 205 or 210 for example for visual clarity or
 smoothness, but not guaranteed and may not, this is quite fine overall,

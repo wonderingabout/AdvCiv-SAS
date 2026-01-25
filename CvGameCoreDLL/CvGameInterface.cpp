@@ -1096,6 +1096,10 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
 		return false;
 	}
 	CvSelectionGroup* pSelectedInterfaceList = gDLL->UI().getSelectionList();
+	// <!-- custom: guard missing selection list so action handling never calls CvSelectionGroup::plot on a null group; crash had null this in CvSelectionGroup::plot. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pSelectedInterfaceList == NULL)
+		return false;
+	// <!-- custom: end guard for selection list null in action handling. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 	if (kAction.getMissionType() != NO_MISSION)
 	{
 		CvPlot* pMissionPlot = NULL;
@@ -1140,7 +1144,11 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
 
 void CvGame::setupActionCache() const
 {
-	gDLL->UI().getSelectionList()->setupActionCache();
+	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
+	// <!-- custom: guard missing selection list so setupActionCache does not touch a null group; avoids CvSelectionGroup::plot null deref chain. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pSelectionList != NULL)
+		pSelectionList->setupActionCache();
+	// <!-- custom: end guard for selection list null in setupActionCache. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 }
 
 
@@ -1154,8 +1162,10 @@ void CvGame::handleAction(int iAction)
 	CvActionInfo const& kAction = GC.getActionInfo(iAction);
 	if (kAction.getControlType() != NO_CONTROL)
 		doControl((ControlTypes)kAction.getControlType());
-	if (gDLL->UI().canDoInterfaceMode((InterfaceModeTypes)kAction.getInterfaceModeType(),
-		gDLL->UI().getSelectionList()))
+	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
+	// <!-- custom: avoid calling canDoInterfaceMode with a null selection group to prevent CvSelectionGroup::plot null deref. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pSelectionList != NULL && gDLL->UI().canDoInterfaceMode(
+		(InterfaceModeTypes)kAction.getInterfaceModeType(), pSelectionList))
 	{
 		CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
 		if (pHeadSelectedUnit != NULL)
@@ -1176,6 +1186,7 @@ void CvGame::handleAction(int iAction)
 		gDLL->UI().setInterfaceMode((InterfaceModeTypes)
 				kAction.getInterfaceModeType());
 	}
+	// <!-- custom: end guard for selection list null in interface-mode handling. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 	if (kAction.getMissionType() != NO_MISSION)
 	{
 		selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, kAction.getMissionType(),
@@ -2221,7 +2232,12 @@ ColorTypes CvGame::getPlotHighlightColor(CvPlot* pPlot) const
 	case INTERFACEMODE_SAVE_PLOT_NIFS:
 		return eNegativeColor;
 	}
-	bool bCanDoMode = gDLL->UI().getSelectionList()->
+	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
+	// <!-- custom: return safe highlight color if no selection list to avoid null selection group access during plot highlight. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pSelectionList == NULL)
+		return eNegativeColor;
+	// <!-- custom: end guard for selection list null in plot highlight color. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	bool bCanDoMode = pSelectionList->
 			canDoInterfaceModeAt(gDLL->UI().getInterfaceMode(), pPlot);
 	// <advc.653>
 	if (updateNukeAreaOfEffect(bCanDoMode ? pPlot : NULL))

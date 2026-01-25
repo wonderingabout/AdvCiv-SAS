@@ -811,8 +811,13 @@ void GroupPathFinder::invalidateGroup(CvSelectionGroup const& kGroup)
 
 bool GroupPathFinder::generatePath(CvPlot const& kTo)
 {
-	FAssertMsg(m_stepMetric.getGroup() != NULL, "Must call SetSettings before GeneratePath");
-	return generatePath(m_stepMetric.getGroup()->getPlot(), kTo);
+	CvSelectionGroup const* pGroup = m_stepMetric.getGroup();
+	FAssertMsg(pGroup != NULL, "Must call SetSettings before GeneratePath");
+	// <!-- custom: guard missing group in release builds so pathfinder does not call getPlot on null; avoids CvSelectionGroup::plot crash path. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pGroup == NULL)
+		return false;
+	// <!-- custom: end guard for missing group in pathfinder. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	return generatePath(pGroup->getPlot(), kTo);
 }
 
 

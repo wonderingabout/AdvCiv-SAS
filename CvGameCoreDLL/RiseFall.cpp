@@ -690,8 +690,11 @@ void RiseFall::abandonPlans(PlayerTypes civId) {
 			gDLL->UI().lookAtSelectionPlot();
 		}
 		// Without this, units outside owner's borders don't appear on the main interface.
-		if(gr->plot()->getOwner() != civId)
-			gr->plot()->updateCenterUnit();
+		CvPlot* pGroupPlot = gr->plot();
+		// <!-- custom: guard null group plot so updateCenterUnit does not follow a null plot during abandonPlans; avoids CvSelectionGroup::plot crash path. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+		if(pGroupPlot != NULL && pGroupPlot->getOwner() != civId)
+			pGroupPlot->updateCenterUnit();
+		// <!-- custom: end guard for null group plot in abandonPlans. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 		/* ^Perhaps no longer needed due to a change in CvPlot::updateVisibility
 			(advc.061). Should test this some time. */
 	}
