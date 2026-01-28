@@ -357,19 +357,6 @@
 		<Spanish>¡Crecimiento!</Spanish>
 	</TEXT>
 	
-	<!-- advc.004: The whole string was colored yellow, which draws too much
-		 attention (as yellow isn't normally used in this way by the game).
-		 The red coloring is also not great, but the best I can come up with.
-		 German was "Schrumpfen". -->
-	<TEXT>
-		<Tag>INTERFACE_CITY_SHRINKING</Tag>
-		<English>[COLOR_WARNING_TEXT]Shrinking (%d1 [NUM1:Turn:Turns])[COLOR_REVERT]</English>
-		<French>[COLOR_WARNING_TEXT]Rétrécissement (%d1 [NUM1:tour:tours][COLOR_REVERT])</French>
-		<German>[COLOR_WARNING_TEXT]Rückgang (%d1 [NUM1:Runde:Runden])[COLOR_REVERT]</German>
-		<Italian>[COLOR_WARNING_TEXT]Riduzione (%d1 [NUM1:Turno:Turni])[COLOR_REVERT]</Italian>
-		<Spanish>[COLOR_WARNING_TEXT]Reducción (%d1 [NUM1:turno:turnos])[COLOR_REVERT]</Spanish>
-	</TEXT>
-	
 	<TEXT>
 		<Tag>INTERFACE_CITY_FOOD_GROW</Tag>
 		<English>%d1[ICON_FOOD] - %d2[ICON_EATENFOOD] = +%d3[ICON_FOOD]</English>

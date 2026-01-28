@@ -272,6 +272,8 @@ def getGreatPeopleText(city, iGPTurns, iGPBarWidth, bGPBarTypesNone, bGPBarTypes
 						szText = BugUtil.getText("INTERFACE_GREAT_PERSON_CITY", (pInfo.getDescription(), city.getName()))
 					else:
 						szText = unicode(pInfo.getDescription())
+				# <!-- custom: show chars in the GP bar even if 100% (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`). (GPT-5.2-Codex) -->
+				szText = u"%s - %s100%%" % (szText, getUnitIcon(iUnit))
 			else:
 				if (iGPTurns):
 					if (bIncludeCityName):

@@ -18470,17 +18470,19 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
 						L"TXT_KEY_CONCEPT_SPECIALISTS"));
 			}
 		}
+		// <!-- custom: fix GP hover mismatch where +3 specialists +3 buildings didn’t match total because obsolete‑wonder GPP (e.g., Oracle) was still counted in the total; add an explicit obsolete line so the math is transparent. See KI#101. (GPT-5.2-Codex) -->
 		{
 			int iRate = 0;
+			int iRateObsolete = 0;
 			FOR_EACH_ENUM2(Building, eBuilding)
 			{
-				if (kCity.getNumBuilding(eBuilding) > 0 &&
-					// advc (future-proofing):
-					!GET_TEAM(kCity.getTeam()).isObsoleteBuilding(eBuilding))
-				{
-					iRate += kCity.getNumBuilding(eBuilding) *
-							GC.getInfo(eBuilding).getGreatPeopleRateChange();
-				}
+				int const iNum = kCity.getNumBuilding(eBuilding);
+				if (iNum <= 0)
+					continue;
+				int iChange = iNum * GC.getInfo(eBuilding).getGreatPeopleRateChange();
+				if (GET_TEAM(kCity.getTeam()).isObsoleteBuilding(eBuilding)) // advc (future-proofing)
+					iRateObsolete += iChange;
+				else iRate += iChange;
 			}
 			if (iRate > 0)
 			{
@@ -18492,6 +18494,17 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
 				szBuffer.append(NEWLINE);
 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_BUILDING_COMMERCE",
 						iRate, gDLL->getSymbolID(GREAT_PEOPLE_CHAR)));
+			}
+			if (iRateObsolete > 0)
+			{
+				if (bFirst)
+				{
+					szBuffer.append(SEPARATOR);
+					bFirst = false;
+				}
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE",
+						iRateObsolete, gDLL->getSymbolID(GREAT_PEOPLE_CHAR)));
 			}
 		}
 	} // BULL - Great People Rate Breakdown - end

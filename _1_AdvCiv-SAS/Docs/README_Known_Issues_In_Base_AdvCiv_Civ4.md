@@ -134,6 +134,7 @@ hopefully helpful, thanks thanks,
 [98 - (Fixed) Base AdvCiv issue of De Gaulle using Louis' music instead of the music common to De Gaulle and Napoleon](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon)  
 [99 - (Fixed) Base AdvCiv bug of K-Mod unwrapped in TEXT XML text](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#99---fixed-base-advciv-bug-of-k-mod-unwrapped-in-text-xml-text)  
 [100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash)  
+[101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -758,7 +759,7 @@ It was thanks to chatgpt's help as well and my prompts and digging too, even tho
 
 First to solve this i followed the trail of the txt key in Sevopedia unit, then found it is only once and not twice, and missing in map view. So i tracked instead a txt key already in the map view unit effects bullet points, and i found the scout's (that we added quite recently or not recently but as part of advciv-sas's changes being able to walk on land impassable (peak only as of now) terrain (and explorers too i assume in this assumption too or memory from reading or something that it applies or would apply to explore units in general land onesin advciv-sas)), and there i added the method.
 
-But we needed also to modify not only (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp but also (same) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvUnit.h too as advised by/with chatgpt.
+But we needed also to modify not only [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) but also C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvUnit.h too as advised by/with chatgpt.
 
 And after a bit of back and forth, we were now first finally able to display the text only, a shorter version of it.
 
@@ -4110,4 +4111,22 @@ Finally found and fixed the fairly rare but very nasty and annoying `CvSelection
 
 Fixed with the help of GPT-5.2-Codex and Claude code Opus 4.5 thanks a lot, as part of implementing Terrain Yield Changes, and committed just the fix separately.
 
-See files for details about the fix.
+See [commit/d2500dc40107815d6a0afef5b481b9d2073c1743](https://github.com/wonderingabout/AdvCiv-SAS/commit/d2500dc40107815d6a0afef5b481b9d2073c1743) and files for details about the fix.
+
+## 101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tzj-F2YcMUAbu1ltKkNM0l8vYZWQ-Xf8?usp=sharing).
+
+Fixed base AdvCiv bug of seemingly incorrect math in the GP bar tooltip's hover information.
+
+Was showing 3 Spec + 3 Buildings = 8 Base
+
+But Oracle was obsolete yet its 2 GP was seemingly still counted in base total, yet the UI was not showing it.
+
+Our specialist breakdown was correct and helped spot the base AdvCiv bug.
+
+After adding +GB from obsoelte buildings with the help of GPT-5.2-Codex thanks, now hover displays info that matches what the DLL provides (total of 8 with 3 + 3 + 2 = 8) so looks fixed now.
+
+Also added in the main interface's building list as part of adding it in AdvCiv-SAS for buildings.
+
+Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).

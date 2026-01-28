@@ -120,6 +120,167 @@ RAW_YIELD_HELP = (	"TXT_KEY_RAW_YIELD_VIEW_TRADE",
 
 class CvMainInterface:
 	"Main Interface Screen"
+	def _cacheMapViewRightPanelRects(self):
+		self.bMapViewRightPanelNarrow = False
+
+	def _applyMapViewRightPanelNarrow(self, bEnable):
+		self._cacheMapViewRightPanelRects()
+		bCityScreen = CyInterface().isCityScreenUp()
+		if (not bCityScreen) and bEnable == self.bMapViewRightPanelNarrow:
+			return
+		if bCityScreen:
+			iPanelX = gRect("LowerRightCornerPanel").x()
+		else:
+			if bEnable:
+				iPanelW = gRect("MiniMapPanel").width() + HSPACE(6)
+			else:
+				iPanelW = gRect("LowerLeftCornerPanel").width()
+			iPanelX = gRect("Top").xRight() - iPanelW
+			gRect("LowerRightCornerPanel").moveTo(iPanelX, gRect("LowerRightCornerPanel").y())
+			gRect("LowerRightCornerPanel").adjustSize(
+					iPanelW - gRect("LowerRightCornerPanel").width(), 0)
+			gRect("LowerRightCorner").moveTo(iPanelX, gRect("LowerRightCorner").y())
+			gRect("LowerRightCorner").adjustSize(
+					iPanelW - gRect("LowerRightCorner").width(), 0)
+		# <!-- custom: center bottom panel should stop before right panel in city screen,
+		# and extend slightly in map view to avoid a gap. (GPT-5.2-Codex) -->
+		# <!-- custom: controls the city screen as intended (e.g. 150 successfully reduces it only in the city screen) -->
+		if bCityScreen:
+			iCenterMargin = 10
+		# <!-- custom: controls the map view (i.e. outside city screen as intended, e.g. -500 successfully reduces it only in map view) -->
+		else:
+			iCenterMargin = 10
+		iCenterW = iPanelX - gRect("LowerLeftCorner").xRight() + iCenterMargin
+		gRect("CenterBottomPanel").adjustSize(
+				iCenterW - gRect("CenterBottomPanel").width(), 0)
+		gRect("CenterBottom").adjustSize(
+				iCenterW - gRect("CenterBottom").width(), 0)
+		self.bMapViewRightPanelNarrow = bEnable
+		# <!-- custom: shrink right panel in map view so the map starts closer to it. (GPT-5.2-Codex) -->
+		self.screen.setPanelSize("LowerRightCornerPanel",
+				gRect("LowerRightCornerPanel").x(), gRect("LowerRightCornerPanel").y(),
+				gRect("LowerRightCornerPanel").width(), gRect("LowerRightCornerPanel").height())
+		self.screen.setPanelSize("CenterBottomPanel",
+				gRect("CenterBottomPanel").x(), gRect("CenterBottomPanel").y(),
+				gRect("CenterBottomPanel").width(), gRect("CenterBottomPanel").height())
+	def cityScreenBottomLift(self):
+		# <!-- custom: lift by 1 row plus an extra gap to mirror bottom spacing. (GPT-5.2-Codex) -->
+		return self.bottomListBtnSize() + VSPACE(16)
+
+	def _cacheCityScreenSideLiftRects(self):
+		if hasattr(self, "cityScreenSideLiftRects"):
+			return
+		self.cityScreenSideLiftRects = {}
+		self.cityScreenUpperSideRects = {}
+		for szName in self._cityScreenSideLiftRectNames():
+			self.cityScreenSideLiftRects[szName] = gRect(szName).copy()
+		for szName in self._cityScreenUpperSideRectNames():
+			self.cityScreenUpperSideRects[szName] = gRect(szName).copy()
+		self.bCityScreenSideLiftApplied = False
+
+	def _cityScreenSideLiftRectNames(self):
+		aRects = [
+			"LowerLeftCornerPanel", "LowerLeftCornerBackgr", "LowerLeftCorner",
+			"LowerRightCornerPanel", "LowerRightCorner",
+			"CultureBars", "CultureBar",
+			"GreatPeopleBar",
+		]
+		return aRects
+
+	def _cityScreenUpperSideRectNames(self):
+		aRects = [
+			"CityLeftPanel", "CityRightPanel",
+			"CityLeftPanelStagger", "CityRightPanelStagger",
+		]
+		return aRects
+
+	def _applyCityScreenSideLift(self, bEnable):
+		self._cacheCityScreenSideLiftRects()
+		if bEnable == self.bCityScreenSideLiftApplied:
+			return
+		iLift = self.cityScreenBottomLift()
+		for szName in self._cityScreenSideLiftRectNames():
+			lBase = self.cityScreenSideLiftRects[szName].copy()
+			if bEnable:
+				if szName in ("LowerLeftCornerPanel", "LowerRightCornerPanel"):
+					lBase.move(0, -iLift)
+					lBase.adjustSize(0, iLift)
+				else:
+					lBase.move(0, -iLift)
+			gRect(szName).moveTo(lBase.x(), lBase.y())
+			gRect(szName).adjustSize(
+					lBase.width() - gRect(szName).width(),
+					lBase.height() - gRect(szName).height())
+		for szName in self._cityScreenUpperSideRectNames():
+			lBase = self.cityScreenUpperSideRects[szName].copy()
+			if bEnable:
+				lBase.adjustSize(0, -iLift)
+			gRect(szName).moveTo(lBase.x(), lBase.y())
+			gRect(szName).adjustSize(
+					lBase.width() - gRect(szName).width(),
+					lBase.height() - gRect(szName).height())
+		self.bCityScreenSideLiftApplied = bEnable
+		# <!-- custom: city screen only - lift side bottom panels by 2 build rows. (GPT-5.2-Codex) -->
+		self.screen.setPanelSize("LowerLeftCornerPanel",
+				gRect("LowerLeftCornerPanel").x(), gRect("LowerLeftCornerPanel").y(),
+				gRect("LowerLeftCornerPanel").width(), gRect("LowerLeftCornerPanel").height())
+		self.screen.setPanelSize("LowerRightCornerPanel",
+				gRect("LowerRightCornerPanel").x(), gRect("LowerRightCornerPanel").y(),
+				gRect("LowerRightCornerPanel").width(), gRect("LowerRightCornerPanel").height())
+		self.screen.setPanelSize("CityLeftPanel",
+				gRect("CityLeftPanel").x(), gRect("CityLeftPanel").y(),
+				gRect("CityLeftPanel").width(), gRect("CityLeftPanel").height())
+		self.screen.setPanelSize("CityRightPanel",
+				gRect("CityRightPanel").x(), gRect("CityRightPanel").y(),
+				gRect("CityRightPanel").width(), gRect("CityRightPanel").height())
+		self.screen.setPanelSize("CityLeftPanelStagger",
+				gRect("CityLeftPanelStagger").x(), gRect("CityLeftPanelStagger").y(),
+				gRect("CityLeftPanelStagger").width(), gRect("CityLeftPanelStagger").height())
+		self.screen.setPanelSize("CityRightPanelStagger",
+				gRect("CityRightPanelStagger").x(), gRect("CityRightPanelStagger").y(),
+				gRect("CityRightPanelStagger").width(), gRect("CityRightPanelStagger").height())
+		gOffSetPoint("GreatPeopleText", "GreatPeopleBar",
+				RectLayout.CENTER, self.stackBarDefaultTextOffset())
+		gOffSetPoint("NationalityText", "NationalityBar",
+				RectLayout.CENTER, self.stackBarDefaultTextOffset())
+		gOffSetPoint("CultureText", "CultureBar",
+				RectLayout.CENTER, self.stackBarDefaultTextOffset())
+		self._rebuildCityScreenBottomBars()
+		CyInterface().setDirty(InterfaceDirtyBits.InfoPane_DIRTY_BIT, True)
+		CyInterface().setDirty(InterfaceDirtyBits.CityScreen_DIRTY_BIT, True)
+
+	def _rebuildCityScreenBottomBars(self):
+		screen = self.screen
+		for szName in ("GreatPeopleBar", "CultureBar", "NationalityBar"):
+			try:
+				screen.deleteWidget(szName)
+			except:
+				pass
+		# <!-- custom: rebuild city-screen stacked bars after rect moves so the bars follow the new positions. (GPT-5.2-Codex) -->
+		self.addStackedBar("GreatPeopleBar", WidgetTypes.WIDGET_HELP_GREAT_PEOPLE)
+		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_STORED,
+				self.colorGreatPeopleStored)
+		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_RATE,
+				self.colorGreatPeopleRate)
+		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+				self.colorEmpty)
+		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_EMPTY,
+				self.colorEmpty)
+		screen.hide("GreatPeopleBar")
+
+		self.addStackedBar("CultureBar", WidgetTypes.WIDGET_HELP_CULTURE)
+		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_STORED,
+				self.colorGreatCultureStored)
+		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_RATE,
+				self.colorGreatCultureRate)
+		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+				self.colorEmpty)
+		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_EMPTY,
+				self.colorEmpty)
+		screen.hide("CultureBar")
+
+		self.addStackedBar("NationalityBar", WidgetTypes.WIDGET_HELP_NATIONALITY)
+		screen.hide("NationalityBar")
 	# <advc.092> CyGInterfaceScreen wrappers that look up global layout data
 	def addPanel(self, szName, eStyle = None):
 		if eStyle is None:
@@ -274,6 +435,37 @@ class CvMainInterface:
 		self.screen.setText(szName, szAttachTo, szText, uiFlags,
 				lPoint.x(), lPoint.y(), fZ,
 				eFont, eWidgetType, iData1, iData2)
+	# <!-- custom: create a one-line, horizontally centered icon+text row; place the icon first and the text immediately to its right, with optional vertical offsets to auto lift/shift the icon without changing the text baseline. Uses setImageButton for atlas/tech buttons (fixes purple missing icons from <img>), and falls back to <img> text when given an inline tag. Note: image buttons are absolute-positioned and won’t auto-scroll with table rows, so use <img> for scrollable lists. Keeps centering stable as text length changes. (GPT-5.2-Codex (summarized)) -->
+	def setSASCenteredImageButtonAtLeftOfTextRow(self, szTextName, szIconName, szAttachTo, szText, szIcon,
+			iIconSize, iX, iY, iMargin = None, szRectName = None,
+			iTextYOffset = 0, iIconYOffset = 0, eFont = None, fZ = 0,
+			eWidgetType = None, iData1 = -1, iData2 = -1):
+		if eWidgetType is None:
+			eWidgetType = WidgetTypes.WIDGET_GENERAL
+		if eFont is None:
+			eFont = FontTypes.GAME_FONT
+		if iMargin is None:
+			iMargin = HSPACE(2)
+		iTextWidth = CyInterface().determineWidth(szText)
+		iTotalWidth = iIconSize + iMargin + iTextWidth
+		if iX is None and szRectName:
+			lRect = gRect(szRectName)
+			iX = lRect.x() + (lRect.width() - iTotalWidth) / 2
+		iTextX = iX + iIconSize + iMargin
+		gSetPoint(szTextName, PointLayout(iTextX, iY + iTextYOffset))
+		if szIcon.startswith("<img="):
+			gSetPoint(szIconName, PointLayout(iX, iY + iIconYOffset))
+			self.setText(szIconName, szAttachTo, szIcon,
+					CvUtil.FONT_LEFT_JUSTIFY, eFont, fZ,
+					eWidgetType, iData1, iData2)
+		else:
+			# Avoid gRect lookup; we have explicit coords and size.
+			self.screen.setImageButton(szIconName, szIcon,
+					iX, iY + iIconYOffset, iIconSize, iIconSize,
+					eWidgetType, iData1, iData2)
+		self.setText(szTextName, szAttachTo, szText,
+				CvUtil.FONT_LEFT_JUSTIFY, eFont, fZ,
+				eWidgetType, iData1, iData2)
 	# color can be either a key string or a color id
 	def createProgressBar(self, szName, color, uiMarks, bForward):
 		lRect = gRect(szName)
@@ -458,10 +650,18 @@ class CvMainInterface:
 		# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
 		# 1) Add a pinned-row member (once)
 		self.iCityBuildBarPinnedRow = None
+		# <!-- custom: building list filter state (0=All, 1=Buildings, 2=National, 3=World). (GPT-5.2-Codex) -->
+		self.iBuildingFilter = 0
+		self.buildFilterBtnAll = "BuildFilter0"
+		self.buildFilterBtnBuildings = "BuildFilter1"
+		self.buildFilterBtnNational = "BuildFilter2"
+		self.buildFilterBtnWorld = "BuildFilter3"
 		# <!-- custom: add buttons in the city screen production queue elements. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
 		# <!-- custom: optional UI convenience: hide the unit plot list bar while a city is selected to avoid overlapping with multi-row build bars. (ChatGPT-5.2 Thinking) -->
-		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION = None
+		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = None
+		# <!-- custom: optional unit info button in the map view unit panel. (GPT-5.2-Codex) -->
+		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
 
 
 
@@ -532,6 +732,22 @@ class CvMainInterface:
 		self.backgroundTransparentPath = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
 		self.buttonsCreategroupPath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CREATEGROUP").getPath()
 		self.buttonsSplitgroupPath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_SPLITGROUP").getPath()
+		# <!-- custom: building filter button art paths using BUG icons (moved here from updateCityScreen for perf). (Claude Opus 4.5) -->
+		self.buildFilterAllBuildingsOn = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		self.buildFilterAllBuildingsOff = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		self.buildFilterRegularBuildingsOn = ArtFileMgr.getInterfaceArtInfo("OVERLAY_ACTION_BUILD").getPath()
+		self.buildFilterRegularBuildingsOff = ArtFileMgr.getInterfaceArtInfo("OVERLAY_ACTION_BUILD").getPath()
+		self.buildFilterNatWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_ON").getPath()
+		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
+		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_ON").getPath()
+		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_ON").getPath()
+		# self.buildFilterProjectOff = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
+		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
+		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
+		self.szBuildFilterTooltipNational = "TXT_KEY_BUILDING_FILTER_NATIONAL"
+		self.szBuildFilterTooltipWorld = "TXT_KEY_BUILDING_FILTER_WORLD"
 		#
 		self.szTextWaiting = localText.getText("SYSTEM_WAITING", ())
 		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
@@ -639,11 +855,13 @@ class CvMainInterface:
 		# based on the undecorated size, so let's define ...
 		gSetRect("LowerLeftCorner", "LowerLeftCornerPanel",
 				0, 19, -8, RectLayout.MAX)
+		# <!-- custom: reduce left margin to minimize gap between draft bar and minimap (matching C2C-style tight layout) (Claude code Opus 4.5) -->
 		gSetRect("LowerRightCorner", "LowerRightCornerPanel",
-				8, 19, RectLayout.MAX, RectLayout.MAX)
+				0, 19, RectLayout.MAX, RectLayout.MAX)  # was 8 - set to 0 to eliminate gap completely
 		gSetRect("CenterBottomPanel", "Top",
 				gRect("LowerLeftCorner").xRight(), RectLayout.BOTTOM,
-				-gRect("LowerRightCorner").width(),
+				# <!-- custom: add some HSPACE to fix the weird ugly empty gap until we reach the right side panel's left edge with the help of GPT-5.2-Codex thanks -->
+				-gRect("LowerRightCornerPanel").width() + HSPACE(10),
 				HLEN(133, 0.5)) # Hardly gain anything from scaling this up
 		# Sans the decoration on top
 		gSetRect("CenterBottom", "CenterBottomPanel",
@@ -758,41 +976,71 @@ class CvMainInterface:
 		# Gets moved to a lower position when interface is minimized
 		gSetPoint("EndTurnTextMin", PointLayout(0, gRect("Top").yBottom() - VSPACE(86)))
 		iEndTurnBtnSz = BTNSZ(32)
+		iEndTurnBtnX = gRect("MiniMapPanel").x() - iEndTurnBtnSz - HSPACE(6)
+		iEndTurnBtnY = gRect("LowerRightCorner").yBottom() - iEndTurnBtnSz - VSPACE(4)
+		if not CyInterface().isCityScreenUp():
+			iEndTurnBtnY = gRect("MiniMapPanel").y()
 		gSetSquare("EndTurnButton", "Top",
-				-gRect("LowerRightCorner").width() + iEndTurnBtnSz / 2,
-				-gRect("LowerRightCorner").height() + iEndTurnBtnSz / 2 + 2,
+				iEndTurnBtnX,
+				iEndTurnBtnY,
 				iEndTurnBtnSz)
-		gSetRect("CivFlagArea", "LowerRightCorner",
-				0, 0,
-				gRect("MiniMapPanel").x() - gRect("LowerRightCorner").x() + 2,
-				RectLayout.MAX)
+		# <!-- custom: position flag directly to the left of the minimap, like in the C2C mod  (Claude code Opus 4.5) -->
+		# Use absolute positioning based on minimap's actual screen position
 		iFlagWidth = 68
-		gSetRect("CivilizationFlag", "CivFlagArea",
-				RectLayout.CENTER,
-				2 * (gRect("LowerRightCorner").height() - gRect("CenterBottom").height()) / 5,
-				iFlagWidth, iFlagWidth * 250 / 68)
+		iFlagHeight = iFlagWidth * 250 / 68
+		iFlagX = gRect("MiniMapPanel").x() - iFlagWidth - 4  # 4px gap to the left of minimap
+		iFlagY = gRect("MiniMapPanel").y() + 4  # 4px from top of minimap panel
+		gSetRect("CivilizationFlag", "Top",
+				iFlagX, iFlagY,
+				iFlagWidth, iFlagHeight)
+		# CivFlagArea kept for compatibility, sized to fit the flag
+		gSetRect("CivFlagArea", "CivilizationFlag",
+				0, 0,
+				RectLayout.MAX, RectLayout.MAX)
 # BUG - City Arrows - start
 		lMainCityScrollButtons = RowLayout(gRect("Top"),
-				(gRect("EndTurnButton").xRight() + gRect("MiniMapPanel").x()) / 2,
-				gRect("EndTurnButton").y(),
+				gRect("EndTurnButton").x() + gRect("EndTurnButton").width() / 2,
+				gRect("EndTurnButton").y() + VSPACE(24),
 				2, HSPACE(-12), BTNSZ(32))
 		lMainCityScrollButtons.move(-lMainCityScrollButtons.width() / 2, 0)
 		gSetRectangle("MainCityScrollButtons", lMainCityScrollButtons)
 		gSetRectangle("MainCityScrollMinus", lMainCityScrollButtons.next())
 		gSetRectangle("MainCityScrollPlus", lMainCityScrollButtons.next())
+
+		# <!-- custom: position UnitCycleButton to the left of city arrows (Claude code Opus 4.5) -->
+		iUnitCycleBtnSz = BTNSZ(32)
+		iUnitCycleBtnX = gRect("MainCityScrollButtons").x() - iUnitCycleBtnSz - HSPACE(4)
+		iUnitCycleBtnY = gRect("MainCityScrollButtons").y()
+		gSetSquare("UnitCycleButtonPos", "Top", iUnitCycleBtnX, iUnitCycleBtnY, iUnitCycleBtnSz)
+
+		# <!-- custom: wrap end turn and city change arrows with a panel with border effects with the help of GPT-5.2-Codex thanks a lot -->
+		iEndTurnPanelX = min(gRect("EndTurnButton").x(), gRect("MainCityScrollButtons").x()) - HSPACE(8)
+		iEndTurnPanelY = min(gRect("EndTurnButton").y(), gRect("MainCityScrollButtons").y()) - VSPACE(6)
+		iEndTurnPanelRight = max(gRect("EndTurnButton").xRight(), gRect("MainCityScrollButtons").xRight()) + HSPACE(8)
+		iEndTurnPanelBottom = max(gRect("EndTurnButton").yBottom(), gRect("MainCityScrollButtons").yBottom()) - VSPACE(2)
+		gSetRect("EndTurnButtonPanel", "Top", iEndTurnPanelX, iEndTurnPanelY, iEndTurnPanelRight - iEndTurnPanelX, iEndTurnPanelBottom - iEndTurnPanelY)
+		# <!-- custom: add left edge panel to complete the border frame (Claude code Opus 4.5) -->
+		gSetRect("EndTurnButtonPanelLeft", "Top", iEndTurnPanelX - HSPACE(28), iEndTurnPanelY, HSPACE(60), iEndTurnPanelBottom - iEndTurnPanelY)
+
 # BUG - City Arrows - end
 
 		self.setCityTabRects()
+		self.setCityTaskRects()
 		# The height of the bottom button list isn't known here,
 		# but the width is - and that width is needed in other places.
 		# So let's define a helper rectangle with maximal height.
-		iRMargin = gRect("CenterBottom").xRight() - gRect("CityTabs").x()
-		iLMargin = iRMargin / 2
-		iRMargin += 8
-		iLMargin += 8
-		gSetRect("BottomButtonMaxSpace", "CenterBottom",
-				iLMargin, 0, -iRMargin, RectLayout.MAX)
-		self.setCityTaskRects()
+		# <!-- custom: expand production chooser fairly close to the left edge of CityTaskBtns. (GPT-5.2-Codex) -->
+		iLMargin = HSPACE(10)
+		iLeft = gRect("CenterBottom").x() + iLMargin
+		iRight = gRect("MiniMapPanel").x() - HSPACE(2)
+		iWidth = iRight - iLeft
+		iMinWidth = gRect("CenterBottom").width() - 2 * iLMargin
+		if iWidth < iMinWidth:
+			iWidth = iMinWidth
+			iLeft = gRect("CenterBottom").x() + iLMargin
+		gSetRect("BottomButtonMaxSpace", "Top",
+				iLeft, gRect("CenterBottom").y(),
+				iWidth, gRect("CenterBottom").height())
 		self.setInfoPaneRects()
 # BUG - field of view slider - start
 		# <advc.090>
@@ -851,12 +1099,14 @@ class CvMainInterface:
 				ProgressBarUtil.TICK_MARKS, True)
 		self.pTwoLineResearchBar.addBarItem("TwoLineResearchBar")
 		self.pTwoLineResearchBar.addBarItem("ResearchText")
+		self.pTwoLineResearchBar.addBarItem("ResearchIconText")
 		# BUG - Bars on single line for higher resolution screens - start
 		self.pOneLineResearchBar = self.createProgressBar(
 				"OneLineResearchBar", "COLOR_RESEARCH_RATE",
 				ProgressBarUtil.TICK_MARKS, True)
 		self.pOneLineResearchBar.addBarItem("OneLineResearchBar")
 		self.pOneLineResearchBar.addBarItem("ResearchText")
+		self.pOneLineResearchBar.addBarItem("ResearchIconText")
 		# BUG - Bars on single line for higher resolution screens - end
 		self.pBarPopulationBar = self.createProgressBar("PopulationBar",
 				gc.getYieldInfo(YieldTypes.YIELD_FOOD).getColorType(),
@@ -868,40 +1118,51 @@ class CvMainInterface:
 				ProgressBarUtil.TICK_MARKS, True)
 		self.pBarProductionBar.addBarItem("ProductionBar")
 		self.pBarProductionBar.addBarItem("ProductionText")
+		self.pBarProductionBar.addBarItem("ProductionIconText")
 		self.pBarProductionBar_Whip = self.createProgressBar(
 				"ProductionBar-Whip", "COLOR_YELLOW",
 				ProgressBarUtil.CENTER_MARKS, False)
 		self.pBarProductionBar_Whip.addBarItem("ProductionBar")
 		self.pBarProductionBar_Whip.addBarItem("ProductionText")
+		self.pBarProductionBar_Whip.addBarItem("ProductionIconText")
 # BUG - Progress Bar - Tick Marks - end
-		gSetRect("CityOrgArea", "CityRightPanel",
-				RectLayout.CENTER, gRect("CityAdjustPanel").y(),
-				-HSPACE(9), VLEN(50, 0.5)) # fExp consistent with the org. button heights
+
 		# Helper rects for uniform widget placement inside the side panels
+		# <!-- custom: note: old CityOrgArea code removed since we don't put religions and corporations in the right side panel anymore -->
+		# <!-- custom: move up the Bonuses up, but after deleting the old religions and corporations, somehow they are too high, and somehow the higher this value is the lower bonuses are so increasing it to put bonuses down; was +VSPACE(4) -->
+		hMoveBonusesDownTooHigh = +VSPACE(35)
 		gSetRect("CityLeftPanelContents", "CityLeftPanel",
 				RectLayout.CENTER, gRect("CityAdjustPanel").yBottom(),
 				-HSPACE(9),
 				gRect("LowerLeftCornerPanel").y() - gRect("LowerLeftCorner").y() + 4)
 		gSetRect("CityRightPanelContents", "CityRightPanel",
-				RectLayout.CENTER, gRect("CityOrgArea").yBottom() + VSPACE(4),
+				RectLayout.CENTER, hMoveBonusesDownTooHigh,
 				-HSPACE(9),
 				gRect("LowerRightCornerPanel").y() - gRect("LowerRightCorner").y() + 4)
+		# <!-- custom: move culture bars to the right panel under Great People. (GPT-5.2-Codex) -->
+		iBarH = self.stackBarDefaultHeight()
+		iBarGap = VSPACE(-1)
+		iCultY = gRect("CityRightPanelContents").yBottom() - iBarH
+		iGPY = iCultY - iBarH - iBarGap
 		gSetRect("GreatPeopleBar", "CityRightPanelContents",
-				0, RectLayout.BOTTOM,
-				RectLayout.MAX, self.stackBarDefaultHeight())
+				0, iGPY - gRect("CityRightPanelContents").y(),
+				RectLayout.MAX, iBarH)
+		gSetRect("CultureBar", "CityRightPanelContents",
+				0, iCultY - gRect("CityRightPanelContents").y(),
+				RectLayout.MAX, iBarH)
+		gSetRect("NationalityBar", "Top",
+				gRect("MiniMapPanel").x(),
+				gRect("MiniMapPanel").y() - iBarH,
+				gRect("MiniMapPanel").width(), iBarH)
+		gSetRect("CultureBars", "CityRightPanelContents",
+				0, iGPY - gRect("CityRightPanelContents").y(),
+				RectLayout.MAX, 2 * iBarH + iBarGap)
 		gOffSetPoint("GreatPeopleText", "GreatPeopleBar",
 				RectLayout.CENTER, self.stackBarDefaultTextOffset())
 		self.setCitizenButtonRects()
 		self.setCityBonusRects()
 
 		self.setTradeRouteRects()
-		lCultureBars = ColumnLayout(gRect("CityLeftPanelContents"),
-				0, RectLayout.BOTTOM,
-				2, VSPACE(-1),
-				gRect("CityLeftPanelContents").width(), self.stackBarDefaultHeight())
-		gSetRectangle("CultureBars", lCultureBars)
-		gSetRectangle("NationalityBar", lCultureBars.next())
-		gSetRectangle("CultureBar", lCultureBars.next())
 		gOffSetPoint("NationalityText", "NationalityBar",
 				RectLayout.CENTER, self.stackBarDefaultTextOffset())
 		gOffSetPoint("CultureText", "CultureBar",
@@ -960,6 +1221,7 @@ class CvMainInterface:
 		self.szGreatPeopleIcon = u"%c" % self.iGreatPeopleIcon
 		self.szDefenseIcon = u"%c" % self.iDefenseIcon
 		self.szMapIcon = u"%c" % g.getSymbolID(FontSymbols.MAP_CHAR)
+		self.szReligionIcon = u"%c" % g.getSymbolID(FontSymbols.RELIGION_CHAR)
 		self.szCitizenIcon = u"%c" % g.getSymbolID(FontSymbols.CITIZEN_CHAR)
 		self.szMovesIcon = u"%c" % g.getSymbolID(FontSymbols.MOVES_CHAR)
 		self.szStrengthIcon = u"%c" % g.getSymbolID(FontSymbols.STRENGTH_CHAR)
@@ -969,6 +1231,8 @@ class CvMainInterface:
 		# Precomputed yield/commerce icon strings (frequently used in city screen)
 		self.szFoodIcon = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()
 		self.szProductionIcon = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
+		self.szCultureIcon = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()
+		self.szGoldIcon = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()
 		# Precomputed constants
 		self.iMoveDenominator = gc.getMOVE_DENOMINATOR()
 		# Precomputed localText strings (called with empty tuple - constant results)
@@ -993,19 +1257,16 @@ class CvMainInterface:
 		# We can go a little wider
 		iMaxMiniMapPanelWidth = iDefaultMiniMapPanelWidth + 8
 		iMiniMapPanelWidth = iDefaultMiniMapPanelWidth
-		iMiniMapPanelRMargin = HSPACE(6)
+		# <!-- custom: move minimap to the right edge like C2C mod for cleaner look and more space. Credit: C2C mod (Caveman2Cosmos). (Claude code Opus 4.5) -->
+		# Use RectLayout.RIGHT to flush minimap to right edge (was HSPACE(6) margin)
 		if gc.getMap().isWrapX():
 			# Avoid black bars on the sides
 			iMiniMapPanelWidth = iMiniMapHeight * gc.getMap().getGridWidth()
 			iMiniMapPanelWidth /= gc.getMap().getGridHeight()
-			# Somehow the adjustment to map dimensions doesn't quite work out
-			iMiniMapPanelWidth += iMiniMapPanelRMargin
 			iMiniMapPanelWidth = min(iMiniMapPanelWidth, iMaxMiniMapPanelWidth)
 			# Need enough space atop the panel for the minimap buttons
 			# (would be better to calculate here how much space those actually take up ...)
 			iMiniMapPanelWidth = max(iMiniMapPanelWidth, 204)
-		# Center the panel within the available space
-		iMiniMapPanelRMargin += (iDefaultMiniMapPanelWidth - iMiniMapPanelWidth) / 2
 		# </advc.137>
 		iMiniMapVMargin = HSPACE(3)
 		gSetRect("MiniMapPanel",
@@ -1014,7 +1275,7 @@ class CvMainInterface:
 				# based on the mini map (panel) size than vice versa, so I'm
 				# setting the mini map rects first.
 				"Top",
-				-iMiniMapPanelRMargin, RectLayout.BOTTOM,
+				RectLayout.RIGHT, RectLayout.BOTTOM,  # Flush to right edge
 				iMiniMapPanelWidth,
 				iMiniMapHeight + gRect("MiniMapButton").size() / 2 + 3 + 2 * iMiniMapVMargin)
 		gSetRect("MiniMap", "MiniMapPanel",
@@ -1086,7 +1347,7 @@ class CvMainInterface:
 				RectLayout.CENTER, VLEN(3))
 		gOffSetPoint("DefenseText", "CityNameBackground",
 				RectLayout.RIGHT, VLEN(7, 0.7))
-		gPoint("DefenseText").move(-HSPACE(10), 0)
+		gPoint("DefenseText").move(-HSPACE(2), 0)
 		lCityScrollButtons = RowLayout(gRect("CityNameBackground"),
 				HSPACE(16), RectLayout.CENTER,
 				2, HSPACE(-18, 0.5), BTNSZ(32))
@@ -1275,15 +1536,15 @@ class CvMainInterface:
 		gOffSetPoint("BuildingListLabel", "BuildingListBackground",
 				RectLayout.CENTER, self.cityScreenHeadingOffset())
 		
-		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks -->
-		# Step 2: Move the Tables Up (Reclaim Space)
-		# 2. Buildings List Search for def setBuildingListRects. We need to change .yBottom() to .y() in two places here (one for position, one for height calculation).
+		iTopAbs = gRect("BuildingListBackground").y() + VSPACE(5)
+		iBottomAbs = gRect("LowerLeftCornerPanel").y()
+		iRowH = BTNSZ(26)
+		iAvailH = max(0, iBottomAbs - iTopAbs)
+		iTableH = iAvailH - (iAvailH % iRowH) - VSPACE(3)
 		gSetRect("BuildingListTable", "CityLeftPanelContents",
 				RectLayout.CENTER,
-				# 1 + gRect("BuildingListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
-				# -1, gRect("CultureBars").y() - gRect("BuildingListBackground").yBottom() - 1 - VSPACE(4))
-				1 + gRect("BuildingListBackground").y() - gRect("CityLeftPanelContents").y(),
-                -1, gRect("CultureBars").y() - gRect("BuildingListBackground").y() - 1 - VSPACE(4))
+				iTopAbs - gRect("CityLeftPanelContents").y(),
+				-1, iTableH)
 
 	def setCityTabRects(self):
 		iButtons = 3
@@ -1301,19 +1562,7 @@ class CvMainInterface:
 		#iBtnW = 64
 		#iBtnH = 30
 
-		gSetRect("CityTaskArea", "LowerRightCorner",
-				0, 0,
-				gRect("MiniMapPanel").x() - gRect("LowerRightCorner").x(), RectLayout.MAX)
-		# Sadly, these itty-bitty styled buttons aren't scalable.
-		#
-		# iBtnUnitW = BTNSZ(11)
-		# iSmallBtnW = 2 * iBtnUnitW
-		# iMediumBtnW = 3 * iBtnUnitW
-		# iLargeBtnW = 3 * iSmallBtnW
-		# iSmallBtnH = BTNSZ(24)
-		# iMediumBtnH = BTNSZ(28)
-		# iLargeBtnH = BTNSZ(30)
-		#
+		# <!-- custom: move city screen config buttons above the map, and hurry buttons above the production queue. (GPT-5.2-Codex) -->
 		iSmallBtnW = 22
 		iSmallBtnH = 24
 		iHighBtnH = 27
@@ -1321,38 +1570,72 @@ class CvMainInterface:
 		iMediumBtnH = 28
 		iLargeBtnW = 64
 		iLargeBtnH = 30
-		gSetRect("CityTaskBtns", "CityTaskArea",
-				RectLayout.CENTER, RectLayout.CENTER,
-				iLargeBtnW, iSmallBtnH + iHighBtnH + 2 * iMediumBtnH + iLargeBtnH)
-		# The above doesn't look centered, due to widget styles I guess.
-		gRect("CityTaskBtns").move(2, 3)
-		gSetRect("Conscript", "CityTaskBtns",
-				0, 0, iLargeBtnW, iLargeBtnH)
-		lHurryBtns = RowLayout(gRect("CityTaskBtns"),
-				0, gRect("Conscript").height(),
-				2, 0, iMediumBtnW, iMediumBtnH)
-		for i in range(2):
-			gSetRectangle("Hurry" + str(i), lHurryBtns.next())
-		lAutomateBtns = RowLayout(gRect("CityTaskBtns"),
-				0, gRect("Hurry0").yBottom() - gRect("CityTaskBtns").y(),
-				2, 0, iMediumBtnW, iMediumBtnH)
-		gSetRectangle("AutomateProduction", lAutomateBtns.next())
-		gSetRectangle("AutomateCitizens", lAutomateBtns.next())
-		lEmphYieldBtns = RowLayout(gRect("CityTaskBtns"),
-				0, gRect("AutomateProduction").yBottom() - gRect("CityTaskBtns").y(),
-				3, 0, iSmallBtnW, iSmallBtnH)
-		for i in range(3):
-			gSetRectangle("Emphasize" + str(i), lEmphYieldBtns.next())
-		lEmphMiscBtns = RowLayout(gRect("CityTaskBtns"),
-				0, gRect("Emphasize0").yBottom() - gRect("CityTaskBtns").y(),
-				3, 0, iSmallBtnW, iHighBtnH)
-		for i in range(3):
-			gSetRectangle("Emphasize" + str(3 + i), lEmphMiscBtns.next())
-		# The emphasize buttons in the middle are slightly thinner
-		gRect("Emphasize1").adjustSize(-2, 0)
-		gRect("Emphasize4").adjustSize(-2, 0)
-		gRect("Emphasize2").move(-2, 0)
-		gRect("Emphasize5").move(-2, 0)
+		iBarH = self.stackBarDefaultHeight()
+		iConfigBtns = 8
+		iConfigBtnSpacing = HSPACE(-1)
+		iConfigRowW = iConfigBtns * iSmallBtnW + (iConfigBtns - 1) * iConfigBtnSpacing
+		iCityTaskBtnsX = gRect("MiniMapPanel").xRight() - iConfigRowW + HSPACE(2)
+		iCityTaskBtnsY = gRect("MiniMapPanel").y() - iBarH - iSmallBtnH - VSPACE(2)
+		gSetRect("CityTaskBtns", "Top",
+				iCityTaskBtnsX, iCityTaskBtnsY,
+				iConfigRowW, iSmallBtnH)
+		# CityTaskArea is kept for compatibility but sized to fit CityTaskBtns
+		gSetRect("CityTaskArea", "CityTaskBtns",
+				0, 0,
+				RectLayout.MAX, RectLayout.MAX)
+		lConfigBtns = RowLayout(gRect("CityTaskBtns"),
+				0, 0,
+				iConfigBtns, iConfigBtnSpacing, iSmallBtnW, iSmallBtnH)
+		gSetRectangle("AutomateProduction", lConfigBtns.next())
+		gSetRectangle("AutomateCitizens", lConfigBtns.next())
+		for i in range(6):
+			gSetRectangle("Emphasize" + str(i), lConfigBtns.next())
+
+		iCityArrowBtnSz = BTNSZ(32)
+		iCityArrowSpacing = HSPACE(-12)
+		iCityArrowRowW = 2 * iCityArrowBtnSz + iCityArrowSpacing
+		iCityArrowRowX = gRect("CityTaskBtns").x() - iCityArrowRowW - HSPACE(2) + HSPACE(3)
+		iCityArrowRowY = gRect("CityTaskBtns").y() - VSPACE(4)
+		gSetRect("CityScrollButtons", "Top",
+				iCityArrowRowX, iCityArrowRowY,
+				iCityArrowRowW, iCityArrowBtnSz)
+		lCityScrollButtons = RowLayout(gRect("CityScrollButtons"),
+				0, 0,
+				2, iCityArrowSpacing, iCityArrowBtnSz, iCityArrowBtnSz)
+		gSetRectangle("CityScrollMinus", lCityScrollButtons.next())
+		gSetRectangle("CityScrollPlus", lCityScrollButtons.next())
+
+		iHurrySpacing = HSPACE(2)
+		iHurryRowW = 3 * iMediumBtnW + 2 * iHurrySpacing
+		iHurryRowX = gRect("LowerLeftCornerPanel").xRight() - iHurryRowW - HSPACE(16)
+		iHurryRowY = gRect("LowerLeftCornerPanel").y() + VSPACE(2)
+		iBuildFilterSpacing = HSPACE(2)
+		iBuildFilterRowW = 4 * iMediumBtnW + 3 * iBuildFilterSpacing
+		iBuildFilterRowX = iHurryRowX - iBuildFilterRowW - HSPACE(6)
+		iBuildFilterRowY = iHurryRowY
+		gSetRect("CityBuildFilterBtns", "Top",
+				iBuildFilterRowX,
+				iBuildFilterRowY,
+				iBuildFilterRowW, iMediumBtnH)
+		lBuildFilterBtns = RowLayout(gRect("CityBuildFilterBtns"),
+				0, 0,
+				4, iBuildFilterSpacing, iMediumBtnW, iMediumBtnH)
+		gSetRectangle("BuildFilter0", lBuildFilterBtns.next())  # All
+		gSetRectangle("BuildFilter1", lBuildFilterBtns.next())  # Buildings
+		gSetRectangle("BuildFilter2", lBuildFilterBtns.next())  # National
+		gSetRectangle("BuildFilter3", lBuildFilterBtns.next())  # World
+		gSetRect("CityHurryBtns", "Top",
+				iHurryRowX,
+				iHurryRowY,
+				iHurryRowW, iMediumBtnH)
+		lHurryBtns = RowLayout(gRect("CityHurryBtns"),
+				0, 0,
+				3, iHurrySpacing, iMediumBtnW, iMediumBtnH)
+		gSetRectangle("Hurry0", lHurryBtns.next())
+		gSetRectangle("Hurry1", lHurryBtns.next())
+		gSetRectangle("Conscript", lHurryBtns.next())
+		gRect("Conscript").adjustSize(2, 4)
+		gRect("Conscript").move(-4, -2)
 
 	def setInfoPaneRects(self):
 		# and the movement of promo buttons (incl. stack promos) is still to be revised
@@ -1360,6 +1643,12 @@ class CvMainInterface:
 				RectLayout.CENTER, RectLayout.CENTER, -HSPACE(8), -VSPACE(9))
 		# Doesn't quite look properly centered
 		gRect("SelectedUnitPanel").move(-2, 2)
+		iUnitInfoBtnSize = BTNSZ(24)
+		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None or self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON:
+			gSetSquare("SelectedUnitInfoButton", "SelectedUnitPanel",
+					HSPACE(2), VSPACE(2), iUnitInfoBtnSize)
+		else:
+			iUnitInfoBtnSize = 0
 		gSetRect("SelectedUnitText", "SelectedUnitPanel",
 				HSPACE(2), VLEN(30, 0.7),
 				(gRect("SelectedUnitPanel").width() * 183) / 280,
@@ -1367,7 +1656,7 @@ class CvMainInterface:
 				# so nothing is gained by making the table higher.
 				102)
 		gOffSetPoint("SelectedUnitLabel", "SelectedUnitPanel",
-				HSPACE(11), VSPACE(2))
+				HSPACE(8) + iUnitInfoBtnSize, VSPACE(2))
 		gSetRect("SelectedCityText", "SelectedUnitPanel",
 				HSPACE(2), RectLayout.CENTER,
 				gRect("SelectedUnitText").width(), -1)
@@ -1432,10 +1721,11 @@ class CvMainInterface:
 		# By adding self.cityScreenHeadingBackgrHeight() (which is the height of the gray bar you removed, ~30 pixels), you lift the entire specialist section up by that amount.
 		# Since you hid the Specialist Header but didn't expand the Bonus Panel (Step 2.3), there was a "gap" at the top. Moving the specialists up will fill that top gap and open up a new 30-pixel gap at the bottom, right above the Great Person Bar, which is perfect for your future breakdown widget.
 		# <!-- custom: add a bit more for beautification and nicer spacing -->
-		iHeightRoomForSpecialistBreakdown = self.cityScreenHeadingBackgrHeight() + 10
+		iHeightRoomForSpecialistBreakdown = (self.cityScreenHeadingBackgrHeight() + 10 +
+				self.cityScreenBottomLift())
+		iBarsStackHeight = gRect("CultureBars").height()
 		iNonAdjustablesOffset = (3 * iSmallVSpace + 2 * iCitizenBtnSize +
-				# gRect("GreatPeopleBar").height())
-				gRect("GreatPeopleBar").height() + iHeightRoomForSpecialistBreakdown)
+				iBarsStackHeight + iHeightRoomForSpecialistBreakdown)
 
 		lDecreaseSpecialistButtons = ColumnLayout(gRect("CityRightPanelContents"),
 				RectLayout.RIGHT, RectLayout.BOTTOM,
@@ -1466,16 +1756,14 @@ class CvMainInterface:
 				RectLayout.RIGHT, RectLayout.BOTTOM, iCitizenBtnSize)
 		gRect("FirstFreeSpecialist").move(
 				-gRect("AdjustSpecialistButtons").width() - iBigHSpace,
-				# -gRect("GreatPeopleBar").height() - iSmallVSpace)
-				-gRect("GreatPeopleBar").height() - iSmallVSpace - iHeightRoomForSpecialistBreakdown)
+				-iBarsStackHeight - iCitizenBtnSize - iSmallVSpace -
+				iHeightRoomForSpecialistBreakdown)
 		lAngryCitizenButtons = RowLayout(gRect("CityRightPanelContents"),
 				RectLayout.RIGHT, RectLayout.BOTTOM,
 				MAX_CITIZEN_BUTTONS, iSmallHSpace, iCitizenBtnSize)
 		lAngryCitizenButtons.move(
 				-gRect("AdjustSpecialistButtons").width() - iBigHSpace,
-				-gRect("GreatPeopleBar").height()
-				# - gRect("FirstFreeSpecialist").height() - 2 * iSmallVSpace)
-				- gRect("FirstFreeSpecialist").height() - 2 * iSmallVSpace - iHeightRoomForSpecialistBreakdown)
+				-iBarsStackHeight - iHeightRoomForSpecialistBreakdown)
 		gSetRectangle("AngryCitizenButtons", lAngryCitizenButtons)
 
 		iChevronSize = BTNSZ(10)
@@ -1626,8 +1914,10 @@ class CvMainInterface:
 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
 		if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS is None:
 			self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS") > 0)
-		if self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION is None:
-			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION") > 0)
+		if self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN is None:
+			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN") > 0)
+		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None:
+			self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON") > 0)
 
 		lTop = gRect("Top")
 
@@ -1700,6 +1990,15 @@ class CvMainInterface:
 		self.addPanel("LowerRightCornerPanel")
 		screen.setStyle("LowerRightCornerPanel", "Panel_Game_HudBR_Style")
 		screen.hide("LowerRightCornerPanel")
+
+		self.addPanel("EndTurnButtonPanel")
+		screen.setStyle("EndTurnButtonPanel", "Panel_Game_HudBR_Style")
+		screen.hide("EndTurnButtonPanel")
+
+		# <!-- custom: left edge panel to complete the border frame (Claude code Opus 4.5) -->
+		self.addPanel("EndTurnButtonPanelLeft")
+		screen.setStyle("EndTurnButtonPanelLeft", "Panel_Game_HudBL_Style")
+		screen.hide("EndTurnButtonPanelLeft")
 
 		self.addPanel("InterfaceTopCenter")
 		screen.setStyle("InterfaceTopCenter", "Panel_Game_HudTC_Style")
@@ -2167,6 +2466,11 @@ class CvMainInterface:
 		szHideList.append("Hurry0")
 		szHideList.append("Hurry1")
 
+		szHideList.append(self.buildFilterBtnAll)
+		szHideList.append(self.buildFilterBtnBuildings)
+		szHideList.append(self.buildFilterBtnNational)
+		szHideList.append(self.buildFilterBtnWorld)
+
 		screen.registerHideList(szHideList, len(szHideList), 0)
 
 		return 0
@@ -2195,6 +2499,22 @@ class CvMainInterface:
 		# advc.092: Also apply some HUD scaling
 		return BTNSZ(iSize, 0.7)
 # BUG - Build/Action Icon Size - end
+
+	def isWorldWonderClass(self, eBuildingClass):
+		kClassInfo = gc.getBuildingClassInfo(eBuildingClass)
+		return (kClassInfo.getMaxGlobalInstances() > -1 or
+				kClassInfo.getMaxTeamInstances() > -1)
+
+	def isNationalWonderClass(self, eBuildingClass):
+		kClassInfo = gc.getBuildingClassInfo(eBuildingClass)
+		return (kClassInfo.getMaxPlayerInstances() > -1 and
+				not self.isWorldWonderClass(eBuildingClass))
+
+	def isRegularBuildingClass(self, eBuildingClass):
+		kClassInfo = gc.getBuildingClassInfo(eBuildingClass)
+		return (kClassInfo.getMaxGlobalInstances() == -1 and
+				kClassInfo.getMaxTeamInstances() == -1 and
+				kClassInfo.getMaxPlayerInstances() == -1)
 
 	def updateBottomButtonList(self):
 # BUG - Build/Action Icon Size - start
@@ -2241,9 +2561,11 @@ class CvMainInterface:
 		iCols = self.numPlotListButtonsPerRow()
 		for j in range(iRows):
 			szPanelName = "PlotListPanel" + str(j)
+			# <!-- custom: move unit bar ("PlotListPanel") more to the left so it is as of now aligned with where production chooser buttons start. Done with the help of GPT-5.2-Codex thanks a lot, was 6 -->
+			plotListPanelWGap = 0
 			gSetRect(szPanelName, "Top",
 					# (Don't want these margins to scale fully)
-					gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + 6,
+					gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap,
 					gRect("CenterBottomPanel").y() - VSPACE(2) - 4
 					+ (j - iRows) * iBtnSize,
 					iCols * iBtnSize + HSPACE(3),
@@ -2524,7 +2846,7 @@ class CvMainInterface:
 			self.updatePercentButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.Flag_DIRTY_BIT)):
-			self.updateFlag()
+			# self.updateFlag()
 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
 			# Miscellaneous buttons (civics screen, etc)
@@ -2716,6 +3038,8 @@ class CvMainInterface:
 		screen.setEndTurnState("EndTurnText", u"")
 		screen.hideEndTurn("EndTurnText")
 		screen.hideEndTurn("EndTurnButton")
+		screen.hide("EndTurnButtonPanel")
+		screen.hide("EndTurnButtonPanelLeft")
 
 	def updateEndTurnButton(self):
 		global g_eEndTurnButtonState
@@ -2736,8 +3060,22 @@ class CvMainInterface:
 
 			if bShow:
 				screen.showEndTurn("EndTurnButton")
+				if not CyInterface().isCityScreenUp():
+					screen.setPanelSize("EndTurnButtonPanel",
+							gRect("EndTurnButtonPanel").x(), gRect("EndTurnButtonPanel").y(),
+							gRect("EndTurnButtonPanel").width(), gRect("EndTurnButtonPanel").height())
+					screen.show("EndTurnButtonPanel")
+					screen.setPanelSize("EndTurnButtonPanelLeft",
+							gRect("EndTurnButtonPanelLeft").x(), gRect("EndTurnButtonPanelLeft").y(),
+							gRect("EndTurnButtonPanelLeft").width(), gRect("EndTurnButtonPanelLeft").height())
+					screen.show("EndTurnButtonPanelLeft")
+				else:
+					screen.hide("EndTurnButtonPanel")
+					screen.hide("EndTurnButtonPanelLeft")
 			else:
 				screen.hideEndTurn("EndTurnButton")
+				screen.hide("EndTurnButtonPanel")
+				screen.hide("EndTurnButtonPanelLeft")
 
 			if g_eEndTurnButtonState == eState:
 				return
@@ -2745,9 +3083,13 @@ class CvMainInterface:
 			g_eEndTurnButtonState = eState
 		else:
 			screen.hideEndTurn("EndTurnButton")
+			screen.hide("EndTurnButtonPanel")
+			screen.hide("EndTurnButtonPanelLeft")
 
 	def updateMiscButtons(self):
 		screen = self.screen
+		self._applyCityScreenSideLift(CyInterface().isCityScreenUp())
+		self._applyMapViewRightPanelNarrow(not CyInterface().isCityScreenUp())
 # BUG - Great Person Bar - start
 		if (CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and
 				CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
@@ -2760,10 +3102,8 @@ class CvMainInterface:
 				not CyInterface().isCityScreenUp()):
 			screen.show("InterfaceHelpButton")
 			if CyInterface().shouldDisplayFlag():
-				screen.show("CivilizationFlag")
 				screen.show("MainMenuButton")
 			else:
-				screen.hide("CivilizationFlag")
 				screen.hide("MainMenuButton")
 			# </advc.004y>
 		else:
@@ -3025,7 +3365,7 @@ class CvMainInterface:
 
 		# <!-- custom: optionally hide the unit plot list bar only while a city is selected (ChatGPT-5.2 Thinking) -->
 		# This avoids overlap when the city build bar is configured to show extra rows.
-		if (self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION and CyInterface().isCitySelection()):
+		if (self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN and CyInterface().isCitySelection()):
 			# Make sure any navigation arrows are hidden too (they are shown only in the draw methods).
 			screen.hide("PlotListMinus")
 			screen.hide("PlotListPlus")
@@ -3370,17 +3710,20 @@ class CvMainInterface:
 # BUG - BUG unit plot draw method - end
 
 
-	# This will update the flag widget for SP hotseat and dbeugging
-	def updateFlag(self):
-		eIFaceVis = CyInterface().getShowInterface()
-		if (eIFaceVis != InterfaceVisibility.INTERFACE_HIDE_ALL and
-				eIFaceVis != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
-				eIFaceVis != InterfaceVisibility.INTERFACE_ADVANCED_START):
-			lRect = gRect("CivilizationFlag")
-			self.screen.addFlagWidgetGFC("CivilizationFlag",
-					lRect.x(), lRect.y(), lRect.width(), lRect.height(),
-					gc.getGame().getActivePlayer(),
-					WidgetTypes.WIDGET_FLAG, gc.getGame().getActivePlayer(), -1)
+	# <!-- custom: do not show the useless flag, we need the space for buttons anyway, done with the help of GPT-5.2-Codex thanks a lot -->
+	# # This will update the flag widget for SP hotseat and dbeugging
+	# def updateFlag(self):
+	# 	self.screen.hide("CivilizationFlag")
+	# 	return
+	# 	eIFaceVis = CyInterface().getShowInterface()
+	# 	if (eIFaceVis != InterfaceVisibility.INTERFACE_HIDE_ALL and
+	# 			eIFaceVis != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
+	# 			eIFaceVis != InterfaceVisibility.INTERFACE_ADVANCED_START):
+	# 		lRect = gRect("CivilizationFlag")
+	# 		self.screen.addFlagWidgetGFC("CivilizationFlag",
+	# 				lRect.x(), lRect.y(), lRect.width(), lRect.height(),
+	# 				gc.getGame().getActivePlayer(),
+	# 				WidgetTypes.WIDGET_FLAG, gc.getGame().getActivePlayer(), -1)
 
 	# Will hide and show the selection buttons and their associated buttons
 	def updateSelectionButtons(self):
@@ -3409,6 +3752,7 @@ class CvMainInterface:
 		xResolution = screen.getXResolution()
 		yResolution = screen.getYResolution()
 
+		self._applyCityScreenSideLift(CyInterface().isCityScreenUp())
 		self.updateBottomButtonList()
 		screen.clearMultiList("BottomButtonList")
 		screen.hide("BottomButtonList")
@@ -3455,9 +3799,12 @@ class CvMainInterface:
 				#screen.setStyle("Liberate", "Button_CityT1_Style")
 				#screen.hide("Liberate")
 
-				self.setStyledButton("Conscript", "Button_CityT1_Style",
-						WidgetTypes.WIDGET_CONSCRIPT, -1, -1,
-						None, self.szTextDraftText)
+				# <!-- custom: use custom DDS for draft button; placeholder paths. (GPT-5.2-Codex) -->
+				self.addCheckBox("Conscript",
+						"INTERFACE_CITY_SCREEN_DRAFT",
+						"INTERFACE_CITY_SCREEN_DRAFT",
+						ButtonStyles.BUTTON_STYLE_IMAGE,
+						WidgetTypes.WIDGET_CONSCRIPT, -1, -1)
 				screen.hide("Conscript")
 
 				for i in range(2):
@@ -3465,6 +3812,28 @@ class CvMainInterface:
 					self.setStyledButton(szName, "Button_CityC" + str(i+1) + "_Style",
 						WidgetTypes.WIDGET_HURRY, i)
 					screen.hide(szName)
+
+				# <!-- custom: building list filter buttons using BUG art (paths cached in initState). (GPT-5.2-Codex, Claude Opus 4.5) -->
+				self.addCheckBox(self.buildFilterBtnAll,
+						self.buildFilterAllBuildingsOn, self.buildFilterAllBuildingsOff,
+						ButtonStyles.BUTTON_STYLE_IMAGE,
+						WidgetTypes.WIDGET_GENERAL, 0, -1)
+				screen.hide(self.buildFilterBtnAll)
+				self.addCheckBox(self.buildFilterBtnBuildings,
+						self.buildFilterRegularBuildingsOn, self.buildFilterRegularBuildingsOff,
+						ButtonStyles.BUTTON_STYLE_IMAGE,
+						WidgetTypes.WIDGET_GENERAL, 1, -1)
+				screen.hide(self.buildFilterBtnBuildings)
+				self.addCheckBox(self.buildFilterBtnNational,
+						self.buildFilterNatWonderOn, self.buildFilterNatWonderOff,
+						ButtonStyles.BUTTON_STYLE_IMAGE,
+						WidgetTypes.WIDGET_GENERAL, 2, -1)
+				screen.hide(self.buildFilterBtnNational)
+				self.addCheckBox(self.buildFilterBtnWorld,
+						self.buildFilterWorldWonderOn, self.buildFilterWorldWonderOff,
+						ButtonStyles.BUTTON_STYLE_IMAGE,
+						WidgetTypes.WIDGET_GENERAL, 3, -1)
+				screen.hide(self.buildFilterBtnWorld)
 
 				self.addCheckBox("AutomateProduction", "", "",
 						ButtonStyles.BUTTON_STYLE_STANDARD,
@@ -3488,18 +3857,25 @@ class CvMainInterface:
 				screen.setState("AutomateProduction",
 						pHeadSelectedCity.isProductionAutomated())
 
-				for i in range (g_NumEmphasizeInfos):
-					szButtonID = "Emphasize" + str(i)
-					screen.show(szButtonID)
-					if (pHeadSelectedCity.AI_isEmphasize(i)):
-						screen.setState(szButtonID, True)
-					else:
-						screen.setState(szButtonID, False)
+				if CyInterface().isCityScreenUp():
+					for i in range (g_NumEmphasizeInfos):
+						szButtonID = "Emphasize" + str(i)
+						screen.show(szButtonID)
+						if (pHeadSelectedCity.AI_isEmphasize(i)):
+							screen.setState(szButtonID, True)
+						else:
+							screen.setState(szButtonID, False)
+				else:
+					# <!-- custom: hide city config buttons in map view; hurry stays visible for convenience. (GPT-5.2-Codex) -->
+					screen.hide("AutomateProduction")
+					screen.hide("AutomateCitizens")
+					for i in range (g_NumEmphasizeInfos):
+						screen.hide("Emphasize" + str(i))
 
-				# City Tabs
-				for i in range(g_NumCityTabTypes):
-					szButtonID = "CityTab" + str(i)
-					screen.show(szButtonID)
+				# <!-- custom: CityTab buttons are hidden; keep show block commented for reference. (GPT-5.2-Codex) -->
+				# for i in range(g_NumCityTabTypes):
+				# 	szButtonID = "CityTab" + str(i)
+				# 	screen.show(szButtonID)
 
 				# Hurry button show...
 				for i in range(g_NumHurryInfos):
@@ -3508,11 +3884,56 @@ class CvMainInterface:
 					screen.enable(szButtonID, pHeadSelectedCity.canHurry(i, False))
 
 				# Conscript Button Show
+				bCanConscript = pHeadSelectedCity.canConscript()
 				screen.show("Conscript")
-				if (pHeadSelectedCity.canConscript()):
-					screen.enable("Conscript", True)
+				screen.enable("Conscript", bCanConscript)
+				screen.setState("Conscript", bCanConscript)
+
+				# <!-- custom: show building filters only on city screen; hurry stays visible in map view for convenience. (GPT-5.2-Codex) -->
+				if CyInterface().isCityScreenUp():
+					iBuildAll = 0
+					iBuildBuildings = 0
+					iBuildNational = 0
+					iBuildWorld = 0
+					for iBuilding in range(gc.getNumBuildingInfos()):
+						if pHeadSelectedCity.getNumBuilding(iBuilding) > 0:
+							iBuildAll += 1
+							eBuildingClass = gc.getBuildingInfo(iBuilding).getBuildingClassType()
+							if self.isRegularBuildingClass(eBuildingClass):
+								iBuildBuildings += 1
+							elif self.isNationalWonderClass(eBuildingClass):
+								iBuildNational += 1
+							elif self.isWorldWonderClass(eBuildingClass):
+								iBuildWorld += 1
+					screen.show(self.buildFilterBtnAll)
+					screen.show(self.buildFilterBtnBuildings)
+					screen.show(self.buildFilterBtnNational)
+					screen.show(self.buildFilterBtnWorld)
+					screen.enable(self.buildFilterBtnAll, True)
+					screen.enable(self.buildFilterBtnBuildings, True)
+					screen.enable(self.buildFilterBtnNational, True)
+					screen.enable(self.buildFilterBtnWorld, True)
+					if iBuildAll > 0:
+						screen.setState(self.buildFilterBtnAll, self.iBuildingFilter == 0)
+					else:
+						screen.setState(self.buildFilterBtnAll, False)
+					if iBuildBuildings > 0:
+						screen.setState(self.buildFilterBtnBuildings, self.iBuildingFilter == 1)
+					else:
+						screen.setState(self.buildFilterBtnBuildings, False)
+					if iBuildNational > 0:
+						screen.setState(self.buildFilterBtnNational, self.iBuildingFilter == 2)
+					else:
+						screen.setState(self.buildFilterBtnNational, False)
+					if iBuildWorld > 0:
+						screen.setState(self.buildFilterBtnWorld, self.iBuildingFilter == 3)
+					else:
+						screen.setState(self.buildFilterBtnWorld, False)
 				else:
-					screen.enable("Conscript", False)
+					screen.hide(self.buildFilterBtnAll)
+					screen.hide(self.buildFilterBtnBuildings)
+					screen.hide(self.buildFilterBtnNational)
+					screen.hide(self.buildFilterBtnWorld)
 
 				# Liberate Button Show
 				#screen.show("Liberate")
@@ -3762,9 +4183,10 @@ class CvMainInterface:
 	def updateUnitCyclingButtons(self, pHeadSelectedUnit):
 		if MainOpt.isUnitCyclingButtonsDisabled():
 			return
-		lButtons = ColumnLayout(gRect("CenterBottom"),
-				-HSPACE(5), VSPACE(5),
-				2, VSPACE(4), BTNSZ(32))
+		# <!-- custom: position UnitCycle button to left of city arrows in the EndTurnButtonPanel (Claude code Opus 4.5) -->
+		lButtons = RowLayout(gRect("UnitCycleButtonPos"),
+				0, 0,
+				2, HSPACE(-4), BTNSZ(32))
 		gSetRectangle("UnitCycleButtons", lButtons)
 		pNextUnit = gc.getGame().getNextUnitInCycle(True, False)
 		if pNextUnit:
@@ -4225,6 +4647,7 @@ class CvMainInterface:
 		screen = self.screen
 
 		screen.hide("ResearchText")
+		screen.hide("ResearchIconText")
 		screen.hide("GoldText")
 		screen.hide("TimeText")
 		screen.hide("TwoLineResearchBar")
@@ -4388,37 +4811,58 @@ class CvMainInterface:
 			szResearchBar = "OneLineResearchBar"
 		else:
 			szResearchBar = "TwoLineResearchBar"
+		iResearchTextOffset = self.stackBarDefaultTextOffset() - VSPACE(2)
 		gOffSetPoint("ResearchText", szResearchBar,
-				RectLayout.CENTER, self.stackBarDefaultTextOffset())
+				RectLayout.CENTER, iResearchTextOffset)
 		bAnarchy = gc.getPlayer(ePlayer).isAnarchy()
 		szText = None
+		szIconText = None
+		iImgSize = -1
 		iTech = -1 # advc.001: Need tech id for jump to Pedia
 		if bAnarchy:
 			szText = localText.getText("INTERFACE_ANARCHY",
 					(gc.getPlayer(ePlayer).getAnarchyTurns(),))
 		elif gc.getPlayer(ePlayer).getCurrentResearch() != -1:
-			szText = CyGameTextMgr().getResearchStr(ePlayer)
 			iTech = gc.getPlayer(ePlayer).getCurrentResearch() # advc.001
+			researchProgress = gc.getTeam(gc.getPlayer(ePlayer).getTeam()).getResearchProgress(iTech)
+			overflowResearch = (gc.getPlayer(ePlayer).getOverflowResearch() *
+					gc.getPlayer(ePlayer).calculateResearchModifier(iTech)) / 100
+			researchCost = gc.getTeam(gc.getPlayer(ePlayer).getTeam()).getResearchCost(iTech)
+			bTickMarks = MainOpt.isShowBarTickMarks() # advc.078
+			researchRate = gc.getPlayer(ePlayer).calculateResearchRate(-1)
+			if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+				szTechName = gc.getTechInfo(iTech).getDescription()
+				iTurns = gc.getPlayer(ePlayer).getResearchTurnsLeft(iTech, True)
+				szTechBtn = gc.getTechInfo(iTech).getButton()
+				iImgSize = BTNSZ(20)
+				szIconText = "<img=%s size=%d/>" % (szTechBtn, iImgSize)
+				szText = "%s: %d / %d (%d)" % (szTechName, researchProgress + overflowResearch, researchCost, iTurns)
+			else:
+				szText = CyGameTextMgr().getResearchStr(ePlayer)
 		if szText:
-			self.setText("ResearchText", "Background", szText,
-					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4,
-					WidgetTypes.WIDGET_RESEARCH, iTech) # advc.001: Pass along tech id
+			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
+					and not bAnarchy and iTech != -1 and szTechBtn):
+				self.setSASCenteredImageButtonAtLeftOfTextRow("ResearchText", "ResearchIconText",
+						"Background", szText, szTechBtn, iImgSize, None,
+						gPoint("ResearchText").y(), HSPACE(2), szResearchBar,
+						0, 0, FontTypes.GAME_FONT, -0.4,
+						WidgetTypes.WIDGET_RESEARCH, iTech)
+			else:
+				self.setText("ResearchText", "Background", szText,
+						CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4,
+						WidgetTypes.WIDGET_RESEARCH, iTech) # advc.001: Pass along tech id
 			# advc.004x: Always show ResearchText (i.e. anarchy turns)
 			#if not bAnarchy:
 			screen.show("ResearchText")
+			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
+					and not bAnarchy and iTech != -1 and szTechBtn):
+				screen.show("ResearchIconText")
+			else:
+				screen.hide("ResearchIconText")
 			#else:
 			#	screen.hide("ResearchText")
 		if szText and not bAnarchy:
 # BUG - Bars on single line for higher resolution screens - end
-			researchProgress = gc.getTeam(gc.getPlayer(ePlayer).getTeam()).getResearchProgress(
-					gc.getPlayer(ePlayer).getCurrentResearch())
-			overflowResearch = (gc.getPlayer(ePlayer).getOverflowResearch() *
-					gc.getPlayer(ePlayer).calculateResearchModifier(
-					gc.getPlayer(ePlayer).getCurrentResearch())) / 100
-			researchCost = gc.getTeam(gc.getPlayer(ePlayer).getTeam()).getResearchCost(
-					gc.getPlayer(ePlayer).getCurrentResearch())
-			bTickMarks = MainOpt.isShowBarTickMarks() # advc.078
-			researchRate = gc.getPlayer(ePlayer).calculateResearchRate(-1)
 			# <advc.078>
 			# Meaning that overflow is shown as part of the current progress
 			overflowProgress = overflowResearch
@@ -4704,6 +5148,7 @@ class CvMainInterface:
 		screen.hide("PopulationInputText")
 		screen.hide("HealthText")
 		screen.hide("ProductionText")
+		screen.hide("ProductionIconText")
 		screen.hide("ProductionInputText")
 		screen.hide("HappinessText")
 		screen.hide("CultureText")
@@ -4713,6 +5158,8 @@ class CvMainInterface:
 		# Specialist Breakdown widget (city screen only)
 		screen.hide("SpecBreakdownLabel1")
 		screen.hide("SpecBreakdownLabel2")
+		screen.hide("CultureBreakdownLabel1")
+		screen.hide("CultureBreakdownLabel2")
 
 		for i in range(gc.getNumReligionInfos()):
 			szName = "ReligionHolyCityDDS" + str(i)
@@ -4792,6 +5239,10 @@ class CvMainInterface:
 
 		# advc: Deal with the non-city branch first (to reduce indentation)
 		if not CyInterface().isCityScreenUp():
+			screen.hide(self.buildFilterBtnAll)
+			screen.hide(self.buildFilterBtnBuildings)
+			screen.hide(self.buildFilterBtnNational)
+			screen.hide(self.buildFilterBtnWorld)
 			self.setDefaultHelpTextArea(
 					CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_SHOW)
 
@@ -4855,11 +5306,28 @@ class CvMainInterface:
 		if (pHeadSelectedCity.isPower()):
 			szBuffer += self.szPowerIcon
 
-		szBuffer += u"%s: %d" %(pHeadSelectedCity.getName(), pHeadSelectedCity.getPopulation())
+		iPop = pHeadSelectedCity.getPopulation()
+		iCultureTotal = pHeadSelectedCity.getCulture(pHeadSelectedCity.getOwner())
+		iFoundTurn = pHeadSelectedCity.getGameTurnFounded()
+		iFoundYear = CyGame().getTurnYear(iFoundTurn)
+		szFoundYear = BugUtil.getDisplayYear(iFoundYear)
+		szBuffer += u"%s: %d - %d (%s)" % (
+				pHeadSelectedCity.getName(), iPop, iCultureTotal, szFoundYear)
 
 		if (pHeadSelectedCity.isOccupation()):
 			szBuffer += u" (%s:%d)" %(self.szOccupationIcon,
 					pHeadSelectedCity.getOccupationTimer())
+
+		iDefenseModifier = pHeadSelectedCity.getDefenseModifier(False)
+		if (iDefenseModifier != 0):
+			szDefBuffer = localText.getText("TXT_KEY_MAIN_CITY_DEFENSE",
+					(self.iDefenseIcon, iDefenseModifier))
+			if (pHeadSelectedCity.getDefenseDamage() > 0):
+				szTempBuffer = u" (%d%%)" %(
+						((gc.getMAX_CITY_DEFENSE_DAMAGE() - pHeadSelectedCity.getDefenseDamage()) * 100) /
+						gc.getMAX_CITY_DEFENSE_DAMAGE())
+				szDefBuffer = szDefBuffer + szTempBuffer
+			szBuffer += u"  " + szDefBuffer
 
 		szBuffer += u"</font>"
 
@@ -4873,6 +5341,8 @@ class CvMainInterface:
 		if (CityUtil.willGrowThisTurn(pHeadSelectedCity) or
 				(iFoodDifference != 0) or
 				not (pHeadSelectedCity.isFoodProduction())):
+			iFoodNow = pHeadSelectedCity.getFood()
+			iFoodThresh = pHeadSelectedCity.growthThreshold()
 			# K-Mod disabled this. I think 'Growth!' sounds lame.
 #			if (CityUtil.willGrowThisTurn(pHeadSelectedCity)):
 				#was elif on next line
@@ -4880,26 +5350,20 @@ class CvMainInterface:
 			if (iFoodDifference > 0):
 				# <advc.002f>
 				if CityUtil.avoidingGrowth(pHeadSelectedCity):
-					szBuffer = localText.getText("INTERFACE_CITY_AVOIDING_GROWTH",
-							(pHeadSelectedCity.getFoodTurnsLeft(),))
+					szBuffer = "Avoiding Growth - %d / %d (%d Turns)" % (iFoodNow, iFoodThresh, pHeadSelectedCity.getFoodTurnsLeft())
 				else: # </advc.002f>
-					szBuffer = localText.getText("INTERFACE_CITY_GROWING",
-							(pHeadSelectedCity.getFoodTurnsLeft(),))
+					szBuffer = "Growing - %d / %d (%d Turns)" % (iFoodNow, iFoodThresh, pHeadSelectedCity.getFoodTurnsLeft())
 			elif (iFoodDifference < 0):
-				if (CityScreenOpt.isShowFoodAssist()):
-					#iTurnsToStarve = pHeadSelectedCity.getFood() / -iFoodDifference + 1
-					# advc.189: The DLL can compute this now
-					iTurnsToStarve = -pHeadSelectedCity.getFoodTurnsLeft()
-					if iTurnsToStarve > 1:
-						szBuffer = localText.getText("INTERFACE_CITY_SHRINKING",
-								(iTurnsToStarve,))
-					else:
-						szBuffer = self.szTextStarving
+				#iTurnsToStarve = pHeadSelectedCity.getFood() / -iFoodDifference + 1
+				# advc.189: The DLL can compute this now
+				iTurnsToStarve = -pHeadSelectedCity.getFoodTurnsLeft()
+				if iTurnsToStarve > 1:
+					szBuffer = "Shrinking - %d / %d (%d Turns)" % (iFoodNow, iFoodThresh, iTurnsToStarve)
 				else:
-					szBuffer = self.szTextStarving
+					szBuffer = "Starving - %d / %d (1 Turn)" % (iFoodNow, iFoodThresh)
 # BUG - Food Assist - end
 			else:
-				szBuffer = self.szTextStagnant
+				szBuffer = "Stagnant - %d / %d" % (iFoodNow, iFoodThresh)
 
 			self.setLabel("PopulationText", "Background", szBuffer,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
@@ -5001,91 +5465,70 @@ class CvMainInterface:
 # BUG - Whip Assist - start
 			else:
 				iProductionTurns = pHeadSelectedCity.getProductionTurnsLeft() # advc.004x
+				iProdCur = pHeadSelectedCity.getProduction()
+				iProdNeed = pHeadSelectedCity.getProductionNeeded()
+				bProdDetailAdded = False
+				if iProductionTurns > 0:
+					szProdBase = "%s - %d / %d (%d Turns)" % (pHeadSelectedCity.getProductionName(), iProdCur, iProdNeed, iProductionTurns)
+					bProdDetailAdded = True
+				else:
+					szProdBase = pHeadSelectedCity.getProductionName()
 				HURRY_WHIP = self.hurryPopulation
 				HURRY_BUY = self.hurryGold
 				if (CityScreenOpt.isShowWhipAssist() and
 						pHeadSelectedCity.canHurry(HURRY_WHIP, False)):
 					iHurryPop = pHeadSelectedCity.hurryPopulation(HURRY_WHIP)
-					#
-					# iOverflow = pHeadSelectedCity.hurryProduction(HURRY_WHIP) - pHeadSelectedCity.productionLeft()
-					# if CityScreenOpt.isWhipAssistOverflowCountCurrentProduction():
-					# 	iOverflow += pHeadSelectedCity.getCurrentProductionDifference(False, True)
-					# iMaxOverflow = max(pHeadSelectedCity.getProductionNeeded(),
-					# 		pHeadSelectedCity.getCurrentProductionDifference(False, False))
-					# iLost = max(0, iOverflow - iMaxOverflow)
-					# iOverflow = min(iOverflow, iMaxOverflow)
-					# iItemModifier = pHeadSelectedCity.getProductionModifier()
-					# iBaseModifier = pHeadSelectedCity.getBaseYieldRateModifier(YieldTypes.YIELD_PRODUCTION, 0)
-					# iTotalModifier = pHeadSelectedCity.getBaseYieldRateModifier(YieldTypes.YIELD_PRODUCTION, iItemModifier)
-					# iLost *= iBaseModifier
-					# iLost /= max(1, iTotalModifier)
-					# iOverflow = (iBaseModifier * iOverflow) / max(1, iTotalModifier)
-					# if iLost > 0:
-					# 	if pHeadSelectedCity.isProductionUnit():
-					# 		iGoldPercent = gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT")
-					# 	elif pHeadSelectedCity.isProductionBuilding():
-					# 		iGoldPercent = gc.getDefineINT("MAXED_BUILDING_GOLD_PERCENT")
-					# 	elif pHeadSelectedCity.isProductionProject():
-					# 		iGoldPercent = gc.getDefineINT("MAXED_PROJECT_GOLD_PERCENT")
-					# 	else:
-					# 		iGoldPercent = 0
-					# 	iOverflowGold = iLost * iGoldPercent / 100
-					#
-					# <advc.064> Replacing the above by calling C++ code that does almost the same thing
 					bCountCurrentOverflow = CityScreenOpt.isWhipAssistOverflowCountCurrentProduction()
 					iOverflow = pHeadSelectedCity.getHurryOverflow(
 							HURRY_WHIP, True, bCountCurrentOverflow)
 					iOverflowGold = pHeadSelectedCity.getHurryOverflow(
 							HURRY_WHIP, False, bCountCurrentOverflow)
+					szBuffer = "%s   %d%s %d%s" % (szProdBase, iHurryPop, self.szAngryPopIcon, iOverflow, self.szProductionIcon)
 					if iOverflowGold > 0: # </advc.064>
-						# <advc.004x>
-						if iProductionTurns <= 0:
-							szBuffer = localText.getText("INTERFACE_CITY_NO_PRODUCTION_WHIP_PLUS_GOLD",
-									(pHeadSelectedCity.getProductionNameKey(),
-									iHurryPop, iOverflow, iOverflowGold))
-						else: # </advc.004x>
-							szBuffer = localText.getText(
-									"INTERFACE_CITY_PRODUCTION_WHIP_PLUS_GOLD",
-									(pHeadSelectedCity.getProductionNameKey(), iProductionTurns,
-									iHurryPop, iOverflow, iOverflowGold))
-					else:
-						# <advc.004x>
-						if iProductionTurns <= 0:
-							szBuffer = localText.getText(
-									"INTERFACE_CITY_NO_PRODUCTION_WHIP",
-									(pHeadSelectedCity.getProductionNameKey(),
-									iHurryPop, iOverflow))
-						else: # </advc.004x>
-							szBuffer = localText.getText(
-									"INTERFACE_CITY_PRODUCTION_WHIP",
-									(pHeadSelectedCity.getProductionNameKey(), iProductionTurns,
-									iHurryPop, iOverflow))
+						szBuffer += " %d%s" % (iOverflowGold, self.szGoldIcon)
 				elif (CityScreenOpt.isShowWhipAssist() and
 						pHeadSelectedCity.canHurry(HURRY_BUY, False)):
 					iHurryCost = pHeadSelectedCity.hurryGold(HURRY_BUY)
-					# <advc.004x>
-					if iProductionTurns <= 0:
-						szBuffer = localText.getText(
-								"INTERFACE_CITY_NO_PRODUCTION_BUY",
-								(pHeadSelectedCity.getProductionNameKey(),
-								iHurryCost))
-					else: # </advc.004x>
-						szBuffer = localText.getText(
-								"INTERFACE_CITY_PRODUCTION_BUY",
-							(pHeadSelectedCity.getProductionNameKey(), iProductionTurns,
-							iHurryCost))
+					szBuffer = "%s   -%d%s" % (szProdBase, iHurryCost, self.szGoldIcon)
 				else:
 					# <advc.004x>
 					if iProductionTurns <= 0:
-						szBuffer = pHeadSelectedCity.getProductionName()
+						szBuffer = szProdBase
 					else: # </advc.004x>
-						szBuffer = localText.getText(
-								"INTERFACE_CITY_PRODUCTION",
-								(pHeadSelectedCity.getProductionNameKey(), iProductionTurns))
+						szBuffer = szProdBase
+						bProdDetailAdded = True
 # BUG - Whip Assist - end
-			self.setLabel("ProductionText", "Background", szBuffer,
-					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3,
-					WidgetTypes.WIDGET_GENERAL)
+			if not bProdDetailAdded:
+				if iProdNeed > 0:
+					szBuffer = "%s - %d / %d" % (szBuffer, iProdCur, iProdNeed)
+			# <!-- custom: show current production icon in the production text (SAS define gated). (GPT-5.2-Codex) -->
+			if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+				szProdBtn = ""
+				iOrderType = CyInterface().getOrderNodeType(0)
+				iOrderData = CyInterface().getOrderNodeData1(0)
+				if iOrderType == OrderTypes.ORDER_TRAIN:
+					szProdBtn = gc.getUnitInfo(iOrderData).getButton()
+				elif iOrderType == OrderTypes.ORDER_CONSTRUCT:
+					szProdBtn = gc.getBuildingInfo(iOrderData).getButton()
+				elif iOrderType == OrderTypes.ORDER_CREATE:
+					szProdBtn = gc.getProjectInfo(iOrderData).getButton()
+				elif iOrderType == OrderTypes.ORDER_MAINTAIN:
+					szProdBtn = gc.getProcessInfo(iOrderData).getButton()
+			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
+					and szProdBtn):
+				iImgSize = BTNSZ(20)
+				self.setSASCenteredImageButtonAtLeftOfTextRow("ProductionText", "ProductionIconText",
+						"Background", szBuffer,
+						"<img=%s size=%d/>" % (szProdBtn, iImgSize),
+						iImgSize, None, gPoint("ProductionText").y(),
+						HSPACE(2), "ProductionBar", 0, 0,
+						FontTypes.GAME_FONT, -1.3, WidgetTypes.WIDGET_GENERAL)
+				screen.show("ProductionIconText")
+			else:
+				self.setLabel("ProductionText", "Background", szBuffer,
+						CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3,
+						WidgetTypes.WIDGET_GENERAL)
+				screen.hide("ProductionIconText")
 			screen.setHitTest("ProductionText", HitTestTypes.HITTEST_NOHIT)
 			screen.show("ProductionText")
 		if (pHeadSelectedCity.isProductionProcess()):
@@ -5333,6 +5776,16 @@ class CvMainInterface:
 		aCityBldgs = []
 		for iBuilding in range(gc.getNumBuildingInfos()):
 			if pHeadSelectedCity.getNumBuilding(iBuilding) > 0:
+				eBuildingClass = gc.getBuildingInfo(iBuilding).getBuildingClassType()
+				if self.iBuildingFilter == 1:
+					if not self.isRegularBuildingClass(eBuildingClass):
+						continue
+				elif self.iBuildingFilter == 2:
+					if not self.isNationalWonderClass(eBuildingClass):
+						continue
+				elif self.iBuildingFilter == 3:
+					if not self.isWorldWonderClass(eBuildingClass):
+						continue
 				aCityBldgs.append(iBuilding)
 		# I don't know ... This will result in a different order in every city.
 		# Something chronological based on tech reqs (but also taking special care of wonders and free buildings) should work better than the XML ordering - tbd.?
@@ -5352,6 +5805,10 @@ class CvMainInterface:
 				- 2000 * pHeadSelectedCity.getNumActiveBuilding(iBuilding)
 				+ 1000 * pHeadSelectedCity.getNumFreeBuilding(iBuilding))
 		# </advc.097>
+		iTotalBuildingRows = 0
+		for iBuilding in aCityBldgs:
+			iTotalBuildingRows += pHeadSelectedCity.getNumBuilding(iBuilding)
+		screen.setTableNumRows("BuildingListTable", iTotalBuildingRows)
 		for iBuilding in aCityBldgs:
 			for k in range(pHeadSelectedCity.getNumBuilding(iBuilding)):
 				# <advc.097>
@@ -5415,24 +5872,19 @@ class CvMainInterface:
 							szRightBuffer = szRightBuffer + szTempBuffer
 						self.yields.addBuilding(iYield, iChange) # BUG - Raw Yields
 
-					# <!-- custom: add the +1 great person icon in buildings list as it is handy to have and tedious to check everytime, with the help of gemini 3 pro thanks -->
-					# --- Start: Add Great Person Rate to Building List ---
-					iGPRate = gc.getBuildingInfo(iBuilding).getGreatPeopleRateChange()
-					if iGPRate > 0:
-						if not bFirst:
-							szRightBuffer = szRightBuffer + ", "
-						else:
-							bFirst = False
-						
-						# Add "+2 [GP Icon]"
-						szRightBuffer = szRightBuffer + u"+%d%s" % (iGPRate, self.szGreatPeopleIcon)
-					# --- End: Add Great Person Rate to Building List ---
-
 				# <advc.097> Gray out names of obsolete buildings
 				else:
 					szLeftBuffer = u"<color=%d,%d,%d,%d>%s</color>" %(
 							160, 160, 160, 255, szLeftBuffer)
 				# </advc.097>
+				# <!-- custom: add the +1 great person icon in buildings list as it is handy to have and tedious to check everytime, with the help of gemini 3 pro thanks. Update: also show GPP from buildings even if obsolete (e.g., Oracle) to fix this information being missing, since it is accounted by total it seems. See KI#101. (GPT-5.2-Codex) -->
+				iGPRate = gc.getBuildingInfo(iBuilding).getGreatPeopleRateChange()
+				if iGPRate > 0:
+					if not bFirst:
+						szRightBuffer = szRightBuffer + ", "
+					else:
+						bFirst = False
+					szRightBuffer = szRightBuffer + u"+%d%s" % (iGPRate, self.szGreatPeopleIcon)
 				for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
 					iChange = pHeadSelectedCity.getBuildingCommerceByBuilding(iCommerce, iBuilding)
 					iChange /= pHeadSelectedCity.getNumBuilding(iBuilding)
@@ -5451,7 +5903,6 @@ class CvMainInterface:
 								gc.getCommerceInfo(iCommerce).getChar())
 						szRightBuffer = szRightBuffer + szTempBuffer
 				#szBuffer = szLeftBuffer + "  " + szRightBuffer # advc: unused
-				screen.appendTableRow("BuildingListTable")
 				# <advc.097>
 				if CityScreenOpt.isBuildings_TextOnly():
 					szIcon = ""
@@ -5683,55 +6134,23 @@ class CvMainInterface:
 			iReligionCorpsMargin = 0
 		# </advc.092>
 # BUG - Limit/Extra Religions - start
+		iOrgIconSize = BTNSZ(20)
+		iOrgSpacing = HSPACE(2)
+		iOrgMargin = HSPACE(6)
 		if CityScreenOpt.isShowOnlyPresentReligions():
 			aReligions = ReligionUtil.getCityReligions(pHeadSelectedCity)
-			aReligionRows = self.cityOrgRects(
-					len(aReligions), gc.getNumReligionInfos())
-			if len(aReligionRows) > 0:
-				# (advc.092: The BUG code didn't support multiple religion rows either.
-				# Could adapt the corp code below if more religions are needed.)
-				lReligions = aReligionRows[0]
+			if len(aReligions) > 0:
+				lReligions = RowLayout(gRect("CityNameBackground"),
+						iOrgMargin, RectLayout.CENTER,
+						len(aReligions), iOrgSpacing, iOrgIconSize)
 				gSetRectangle("CityReligions", lReligions)
+			else:
+				lReligions = None
 			for i in range(len(aReligions)):
 				iReligion = aReligions[i]
-				# <advc> Commented out all code that only adds to szBuffer
-				# b/c that string is never used. (Already unused in Vanilla Civ 4.)
-				#
-				# if (pHeadSelectedCity.isHolyCityByType(iReligion)):
-				# 	szTempBuffer = u"%c" %(gc.getReligionInfo(iReligion).getHolyCityChar())
-				# 	# < 47 Religions Mod Start >
-				# 	# This is now done below since the Holy City Overlay has to be added
-				# 	# after the Religion Icon and can not be shown before its added
-				# 	#szName = "ReligionHolyCityDDS" + str(iReligion)
-				# 	#screen.show(szName)
-				# 	# < 47 Religions Mod Start >
-				# else:
-				# 	szTempBuffer = u"%c" %(gc.getReligionInfo(iReligion).getChar())
-				# szBuffer = szBuffer + szTempBuffer
-				# for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
-				# 	iRate = pHeadSelectedCity.getReligionCommerceByReligion(iCommerce, iReligion)
-				# 	if iRate != 0:
-				# 		if iRate > 0:
-				# 			szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
-				# 			szBuffer = szBuffer + szTempBuffer
-				# 		else:
-				# 			szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
-				# 			szBuffer = szBuffer + szTempBuffer
-				# iHappiness = pHeadSelectedCity.getReligionHappiness(iReligion)
-				# if iHappiness != 0:
-				# 	if iHappiness > 0:
-				# 		szTempBuffer = u",+%d%c" %(iHappiness, CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
-				# 		szBuffer = szBuffer + szTempBuffer
-				# 	else:
-				# 		szTempBuffer = u",+%d%c" %(-(iHappiness), CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR))
-				# 		szBuffer = szBuffer + szTempBuffer
-				# szBuffer = szBuffer + " "
-				#
 				szButton = gc.getReligionInfo(iReligion).getButton()
 				szName = "ReligionDDS" + str(iReligion)
 				lReligion = lReligions.next()
-				if lReligion is None:
-					break
 				gSetRectangle(szName, lReligion)
 				self.setImageButton(szName, szButton,
 						WidgetTypes.WIDGET_HELP_RELIGION_CITY, iReligion)
@@ -5745,9 +6164,14 @@ class CvMainInterface:
 							WidgetTypes.WIDGET_HELP_RELIGION_CITY, iReligion)
 					screen.show(szName)
 		else: # (show all religions)
-			lReligions = RowLayout(gRect("CityOrgArea"),
-					RectLayout.CENTER, 0, gc.getNumReligionInfos(), HSPACE(10), BTNSZ(24, 0.5))
-			gSetRectangle("CityReligions", lReligions)
+			iReligions = gc.getNumReligionInfos()
+			if iReligions > 0:
+				lReligions = RowLayout(gRect("CityNameBackground"),
+						iOrgMargin, RectLayout.CENTER,
+						iReligions, iOrgSpacing, iOrgIconSize)
+				gSetRectangle("CityReligions", lReligions)
+			else:
+				lReligions = None
 			for iReligion in range(gc.getNumReligionInfos()):
 				lReligion = lReligions.next()
 				bEnable = True
@@ -5807,23 +6231,14 @@ class CvMainInterface:
 				if not pHeadSelectedCity.isHasCorporation(iCorp):
 					continue
 				aCorporations += [iCorp]
-			# <advc.092>
-			aCorpRows = self.cityOrgRects(
-					len(aCorporations), gc.getNumCorporationInfos())
-			# Move corps under religions
-			if gIsRect("CityReligions"):
-				for lCorpRow in aCorpRows:
-					lCorpRow.move(0, gRect("CityReligions").height() + iReligionCorpsMargin)
+			if len(aCorporations) > 0:
+				lCorporations = RowLayout(gRect("CityNameBackground"),
+						RectLayout.RIGHT, RectLayout.CENTER,
+						len(aCorporations), iOrgSpacing, iOrgIconSize)
+				lCorporations.move(-iOrgMargin, 0)
+			else:
+				lCorporations = None
 			for i in range(len(aCorporations)):
-				lCorp = None
-				# Find next free spot
-				for lCorpRow in aCorpRows:
-					lCorp = lCorpRow.next()
-					if lCorp is not None:
-						break
-				if lCorp is None:
-					break
-				# </advc.092>
 				iCorp = aCorporations[i]
 				# advc: szBuffer code commented out (see advc comment above)
 				#
@@ -5856,6 +6271,7 @@ class CvMainInterface:
 				#
 				szButton = gc.getCorporationInfo(iCorp).getButton()
 				szName = "CorporationDDS" + str(iCorp)
+				lCorp = lCorporations.next()
 				gSetRectangle(szName, lCorp)
 				self.setImageButton(szName, szButton,
 						WidgetTypes.WIDGET_HELP_CORPORATION_CITY, iCorp)
@@ -5869,9 +6285,14 @@ class CvMainInterface:
 							WidgetTypes.WIDGET_HELP_CORPORATION_CITY, iCorp)
 					screen.show(szName)
 		else: # (show all corps)
-			lCorporations = RowLayout(gRect("CityOrgArea"),
-					RectLayout.CENTER, gRect("CityReligions").height() + iReligionCorpsMargin,
-					gc.getNumReligionInfos(), HSPACE(10), BTNSZ(24, 0.5))
+			iCorporations = gc.getNumCorporationInfos()
+			if iCorporations > 0:
+				lCorporations = RowLayout(gRect("CityNameBackground"),
+						RectLayout.RIGHT, RectLayout.CENTER,
+						iCorporations, iOrgSpacing, iOrgIconSize)
+				lCorporations.move(-iOrgMargin, 0)
+			else:
+				lCorporations = None
 			for iCorp in range(gc.getNumCorporationInfos()):
 				lCorp = lCorporations.next()
 				bEnable = True
@@ -5959,22 +6380,7 @@ class CvMainInterface:
 			iRemainder -= iPercent
 			iWhichBar += 1
 		screen.show("NationalityBar")
-		iDefenseModifier = pHeadSelectedCity.getDefenseModifier(False)
-		if (iDefenseModifier != 0):
-			szBuffer = localText.getText("TXT_KEY_MAIN_CITY_DEFENSE",
-					(self.iDefenseIcon, iDefenseModifier))
-			if (pHeadSelectedCity.getDefenseDamage() > 0):
-				szTempBuffer = u" (%d%%)" %(
-						((gc.getMAX_CITY_DEFENSE_DAMAGE() - pHeadSelectedCity.getDefenseDamage()) * 100) /
-						gc.getMAX_CITY_DEFENSE_DAMAGE())
-				szBuffer = szBuffer + szTempBuffer
-			szNewBuffer = "<font=4>"
-			szNewBuffer = szNewBuffer + szBuffer
-			szNewBuffer = szNewBuffer + "</font>"
-			self.setLabel("DefenseText", "Background", szBuffer,
-					CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.SMALL_FONT, -0.3,
-					WidgetTypes.WIDGET_HELP_DEFENSE)
-			screen.show("DefenseText")
+		# Defense text now appended to CityNameText to avoid overlapping religions/corps.
 		# advc.001: Left side was missing empty parentheses
 		if (pHeadSelectedCity.getCultureLevel() != CultureLevelTypes.NO_CULTURELEVEL):
 			iRate = pHeadSelectedCity.getCommerceRateTimes100(CommerceTypes.COMMERCE_CULTURE)
@@ -6102,25 +6508,17 @@ class CvMainInterface:
 				szTurns = u"(-)"
 
 			# 3. Construct ROW 1 (Top Line): "(5 [Silver Star] 3 [Cit]) +25% [GP]"
-			szRow1 = u"<font=2>(%d%s %d%s)" % (
-				iBldgRaw, self.szMapIcon,
-				iSpecRaw, self.szCitizenIcon
-			)
-			
-			if iModPercent > 0:
-				szRow1 += u" +%d%%%s" % (iModPercent, self.szGreatPeopleIcon)
-			
+			szRow1 = u"<font=2>(%d%s %d%s)" % (iBldgRaw, self.szMapIcon, iSpecRaw, self.szCitizenIcon)
+			if iModPercent != 0:
+				szRow1 += u" +%d%%" % (iModPercent)
 			szRow1 += u"</font>"
 
 			# 4. Construct ROW 2 (Bottom Line): "10 [GP]: 109/249 (14)"
-			szRow2 = u"<font=2>%d%s: %d/%d %s</font>" % (
-				iTotalRate, self.szGreatPeopleIcon,
-				iProgress, iThreshold, szTurns
-			)
+			szRow2 = u"<font=2>%d%s: %d/%d %s</font>" % (iTotalRate, self.szGreatPeopleIcon, iProgress, iThreshold, szTurns)
 
 			# 5. Positioning & Rendering (Split into TWO Labels)
 			# screen.setLabel ignores \n, so we must draw two separate text widgets.
-			iX = gRect("CityRightPanelContents").x() + 10
+			iX = gRect("CityRightPanelContents").x() + 2
 		
 			# Position Row 2 (Bottom) just above the yellow bar
 			iY2 = gRect("GreatPeopleBar").y() - 22
@@ -6132,7 +6530,108 @@ class CvMainInterface:
 			
 			# Draw Label 2 (Bottom)
 			screen.setLabel("SpecBreakdownLabel2", "Background", szRow2, CvUtil.FONT_LEFT_JUSTIFY, iX, iY2, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		# --- END: Specialist Breakdown Widget ---
+			# --- END: Specialist Breakdown Widget ---
+			
+			# <!-- custom: culture breakdown summary (per-source base culture and total/turns), placed in the right half below specialists to mirror the specialist breakdown while keeping all other panels unchanged. Uses reverse-engineered modifier so traits/golden age/civics are included. (GPT-5.2-Codex) -->
+			if pHeadSelectedCity:
+				if hasattr(pHeadSelectedCity, "getReligionCommerce"):
+					iRelCulture = pHeadSelectedCity.getReligionCommerce(
+							CommerceTypes.COMMERCE_CULTURE)
+				else:
+					iRelCulture = 0
+					for iReligion in range(gc.getNumReligionInfos()):
+						iRelCulture += pHeadSelectedCity.getReligionCommerceByReligion(
+								CommerceTypes.COMMERCE_CULTURE, iReligion)
+				if hasattr(pHeadSelectedCity, "getCorporationCommerce"):
+					iCorpCulture = pHeadSelectedCity.getCorporationCommerce(
+							CommerceTypes.COMMERCE_CULTURE)
+				else:
+					iCorpCulture = 0
+					for iCorp in range(gc.getNumCorporationInfos()):
+						iCorpCulture += pHeadSelectedCity.getCorporationCommerceByCorporation(
+								CommerceTypes.COMMERCE_CULTURE, iCorp)
+				iBldgCulture = 0
+				for iBuilding in range(gc.getNumBuildingInfos()):
+					if pHeadSelectedCity.getNumBuilding(iBuilding) > 0:
+						iBldgCulture += pHeadSelectedCity.getBuildingCommerceByBuilding(
+								CommerceTypes.COMMERCE_CULTURE, iBuilding)
+				iTraitCulture = 0
+				for iTrait in range(gc.getNumTraitInfos()):
+					if pPlayer.hasTrait(iTrait):
+						iTraitCulture += gc.getTraitInfo(iTrait).getCommerceChange(
+								CommerceTypes.COMMERCE_CULTURE)
+				iSpecCulture = 0
+				for iSpecialist in range(gc.getNumSpecialistInfos()):
+					iCount = (pHeadSelectedCity.getSpecialistCount(iSpecialist)
+							+ pHeadSelectedCity.getFreeSpecialistCount(iSpecialist))
+					if iCount > 0:
+						iSpecCulture += (gc.getSpecialistInfo(iSpecialist).getCommerceChange(
+								CommerceTypes.COMMERCE_CULTURE) * iCount)
+				# Add civic/tech per-specialist extras (e.g. civics/techs) if exposed in Python.
+				iSpecExtraPer = 0
+				if hasattr(pPlayer, "getSpecialistExtraCommerce"):
+					iSpecExtraPer = pPlayer.getSpecialistExtraCommerce(
+							CommerceTypes.COMMERCE_CULTURE)
+				if iSpecExtraPer != 0:
+					iSpecPop = pHeadSelectedCity.getSpecialistPopulation()
+					iSpecGreat = pHeadSelectedCity.getNumGreatPeople()
+					iSpecCulture += iSpecExtraPer * (iSpecPop + iSpecGreat)
+				iBaseCulture = (iRelCulture + iCorpCulture + iBldgCulture + iTraitCulture + iSpecCulture)
+				iBaseRate = iBaseCulture
+				if hasattr(pHeadSelectedCity, "getBaseCommerceRate"):
+					iBaseRate = pHeadSelectedCity.getBaseCommerceRate(
+							CommerceTypes.COMMERCE_CULTURE)
+				if iBaseRate <= 0:
+					iBaseRate = iBaseCulture
+				iTotalCultureRateTimes100 = pHeadSelectedCity.getCommerceRateTimes100(
+						CommerceTypes.COMMERCE_CULTURE)
+				iModPercent = 0
+				if iBaseRate > 0 and iTotalCultureRateTimes100 > iBaseRate * 100:
+					iModPercent = (iTotalCultureRateTimes100 / iBaseRate) - 100
+				
+				szRow1 = u"<font=2>(%d%s %d%s %d%s %d%s %d%s)" % (
+						iRelCulture, self.szReligionIcon,
+						iCorpCulture, self.szTradeIcon,
+						iBldgCulture, self.szProductionIcon,
+						iTraitCulture, self.szStarIcon,
+						iSpecCulture, self.szCitizenIcon
+				)
+				if iModPercent != 0:
+					szRow1 += u" +%d%%" % (iModPercent)
+				szRow1 += u"</font>"
+				
+				iCultureProgressTimes100 = pHeadSelectedCity.getCultureTimes100(
+						pHeadSelectedCity.getOwner())
+				iCultureThreshold = pHeadSelectedCity.getCultureThreshold()
+				iCultureThresholdTimes100 = 100 * iCultureThreshold
+				if iTotalCultureRateTimes100 > 0 and iCultureProgressTimes100 < iCultureThresholdTimes100:
+					iTurns = ((iCultureThresholdTimes100 - iCultureProgressTimes100 + iTotalCultureRateTimes100 - 1) / iTotalCultureRateTimes100)
+					szTurns = u"(%d)" % iTurns
+				else:
+					szTurns = u"(-)"
+				iRateWhole = iTotalCultureRateTimes100 / 100
+				iRateFrac = iTotalCultureRateTimes100 % 100
+				iProgWhole = iCultureProgressTimes100 / 100
+				iProgFrac = iCultureProgressTimes100 % 100
+				szRate = u"%d.%02d" % (iRateWhole, iRateFrac)
+				szProgress = u"%d.%02d" % (iProgWhole, iProgFrac)
+				szRow2 = u"<font=2>%s%s: %s/%d %s</font>" % (szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns)
+				
+				iSpecW1 = CyInterface().determineWidth(szRow1)
+				iSpecW2 = CyInterface().determineWidth(szRow2)
+				iSpecW = max(iSpecW1, iSpecW2)
+				iSpecMaxW = (gRect("CityRightPanelContents").width() / 2) - HSPACE(18)
+				iSpecW = min(iSpecW, iSpecMaxW)
+				wSpecCultureBreakdownsSpacingAdjust = - HSPACE(10)
+				iXRight = iX + iSpecW + wSpecCultureBreakdownsSpacingAdjust
+				iY2 = gRect("GreatPeopleBar").y() - 22
+				iY1 = gRect("GreatPeopleBar").y() - 42
+				screen.setLabel("CultureBreakdownLabel1", "Background", szRow1,
+						CvUtil.FONT_LEFT_JUSTIFY, iXRight, iY1, -0.1,
+						FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabel("CultureBreakdownLabel2", "Background", szRow2,
+						CvUtil.FONT_LEFT_JUSTIFY, iXRight, iY2, -0.1,
+						FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		return 0
 
@@ -6163,6 +6662,13 @@ class CvMainInterface:
 		self.addPanel("SelectedUnitPanel")
 		screen.setStyle("SelectedUnitPanel", "Panel_Game_HudStat_Style")
 		screen.hide("SelectedUnitPanel")
+
+		self.setImageButton("SelectedUnitInfoButton", "INTERFACE_GENERAL_CIVILOPEDIA_ICON",
+				WidgetTypes.WIDGET_HELP_SELECTED, -1, -1)
+		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON:
+			screen.hide("SelectedUnitInfoButton")
+		else:
+			screen.hide("SelectedUnitInfoButton")
 
 		self.addTable("SelectedUnitText", 3, "Table_EmptyScroll_Style")
 		screen.hide("SelectedUnitText")
@@ -6302,7 +6808,14 @@ class CvMainInterface:
 		pHeadSelectedUnit = CyInterface().getHeadSelectedUnit()
 		if (not pHeadSelectedUnit or
 				CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_SHOW):
+			screen.hide("SelectedUnitInfoButton")
 			return # </advc>
+		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON:
+			self.setImageButton("SelectedUnitInfoButton", pHeadSelectedUnit.getButton(),
+					WidgetTypes.WIDGET_HELP_SELECTED, -1, -1)
+			screen.show("SelectedUnitInfoButton")
+		else:
+			screen.hide("SelectedUnitInfoButton")
 		iFlexW = gRect("SelectedUnitText").width() - 2 - iThirdColW
 		screen.setTableColumnHeader("SelectedUnitText", 0, u"",
 				(100 * iFlexW) / 175)
@@ -6396,11 +6909,16 @@ class CvMainInterface:
 						if (iCount > 0):
 							szRightBuffer = u""
 							szLeftBuffer = gc.getUnitInfo(i).getDescription()
+							# <!-- custom: add buttons to unit selection panel in the main map view (Claude code Sonnet 4.5) -->
+							szButton = ""
+							if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+								szButton = gc.getUnitInfo(i).getButton()
 							if (iCount > 1):
 								szRightBuffer = u"(" + str(iCount) + u")"
 							szBuffer = szLeftBuffer + u"  " + szRightBuffer
 							screen.appendTableRow("SelectedUnitText")
-							screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+							screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, szButton,
+							# <!-- custom: End - add buttons to unit selection panel in the main map view (Claude code Sonnet 4.5) -->
 									WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
 									WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
@@ -7348,79 +7866,7 @@ class CvMainInterface:
 		screen.setStyle("GlobeToggle", "Button_HUDZoom_Style")
 		screen.setState("GlobeToggle", False)
 		screen.hide("GlobeToggle")
-
-	# advc.092: Mostly cut from updateCityScreen
-	def cityOrgRects(self, iOrgs, iMaxOrgs):
-		if iOrgs <= 0:
-			return []
-		if iOrgs < 8:
-			iButtonSize = 24
-			iButtonSpace = 10
-		elif iOrgs == 8:
-			iButtonSize = 24
-			iButtonSpace = 5
-		elif iOrgs == 9:
-			iButtonSize = 24
-			iButtonSpace = 2
-		elif iOrgs == 10:
-			iButtonSize = 21
-			iButtonSpace = 2
-		elif iOrgs == 11:
-			iButtonSize = 20
-			iButtonSpace = 1
-		elif iOrgs == 12:
-			iButtonSize = 18
-			iButtonSpace = 1
-		elif iOrgs == 13:
-			iButtonSize = 18
-			iButtonSpace = 0
-		elif iOrgs == 14:
-			iButtonSize = 16
-			iButtonSpace = 0
-		elif iOrgs == 15:
-			iButtonSize = 15
-			iButtonSpace = 0
-		elif iOrgs == 16:
-			iButtonSize = 14
-			iButtonSpace = 0
-		else:
-			iButtonSize = 13
-			iButtonSpace = 0
-		iOrgLimit = 18
-		iButtonsPerRow = min(iOrgLimit, iOrgs)
-		if iOrgs > 2 * iOrgLimit:
-			iMaxWidth = gRect("CityOrgArea").width()
-			if iOrgs == 37 or iOrgs == 38:
-				iMaxWidth = (24 * iMaxWidth) / 25
-			iButtonsPerRow = iround(iOrgs / 2.0)
-			iButtonSize = iMaxWidth / iButtonsPerRow
-			iButtonSpace = (iMaxWidth - (iButtonSize * iButtonsPerRow)) // (iButtonsPerRow - 1)
-		# <advc.092> Let's hope that this will work well enough for organization counts
-		# greater than 7. Only tested it for 7.
-		else:
-			iButtonSize = BTNSZ(iButtonSize, 0.5)
-			iButtonSpace = HSPACE(iButtonSpace)
-		# Helper rect to determine left margin.
-		# <!-- custom: dynamically anchor to the left edge of the panel depending on its width instead of weirdly statically floating if width changes with the help of ChatGPT-5.2 Thinking thanks -->
-		# Left-anchored org icons: start at the left edge of CityOrgArea.
-		# (Works well even when there are many possible religions/corps.)
-		lRow = RowLayout(gRect("CityOrgArea"),
-				RectLayout.LEFT, 0, iButtonsPerRow, iButtonSpace, iButtonSize)
-		if lRow.width() <= gRect("CityOrgArea").width():
-			iLMargin = 0
-
-		else:
-			iLMargin = 0
-		aResult = []
-		iTopMargin = 0
-		while iOrgs > 0:
-			iOrgs -= iButtonsPerRow
-			aResult.append(
-					RowLayout(gRect("CityOrgArea"),
-					iLMargin, iTopMargin, iButtonsPerRow, iButtonSpace, iButtonSize))
-			iTopMargin += iButtonSize
-		return aResult
-		# </advc.092>
+	# <!-- custom: note: old CityOrgArea code removed since we don't put religions and corporations in the right side panel anymore -->
 
 	def update(self, fDelta):
 		return
@@ -7465,6 +7911,22 @@ class CvMainInterface:
 		return 0
 # BUG - Raw Yields - end
 
+	# <!-- custom: building filter button hover tooltips based on how the C2C mod does (Claude code Sonnet 4.5 + Claude code Opus 4.5) -->
+	def handleBuildingFilterButtons(self, inputClass):
+		iFilter = inputClass.getID()
+		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CURSOR_MOVE_ON):
+			if iFilter == 0:
+				self.PLE.displayHelpHover(self.szBuildFilterTooltipAll)
+			elif iFilter == 1:
+				self.PLE.displayHelpHover(self.szBuildFilterTooltipRegular)
+			elif iFilter == 2:
+				self.PLE.displayHelpHover(self.szBuildFilterTooltipNational)
+			elif iFilter == 3:
+				self.PLE.displayHelpHover(self.szBuildFilterTooltipWorld)
+		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CURSOR_MOVE_OFF):
+			self.PLE.hideInfoPane()
+		return 0
+
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):
 #		BugUtil.debugInput(inputClass)
@@ -7496,6 +7958,12 @@ class CvMainInterface:
 						self.iCityBuildBarPinnedRow = CyInterface().getCityTabSelectionRow()
 					self.iCityBuildBarPinnedRow += 1
 					return 0
+				elif fn.startswith("BuildFilter"):
+					iNewFilter = inputClass.getData1()
+					if iNewFilter != self.iBuildingFilter:
+						self.iBuildingFilter = iNewFilter
+						CyInterface().setDirty(InterfaceDirtyBits.CityScreen_DIRTY_BIT, True)
+					return 1
 
 # BUG - BUG Option Button - Start
 			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
@@ -7509,6 +7977,11 @@ class CvMainInterface:
 		if (inputClass.getFunctionName().startswith("RawYields")):
 			return self.handleRawYieldsButtons(inputClass)
 # BUG - Raw Yields - end
+
+		# <!-- custom: building filter button hover tooltips (Claude Code Sonnet 4.5) -->
+		if (inputClass.getFunctionName().startswith("BuildFilter")):
+			return self.handleBuildingFilterButtons(inputClass)
+		# <!-- custom: end - building filter button hover tooltips -->
 
 # BUG - Great Person Bar - start
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and

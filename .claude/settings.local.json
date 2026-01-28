@@ -10,7 +10,9 @@
       "Bash(python -m py_compile:*)",
       "Read(//c/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/**)",
       "Read(//c/Users/PC/Documents/My Games/beyond the sword/Logs/**)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:forums.civfanatics.com)",
+      "Bash(dir:*)"
     ]
   }
 }

@@ -3210,4 +3210,30 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_INFO_HISTORY_UNKNOWN_CITY</Tag>
 		<English>an unknown city</English>
 	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FILTER_ALL</Tag>
+		<English>Show All Buildings</English>
+	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FILTER_REGULAR</Tag>
+		<English>Show Regular Buildings Only</English>
+	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FILTER_NATIONAL</Tag>
+		<English>Show National Wonders Only</English>
+	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FILTER_WORLD</Tag>
+		<English>Show World Wonders Only</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
+		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
+	</TEXT>
 </Civ4GameText>

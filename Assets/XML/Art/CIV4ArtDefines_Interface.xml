@@ -1717,5 +1717,10 @@
 			<Path>Art/BUG/Null.dds</Path>
 		</InterfaceArtInfo>
 
+		<!-- custom: new Draft button as part of the city screen rework, generated with the help of Nano Banana Pro (Gemini 3 Pro) thanks -->
+		<InterfaceArtInfo>
+			<Type>INTERFACE_CITY_SCREEN_DRAFT</Type>
+			<Path>Art/AdvCiv_SAS/Interface/Draft/Gemini_Generated_Image_bb4mzkbb4mzkbb4m_draft_64px.dds</Path>
+		</InterfaceArtInfo>
 	</InterfaceArtInfos>
 </Civ4ArtDefines>

@@ -55,6 +55,15 @@ Our AdvCiv-SAS documentation is mostly located here:
 
 May help to find key documentation, additionally to doing a grep or such, indexes like `# advc.004y: Restored (comment out to remove traits)` refer to and provide key information about a change (grep the tag e.g. `004y` in the manual).
 
+## File reading from a non-global link
+
+- If the user provides a link like [Civ4ScreenShot1511.JPG](Assets/Python/Screens/Civ4ScreenShot1511.JPG), or some other relative path, then since you know where our mod is ("C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), then you can infer and reconstruct the path from it without asking the user unless you are unable to, for example ""C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Screens\Civ4ScreenShot1511.JPG"
+- If you cannot read one of the files or links the user sends (not including web pages or such), specify it to the user instead of blindly proceeding, as the info like a screenshot may help you see and solve the issue.
+
+## Sevopedia debug dumps (Python API introspection)
+
+When a Python getter seems missing or unclear (e.g., the culture breakdown error where `CvCivicInfo` has no `getCommerceChange`), use Sevopedia debug dumps to verify what Python can actually access; these live under `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\Debug` (example file: [__SevoPediaCivic-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner-debug-content.txt), and they’re valuable because they prevent guessing whether a getter is exposed in Python or requires DLL changes.
+
 ## Information Fetching online
 
 If you find yourself stuck like for audio stopping issues, feel free to ask the user to perform one or many web searches, maybe some solutions exist or insights on how solvable issues are.

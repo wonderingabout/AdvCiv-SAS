@@ -6,11 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular:
-
-- UI: Sevopedia (item grouping, new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g., Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel and other in-category charts, Movies (with audio support), Music with the ~1750 audio scripts of AdvCiv-SAS that can be listened to)
-- UI: Most Advisor screens reworked or new ones (e.g. History Tab in the Info Screen Advisor), and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
-- Mechanics: new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units)
+Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Playing (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework. New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units).
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
@@ -38,7 +34,9 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
-&emsp;[City Screen rework](/README.md#city-screen-rework)  
+&emsp;[Main interface rework](/README.md#city-screen-rework)  
+&emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
+&emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia)](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia)  
 &emsp;[Other new categories](/README.md#other-new-categories)  
@@ -96,11 +94,12 @@ See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs/README_More_Ex
 
 ## Ingame gameplay samples
 
-These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch handicap. Later screenshots are from version 5055 and around version 5200.
+These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch handicap. Later screenshots are from version 5055 and around version 5200 and 5085.
 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.960_gameplay_4986_monarch_1.JPG" alt="0.960_gameplay_4986_monarch_1.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.961_autoplay_pre_5200_noble_1 (1).JPG" alt="0.961_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.962_autoplay_pre_5055_monarch_1 (2).JPG" alt="0.962_autoplay_pre_5055_monarch_1 (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.961_autoplay_pre_5055_monarch_1 (2).JPG" alt="0.961_autoplay_pre_5055_monarch_1 (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.962_autoplay_pre_5200_noble_1 (1).JPG" alt="0.962_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.963_autoplay_pre_5385_monarch_1.JPG" alt="0.963_autoplay_pre_5385_monarch_1.JPG" width="250"></img>
 
 See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below) for more gameplay samples although some of these may be old/dated now.
 
@@ -168,9 +167,8 @@ We added in AdvCiv-SAS a new History Tab in the Info Screen:
 
 Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG" alt="0.5160_info_screen_history (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG" alt="0.5160_info_screen_history (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG" alt="0.5161_info_screen_history_dbg_log.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG" alt="0.516_info_screen (6).JPG" width="250"></img>
 
 #### Advisor reworks
 
@@ -180,10 +178,11 @@ Also refactored to make the display more dynamic so that if the advisor's screen
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.514_foreign_advisor_relations.JPG" alt="0.514_foreign_advisor_relations.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (1).JPG" alt="0.510_foreign_advisor (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG" alt="0.510_foreign_advisor (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG" alt="0.510_foreign_advisor (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG" alt="0.510_foreign_advisor (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG" alt="0.510_foreign_advisor (5).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
@@ -214,14 +213,27 @@ This means the default is now ON, and ticking the option toggles it to OFF. Appl
 
 Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so appear at turn 1 onwards. See [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
 
-### City Screen rework
+### Main Interface rework
+
+Some common changes to city screen and map view include the tech bar's detail being enhanced with a new icon centered in the bar, followed by info like `Fusion: 2245 / 5774 (35)`, and show chars in the GP bar even if 100% (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`).
+
+Also moved map to the right (idea from the C2C mod thanks).
+
+#### City Screen rework
 
 Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering. Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either; this allows to now display much more information and reduces the need for scrolling. Also beautified several other things, such as enlarging side panels to display more info and be prettier, making bonuses columns even in width, making some hardcoded values now dynamically adjust depending on the side width we set, etc. if any more.
 
-Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance.
+Additionally, also added a new specialists breakdown as of now on bottom-right and a culture breakdown. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance.
+
+The city screen has been heavily reworked, beautified, and enhanced, for example by splitting the old draft group into draft menu on one side with a new draft button, and config options as a one liner above the minimap zone, plus added new building list filtering options (Show all buildings, Show World Wonders only, etc.) as clickable buttons (based on how the C2C mod does it thanks), enhanced with detailed information (like `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`).
 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG" alt="0.400_city_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
+
+#### Map view rework
+
+Outside the city screen, UI has been reworked too: removed the flag (was needless and cumbersome: better show more buttons instead), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
 
 ## UI (Main Sevopedia reworks)
 
@@ -505,9 +517,11 @@ It also helped me generate a very nice building_russian_gord corresponding butto
 
 I was also extremely impressed by ChatGPT 5.2's ability to fully plan the new addition of a new RedX art with thinner lines, just based on a Sevopedia ingame screenshot showing it was too bold and thus hard to read at a glance. ChatGPT 5.2 took all measurements and provided me various prototypes and shapes, that are fully working after i converted them to .dds. See for details [README.md#redx-new-art-button](/README.md#redx-new-art-button).
 
+Notably also, generated the new draft button in the city screen with the help of nano banana pro (gemini 3 pro) thanks.
+
 <img src="https://drive.google.com/thumbnail?id=15rhihjY5wM0ABKwpBn_BqqRh_EU_6vLg&sz=w1024" width="150" alt="mounted_tech_edited.png"></img>
 <img src="https://drive.google.com/thumbnail?id=1on2cbFeqFF54Q9iTos9g1oZpbUOnmaBn&sz=w1024" width="150" alt="chatgpt_5_2_obsolete_x_edge_thin_1204"></img>
-<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV&sz=w2048" width="267" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp"></img>
+<img src="https://drive.google.com/thumbnail?id=1KaoqbOPB3tTyHnnkrcTTz6Qu8ZSMUIwm&sz=w1024" width="150" alt="Gemini_Generated_Image_bb4mzkbb4mzkbb4m_cropped.png"></img>
 
 ## Less Generic unit names or combat types
 
@@ -663,7 +677,7 @@ As of now AdvCiv-SAS is rather stable so crashes should be rare now. Recently, t
 ## Not supported in AdvCiv-SAS
 
 - non-English translations: too tedious to translate them all, plus i'm fine with English being the only language in the game.
-- CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or complicated to maintain furthermore, then i am not supporting it in AdvCiv-SAS, see also [/Settings/About%20this%20folder%20(AdvCiv-SAS).txt](/Settings/About%20this%20folder%20(AdvCiv-SAS).txt) for details if any more are in this file. See this [google drive folder link](https://drive.google.com/drive/folders/1cINn930Hma2cEN6g_v2obiAQh9pMlnrQ?usp=sharing) for example of what this does according to chatgpt.
+- CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or complicated to maintain furthermore, then i am not supporting it in AdvCiv-SAS. May or not be updated every while or inconsistently but expect it to be unsupported.
 - concepts being updated in their content: see [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
 - savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas) of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead. I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate. See related info at [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result) as well.
 
@@ -688,8 +702,6 @@ See [Credits](/_1_AdvCiv-SAS/Docs/README_References.md#credits).
 See [Some Useful tools while doing this](/_1_AdvCiv-SAS/Docs/README_References.md#some-useful-tools-while-doing-this).
 
 ## License and reuse
-
-Written by chatgpt and adjusted bit by me wonderingabout.
 
 You can reuse our work in your projects on the condition that you credit us. Example of credit:
 
