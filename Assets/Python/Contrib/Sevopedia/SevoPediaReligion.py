@@ -73,6 +73,7 @@ class SevoPediaReligion:
 
 		self.W_REQUIRES = 84
 		self.W_MOVIE = 84
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		self.X_UNITS = self.X_BUILDINGS
 		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + self.SMALL_MARGIN
@@ -211,19 +212,15 @@ class SevoPediaReligion:
 
 		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION
 		if self.top.pediaMovies.hasMovie(iMovieType, self.iReligion):
-			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
-			check_button_path_is_valid("Sevopedia Religion Movie button", buttonPath, buttonPathTxtKey)
-
 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iReligion)
+
 			buttonSize = 64
 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
 			# X: Standard centering works correctly.
 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
 			buttonX = (self.W_MOVIE - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
 		else:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()

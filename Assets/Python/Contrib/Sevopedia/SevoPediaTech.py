@@ -228,6 +228,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.W_MUSIC = 84
 		self.H_MUSIC = self.H_ROW
 		self.X_MUSIC = self.top.R_PEDIA_PAGE - self.W_MUSIC
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+		self.noEntryButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_NO_ENTRY").getPath()
 
 		self.Y_OBSOLETES = self.Y_FIRST_TO_DISCOVER
 		self.X_OBSOLETES = self.X_TRADEABLE + self.W_TRADEABLE + self.MEDIUM_MARGIN
@@ -350,17 +352,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		iPackedMusic = self.top.SAS_packMusicKey(iMusicType, self.iTech)
 
 		if self.top.pediaMusic.hasMusic(iPackedMusic):
-			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
-
 			buttonSize = 64
 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
 			# X: Standard centering works correctly.
 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
 			buttonX = (self.W_MUSIC - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
 		else:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
@@ -462,13 +460,10 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			screen.addMultilineText(txtName, szText, self.X_TRADEABLE + 7, yPanelCenter, self.W_TRADEABLE - 14, self.H_TRADEABLE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		else:
 			# Tech is not tradeable - show emoji icon
-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH"
-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
-
 			buttonSize = 64
 			buttonX = (self.W_TRADEABLE - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.noEntryButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

@@ -14,6 +14,7 @@ from _sevopedia_helpers import *
 
 
 gc = CyGlobalContext()
+ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 
@@ -1074,17 +1075,17 @@ def _compute_leader_cache_internal():
 
 
 
-	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_path_txt_key, ai_category_header):
+	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_art_key, ai_category_header):
 		if not IS_DISPLAY_AI_CATEGORY_HEADERS:
 			return (None, 0)
 		# If the header is disabled (None), keep the exact same "no header" tuple semantics.
 		if ai_category_header is None:
 			return (None, 0)
 
-		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS and icon_button_path_txt_key:
-			button_path = localText.getText(icon_button_path_txt_key, ())
+		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS and icon_button_art_key:
 			button_size = 16
-			line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
+			# <!-- custom: No caching needed here since this precomputes to a file (not called repeatedly during gameplay). (GPT-5.2-Codex (summarized)) -->
+			line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
 			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
 
 			# <!-- custom: add x offset (negative) so we can push button a bit left and reduce whitespace -->
@@ -1097,11 +1098,10 @@ def _compute_leader_cache_internal():
 
 			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
 
-	def get_ai_category(icon_button_path_txt_key, ai_category_header, ai_category_key_order):
+	def get_ai_category(icon_button_art_key, ai_category_header, ai_category_key_order):
 		ai_category_header_line, ai_category_x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(
-			icon_button_path_txt_key,
-			ai_category_header,
-			localText
+			icon_button_art_key,
+			ai_category_header
 		)
 
 		return (ai_category_header_line, ai_category_x_offset, ai_category_key_order)
@@ -1323,44 +1323,43 @@ def _compute_leader_cache_internal():
 			return header_key_or_text
 
 		# === AI Panel's Categories (display order) ===
-		# Note: icon_button_path_txt_key values are TXT_KEYs that resolve via localText to an image path.
-		# We keep them local here for clarity and to avoid any global "emoji mapping" state.
+		# <!-- custom: We keep icon_button_art_key values local here for clarity and to avoid any global "emoji mapping" state. (GPT-5.2-Codex (summarized)) -->
 
 		right_defs = (
 			# <!-- custom: Economic Preferences. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", get_ai_category_order_economic_preferences()),
+			("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", get_ai_category_order_economic_preferences()),
 			# <!-- custom: Contact Offer Probabilities. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
+			("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
 			# <!-- custom: Contact Demand Probabilities. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
+			("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
 			# <!-- custom: Offer Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
+			("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
 			# <!-- custom: Demand Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_AXE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
+			("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
 			# <!-- custom: Misc Modifiers. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_WRENCH_PATH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
+			("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
 		)
 
 		middle_defs = (
 			# <!-- custom: Positive Memory Affections. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
+			("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
 			# <!-- custom: Negative Memory Resentments. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
+			("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
 			# <!-- custom: No War At. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", get_ai_category_order_no_war_at()),
+			("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", get_ai_category_order_no_war_at()),
 			# <!-- custom: Attitude Changes +/- Lims +/- Divs. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_CHART_DECREASING_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", get_ai_category_order_attitude_changes()),
+			("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", get_ai_category_order_attitude_changes()),
 		)
 
 		left_defs = (
 			# <!-- custom: Core Personality. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", get_ai_category_order_core_personality()),
+			("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", get_ai_category_order_core_personality()),
 			# <!-- custom: Victory Weights (BBAI-style). (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", get_ai_category_order_victory_weights()),
+			("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", get_ai_category_order_victory_weights()),
 			# <!-- custom: Flavors. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", get_ai_category_order_flavors()),
+			("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", get_ai_category_order_flavors()),
 			# <!-- custom: War Strategy. (GPT-5.2-Codex) -->
-			("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", get_ai_category_order_war_strategy()),
+			("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", get_ai_category_order_war_strategy()),
 		)
 
 		right_categories = []
@@ -1368,18 +1367,18 @@ def _compute_leader_cache_internal():
 		left_categories = []
 
 		if IS_DISPLAY_AI_CATEGORY_HEADERS:
-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in right_defs:
-				right_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in middle_defs:
-				middle_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in left_defs:
-				left_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
+			for icon_button_art_key, header_key_or_text, ai_category_key_order in right_defs:
+				right_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
+			for icon_button_art_key, header_key_or_text, ai_category_key_order in middle_defs:
+				middle_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
+			for icon_button_art_key, header_key_or_text, ai_category_key_order in left_defs:
+				left_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
 		else:
-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in right_defs:
+			for icon_button_art_key, header_key_or_text, ai_category_key_order in right_defs:
 				right_categories.append(get_ai_category(None, None, ai_category_key_order))
-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in middle_defs:
+			for icon_button_art_key, header_key_or_text, ai_category_key_order in middle_defs:
 				middle_categories.append(get_ai_category(None, None, ai_category_key_order))
-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in left_defs:
+			for icon_button_art_key, header_key_or_text, ai_category_key_order in left_defs:
 				left_categories.append(get_ai_category(None, None, ai_category_key_order))
 
 		return (tuple(right_categories), tuple(middle_categories), tuple(left_categories))

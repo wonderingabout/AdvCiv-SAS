@@ -45,10 +45,10 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Charts, Starting and Untradeable Techs Charts, Improvement Weights (Leaders) Chart)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-charts-starting-and-untradeable-techs-charts-improvement-weights-leaders-chart)  
 &emsp;[Some other Sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
 [UI (Common)](/README.md#ui-common)  
-&emsp;[Images as buttons](/README.md#images-as-buttons)  
+&emsp;[Emojis](/README.md#emojis)  
 &emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
-[Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)  
-&emsp;[New optional XML fields (e.g. ObsoleteTech for units, Button for eras)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras)  
+[New optional XML fields (e.g. ObsoleteTech for units, Button for eras)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras)  
+[AI-generated images](/README.md#ai-generated-images)  
 [Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)  
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
 &emsp;[World map with civs](/README.md#world-map-with-civs)  
@@ -277,7 +277,7 @@ See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Rework
 
 Based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS, we provide a new Sevopedia Movies category with movies (bik, nif, dds) playing and additional audio support for non-bik files such as religions (nif + separate sound asset).
 
-Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable Play Button, emoji-based following our [Images As Buttons](/README.md#images-as-buttons) approach, has been provided.
+Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided.
 
 We also added a new Sevopedia Music that allows to play ~1750 audio scripts in Sevopedia (as of now 963 AS2D and 786 AS3D audio scripts)! Search bar support allows for an easy find of the wanted tracks. And a play Button is provided. Among assets, notably but not only, each Tech's, Leader's, Civlization's, Era's music can be listened to.
 
@@ -378,90 +378,16 @@ The Sevopedia "Mods Info" (reusing the old civ4 concepts category or similar, th
 
 ## UI (Common)
 
-### Images as buttons
+### Emojis
 
-Not mentioned previously at the UI section, but we use in AdvCiv-SAS an Images as buttons approach, typically to add emoji as buttons without having to tediously add them as textual icons, for example in Sevopedia (such as of now in the AI Personality Panel's emojis, or in the Info Screen (F9 key ingame)'s Statistics tab's top chart (Time Played, Cities, etc.)).
+We added emojis in AdvCiv-SAS as dds so we don't have to tediously add them as textual icons, for example in Sevopedia (such as of now in the AI Personality Panel's emojis, or in the Info Screen (F9 key ingame)'s Statistics tab's top chart (Time Played, Cities, etc.)).
 
-Basically, what i did was downloading them (usually .png and usually from [emojiterra.com](http://emojiterra.com/)), then with Paint.NET resize to 64x64 and save as .dds.
-
-```xml
-	<!-- custom: ⏳ emoji similarly from emojiterra. -->
-    <TEXT>
-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH</Tag>
-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds</English>
-	</TEXT>
-```
-
-With a dynamic implementation based on `localText`, so that if path changes in the future or for centralization purposes or such, it makes it easier as such. For example (from [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)),adding emojis or other images or such as buttons:
-
-```py
-		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
-		self.szTimeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH", ()))  # ⏳
-		# <!-- custom: then later in the code... -->
-		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, self.szTimeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-```
-
-An alternative implementation (such as in [SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py)) allows to introduce them as plain text using `<img>` tags. For example:
-
-```py
-		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
-			button_path = localText.getText(emoji_name_to_button_path_txt_keys[emoji_name], ())
-			button_size = 16
-			line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
-			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
-```
-
-Sometimes you need to wrap them in a string, sometimes the timing of whenever you wrap them to string can produce weird results it seems if i'm not mistaken. If in doubt, consider hardcoding the path as a string directly. However, here is another working implementation that successfully uses localText to fetch button paths as textual icons:
-
-```py
-		# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. -->
-		szRank1IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))  # 🏆
-		szRank2IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH", ()))  # 🥈
-		szRank3IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH", ()))  # 🥉
-		
-		# <!-- custom: precompute full image tag strings for efficiency, added with claude opus 4.5's help thanks. -->
-		self.szRank1ImgTag = u"<img=%s size=%d></img>" % (szRank1IconPath, self.iRankIconSize)
-		self.szRank2ImgTag = u"<img=%s size=%d></img>" % (szRank2IconPath, self.iRankIconSize)
-		self.szRank3ImgTag = u"<img=%s size=%d></img>" % (szRank3IconPath, self.iRankIconSize)
-
-			# <!-- custom: then later in the code... -->
-			if iRank > 0:
-				if iRank == 1:
-					szPlayerName = u"%s %s" % (szPlayerName, self.szRank1ImgTag)
-				elif iRank == 2:
-					szPlayerName = u"%s %s" % (szPlayerName, self.szRank2ImgTag)
-				elif iRank == 3:
-					szPlayerName = u"%s %s" % (szPlayerName, self.szRank3ImgTag)
-				else:
-					szPlayerName = u"%s (%d)" % (szPlayerName, iRank)
-```
-
-Note that this can be generalized to any button, not just our AdvCiv-SAS new buttons, so for example leader buttons can be added in the info screen's tab as textual icons (see screenshots in the UI reworks section for examples). Example of code:
-
-```py
-		# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
-		self.iGraphLeaderIconSize = 16
-
-			# <!-- custom: then later in the code... -->
-			str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
-
-			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
-			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
-			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, self.iGraphLeaderIconSize)
-			szNameWithLeader = u"<font=2>%s %s</font>" % (szLeaderImg, str)
-
-#BUG: Change Graphs - start
-			if AdvisorOpt.isGraphs():
-				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			else:
-				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-#BUG: Change Graphs - end
-```
+They can be added as buttons or as `<img>` for example, like other .dds files.
 
 The relevant files can be found in:
 
-- XML: as of now in [/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml) and in [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml)
-- `.dds`: as of now in [/Assets/Art/AdvCiv_SAS/Images_As_Buttons/](/Assets/Art/AdvCiv_SAS/Images_As_Buttons/)
+- XML: as of now in [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml)
+- `.dds`: as of now in [/Assets/Art/AdvCiv_SAS/Emojis/](/Assets/Art/AdvCiv_SAS/Emojis/)
 
 ### Untradeable techs (bTrade) display information
 
@@ -469,15 +395,15 @@ For example we added the new this technology "Cannot be traded" and "Can be rese
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5000_bTrade_bRepeat.JPG" alt="0.5000_bTrade_bRepeat.JPG" width="250"></img>
 
-See also for details:
+See also:
 
 - [README_Main_Changes_Guide.md#technologies](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies)
 - [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)
 - [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for details
 
-### New optional XML fields (e.g. ObsoleteTech for units, Button for eras)
+## New optional XML fields (e.g. ObsoleteTech for units, Button for eras)
 
-#### ObsoleteTech for units
+### ObsoleteTech for units
 
 We also added in AdvCiv-SAS with GPT-5.2-Codex's help new XML optional fields such as `<ObsoleteTech>` for units.
 
@@ -491,7 +417,7 @@ Should have been the base in Civ4!
 
 See Sevopedia Unit and Sevopedia Tech for screenshots. See also [KI#93](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping).
 
-#### Button for eras
+### Button for eras
 
 Similarly added a new `<Button>` in XML.
 

@@ -34,6 +34,7 @@ class SevoPediaCivilization:
 
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		rowH = 110
 
@@ -136,17 +137,15 @@ class SevoPediaCivilization:
 		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
 		screen.attachLabel(panelName, "", "  ")
 
-		buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
-		buttonPath = str(localText.getText(buttonPathTxtKey, ()))
 		buttonSize = 64
 		buttonX = (self.W_MUSIC - buttonSize) / 2
 		buttonY = 10
 		# <!-- custom: redirect to the first civ-specific sound entry in Sevopedia Music. (GPT-5.2-Codex (summarized)) -->
 		iMusicKey = self.top.SAS_getFirstCivMusicKey(self.iCivilization)
 		if iMusicKey != -1:
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
 		else:
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 
 

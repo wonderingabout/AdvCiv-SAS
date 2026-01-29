@@ -678,9 +678,9 @@ class CvInfoScreen:
 		self.szPopulationTitle = u"%s (%c)" % (self.TEXT_POPULATION, CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
 
 		# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. -->
-		szRank1IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))  # 🏆
-		szRank2IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH", ()))  # 🥈
-		szRank3IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH", ()))  # 🥉
+		szRank1IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_TROPHY").getPath()  # 🏆
+		szRank2IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_2ND_PLACE_MEDAL").getPath()  # 🥈
+		szRank3IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_3RD_PLACE_MEDAL").getPath()  # 🥉
 		
 		# <!-- custom: precompute full image tag strings for efficiency, added with claude opus 4.5's help thanks. -->
 		self.szRank1ImgTag = u"<img=%s size=%d></img>" % (szRank1IconPath, self.iRankIconSize)
@@ -769,10 +769,10 @@ class CvInfoScreen:
 		self.BUGProject_Off = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 
 		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
-		self.szTimeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH", ()))  # ⏳
+		self.szTimeIconStats = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_HOURGLASS_NOT_DONE").getPath()  # ⏳
 		self.szCityIconStats = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.szFoundCityIconStats = "Art/Interface/Buttons/Actions/FoundCity.dds"
-		self.szRazeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH", ()))  # 🔥
+		self.szRazeIconStats = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_FIRE").getPath()  # 🔥
 		self.szReligionIconStats = "Art/Interface/Buttons/General/ConvertReligion.dds"
 		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
 
@@ -1795,12 +1795,11 @@ class CvInfoScreen:
 				textColorA = gc.getPlayer(p).getPlayerTextColorA()
 #BUG: Change Graphs - end
 
-			str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
-
+			strColor = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
 			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
 			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
 			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, self.iGraphLeaderIconSize)
-			szNameWithLeader = u"<font=2>%s %s</font>" % (szLeaderImg, str)
+			szNameWithLeader = u"<font=2>%s %s</font>" % (szLeaderImg, strColor)
 
 #BUG: Change Graphs - start
 			if AdvisorOpt.isGraphs():
@@ -1835,8 +1834,9 @@ class CvInfoScreen:
 					textColorG = gc.getPlayer(p).getPlayerTextColorG()
 					textColorB = gc.getPlayer(p).getPlayerTextColorB()
 					textColorA = gc.getPlayer(p).getPlayerTextColorA()
-				str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
-				screen.setLabel(self.sPlayerTextWidget[i], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				# <!-- custom: avoid close to standard name like str -->
+				strColor = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
+				screen.setLabel(self.sPlayerTextWidget[i], "", u"<font=2>" + strColor + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				yLine += self.H_LEGEND_TEXT
 				yText += self.H_LEGEND_TEXT
 

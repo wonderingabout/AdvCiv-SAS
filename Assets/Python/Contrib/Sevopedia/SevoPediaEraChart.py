@@ -13,6 +13,7 @@ import SevoScreenEnums
 from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
+ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 
@@ -32,6 +33,9 @@ class SevoPediaEraChart:
 			raise ValueError("[FATAL] SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT must be >= 1.")
 		# <!-- custom: Toggle to show/hide era button row above the table. (Claude Opus 4.5) -->
 		self.SHOW_ERA_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS") > 0)
+
+		# <!-- custom: Cache emoji icon path for performance. (GPT-5.2-Codex (summarized)) -->
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -89,15 +93,14 @@ class SevoPediaEraChart:
 			else:
 				buttonRowStartX = tableX + self.W_FIELD
 
-			playButtonPath = CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH", ()))
-			if playButtonPath:
+			if self.playButtonPath:
 				playButtonX = buttonRowStartX - wNum
 				# <!-- custom: redirect to first era track (Track 01 of Ancient era) in Sevopedia Music category -->
 				iFirstEraMusicKey = self.top.SAS_getFirstEraMusicKey()
 				if iFirstEraMusicKey != -1:
-					screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iFirstEraMusicKey)
+					screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iFirstEraMusicKey)
 				else:
-					screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+					screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 			era_count = gc.getNumEraInfos()
 			for iEra in xrange(era_count):
@@ -230,20 +233,17 @@ class SevoPediaEraChart:
 
 		game = CyGame()
 		btn_by_name = {}
-		def _btn_path(szTxtKey):
-			return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
 
 		_btn_defs = (
-			# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
-			("lion",   "TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH"),
-			("skull",  "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH"),
-			("swords", "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
-			("fire",   "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH"),
-			("gear",   "TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH"),
-			("brain",  "TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH"),
+			("lion",   "SAS_EMOJI_LION_FACE"),
+			("skull",  "SAS_EMOJI_SKULL"),
+			("swords", "SAS_EMOJI_CROSSED_SWORDS"),
+			("fire",   "SAS_EMOJI_FIRE"),
+			("gear",   "SAS_EMOJI_GEAR"),
+			("brain",  "SAS_EMOJI_BRAIN"),
 		)
-		for i, (name, txtKey) in enumerate(_btn_defs):
-			btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
+		for i, (name, artKey) in enumerate(_btn_defs):
+			btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
 
 		glyph_by_name = {}
 		_glyph_defs = (

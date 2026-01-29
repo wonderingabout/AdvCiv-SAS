@@ -172,7 +172,7 @@ class CvVictoryScreen:
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
 
 		# <!-- custom: precompute trophy icon for Highest Score row (claude opus 4.5) -->
-		szTrophyIconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))
+		szTrophyIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_TROPHY").getPath()
 		self.szTrophyImgTag = u"<img=%s size=%d></img>" % (szTrophyIconPath, self.iEmojiAsIconIconSize)
 
 		# <!-- custom: thousand separator, based on Info Screen pattern (claude opus 4.5) -->

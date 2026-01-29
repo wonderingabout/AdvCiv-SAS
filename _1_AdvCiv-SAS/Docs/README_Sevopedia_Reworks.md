@@ -186,7 +186,7 @@ Added a Movies category in Sevopedia that lists movies (as of now Victories, Won
 
 A new screen is opened with audio from main menu being silent, an as of now "OK" button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
 
-Play button, emoji based as in our usual as of now Images as Button approach, is added to Sevopedia Building, Project, Religions, and Eras Chart.
+Emoji-based Play button is added to Sevopedia Building, Project, Religions, and Eras Chart.
 
 Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
 
@@ -237,11 +237,11 @@ This section focuses on the higher level changes we did to Sevopedia, mostly abo
 
 ### example 1: leaders category (AI Personality and other changes)
 
-Note: images as buttons provided by chatgpt, but also are an approach i generalized from [claude AI's code solution in Sevopedia buildings for the power button](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or additional info or context on how this was added or the mod's drive (link in main README.md or other places or and not)
+Note: emojis provided by chatgpt, and also based on [claude AI's code solution in Sevopedia buildings for the power button](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia).
 
-note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emoji as images
+note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emojis.
 
-note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels
+note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels.
 
 Also, Trait icons (chars) are now displayed before trait names in the leader's Traits section, making it easier to identify traits at a glance (similar to the Traits category). Added with the help of GPT-Codex-5.2 thanks.
 

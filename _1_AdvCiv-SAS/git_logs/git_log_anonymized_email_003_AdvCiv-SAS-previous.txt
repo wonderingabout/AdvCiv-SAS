@@ -4128,8 +4128,8 @@ commit 3cb4f6faf9e8b64e16902dc5dcb7cee529751411
 Author: wonderingabout <hidden>
 Date:   2025-06-01 12:19:50 +0200
 
-add IconsAsButtons (emojis or icons or buttons in a centralized xml path), in Sevopedia leader's categories, update Sevopedia unit (cities) and Sevopedia building (power) buttons to use this code
-was very fun to add hehe, i very very much add the result, and is thanks to chatgpt which/who i didn't talk with for a long time even though no memory refresh this time but some new code samples...
+add emojis or other icons, in Sevopedia leader's categories, update Sevopedia unit (cities) and Sevopedia building (power) buttons to use this code
+was very fun to add hehe, i very very much like the result, and is with the help of chatgpt thanks.
 
 commit de2f392218ba404182c5be0d187f0d8e8fbb3672
 Author: wonderingabout <hidden>
@@ -6283,7 +6283,7 @@ commit c74041c75b21dee2b10ef196ef8eda7a5180e064
 Author: wonderingabout <hidden>
 Date:   2025-04-13 16:55:43 +0200
 
-initial notes on sex-neutral units and less generic unit names, anyways
+initial notes
 
 commit 4ae72388bf03f4a6ace07a9cdea87396f4cca64a
 Author: wonderingabout <hidden>

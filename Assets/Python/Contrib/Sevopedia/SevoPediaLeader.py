@@ -110,6 +110,7 @@ class SevoPediaLeader:
 		self.X_MUSIC = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
 		self.Y_MUSIC = self.Y_FAVORITES
 		self.H_MUSIC = self.H_FAVORITES
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
 		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
@@ -202,17 +203,15 @@ class SevoPediaLeader:
 		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
 		screen.attachLabel(panelName, "", "  ")
 
-		buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
-		buttonPath = str(localText.getText(buttonPathTxtKey, ()))
 		buttonSize = 64
 		buttonX = (self.W_MUSIC - buttonSize) / 2
 		buttonY = 10
 		# <!-- custom: redirect to leader's peace music entry in Sevopedia Music category -->
 		iMusicKey = self.top.SAS_getLeaderPeaceMusicKey(self.iLeader)
 		if iMusicKey != -1:
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
 		else:
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 
 

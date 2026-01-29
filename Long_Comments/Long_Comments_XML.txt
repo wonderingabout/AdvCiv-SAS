@@ -425,7 +425,7 @@ Rename the tag									Original untouched; you're free to localize your version
 "
 -->
 
-===== \Assets\XML\Text\AdvCiv-SAS_Button_Icons_As_Buttons.xml =====
+===== /Assets/XML/Art/CIV4ArtDefines_Interface.xml =====
 ----- Comment #31 -----
 <!-- custom: â??ï¸ emoji ('s choice/idea/suggestion) is from chatgpt's code
     then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example, there are also several images to choose from in the website as well for example, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say -->
@@ -2859,15 +2859,10 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 	- 3) One could also maybe imagine that elephants the animal itself makes people happy, and not necessarily their ivory.
 	Note: since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version. -->
 
-===== \Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml =====
+===== /Assets/XML/Art/CIV4ArtDefines_Interface.xml =====
 ----- Comment #150 -----
 
-<!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need, record the button Path as a txtKey for reference (centralized).
-
 See also /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation.
-
-See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there). -->
-<!-- custom: note: sometimes the localText fetching can break if not converted to a string (such as with `str(`, or sometimes you need to do it later and not just when you import the localText path, or something along those lines. If you encounter issues, consider hardcoding the path directly in the button rather such as `szRankImg = u"<img=Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds size=16></img>"` in cvinfoscreen.py for example as claude opus 4.5 found to be the issue, until i implemented properly using localText.
 
 See also as of now the mod's root /README.md for related info. -->
 

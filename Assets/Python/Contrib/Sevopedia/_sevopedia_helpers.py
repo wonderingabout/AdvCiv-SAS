@@ -12,6 +12,7 @@ import re
 
 
 gc = CyGlobalContext()
+ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 
@@ -212,13 +213,6 @@ def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
 		raise ValueError(u"[FATAL] icon_size=%d cannot be bigger/higher than icon_frame_size=%d, icon_size must fit within the frame, please adjust icon_size or icon_frame_size so that 0 < icon_size < icon_frame_size" % (icon_size, icon_frame_size))
 
 
-
-def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey):
-	if resolvedButtonPath == configButtonPathSTxtKey:
-		raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedButtonPath=%s matches configButtonPath=%s in buttonHeader=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_Images_As_Buttons.xml or AdvCiv-SAS_Button_Paths_Hardcoded.xml (or wherever they are stored in the future if these files's filename or code changes) is valid and exists in your mod path." % (resolvedButtonPath, configButtonPathSTxtKey, buttonHeader))
-
-
-
 # <!-- custom: added with the help of chatgpt 5.2 thanks to help separate Land features in sevopedia into as of now Land (Removable) and Land (Other) -->
 # A feature is "removable" if there exists a Build that removes it (e.g. Chop Forest, Clear Jungle, Remove Fallout).
 # We do this via CvBuildInfo because CvFeatureInfo in our DLL does not expose getRemoveTech().
@@ -244,25 +238,6 @@ def getInfoTypeOrFail(tag):
 	if iType == -1:
 		raise ValueError("Missing XML tag: '%s'" % tag)
 	return iType
-
-
-
-def get_citiesResolvedButtonPath():
-	citiesConfigButtonPathTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH"
-	# <!-- custom: add str() wrapper else (i.e. without it) we get an error (it seems) (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons (from err log):
-	#
-	# ArgumentError: Python argument types in
-	#	CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
-	# did not match C++ signature:
-	#	attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
-	#  
-	# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases), etc -->
-	citiesResolvedButtonPath = str(localText.getText(citiesConfigButtonPathTxtKey, ()))
-
-	citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
-	check_button_path_is_valid(citiesButtonHeader, citiesResolvedButtonPath, citiesConfigButtonPathTxtKey)
-
-	return citiesResolvedButtonPath
 
 
 

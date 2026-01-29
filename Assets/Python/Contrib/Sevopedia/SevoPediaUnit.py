@@ -175,6 +175,7 @@ class SevoPediaUnit:
 		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
 		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
 		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_UNDER_ANIMATION_PANELS
+		self.citiesButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_CITIES_LANDSCAPE").getPath()
 
 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
@@ -725,7 +726,7 @@ class SevoPediaUnit:
 
 			# Column index (always 0 when numLists=1)
 			columnIndex = 0
-			screen.appendMultiListButton(rowListName, get_citiesResolvedButtonPath(), columnIndex, widgetType, widgetID1, widgetID2, False)
+			screen.appendMultiListButton(rowListName, self.citiesButtonPath, columnIndex, widgetType, widgetID1, widgetID2, False)
 
 			numTxt = get_numTxt_attack_defense_modifiers(iCityAttack, iCityDefense)
 			extraCorrectionX = get_extra_correction_x(numTxt)

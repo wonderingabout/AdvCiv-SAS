@@ -88,6 +88,8 @@ class SevoPediaBuilding:
 
 		self.X_MOVIE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
 		self.Y_MOVIE = self.Y_REQUIRES
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+		self.powerButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_POWER").getPath()
 
 		self.X_REQUIRED_FOR = self.X_BUILDING_PANE
 		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
@@ -278,12 +280,8 @@ class SevoPediaBuilding:
 					szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
 					
 					# Add power button
-					configButtonPathSTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_POWER_BUTTON_PATH"
-					resolvedButtonPath = localText.getText(configButtonPathSTxtKey, ())
-					buttonHeader = "Power Button in Sevopedia Building's placeStats"
-					check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
 					buttonSize = 24
-					szButtonText = u"<img=%s size=%s></img>" % (resolvedButtonPath, str(buttonSize))
+					szButtonText = u"<img=%s size=%s></img>" % (self.powerButtonPath, str(buttonSize))
 					szText1 += szButtonText
 
 				szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
@@ -645,11 +643,6 @@ class SevoPediaBuilding:
 
 		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_WONDER
 		if self.top.pediaMovies.hasMovie(iMovieType, self.iBuilding):
-			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
-			check_button_path_is_valid("Sevopedia Building Movie button", buttonPath, buttonPathTxtKey)
-
 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iBuilding)
 			buttonSize = 64
 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
@@ -657,7 +650,7 @@ class SevoPediaBuilding:
 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
 			buttonX = (self.W_MOVIE - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
 		else:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()

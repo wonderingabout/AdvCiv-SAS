@@ -14,6 +14,7 @@ import SevoScreenEnums
 from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
+ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 UserProfile = CyUserProfile()
 
@@ -49,6 +50,7 @@ class SevoPediaMovie:
 		self.H_BUTTON = 64
 		self.X_BUTTON = self.X_HEADER + self.W_HEADER - self.W_BUTTON - 10
 		self.Y_BUTTON = self.Y_HEADER + (self.H_HEADER - self.H_BUTTON) / 2
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		self.X_TEXT = self.X_HEADER
 		self.Y_TEXT = self.Y_HEADER + self.H_HEADER + 10
@@ -89,10 +91,7 @@ class SevoPediaMovie:
 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		if self.hasMovie(iMovieType, iMovieId):
-			# <!-- custom: use image button with play emoji instead of text button. (Claude Opus 4.5) -->
-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
-			screen.setImageButton(self.top.getNextWidgetName(), buttonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_PLAY, self.iMovie)
+			screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_PLAY, self.iMovie)
 
 
 

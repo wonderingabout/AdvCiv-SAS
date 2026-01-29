@@ -46,7 +46,7 @@ More screenshot samples in the [sevopedia reworks Google Drive folder](https://d
 
 ### how to enable/disable emoji buttons in Sevopedia leader
 
-You can enable/disable images as buttons (i.e. the emojis) as i call them, in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+You can enable/disable emojis in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
 Here is how it would look like without emojis for example:
 

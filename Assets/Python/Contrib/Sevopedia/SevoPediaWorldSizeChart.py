@@ -12,6 +12,7 @@ import CvUtil
 from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
+ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 
@@ -182,20 +183,17 @@ class SevoPediaWorldSizeChart:
 
 		game = CyGame()
 		btn_by_name = {}
-		# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
-		def _btn_path(szTxtKey):
-			return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
 
 		_btn_defs = (
-			# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
-			("swords", "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
-			("herb",   "TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH"),
-			("fire",   "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH"),
+			# <!-- custom: (name, SAS_EMOJI_* interface art key). (GPT-5.2-Codex (summarized)) -->
+			("swords", "SAS_EMOJI_CROSSED_SWORDS"),
+			("herb",   "SAS_EMOJI_HERB"),
+			("fire",   "SAS_EMOJI_FIRE"),
 		)
-		for i, (name, txtKey) in enumerate(_btn_defs):
+		for i, (name, artKey) in enumerate(_btn_defs):
 			# Group id only affects sorting by the icon column.
 			# Reorder _btn_defs to change the icon-theme sort order.
-			btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
+			btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
 
 		glyph_by_name = {}
 		# GameFont glyph icons (yields/commerce/symbols).

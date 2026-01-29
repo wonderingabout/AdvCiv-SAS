@@ -12,6 +12,7 @@ import CvUtil
 from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
+ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 
@@ -146,7 +147,7 @@ class SevoPediaGameSpeedChart:
 		#
 		# icon_spec:
 		#   None
-		#   ("btn",   <name>)   -> IconsAsButtons.xml (resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+		# <!-- custom: ("btn", <name>) -> ArtFileMgr interface art (SAS_EMOJI_*). (GPT-5.2-Codex (summarized)) -->
 		#   ("glyph", <name>)   -> GameFont glyph (yield/commerce/symbol char)
 		row_specs = (
 			("iGrowthPercent",              "getGrowthPercent",              ("glyph", "food")),
@@ -206,23 +207,19 @@ class SevoPediaGameSpeedChart:
 		# renumbering everything; only relative order matters.
 
 		btn_by_name = {}
-		# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
-		def _btn_path(szTxtKey):
-			return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
 
 		_btn_defs = (
-			# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
-			("dove",      "TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH"),
-			("swords",    "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
-			("skull",     "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH"),
-			("gear",      "TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH"),
-			("brain",     "TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH"),
-			("hourglass", "TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH"),
-			("fire",      "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH"),
-			("trophy",    "TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH"),
+			("dove",      "SAS_EMOJI_DOVE"),
+			("swords",    "SAS_EMOJI_CROSSED_SWORDS"),
+			("skull",     "SAS_EMOJI_SKULL"),
+			("gear",      "SAS_EMOJI_GEAR"),
+			("brain",     "SAS_EMOJI_BRAIN"),
+			("hourglass", "SAS_EMOJI_HOURGLASS_NOT_DONE"),
+			("fire",      "SAS_EMOJI_FIRE"),
+			("trophy",    "SAS_EMOJI_TROPHY"),
 		)
-		for i, (name, txtKey) in enumerate(_btn_defs):
-			btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
+		for i, (name, artKey) in enumerate(_btn_defs):
+			btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
 
 		glyph_by_name = {}
 		# GameFont glyph icons (yields/commerce/symbols).

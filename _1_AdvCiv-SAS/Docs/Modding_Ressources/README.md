@@ -57,7 +57,7 @@ Instead of:
 [Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor)  
 [Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display)  
 [Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times-if-i-may-say-as-in-code-performance-due-to-how-it-is-optimized-from-what-little-or-not-little-i-know-or-and-did-of-it-but)  
-[Files](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#files)  
+[Drive](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#drive)  
 
 ## Modding disclaimer and general information
 
@@ -866,9 +866,7 @@ In the note 2 example, increasing size to for example 1024 also works, we get a 
 
 note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enoughat least as proof of concept further, see the great person button code in place Stats of Sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too), see screenshot(s) in drive link above for details
 
-See also [Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml](/Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml) for details or and other or and not or yes or and other or etc, see also also [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml) for extra details or adidtional or and alternative or and related or and other or and not or etcinformation.
-
-note 4: we later also used these/this approach for/to use images as buttons in our Sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity.. hehe or not or eys or etc or both or none or other or not, is what i want or maybe rather like to do or not, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in Sevopedia leader if we still use them now
+note 4: we later also used this approach for emojis in our Sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code with the help of AI helpers. See as of now screenshot 5846 in same google drive or ingame in Sevopedia leader for an example.
 
 ## Import a nif art asset from another mod (example with how we added the impluvium's nif as an import from FFH2 mod's Adventurer's guild building)
 
@@ -1121,8 +1119,6 @@ See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-gett
 
 The AI Personality feature in/of Sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has) screenshots and such: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
-## Files
+## Drive
 
-Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing)
-
-In particular the XML Images_As_Buttons and Hardcoded_Button_Paths tags may be helpful maybe, among other possible files you'd find helpful or not.
+See also [the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing).

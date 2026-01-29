@@ -42,6 +42,7 @@ class SevoPediaProject:
 		self.X_MOVIE = self.X_REQUIRES - self.W_MOVIE - 10
 		self.Y_MOVIE = self.Y_REQUIRES
 		self.H_MOVIE = self.H_REQUIRES
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		self.X_PROJECT_PANE = self.top.X_PEDIA_PAGE
 		self.Y_PROJECT_PANE = self.top.Y_PEDIA_PAGE
@@ -147,11 +148,6 @@ class SevoPediaProject:
 
 		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT
 		if self.top.pediaMovies.hasMovie(iMovieType, self.iProject):
-			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
-			check_button_path_is_valid("Sevopedia Project Movie button", buttonPath, buttonPathTxtKey)
-
 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iProject)
 			buttonSize = 64
 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
@@ -159,7 +155,7 @@ class SevoPediaProject:
 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
 			buttonX = (self.W_MOVIE - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
 		else:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()

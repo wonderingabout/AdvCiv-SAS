@@ -15,6 +15,7 @@ import re
 from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
+ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 
@@ -389,23 +390,18 @@ class SevoPediaHandicapChart:
 		icon_cell_for_key = None
 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
 			game = CyGame()
-
-			# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
 			btn_by_name = {}
-			def _btn_path(szTxtKey):
-				return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
 
 			_btn_defs = (
-				# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
-				("dove",   "TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH"),
-				("lion",   "TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH"),
-				("skull",  "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH"),
-				("swords", "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
+				("dove",   "SAS_EMOJI_DOVE"),
+				("lion",   "SAS_EMOJI_LION_FACE"),
+				("skull",  "SAS_EMOJI_SKULL"),
+				("swords", "SAS_EMOJI_CROSSED_SWORDS"),
 			)
-			for i, (name, txtKey) in enumerate(_btn_defs):
+			for i, (name, artKey) in enumerate(_btn_defs):
 				# Group id only affects sorting by the icon column.
 				# Reorder _btn_defs to change the icon-theme sort order.
-				btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
+				btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
 
 			glyph_by_name = {}
 			# GameFont glyph icons (yields/commerce/symbols).
