@@ -1849,5 +1849,10 @@ Created as part of AdvCiv-SAS improvements
 			<Type>SAS_EMOJI_PLAY_BUTTON</Type>
 			<Path>Art/AdvCiv_SAS/Emojis/Play_Button/25b6_64px.dds</Path>
 		</InterfaceArtInfo>
+		<!-- ⏏️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_EJECT_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Eject_Button/23cf_64px.dds</Path>
+		</InterfaceArtInfo>
 	</InterfaceArtInfos>
 </Civ4ArtDefines>

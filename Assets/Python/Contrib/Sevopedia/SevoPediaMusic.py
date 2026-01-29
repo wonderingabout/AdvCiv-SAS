@@ -26,6 +26,7 @@ class SevoPediaMusic:
 		self.MUSIC_PLAYER_SCREEN = "SevoPediaMusicPlayer"
 		self.MUSIC_PLAYER_EXIT_ID = "SAS_MusicPlayerExit"
 		self.mediaPlayer = SevoPediaMediaPlayer(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC, self.MUSIC_PLAYER_EXIT_ID, "MusicPlayer")
+		self.SAS_lastMusicSound = None
 
 		# Offset for the extra width of Music items list vs base width
 		I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
@@ -237,6 +238,9 @@ class SevoPediaMusic:
 			self.mediaPlayer.playSound(szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 
 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
+		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
+		self.mediaPlayer.setReplayCallback(self.replayMusic)
+		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 
 
 
@@ -257,6 +261,14 @@ class SevoPediaMusic:
 
 	def handleOverlayInput(self, inputClass):
 		return self.mediaPlayer.handleInput(inputClass, self.closeMusicPlayer, False)
+
+
+	def replayMusic(self):
+		if self.SAS_lastMusicSound is None:
+			return
+		szSoundScript, iSoundId, bForce3D = self.SAS_lastMusicSound
+		self.mediaPlayer.stopSound()
+		self.mediaPlayer.playSound(szSoundScript, iSoundId, bForce3D)
 
 
 

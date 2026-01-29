@@ -28,8 +28,10 @@ class SevoPediaMovie:
 		self.iMovie = -1
 		self.MOVIE_PLAYER_SCREEN = "SevoPediaMoviePlayer"
 		self.MOVIE_PLAYER_EXIT_ID = "SAS_MoviePlayerExit"
+		# <!-- custom: bik files don't handle well: For BIK, playMovie() doesn’t behave like the other media widgets, so using a “soft eject + re‑open overlay” is safer. (GPT-5.2-Codex) -->
 		self.SAS_savedNoMovies = None
 		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
+		self.SAS_lastMoviePayload = None
 
 		self.X_HEADER = self.top.X_PEDIA_PAGE
 		self.Y_HEADER = self.top.Y_PEDIA_PAGE
@@ -128,8 +130,10 @@ class SevoPediaMovie:
 
 	def showMoviePlayer(self, iMovieType, iMovieId, moviePayload):
 		szMovieFile, szMovieKind, szSoundScript = moviePayload
+		self.SAS_lastMoviePayload = (iMovieType, iMovieId, szMovieFile, szMovieKind, szSoundScript)
 
-		self.SAS_savedNoMovies = CyUserProfile().getGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES)
+		if self.SAS_savedNoMovies is None:
+			self.SAS_savedNoMovies = CyUserProfile().getGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES)
 		CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, False)
 
 		szTitleText = self.getMovieTitle(iMovieType, iMovieId)
@@ -151,6 +155,8 @@ class SevoPediaMovie:
 			self.mediaPlayer.playSound(szSoundScript, -1, False)
 
 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
+		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
+		self.mediaPlayer.setReplayCallback(self.replayMovie)
 
 
 
@@ -160,6 +166,7 @@ class SevoPediaMovie:
 
 		if self.SAS_savedNoMovies is not None:
 			CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, self.SAS_savedNoMovies)
+			self.SAS_savedNoMovies = None
 
 		# <!-- custom: try to stop the specific 2D sound via Destroy2DSound(handle); if that fails, fall back to
 		# CyInterface().stop2DSound() as a global 2D stop for stubborn handles. Credit: CIV4BUG API docs.
@@ -177,6 +184,17 @@ class SevoPediaMovie:
 
 	def handleOverlayInput(self, inputClass):
 		return self.mediaPlayer.handleInput(inputClass, self.closeMoviePlayer, True)
+
+
+	def replayMovie(self):
+		if self.SAS_lastMoviePayload is None:
+			return
+
+		iMovieType, iMovieId, szMovieFile, szMovieKind, szSoundScript = self.SAS_lastMoviePayload
+
+		self.mediaPlayer.stopSound()
+		self.mediaPlayer.closeScreen()
+		self.showMoviePlayer(iMovieType, iMovieId, (szMovieFile, szMovieKind, szSoundScript))
 
 
 

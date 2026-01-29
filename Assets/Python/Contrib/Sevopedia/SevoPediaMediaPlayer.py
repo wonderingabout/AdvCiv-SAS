@@ -8,6 +8,7 @@ from CvPythonExtensions import *
 import CvUtil
 
 gc = CyGlobalContext()
+ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 
@@ -18,10 +19,15 @@ class SevoPediaMediaPlayer:
 		self.screenId = screenId
 		self.screenEnum = screenEnum
 		self.exitId = exitId
+		self.replayId = clickPrefix + "Replay"
 		self.clickPrefix = clickPrefix
 		self.isOpen = False
 		self.soundId = None
 		self.is3DSound = False
+		self.exitButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_EJECT_BUTTON").getPath()
+		self.replayButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+		self.replayCallback = None
+		self.screen = None
 
 
 
@@ -39,6 +45,7 @@ class SevoPediaMediaPlayer:
 			pass
 
 		self.isOpen = True
+		self.screen = screen
 
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 		screen.setRenderInterfaceOnly(True)
@@ -65,7 +72,7 @@ class SevoPediaMediaPlayer:
 
 
 	def placeExitButton(self, screen, iScreenW, iScreenH):
-		screen.setButtonGFC(self.exitId, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+		screen.setImageButton(self.exitId, self.exitButtonPath, iScreenW / 2 - 32, iScreenH - 74, 64, 64, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# <!-- custom: (ChatGPT-5.2 Thinking) -->
 		try:
@@ -76,6 +83,21 @@ class SevoPediaMediaPlayer:
 			screen.setReturnKey(self.exitId)
 		except:
 			pass
+
+
+
+	# <!-- custom: useful to replay files with variants such as _ORDER or _SELECT civilization sounds that play a different variant on replay (e.g. "Yes", "Agreed", "Right Away" (imaginary examples)), or for convenience so we don't exit the screen to replay. Added with the very nice help of GPT-5.2-Codex thanks. -->
+	def placeReplayButton(self, screen, iScreenW, iScreenH):
+		iSize = 64
+		iGap = 8
+		iExitX = iScreenW / 2 - iSize / 2
+		iReplayX = iExitX - iGap - iSize
+		screen.setImageButton(self.replayId, self.replayButtonPath, iReplayX, iScreenH - 74, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+	def setReplayCallback(self, replayCallback):
+		self.replayCallback = replayCallback
 
 
 
@@ -139,6 +161,12 @@ class SevoPediaMediaPlayer:
 		screen = CyGInterfaceScreen(self.screenId, self.screenEnum)
 		screen.hideScreen()
 		self.isOpen = False
+		self.screen = None
+
+
+
+	def getScreen(self):
+		return self.screen
 
 
 
@@ -169,6 +197,10 @@ class SevoPediaMediaPlayer:
 
 		if iNotify == NotifyCode.NOTIFY_CLICKED:
 			szName = inputClass.getFunctionName()
+			if szName == self.replayId:
+				if self.replayCallback is not None:
+					self.replayCallback()
+				return True
 			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
 			if szName == self.exitId or szName.startswith(self.clickPrefix):
 				closeCallback()

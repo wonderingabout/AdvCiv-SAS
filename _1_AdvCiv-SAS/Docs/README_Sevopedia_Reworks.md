@@ -23,8 +23,8 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
 &emsp;&emsp;[example 0.7: World Sizes Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category)  
 &emsp;&emsp;[example 0.8: Eras Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category)  
-&emsp;&emsp;[example 0.90: Movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support)  
-&emsp;&emsp;[example 0.91: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia)  
+&emsp;&emsp;[example 0.91: Movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support)  
+&emsp;&emsp;[example 0.92: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia)  
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
 &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
@@ -180,15 +180,21 @@ More recently, added optional era buttons. Idea i got from watching how the c2c 
 <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG" alt="0.628_sevopedia_eras_chart (2).JPG" width="250"></img>
 
-### example 0.90: Movies category (with audio support)
+### example 0.90: Media Player
+
+Added a common screen for Media Playing (as of now shared for Movies and Music).
+
+Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
+
+The Sevopedia Media player screen is opened with audio from main menu being silent, an as of now Eject button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
+
+A play button allows to replay track without exiting the screen (useful for `_ORDER` or `_SELECT` Civilizations sounds for example as they replay variants for the same item).
+
+### example 0.91: Movies category (with audio support)
 
 Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.
 
-A new screen is opened with audio from main menu being silent, an as of now "OK" button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
-
 Emoji-based Play button is added to Sevopedia Building, Project, Religions, and Eras Chart.
-
-Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
 
 Note: Common logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
 
@@ -196,7 +202,7 @@ Note: Common logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py]
 <img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>
 
-### example 0.91: Music category (~1750 audio scripts playable in Sevopedia)
+### example 0.92: Music category (~1750 audio scripts playable in Sevopedia)
 
 Expanding on the Movies category, we added a new Sevopedia Music category, that allows as of now to play 963 AS2D and 786 AS3D audio scripts! So in total as of now 1749 audio files that can be listened to ingame in Sevopedia!
 
@@ -215,8 +221,6 @@ Note: some sounds appear twice such as Tech, Leader, Era sounds. This is because
 Later on, added civilizations parsing as well similarly with buttons. Note: the same item can be replayed many times and has a different sound (i.e. multiple select and order sounds per civilization)
 
 Done with the very big and nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, ChatGPT-5.2 Thinking, Gemini 2.5 pro (in VS Code).
-
-As of now, click on "OK" or Right-click to stop the media playing; press Escape or Enter key for main menu
 
 The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
 
