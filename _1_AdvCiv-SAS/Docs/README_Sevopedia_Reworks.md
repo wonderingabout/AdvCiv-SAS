@@ -190,6 +190,8 @@ Emoji-based Play button is added to Sevopedia Building, Project, Religions, and 
 
 Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
 
+Note: Common logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
+
 <img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>

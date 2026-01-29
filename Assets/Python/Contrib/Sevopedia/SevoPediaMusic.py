@@ -10,6 +10,7 @@ import CvUtil
 import SevoScreenEnums
 
 from _sevopedia_helpers import *
+from SevoPediaMediaPlayer import SevoPediaMediaPlayer
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -24,8 +25,7 @@ class SevoPediaMusic:
 		self.iMusic = -1
 		self.MUSIC_PLAYER_SCREEN = "SevoPediaMusicPlayer"
 		self.MUSIC_PLAYER_EXIT_ID = "SAS_MusicPlayerExit"
-		self.SAS_isMusicPlayerOpen = False
-		self.SAS_musicSoundId = None
+		self.mediaPlayer = SevoPediaMediaPlayer(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC, self.MUSIC_PLAYER_EXIT_ID, "MusicPlayer")
 
 		# Offset for the extra width of Music items list vs base width
 		I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
@@ -222,37 +222,9 @@ class SevoPediaMusic:
 		if szSoundScript == "NONE":
 			szSoundScript = ""
 
-		screen = CyGInterfaceScreen(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC)
-
-		# <!-- custom: (ChatGPT-5.2 Thinking) -->
-		try:
-			screen.enableWorldSounds(True)
-		except:
-			pass
-		try:
-			screen.setScreenGroup(1)
-		except:
-			pass
-
-		self.SAS_isMusicPlayerOpen = True
-
-		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-		screen.setRenderInterfaceOnly(True)
-		screen.enableWorldSounds(False)
-		screen.addPanel("MusicPlayerBG", u"", u"", True, False, -10, -10, screen.getXResolution() + 20, screen.getYResolution() + 20, PanelStyles.PANEL_STYLE_MAIN)
-
-		iScreenW = screen.getXResolution()
-		iScreenH = screen.getYResolution()
-		iImageW = iScreenW
-		iImageH = iScreenW * 2 / 3
-		if iImageH > iScreenH:
-			iImageH = iScreenH
-			iImageW = iImageH * 3 / 2
-		iImageX = (iScreenW - iImageW) / 2
-		iImageY = (iScreenH - iImageH) / 2
-
 		szTitleText = self.top.SAS_getMusicTitle(iMusic)
-		screen.setLabel("MusicPlayerTitle", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen = self.mediaPlayer.openScreen()
+		iScreenW, iScreenH, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.setupLayout(screen, szTitleText)
 
 		iEra = self.top.SAS_getMusicEra(iMusic)
 		szImagePath = ""
@@ -262,77 +234,29 @@ class SevoPediaMusic:
 			screen.setImageButton("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
 
 		if szSoundScript or (iSoundId != -1):
-			self.SAS_musicSoundId = None
-			self.SAS_is3DSound = False
-			try:
-				if iSoundId != -1:
-					if self.top.SAS_isMusicSound3D(iMusic):
-						self.SAS_musicSoundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
-						self.SAS_is3DSound = True
-					else:
-						self.SAS_musicSoundId = CyAudioGame().Play2DSoundWithId(iSoundId)
-				elif szSoundScript.startswith("AS3D_"):
-					# 3D scripts need Play3DSound
-					self.SAS_musicSoundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
-					self.SAS_is3DSound = True
-				else:
-					self.SAS_musicSoundId = CyAudioGame().Play2DSound(szSoundScript)
-			except:
-				self.SAS_musicSoundId = None
-			if self.SAS_musicSoundId is None or self.SAS_musicSoundId == -1:
-				if szSoundScript:
-					CyInterface().playGeneralSound(szSoundScript)
-				self.SAS_musicSoundId = None
+			self.mediaPlayer.playSound(szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 
-		screen.setButtonGFC(self.MUSIC_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
-
-		# <!-- custom: (ChatGPT-5.2 Thinking) -->
-		try:
-			screen.setEscapeKey(self.MUSIC_PLAYER_EXIT_ID)
-		except:
-			pass
-		try:
-			screen.setReturnKey(self.MUSIC_PLAYER_EXIT_ID)
-		except:
-			pass
+		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
 
 
 
 	def closeMusicPlayer(self):
-		if not self.SAS_isMusicPlayerOpen:
+		if not self.mediaPlayer.isOpen:
 			return
 
-		if self.SAS_musicSoundId is not None and self.SAS_musicSoundId != -1:
-			try:
-				if getattr(self, 'SAS_is3DSound', False):
-					CyAudioGame().Destroy3DSound(self.SAS_musicSoundId)
-				else:
-					CyAudioGame().Destroy2DSound(self.SAS_musicSoundId)
-			except:
-				try:
-					CyInterface().stop2DSound()
-				except:
-					pass
-			self.SAS_musicSoundId = None
-			self.SAS_is3DSound = False
-		elif self.SAS_musicSoundId is not None:
-			try:
-				CyInterface().stop2DSound()
-			except:
-				pass
-			self.SAS_musicSoundId = None
-			self.SAS_is3DSound = False
-
-		screen = CyGInterfaceScreen(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC)
-		screen.hideScreen()
-		self.SAS_isMusicPlayerOpen = False
+		self.mediaPlayer.stopSound()
+		self.mediaPlayer.closeScreen()
 
 		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, self.iMusic, False, False)
 
 
 
 	def isMusicPlayerOpen(self):
-		return self.SAS_isMusicPlayerOpen
+		return self.mediaPlayer.isOpen
+
+
+	def handleOverlayInput(self, inputClass):
+		return self.mediaPlayer.handleInput(inputClass, self.closeMusicPlayer, False)
 
 
 

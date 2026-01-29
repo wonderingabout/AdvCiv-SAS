@@ -12,6 +12,7 @@ import CvUtil
 import SevoScreenEnums
 
 from _sevopedia_helpers import *
+from SevoPediaMediaPlayer import SevoPediaMediaPlayer
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -28,8 +29,7 @@ class SevoPediaMovie:
 		self.MOVIE_PLAYER_SCREEN = "SevoPediaMoviePlayer"
 		self.MOVIE_PLAYER_EXIT_ID = "SAS_MoviePlayerExit"
 		self.SAS_savedNoMovies = None
-		self.SAS_isMoviePlayerOpen = False
-		self.SAS_movieSoundId = None
+		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
 
 		self.X_HEADER = self.top.X_PEDIA_PAGE
 		self.Y_HEADER = self.top.Y_PEDIA_PAGE
@@ -132,37 +132,9 @@ class SevoPediaMovie:
 		self.SAS_savedNoMovies = CyUserProfile().getGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES)
 		CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, False)
 
-		screen = CyGInterfaceScreen(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES)
-
-		# <!-- custom: (ChatGPT-5.2 Thinking) -->
-		try:
-			screen.enableWorldSounds(True)
-		except:
-			pass
-		try:
-			screen.setScreenGroup(1)
-		except:
-			pass
-
-		self.SAS_isMoviePlayerOpen = True
-
-		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-		screen.setRenderInterfaceOnly(True)
-		screen.enableWorldSounds(False)
-		screen.addPanel("MoviePlayerBG", u"", u"", True, False, -10, -10, screen.getXResolution() + 20, screen.getYResolution() + 20, PanelStyles.PANEL_STYLE_MAIN)
-
-		iScreenW = screen.getXResolution()
-		iScreenH = screen.getYResolution()
-		iMovieW = iScreenW
-		iMovieH = iScreenW * 2 / 3
-		if iMovieH > iScreenH:
-			iMovieH = iScreenH
-			iMovieW = iMovieH * 3 / 2
-		iMovieX = (iScreenW - iMovieW) / 2
-		iMovieY = (iScreenH - iMovieH) / 2
-
 		szTitleText = self.getMovieTitle(iMovieType, iMovieId)
-		screen.setLabel("MoviePlayerTitle", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen = self.mediaPlayer.openScreen()
+		iScreenW, iScreenH, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.setupLayout(screen, szTitleText)
 
 		if szMovieKind == "nif":
 			screen.addReligionMovieWidgetGFC("MoviePlayerMovie", szMovieFile, iMovieX, iMovieY, iMovieW, iMovieH, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -176,31 +148,14 @@ class SevoPediaMovie:
 		# CvEraMovieScreen.py using screen.setSound() before showScreen(), but we couldn't make it work
 		# in our context, so we stick with this approach. Credit: GPT-5.2-Codex, Claude Opus 4.5. -->
 		if szSoundScript:
-			self.SAS_movieSoundId = None
-			try:
-				self.SAS_movieSoundId = CyAudioGame().Play2DSound(szSoundScript)
-			except:
-				self.SAS_movieSoundId = None
-			if self.SAS_movieSoundId is None or self.SAS_movieSoundId == -1:
-				CyInterface().playGeneralSound(szSoundScript)
-				self.SAS_movieSoundId = None
+			self.mediaPlayer.playSound(szSoundScript, -1, False)
 
-		screen.setButtonGFC(self.MOVIE_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
-
-		# <!-- custom: (ChatGPT-5.2 Thinking) -->
-		try:
-			screen.setEscapeKey(self.MOVIE_PLAYER_EXIT_ID)
-		except:
-			pass
-		try:
-			screen.setReturnKey(self.MOVIE_PLAYER_EXIT_ID)
-		except:
-			pass
+		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
 
 
 
 	def closeMoviePlayer(self):
-		if not self.SAS_isMoviePlayerOpen:
+		if not self.mediaPlayer.isOpen:
 			return
 
 		if self.SAS_savedNoMovies is not None:
@@ -209,32 +164,19 @@ class SevoPediaMovie:
 		# <!-- custom: try to stop the specific 2D sound via Destroy2DSound(handle); if that fails, fall back to
 		# CyInterface().stop2DSound() as a global 2D stop for stubborn handles. Credit: CIV4BUG API docs.
 		# (GPT-5.2-Codex (summarized)) -->
-		if self.SAS_movieSoundId is not None and self.SAS_movieSoundId != -1:
-			try:
-				CyAudioGame().Destroy2DSound(self.SAS_movieSoundId)
-			except:
-				try:
-					CyInterface().stop2DSound()
-				except:
-					pass
-			self.SAS_movieSoundId = None
-		elif self.SAS_movieSoundId is not None:
-			try:
-				CyInterface().stop2DSound()
-			except:
-				pass
-			self.SAS_movieSoundId = None
-
-		screen = CyGInterfaceScreen(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES)
-		screen.hideScreen()
-		self.SAS_isMoviePlayerOpen = False
+		self.mediaPlayer.stopSound()
+		self.mediaPlayer.closeScreen()
 
 		self.top.pediaJump(SevoScreenEnums.PEDIA_MOVIES, self.iMovie, False, False)
 
 
 
 	def isMoviePlayerOpen(self):
-		return self.SAS_isMoviePlayerOpen
+		return self.mediaPlayer.isOpen
+
+
+	def handleOverlayInput(self, inputClass):
+		return self.mediaPlayer.handleInput(inputClass, self.closeMoviePlayer, True)
 
 
 
