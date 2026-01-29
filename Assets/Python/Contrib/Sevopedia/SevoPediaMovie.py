@@ -145,6 +145,8 @@ class SevoPediaMovie:
 		szTitleText = self.getMovieTitle(iMovieType, iMovieId)
 		screen = self.mediaPlayer.openScreen()
 		iScreenW, iScreenH, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.setupLayout(screen, szTitleText)
+		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
+		self.mediaPlayer.startTimer()
 
 		if szMovieKind == "nif":
 			screen.addReligionMovieWidgetGFC("MoviePlayerMovie", szMovieFile, iMovieX, iMovieY, iMovieW, iMovieH, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -203,6 +205,11 @@ class SevoPediaMovie:
 
 	def handleOverlayInput(self, inputClass):
 		return self.mediaPlayer.handleInput(inputClass, self.closeMoviePlayer, True)
+
+
+
+	def updateTimer(self, fDelta):
+		self.mediaPlayer.updateTimer(fDelta)
 
 
 

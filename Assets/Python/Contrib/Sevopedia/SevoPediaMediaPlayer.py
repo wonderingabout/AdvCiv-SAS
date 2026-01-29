@@ -25,6 +25,7 @@ class SevoPediaMediaPlayer:
 		self.flipId = clickPrefix + "Flip"
 		self.prevGroupId = clickPrefix + "PrevGroup"
 		self.nextGroupId = clickPrefix + "NextGroup"
+		self.timerLabelId = clickPrefix + "Timer"
 		self.queuePanelId = clickPrefix + "QueuePanel"
 		self.queueListId = clickPrefix + "QueueList"
 		self.clickPrefix = clickPrefix
@@ -45,6 +46,11 @@ class SevoPediaMediaPlayer:
 		self.flipButtonPath = None
 		self.flipCallback = None
 		self.screen = None
+		self.timerSeconds = 0
+		self.timerRemainder = 0.0
+		self.timerRunning = False
+		self.timerLabelX = 0
+		self.timerLabelY = 0
 
 
 
@@ -303,11 +309,66 @@ class SevoPediaMediaPlayer:
 		screen.hideScreen()
 		self.isOpen = False
 		self.screen = None
+		self.timerRunning = False
 
 
 
 	def getScreen(self):
 		return self.screen
+
+
+
+	def placeTimerLabel(self, screen, iScreenW, iScreenH):
+		self.timerLabelX = iScreenW - 20
+		self.timerLabelY = 12
+		self._updateTimerLabel()
+
+
+
+	def startTimer(self):
+		self.timerSeconds = 0
+		self.timerRemainder = 0.0
+		self.timerRunning = True
+		self._updateTimerLabel()
+
+
+
+	def resetTimer(self):
+		self.timerSeconds = 0
+		self.timerRemainder = 0.0
+		self.timerRunning = True
+		self._updateTimerLabel()
+
+
+
+	def updateTimer(self, fDelta):
+		if (not self.timerRunning) or (self.screen is None):
+			return
+		self.timerRemainder += fDelta
+		if self.timerRemainder < 1.0:
+			return
+		iTicks = int(self.timerRemainder)
+		self.timerRemainder = self.timerRemainder - iTicks
+		self.timerSeconds += iTicks
+		self._updateTimerLabel()
+
+
+
+	def _updateTimerLabel(self):
+		if self.screen is None:
+			return
+		szText = self._formatElapsed(self.timerSeconds)
+		self.screen.setLabel(self.timerLabelId, "Background", u"<font=3>" + szText + u"</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.timerLabelX, self.timerLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+	def _formatElapsed(self, iSeconds):
+		iSec = iSeconds % 60
+		iMin = (iSeconds / 60) % 60
+		iHour = iSeconds / 3600
+		if iHour > 0:
+			return u"%d:%02d:%02d" % (iHour, iMin, iSec)
+		return u"%02d:%02d" % (iMin, iSec)
 
 
 

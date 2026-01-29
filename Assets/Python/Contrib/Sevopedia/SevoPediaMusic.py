@@ -232,6 +232,8 @@ class SevoPediaMusic:
 		szTitleText = self.top.SAS_getMusicTitle(iMusic)
 		screen = self.mediaPlayer.openScreen()
 		iScreenW, iScreenH, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.setupLayout(screen, szTitleText)
+		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
+		self.mediaPlayer.startTimer()
 
 		iEra = self.top.SAS_getMusicEra(iMusic)
 		szImagePath = ""
@@ -286,8 +288,14 @@ class SevoPediaMusic:
 		if self.SAS_lastMusicSound is None:
 			return
 		szSoundScript, iSoundId, bForce3D = self.SAS_lastMusicSound
+		self.mediaPlayer.resetTimer()
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.playSound(szSoundScript, iSoundId, bForce3D)
+
+
+
+	def updateTimer(self, fDelta):
+		self.mediaPlayer.updateTimer(fDelta)
 
 
 

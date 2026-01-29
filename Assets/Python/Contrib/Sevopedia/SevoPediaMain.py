@@ -2138,6 +2138,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 
+	def update(self, fDelta):
+		if self.pediaMovies.isMoviePlayerOpen():
+			self.pediaMovies.updateTimer(fDelta)
+		if self.pediaMusic.isMusicPlayerOpen():
+			self.pediaMusic.updateTimer(fDelta)
+
+
+
 	def deleteAllWidgets(self):
 		screen = self.getScreen()
 		iNumWidgets = self.nWidgetCount
