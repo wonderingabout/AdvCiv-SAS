@@ -23,6 +23,8 @@ class SevoPediaMediaPlayer:
 		self.prevId = clickPrefix + "Prev"
 		self.nextId = clickPrefix + "Next"
 		self.flipId = clickPrefix + "Flip"
+		self.prevGroupId = clickPrefix + "PrevGroup"
+		self.nextGroupId = clickPrefix + "NextGroup"
 		self.queuePanelId = clickPrefix + "QueuePanel"
 		self.queueListId = clickPrefix + "QueueList"
 		self.clickPrefix = clickPrefix
@@ -33,9 +35,13 @@ class SevoPediaMediaPlayer:
 		self.replayButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 		self.prevButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LAST_TRACK_BUTTON").getPath()
 		self.nextButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_NEXT_TRACK_BUTTON").getPath()
+		self.prevGroupButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_FAST_UP_BUTTON").getPath()
+		self.nextGroupButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_FAST_DOWN_BUTTON").getPath()
 		self.replayCallback = None
 		self.prevCallback = None
 		self.nextCallback = None
+		self.prevGroupCallback = None
+		self.nextGroupCallback = None
 		self.flipButtonPath = None
 		self.flipCallback = None
 		self.screen = None
@@ -116,14 +122,25 @@ class SevoPediaMediaPlayer:
 
 
 
+	def placeGroupSkipButtons(self, screen, iScreenW, iScreenH):
+		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iReplayX = iExitX - iGap - iSize
+		iPrevX = iReplayX - iGap - iSize
+		iNextX = iExitX + iGap + iSize
+		iPrevGroupX = iPrevX - iGap - iSize
+		iNextGroupX = iNextX + iGap + iSize
+		screen.setImageButton(self.prevGroupId, self.prevGroupButtonPath, iPrevGroupX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setImageButton(self.nextGroupId, self.nextGroupButtonPath, iNextGroupX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
 	def placeFlipButton(self, screen, iScreenW, iScreenH):
 		if not self.flipButtonPath:
 			return
 		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iReplayX = iExitX - iGap - iSize
-		iPrevX = iReplayX - iGap - iSize
-		iFlipX = iPrevX - iGap - iSize
-		screen.setImageButton(self.flipId, self.flipButtonPath, iFlipX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iFlipX = iExitX
+		iFlipY = iBaseY - iGap - iSize
+		screen.setImageButton(self.flipId, self.flipButtonPath, iFlipX, iFlipY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -202,6 +219,16 @@ class SevoPediaMediaPlayer:
 
 	def setNextCallback(self, nextCallback):
 		self.nextCallback = nextCallback
+
+
+
+	def setPrevGroupCallback(self, prevGroupCallback):
+		self.prevGroupCallback = prevGroupCallback
+
+
+
+	def setNextGroupCallback(self, nextGroupCallback):
+		self.nextGroupCallback = nextGroupCallback
 
 
 
@@ -322,6 +349,14 @@ class SevoPediaMediaPlayer:
 			if szName == self.nextId:
 				if self.nextCallback is not None:
 					self.nextCallback()
+				return True
+			if szName == self.prevGroupId:
+				if self.prevGroupCallback is not None:
+					self.prevGroupCallback()
+				return True
+			if szName == self.nextGroupId:
+				if self.nextGroupCallback is not None:
+					self.nextGroupCallback()
 				return True
 			if szName == self.flipId:
 				if self.flipCallback is not None:

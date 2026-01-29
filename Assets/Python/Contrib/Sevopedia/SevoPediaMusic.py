@@ -30,6 +30,9 @@ class SevoPediaMusic:
 		self.SAS_playableMusic = None
 		self.SAS_playableMusicLabels = None
 		self.SAS_playableMusicIndex = -1
+		self.SAS_playableMusicGroupByIndex = None
+		self.SAS_musicGroupFirstIndex = None
+		self.SAS_musicGroupLastIndex = None
 
 		# Offset for the extra width of Music items list vs base width
 		I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
@@ -245,9 +248,12 @@ class SevoPediaMusic:
 		self.mediaPlayer.setFlipButton("SAS_EMOJI_TELEVISION")
 		self.mediaPlayer.placeFlipButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
+		self.mediaPlayer.placeGroupSkipButtons(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setReplayCallback(self.replayMusic)
 		self.mediaPlayer.setPrevCallback(self.playPrevMusic)
 		self.mediaPlayer.setNextCallback(self.playNextMusic)
+		self.mediaPlayer.setPrevGroupCallback(self.playPrevMusicGroup)
+		self.mediaPlayer.setNextGroupCallback(self.playNextMusicGroup)
 		self.mediaPlayer.setFlipCallback(self.switchToMovies)
 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 		self.SAS_setupPlayableMusic(iMusic)
@@ -303,8 +309,44 @@ class SevoPediaMusic:
 
 
 
+	def playPrevMusicGroup(self):
+		if (self.SAS_playableMusicGroupByIndex is None) or (self.SAS_playableMusicIndex < 0):
+			return
+		iGroup = self.SAS_playableMusicGroupByIndex[self.SAS_playableMusicIndex]
+		if iGroup <= 0:
+			return
+		iTarget = self.SAS_musicGroupFirstIndex[iGroup - 1]
+		if iTarget is None:
+			return
+		self.SAS_playableMusicIndex = iTarget
+		self.SAS_playMusicByIndex(self.SAS_playableMusicIndex)
+
+
+
+	def playNextMusicGroup(self):
+		if (self.SAS_playableMusicGroupByIndex is None) or (self.SAS_playableMusicIndex < 0):
+			return
+		iGroup = self.SAS_playableMusicGroupByIndex[self.SAS_playableMusicIndex]
+		if iGroup < 0:
+			return
+		if (iGroup + 1) >= len(self.SAS_musicGroupFirstIndex):
+			return
+		iTarget = self.SAS_musicGroupFirstIndex[iGroup + 1]
+		if iTarget is None:
+			return
+		self.SAS_playableMusicIndex = iTarget
+		self.SAS_playMusicByIndex(self.SAS_playableMusicIndex)
+
+
+
 	def SAS_setupPlayableMusic(self, iMusic):
-		self.SAS_playableMusic, self.SAS_playableMusicLabels = self.SAS_buildPlayableMusicAndLabels()
+		(
+			self.SAS_playableMusic,
+			self.SAS_playableMusicLabels,
+			self.SAS_playableMusicGroupByIndex,
+			self.SAS_musicGroupFirstIndex,
+			self.SAS_musicGroupLastIndex
+		) = self.SAS_buildPlayableMusicAndLabels()
 		self.SAS_playableMusicIndex = -1
 		try:
 			self.SAS_playableMusicIndex = self.SAS_playableMusic.index(iMusic)
@@ -316,14 +358,31 @@ class SevoPediaMusic:
 	def SAS_buildPlayableMusicAndLabels(self):
 		r = []
 		labels = []
+		groupByIndex = []
+		groupFirst = []
+		groupLast = []
 		listEntries = self.top.getMusicList()
+		iGroup = -1
 		for (szName, iPacked) in listEntries:
 			if iPacked == -1:
+				if szName and szName.strip():
+					iGroup += 1
 				continue
 			if self.hasMusic(iPacked):
 				r.append(iPacked)
 				labels.append(szName)
-		return (r, labels)
+				if iGroup < 0:
+					iGroup = 0
+				groupByIndex.append(iGroup)
+				while len(groupFirst) <= iGroup:
+					groupFirst.append(None)
+					groupLast.append(None)
+				if groupFirst[iGroup] is None:
+					groupFirst[iGroup] = len(r) - 1
+					groupLast[iGroup] = len(r) - 1
+				else:
+					groupLast[iGroup] = len(r) - 1
+		return (r, labels, groupByIndex, groupFirst, groupLast)
 
 
 
@@ -337,11 +396,13 @@ class SevoPediaMusic:
 		self.showMusicPlayer(iPacked)
 
 
+
 	def SAS_getFirstPlayableMusic(self):
-		playable, labels = self.SAS_buildPlayableMusicAndLabels()
+		playable, labels, groupByIndex, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
 		if not playable:
 			return -1
 		return playable[0]
+
 
 
 	def switchToMovies(self):

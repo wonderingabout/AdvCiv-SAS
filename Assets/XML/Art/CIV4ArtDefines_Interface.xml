@@ -1874,5 +1874,15 @@ Created as part of AdvCiv-SAS improvements
 			<Type>SAS_EMOJI_TELEVISION</Type>
 			<Path>Art/AdvCiv_SAS/Emojis/Television/1f4fa_64px.dds</Path>
 		</InterfaceArtInfo>
+		<!-- ⏫ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_FAST_UP_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Fast_Up_Button/23eb_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⏬ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
+		</InterfaceArtInfo>
 	</InterfaceArtInfos>
 </Civ4ArtDefines>
