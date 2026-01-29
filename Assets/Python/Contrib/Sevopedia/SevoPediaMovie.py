@@ -159,10 +159,13 @@ class SevoPediaMovie:
 
 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
+		self.mediaPlayer.setFlipButton("SAS_EMOJI_MUSICAL_NOTES")
+		self.mediaPlayer.placeFlipButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setReplayCallback(self.replayMovie)
 		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setPrevCallback(self.playPrevMovie)
 		self.mediaPlayer.setNextCallback(self.playNextMovie)
+		self.mediaPlayer.setFlipCallback(self.switchToMusic)
 
 		self.SAS_setupPlayableMovies(iMovieType, iMovieId)
 		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex)
@@ -265,6 +268,25 @@ class SevoPediaMovie:
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.closeScreen()
 		self.showMoviePlayer(iMovieType, iMovieId, moviePayload)
+
+
+
+	def SAS_getFirstPlayableMovie(self):
+		playable, labels = self.SAS_buildPlayableMoviesAndLabels()
+		if not playable:
+			return -1
+		return playable[0]
+
+
+
+	def switchToMusic(self):
+		iFirstMusic = self.top.pediaMusic.SAS_getFirstPlayableMusic()
+		if iFirstMusic == -1:
+			return
+		self.mediaPlayer.stopSound()
+		self.mediaPlayer.closeScreen()
+		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, iFirstMusic, True, False)
+		self.top.pediaMusic.playMusic(iFirstMusic)
 
 
 

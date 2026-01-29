@@ -22,6 +22,7 @@ class SevoPediaMediaPlayer:
 		self.replayId = clickPrefix + "Replay"
 		self.prevId = clickPrefix + "Prev"
 		self.nextId = clickPrefix + "Next"
+		self.flipId = clickPrefix + "Flip"
 		self.queuePanelId = clickPrefix + "QueuePanel"
 		self.queueListId = clickPrefix + "QueueList"
 		self.clickPrefix = clickPrefix
@@ -35,6 +36,8 @@ class SevoPediaMediaPlayer:
 		self.replayCallback = None
 		self.prevCallback = None
 		self.nextCallback = None
+		self.flipButtonPath = None
+		self.flipCallback = None
 		self.screen = None
 
 
@@ -113,6 +116,17 @@ class SevoPediaMediaPlayer:
 
 
 
+	def placeFlipButton(self, screen, iScreenW, iScreenH):
+		if not self.flipButtonPath:
+			return
+		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iReplayX = iExitX - iGap - iSize
+		iPrevX = iReplayX - iGap - iSize
+		iFlipX = iPrevX - iGap - iSize
+		screen.setImageButton(self.flipId, self.flipButtonPath, iFlipX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
 	def _getTransportLayout(self, iScreenW, iScreenH):
 		iSize = 64
 		iGap = 8
@@ -188,6 +202,16 @@ class SevoPediaMediaPlayer:
 
 	def setNextCallback(self, nextCallback):
 		self.nextCallback = nextCallback
+
+
+
+	def setFlipButton(self, szArtInfoType):
+		self.flipButtonPath = ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath()
+
+
+
+	def setFlipCallback(self, flipCallback):
+		self.flipCallback = flipCallback
 
 
 
@@ -298,6 +322,10 @@ class SevoPediaMediaPlayer:
 			if szName == self.nextId:
 				if self.nextCallback is not None:
 					self.nextCallback()
+				return True
+			if szName == self.flipId:
+				if self.flipCallback is not None:
+					self.flipCallback()
 				return True
 			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
 			if szName == self.exitId or szName.startswith(self.clickPrefix):
