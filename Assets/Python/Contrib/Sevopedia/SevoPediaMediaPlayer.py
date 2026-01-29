@@ -22,6 +22,8 @@ class SevoPediaMediaPlayer:
 		self.replayId = clickPrefix + "Replay"
 		self.prevId = clickPrefix + "Prev"
 		self.nextId = clickPrefix + "Next"
+		self.queuePanelId = clickPrefix + "QueuePanel"
+		self.queueListId = clickPrefix + "QueueList"
 		self.clickPrefix = clickPrefix
 		self.isOpen = False
 		self.soundId = None
@@ -117,6 +119,60 @@ class SevoPediaMediaPlayer:
 		iExitX = iScreenW / 2 - iSize / 2
 		iBaseY = iScreenH - 74
 		return (iSize, iGap, iExitX, iBaseY)
+
+
+
+	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex):
+		if (items is None) or (len(items) == 0):
+			return
+
+		iPanelW = 320
+		iPanelX = iScreenW - iPanelW - 20
+		iPanelY = 50
+		iPanelH = iScreenH - 140
+		if iPanelH <= 0:
+			return
+
+		try:
+			screen.deleteWidget(self.queuePanelId)
+		except:
+			pass
+		try:
+			screen.deleteWidget(self.queueListId)
+		except:
+			pass
+
+		screen.addPanel(self.queuePanelId, "", "", True, False, iPanelX, iPanelY, iPanelW, iPanelH, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addListBoxGFC(self.queueListId, "", iPanelX + 6, iPanelY + 6, iPanelW - 12, iPanelH - 12, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSelect(self.queueListId, False)
+
+		iRowH = 22
+		iMaxRows = iPanelH / iRowH
+		if iMaxRows <= 0:
+			iMaxRows = 1
+
+		iStart = 0
+		if currentIndex >= 0:
+			iStart = currentIndex - (iMaxRows / 2)
+			if iStart < 0:
+				iStart = 0
+		iEnd = iStart + iMaxRows
+		if iEnd > len(items):
+			iEnd = len(items)
+		if (iEnd - iStart) < iMaxRows and iStart > 0:
+			iStart = max(0, iEnd - iMaxRows)
+
+		i = iStart
+		while i < iEnd:
+			szLabel = items[i]
+			if i == currentIndex:
+				szLabel = u"> " + szLabel
+				szLabel = u"<font=3b>" + szLabel + u"</font>"
+			else:
+				szLabel = u"<font=3>" + szLabel + u"</font>"
+			screen.appendListBoxStringNoUpdate(self.queueListId, szLabel, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			i += 1
+		screen.updateListBox(self.queueListId)
 
 
 

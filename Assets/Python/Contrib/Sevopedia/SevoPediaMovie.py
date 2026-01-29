@@ -33,6 +33,7 @@ class SevoPediaMovie:
 		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
 		self.SAS_lastMoviePayload = None
 		self.SAS_playableMovies = None
+		self.SAS_playableMovieLabels = None
 		self.SAS_playableMovieIndex = -1
 
 		self.X_HEADER = self.top.X_PEDIA_PAGE
@@ -164,6 +165,7 @@ class SevoPediaMovie:
 		self.mediaPlayer.setNextCallback(self.playNextMovie)
 
 		self.SAS_setupPlayableMovies(iMovieType, iMovieId)
+		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex)
 
 
 
@@ -226,7 +228,7 @@ class SevoPediaMovie:
 
 
 	def SAS_setupPlayableMovies(self, iMovieType, iMovieId):
-		self.SAS_playableMovies = self.SAS_buildPlayableMovies()
+		self.SAS_playableMovies, self.SAS_playableMovieLabels = self.SAS_buildPlayableMoviesAndLabels()
 		iPacked = self.top.SAS_packMovieKey(iMovieType, iMovieId)
 		self.SAS_playableMovieIndex = -1
 		try:
@@ -236,8 +238,9 @@ class SevoPediaMovie:
 
 
 
-	def SAS_buildPlayableMovies(self):
+	def SAS_buildPlayableMoviesAndLabels(self):
 		r = []
+		labels = []
 		listEntries = self.top.getMovieList()
 		for (szName, iPacked) in listEntries:
 			if iPacked == -1:
@@ -245,7 +248,8 @@ class SevoPediaMovie:
 			iType, iId = self.top.SAS_unpackMovieKey(iPacked)
 			if self.hasMovie(iType, iId):
 				r.append(iPacked)
-		return r
+				labels.append(szName)
+		return (r, labels)
 
 
 

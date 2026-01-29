@@ -28,6 +28,7 @@ class SevoPediaMusic:
 		self.mediaPlayer = SevoPediaMediaPlayer(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC, self.MUSIC_PLAYER_EXIT_ID, "MusicPlayer")
 		self.SAS_lastMusicSound = None
 		self.SAS_playableMusic = None
+		self.SAS_playableMusicLabels = None
 		self.SAS_playableMusicIndex = -1
 
 		# Offset for the extra width of Music items list vs base width
@@ -247,6 +248,7 @@ class SevoPediaMusic:
 		self.mediaPlayer.setNextCallback(self.playNextMusic)
 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 		self.SAS_setupPlayableMusic(iMusic)
+		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex)
 
 
 
@@ -299,7 +301,7 @@ class SevoPediaMusic:
 
 
 	def SAS_setupPlayableMusic(self, iMusic):
-		self.SAS_playableMusic = self.SAS_buildPlayableMusic()
+		self.SAS_playableMusic, self.SAS_playableMusicLabels = self.SAS_buildPlayableMusicAndLabels()
 		self.SAS_playableMusicIndex = -1
 		try:
 			self.SAS_playableMusicIndex = self.SAS_playableMusic.index(iMusic)
@@ -308,15 +310,17 @@ class SevoPediaMusic:
 
 
 
-	def SAS_buildPlayableMusic(self):
+	def SAS_buildPlayableMusicAndLabels(self):
 		r = []
+		labels = []
 		listEntries = self.top.getMusicList()
 		for (szName, iPacked) in listEntries:
 			if iPacked == -1:
 				continue
 			if self.hasMusic(iPacked):
 				r.append(iPacked)
-		return r
+				labels.append(szName)
+		return (r, labels)
 
 
 
