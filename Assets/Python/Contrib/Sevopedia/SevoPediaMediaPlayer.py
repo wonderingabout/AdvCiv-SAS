@@ -113,14 +113,14 @@ class SevoPediaMediaPlayer:
 	# <!-- custom: useful to replay files with variants such as _ORDER or _SELECT civilization sounds that play a different variant on replay (e.g. "Yes", "Agreed", "Right Away" (imaginary examples)), or for convenience so we don't exit the screen to replay. Added with the very nice help of GPT-5.2-Codex thanks. -->
 	def placeReplayButton(self, screen, iScreenW, iScreenH):
 		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iReplayX = iExitX - iGap - iSize
+		iReplayX = iExitX - (iGap + iSize) * 2
 		screen.setImageButton(self.replayId, self.replayButtonPath, iReplayX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
 	def placePrevNextButtons(self, screen, iScreenW, iScreenH):
 		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iReplayX = iExitX - iGap - iSize
+		iReplayX = iExitX - (iGap + iSize) * 2
 		iPrevX = iReplayX - iGap - iSize
 		iNextX = iExitX + iGap + iSize
 		screen.setImageButton(self.prevId, self.prevButtonPath, iPrevX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -130,7 +130,7 @@ class SevoPediaMediaPlayer:
 
 	def placeGroupSkipButtons(self, screen, iScreenW, iScreenH):
 		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iReplayX = iExitX - iGap - iSize
+		iReplayX = iExitX - (iGap + iSize) * 2
 		iPrevX = iReplayX - iGap - iSize
 		iNextX = iExitX + iGap + iSize
 		iPrevGroupX = iPrevX - iGap - iSize
@@ -144,9 +144,8 @@ class SevoPediaMediaPlayer:
 		if not self.flipButtonPath:
 			return
 		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iFlipX = iExitX
-		iFlipY = iBaseY - iGap - iSize
-		screen.setImageButton(self.flipId, self.flipButtonPath, iFlipX, iFlipY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iFlipX = iExitX - iGap - iSize
+		screen.setImageButton(self.flipId, self.flipButtonPath, iFlipX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -159,7 +158,7 @@ class SevoPediaMediaPlayer:
 
 
 
-	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex):
+	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex, groupByIndex, groupLabels):
 		if (items is None) or (len(items) == 0):
 			return
 
@@ -193,14 +192,36 @@ class SevoPediaMediaPlayer:
 			iStart = currentIndex - (iMaxRows / 2)
 			if iStart < 0:
 				iStart = 0
-		iEnd = iStart + iMaxRows
-		if iEnd > len(items):
-			iEnd = len(items)
-		if (iEnd - iStart) < iMaxRows and iStart > 0:
-			iStart = max(0, iEnd - iMaxRows)
+		if iStart >= len(items):
+			iStart = max(0, len(items) - 1)
 
 		i = iStart
-		while i < iEnd:
+		iRows = 0
+		iLastGroup = -1
+		iCurrentGroup = -1
+		if (groupByIndex is not None) and (currentIndex >= 0) and (currentIndex < len(groupByIndex)):
+			iCurrentGroup = groupByIndex[currentIndex]
+
+		while i < len(items) and iRows < iMaxRows:
+			iGroup = -1
+			if (groupByIndex is not None) and (i < len(groupByIndex)):
+				iGroup = groupByIndex[i]
+
+			if iGroup != iLastGroup and (groupLabels is not None) and (iGroup >= 0) and (iGroup < len(groupLabels)) and iRows < iMaxRows:
+				if iLastGroup != -1 and iRows < iMaxRows:
+					screen.appendListBoxStringNoUpdate(self.queueListId, u"<font=3> </font>", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					iRows += 1
+				szHeader = groupLabels[iGroup]
+				if szHeader:
+					if iGroup == iCurrentGroup:
+						szHeader = u">> " + szHeader
+					szHeader = u"<font=3b>" + szHeader + u"</font>"
+					screen.appendListBoxStringNoUpdate(self.queueListId, szHeader, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					iRows += 1
+				iLastGroup = iGroup
+				if iRows >= iMaxRows:
+					break
+
 			szLabel = items[i]
 			if i == currentIndex:
 				szLabel = u"> " + szLabel
@@ -208,6 +229,7 @@ class SevoPediaMediaPlayer:
 			else:
 				szLabel = u"<font=3>" + szLabel + u"</font>"
 			screen.appendListBoxStringNoUpdate(self.queueListId, szLabel, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			iRows += 1
 			i += 1
 		screen.updateListBox(self.queueListId)
 
@@ -319,8 +341,8 @@ class SevoPediaMediaPlayer:
 
 
 	def placeTimerLabel(self, screen, iScreenW, iScreenH):
-		self.timerLabelX = iScreenW - 20
-		self.timerLabelY = 12
+		self.timerLabelX = 20
+		self.timerLabelY = iScreenH - 34
 		self._updateTimerLabel()
 
 
@@ -358,7 +380,7 @@ class SevoPediaMediaPlayer:
 		if self.screen is None:
 			return
 		szText = self._formatElapsed(self.timerSeconds)
-		self.screen.setLabel(self.timerLabelId, "Background", u"<font=3>" + szText + u"</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.timerLabelX, self.timerLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		self.screen.setLabel(self.timerLabelId, "Background", u"<font=3>" + szText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.timerLabelX, self.timerLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

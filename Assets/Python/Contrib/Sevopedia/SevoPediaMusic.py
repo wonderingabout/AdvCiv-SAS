@@ -31,6 +31,7 @@ class SevoPediaMusic:
 		self.SAS_playableMusicLabels = None
 		self.SAS_playableMusicIndex = -1
 		self.SAS_playableMusicGroupByIndex = None
+		self.SAS_playableMusicGroupLabels = None
 		self.SAS_musicGroupFirstIndex = None
 		self.SAS_musicGroupLastIndex = None
 
@@ -259,7 +260,7 @@ class SevoPediaMusic:
 		self.mediaPlayer.setFlipCallback(self.switchToMovies)
 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 		self.SAS_setupPlayableMusic(iMusic)
-		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex)
+		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels)
 
 
 
@@ -352,6 +353,7 @@ class SevoPediaMusic:
 			self.SAS_playableMusic,
 			self.SAS_playableMusicLabels,
 			self.SAS_playableMusicGroupByIndex,
+			self.SAS_playableMusicGroupLabels,
 			self.SAS_musicGroupFirstIndex,
 			self.SAS_musicGroupLastIndex
 		) = self.SAS_buildPlayableMusicAndLabels()
@@ -367,6 +369,7 @@ class SevoPediaMusic:
 		r = []
 		labels = []
 		groupByIndex = []
+		groupLabels = []
 		groupFirst = []
 		groupLast = []
 		listEntries = self.top.getMusicList()
@@ -375,6 +378,9 @@ class SevoPediaMusic:
 			if iPacked == -1:
 				if szName and szName.strip():
 					iGroup += 1
+					while len(groupLabels) <= iGroup:
+						groupLabels.append("")
+					groupLabels[iGroup] = szName
 				continue
 			if self.hasMusic(iPacked):
 				r.append(iPacked)
@@ -382,6 +388,8 @@ class SevoPediaMusic:
 				if iGroup < 0:
 					iGroup = 0
 				groupByIndex.append(iGroup)
+				while len(groupLabels) <= iGroup:
+					groupLabels.append("")
 				while len(groupFirst) <= iGroup:
 					groupFirst.append(None)
 					groupLast.append(None)
@@ -390,7 +398,7 @@ class SevoPediaMusic:
 					groupLast[iGroup] = len(r) - 1
 				else:
 					groupLast[iGroup] = len(r) - 1
-		return (r, labels, groupByIndex, groupFirst, groupLast)
+		return (r, labels, groupByIndex, groupLabels, groupFirst, groupLast)
 
 
 
@@ -406,7 +414,7 @@ class SevoPediaMusic:
 
 
 	def SAS_getFirstPlayableMusic(self):
-		playable, labels, groupByIndex, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
+		playable, labels, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
 		if not playable:
 			return -1
 		return playable[0]
