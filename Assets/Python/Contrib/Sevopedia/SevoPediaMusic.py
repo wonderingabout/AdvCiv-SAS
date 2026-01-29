@@ -27,6 +27,8 @@ class SevoPediaMusic:
 		self.MUSIC_PLAYER_EXIT_ID = "SAS_MusicPlayerExit"
 		self.mediaPlayer = SevoPediaMediaPlayer(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC, self.MUSIC_PLAYER_EXIT_ID, "MusicPlayer")
 		self.SAS_lastMusicSound = None
+		self.SAS_playableMusic = None
+		self.SAS_playableMusicIndex = -1
 
 		# Offset for the extra width of Music items list vs base width
 		I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
@@ -239,8 +241,12 @@ class SevoPediaMusic:
 
 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
+		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setReplayCallback(self.replayMusic)
+		self.mediaPlayer.setPrevCallback(self.playPrevMusic)
+		self.mediaPlayer.setNextCallback(self.playNextMusic)
 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
+		self.SAS_setupPlayableMusic(iMusic)
 
 
 
@@ -259,8 +265,10 @@ class SevoPediaMusic:
 		return self.mediaPlayer.isOpen
 
 
+
 	def handleOverlayInput(self, inputClass):
 		return self.mediaPlayer.handleInput(inputClass, self.closeMusicPlayer, False)
+
 
 
 	def replayMusic(self):
@@ -269,6 +277,57 @@ class SevoPediaMusic:
 		szSoundScript, iSoundId, bForce3D = self.SAS_lastMusicSound
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.playSound(szSoundScript, iSoundId, bForce3D)
+
+
+
+	def playPrevMusic(self):
+		if (self.SAS_playableMusic is None) or (self.SAS_playableMusicIndex <= 0):
+			return
+		self.SAS_playableMusicIndex = self.SAS_playableMusicIndex - 1
+		self.SAS_playMusicByIndex(self.SAS_playableMusicIndex)
+
+
+
+	def playNextMusic(self):
+		if (self.SAS_playableMusic is None) or (self.SAS_playableMusicIndex < 0):
+			return
+		if (self.SAS_playableMusicIndex + 1) >= len(self.SAS_playableMusic):
+			return
+		self.SAS_playableMusicIndex = self.SAS_playableMusicIndex + 1
+		self.SAS_playMusicByIndex(self.SAS_playableMusicIndex)
+
+
+
+	def SAS_setupPlayableMusic(self, iMusic):
+		self.SAS_playableMusic = self.SAS_buildPlayableMusic()
+		self.SAS_playableMusicIndex = -1
+		try:
+			self.SAS_playableMusicIndex = self.SAS_playableMusic.index(iMusic)
+		except:
+			self.SAS_playableMusicIndex = -1
+
+
+
+	def SAS_buildPlayableMusic(self):
+		r = []
+		listEntries = self.top.getMusicList()
+		for (szName, iPacked) in listEntries:
+			if iPacked == -1:
+				continue
+			if self.hasMusic(iPacked):
+				r.append(iPacked)
+		return r
+
+
+
+	def SAS_playMusicByIndex(self, iIndex):
+		if (self.SAS_playableMusic is None) or (iIndex < 0) or (iIndex >= len(self.SAS_playableMusic)):
+			return
+		iPacked = self.SAS_playableMusic[iIndex]
+		self.iMusic = iPacked
+		self.mediaPlayer.stopSound()
+		self.mediaPlayer.closeScreen()
+		self.showMusicPlayer(iPacked)
 
 
 

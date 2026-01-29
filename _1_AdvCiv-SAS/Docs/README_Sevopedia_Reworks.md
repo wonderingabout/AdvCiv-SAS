@@ -190,6 +190,8 @@ The Sevopedia Media player screen is opened with audio from main menu being sile
 
 A play button allows to replay track without exiting the screen (useful for `_ORDER` or `_SELECT` Civilizations sounds for example as they replay variants for the same item).
 
+Also supports Previous Track and Next track buttons.
+
 ### example 0.91: Movies category (with audio support)
 
 Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.

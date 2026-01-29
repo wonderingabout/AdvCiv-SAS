@@ -32,6 +32,8 @@ class SevoPediaMovie:
 		self.SAS_savedNoMovies = None
 		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
 		self.SAS_lastMoviePayload = None
+		self.SAS_playableMovies = None
+		self.SAS_playableMovieIndex = -1
 
 		self.X_HEADER = self.top.X_PEDIA_PAGE
 		self.Y_HEADER = self.top.Y_PEDIA_PAGE
@@ -157,6 +159,11 @@ class SevoPediaMovie:
 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setReplayCallback(self.replayMovie)
+		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
+		self.mediaPlayer.setPrevCallback(self.playPrevMovie)
+		self.mediaPlayer.setNextCallback(self.playNextMovie)
+
+		self.SAS_setupPlayableMovies(iMovieType, iMovieId)
 
 
 
@@ -182,8 +189,10 @@ class SevoPediaMovie:
 		return self.mediaPlayer.isOpen
 
 
+
 	def handleOverlayInput(self, inputClass):
 		return self.mediaPlayer.handleInput(inputClass, self.closeMoviePlayer, True)
+
 
 
 	def replayMovie(self):
@@ -195,6 +204,63 @@ class SevoPediaMovie:
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.closeScreen()
 		self.showMoviePlayer(iMovieType, iMovieId, (szMovieFile, szMovieKind, szSoundScript))
+
+
+
+	def playPrevMovie(self):
+		if (self.SAS_playableMovies is None) or (self.SAS_playableMovieIndex <= 0):
+			return
+		self.SAS_playableMovieIndex = self.SAS_playableMovieIndex - 1
+		self.SAS_playMovieByIndex(self.SAS_playableMovieIndex)
+
+
+
+	def playNextMovie(self):
+		if (self.SAS_playableMovies is None) or (self.SAS_playableMovieIndex < 0):
+			return
+		if (self.SAS_playableMovieIndex + 1) >= len(self.SAS_playableMovies):
+			return
+		self.SAS_playableMovieIndex = self.SAS_playableMovieIndex + 1
+		self.SAS_playMovieByIndex(self.SAS_playableMovieIndex)
+
+
+
+	def SAS_setupPlayableMovies(self, iMovieType, iMovieId):
+		self.SAS_playableMovies = self.SAS_buildPlayableMovies()
+		iPacked = self.top.SAS_packMovieKey(iMovieType, iMovieId)
+		self.SAS_playableMovieIndex = -1
+		try:
+			self.SAS_playableMovieIndex = self.SAS_playableMovies.index(iPacked)
+		except:
+			self.SAS_playableMovieIndex = -1
+
+
+
+	def SAS_buildPlayableMovies(self):
+		r = []
+		listEntries = self.top.getMovieList()
+		for (szName, iPacked) in listEntries:
+			if iPacked == -1:
+				continue
+			iType, iId = self.top.SAS_unpackMovieKey(iPacked)
+			if self.hasMovie(iType, iId):
+				r.append(iPacked)
+		return r
+
+
+
+	def SAS_playMovieByIndex(self, iIndex):
+		if (self.SAS_playableMovies is None) or (iIndex < 0) or (iIndex >= len(self.SAS_playableMovies)):
+			return
+		iPacked = self.SAS_playableMovies[iIndex]
+		self.iMovie = iPacked
+		iMovieType, iMovieId = self.top.SAS_unpackMovieKey(iPacked)
+		moviePayload = self.getMoviePayload(iMovieType, iMovieId)
+		if moviePayload is None:
+			return
+		self.mediaPlayer.stopSound()
+		self.mediaPlayer.closeScreen()
+		self.showMoviePlayer(iMovieType, iMovieId, moviePayload)
 
 
 
@@ -210,6 +276,8 @@ class SevoPediaMovie:
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return gc.getEraInfo(iMovieId)
 		return None
+
+
 
 	def getMoviePayload(self, iMovieType, iMovieId):
 		if not self.hasMovie(iMovieType, iMovieId):
@@ -271,6 +339,8 @@ class SevoPediaMovie:
 
 		return None
 
+
+
 	def getMovieTitle(self, iMovieType, iMovieId):
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			info = self.getMovieInfo(iMovieType, iMovieId)
@@ -282,6 +352,8 @@ class SevoPediaMovie:
 		if info:
 			return info.getDescription()
 		return u""
+
+
 
 	def hasMovie(self, iMovieType, iMovieId):
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
@@ -300,6 +372,8 @@ class SevoPediaMovie:
 			return bool(gc.getEraInfo(iMovieId).getButton())
 		return False
 
+
+
 	def getPediaJumpWidget(self, iMovieType, iMovieId):
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iMovieId, 1)
@@ -311,6 +385,8 @@ class SevoPediaMovie:
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return (WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
 		return (WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
 
 	def handleInput (self, inputClass):
 		return 0

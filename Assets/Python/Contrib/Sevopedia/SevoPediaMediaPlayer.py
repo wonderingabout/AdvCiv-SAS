@@ -20,13 +20,19 @@ class SevoPediaMediaPlayer:
 		self.screenEnum = screenEnum
 		self.exitId = exitId
 		self.replayId = clickPrefix + "Replay"
+		self.prevId = clickPrefix + "Prev"
+		self.nextId = clickPrefix + "Next"
 		self.clickPrefix = clickPrefix
 		self.isOpen = False
 		self.soundId = None
 		self.is3DSound = False
 		self.exitButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_EJECT_BUTTON").getPath()
 		self.replayButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+		self.prevButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LAST_TRACK_BUTTON").getPath()
+		self.nextButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_NEXT_TRACK_BUTTON").getPath()
 		self.replayCallback = None
+		self.prevCallback = None
+		self.nextCallback = None
 		self.screen = None
 
 
@@ -72,7 +78,8 @@ class SevoPediaMediaPlayer:
 
 
 	def placeExitButton(self, screen, iScreenW, iScreenH):
-		screen.setImageButton(self.exitId, self.exitButtonPath, iScreenW / 2 - 32, iScreenH - 74, 64, 64, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		screen.setImageButton(self.exitId, self.exitButtonPath, iExitX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# <!-- custom: (ChatGPT-5.2 Thinking) -->
 		try:
@@ -88,16 +95,43 @@ class SevoPediaMediaPlayer:
 
 	# <!-- custom: useful to replay files with variants such as _ORDER or _SELECT civilization sounds that play a different variant on replay (e.g. "Yes", "Agreed", "Right Away" (imaginary examples)), or for convenience so we don't exit the screen to replay. Added with the very nice help of GPT-5.2-Codex thanks. -->
 	def placeReplayButton(self, screen, iScreenW, iScreenH):
+		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iReplayX = iExitX - iGap - iSize
+		screen.setImageButton(self.replayId, self.replayButtonPath, iReplayX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+	def placePrevNextButtons(self, screen, iScreenW, iScreenH):
+		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iReplayX = iExitX - iGap - iSize
+		iPrevX = iReplayX - iGap - iSize
+		iNextX = iExitX + iGap + iSize
+		screen.setImageButton(self.prevId, self.prevButtonPath, iPrevX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setImageButton(self.nextId, self.nextButtonPath, iNextX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+	def _getTransportLayout(self, iScreenW, iScreenH):
 		iSize = 64
 		iGap = 8
 		iExitX = iScreenW / 2 - iSize / 2
-		iReplayX = iExitX - iGap - iSize
-		screen.setImageButton(self.replayId, self.replayButtonPath, iReplayX, iScreenH - 74, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iBaseY = iScreenH - 74
+		return (iSize, iGap, iExitX, iBaseY)
 
 
 
 	def setReplayCallback(self, replayCallback):
 		self.replayCallback = replayCallback
+
+
+
+	def setPrevCallback(self, prevCallback):
+		self.prevCallback = prevCallback
+
+
+
+	def setNextCallback(self, nextCallback):
+		self.nextCallback = nextCallback
 
 
 
@@ -200,6 +234,14 @@ class SevoPediaMediaPlayer:
 			if szName == self.replayId:
 				if self.replayCallback is not None:
 					self.replayCallback()
+				return True
+			if szName == self.prevId:
+				if self.prevCallback is not None:
+					self.prevCallback()
+				return True
+			if szName == self.nextId:
+				if self.nextCallback is not None:
+					self.nextCallback()
 				return True
 			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
 			if szName == self.exitId or szName.startswith(self.clickPrefix):
