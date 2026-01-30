@@ -233,7 +233,7 @@ class SevoPediaMusic:
 
 		screen = self.mediaPlayer.openScreen()
 		iScreenW, iScreenH, _, _, _, _ = self.mediaPlayer.setupLayout(screen, "", False)
-		_, _, _, _, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.placeTvPanel(screen, iScreenW, iScreenH)
+		iPanelX, iPanelY, iPanelW, iPanelH, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.placeTvPanel(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
 		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
@@ -244,6 +244,12 @@ class SevoPediaMusic:
 			iLeaderId = self.top.SAS_getMusicLeaderId(iMusic)
 		if iLeaderId != -1:
 			screen.addLeaderheadGFC("MusicPlayerLeaderhead", iLeaderId, AttitudeTypes.ATTITUDE_PLEASED, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
+			self.placeCivDisplay(screen, iMusic, iImageX, iImageY, iImageW, iImageH)
+		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_TECH:
+			self.placeTechDisplay(screen, iMusic, iImageX, iImageY, iImageW, iImageH)
+		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT or iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+			self.placeScriptDisplay(screen, iMusic, iImageX, iImageY, iImageW, iImageH)
 		else:
 			iEra = self.top.SAS_getMusicEra(iMusic)
 			szImagePath = ""
@@ -251,6 +257,11 @@ class SevoPediaMusic:
 				szImagePath = gc.getEraInfo(iEra).getButton()
 			if szImagePath:
 				screen.setImageButton("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+
+		# Place text panel in bottom right if available
+		szText = self.getTextForMusic(iMusic)
+		if szText:
+			self.mediaPlayer.placeTextPanel(screen, iScreenW, iScreenH, szText)
 
 		if szSoundScript or (iSoundId != -1):
 			self.mediaPlayer.playSound(szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
@@ -461,6 +472,201 @@ class SevoPediaMusic:
 		if szSound and (szSound != "NONE"):
 			return True
 		return self.top.SAS_getMusicSoundId(iPacked) != -1
+
+
+
+	def getTextForMusic(self, iPacked):
+		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(iPacked)
+		info = self.getMusicInfo(iPacked)
+
+		# For tech music: show the tech quote
+		if info and iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_TECH:
+			try:
+				szQuote = info.getQuote()
+				if szQuote and not szQuote.startswith("TXT_KEY_"):
+					return szQuote
+			except:
+				pass
+
+		# For civilization music: show the variant note
+		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
+			szNote = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_CIV_VARIANT_NOTE", ())
+			if szNote:
+				return szNote
+
+		return ""
+
+
+
+	def placeCivDisplay(self, screen, iMusic, iImageX, iImageY, iImageW, iImageH):
+		iCivId = self.top.SAS_getMusicCivId(iMusic)
+		if iCivId == -1:
+			return
+
+		civInfo = gc.getCivilizationInfo(iCivId)
+		if not civInfo:
+			return
+
+		# Calculate left and right halves
+		iLeftW = iImageW / 2 - 5
+		iRightW = iImageW / 2 - 5
+		iLeftX = iImageX
+		iRightX = iImageX + iImageW / 2 + 5
+
+		# Place civ button on the left half (square and centered)
+		szCivButton = civInfo.getButton()
+		if szCivButton:
+			iCivButtonSize = min(iLeftW, iImageH)
+			iCivButtonX = iLeftX + (iLeftW - iCivButtonSize) / 2
+			iCivButtonY = iImageY + (iImageH - iCivButtonSize) / 2
+			screen.setImageButton("MusicPlayerCivButton", szCivButton, iCivButtonX, iCivButtonY, iCivButtonSize, iCivButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCivId, 1)
+
+		# Get all leaders for this civilization
+		aLeaders = []
+		for iLeader in range(gc.getNumLeaderHeadInfos()):
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			if leaderInfo:
+				# Check if this leader is associated with this civ
+				for iCiv in range(gc.getNumCivilizationInfos()):
+					if iCiv == iCivId:
+						# Check if this leader can lead this civ
+						try:
+							if gc.getCivilizationInfo(iCiv).isLeaders(iLeader):
+								aLeaders.append(iLeader)
+								break
+						except:
+							pass
+
+		# Display leaders on the right half
+		if aLeaders:
+			iNumLeaders = len(aLeaders)
+			# Start with 3 columns, reduce if needed for many leaders
+			iCols = 3
+			iRows = (iNumLeaders + iCols - 1) / iCols
+
+			# Calculate max button size to keep them square
+			iGap = 4
+			iMaxW = (iRightW - (iCols - 1) * iGap) / iCols
+			iMaxH = (iImageH - (iRows - 1) * iGap) / iRows
+			iButtonSize = min(iMaxW, iMaxH)
+
+			# If buttons get too small (less than 32px), reduce columns
+			if iButtonSize < 32 and iCols > 2:
+				iCols = 2
+				iRows = (iNumLeaders + iCols - 1) / iCols
+				iMaxW = (iRightW - (iCols - 1) * iGap) / iCols
+				iMaxH = (iImageH - (iRows - 1) * iGap) / iRows
+				iButtonSize = min(iMaxW, iMaxH)
+
+			if iButtonSize < 24 and iCols > 1:
+				iCols = 1
+				iRows = iNumLeaders
+				iMaxW = iRightW
+				iMaxH = (iImageH - (iRows - 1) * iGap) / iRows
+				iButtonSize = min(iMaxW, iMaxH)
+
+			# Calculate grid dimensions and center it
+			iGridW = iCols * iButtonSize + (iCols - 1) * iGap
+			iGridH = iRows * iButtonSize + (iRows - 1) * iGap
+			iStartX = iRightX + (iRightW - iGridW) / 2
+			iStartY = iImageY + (iImageH - iGridH) / 2
+
+			for i, iLeaderId in enumerate(aLeaders):
+				iRow = i / iCols
+				iCol = i % iCols
+				iX = iStartX + iCol * (iButtonSize + iGap)
+				iY = iStartY + iRow * (iButtonSize + iGap)
+				szButtonName = "MusicPlayerLeader" + str(i)
+				leaderInfo = gc.getLeaderHeadInfo(iLeaderId)
+				szLeaderButton = leaderInfo.getButton()
+				if szLeaderButton:
+					screen.setImageButton(szButtonName, szLeaderButton, iX, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
+
+
+
+	def placeTechDisplay(self, screen, iMusic, iImageX, iImageY, iImageW, iImageH):
+		iMusicType, iTechId = self.top.SAS_unpackMusicKey(iMusic)
+		if iTechId == -1:
+			return
+
+		techInfo = gc.getTechInfo(iTechId)
+		if not techInfo:
+			return
+
+		# Calculate left and right halves
+		iLeftW = iImageW / 2 - 5
+		iRightW = iImageW / 2 - 5
+		iLeftX = iImageX
+		iRightX = iImageX + iImageW / 2 + 5
+
+		# Get era for this tech
+		iEra = -1
+		try:
+			iEra = techInfo.getEra()
+		except:
+			pass
+
+		# Place era button on the left half (square and centered)
+		if iEra != -1:
+			eraInfo = gc.getEraInfo(iEra)
+			if eraInfo:
+				szEraButton = eraInfo.getButton()
+				if szEraButton:
+					iEraButtonSize = min(iLeftW, iImageH)
+					iEraButtonX = iLeftX + (iLeftW - iEraButtonSize) / 2
+					iEraButtonY = iImageY + (iImageH - iEraButtonSize) / 2
+					screen.setImageButton("MusicPlayerEraButton", szEraButton, iEraButtonX, iEraButtonY, iEraButtonSize, iEraButtonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+
+		# Place tech button on the right half (square and centered)
+		szTechButton = techInfo.getButton()
+		if szTechButton:
+			iTechButtonSize = min(iRightW, iImageH)
+			iTechButtonX = iRightX + (iRightW - iTechButtonSize) / 2
+			iTechButtonY = iImageY + (iImageH - iTechButtonSize) / 2
+			screen.setImageButton("MusicPlayerTechButton", szTechButton, iTechButtonX, iTechButtonY, iTechButtonSize, iTechButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTechId, 1)
+
+
+
+	def placeScriptDisplay(self, screen, iMusic, iImageX, iImageY, iImageW, iImageH):
+		# Find the current music's group and get the first item in that group
+		playable, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
+
+		iCurrentGroup = -1
+		iFirstInGroup = -1
+		szGroupIcon = ""
+
+		try:
+			iCurrentIndex = playable.index(iMusic)
+			if iCurrentIndex >= 0 and iCurrentIndex < len(groupByIndex):
+				iCurrentGroup = groupByIndex[iCurrentIndex]
+				if iCurrentGroup >= 0 and iCurrentGroup < len(groupFirst):
+					iFirstInGroup = groupFirst[iCurrentGroup]
+					if iFirstInGroup >= 0 and iFirstInGroup < len(icons):
+						szGroupIcon = icons[iFirstInGroup]
+		except:
+			pass
+
+		# If we couldn't find a group icon, try to use the current item's icon
+		if not szGroupIcon:
+			szGroupIcon = self.top.SAS_getMusicButton(iMusic)
+
+		# Use musical notes icon as fallback
+		if not szGroupIcon:
+			szGroupIcon = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_MUSICAL_NOTES").getPath()
+
+		# Place the icon centered and square
+		if szGroupIcon:
+			iButtonSize = min(iImageW, iImageH)
+			iButtonX = iImageX + (iImageW - iButtonSize) / 2
+			iButtonY = iImageY + (iImageH - iButtonSize) / 2
+
+			# If we found a first item in group, make it clickable to jump to that
+			if iFirstInGroup >= 0 and iFirstInGroup < len(playable):
+				iTargetMusic = playable[iFirstInGroup]
+				screen.setImageButton("MusicPlayerScriptButton", szGroupIcon, iButtonX, iButtonY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_PLAY, iTargetMusic)
+			else:
+				# Otherwise just show the icon without action
+				screen.addDDSGFC("MusicPlayerScriptButton", szGroupIcon, iButtonX, iButtonY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

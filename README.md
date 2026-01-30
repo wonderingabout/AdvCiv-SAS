@@ -286,6 +286,9 @@ Supports Previous Track and Next track, Toggle Movies/Music button, Fast Up and 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (1).JPG" alt="0.810_sevopedia_media_player (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (2).JPG" alt="0.810_sevopedia_media_player (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (3).JPG" alt="0.810_sevopedia_media_player (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (4).JPG" alt="0.810_sevopedia_media_player (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (5).JPG" alt="0.810_sevopedia_media_player (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (6).JPG" alt="0.810_sevopedia_media_player (6).JPG" width="250"></img>
 
 ##### Movies
 

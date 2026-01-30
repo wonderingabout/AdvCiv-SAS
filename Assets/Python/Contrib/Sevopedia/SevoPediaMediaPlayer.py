@@ -314,6 +314,35 @@ class SevoPediaMediaPlayer:
 
 
 
+	def placeTextPanel(self, screen, iScreenW, iScreenH, szText):
+		if not szText:
+			return
+
+		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		# Get position of last button (index 6)
+		iLastButtonX = self._getTransportButtonX(iScreenW, 6)
+
+		# Text panel starts after the last button
+		iTextX = iLastButtonX + iSize + iGap * 2
+		iTextY = iBaseY
+		iTextW = iScreenW - iTextX - 10
+		iTextH = iSize
+
+		# Only show if there's enough space
+		if iTextW <= 100:
+			return
+
+		szTextPanelId = self.clickPrefix + "TextPanel"
+		try:
+			screen.deleteWidget(szTextPanelId)
+		except:
+			pass
+
+		screen.addPanel(szTextPanelId, "", "", True, True, iTextX, iTextY, iTextW, iTextH, PanelStyles.PANEL_STYLE_EMPTY)
+		screen.attachMultilineText(szTextPanelId, "Text", u"<font=2>" + szText + u"</font>", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
 	def placePrevNextLabels(self, screen, iScreenW, iScreenH, szPrev, szNext):
 		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
 		iPrevX = self._getTransportButtonX(iScreenW, 1)
