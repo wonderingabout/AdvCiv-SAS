@@ -239,12 +239,18 @@ class SevoPediaMusic:
 		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
 		self.mediaPlayer.startTimer()
 
-		iEra = self.top.SAS_getMusicEra(iMusic)
-		szImagePath = ""
-		if iEra != -1:
-			szImagePath = gc.getEraInfo(iEra).getButton()
-		if szImagePath:
-			screen.setImageButton("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+		iLeaderId = -1
+		if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
+			iLeaderId = self.top.SAS_getMusicLeaderId(iMusic)
+		if iLeaderId != -1:
+			screen.addLeaderheadGFC("MusicPlayerLeaderhead", iLeaderId, AttitudeTypes.ATTITUDE_PLEASED, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		else:
+			iEra = self.top.SAS_getMusicEra(iMusic)
+			szImagePath = ""
+			if iEra != -1:
+				szImagePath = gc.getEraInfo(iEra).getButton()
+			if szImagePath:
+				screen.setImageButton("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
 
 		if szSoundScript or (iSoundId != -1):
 			self.mediaPlayer.playSound(szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
@@ -292,6 +298,12 @@ class SevoPediaMusic:
 		if self.SAS_lastMusicSound is None:
 			return
 		szSoundScript, iSoundId, bForce3D = self.SAS_lastMusicSound
+		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(self.iMusic)
+		if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
+			self.mediaPlayer.stopSound()
+			self.mediaPlayer.closeScreen()
+			self.showMusicPlayer(self.iMusic)
+			return
 		self.mediaPlayer.resetTimer()
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.playSound(szSoundScript, iSoundId, bForce3D)
