@@ -169,7 +169,7 @@ class SevoPediaMediaPlayer:
 
 
 
-	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex, groupByIndex, groupLabels):
+	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex, groupByIndex, groupLabels, itemIcons):
 		if (items is None) or (len(items) == 0):
 			return
 
@@ -190,11 +190,18 @@ class SevoPediaMediaPlayer:
 			pass
 
 		screen.addPanel(self.queuePanelId, "", "", True, False, iPanelX, iPanelY, iPanelW, iPanelH, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addListBoxGFC(self.queueListId, "", iPanelX + 6, iPanelY + 6, iPanelW - 12, iPanelH - 12, TableStyles.TABLE_STYLE_STANDARD)
+		iIconColW = 24
+		iTableX = iPanelX + 6
+		iTableY = iPanelY + 6
+		iTableW = iPanelW - 12
+		iTableH = iPanelH - 12
+		screen.addTableControlGFC(self.queueListId, 2, iTableX, iTableY, iTableW, iTableH, False, False, 22, 22, TableStyles.TABLE_STYLE_STANDARD)
+		screen.setTableColumnHeader(self.queueListId, 0, "", iIconColW)
+		screen.setTableColumnHeader(self.queueListId, 1, "", iTableW - iIconColW - 4)
 		screen.enableSelect(self.queueListId, False)
 
-		iRowH = 22
-		iMaxRows = iPanelH / iRowH
+		iRowH = 24
+		iMaxRows = (iTableH - 4) / iRowH
 		if iMaxRows <= 0:
 			iMaxRows = 1
 
@@ -220,14 +227,16 @@ class SevoPediaMediaPlayer:
 
 			if iGroup != iLastGroup and (groupLabels is not None) and (iGroup >= 0) and (iGroup < len(groupLabels)) and iRows < iMaxRows:
 				if iLastGroup != -1 and iRows < iMaxRows:
-					screen.appendListBoxStringNoUpdate(self.queueListId, u"<font=3> </font>", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					iRow = screen.appendTableRow(self.queueListId)
+					screen.setTableText(self.queueListId, 1, iRow, u"<font=3> </font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					iRows += 1
 				szHeader = groupLabels[iGroup]
 				if szHeader:
 					if iGroup == iCurrentGroup:
 						szHeader = u">> " + szHeader
 					szHeader = u"<font=3b>" + szHeader + u"</font>"
-					screen.appendListBoxStringNoUpdate(self.queueListId, szHeader, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					iRow = screen.appendTableRow(self.queueListId)
+					screen.setTableText(self.queueListId, 1, iRow, szHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					iRows += 1
 				iLastGroup = iGroup
 				if iRows >= iMaxRows:
@@ -239,10 +248,14 @@ class SevoPediaMediaPlayer:
 				szLabel = u"<font=3b>" + szLabel + u"</font>"
 			else:
 				szLabel = u"<font=3>" + szLabel + u"</font>"
-			screen.appendListBoxStringNoUpdate(self.queueListId, szLabel, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szButton = ""
+			if (itemIcons is not None) and (i < len(itemIcons)):
+				szButton = itemIcons[i]
+			iRow = screen.appendTableRow(self.queueListId)
+			screen.setTableText(self.queueListId, 0, iRow, "", szButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.queueListId, 1, iRow, szLabel, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iRows += 1
 			i += 1
-		screen.updateListBox(self.queueListId)
 
 
 

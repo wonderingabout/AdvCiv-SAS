@@ -29,6 +29,7 @@ class SevoPediaMusic:
 		self.SAS_lastMusicSound = None
 		self.SAS_playableMusic = None
 		self.SAS_playableMusicLabels = None
+		self.SAS_playableMusicIcons = None
 		self.SAS_playableMusicIndex = -1
 		self.SAS_playableMusicGroupByIndex = None
 		self.SAS_playableMusicGroupLabels = None
@@ -262,7 +263,7 @@ class SevoPediaMusic:
 		self.mediaPlayer.setToggleCallback(self.switchToMovies)
 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 		self.SAS_setupPlayableMusic(iMusic)
-		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels)
+		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_playableMusicIcons)
 
 
 
@@ -354,6 +355,7 @@ class SevoPediaMusic:
 		(
 			self.SAS_playableMusic,
 			self.SAS_playableMusicLabels,
+			self.SAS_playableMusicIcons,
 			self.SAS_playableMusicGroupByIndex,
 			self.SAS_playableMusicGroupLabels,
 			self.SAS_musicGroupFirstIndex,
@@ -370,6 +372,7 @@ class SevoPediaMusic:
 	def SAS_buildPlayableMusicAndLabels(self):
 		r = []
 		labels = []
+		icons = []
 		groupByIndex = []
 		groupLabels = []
 		groupFirst = []
@@ -387,6 +390,8 @@ class SevoPediaMusic:
 			if self.hasMusic(iPacked):
 				r.append(iPacked)
 				labels.append(szName)
+				szButton = self.top.SAS_getMusicButton(iPacked)
+				icons.append(szButton)
 				if iGroup < 0:
 					iGroup = 0
 				groupByIndex.append(iGroup)
@@ -400,7 +405,7 @@ class SevoPediaMusic:
 					groupLast[iGroup] = len(r) - 1
 				else:
 					groupLast[iGroup] = len(r) - 1
-		return (r, labels, groupByIndex, groupLabels, groupFirst, groupLast)
+		return (r, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast)
 
 
 
@@ -416,7 +421,7 @@ class SevoPediaMusic:
 
 
 	def SAS_getFirstPlayableMusic(self):
-		playable, labels, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
+		playable, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
 		if not playable:
 			return -1
 		return playable[0]

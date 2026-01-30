@@ -1,6 +1,6 @@
 # AGENTS
 
-## You don't need to look at files mentioned in this sub-section as an agent
+## Credit
 
 AI, UI, or other modifications
 Created as part of AdvCiv-SAS improvements
@@ -8,15 +8,15 @@ Created as part of AdvCiv-SAS improvements
 
 ## General information
 
-This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv 1.12, for AI helpers.
+This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv 1.12, for AI helpers. You don't need to look at files mentioned in this sub-section for now, just get aware of their existence if you need them later in our tasks.
 
-You can expand this freely as you see fit.
+You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
 
 Note: our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS) if needed.
 
 ## Information Fetching from other known helpful mods
 
-If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has often proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
+If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has oftentimes proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
 
 - The Middle-earth mod (in particular but not only their Platypedia) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth"
 - The C2C (Cavemen2Cosmos) mod (in particular but not only for UI/EXE stuff) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos"
@@ -29,7 +29,7 @@ Example of UI tip discovered: if a new Sevopedia category needs clickable entrie
 
 You can find Civ4 local user folder here "C:\Users\PC\Documents\My Games\beyond the sword".
 
-In particular but only, these are usually helpful:
+In particular but not only, these are usually helpful:
 
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log"
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
@@ -39,13 +39,9 @@ The root Program Files Civ4 folder is here:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\"
 
-Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, in particular but not only:
+Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, but it is lengthy, grep if needed from there:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"
-
-Civ4 BUG documentation is also provided as .txt, but it is lengthy, consider reading it for double check or grep needs or such. It helped us find the `Destroy2DSound` python function for example (with the help of Claude code Opus 4.5, although it didn't ultimately solve our issue, doc is helpful as reference (but lengthy)):
-
-- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt"
 
 Our AdvCiv-SAS documentation is mostly located here:
 
@@ -62,7 +58,13 @@ May help to find key documentation, additionally to doing a grep or such, indexe
 
 ## Sevopedia debug dumps (Python API introspection)
 
-When a Python getter seems missing or unclear (e.g., the culture breakdown error where `CvCivicInfo` has no `getCommerceChange`), use Sevopedia debug dumps to verify what Python can actually access; these live under `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\Debug` (example file: [__SevoPediaCivic-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner-debug-content.txt), and they’re valuable because they prevent guessing whether a getter is exposed in Python or requires DLL changes.
+When a Python getter seems missing or unclear (e.g., the culture breakdown error where `CvCivicInfo` has no `getCommerceChange`), use Sevopedia debug dumps to verify what Python can actually access without having to guess if a getter is exposed in Python or requires DLL changes; these debug logs are usually our first and preferred source of truth since they are real inspect logs, although they might be slightly outdated if DLL changes were made since then.
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\Debug" (example file: [__SevoPediaCivic-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner-debug-content.txt)).
+
+Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpful, consider reading it for double check or grep needs if in doubt or such. It helped us find the `Destroy2DSound` python function for example, doc is helpful as reference (but lengthy):
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt"
 
 ## Information Fetching online
 

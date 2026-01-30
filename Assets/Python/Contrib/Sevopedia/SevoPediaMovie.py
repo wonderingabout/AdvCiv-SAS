@@ -34,6 +34,7 @@ class SevoPediaMovie:
 		self.SAS_lastMoviePayload = None
 		self.SAS_playableMovies = None
 		self.SAS_playableMovieLabels = None
+		self.SAS_playableMovieIcons = None
 		self.SAS_playableMovieIndex = -1
 		self.SAS_playableMovieGroupByIndex = None
 		self.SAS_playableMovieGroupLabels = None
@@ -187,8 +188,9 @@ class SevoPediaMovie:
 			self.mediaPlayer.clearQueueList(screen)
 			szPrev, szNext = self.SAS_getAdjacentMovieLabels()
 			self.mediaPlayer.placePrevNextLabels(screen, iScreenW, iScreenH, szPrev, szNext)
+			self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId))
 		else:
-			self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels)
+			self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels, self.SAS_playableMovieIcons)
 
 
 
@@ -289,6 +291,7 @@ class SevoPediaMovie:
 		(
 			self.SAS_playableMovies,
 			self.SAS_playableMovieLabels,
+			self.SAS_playableMovieIcons,
 			self.SAS_playableMovieGroupByIndex,
 			self.SAS_playableMovieGroupLabels,
 			self.SAS_movieGroupFirstIndex,
@@ -306,6 +309,7 @@ class SevoPediaMovie:
 	def SAS_buildPlayableMoviesAndLabels(self):
 		r = []
 		labels = []
+		icons = []
 		groupByIndex = []
 		groupLabels = []
 		groupFirst = []
@@ -324,6 +328,14 @@ class SevoPediaMovie:
 			if self.hasMovie(iType, iId):
 				r.append(iPacked)
 				labels.append(szName)
+				szButton = ""
+				info = self.getMovieInfo(iType, iId)
+				if info:
+					try:
+						szButton = info.getButton()
+					except:
+						szButton = ""
+				icons.append(szButton)
 				if iGroup < 0:
 					iGroup = 0
 				groupByIndex.append(iGroup)
@@ -337,7 +349,7 @@ class SevoPediaMovie:
 					groupLast[iGroup] = len(r) - 1
 				else:
 					groupLast[iGroup] = len(r) - 1
-		return (r, labels, groupByIndex, groupLabels, groupFirst, groupLast)
+		return (r, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast)
 
 
 
@@ -357,7 +369,7 @@ class SevoPediaMovie:
 
 
 	def SAS_getFirstPlayableMovie(self):
-		playable, labels, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMoviesAndLabels()
+		playable, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMoviesAndLabels()
 		if not playable:
 			return -1
 		return playable[0]
