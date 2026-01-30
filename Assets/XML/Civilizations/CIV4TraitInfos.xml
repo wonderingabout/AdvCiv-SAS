@@ -317,7 +317,7 @@
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
 			<ExtraYieldThresholds/>
-			<!-- custom: change from (translate to english with web browser or such) https://gforestshade.github.io/kujira/post/civ4traitinfos/#tradeyieldmodifiers adjusted or not for advciv-sas, see also this topic/forum https://forums.civfanatics.com/threads/modifying-traits-tradeyieldmodifiers.264979/post-8045016 if helps there is a screenshot and such discussion about this, was empty -->
+			<!-- custom: Long_Comments_XML.txt #353, was empty -->
 			<TradeYieldModifiers>
 				<iYield>10</iYield>
 				<iYield>20</iYield>

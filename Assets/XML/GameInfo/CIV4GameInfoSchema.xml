@@ -973,24 +973,9 @@
 		<element type="iExtraFreeOutsideUnits" minOccurs="0"/>
 		<!-- advc.252: end -->
 		<element type="iVictoryDelayPercent"/>
-		<!-- advc: New game speed modifiers ...
-			 Set to 100 in the DLL by default. -->
-		<!-- advc.130r: start -->
-		<!-- Affects the per-turn chance of incrementing or decrementing AI diplo
-			 memory counters. (Some count up, e.g. "years of peace", others decay,
-			 namely remembered diplo actions such as "you declared war on us".)
-			 Percentages above 100 make it less(!) likely for counters to be
-			 changed, i.e. make diplomacy more inert.
-			 During the early game, counters that count up receive
-			 special treatment: they get adjusted to game length and the
-			 MemoryRand adjustment only takes effect gradually. -->
+		<!-- custom: Affects the per-turn chance of incrementing or decrementing AI diplo memory counters; Long_Comments_XML.txt #354 -->
 		<element type="iAIMemoryRandPercent" minOccurs="0"/>
-		<!-- Affects the per-turn chance of AI civs reaching out to other
-			 human or AI civs with offers, requests or demands. The contact
-			 probability is 1/ContactRand, i.e. a percentage above 100
-			 makes the AI less likely to reach out.
-			 Peace offers and requests for joining a war are exempt from
-			 this adjustment. -->
+		<!-- custom: Affects the per-turn chance of AI civs reaching out to other human or AI civs with offers, requests or demands; Long_Comments_XML.txt #355 -->
 		<element type="iAIContactRandPercent" minOccurs="0"/>
 		<!-- Adjusts the minimum delay in between any two consecutive
 			 AI-to-human offers, requests and demands of the same type.
@@ -1010,15 +995,7 @@
 			 religion spread. The probability gets divided by this percentage,
 			 i.e. values above 100 make religions less likely to spread. -->
 		<element type="iReligionSpreadDivPercent" minOccurs="0"/>
-		<!-- advc.252: start -->
-		<!-- Affects the per-turn probability of Random Events, specifically,
-			 the number of sides of the virtually rolled die. A percentage above
-			 100 means a higher number of sides and smaller event probabilities.
-			 Also affects the length of the period of game start during which
-			 no events can occur - the higher the percentage, the longer the
-			 period without events.
-			 Feature growth and resource discovery are not affected by this,
-			 those special events get adjusted to game length. -->
+		<!-- advc.252: start; Affects the per-turn probability of Random Events, specifically, the number of sides of the virtually rolled die; Long_Comments_XML.txt #356 -->
 		<element type="iEventRollSidesPercent" minOccurs="0"/>
 		<!-- Adjusts the frequency of diplo votes. A percentage above 100 means
 			 that a higher number of turns need to pass in between consecutive

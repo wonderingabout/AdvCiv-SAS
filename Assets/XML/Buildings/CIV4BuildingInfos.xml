@@ -2,8 +2,7 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- custom: Long_Comments_XML.txt #137 -->
-<!-- custom: Long_Comments_XML.txt #157 -->
+<!-- custom: Long_Comments_XML.txt #137, #157 -->
 <!-- Building Infos -->
 <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<BuildingInfos>
@@ -178,7 +177,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: palace, type: BARBARIAN_PALACE (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: palace, type: BARBARIAN_PALACE -->
 			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -355,7 +354,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forbidden_palace, type: forbidden_palace (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: forbidden_palace, type: forbidden_palace -->
 			<BuildingClass>BUILDINGCLASS_FORBIDDEN_PALACE</BuildingClass>
 			<Type>BUILDING_FORBIDDEN_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -546,7 +545,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: walls, type: walls (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: walls, type: walls -->
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
 			<Type>BUILDING_WALLS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -730,7 +729,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: walls, type: celtic_dun (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: walls, type: celtic_dun -->
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
 			<Type>BUILDING_CELTIC_DUN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -918,7 +917,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: walls, type: BARBARIAN_WALLS (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: walls, type: BARBARIAN_WALLS -->
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
 			<Type>BUILDING_BARBARIAN_WALLS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1101,7 +1100,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: Long_Comments_XML.txt #129 -->
-		<BuildingInfo> <!-- custom: class: castle, type: castle (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: castle, type: castle -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_CASTLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1129,7 +1128,7 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<!-- custom: remove trait specfic production bonuses, at least for the protective trait buildings, bonuses were too lousy (or weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe or not bbigger or yes bigger or other or not or etc more importantly that the castle would be otherwise too op for the protective trait players -->
+			<!-- custom: remove trait specfic production bonuses; Long_Comments_XML.txt #343 -->
 			<ProductionTraits/>
 			<HappinessTraits>
 				<HappinessTrait>
@@ -1304,7 +1303,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: castle, type: spanish_citadel (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: castle, type: spanish_citadel -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_SPANISH_CITADEL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1514,7 +1513,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: add the new BUILDING_RUSSIAN_GORD, civ-specific building for the russian empire (based on the castle), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, for a stronger early game impact and more military focus in this case,, see xml or and docs or and similar or and not for details -->
-		<BuildingInfo> <!-- custom: class: castle, type: russian_gord (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: castle, type: russian_gord -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_RUSSIAN_GORD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1716,7 +1715,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: castle, type: BARBARIAN_CASTLE (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: castle, type: BARBARIAN_CASTLE -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_CASTLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1917,7 +1916,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: barracks (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: barracks, type: barracks -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_BARRACKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2093,7 +2092,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: zulu_ikhanda (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: barracks, type: zulu_ikhanda -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_ZULU_IKHANDA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2274,7 +2273,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: BARBARIAN_BARRACKS (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: barracks, type: BARBARIAN_BARRACKS -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_BARBARIAN_BARRACKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2448,7 +2447,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stable, type: stable (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: stable, type: stable -->
 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
 			<Type>BUILDING_STABLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2624,7 +2623,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stable, type: mongol_ger (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: stable, type: mongol_ger -->
 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
 			<Type>BUILDING_MONGOL_GER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2801,7 +2800,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bunker, type: bunker (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: bunker, type: bunker -->
 			<BuildingClass>BUILDINGCLASS_BUNKER</BuildingClass>
 			<Type>BUILDING_BUNKER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2970,7 +2969,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bomb_shelter, type: bomb_shelter (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: bomb_shelter, type: bomb_shelter -->
 			<BuildingClass>BUILDINGCLASS_BOMB_SHELTER</BuildingClass>
 			<Type>BUILDING_BOMB_SHELTER</Type>
 			<SpecialBuildingType>SPECIALBUILDING_BOMB_SHELTER</SpecialBuildingType>
@@ -3137,7 +3136,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: granary (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: granary, type: granary -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_GRANARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3326,7 +3325,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: BARBARIAN_GRANARY (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: granary, type: BARBARIAN_GRANARY -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_BARBARIAN_GRANARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3514,7 +3513,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_INCAN_QULLQA (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_INCAN_QULLQA -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_INCAN_QULLQA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3711,7 +3710,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: german_longhouse (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: granary, type: german_longhouse -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_GERMAN_LONGHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3905,7 +3904,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: aqueduct (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: aqueduct, type: aqueduct -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_AQUEDUCT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4083,7 +4082,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: ottoman_hammam (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: aqueduct, type: ottoman_hammam -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_OTTOMAN_HAMMAM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4256,7 +4255,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: if it helps for balance or info or tweaking or other things https://en.wikipedia.org/wiki/Baray -->
-		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KHMER_BARAY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4437,7 +4436,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: kingdom_of_benin_impluvium (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: aqueduct, type: kingdom_of_benin_impluvium -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4622,7 +4621,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hospital, type: hospital (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hospital, type: hospital -->
 			<BuildingClass>BUILDINGCLASS_HOSPITAL</BuildingClass>
 			<Type>BUILDING_HOSPITAL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4794,7 +4793,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: recycling_center, type: recycling_center (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: recycling_center, type: recycling_center -->
 			<BuildingClass>BUILDINGCLASS_RECYCLING_CENTER</BuildingClass>
 			<Type>BUILDING_RECYCLING_CENTER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4960,7 +4959,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: harbor reworked, now is a building before the lighthouse and buffed too, relatively to how old lighthouse was; oldest harbor should be much sooner than tech compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now -->
-		<BuildingInfo> <!-- custom: class: harbor, type: harbor (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: harbor, type: harbor -->
 			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
 			<Type>BUILDING_HARBOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5157,7 +5156,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HARBOR, type: BUILDING_BARBARIAN_HARBOR (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HARBOR, type: BUILDING_BARBARIAN_HARBOR -->
 			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
 			<Type>BUILDING_BARBARIAN_HARBOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5355,7 +5354,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse -->
 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5538,7 +5537,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BARBARIAN_LIGHTHOUSE (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BARBARIAN_LIGHTHOUSE -->
 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5723,7 +5722,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: new production, water building, based on old moai_statues 's effect but as a normal building now -->
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_PORT (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_PORT -->
 			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
 			<Type>BUILDING_PORT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5907,7 +5906,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: new production, water building, based on old moai_statues 's effect but as a normal building now -->
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_CARTHAGE_COTHON (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_CARTHAGE_COTHON -->
 			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
 			<Type>BUILDING_CARTHAGE_COTHON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6103,7 +6102,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_SCANDINAVIA_TRADING_POST (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_SCANDINAVIA_TRADING_POST -->
 			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
 			<Type>BUILDING_SCANDINAVIA_TRADING_POST</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6291,7 +6290,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: custom_house, type: custom_house (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: custom_house, type: custom_house -->
 			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
 			<Type>BUILDING_CUSTOM_HOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6473,7 +6472,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: custom_house, type: feitoria (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: custom_house, type: feitoria -->
 			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
 			<Type>BUILDING_PORTUGAL_FEITORIA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6635,7 +6634,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: i don't know why there is production, even from reading the 020 manual in the nice manual.txt i added too but that i am thankful for too if i may say or not too or yes too, i don't understand at least doesn't seem clear to me what the indirect effects of having production here would do, since i don't understand it, might as well remove it, ideally should just keep it as is, but it shouldn't make too much of a difference, i don't know too well if at all how flavors work, but maybe this is a safe or quite safe change, trying it and see if doesn't break anything or is not too determinant may keep as is unless i find a better explanation or reasoning to keep, was flavor gold 8 production 5 -->
+			<!-- custom: Long_Comments_XML.txt #14, was flavor gold 8 production 5 -->
 			<!-- advc.020: was 10 Gold; the +production isn't accounted for -->
 			<Flavors>
 				<Flavor>
@@ -6649,7 +6648,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: drydock, type: drydock (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: drydock, type: drydock -->
 			<BuildingClass>BUILDINGCLASS_DRYDOCK</BuildingClass>
 			<Type>BUILDING_DRYDOCK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6844,7 +6843,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: airport, type: airport (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: airport, type: airport -->
 			<BuildingClass>BUILDINGCLASS_AIRPORT</BuildingClass>
 			<Type>BUILDING_AIRPORT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7018,7 +7017,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forge, type: forge (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: forge, type: forge -->
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
 			<Type>BUILDING_FORGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7211,7 +7210,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forge, type: mali_mint (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: forge, type: mali_mint -->
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
 			<Type>BUILDING_MALI_MINT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7410,7 +7409,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: factory, type: factory (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: factory, type: factory -->
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
 			<Type>BUILDING_FACTORY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7604,7 +7603,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: coal_plant, type: coal_plant (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: coal_plant, type: coal_plant -->
 			<BuildingClass>BUILDINGCLASS_COAL_PLANT</BuildingClass>
 			<Type>BUILDING_COAL_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7773,7 +7772,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hydro_plant, type: hydro_plant (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hydro_plant, type: hydro_plant -->
 			<BuildingClass>BUILDINGCLASS_HYDRO_PLANT</BuildingClass>
 			<Type>BUILDING_HYDRO_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7947,7 +7946,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: nuclear_plant, type: nuclear_plant (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: nuclear_plant, type: nuclear_plant -->
 			<BuildingClass>BUILDINGCLASS_NUCLEAR_PLANT</BuildingClass>
 			<Type>BUILDING_NUCLEAR_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8115,7 +8114,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: industrial_park, type: industrial_park (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: industrial_park, type: industrial_park -->
 			<BuildingClass>BUILDINGCLASS_INDUSTRIAL_PARK</BuildingClass>
 			<Type>BUILDING_INDUSTRIAL_PARK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8306,7 +8305,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: monument (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: monument, type: monument -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_MONUMENT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8481,7 +8480,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: egyptian_obelisk (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: monument, type: egyptian_obelisk -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_EGYPTIAN_OBELISK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8667,7 +8666,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: ethiopian_stele (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: monument, type: ethiopian_stele -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_ETHIOPIAN_STELE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8843,7 +8842,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: native_america_totem (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: monument, type: native_america_totem -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_NATIVE_AMERICA_TOTEM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9031,7 +9030,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked based on https://en.wikipedia.org/wiki/Aztecs#Religion and https://en.wikipedia.org/wiki/Human_sacrifice#Pre-Columbian_Americas -->
-		<BuildingInfo> <!-- custom: class: monument, type: aztec_sacrificial_altar (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: monument, type: aztec_sacrificial_altar -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9217,7 +9216,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked based on: https://en.wikipedia.org/wiki/Ziggurat -->
-		<BuildingInfo> <!-- custom: class: monument, type: ziggurat (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: monument, type: ziggurat -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_SUMERIAN_ZIGGURAT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9414,7 +9413,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: public_transportation, type: public_transportation (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: public_transportation, type: public_transportation -->
 			<BuildingClass>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingClass>
 			<Type>BUILDING_PUBLIC_TRANSPORTATION</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9584,7 +9583,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: academy, type: academy (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: academy, type: academy -->
 			<BuildingClass>BUILDINGCLASS_ACADEMY</BuildingClass>
 			<Type>BUILDING_ACADEMY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9760,7 +9759,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: library, type: library (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: library, type: library -->
 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
 			<Type>BUILDING_LIBRARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9957,7 +9956,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: university (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: university, type: university -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_UNIVERSITY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10143,7 +10142,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: basing it (madrassa) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or from memory that they are religous, thus islamic buildings mostly if not only), this is also good because now i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it) -->
-		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_ARABIAN_MADRASSA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10342,7 +10341,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: korean_seowon (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: university, type: korean_seowon -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_KOREAN_SEOWON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10527,7 +10526,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: french_salon (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: university, type: french_salon -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_FRENCH_SALON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10718,7 +10717,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: laboratory, type: laboratory (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: laboratory, type: laboratory -->
 			<BuildingClass>BUILDINGCLASS_LABORATORY</BuildingClass>
 			<Type>BUILDING_LABORATORY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10907,7 +10906,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: theatre, type: theatre (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: theatre, type: theatre -->
 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
 			<Type>BUILDING_THEATRE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11100,7 +11099,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: theatre, type: chinese_pavillon (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: theatre, type: chinese_pavillon -->
 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
 			<Type>BUILDING_CHINESE_PAVILLION</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11297,7 +11296,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: theatre, type: byzantine_hippodrome (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: theatre, type: byzantine_hippodrome -->
 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
 			<Type>BUILDING_BYZANTINE_HIPPODROME</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11497,7 +11496,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: colosseum (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: colosseum, type: colosseum -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_COLOSSEUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11690,7 +11689,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: greek_odeon (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: colosseum, type: greek_odeon -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_GREEK_ODEON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11733,7 +11732,7 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong; since an artist specialist gives 3 gpp as of now (and culture or such), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building); also to rpely to chagpt 5 that said +2 may be too much, it seems thinking about it that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such, was NONE and 0 -->
+			<!-- custom: Long_Comments_XML.txt #340, was NONE and 0 -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -11897,7 +11896,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: maya_ball_court (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: colosseum, type: maya_ball_court -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_MAYA_BALL_COURT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12110,7 +12109,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: babylon_garden (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: colosseum, type: babylon_garden -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_BABYLON_GARDEN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12308,7 +12307,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: broadcast_tower, type: broadcast_tower (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: broadcast_tower, type: broadcast_tower -->
 			<BuildingClass>BUILDINGCLASS_BROADCAST_TOWER</BuildingClass>
 			<Type>BUILDING_BROADCAST_TOWER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12510,7 +12509,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: market, type: market (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: market, type: market -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_MARKET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12702,7 +12701,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: if it helps for balance or info or tweaking or other things https://en.wikipedia.org/wiki/Forum_(Roman) -->
-		<BuildingInfo> <!-- custom: class: market, type: roman_forum (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: market, type: roman_forum -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_ROMAN_FORUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12894,7 +12893,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: grocer, type: grocer (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: grocer, type: grocer -->
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
 			<Type>BUILDING_GROCER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13096,7 +13095,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: grocer, type: persian_apothecary (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: grocer, type: persian_apothecary -->
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
 			<Type>BUILDING_PERSIAN_APOTHECARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13298,7 +13297,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bank, type: bank (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: bank, type: bank -->
 			<BuildingClass>BUILDINGCLASS_BANK</BuildingClass>
 			<Type>BUILDING_BANK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13462,7 +13461,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bank, type: english_stock_exchange (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: bank, type: english_stock_exchange -->
 			<BuildingClass>BUILDINGCLASS_BANK</BuildingClass>
 			<Type>BUILDING_ENGLISH_STOCK_EXCHANGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13626,7 +13625,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: supermarket, type: supermarket (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: supermarket, type: supermarket -->
 			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
 			<Type>BUILDING_SUPERMARKET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13823,7 +13822,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: supermarket, type: american_mall (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: supermarket, type: american_mall -->
 			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
 			<Type>BUILDING_AMERICAN_MALL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14021,7 +14020,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: courthouse, type: courthouse (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: courthouse, type: courthouse -->
 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
 			<Type>BUILDING_COURTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14208,7 +14207,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: courthouse, type: holy_roman_rathaus (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: courthouse, type: holy_roman_rathaus -->
 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
 			<Type>BUILDING_HOLY_ROMAN_RATHAUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14396,7 +14395,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jail, type: jail (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: jail, type: jail -->
 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
 			<Type>BUILDING_JAIL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14596,7 +14595,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jail, type: indian_mausoleum (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: jail, type: indian_mausoleum -->
 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
 			<Type>BUILDING_INDIAN_MAUSOLEUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14802,7 +14801,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_JAPAN_DOUJOU (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_JAPAN_DOUJOU -->
 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
 			<Type>BUILDING_JAPAN_DOUJOU</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15014,7 +15013,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: levee, type: levee (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: levee, type: levee -->
 			<BuildingClass>BUILDINGCLASS_LEVEE</BuildingClass>
 			<Type>BUILDING_LEVEE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15181,7 +15180,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: levee, type: netherlands_levee (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: levee, type: netherlands_levee -->
 			<BuildingClass>BUILDINGCLASS_LEVEE</BuildingClass>
 			<Type>BUILDING_NETHERLANDS_DIKE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15350,7 +15349,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: intelligence_agency, type: intelligence_agency (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: intelligence_agency, type: intelligence_agency -->
 			<BuildingClass>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClass>
 			<Type>BUILDING_INTELLIGENCE_AGENCY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15527,7 +15526,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: security_bureau, type: security_bureau (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: security_bureau, type: security_bureau -->
 			<BuildingClass>BUILDINGCLASS_SECURITY_BUREAU</BuildingClass>
 			<Type>BUILDING_SECURITY_BUREAU</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15700,7 +15699,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_temple, type: pagan_temple (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: pagan_temple, type: pagan_temple -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClass>
 			<Type>BUILDING_PAGAN_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -15886,7 +15885,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_cathedral, type: pagan_cathedral (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: pagan_cathedral, type: pagan_cathedral -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_PAGAN_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -16080,7 +16079,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_monastery, type: pagan_monastery (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: pagan_monastery, type: pagan_monastery -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
 			<Type>BUILDING_PAGAN_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -16269,7 +16268,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_shrine, type: pagan_shrine (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: pagan_shrine, type: pagan_shrine -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_SHRINE</BuildingClass>
 			<Type>BUILDING_PAGAN_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -16462,7 +16461,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_temple, type: hindu_temple (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hindu_temple, type: hindu_temple -->
 			<BuildingClass>BUILDINGCLASS_HINDU_TEMPLE</BuildingClass>
 			<Type>BUILDING_HINDU_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -16648,7 +16647,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_cathedral, type: hindu_cathedral (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hindu_cathedral, type: hindu_cathedral -->
 			<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_HINDU_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -16842,7 +16841,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_monastery, type: hindu_monastery (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hindu_monastery, type: hindu_monastery -->
 			<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 			<Type>BUILDING_HINDU_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -17031,7 +17030,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_shrine, type: hindu_shrine (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hindu_shrine, type: hindu_shrine -->
 			<BuildingClass>BUILDINGCLASS_HINDU_SHRINE</BuildingClass>
 			<Type>BUILDING_HINDU_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -17223,7 +17222,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_temple, type: jewish_temple (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: jewish_temple, type: jewish_temple -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClass>
 			<Type>BUILDING_JEWISH_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -17409,7 +17408,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_cathedral, type: jewish_cathedral (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: jewish_cathedral, type: jewish_cathedral -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_JEWISH_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -17603,7 +17602,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_monastery, type: jewish_monastery (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: jewish_monastery, type: jewish_monastery -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
 			<Type>BUILDING_JEWISH_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -17792,7 +17791,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_shrine, type: jewish_shrine (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: jewish_shrine, type: jewish_shrine -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_SHRINE</BuildingClass>
 			<Type>BUILDING_JEWISH_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -17984,7 +17983,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_temple, type: daoist_temple (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: daoist_temple, type: daoist_temple -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
 			<Type>BUILDING_DAOIST_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -18171,7 +18170,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_cathedral, type: daoist_cathedral (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: daoist_cathedral, type: daoist_cathedral -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_DAOIST_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -18365,7 +18364,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_monastery, type: daoist_monastery (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: daoist_monastery, type: daoist_monastery -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
 			<Type>BUILDING_DAOIST_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -18554,7 +18553,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_shrine, type: daoist_shrine (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: daoist_shrine, type: daoist_shrine -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_SHRINE</BuildingClass>
 			<Type>BUILDING_DAOIST_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -18746,7 +18745,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_temple, type: buddhist_temple (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: buddhist_temple, type: buddhist_temple -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_TEMPLE</BuildingClass>
 			<Type>BUILDING_BUDDHIST_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -18932,7 +18931,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_cathedral, type: buddhist_cathedral (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: buddhist_cathedral, type: buddhist_cathedral -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_BUDDHIST_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -19126,7 +19125,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_monastery, type: buddhist_monastery (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: buddhist_monastery, type: buddhist_monastery -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClass>
 			<Type>BUILDING_BUDDHIST_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -19315,7 +19314,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_shrine, type: buddhist_shrine (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: buddhist_shrine, type: buddhist_shrine -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_SHRINE</BuildingClass>
 			<Type>BUILDING_BUDDHIST_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -19507,7 +19506,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_temple, type: christian_temple (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: christian_temple, type: christian_temple -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -19693,7 +19692,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_cathedral, type: christian_cathedral (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: christian_cathedral, type: christian_cathedral -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -19887,7 +19886,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_monastery, type: christian_monastery (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: christian_monastery, type: christian_monastery -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -20076,7 +20075,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_shrine, type: christian_shrine (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: christian_shrine, type: christian_shrine -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_SHRINE</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -20268,7 +20267,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_temple, type: islamic_temple (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: islamic_temple, type: islamic_temple -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClass>
 			<Type>BUILDING_ISLAMIC_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -20454,7 +20453,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_cathedral, type: islamic_cathedral (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: islamic_cathedral, type: islamic_cathedral -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_ISLAMIC_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -20648,7 +20647,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_monastery, type: islamic_monastery (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: islamic_monastery, type: islamic_monastery -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 			<Type>BUILDING_ISLAMIC_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -20837,7 +20836,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_shrine, type: islamic_shrine (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: islamic_shrine, type: islamic_shrine -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_SHRINE</BuildingClass>
 			<Type>BUILDING_ISLAMIC_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21029,7 +21028,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: heroic_epic, type: heroic_epic (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: heroic_epic, type: heroic_epic -->
 			<BuildingClass>BUILDINGCLASS_HEROIC_EPIC</BuildingClass>
 			<Type>BUILDING_HEROIC_EPIC</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21212,7 +21211,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: national_epic, type: national_epic (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: national_epic, type: national_epic -->
 			<BuildingClass>BUILDINGCLASS_NATIONAL_EPIC</BuildingClass>
 			<Type>BUILDING_NATIONAL_EPIC</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21398,7 +21397,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: globe_theatre, type: globe_theatre (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: globe_theatre, type: globe_theatre -->
 			<BuildingClass>BUILDINGCLASS_GLOBE_THEATRE</BuildingClass>
 			<Type>BUILDING_GLOBE_THEATRE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21601,7 +21600,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: national_park, type: national_park (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: national_park, type: national_park -->
 			<BuildingClass>BUILDINGCLASS_NATIONAL_PARK</BuildingClass>
 			<Type>BUILDING_NATIONAL_PARK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21770,7 +21769,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hermitage, type: hermitage (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hermitage, type: hermitage -->
 			<BuildingClass>BUILDINGCLASS_HERMITAGE</BuildingClass>
 			<Type>BUILDING_HERMITAGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21951,7 +21950,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: wall_street, type: wall_street (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: wall_street, type: wall_street -->
 			<BuildingClass>BUILDINGCLASS_WALL_STREET</BuildingClass>
 			<Type>BUILDING_WALL_STREET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22132,7 +22131,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: iron_works, type: iron_works (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: iron_works, type: iron_works -->
 			<BuildingClass>BUILDINGCLASS_IRON_WORKS</BuildingClass>
 			<Type>BUILDING_IRON_WORKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22333,7 +22332,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: mt_rushmore, type: mt_rushmore (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: mt_rushmore, type: mt_rushmore -->
 			<BuildingClass>BUILDINGCLASS_MT_RUSHMORE</BuildingClass>
 			<Type>BUILDING_MT_RUSHMORE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22523,7 +22522,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: red_cross, type: red_cross (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: red_cross, type: red_cross -->
 			<BuildingClass>BUILDINGCLASS_RED_CROSS</BuildingClass>
 			<Type>BUILDING_RED_CROSS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22715,7 +22714,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: scotland_yard, type: scotland_yard (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: scotland_yard, type: scotland_yard -->
 			<BuildingClass>BUILDINGCLASS_SCOTLAND_YARD</BuildingClass>
 			<Type>BUILDING_SCOTLAND_YARD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22885,7 +22884,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pyramid, type: pyramid (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: pyramid, type: pyramid -->
 			<BuildingClass>BUILDINGCLASS_PYRAMID</BuildingClass>
 			<Type>BUILDING_PYRAMID</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23084,7 +23083,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stonehendge, type: stonehenge (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: stonehendge, type: stonehenge -->
 			<BuildingClass>BUILDINGCLASS_STONEHENGE</BuildingClass>
 			<Type>BUILDING_STONEHENGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23268,7 +23267,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_library, type: great_library (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: great_library, type: great_library -->
 			<BuildingClass>BUILDINGCLASS_GREAT_LIBRARY</BuildingClass>
 			<Type>BUILDING_GREAT_LIBRARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23462,7 +23461,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_lighthouse, type: great_lighthouse (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: great_lighthouse, type: great_lighthouse -->
 			<BuildingClass>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_GREAT_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23665,7 +23664,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hanging_garden, type: hanging_garden (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hanging_garden, type: hanging_garden -->
 			<BuildingClass>BUILDINGCLASS_HANGING_GARDEN</BuildingClass>
 			<Type>BUILDING_HANGING_GARDEN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23857,7 +23856,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colossus, type: colossus (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: colossus, type: colossus -->
 			<BuildingClass>BUILDINGCLASS_COLOSSUS</BuildingClass>
 			<Type>BUILDING_COLOSSUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24075,7 +24074,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: oracle, type: oracle (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: oracle, type: oracle -->
 			<BuildingClass>BUILDINGCLASS_ORACLE</BuildingClass>
 			<Type>BUILDING_ORACLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24258,7 +24257,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: parthenon, type: parthenon (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: parthenon, type: parthenon -->
 			<BuildingClass>BUILDINGCLASS_PARTHENON</BuildingClass>
 			<Type>BUILDING_PARTHENON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24453,7 +24452,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: angkor_wat, type: angkor_wat (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: angkor_wat, type: angkor_wat -->
 			<BuildingClass>BUILDINGCLASS_ANGKOR_WAT</BuildingClass>
 			<Type>BUILDING_ANGKOR_WAT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24661,7 +24660,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked hagia_sophia, now a growth / religious building that never obsoletes at least as of now -->
-		<BuildingInfo> <!-- custom: class: hagia_sophia, type: hagia_sophia (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hagia_sophia, type: hagia_sophia -->
 			<BuildingClass>BUILDINGCLASS_HAGIA_SOPHIA</BuildingClass>
 			<Type>BUILDING_HAGIA_SOPHIA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24856,7 +24855,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: TEMPLE_OF_KUKULCAN, type: TEMPLE_OF_KUKULCAN (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: TEMPLE_OF_KUKULCAN, type: TEMPLE_OF_KUKULCAN -->
 			<BuildingClass>BUILDINGCLASS_TEMPLE_OF_KUKULCAN</BuildingClass>
 			<Type>BUILDING_TEMPLE_OF_KUKULCAN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25061,7 +25060,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATYA_SHASTRA, type: BUILDING_NATYA_SHASTRA (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATYA_SHASTRA, type: BUILDING_NATYA_SHASTRA -->
 			<BuildingClass>BUILDINGCLASS_NATYA_SHASTRA</BuildingClass>
 			<Type>BUILDING_NATYA_SHASTRA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25265,7 +25264,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: spiral_minaret, type: spiral_minaret (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: spiral_minaret, type: spiral_minaret -->
 			<BuildingClass>BUILDINGCLASS_SPIRAL_MINARET</BuildingClass>
 			<Type>BUILDING_SPIRAL_MINARET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25450,7 +25449,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: oxford_university, type: oxford_university (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: oxford_university, type: oxford_university -->
 			<BuildingClass>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_OXFORD_UNIVERSITY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25653,7 +25652,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: notre_dame, type: notre_dame (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: notre_dame, type: notre_dame -->
 			<BuildingClass>BUILDINGCLASS_NOTRE_DAME</BuildingClass>
 			<Type>BUILDING_NOTRE_DAME</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25860,7 +25859,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: taj_mahal, type: taj_mahal (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: taj_mahal, type: taj_mahal -->
 			<BuildingClass>BUILDINGCLASS_TAJ_MAHAL</BuildingClass>
 			<Type>BUILDING_TAJ_MAHAL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26057,7 +26056,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: kremlin, type: kremlin (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: kremlin, type: kremlin -->
 			<BuildingClass>BUILDINGCLASS_KREMLIN</BuildingClass>
 			<Type>BUILDING_KREMLIN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26244,7 +26243,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: eiffel_tower, type: eiffel_tower (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: eiffel_tower, type: eiffel_tower -->
 			<BuildingClass>BUILDINGCLASS_EIFFEL_TOWER</BuildingClass>
 			<Type>BUILDING_EIFFEL_TOWER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26443,7 +26442,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: statue_of_liberty, type: statue_of_liberty (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: statue_of_liberty, type: statue_of_liberty -->
 			<BuildingClass>BUILDINGCLASS_STATUE_OF_LIBERTY</BuildingClass>
 			<Type>BUILDING_STATUE_OF_LIBERTY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26642,7 +26641,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: broadway, type: broadway (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: broadway, type: broadway -->
 			<BuildingClass>BUILDINGCLASS_BROADWAY</BuildingClass>
 			<Type>BUILDING_BROADWAY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26843,7 +26842,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: rocknroll, type: rocknroll (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: rocknroll, type: rocknroll -->
 			<BuildingClass>BUILDINGCLASS_ROCKNROLL</BuildingClass>
 			<Type>BUILDING_ROCKNROLL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27027,7 +27026,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hollywood, type: hollywood (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: hollywood, type: hollywood -->
 			<BuildingClass>BUILDINGCLASS_HOLLYWOOD</BuildingClass>
 			<Type>BUILDING_HOLLYWOOD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27203,7 +27202,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: three_gorges_dam, type: three_gorges_dam (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: three_gorges_dam, type: three_gorges_dam -->
 			<BuildingClass>BUILDINGCLASS_THREE_GORGES_DAM</BuildingClass>
 			<Type>BUILDING_THREE_GORGES_DAM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27385,7 +27384,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pentagon, type: pentagon (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: pentagon, type: pentagon -->
 			<BuildingClass>BUILDINGCLASS_PENTAGON</BuildingClass>
 			<Type>BUILDING_PENTAGON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27557,7 +27556,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: united_nations, type: united_nations (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: united_nations, type: united_nations -->
 			<BuildingClass>BUILDINGCLASS_UNITED_NATIONS</BuildingClass>
 			<Type>BUILDING_UNITED_NATIONS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27724,7 +27723,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: military_academy, type: military_academy (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: military_academy, type: military_academy -->
 			<BuildingClass>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClass>
 			<Type>BUILDING_MILITARY_ACADEMY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27897,7 +27896,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: artemis, type: artemis (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: artemis, type: artemis -->
 			<BuildingClass>BUILDINGCLASS_ARTEMIS</BuildingClass>
 			<Type>BUILDING_ARTEMIS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28106,7 +28105,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: sankore, type: sankore (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: sankore, type: sankore -->
 			<BuildingClass>BUILDINGCLASS_SANKORE</BuildingClass>
 			<Type>BUILDING_SANKORE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28281,7 +28280,7 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<!-- custom: similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too) to be built, at least is what ideally i would want, however unfortunately monasteries are not merged under the same class so i can't sadly require x monasteries, require a library instead (and reduce number a bit), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead, was empty -->
+			<!-- custom: Long_Comments_XML.txt #341, was empty -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
@@ -28310,7 +28309,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_wall, type: great_wall (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: great_wall, type: great_wall -->
 			<BuildingClass>BUILDINGCLASS_GREAT_WALL</BuildingClass>
 			<Type>BUILDING_GREAT_WALL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28524,7 +28523,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: statue_of_zeus, type: statue_of_zeus (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: statue_of_zeus, type: statue_of_zeus -->
 			<BuildingClass>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClass>
 			<Type>BUILDING_STATUE_OF_ZEUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28700,10 +28699,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: use similar reasoning as in base advciv comment below i mean as well as for chichen itza and great wall too, but do not put any flavor at all as military leaders would produce less units, and gold or religion or culture or such or growth or science or other would not be defended more because ennemies have more war weariness so don't put any flavor here, except for the production great person related effect, was flavor culture 6 -->
-			<!-- advc.020: Was 8 Military. Make it Culture b/c of the culture
-				 bonus. The defensive ability (if it actually did sth.) would
-				 also work well for a peaceable, Culture-flavored leader. -->
+			<!-- custom: use similar reasoning as in base advciv comment below i mean as well as for chichen itza and great wall too, but do not put any flavor at all as military leaders would produce less units; Long_Comments_XML.txt #342 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
@@ -28716,7 +28712,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: mausolleum_of_mausollos, type: mausolleum_of_mausollos (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: mausolleum_of_mausollos, type: mausolleum_of_mausollos -->
 			<BuildingClass>BUILDINGCLASS_MAUSOLEUM_OF_MAUSSOLLOS</BuildingClass>
 			<Type>BUILDING_MAUSOLEUM_OF_MAUSSOLLOS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28906,7 +28902,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: cristo_redentor, type: cristo_redentor (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: cristo_redentor, type: cristo_redentor -->
 			<BuildingClass>BUILDINGCLASS_CRISTO_REDENTOR</BuildingClass>
 			<Type>BUILDING_CRISTO_REDENTOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29121,7 +29117,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: shwedagon_paya, type: shwedagon_paya (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: shwedagon_paya, type: shwedagon_paya -->
 			<BuildingClass>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClass>
 			<Type>BUILDING_SHWEDAGON_PAYA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29324,7 +29320,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities, hopefully historically accurate as they were built much later  anyways and after checking more seems really an accurate time around pre-(age of)exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History -->
-		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues -->
 			<BuildingClass>BUILDINGCLASS_MOAI_STATUES</BuildingClass>
 			<Type>BUILDING_MOAI_STATUES</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29516,7 +29512,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: versailles, type: versailles (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: versailles, type: versailles -->
 			<BuildingClass>BUILDINGCLASS_VERSAILLES</BuildingClass>
 			<Type>BUILDING_VERSAILLES</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29725,7 +29721,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_1, type: corporation_1 (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: corporation_1, type: corporation_1 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_1</BuildingClass>
 			<Type>BUILDING_CORPORATION_1</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29903,7 +29899,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_2, type: corporation_2 (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: corporation_2, type: corporation_2 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_2</BuildingClass>
 			<Type>BUILDING_CORPORATION_2</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30082,7 +30078,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_3, type: corporation_3 (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: corporation_3, type: corporation_3 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_3</BuildingClass>
 			<Type>BUILDING_CORPORATION_3</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30260,7 +30256,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_4, type: corporation_4 (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: corporation_4, type: corporation_4 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_4</BuildingClass>
 			<Type>BUILDING_CORPORATION_4</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30440,7 +30436,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_5, type: corporation_5 (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: corporation_5, type: corporation_5 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_5</BuildingClass>
 			<Type>BUILDING_CORPORATION_5</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30618,7 +30614,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_6, type: corporation_6 (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: corporation_6, type: corporation_6 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_6</BuildingClass>
 			<Type>BUILDING_CORPORATION_6</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30797,7 +30793,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_7, type: corporation_7 (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: corporation_7, type: corporation_7 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_7</BuildingClass>
 			<Type>BUILDING_CORPORATION_7</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30972,7 +30968,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_APOSTOLIC_PALACE, type: BUILDING_APOSTOLIC_PALACE (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_APOSTOLIC_PALACE, type: BUILDING_APOSTOLIC_PALACE -->
 			<BuildingClass>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClass>
 			<Type>BUILDING_APOSTOLIC_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>

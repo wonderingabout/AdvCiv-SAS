@@ -73,7 +73,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_COAL (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_COAL -->
 			<Type>BONUS_COAL</Type>
 			<Description>TXT_KEY_BONUS_COAL</Description>
 			<Civilopedia>TXT_KEY_BONUS_COAL_PEDIA</Civilopedia>
@@ -127,7 +127,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_COPPER (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_COPPER -->
 			<Type>BONUS_COPPER</Type>
 			<Description>TXT_KEY_BONUS_COPPER</Description>
 			<Civilopedia>TXT_KEY_BONUS_COPPER_PEDIA</Civilopedia>
@@ -194,7 +194,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_HORSE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_HORSE -->
 			<Type>BONUS_HORSE</Type>
 			<Description>TXT_KEY_BONUS_HORSE</Description>
 			<Civilopedia>TXT_KEY_BONUS_HORSE_PEDIA</Civilopedia>
@@ -257,7 +257,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_IRON (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_IRON -->
 			<Type>BONUS_IRON</Type>
 			<Description>TXT_KEY_BONUS_IRON</Description>
 			<Civilopedia>TXT_KEY_BONUS_IRON_PEDIA</Civilopedia>
@@ -327,7 +327,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MARBLE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_MARBLE -->
 			<Type>BONUS_MARBLE</Type>
 			<Description>TXT_KEY_BONUS_MARBLE</Description>
 			<Civilopedia>TXT_KEY_BONUS_MARBLE_PEDIA</Civilopedia>
@@ -387,7 +387,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_OIL (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_OIL -->
 			<Type>BONUS_OIL</Type>
 			<Description>TXT_KEY_BONUS_OIL</Description>
 			<Civilopedia>TXT_KEY_BONUS_OIL_PEDIA</Civilopedia>
@@ -462,7 +462,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_STONE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_STONE -->
 			<Type>BONUS_STONE</Type>
 			<Description>TXT_KEY_BONUS_STONE</Description>
 			<Civilopedia>TXT_KEY_BONUS_STONE_PEDIA</Civilopedia>
@@ -518,7 +518,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_URANIUM (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_URANIUM -->
 			<Type>BONUS_URANIUM</Type>
 			<Description>TXT_KEY_BONUS_URANIUM</Description>
 			<Civilopedia>TXT_KEY_BONUS_URANIUM_PEDIA</Civilopedia>
@@ -617,7 +617,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_BANANA (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_BANANA -->
 			<Type>BONUS_BANANA</Type>
 			<Description>TXT_KEY_BONUS_BANANA</Description>
 			<Civilopedia>TXT_KEY_BONUS_BANANA_PEDIA</Civilopedia>
@@ -680,7 +680,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MOLLUSCS (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_MOLLUSCS -->
 			<Type>BONUS_MOLLUSCS</Type>
 			<Description>TXT_KEY_BONUS_MOLLUSCS</Description>
 			<Civilopedia>TXT_KEY_BONUS_MOLLUSCS_PEDIA</Civilopedia>
@@ -731,7 +731,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MAIZE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_MAIZE -->
 			<Type>BONUS_MAIZE</Type>
 			<Description>TXT_KEY_BONUS_MAIZE</Description>
 			<Civilopedia>TXT_KEY_BONUS_MAIZE_PEDIA</Civilopedia>
@@ -782,7 +782,7 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_CATTLE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_CATTLE -->
 			<Type>BONUS_CATTLE</Type>
 			<Description>TXT_KEY_BONUS_CATTLE</Description>
 			<Civilopedia>TXT_KEY_BONUS_CATTLE_PEDIA</Civilopedia>
@@ -839,7 +839,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_CRAB (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_CRAB -->
 			<Type>BONUS_CRAB</Type>
 			<Description>TXT_KEY_BONUS_CRAB</Description>
 			<Civilopedia>TXT_KEY_BONUS_CRAB_PEDIA</Civilopedia>
@@ -891,7 +891,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_DEER (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_DEER -->
 			<Type>BONUS_DEER</Type>
 			<Description>TXT_KEY_BONUS_DEER</Description>
 			<Civilopedia>TXT_KEY_BONUS_DEER_PEDIA</Civilopedia>
@@ -953,7 +953,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_FISH (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_FISH -->
 			<Type>BONUS_FISH</Type>
 			<Description>TXT_KEY_BONUS_FISH</Description>
 			<Civilopedia>TXT_KEY_BONUS_FISH_PEDIA</Civilopedia>
@@ -1011,7 +1011,7 @@
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
 		<!-- custom: interesting read that summarizes quite well what i glanced through if i may say or if it's a word maybe rather in english, https://www.january.ai/blog/pork-vs-beef, pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo or in improvementinfos too for details -->
-		<BonusInfo> <!-- custom: type: BONUS_PIG (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_PIG -->
 			<Type>BONUS_PIG</Type>
 			<Description>TXT_KEY_BONUS_PIG</Description>
 			<Civilopedia>TXT_KEY_BONUS_PIG_PEDIA</Civilopedia>
@@ -1075,7 +1075,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_RICE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_RICE -->
 			<Type>BONUS_RICE</Type>
 			<Description>TXT_KEY_BONUS_RICE</Description>
 			<Civilopedia>TXT_KEY_BONUS_RICE_PEDIA</Civilopedia>
@@ -1136,7 +1136,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SHEEP (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_SHEEP -->
 			<Type>BONUS_SHEEP</Type>
 			<Description>TXT_KEY_BONUS_SHEEP</Description>
 			<Civilopedia>TXT_KEY_BONUS_SHEEP_PEDIA</Civilopedia>
@@ -1190,7 +1190,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_WHEAT (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_WHEAT -->
 			<Type>BONUS_WHEAT</Type>
 			<Description>TXT_KEY_BONUS_WHEAT</Description>
 			<Civilopedia>TXT_KEY_BONUS_WHEAT_PEDIA</Civilopedia>
@@ -1241,7 +1241,7 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>0</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_DYE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_DYE -->
 			<Type>BONUS_DYE</Type>
 			<Description>TXT_KEY_BONUS_DYE</Description>
 			<Civilopedia>TXT_KEY_BONUS_DYE_PEDIA</Civilopedia>
@@ -1296,7 +1296,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_FUR (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_FUR -->
 			<Type>BONUS_FUR</Type>
 			<Description>TXT_KEY_BONUS_FUR</Description>
 			<Civilopedia>TXT_KEY_BONUS_FUR_PEDIA</Civilopedia>
@@ -1369,7 +1369,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_GEMSTONES (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_GEMSTONES -->
 			<Type>BONUS_GEMSTONES</Type>
 			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
 			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
@@ -1448,7 +1448,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_GOLD (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_GOLD -->
 			<Type>BONUS_GOLD</Type>
 			<Description>TXT_KEY_BONUS_GOLD</Description>
 			<Civilopedia>TXT_KEY_BONUS_GOLD_PEDIA</Civilopedia>
@@ -1513,7 +1513,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_INCENSE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_INCENSE -->
 			<Type>BONUS_INCENSE</Type>
 			<Description>TXT_KEY_BONUS_INCENSE</Description>
 			<Civilopedia>TXT_KEY_BONUS_INCENSE_PEDIA</Civilopedia>
@@ -1564,7 +1564,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_ELEPHANTS (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_ELEPHANTS -->
 			<Type>BONUS_ELEPHANTS</Type>
 			<Description>TXT_KEY_BONUS_ELEPHANTS</Description>
 			<Civilopedia>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Civilopedia>
@@ -1635,7 +1635,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SILK (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_SILK -->
 			<Type>BONUS_SILK</Type>
 			<Description>TXT_KEY_BONUS_SILK</Description>
 			<Civilopedia>TXT_KEY_BONUS_SILK_PEDIA</Civilopedia>
@@ -1696,7 +1696,7 @@
 			</FeatureTerrainBooleans>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SILVER (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_SILVER -->
 			<Type>BONUS_SILVER</Type>
 			<Description>TXT_KEY_BONUS_SILVER</Description>
 			<Civilopedia>TXT_KEY_BONUS_SILVER_PEDIA</Civilopedia>
@@ -1764,7 +1764,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SPICES (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_SPICES -->
 			<Type>BONUS_SPICES</Type>
 			<Description>TXT_KEY_BONUS_SPICES</Description>
 			<Civilopedia>TXT_KEY_BONUS_SPICES_PEDIA</Civilopedia>
@@ -1830,7 +1830,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_SUGAR (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_SUGAR -->
 			<Type>BONUS_SUGAR</Type>
 			<Description>TXT_KEY_BONUS_SUGAR</Description>
 			<Civilopedia>TXT_KEY_BONUS_SUGAR_PEDIA</Civilopedia>
@@ -1891,7 +1891,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_GRAPES (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_GRAPES -->
 			<Type>BONUS_GRAPES</Type>
 			<Description>TXT_KEY_BONUS_GRAPES</Description>
 			<Civilopedia>TXT_KEY_BONUS_GRAPES_PEDIA</Civilopedia>
@@ -1946,7 +1946,7 @@
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
 		<!-- custom: reworked and adjusted partly according to wikipedia or other source(s) or not or and what i wanted or not or/a -->
-		<BonusInfo> <!-- custom: type: BONUS_WHALE (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_WHALE -->
 			<Type>BONUS_WHALE</Type>
 			<Description>TXT_KEY_BONUS_WHALE</Description>
 			<Civilopedia>TXT_KEY_BONUS_WHALE_PEDIA</Civilopedia>
@@ -2004,7 +2004,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_DRAMA (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_DRAMA -->
 			<Type>BONUS_DRAMA</Type>
 			<Description>TXT_KEY_BONUS_DRAMA</Description>
 			<Civilopedia>TXT_KEY_BONUS_DRAMA_PEDIA</Civilopedia>
@@ -2047,7 +2047,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MUSIC (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_MUSIC -->
 			<Type>BONUS_MUSIC</Type>
 			<Description>TXT_KEY_BONUS_MUSIC</Description>
 			<Civilopedia>TXT_KEY_BONUS_MUSIC_PEDIA</Civilopedia>
@@ -2091,7 +2091,7 @@
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
 		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, a bit if not lot at least for/to metedious to maintain for small gains, as for camels it can be directly used to buff desert tiles or be an alternative mount to the horse; Long_Comments_XML.txt #310, was BONUS_MOVIES -->
-		<BonusInfo> <!-- custom: type: BONUS_CAMEL (useful for VS Code upper tree view while scrolling) -->
+		<BonusInfo> <!-- custom: type: BONUS_CAMEL -->
 			<Type>BONUS_CAMEL</Type>
 			<Description>TXT_KEY_BONUS_CAMEL</Description>
 			<Civilopedia>TXT_KEY_BONUS_CAMEL_PEDIA</Civilopedia>

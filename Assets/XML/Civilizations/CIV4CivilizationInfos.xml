@@ -1239,22 +1239,7 @@
 			<CivilizationSelectionSound>AS3D_MALI_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_MALI_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<!-- custom: add Kingdom Of Benin
-		source for the map (files appended in docs):
-		https://www.nairaland.com/7653263/map-great-benin-kingdom-till
-		and https://smarthistory.org/benin-art-patrons/
-		I don't have the order of founding them so i will go approximately maybe
-		APA city doesn't seem to be their city but seems about right.
-		note:
-		for religion is a filler until i replace religion with paganism, commit would
-		be overloaded if i did all changes at same time.
-		About techs, since i did not implement the new techs, putting some filler techs,
-		among them Mysticism and Agriculture may fit quite well as it's a civ that is good
-		at growing based on my understanding and what i read of it in the wiki.
-		The city name, in Map2, "BC" seems like benin city (which is edo, the capital)
-		if i'm not mistaken.
-		Some city names are blurred hopefully i got them right
-		-->
+		<!-- custom: Long_Comments_XML.txt #344 -->
 		<CivilizationInfo>
 			<Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>
 			<Description>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Description>
@@ -1267,12 +1252,7 @@
 			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
-			<!-- custom: from EDO to ELUR (quite close ring around Edo / Benin City (same city unless i'm mistaken) -->
-			<!-- custom: from ELUR (excluded) to AYE (included), west side of Edo / Benin City -->
-			<!-- custom: from AYE (excluded) to UZEA (included), far east of Edo / Benin City -->
-			<!-- custom: from UZEA (excluded) to AKURE (included), north of Edo / Benin City -->
-			<!-- custom: from AKURE (excluded) to ABOH (included), farther cities in all directions, and also west and north west further sides -->
-			<!-- custom: from ABOH (excluded) to ITAKETE (included), even further cities or furthest remaining -->
+		<!-- custom: Long_Comments_XML.txt #345 -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_EDO_CUSTOM</City>
 				<City>TXT_KEY_CITY_NAME_UGHOTON_CUSTOM</City>
@@ -4194,14 +4174,7 @@
 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
 					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
 				</Building>
-				<!-- custom: lines such as 
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help thanks -->
-				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this way so they can focus more on producing units. -->
-				<!-- custom: (Normal Buildings)-->
+				<!-- custom: Long_Comments_XML.txt #346 -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
@@ -4310,7 +4283,7 @@
 					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<!-- custom: note: this seemingly does nothing as barbarians still build libraries about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues)) as they do in autoplay at least-->
+				<!-- custom: note: this seemingly does nothing as barbarians still build libraries about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues)) as they do in autoplay at least -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
@@ -4327,26 +4300,9 @@
 					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<!-- custom: also for national wonders, lines such as:
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless)-->
+				<!-- custom: Long_Comments_XML.txt #347 -->
 			</Buildings>
-
-
-
-			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such) if they can last long enough in this case until then-->
-			<!-- advc.303: Not sure where comments are allowed in this file;
-			demonstrably not everywhere. Added NONE entries to the Barbarians
-			starting at Monument (still called "Obelisk" internally) until
-			Supermarket.
-			advc.305: Removed (now allowed) Workboat.
-			advc.307: Allowed Musketman
-			Disallowed Frigate, Privateer, Paratrooper, Rifleman, Grenadier,
-			Spy (kekm.6). -->
-			<!-- custom: hopefully helps barbarians catch up too the delay -->
+			<!-- custom: Long_Comments_XML.txt #348 -->
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_WORKER</UnitClassType>

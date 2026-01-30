@@ -622,35 +622,6 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI) victory weights in the Sevopedia leader gc's methods it seems (see [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too)
 
-The XML is like this as reminder for example for leader_gandhi:
-
-```xml
-		<LeaderHeadInfo> <!-- custom: Gandhi (add leader name here too for easier vs code tree read while in the file) -->
-			<Type>LEADER_GANDHI</Type>
-			<Description>TXT_KEY_LEADER_GANDHI</Description>
-			<Civilopedia>TXT_KEY_LEADER_GANDHI_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_GANDHI</ArtDefineTag>
-			<iWonderConstructRand>10</iWonderConstructRand>
-			<iBaseAttitude>2</iBaseAttitude>
-			<iBasePeaceWeight>10</iBasePeaceWeight>
-			<iWarmongerRespect>0</iWarmongerRespect>
-			<iEspionageWeight>50</iEspionageWeight>
-			<iRefuseToTalkWarThreshold>6</iRefuseToTalkWarThreshold>
-			<iNoTechTradeThreshold>15</iNoTechTradeThreshold>
-			<iTechTradeKnownPercent>20</iTechTradeKnownPercent>
-			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
-			<!-- BBAI Victory Strategy -->
-			<iCultureVictoryWeight>45</iCultureVictoryWeight>
-			<iSpaceVictoryWeight>30</iSpaceVictoryWeight>
-			<iConquestVictoryWeight>0</iConquestVictoryWeight>
-			<iDominationVictoryWeight>5</iDominationVictoryWeight>
-			<iDiplomacyVictoryWeight>70</iDiplomacyVictoryWeight>
-			<!-- BBAI Victory Strategy -->
-			<iMaxWarRand>400</iMaxWarRand>
-			<iMaxWarNearbyPowerRatio>100</iMaxWarNearbyPowerRatio>
-			<iMaxWarDistantPowerRatio>60</iMaxWarDistantPowerRatio>
-```
-
 To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore, after asking chatgpt too, i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example to hopefully add it in this case) (with VS Code 's global search too i noticed it i mean if i may say indeed(see screenshots for details/examples)), modified the (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already existing in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h, with chatgpt's help thanks.
 
 Now the getters are added in Sevopedia leader, and we successfully see the real DLL modified values for the victory weights too, for example for leader gandhi as of now:

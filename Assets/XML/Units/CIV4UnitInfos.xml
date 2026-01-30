@@ -201,7 +201,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_BEAR, type: UNIT_BEAR (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_BEAR, type: UNIT_BEAR -->
 			<Class>UNITCLASS_BEAR</Class>
 			<Type>UNIT_BEAR</Type>
 			<UniqueNames/>
@@ -375,7 +375,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_PANTHER, type: UNIT_PANTHER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_PANTHER, type: UNIT_PANTHER -->
 			<Class>UNITCLASS_PANTHER</Class>
 			<Type>UNIT_PANTHER</Type>
 			<UniqueNames/>
@@ -549,7 +549,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WOLF, type: UNIT_WOLF (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WOLF, type: UNIT_WOLF -->
 			<Class>UNITCLASS_WOLF</Class>
 			<Type>UNIT_WOLF</Type>
 			<UniqueNames/>
@@ -732,7 +732,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SETTLER, type: UNIT_SETTLER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SETTLER, type: UNIT_SETTLER -->
 			<Class>UNITCLASS_SETTLER</Class>
 			<Type>UNIT_SETTLER</Type>
 			<UniqueNames/>
@@ -913,7 +913,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_WORKER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_WORKER -->
 			<Class>UNITCLASS_WORKER</Class>
 			<Type>UNIT_WORKER</Type>
 			<UniqueNames/>
@@ -1165,7 +1165,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_INDIAN_FAST_WORKER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_INDIAN_FAST_WORKER -->
 			<Class>UNITCLASS_WORKER</Class>
 			<Type>UNIT_INDIAN_FAST_WORKER</Type>
 			<UniqueNames/>
@@ -1448,7 +1448,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: Long_Comments_XML.txt #118 -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_DUTCH_SWIFT_WORKER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_DUTCH_SWIFT_WORKER -->
 			<Class>UNITCLASS_WORKER</Class>
 			<Type>UNIT_DUTCH_SWIFT_WORKER</Type>
 			<UniqueNames/>
@@ -1712,7 +1712,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_BARBARIAN_WORKER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_BARBARIAN_WORKER -->
 			<Class>UNITCLASS_WORKER</Class>
 			<Type>UNIT_BARBARIAN_WORKER</Type>
 			<UniqueNames/>
@@ -1968,7 +1968,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SCOUT, type: UNIT_SCOUT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SCOUT, type: UNIT_SCOUT -->
 			<Class>UNITCLASS_SCOUT</Class>
 			<Type>UNIT_SCOUT</Type>
 			<UniqueNames/>
@@ -2198,7 +2198,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_EXPLORER, type: UNIT_EXPLORER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_EXPLORER, type: UNIT_EXPLORER -->
 			<Class>UNITCLASS_EXPLORER</Class>
 			<Type>UNIT_EXPLORER</Type>
 			<UniqueNames/>
@@ -2438,7 +2438,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_AIRSHIP, type: UNIT_AIRSHIP (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_AIRSHIP, type: UNIT_AIRSHIP -->
 			<Class>UNITCLASS_AIRSHIP</Class>
 			<Type>UNIT_AIRSHIP</Type>
 			<UniqueNames/>
@@ -2671,7 +2671,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_RECON_DRONE, type: UNIT_ROBOTIC_RECON_DRONE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_RECON_DRONE, type: UNIT_ROBOTIC_RECON_DRONE -->
 			<Class>UNITCLASS_ROBOTIC_RECON_DRONE</Class>
 			<Type>UNIT_ROBOTIC_RECON_DRONE</Type>
 			<UniqueNames/>
@@ -2903,7 +2903,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SPY, type: UNIT_SPY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SPY, type: UNIT_SPY -->
 			<Class>UNITCLASS_SPY</Class>
 			<Type>UNIT_SPY</Type>
 			<UniqueNames/>
@@ -3085,7 +3085,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_1, type: UNIT_EXECUTIVE_1 (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_1, type: UNIT_EXECUTIVE_1 -->
 			<Class>UNITCLASS_EXECUTIVE_1</Class>
 			<Type>UNIT_EXECUTIVE_1</Type>
 			<UniqueNames/>
@@ -3258,7 +3258,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_2, type: UNIT_EXECUTIVE_2 (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_2, type: UNIT_EXECUTIVE_2 -->
 			<Class>UNITCLASS_EXECUTIVE_2</Class>
 			<Type>UNIT_EXECUTIVE_2</Type>
 			<UniqueNames/>
@@ -3431,7 +3431,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_3, type: UNIT_EXECUTIVE_3 (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_3, type: UNIT_EXECUTIVE_3 -->
 			<Class>UNITCLASS_EXECUTIVE_3</Class>
 			<Type>UNIT_EXECUTIVE_3</Type>
 			<UniqueNames/>
@@ -3604,7 +3604,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_4, type: UNIT_EXECUTIVE_4 (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_4, type: UNIT_EXECUTIVE_4 -->
 			<Class>UNITCLASS_EXECUTIVE_4</Class>
 			<Type>UNIT_EXECUTIVE_4</Type>
 			<UniqueNames/>
@@ -3777,7 +3777,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_5, type: UNIT_EXECUTIVE_5 (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_5, type: UNIT_EXECUTIVE_5 -->
 			<Class>UNITCLASS_EXECUTIVE_5</Class>
 			<Type>UNIT_EXECUTIVE_5</Type>
 			<UniqueNames/>
@@ -3950,7 +3950,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_6, type: UNIT_EXECUTIVE_6 (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_6, type: UNIT_EXECUTIVE_6 -->
 			<Class>UNITCLASS_EXECUTIVE_6</Class>
 			<Type>UNIT_EXECUTIVE_6</Type>
 			<UniqueNames/>
@@ -4123,7 +4123,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_7, type: UNIT_EXECUTIVE_7 (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_EXECUTIVE_7, type: UNIT_EXECUTIVE_7 -->
 			<Class>UNITCLASS_EXECUTIVE_7</Class>
 			<Type>UNIT_EXECUTIVE_7</Type>
 			<UniqueNames/>
@@ -4292,7 +4292,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_PAGAN_MISSIONARY, type: UNIT_PAGAN_MISSIONARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_PAGAN_MISSIONARY, type: UNIT_PAGAN_MISSIONARY -->
 			<Class>UNITCLASS_PAGAN_MISSIONARY</Class>
 			<Type>UNIT_PAGAN_MISSIONARY</Type>
 			<UniqueNames/>
@@ -4461,7 +4461,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_HINDU_MISSIONARY, type: UNIT_HINDU_MISSIONARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_HINDU_MISSIONARY, type: UNIT_HINDU_MISSIONARY -->
 			<Class>UNITCLASS_HINDU_MISSIONARY</Class>
 			<Type>UNIT_HINDU_MISSIONARY</Type>
 			<UniqueNames/>
@@ -4630,7 +4630,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_JEWISH_MISSIONARY, type: UNIT_JEWISH_MISSIONARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_JEWISH_MISSIONARY, type: UNIT_JEWISH_MISSIONARY -->
 			<Class>UNITCLASS_JEWISH_MISSIONARY</Class>
 			<Type>UNIT_JEWISH_MISSIONARY</Type>
 			<UniqueNames/>
@@ -4799,7 +4799,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_DAOIST_MISSIONARY, type: UNIT_DAOIST_MISSIONARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_DAOIST_MISSIONARY, type: UNIT_DAOIST_MISSIONARY -->
 			<Class>UNITCLASS_DAOIST_MISSIONARY</Class>
 			<Type>UNIT_DAOIST_MISSIONARY</Type>
 			<UniqueNames/>
@@ -4968,7 +4968,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_BUDDHIST_MISSIONARY, type: UNIT_BUDDHIST_MISSIONARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_BUDDHIST_MISSIONARY, type: UNIT_BUDDHIST_MISSIONARY -->
 			<Class>UNITCLASS_BUDDHIST_MISSIONARY</Class>
 			<Type>UNIT_BUDDHIST_MISSIONARY</Type>
 			<UniqueNames/>
@@ -5137,7 +5137,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CHRISTIAN_MISSIONARY, type: UNIT_CHRISTIAN_MISSIONARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CHRISTIAN_MISSIONARY, type: UNIT_CHRISTIAN_MISSIONARY -->
 			<Class>UNITCLASS_CHRISTIAN_MISSIONARY</Class>
 			<Type>UNIT_CHRISTIAN_MISSIONARY</Type>
 			<UniqueNames/>
@@ -5306,7 +5306,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_ISLAMIC_MISSIONARY, type: UNIT_ISLAMIC_MISSIONARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_ISLAMIC_MISSIONARY, type: UNIT_ISLAMIC_MISSIONARY -->
 			<Class>UNITCLASS_ISLAMIC_MISSIONARY</Class>
 			<Type>UNIT_ISLAMIC_MISSIONARY</Type>
 			<UniqueNames/>
@@ -5475,7 +5475,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WARRIOR, type: UNIT_WARRIOR (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WARRIOR, type: UNIT_WARRIOR -->
 			<Class>UNITCLASS_WARRIOR</Class>
 			<Type>UNIT_WARRIOR</Type>
 			<UniqueNames/>
@@ -5688,7 +5688,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_AXEMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_AXEMAN -->
 			<Class>UNITCLASS_AXEMAN</Class>
 			<Type>UNIT_AXEMAN</Type>
 			<UniqueNames/>
@@ -5909,7 +5909,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_SUMERIAN_VULTURE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_SUMERIAN_VULTURE -->
 			<Class>UNITCLASS_AXEMAN</Class>
 			<Type>UNIT_SUMERIAN_VULTURE</Type>
 			<UniqueNames/>
@@ -6128,7 +6128,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_NATIVE_AMERICA_DOG_SOLDIER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_NATIVE_AMERICA_DOG_SOLDIER -->
 			<Class>UNITCLASS_AXEMAN</Class>
 			<Type>UNIT_NATIVE_AMERICA_DOG_SOLDIER</Type>
 			<UniqueNames/>
@@ -6367,7 +6367,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_AZTEC_JAGUAR (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_AZTEC_JAGUAR -->
 			<Class>UNITCLASS_AXEMAN</Class>
 			<Type>UNIT_AZTEC_JAGUAR</Type>
 			<UniqueNames/>
@@ -6590,7 +6590,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_SWORDSMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_SWORDSMAN -->
 			<Class>UNITCLASS_SWORDSMAN</Class>
 			<Type>UNIT_SWORDSMAN</Type>
 			<UniqueNames/>
@@ -6773,7 +6773,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_CELTIC_GALLIC_WARRIOR (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_CELTIC_GALLIC_WARRIOR -->
 			<Class>UNITCLASS_SWORDSMAN</Class>
 			<Type>UNIT_CELTIC_GALLIC_WARRIOR</Type>
 			<UniqueNames/>
@@ -6988,7 +6988,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_ROMAN_LEGIONARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_ROMAN_LEGIONARY -->
 			<Class>UNITCLASS_SWORDSMAN</Class>
 			<Type>UNIT_ROMAN_LEGIONARY</Type>
 			<UniqueNames/>
@@ -7216,7 +7216,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: persia_immortal now based on the swordsman, historically more accuratein timeline and main unit than civ4's chariot-based unit -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_PERSIA_IMMORTAL (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_PERSIA_IMMORTAL -->
 			<Class>UNITCLASS_SWORDSMAN</Class>
 			<Type>UNIT_PERSIA_IMMORTAL</Type>
 			<UniqueNames/>
@@ -7437,7 +7437,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_INCAN_QUECHUA (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_INCAN_QUECHUA -->
 			<Class>UNITCLASS_SWORDSMAN</Class>
 			<Type>UNIT_INCAN_QUECHUA</Type>
 			<UniqueNames/>
@@ -7668,7 +7668,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_MACEMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_MACEMAN -->
 			<Class>UNITCLASS_MACEMAN</Class>
 			<Type>UNIT_MACEMAN</Type>
 			<UniqueNames/>
@@ -7874,7 +7874,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_JAPAN_SAMURAI (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_JAPAN_SAMURAI -->
 			<Class>UNITCLASS_MACEMAN</Class>
 			<Type>UNIT_JAPAN_SAMURAI</Type>
 			<UniqueNames/>
@@ -8110,7 +8110,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_SCANDINAVIA_VIKING (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_SCANDINAVIA_VIKING -->
 			<Class>UNITCLASS_MACEMAN</Class>
 			<Type>UNIT_SCANDINAVIA_VIKING</Type>
 			<UniqueNames/>
@@ -8350,7 +8350,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_SPEARMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_SPEARMAN -->
 			<Class>UNITCLASS_SPEARMAN</Class>
 			<Type>UNIT_SPEARMAN</Type>
 			<UniqueNames/>
@@ -8574,7 +8574,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_ZULU_IMPI (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_ZULU_IMPI -->
 			<Class>UNITCLASS_SPEARMAN</Class>
 			<Type>UNIT_ZULU_IMPI</Type>
 			<UniqueNames/>
@@ -8812,7 +8812,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_MAYA_HOLKAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_MAYA_HOLKAN -->
 			<Class>UNITCLASS_SPEARMAN</Class>
 			<Type>UNIT_MAYA_HOLKAN</Type>
 			<UniqueNames/>
@@ -9048,7 +9048,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_GREEK_HOPLITE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_GREEK_HOPLITE -->
 			<Class>UNITCLASS_SPEARMAN</Class>
 			<Type>UNIT_GREEK_HOPLITE</Type>
 			<UniqueNames/>
@@ -9294,7 +9294,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_PIKEMAN, type: UNIT_PIKEMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_PIKEMAN, type: UNIT_PIKEMAN -->
 			<Class>UNITCLASS_PIKEMAN</Class>
 			<Type>UNIT_PIKEMAN</Type>
 			<UniqueNames/>
@@ -9526,7 +9526,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_ARCHER, type: UNIT_ARCHER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_ARCHER, type: UNIT_ARCHER -->
 			<Class>UNITCLASS_ARCHER</Class>
 			<Type>UNIT_ARCHER</Type>
 			<UniqueNames/>
@@ -9762,7 +9762,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_LONGBOWMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_LONGBOWMAN -->
 			<Class>UNITCLASS_LONGBOWMAN</Class>
 			<Type>UNIT_LONGBOWMAN</Type>
 			<UniqueNames/>
@@ -9994,7 +9994,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_MALI_SKIRMISHER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_MALI_SKIRMISHER -->
 			<Class>UNITCLASS_LONGBOWMAN</Class>
 			<Type>UNIT_MALI_SKIRMISHER</Type>
 			<UniqueNames/>
@@ -10257,7 +10257,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_BABYLON_BOWMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_BABYLON_BOWMAN -->
 			<Class>UNITCLASS_LONGBOWMAN</Class>
 			<Type>UNIT_BABYLON_BOWMAN</Type>
 			<UniqueNames/>
@@ -10520,7 +10520,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_CROSSBOWMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_CROSSBOWMAN -->
 			<Class>UNITCLASS_CROSSBOWMAN</Class>
 			<Type>UNIT_CROSSBOWMAN</Type>
 			<UniqueNames/>
@@ -10721,7 +10721,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_CHINA_ZHUGE_NU (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_CHINA_ZHUGE_NU -->
 			<Class>UNITCLASS_CROSSBOWMAN</Class>
 			<Type>UNIT_CHINA_ZHUGE_NU</Type>
 			<UniqueNames/>
@@ -10954,7 +10954,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN -->
 			<Class>UNITCLASS_CROSSBOWMAN</Class>
 			<Type>UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
 			<UniqueNames/>
@@ -11187,7 +11187,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_ENGLISH_YEOMAN_ARCHER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_ENGLISH_YEOMAN_ARCHER -->
 			<Class>UNITCLASS_CROSSBOWMAN</Class>
 			<Type>UNIT_ENGLISH_YEOMAN_ARCHER</Type>
 			<UniqueNames/>
@@ -11415,7 +11415,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_MUSKETMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_MUSKETMAN -->
 			<Class>UNITCLASS_MUSKETMAN</Class>
 			<Type>UNIT_MUSKETMAN</Type>
 			<UniqueNames/>
@@ -11605,7 +11605,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_OTTOMAN_JANISSARY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_OTTOMAN_JANISSARY -->
 			<Class>UNITCLASS_MUSKETMAN</Class>
 			<Type>UNIT_OTTOMAN_JANISSARY</Type>
 			<UniqueNames/>
@@ -11820,7 +11820,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_FRENCH_MUSKETEER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_FRENCH_MUSKETEER -->
 			<Class>UNITCLASS_MUSKETMAN</Class>
 			<Type>UNIT_FRENCH_MUSKETEER</Type>
 			<UniqueNames/>
@@ -12054,7 +12054,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_ETHIOPIAN_OROMO_WARRIOR (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_ETHIOPIAN_OROMO_WARRIOR -->
 			<Class>UNITCLASS_MUSKETMAN</Class>
 			<Type>UNIT_ETHIOPIAN_OROMO_WARRIOR</Type>
 			<UniqueNames/>
@@ -12284,7 +12284,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_RIFLEMAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_RIFLEMAN -->
 			<Class>UNITCLASS_RIFLEMAN</Class>
 			<Type>UNIT_RIFLEMAN</Type>
 			<UniqueNames/>
@@ -12494,7 +12494,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: USA civ-specific unit replaced with the "USA_PATRIOT" mostly so they have a unit important/impactful earlier in the game while still historically accurate, based on: https://en.wikipedia.org/wiki/Patriot_(American_Revolution) and the rifleman unit as a base -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_USA_PATRIOT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_USA_PATRIOT -->
 			<Class>UNITCLASS_RIFLEMAN</Class>
 			<Type>UNIT_USA_PATRIOT</Type>
 			<UniqueNames/>
@@ -12742,7 +12742,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_INFANTRY, type: UNIT_INFANTRY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_INFANTRY, type: UNIT_INFANTRY -->
 			<Class>UNITCLASS_INFANTRY</Class>
 			<Type>UNIT_INFANTRY</Type>
 			<UniqueNames/>
@@ -12960,7 +12960,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_INFANTRY, type: UNIT_MODERN_INFANTRY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_INFANTRY, type: UNIT_MODERN_INFANTRY -->
 			<Class>UNITCLASS_MODERN_INFANTRY</Class>
 			<Type>UNIT_MODERN_INFANTRY</Type>
 			<UniqueNames/>
@@ -13174,7 +13174,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_PARATROOPER, type: UNIT_PARATROOPER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_PARATROOPER, type: UNIT_PARATROOPER -->
 			<Class>UNITCLASS_PARATROOPER</Class>
 			<Type>UNIT_PARATROOPER</Type>
 			<UniqueNames/>
@@ -13350,7 +13350,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_INFANTRY, type: UNIT_ROBOTIC_INFANTRY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_INFANTRY, type: UNIT_ROBOTIC_INFANTRY -->
 			<Class>UNITCLASS_ROBOTIC_INFANTRY</Class>
 			<Type>UNIT_ROBOTIC_INFANTRY</Type>
 			<UniqueNames/>
@@ -13549,7 +13549,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GRENADIER, type: UNIT_GRENADIER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GRENADIER, type: UNIT_GRENADIER -->
 			<Class>UNITCLASS_GRENADIER</Class>
 			<Type>UNIT_GRENADIER</Type>
 			<UniqueNames/>
@@ -13757,7 +13757,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_BAZOOKA, type: UNIT_BAZOOKA (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_BAZOOKA, type: UNIT_BAZOOKA -->
 			<Class>UNITCLASS_BAZOOKA</Class>
 			<Type>UNIT_BAZOOKA</Type>
 			<UniqueNames/>
@@ -13964,7 +13964,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GUNSHIP, type: UNIT_GUNSHIP (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GUNSHIP, type: UNIT_GUNSHIP -->
 			<Class>UNITCLASS_GUNSHIP</Class>
 			<Type>UNIT_GUNSHIP</Type>
 			<UniqueNames/>
@@ -14181,7 +14181,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MACHINE_GUN, type: UNIT_MACHINE_GUN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MACHINE_GUN, type: UNIT_MACHINE_GUN -->
 			<Class>UNITCLASS_MACHINE_GUN</Class>
 			<Type>UNIT_MACHINE_GUN</Type>
 			<UniqueNames/>
@@ -14387,7 +14387,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MECHANIZED_INFANTRY, type: UNIT_MECHANIZED_INFANTRY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MECHANIZED_INFANTRY, type: UNIT_MECHANIZED_INFANTRY -->
 			<Class>UNITCLASS_MECHANIZED_INFANTRY</Class>
 			<Type>UNIT_MECHANIZED_INFANTRY</Type>
 			<UniqueNames/>
@@ -14573,7 +14573,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SAM_INFANTRY, type: UNIT_SAM_INFANTRY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SAM_INFANTRY, type: UNIT_SAM_INFANTRY -->
 			<Class>UNITCLASS_SAM_INFANTRY</Class>
 			<Type>UNIT_SAM_INFANTRY</Type>
 			<UniqueNames/>
@@ -14758,7 +14758,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MOBILE_SAM, type: UNIT_MOBILE_SAM (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MOBILE_SAM, type: UNIT_MOBILE_SAM -->
 			<Class>UNITCLASS_MOBILE_SAM</Class>
 			<Type>UNIT_MOBILE_SAM</Type>
 			<UniqueNames/>
@@ -14939,7 +14939,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CHARIOT, type: UNIT_CHARIOT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CHARIOT, type: UNIT_CHARIOT -->
 			<Class>UNITCLASS_CHARIOT</Class>
 			<Type>UNIT_CHARIOT</Type>
 			<UniqueNames/>
@@ -15161,7 +15161,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CHARIOT, type: UNIT_EGYPTIAN_WAR_CHARIOT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CHARIOT, type: UNIT_EGYPTIAN_WAR_CHARIOT -->
 			<Class>UNITCLASS_CHARIOT</Class>
 			<Type>UNIT_EGYPTIAN_WAR_CHARIOT</Type>
 			<UniqueNames/>
@@ -15401,7 +15401,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_ARCHER, type: UNIT_HORSE_ARCHER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_ARCHER, type: UNIT_HORSE_ARCHER -->
 			<Class>UNITCLASS_HORSE_ARCHER</Class>
 			<Type>UNIT_HORSE_ARCHER</Type>
 			<UniqueNames/>
@@ -15606,7 +15606,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_ARCHER, type: UNIT_CARTHAGE_NUMIDIAN_CAVALRY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_ARCHER, type: UNIT_CARTHAGE_NUMIDIAN_CAVALRY -->
 			<Class>UNITCLASS_HORSE_ARCHER</Class>
 			<Type>UNIT_CARTHAGE_NUMIDIAN_CAVALRY</Type>
 			<UniqueNames/>
@@ -15849,7 +15849,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: new unit, camel version of the horse_archer, based on the horse_archer 's xml and adjusted it. -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_ARCHER, type: UNIT_CAMEL_ARCHER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_ARCHER, type: UNIT_CAMEL_ARCHER -->
 			<Class>UNITCLASS_CAMEL_ARCHER</Class>
 			<Type>UNIT_CAMEL_ARCHER</Type>
 			<UniqueNames/>
@@ -16065,7 +16065,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WAR_ELEPHANT, type: UNIT_WAR_ELEPHANT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WAR_ELEPHANT, type: UNIT_WAR_ELEPHANT -->
 			<Class>UNITCLASS_WAR_ELEPHANT</Class>
 			<Type>UNIT_WAR_ELEPHANT</Type>
 			<UniqueNames/>
@@ -16287,7 +16287,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WAR_ELEPHANT, type: UNIT_KHMER_BALLISTA_ELEPHANT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WAR_ELEPHANT, type: UNIT_KHMER_BALLISTA_ELEPHANT -->
 			<Class>UNITCLASS_WAR_ELEPHANT</Class>
 			<Type>UNIT_KHMER_BALLISTA_ELEPHANT</Type>
 			<UniqueNames/>
@@ -16507,7 +16507,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_HORSE_KNIGHT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_HORSE_KNIGHT -->
 			<Class>UNITCLASS_HORSE_KNIGHT</Class>
 			<Type>UNIT_HORSE_KNIGHT</Type>
 			<UniqueNames/>
@@ -16723,7 +16723,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_BYZANTINE_CATAPHRACT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_BYZANTINE_CATAPHRACT -->
 			<Class>UNITCLASS_HORSE_KNIGHT</Class>
 			<Type>UNIT_BYZANTINE_CATAPHRACT</Type>
 			<UniqueNames/>
@@ -16965,7 +16965,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_MONGOL_KHISHIGTEN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_MONGOL_KHISHIGTEN -->
 			<Class>UNITCLASS_HORSE_KNIGHT</Class>
 			<Type>UNIT_MONGOL_KHISHIGTEN</Type>
 			<UniqueNames/>
@@ -17203,7 +17203,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_KNIGHT, type: UNIT_CAMEL_KNIGHT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_KNIGHT, type: UNIT_CAMEL_KNIGHT -->
 			<Class>UNITCLASS_CAMEL_KNIGHT</Class>
 			<Type>UNIT_CAMEL_KNIGHT</Type>
 			<UniqueNames/>
@@ -17431,7 +17431,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: arabian civ-specific unit now based on the KNIGHT, camel version of it -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_KNIGHT, type: UNIT_ARABIA_HAJJAN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_KNIGHT, type: UNIT_ARABIA_HAJJAN -->
 			<Class>UNITCLASS_CAMEL_KNIGHT</Class>
 			<Type>UNIT_ARABIA_HAJJAN</Type>
 			<UniqueNames/>
@@ -17656,7 +17656,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_CUIRASSIER, type: UNIT_HORSE_CUIRASSIER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_CUIRASSIER, type: UNIT_HORSE_CUIRASSIER -->
 			<Class>UNITCLASS_HORSE_CUIRASSIER</Class>
 			<Type>UNIT_HORSE_CUIRASSIER</Type>
 			<UniqueNames/>
@@ -17864,7 +17864,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_CUIRASSIER, type: UNIT_SPANISH_CONQUISTADOR (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_CUIRASSIER, type: UNIT_SPANISH_CONQUISTADOR -->
 			<Class>UNITCLASS_HORSE_CUIRASSIER</Class>
 			<Type>UNIT_SPANISH_CONQUISTADOR</Type>
 			<UniqueNames/>
@@ -18101,7 +18101,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: add new unit CAMEL_CUIRASSIER camel version of the CUIRASSIER -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_CUIRASSIER, type: UNIT_CAMEL_CUIRASSIER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_CUIRASSIER, type: UNIT_CAMEL_CUIRASSIER -->
 			<Class>UNITCLASS_CAMEL_CUIRASSIER</Class>
 			<Type>UNIT_CAMEL_CUIRASSIER</Type>
 			<UniqueNames/>
@@ -18320,7 +18320,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_DRAGOON (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_DRAGOON -->
 			<Class>UNITCLASS_DRAGOON</Class>
 			<Type>UNIT_DRAGOON</Type>
 			<UniqueNames/>
@@ -18527,7 +18527,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_RUSSIA_COSSACK (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_RUSSIA_COSSACK -->
 			<Class>UNITCLASS_DRAGOON</Class>
 			<Type>UNIT_RUSSIA_COSSACK</Type>
 			<UniqueNames/>
@@ -18764,7 +18764,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_GERMAN_HUSSAR (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_GERMAN_HUSSAR -->
 			<Class>UNITCLASS_DRAGOON</Class>
 			<Type>UNIT_GERMAN_HUSSAR</Type>
 			<UniqueNames/>
@@ -18989,7 +18989,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_TANK, type: UNIT_TANK (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_TANK, type: UNIT_TANK -->
 			<Class>UNITCLASS_TANK</Class>
 			<Type>UNIT_TANK</Type>
 			<UniqueNames/>
@@ -19186,7 +19186,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_TANK, type: UNIT_MODERN_TANK (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_TANK, type: UNIT_MODERN_TANK -->
 			<Class>UNITCLASS_MODERN_TANK</Class>
 			<Type>UNIT_MODERN_TANK</Type>
 			<UniqueNames/>
@@ -19385,7 +19385,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_TANK, type: UNIT_ROBOTIC_TANK (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_TANK, type: UNIT_ROBOTIC_TANK -->
 			<Class>UNITCLASS_ROBOTIC_TANK</Class>
 			<Type>UNIT_ROBOTIC_TANK</Type>
 			<UniqueNames/>
@@ -19581,7 +19581,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CATAPULT, type: UNIT_CATAPULT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CATAPULT, type: UNIT_CATAPULT -->
 			<Class>UNITCLASS_CATAPULT</Class>
 			<Type>UNIT_CATAPULT</Type>
 			<UniqueNames/>
@@ -19799,7 +19799,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_TREBUCHET, type: UNIT_TREBUCHET (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_TREBUCHET, type: UNIT_TREBUCHET -->
 			<Class>UNITCLASS_TREBUCHET</Class>
 			<Type>UNIT_TREBUCHET</Type>
 			<UniqueNames/>
@@ -20040,7 +20040,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_CANNON (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_CANNON -->
 			<Class>UNITCLASS_CANNON</Class>
 			<Type>UNIT_CANNON</Type>
 			<UniqueNames/>
@@ -20234,7 +20234,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_KOREAN_HWACHA (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_KOREAN_HWACHA -->
 			<Class>UNITCLASS_CANNON</Class>
 			<Type>UNIT_KOREAN_HWACHA</Type>
 			<UniqueNames/>
@@ -20457,7 +20457,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_HOLY_ROMAN_HOUFNICE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_HOLY_ROMAN_HOUFNICE -->
 			<Class>UNITCLASS_CANNON</Class>
 			<Type>UNIT_HOLY_ROMAN_HOUFNICE</Type>
 			<UniqueNames/>
@@ -20692,7 +20692,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_FIELD_GUN, type: UNIT_FIELD_GUN (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_FIELD_GUN, type: UNIT_FIELD_GUN -->
 			<Class>UNITCLASS_FIELD_GUN</Class>
 			<Type>UNIT_FIELD_GUN</Type>
 			<UniqueNames/>
@@ -20881,7 +20881,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SELF_PROPELLED_ARTILLERY, type: UNIT_SELF_PROPELLED_ARTILLERY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SELF_PROPELLED_ARTILLERY, type: UNIT_SELF_PROPELLED_ARTILLERY -->
 			<Class>UNITCLASS_SELF_PROPELLED_ARTILLERY</Class>
 			<Type>UNIT_SELF_PROPELLED_ARTILLERY</Type>
 			<UniqueNames/>
@@ -21075,7 +21075,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_LEVITATION_ARTILLERY, type: UNIT_LEVITATION_ARTILLERY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_LEVITATION_ARTILLERY, type: UNIT_LEVITATION_ARTILLERY -->
 			<Class>UNITCLASS_LEVITATION_ARTILLERY</Class>
 			<Type>UNIT_LEVITATION_ARTILLERY</Type>
 			<UniqueNames/>
@@ -21277,7 +21277,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WORKBOAT, type: UNIT_WORKBOAT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WORKBOAT, type: UNIT_WORKBOAT -->
 			<Class>UNITCLASS_WORKBOAT</Class>
 			<Type>UNIT_WORKBOAT</Type>
 			<UniqueNames/>
@@ -21477,7 +21477,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WORKBOAT, type: UNIT_BARBARIAN_WORKBOAT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WORKBOAT, type: UNIT_BARBARIAN_WORKBOAT -->
 			<Class>UNITCLASS_WORKBOAT</Class>
 			<Type>UNIT_BARBARIAN_WORKBOAT</Type>
 			<UniqueNames/>
@@ -21677,7 +21677,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEY, type: UNIT_GALLEY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEY, type: UNIT_GALLEY -->
 			<Class>UNITCLASS_GALLEY</Class>
 			<Type>UNIT_GALLEY</Type>
 			<UniqueNames/>
@@ -21870,7 +21870,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #89 -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEON, type: UNIT_GALLEON (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEON, type: UNIT_GALLEON -->
 			<Class>UNITCLASS_GALLEON</Class>
 			<Type>UNIT_GALLEON</Type>
 			<UniqueNames/>
@@ -22061,7 +22061,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: now carrack is based on the galleon -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEON, type: UNIT_PORTUGAL_CARRACK (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEON, type: UNIT_PORTUGAL_CARRACK -->
 			<Class>UNITCLASS_GALLEON</Class>
 			<Type>UNIT_PORTUGAL_CARRACK</Type>
 			<UniqueNames/>
@@ -22271,7 +22271,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_TRANSPORT, type: UNIT_TRANSPORT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_TRANSPORT, type: UNIT_TRANSPORT -->
 			<Class>UNITCLASS_TRANSPORT</Class>
 			<Type>UNIT_TRANSPORT</Type>
 			<UniqueNames/>
@@ -22456,7 +22456,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_TRIREME, type: UNIT_TRIREME (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_TRIREME, type: UNIT_TRIREME -->
 			<Class>UNITCLASS_TRIREME</Class>
 			<Type>UNIT_TRIREME</Type>
 			<UniqueNames/>
@@ -22664,7 +22664,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_PRIVATEER, type: UNIT_PRIVATEER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_PRIVATEER, type: UNIT_PRIVATEER -->
 			<Class>UNITCLASS_PRIVATEER</Class>
 			<Type>UNIT_PRIVATEER</Type>
 			<UniqueNames/>
@@ -22865,7 +22865,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_FRIGATE, type: UNIT_FRIGATE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_FRIGATE, type: UNIT_FRIGATE -->
 			<Class>UNITCLASS_FRIGATE</Class>
 			<Type>UNIT_FRIGATE</Type>
 			<UniqueNames/>
@@ -23058,7 +23058,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SHIP_OF_THE_LINE, type: UNIT_SHIP_OF_THE_LINE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SHIP_OF_THE_LINE, type: UNIT_SHIP_OF_THE_LINE -->
 			<Class>UNITCLASS_SHIP_OF_THE_LINE</Class>
 			<Type>UNIT_SHIP_OF_THE_LINE</Type>
 			<UniqueNames/>
@@ -23265,7 +23265,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_IRONCLAD, type: UNIT_IRONCLAD (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_IRONCLAD, type: UNIT_IRONCLAD -->
 			<Class>UNITCLASS_IRONCLAD</Class>
 			<Type>UNIT_IRONCLAD</Type>
 			<UniqueNames/>
@@ -23469,7 +23469,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_DESTROYER, type: UNIT_DESTROYER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_DESTROYER, type: UNIT_DESTROYER -->
 			<Class>UNITCLASS_DESTROYER</Class>
 			<Type>UNIT_DESTROYER</Type>
 			<UniqueNames/>
@@ -23659,7 +23659,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_BATTLESHIP, type: UNIT_BATTLESHIP (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_BATTLESHIP, type: UNIT_BATTLESHIP -->
 			<Class>UNITCLASS_BATTLESHIP</Class>
 			<Type>UNIT_BATTLESHIP</Type>
 			<UniqueNames/>
@@ -23851,7 +23851,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MISSILE_CRUISER, type: UNIT_MISSILE_CRUISER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MISSILE_CRUISER, type: UNIT_MISSILE_CRUISER -->
 			<Class>UNITCLASS_MISSILE_CRUISER</Class>
 			<Type>UNIT_MISSILE_CRUISER</Type>
 			<UniqueNames/>
@@ -24042,7 +24042,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_ATTACK_SUBMARINE, type: UNIT_ATTACK_SUBMARINE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_ATTACK_SUBMARINE, type: UNIT_ATTACK_SUBMARINE -->
 			<Class>UNITCLASS_ATTACK_SUBMARINE</Class>
 			<Type>UNIT_ATTACK_SUBMARINE</Type>
 			<UniqueNames/>
@@ -24243,7 +24243,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CARRIER, type: UNIT_CARRIER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CARRIER, type: UNIT_CARRIER -->
 			<Class>UNITCLASS_CARRIER</Class>
 			<Type>UNIT_CARRIER</Type>
 			<UniqueNames/>
@@ -24418,7 +24418,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_FIGHTER, type: UNIT_FIGHTER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_FIGHTER, type: UNIT_FIGHTER -->
 			<Class>UNITCLASS_FIGHTER</Class>
 			<Type>UNIT_FIGHTER</Type>
 			<UniqueNames/>
@@ -24595,7 +24595,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_JET_FIGHTER, type: UNIT_JET_FIGHTER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_JET_FIGHTER, type: UNIT_JET_FIGHTER -->
 			<Class>UNITCLASS_JET_FIGHTER</Class>
 			<Type>UNIT_JET_FIGHTER</Type>
 			<UniqueNames/>
@@ -24772,7 +24772,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_BOMBER, type: UNIT_BOMBER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_BOMBER, type: UNIT_BOMBER -->
 			<Class>UNITCLASS_BOMBER</Class>
 			<Type>UNIT_BOMBER</Type>
 			<UniqueNames/>
@@ -24951,7 +24951,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_STEALTH_BOMBER, type: UNIT_STEALTH_BOMBER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_STEALTH_BOMBER, type: UNIT_STEALTH_BOMBER -->
 			<Class>UNITCLASS_STEALTH_BOMBER</Class>
 			<Type>UNIT_STEALTH_BOMBER</Type>
 			<UniqueNames/>
@@ -25134,7 +25134,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GUIDED_MISSILE, type: UNIT_GUIDED_MISSILE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GUIDED_MISSILE, type: UNIT_GUIDED_MISSILE -->
 			<Class>UNITCLASS_GUIDED_MISSILE</Class>
 			<Type>UNIT_GUIDED_MISSILE</Type>
 			<UniqueNames/>
@@ -25306,7 +25306,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_TACTICAL_NUKE, type: UNIT_TACTICAL_NUKE (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_TACTICAL_NUKE, type: UNIT_TACTICAL_NUKE -->
 			<Class>UNITCLASS_TACTICAL_NUKE</Class>
 			<Type>UNIT_TACTICAL_NUKE</Type>
 			<UniqueNames/>
@@ -25477,7 +25477,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_ICBM, type: UNIT_ICBM (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_ICBM, type: UNIT_ICBM -->
 			<Class>UNITCLASS_ICBM</Class>
 			<Type>UNIT_ICBM</Type>
 			<UniqueNames/>
@@ -25648,7 +25648,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_PROPHET, type: UNIT_GREAT_PROPHET (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_PROPHET, type: UNIT_GREAT_PROPHET -->
 			<Class>UNITCLASS_GREAT_PROPHET</Class>
 			<Type>UNIT_GREAT_PROPHET</Type>
 			<UniqueNames>
@@ -25882,7 +25882,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_ARTIST, type: UNIT_GREAT_ARTIST (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_ARTIST, type: UNIT_GREAT_ARTIST -->
 			<Class>UNITCLASS_GREAT_ARTIST</Class>
 			<Type>UNIT_GREAT_ARTIST</Type>
 			<UniqueNames>
@@ -26105,7 +26105,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_SCIENTIST, type: UNIT_GREAT_SCIENTIST (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_SCIENTIST, type: UNIT_GREAT_SCIENTIST -->
 			<Class>UNITCLASS_GREAT_SCIENTIST</Class>
 			<Type>UNIT_GREAT_SCIENTIST</Type>
 			<UniqueNames>
@@ -26337,7 +26337,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_MERCHANT, type: UNIT_GREAT_MERCHANT (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_MERCHANT, type: UNIT_GREAT_MERCHANT -->
 			<Class>UNITCLASS_GREAT_MERCHANT</Class>
 			<Type>UNIT_GREAT_MERCHANT</Type>
 			<UniqueNames>
@@ -26555,7 +26555,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_ENGINEER, type: UNIT_GREAT_ENGINEER (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_ENGINEER, type: UNIT_GREAT_ENGINEER -->
 			<Class>UNITCLASS_GREAT_ENGINEER</Class>
 			<Type>UNIT_GREAT_ENGINEER</Type>
 			<UniqueNames>
@@ -26775,7 +26775,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_GENERAL, type: UNIT_GREAT_GENERAL (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_GENERAL, type: UNIT_GREAT_GENERAL -->
 			<Class>UNITCLASS_GREAT_GENERAL</Class>
 			<Type>UNIT_GREAT_GENERAL</Type>
 			<UniqueNames>
@@ -27000,7 +27000,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<LeaderPromotion>PROMOTION_LEADER</LeaderPromotion>
 			<iLeaderExperience>20</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_SPY, type: UNIT_GREAT_SPY (useful for VS Code upper tree view while scrolling) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_GREAT_SPY, type: UNIT_GREAT_SPY -->
 			<Class>UNITCLASS_GREAT_SPY</Class>
 			<Type>UNIT_GREAT_SPY</Type>
 			<UniqueNames>

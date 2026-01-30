@@ -149,7 +149,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>10</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: chieftain (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: chieftain -->
 			<Type>HANDICAP_CHIEFTAIN</Type>
 			<Description>TXT_KEY_HANDICAP_CHIEFTAIN</Description>
 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
@@ -277,7 +277,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>20</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: warlord (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: warlord -->
 			<Type>HANDICAP_WARLORD</Type>
 			<Description>TXT_KEY_HANDICAP_WARLORD</Description>
 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
@@ -404,7 +404,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>30</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: noble (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: noble -->
 			<Type>HANDICAP_NOBLE</Type>
 			<Description>TXT_KEY_HANDICAP_NOBLE</Description>
 			<Help>TXT_KEY_HANDICAP_NOBLE_HELP</Help>
@@ -535,7 +535,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>40</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: prince (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: prince -->
 			<Type>HANDICAP_PRINCE</Type>
 			<Description>TXT_KEY_HANDICAP_PRINCE</Description>
 			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
@@ -673,7 +673,7 @@
 		</HandicapInfo>
 		<!-- advc.126: Added free tech for later eras to
 			 all handicaps below. -->
-		<HandicapInfo> <!-- custom: monarch (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: monarch -->
 			<Type>HANDICAP_MONARCH</Type>
 			<Description>TXT_KEY_HANDICAP_MONARCH</Description>
 			<Help>TXT_KEY_HANDICAP_MONARCH_HELP</Help>
@@ -814,7 +814,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>60</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: emperor (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: emperor -->
 			<Type>HANDICAP_EMPEROR</Type>
 			<Description>TXT_KEY_HANDICAP_EMPEROR</Description>
 			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
@@ -957,7 +957,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>70</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: immortal (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: immortal -->
 			<Type>HANDICAP_IMMORTAL</Type>
 			<Description>TXT_KEY_HANDICAP_IMMORTAL</Description>
 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
@@ -1102,7 +1102,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>80</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo> <!-- custom: deity (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: deity -->
 			<Type>HANDICAP_DEITY</Type>
 			<Description>TXT_KEY_HANDICAP_DEITY</Description>
 			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>

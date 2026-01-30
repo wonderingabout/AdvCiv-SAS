@@ -7,7 +7,7 @@
 <!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown  -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<LeaderHeadInfos>
-		<LeaderHeadInfo> <!-- custom: Barbarian (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Barbarian (useful for VS Code upper tree view while scrolling) -->
 			<Type>LEADER_BARBARIAN</Type>
 			<Description>TXT_KEY_LEADER_BARBARIAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_BARBARIAN_PEDIA</Civilopedia>
@@ -42,7 +42,7 @@
 			<iDeclareWarTradeRand>0</iDeclareWarTradeRand>
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
-			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal. I want it fair and fun, but hard enough and not toned down, and accurate), was 10 -->
+			<!-- custom: make barbarians more likely to destroy cities rather than conquer them; Long_Comments_XML.txt #349, was 10 -->
 			<iRazeCityProb>60</iRazeCityProb>
 			<!-- custom: The barbarians issue of them building wonders and completing them before other players now that they are economically strong enough is now fixed by a patch in the DLL in CvCityAI.cpp in advciv-sas, so no need to increase this too high, and so they keep mostly focusing on units, was 50 -->
 			<iBuildUnitProb>70</iBuildUnitProb>
@@ -110,11 +110,7 @@
 			<MemoryDecays/>
 			<MemoryAttitudePercents/>
 			<NoWarAttitudeProbs/>
-			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
-			Make sure to build enough workers and early enough to develop the land too.
-			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend.
-			It seems also 25 (for UNITAI_WORKER) is not enough to make enough workers and fast/soon enough, trying a higher number.
-			-->
+			<!-- custom: focus more on raw force and light harass units like archers; Long_Comments_XML.txt #350 -->
 			<UnitAIWeightModifiers>
 				<UnitAIWeightModifier>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
@@ -204,7 +200,7 @@
 			 (For the non-optional elements, LEADER_DEFAULTS has to set some
 			 default as well - 0, NONE or an empty string - but it won't matter
 			 because every LeaderHeadInfo has to define those elements.) -->
-		<LeaderHeadInfo> <!-- custom: Defaults (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Defaults -->
 			<Type>LEADER_DEFAULTS</Type>
 			<Description></Description>
 			<Civilopedia></Civilopedia>
@@ -240,7 +236,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to some leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games, was 0 -->
+			<!-- custom: additionally to iBuildUnitProb changes to some leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game; Long_Comments_XML.txt #351, was 0 -->
 			<iBuildUnitProb>10</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
@@ -872,7 +868,7 @@
 		</LeaderHeadInfo>
 		<!-- advc.xmldefault (end) -->
 
-		<LeaderHeadInfo> <!-- custom: Alexander (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Alexander -->
 			<Type>LEADER_ALEXANDER</Type>
 			<Description>TXT_KEY_LEADER_ALEXANDER</Description>
 			<Civilopedia>TXT_KEY_LEADER_ALEXANDER_PEDIA</Civilopedia>
@@ -905,7 +901,6 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -1075,7 +1070,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Asoka (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Asoka -->
 			<Type>LEADER_ASOKA</Type>
 			<Description>TXT_KEY_LEADER_ASOKA</Description>
 			<Civilopedia>TXT_KEY_LEADER_ASOKA_PEDIA</Civilopedia>
@@ -1108,7 +1103,6 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<iBuildUnitProb>30</iBuildUnitProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game similarly to other real civ4 leaders (i.e. excluding barbarians and defaults and or such). -->
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
@@ -1321,7 +1315,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Augustus (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Augustus -->
 			<Type>LEADER_AUGUSTUS</Type>
 			<Description>TXT_KEY_LEADER_AUGUSTUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_AUGUSTUS_CAESAR_PEDIA</Civilopedia>
@@ -1354,7 +1348,6 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -1535,7 +1528,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Bismarck (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Bismarck -->
 			<Type>LEADER_BISMARCK</Type>
 			<Description>TXT_KEY_LEADER_BISMARCK</Description>
 			<Civilopedia>TXT_KEY_LEADER_BISMARCK_PEDIA</Civilopedia>
@@ -1570,7 +1563,6 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -1749,7 +1741,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Boudica (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Boudica -->
 			<Type>LEADER_BOUDICA</Type>
 			<Description>TXT_KEY_LEADER_BOUDICA</Description>
 			<Civilopedia>TXT_KEY_LEADER_BOUDICA_PEDIA</Civilopedia>
@@ -1781,7 +1773,6 @@
 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>20</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<!-- custom: was 30 -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
@@ -1954,7 +1945,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Brennus (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Brennus -->
 			<Type>LEADER_BRENNUS</Type>
 			<Description>TXT_KEY_LEADER_BRENNUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_BRENNUS_PEDIA</Civilopedia>
@@ -1988,7 +1979,6 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<!-- custom: was 30 -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
@@ -2164,7 +2154,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Catherine (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Catherine -->
 			<Type>LEADER_CATHERINE</Type>
 			<Description>TXT_KEY_LEADER_CATHERINE</Description>
 			<Civilopedia>TXT_KEY_LEADER_CATHERINE_PEDIA</Civilopedia>
@@ -2199,7 +2189,6 @@
 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<!-- custom: was 25 -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
@@ -2405,7 +2394,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Charlemagne (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Charlemagne -->
 			<Type>LEADER_CHARLEMAGNE</Type>
 			<Description>TXT_KEY_LEADER_CHARLEMAGNE</Description>
 			<Civilopedia>TXT_KEY_LEADER_CHARLEMAGNE_PEDIA</Civilopedia>
@@ -2438,7 +2427,6 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -2615,7 +2603,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Churchill (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Churchill -->
 			<Type>LEADER_CHURCHILL</Type>
 			<Description>TXT_KEY_LEADER_CHURCHILL</Description>
 			<Civilopedia>TXT_KEY_LEADER_WINSTON_CHURCHILL_PEDIA</Civilopedia>
@@ -2647,7 +2635,6 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -2827,7 +2814,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Cyrus (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Cyrus -->
 			<Type>LEADER_CYRUS</Type>
 			<Description>TXT_KEY_LEADER_CYRUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_CYRUS_PEDIA</Civilopedia>
@@ -2860,7 +2847,6 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -3049,7 +3035,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Darius (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Darius -->
 			<Type>LEADER_DARIUS</Type>
 			<Description>TXT_KEY_LEADER_DARIUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_DARIUS_PEDIA</Civilopedia>
@@ -3081,7 +3067,6 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -3274,7 +3259,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: De_Gaulle (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: De_Gaulle -->
 			<Type>LEADER_DE_GAULLE</Type>
 			<Description>TXT_KEY_LEADER_DE_GAULLE</Description>
 			<Civilopedia>TXT_KEY_LEADER_DE_GAULLE_PEDIA</Civilopedia>
@@ -3306,7 +3291,6 @@
 			<iDemandRebukedSneakProb>10</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -3489,7 +3473,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Elizabeth (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Elizabeth -->
 			<Type>LEADER_ELIZABETH</Type>
 			<Description>TXT_KEY_LEADER_ELIZABETH</Description>
 			<Civilopedia>TXT_KEY_LEADER_ELIZABETH_PEDIA</Civilopedia>
@@ -3521,7 +3505,6 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -3705,7 +3688,7 @@
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
 		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #18 -->
-		<LeaderHeadInfo> <!-- custom: Ewuare (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Ewuare -->
 			<Type>LEADER_EWUARE</Type>
 			<Description>TXT_KEY_LEADER_EWUARE</Description>
 			<Civilopedia>TXT_KEY_LEADER_EWUARE_PEDIA</Civilopedia>
@@ -3738,7 +3721,6 @@
 			<!-- custom: seems especially vengeful, especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too) (check if accurate), was 0 in cyrus among other uncommented changes in ewuare's xml -->
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -3932,7 +3914,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Frederick (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Frederick -->
 			<Type>LEADER_FREDERICK</Type>
 			<Description>TXT_KEY_LEADER_FREDERICK</Description>
 			<Civilopedia>TXT_KEY_LEADER_FREDERICK_PEDIA</Civilopedia>
@@ -3964,7 +3946,6 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -4148,7 +4129,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Gandhi (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Gandhi -->
 			<Type>LEADER_GANDHI</Type>
 			<Description>TXT_KEY_LEADER_GANDHI</Description>
 			<Civilopedia>TXT_KEY_LEADER_GANDHI_PEDIA</Civilopedia>
@@ -4180,7 +4161,6 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>25</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -4411,7 +4391,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Genghis_Khan (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Genghis_Khan -->
 			<Type>LEADER_GENGHIS_KHAN</Type>
 			<Description>TXT_KEY_LEADER_GENGHIS_KHAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_GENGHIS_KHAN_PEDIA</Civilopedia>
@@ -4444,7 +4424,6 @@
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>75</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -4633,7 +4612,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Gilgamesh (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Gilgamesh -->
 			<Type>LEADER_GILGAMESH</Type>
 			<Description>TXT_KEY_LEADER_GILGAMESH</Description>
 			<Civilopedia>TXT_KEY_LEADER_GILGAMESH_PEDIA</Civilopedia>
@@ -4665,7 +4644,6 @@
 			<iDemandRebukedSneakProb>25</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -4839,7 +4817,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Hammurabi (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Hammurabi -->
 			<Type>LEADER_HAMMURABI</Type>
 			<Description>TXT_KEY_LEADER_HAMMURABI</Description>
 			<Civilopedia>TXT_KEY_LEADER_HAMMURABI_PEDIA</Civilopedia>
@@ -4871,7 +4849,6 @@
 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>15</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -5041,7 +5018,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Hannibal (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Hannibal -->
 			<Type>LEADER_HANNIBAL</Type>
 			<Description>TXT_KEY_LEADER_HANNIBAL</Description>
 			<Civilopedia>TXT_KEY_LEADER_HANNIBAL_PEDIA</Civilopedia>
@@ -5073,7 +5050,6 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -5246,7 +5222,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Hatshepsut (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Hatshepsut -->
 			<Type>LEADER_HATSHEPSUT</Type>
 			<Description>TXT_KEY_LEADER_HATSHEPSUT</Description>
 			<Civilopedia>TXT_KEY_LEADER_HATSHEPSUT_PEDIA</Civilopedia>
@@ -5278,7 +5254,6 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -5484,7 +5459,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Huayna_Capac (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Huayna_Capac -->
 			<Type>LEADER_HUAYNA_CAPAC</Type>
 			<Description>TXT_KEY_LEADER_HUAYNA_CAPAC</Description>
 			<Civilopedia>TXT_KEY_LEADER_HUAYNA_CAPAC_PEDIA</Civilopedia>
@@ -5516,7 +5491,6 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -5708,7 +5682,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Isabella (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Isabella -->
 			<Type>LEADER_ISABELLA</Type>
 			<Description>TXT_KEY_LEADER_ISABELLA</Description>
 			<Civilopedia>TXT_KEY_LEADER_ISABELLA_PEDIA</Civilopedia>
@@ -5741,7 +5715,6 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -5951,7 +5924,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Joao (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Joao -->
 			<Type>LEADER_JOAO</Type>
 			<Description>TXT_KEY_LEADER_JOAO</Description>
 			<Civilopedia>TXT_KEY_LEADER_JOAO_PEDIA</Civilopedia>
@@ -5983,7 +5956,6 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -6160,7 +6132,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Julius_Caesar (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Julius_Caesar -->
 			<Type>LEADER_JULIUS_CAESAR</Type>
 			<Description>TXT_KEY_LEADER_JULIUS_CAESAR</Description>
 			<Civilopedia>TXT_KEY_LEADER_JULIUS_CAESAR_PEDIA</Civilopedia>
@@ -6193,7 +6165,6 @@
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: increase julius caesar war tendency/profile a bit, asking chatgpt it seems that he has such a profile from little or not or quite bit or not i know about him, chatgpt also says augustus caesar would be a bit less, it does seem they don't wage war enough in base advciv at least (+/- civ4?), so increasing it quite a bit if not cautiosuly but quite decisively more... to see and maybe accurate, also asked it to double check no web search on search and try to balance it with other leaders, this value of 40 seems a better fit anwyays etc, was 30 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -6369,7 +6340,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Justinian (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Justinian -->
 			<Type>LEADER_JUSTINIAN</Type>
 			<Description>TXT_KEY_LEADER_JUSTINIAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_JUSTINIAN_PEDIA</Civilopedia>
@@ -6402,7 +6373,6 @@
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -6583,7 +6553,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Kublai_Khan (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Kublai_Khan -->
 			<Type>LEADER_KUBLAI_KHAN</Type>
 			<Description>TXT_KEY_LEADER_KUBLAI_KHAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_KUBLAI_KHAN_PEDIA</Civilopedia>
@@ -6616,7 +6586,6 @@
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -6841,7 +6810,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Lincoln (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Lincoln -->
 			<Type>LEADER_LINCOLN</Type>
 			<Description>TXT_KEY_LEADER_LINCOLN</Description>
 			<Civilopedia>TXT_KEY_LEADER_LINCOLN_PEDIA</Civilopedia>
@@ -6874,7 +6843,6 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -7051,7 +7019,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Louis_14 (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Louis_14 -->
 			<Type>LEADER_LOUIS_XIV</Type>
 			<Description>TXT_KEY_LEADER_LOUISXIV</Description>
 			<Civilopedia>TXT_KEY_LEADER_LOUISXIV_PEDIA</Civilopedia>
@@ -7083,7 +7051,6 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -7274,7 +7241,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Mansa_Musa (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Mansa_Musa -->
 			<Type>LEADER_MANSA_MUSA</Type>
 			<Description>TXT_KEY_LEADER_MANSA_MUSA</Description>
 			<Civilopedia>TXT_KEY_LEADER_MANSA_MUSA_PEDIA</Civilopedia>
@@ -7307,7 +7274,6 @@
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -7479,7 +7445,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Mao_Zedong (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Mao_Zedong -->
 			<Type>LEADER_MAO_ZEDONG</Type>
 			<Description>TXT_KEY_LEADER_MAO_ZEDONG</Description>
 			<Civilopedia>TXT_KEY_LEADER_MAO_ZEDONG_PEDIA</Civilopedia>
@@ -7512,7 +7478,6 @@
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -7689,7 +7654,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Mehmed (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Mehmed -->
 			<Type>LEADER_MEHMED</Type>
 			<Description>TXT_KEY_LEADER_MEHMED</Description>
 			<Civilopedia>TXT_KEY_LEADER_MEHMED_II_PEDIA</Civilopedia>
@@ -7721,7 +7686,6 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -7893,7 +7857,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Moctezuma (2) (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Moctezuma (2) -->
 			<Type>LEADER_MOCTEZUMA</Type>
 			<Description>TXT_KEY_LEADER_MOCTEZUMA</Description>
 			<Civilopedia>TXT_KEY_LEADER_MOCTEZUMA_PEDIA</Civilopedia>
@@ -7925,7 +7889,6 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-3</iWorseRankDifferenceAttitudeChange>
@@ -8122,7 +8085,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Napoleon (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Napoleon -->
 			<Type>LEADER_NAPOLEON</Type>
 			<Description>TXT_KEY_LEADER_NAPOLEON</Description>
 			<Civilopedia>TXT_KEY_LEADER_NAPOLEON_PEDIA</Civilopedia>
@@ -8155,7 +8118,6 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>6</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -8338,7 +8300,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Pacal (2) (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Pacal (2) -->
 			<Type>LEADER_PACAL</Type>
 			<Description>TXT_KEY_LEADER_PACAL</Description>
 			<Civilopedia>TXT_KEY_LEADER_PACAL_PEDIA</Civilopedia>
@@ -8372,7 +8334,6 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -8554,7 +8515,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Pericles (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Pericles -->
 			<Type>LEADER_PERICLES</Type>
 			<Description>TXT_KEY_LEADER_PERICLES</Description>
 			<Civilopedia>TXT_KEY_LEADER_PERICLES_PEDIA</Civilopedia>
@@ -8586,7 +8547,6 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -8764,7 +8724,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Peter (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Peter -->
 			<Type>LEADER_PETER</Type>
 			<Description>TXT_KEY_LEADER_PETER</Description>
 			<Civilopedia>TXT_KEY_LEADER_PETER_PEDIA</Civilopedia>
@@ -8796,7 +8756,6 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -9005,7 +8964,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Qin_Shi_Huang (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Qin_Shi_Huang -->
 			<Type>LEADER_QIN_SHI_HUANG</Type>
 			<Description>TXT_KEY_LEADER_QIN_SHI_HUANG</Description>
 			<Civilopedia>TXT_KEY_LEADER_QIN_SHI_HUANG_PEDIA</Civilopedia>
@@ -9038,7 +8997,6 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 20 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -9071,7 +9029,7 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<!-- Qin Shi Huang: was CIVIC_BUREAUCRACY -->
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may or not be related but hopefully accurate enough. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
+			<!-- custom: Long_Comments_XML.txt #352 -->
 			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -9237,7 +9195,7 @@
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
 		<!-- (advc: Swapped with Ramesses for alphabetical order) -->
-		<LeaderHeadInfo> <!-- custom: Ragnar (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Ragnar -->
 			<Type>LEADER_RAGNAR</Type>
 			<Description>TXT_KEY_LEADER_RAGNAR</Description>
 			<Civilopedia>TXT_KEY_LEADER_RAGNAR_PEDIA</Civilopedia>
@@ -9269,7 +9227,6 @@
 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>6</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -9440,7 +9397,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Ramesses (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Ramesses -->
 			<Type>LEADER_RAMESSES</Type>
 			<Description>TXT_KEY_LEADER_RAMESSES</Description>
 			<Civilopedia>TXT_KEY_LEADER_RAMESSES_II_PEDIA</Civilopedia>
@@ -9475,7 +9432,6 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 20 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -9679,7 +9635,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Franklin_Roosevelt (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Franklin_Roosevelt -->
 			<Type>LEADER_FRANKLIN_ROOSEVELT</Type>
 			<Description>TXT_KEY_LEADER_ROOSEVELT</Description>
 			<Civilopedia>TXT_KEY_LEADER_ROOSEVELT_PEDIA</Civilopedia>
@@ -9712,7 +9668,6 @@
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- advc.005a: was 20 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -9899,7 +9854,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Saladin (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Saladin -->
 			<Type>LEADER_SALADIN</Type>
 			<Description>TXT_KEY_LEADER_SALADIN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SALADIN_PEDIA</Civilopedia>
@@ -9934,7 +9889,6 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -10141,7 +10095,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Shaka (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Shaka -->
 			<Type>LEADER_SHAKA</Type>
 			<Description>TXT_KEY_LEADER_SHAKA</Description>
 			<Civilopedia>TXT_KEY_LEADER_SHAKA_PEDIA</Civilopedia>
@@ -10173,7 +10127,6 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -10336,7 +10289,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Sitting_Bull (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Sitting_Bull -->
 			<Type>LEADER_SITTING_BULL</Type>
 			<Description>TXT_KEY_LEADER_SITTING_BULL</Description>
 			<Civilopedia>TXT_KEY_LEADER_SITTING_BULL_PEDIA</Civilopedia>
@@ -10369,7 +10322,6 @@
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>20</iRazeCityProb>
 			<!-- custom: was 35 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -10542,7 +10494,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Stalin (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Stalin -->
 			<Type>LEADER_STALIN</Type>
 			<Description>TXT_KEY_LEADER_STALIN</Description>
 			<Civilopedia>TXT_KEY_LEADER_JOSEF_STALIN_PEDIA</Civilopedia>
@@ -10577,7 +10529,6 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
 			<!-- custom: was 30 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-3</iWorseRankDifferenceAttitudeChange>
@@ -10785,7 +10736,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Suleiman (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Suleiman -->
 			<Type>LEADER_SULEIMAN</Type>
 			<Description>TXT_KEY_LEADER_SULEIMAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SULEIMAN_PEDIA</Civilopedia>
@@ -10817,7 +10768,6 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>5</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -10992,7 +10942,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Suryavarman (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Suryavarman -->
 			<Type>LEADER_SURYAVARMAN</Type>
 			<Description>TXT_KEY_LEADER_SURYAVARMAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SURYAVARMAN_PEDIA</Civilopedia>
@@ -11025,7 +10975,6 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
@@ -11232,7 +11181,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Tokugawa (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Tokugawa -->
 			<Type>LEADER_TOKUGAWA</Type>
 			<Description>TXT_KEY_LEADER_TOKUGAWA</Description>
 			<Civilopedia>TXT_KEY_LEADER_TOKUGAWA_PEDIA</Civilopedia>
@@ -11265,7 +11214,6 @@
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
 			<!-- custom: was 30 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -11488,7 +11436,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Victoria (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Victoria -->
 			<Type>LEADER_VICTORIA</Type>
 			<Description>TXT_KEY_LEADER_VICTORIA</Description>
 			<Civilopedia>TXT_KEY_LEADER_VICTORIA_PEDIA</Civilopedia>
@@ -11520,7 +11468,6 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
@@ -11687,7 +11634,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Wangkon (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Wangkon -->
 			<Type>LEADER_WANGKON</Type>
 			<Description>TXT_KEY_LEADER_WANGKON</Description>
 			<Civilopedia>TXT_KEY_LEADER_WANG_KON_PEDIA</Civilopedia>
@@ -11719,7 +11666,6 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -11899,7 +11845,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Washington (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Washington -->
 			<Type>LEADER_WASHINGTON</Type>
 			<Description>TXT_KEY_LEADER_WASHINGTON</Description>
 			<Civilopedia>TXT_KEY_LEADER_WASHINGTON_PEDIA</Civilopedia>
@@ -11931,7 +11877,6 @@
 			<iDemandRebukedSneakProb>100</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -12134,7 +12079,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Willhem_Van_Oranje (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Willhem_Van_Oranje -->
 			<Type>LEADER_WILLEM_VAN_ORANJE</Type>
 			<Description>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Description>
 			<Civilopedia>TXT_KEY_LEADER_WILLEM_VAN_ORANJE_PEDIA</Civilopedia>
@@ -12171,7 +12116,6 @@
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- custom: was 25 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<!-- advc.130c: Swapped the values for WorseRank and
@@ -12348,7 +12292,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Zara_Yaqob (add leader name here too for easier vs code tree read while in the file) -->
+		<LeaderHeadInfo> <!-- custom: Zara_Yaqob -->
 			<Type>LEADER_ZARA_YAQOB</Type>
 			<Description>TXT_KEY_LEADER_ZARA_YAQOB</Description>
 			<Civilopedia>TXT_KEY_LEADER_ZARA_YAQOB_PEDIA</Civilopedia>
@@ -12381,7 +12325,6 @@
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>5</iRazeCityProb>
 			<!-- custom: was 30 -->
-			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game -->
 			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>

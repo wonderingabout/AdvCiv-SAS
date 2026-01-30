@@ -108,39 +108,15 @@ Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->
 ----- Comment #12 -----
 <!-- custom: since this is cumulative and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new oneit helped in this case at least)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe culturally consistent or thematically consistentwith the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas, so choosing a quite small in this casevalue that should hopefully in this casestill be significant; or so it seems that it seemms to stack (didn't check in depth), was 0 -->
 
-===== \Assets\XML\Buildings\CIV4CityLSystem.xml =====
+===== \Assets\XML\Buildings\GlobalDefines_advciv_sas.xml =====
 ----- Comment #13 -----
-<!-- CityLSystems use the follwing ArtRef attributes:
 
-        Attribute     Syntax                Meaning
-        ____________________________________________________________________________________________________________
-		Rotation      float,[float,...]     The ArtRef is allowed only if it its containing node 
-		                                    has one of the given rotations. This helps with
-		                                    shadow alignment. Rotations are in degrees.
-		                                    
-        Era           ERA_ALL or            This ArtRef is allowed regardless of the game era.
-                                            This is the default if this attribute is not manually specified.
-                      ERA_xxx,[era_xxx,.. ] A list of era types, specified in CIV4EraInfos, during which this
-                                            art may be used.
-                                            
-        ArtStyle      ARTSTYLE_ALL          This art reference is allowed regardless of the game era.
-                                            This is the default if not otherwise specified.
-                      ARTSTYLE_xxx,[...]    A list of art styles, specified in CIV4GlobalTypes, for which
-                                            this art is valid. A ArtStyles are Civilization-sepcific 
-                                            and are specified in CIV4CivilizationInfos.xml
-  
-		You can add the following items to a node or production...
-			<Attribute Class="ScalarList">szWithCityNameNotEqualTo:CityName1,CityName2</Attribute> : inhibits the production/node when a city is in the list
-			<Attribute Class="ScalarList">szWithCityNameEqualTo:CityName1,CityName2</Attribute>    : inhibits the production/node when a city not is in the list			
-		
-  -->
+, e.g. with a multiplier of 2 and hammer value of 200, then hammer value would be 2 * 200 = 400. And since and engineer specialist gives as of now 3 hammers, its total yield value would be 3 * 400 = 1200, which is higher than a scientist that would give 300 beakers * 3 science commerce yield = 900 value. Note: only applies if we need it urgently (enemy strong, etc if any more edge cases added)
 
 ----- Comment #14 -----
-<!-- custom: for this file there were 2 versions:
-- one seemingly vanilla civ4(?) (not taken here for AdvCiv-SAS): C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Buildings\CIV4CityLSystem.xml
-- and one other(/another) longer (in lines count) (that i took for AdvCiv-SAS and then modified it as needed or wanted or other or not): C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Buildings\CIV4CityLSystem.xml
+===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 
-I am not sure which i should take, but since there are redundancies i guess i should pick only one, and then warlords even though i don't know a lot about it i assume (barely at all but maybe i can make assumptions (educated maybe) or guesses that if as i researched very quick civ4 bts is based on warlords), and considering the warlords file version of it is longer, i went with((/)i.e. picked) the warlords version of this file, may revert if doesn't work, maybe is not used in BTS anymore or maybe is, but since it mentions a "TAO" asset that i would want to rename to "DAO" trying it to see if works -->
+i don't know why there is production, even from reading the 020 manual in the nice manual.txt i added too but that i am thankful for too if i may say or not too or yes too, i don't understand at least doesn't seem clear to me what the indirect effects of having production here would do, since i don't understand it, might as well remove it, ideally should just keep it as is, but it shouldn't make too much of a difference, i don't know too well if at all how flavors work, but maybe this is a safe or quite safe change, trying it and see if doesn't break anything or is not too determinant may keep as is unless i find a better explanation or reasoning to keep
 
 ===== \Assets\XML\Buildings\CIV4PlotLSystem.xml =====
 ----- Comment #15 -----
@@ -4681,3 +4657,157 @@ added most unitai types that are not pure city attack type of, to make trebuchet
 ----- Comment #339 -----
 
 <!-- custom: e.g. if value is 25 then this means that if one of our vassals has the tech, we only value the tech iValue * 25 / 100 = 25% of its value (meaning we value it a lot less as it lost 75% of its value (since we can get it from our vassal if needed. I assume this means we'd be much less inclined to research it or to buy it at a high price at trading with rivals but i don't know exactly how this value is used and i didn't check too much so check to be sure and for exhaustiveness) -->
+
+===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
+----- Comment #340 -----
+
+emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong; since an artist specialist gives 3 gpp as of now (and culture or such), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building); also to rpely to chagpt 5 that said +2 may be too much, it seems thinking about it that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such
+
+===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
+----- Comment #341 -----
+
+similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too) to be built, at least is what ideally i would want, however unfortunately monasteries are not merged under the same class so i can't sadly require x monasteries, require a library instead (and reduce number a bit), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead
+
+===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
+----- Comment #342 -----
+
+and gold or religion or culture or such or growth or science or other would not be defended more because ennemies have more war weariness so don't put any flavor here, except for the production great person related effect, was flavor culture 6 -->
+			<!-- advc.020: Was 8 Military. Make it Culture b/c of the culture
+				 bonus. The defensive ability (if it actually did sth.) would
+				 also work well for a peaceable, Culture-flavored leader.
+
+===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
+----- Comment #343 -----
+
+, at least for the protective trait buildings, bonuses were too lousy (or weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe or not bbigger or yes bigger or other or not or etc more importantly that the castle would be otherwise too op for the protective trait players
+
+===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+----- Comment #344 -----
+
+		<!-- custom: add Kingdom Of Benin
+		source for the map (files appended in docs):
+		https://www.nairaland.com/7653263/map-great-benin-kingdom-till
+		and https://smarthistory.org/benin-art-patrons/
+		I don't have the order of founding them so i will go approximately maybe
+		APA city doesn't seem to be their city but seems about right.
+		note:
+		for religion is a filler until i replace religion with paganism, commit would
+		be overloaded if i did all changes at same time.
+		About techs, since i did not implement the new techs, putting some filler techs,
+		among them Mysticism and Agriculture may fit quite well as it's a civ that is good
+		at growing based on my understanding and what i read of it in the wiki.
+		The city name, in Map2, "BC" seems like benin city (which is edo, the capital)
+		if i'm not mistaken.
+		Some city names are blurred hopefully i got them right
+		-->
+
+===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+----- Comment #345 -----
+
+			<!-- custom: from EDO to ELUR (quite close ring around Edo / Benin City (same city unless i'm mistaken) -->
+			<!-- custom: from ELUR (excluded) to AYE (included), west side of Edo / Benin City -->
+			<!-- custom: from AYE (excluded) to UZEA (included), far east of Edo / Benin City -->
+			<!-- custom: from UZEA (excluded) to AKURE (included), north of Edo / Benin City -->
+			<!-- custom: from AKURE (excluded) to ABOH (included), farther cities in all directions, and also west and north west further sides -->
+			<!-- custom: from ABOH (excluded) to ITAKETE (included), even further cities or furthest remaining -->
+
+===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+----- Comment #346 -----
+
+				<!-- custom: lines such as 
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help thanks -->
+				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this way so they can focus more on producing units. -->
+				<!-- custom: (Normal Buildings)-->
+
+===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+----- Comment #347 -----
+
+				<!-- custom: also for national wonders, lines such as:
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless)-->
+
+===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+----- Comment #348 -----
+
+			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such) if they can last long enough in this case until then-->
+			<!-- advc.303: Not sure where comments are allowed in this file;
+			demonstrably not everywhere. Added NONE entries to the Barbarians
+			starting at Monument (still called "Obelisk" internally) until
+			Supermarket.
+			advc.305: Removed (now allowed) Workboat.
+			advc.307: Allowed Musketman
+			Disallowed Frigate, Privateer, Paratrooper, Rifleman, Grenadier,
+			Spy (kekm.6). -->
+			<!-- custom: hopefully helps barbarians catch up too the delay -->
+
+===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
+----- Comment #349 -----
+
+, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal. I want it fair and fun, but hard enough and not toned down, and accurate)
+
+===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
+----- Comment #350 -----
+
+barbarians were also very good archers in particular, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
+			Make sure to build enough workers and early enough to develop the land too.
+			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend.
+			It seems also 25 (for UNITAI_WORKER) is not enough to make enough workers and fast/soon enough, trying a higher number.
+
+===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
+----- Comment #351 -----
+
+, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv, and generally i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games
+
+===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
+----- Comment #352 -----
+
+<!-- custom: not much info from quick read only a tiny reference to "taoism" (not daoism in these english sources it seems) in a wiki external source, so may or not be related but hopefully accurate enough. (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous religion (dominant) or if it was traditional chinese religion or some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully accurate enough -->
+
+===== \Assets\XML\Civilizations\CIV4TraitInfos.xml =====
+----- Comment #353 -----
+
+change from (translate to english with web browser or such) https://gforestshade.github.io/kujira/post/civ4traitinfos/#tradeyieldmodifiers adjusted or not for advciv-sas, see also this topic/forum https://forums.civfanatics.com/threads/modifying-traits-tradeyieldmodifiers.264979/post-8045016 if helps there is a screenshot and such discussion about this
+
+===== \Assets\XML\GameInfo\CIV4GameInfoSchema.xml =====
+----- Comment #354 -----
+
+		<!-- advc: New game speed modifiers ...
+			 Set to 100 in the DLL by default. -->
+		<!-- advc.130r: start -->
+		<!-- Affects the per-turn chance of incrementing or decrementing AI diplo
+			 memory counters. (Some count up, e.g. "years of peace", others decay,
+			 namely remembered diplo actions such as "you declared war on us".)
+			 Percentages above 100 make it less(!) likely for counters to be
+			 changed, i.e. make diplomacy more inert.
+			 During the early game, counters that count up receive
+			 special treatment: they get adjusted to game length and the
+			 MemoryRand adjustment only takes effect gradually. -->
+
+===== \Assets\XML\GameInfo\CIV4GameInfoSchema.xml =====
+----- Comment #355 -----
+
+		<!-- Affects the per-turn chance of AI civs reaching out to other
+			 human or AI civs with offers, requests or demands. The contact
+			 probability is 1/ContactRand, i.e. a percentage above 100
+			 makes the AI less likely to reach out.
+			 Peace offers and requests for joining a war are exempt from
+			 this adjustment. -->
+
+===== \Assets\XML\GameInfo\CIV4GameInfoSchema.xml =====
+----- Comment #356 -----
+
+		<!-- Affects the per-turn probability of Random Events, specifically,
+			 the number of sides of the virtually rolled die. A percentage above
+			 100 means a higher number of sides and smaller event probabilities.
+			 Also affects the length of the period of game start during which
+			 no events can occur - the higher the percentage, the longer the
+			 period without events.
+			 Feature growth and resource discovery are not affected by this,
+			 those special events get adjusted to game length.

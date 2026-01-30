@@ -1362,7 +1362,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
-	<!-- custom: if we need hammers urgently, increase hammer value, e.g. with a multiplier of 2 and hammer value of 200, then hammer value would be 2 * 200 = 400. And since and engineer specialist gives as of now 3 hammers, its total yield value would be 3 * 400 = 1200, which is higher than a scientist that would give 300 beakers * 3 science commerce yield = 900 value. Note: only applies if we need it urgently (enemy strong, etc if any more edge cases added) -->
+	<!-- custom: if we need hammers urgently, increase hammer value; Long_Comments_XML.txt #13 -->
 	<Define>
 		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>

@@ -124,7 +124,7 @@
 
 
 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
-		<GameSpeedInfo> <!-- custom: GAMESPEED_TURBO (useful for VS Code upper tree view while scrolling) -->
+		<GameSpeedInfo> <!-- custom: GAMESPEED_TURBO -->
 			<Type>GAMESPEED_TURBO</Type>
 			<Description>TXT_KEY_GAMESPEED_TURBO</Description>
 			<Help>TXT_KEY_GAMESPEED_TURBO_HELP</Help>
@@ -236,7 +236,7 @@
 
 
 
-		<GameSpeedInfo> <!-- custom: GAMESPEED_QUICK (useful for VS Code upper tree view while scrolling) -->
+		<GameSpeedInfo> <!-- custom: GAMESPEED_QUICK -->
 			<Type>GAMESPEED_QUICK</Type>
 			<Description>TXT_KEY_GAMESPEED_QUICK</Description>
 			<Help>TXT_KEY_GAMESPEED_QUICK_HELP</Help>
@@ -340,7 +340,7 @@
 
 
 
-		<GameSpeedInfo> <!-- custom: GAMESPEED_NORMAL (useful for VS Code upper tree view while scrolling) -->
+		<GameSpeedInfo> <!-- custom: GAMESPEED_NORMAL -->
 			<Type>GAMESPEED_NORMAL</Type>
 			<Description>TXT_KEY_GAMESPEED_NORMAL</Description>
 			<Help>TXT_KEY_GAMESPEED_NORMAL_HELP</Help>
@@ -442,7 +442,7 @@
 			 to restore, by and large, the BtS Marathon modifiers.
 			 May then also want to increase the threshold for Legendary culture
 			 in Civ4CultureLevelInfos.xml. -->
-		<GameSpeedInfo> <!-- custom: GAMESPEED_EPIC (useful for VS Code upper tree view while scrolling) -->
+		<GameSpeedInfo> <!-- custom: GAMESPEED_EPIC -->
 			<Type>GAMESPEED_EPIC</Type>
 			<Description>TXT_KEY_GAMESPEED_EPIC</Description>
 			<Help>TXT_KEY_GAMESPEED_EPIC_HELP</Help>
@@ -549,7 +549,7 @@
 
 
 		<!-- custom: note: unlike in base advciv, reduce number of turns from 1250 to 1000, i believe it's enough to have a nice and long game, and this way the percent things can stay to 200 and hopefully be accurate enough. -->
-		<GameSpeedInfo> <!-- custom: GAMESPEED_MARATHON (useful for VS Code upper tree view while scrolling) -->
+		<GameSpeedInfo> <!-- custom: GAMESPEED_MARATHON -->
 			<Type>GAMESPEED_MARATHON</Type>
 			<Description>TXT_KEY_GAMESPEED_MARATHON</Description>
 			<Help>TXT_KEY_GAMESPEED_MARATHON_HELP</Help>
@@ -676,7 +676,7 @@
 
 
 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
-		<GameSpeedInfo> <!-- custom: GAMESPEED_SLOW (useful for VS Code upper tree view while scrolling) -->
+		<GameSpeedInfo> <!-- custom: GAMESPEED_SLOW -->
 			<Type>GAMESPEED_SLOW</Type>
 			<Description>TXT_KEY_GAMESPEED_SLOW</Description>
 			<Help>TXT_KEY_GAMESPEED_SLOW_HELP</Help>
@@ -788,7 +788,7 @@
 
 
 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
-		<GameSpeedInfo> <!-- custom: GAMESPEED_VERY_SLOW (useful for VS Code upper tree view while scrolling) -->
+		<GameSpeedInfo> <!-- custom: GAMESPEED_VERY_SLOW -->
 			<Type>GAMESPEED_VERY_SLOW</Type>
 			<Description>TXT_KEY_GAMESPEED_VERY_SLOW</Description>
 			<Help>TXT_KEY_GAMESPEED_VERY_SLOW_HELP</Help>
