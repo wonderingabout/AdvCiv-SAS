@@ -143,9 +143,14 @@ class SevoPediaMovie:
 			self.SAS_savedNoMovies = CyUserProfile().getGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES)
 		CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, False)
 
-		szTitleText = self.getMovieTitle(iMovieType, iMovieId)
 		screen = self.mediaPlayer.openScreen()
-		iScreenW, iScreenH, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.setupLayout(screen, szTitleText)
+		iScreenW, iScreenH, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.setupLayout(screen, "", False)
+		bUseFullScreenMovie = (szMovieKind == "movie")
+		# <!-- custom: BIK movies render full-screen, so hide the TV panel and use compact prev/next labels to keep navigation readable. (GPT-5.2-Codex) -->
+		if not bUseFullScreenMovie:
+			_, _, _, _, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.placeTvPanel(screen, iScreenW, iScreenH)
+		else:
+			self.mediaPlayer.clearTvPanel(screen)
 		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
 		self.mediaPlayer.startTimer()
 
@@ -177,7 +182,13 @@ class SevoPediaMovie:
 		self.mediaPlayer.setFlipCallback(self.switchToMusic)
 
 		self.SAS_setupPlayableMovies(iMovieType, iMovieId)
-		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels)
+		if bUseFullScreenMovie:
+			self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId))
+			self.mediaPlayer.clearQueueList(screen)
+			szPrev, szNext = self.SAS_getAdjacentMovieLabels()
+			self.mediaPlayer.placePrevNextLabels(screen, iScreenW, iScreenH, szPrev, szNext)
+		else:
+			self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels)
 
 
 
@@ -350,6 +361,18 @@ class SevoPediaMovie:
 		if not playable:
 			return -1
 		return playable[0]
+
+
+	def SAS_getAdjacentMovieLabels(self):
+		if (self.SAS_playableMovieLabels is None) or (self.SAS_playableMovieIndex < 0):
+			return ("", "")
+		szPrev = ""
+		szNext = ""
+		if self.SAS_playableMovieIndex > 0:
+			szPrev = self.SAS_playableMovieLabels[self.SAS_playableMovieIndex - 1]
+		if (self.SAS_playableMovieIndex + 1) < len(self.SAS_playableMovieLabels):
+			szNext = self.SAS_playableMovieLabels[self.SAS_playableMovieIndex + 1]
+		return (szPrev, szNext)
 
 
 

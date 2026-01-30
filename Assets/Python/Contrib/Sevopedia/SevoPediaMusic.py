@@ -230,10 +230,11 @@ class SevoPediaMusic:
 		if szSoundScript == "NONE":
 			szSoundScript = ""
 
-		szTitleText = self.top.SAS_getMusicTitle(iMusic)
 		screen = self.mediaPlayer.openScreen()
-		iScreenW, iScreenH, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.setupLayout(screen, szTitleText)
+		iScreenW, iScreenH, _, _, _, _ = self.mediaPlayer.setupLayout(screen, "", False)
+		_, _, _, _, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.placeTvPanel(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
+		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
 		self.mediaPlayer.startTimer()
 
 		iEra = self.top.SAS_getMusicEra(iMusic)

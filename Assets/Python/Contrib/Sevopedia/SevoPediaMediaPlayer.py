@@ -26,6 +26,8 @@ class SevoPediaMediaPlayer:
 		self.prevGroupId = clickPrefix + "PrevGroup"
 		self.nextGroupId = clickPrefix + "NextGroup"
 		self.timerLabelId = clickPrefix + "Timer"
+		self.currentLabelId = clickPrefix + "CurrentLabel"
+		self.tvPanelId = clickPrefix + "TvPanel"
 		self.queuePanelId = clickPrefix + "QueuePanel"
 		self.queueListId = clickPrefix + "QueueList"
 		self.clickPrefix = clickPrefix
@@ -51,6 +53,8 @@ class SevoPediaMediaPlayer:
 		self.timerRunning = False
 		self.timerLabelX = 0
 		self.timerLabelY = 0
+		self.currentLabelX = 0
+		self.currentLabelY = 0
 
 
 
@@ -78,7 +82,7 @@ class SevoPediaMediaPlayer:
 
 
 
-	def setupLayout(self, screen, szTitleText):
+	def setupLayout(self, screen, szTitleText, bShowTitle=True):
 		iScreenW = screen.getXResolution()
 		iScreenH = screen.getYResolution()
 		iMediaW = iScreenW
@@ -89,13 +93,15 @@ class SevoPediaMediaPlayer:
 		iMediaX = (iScreenW - iMediaW) / 2
 		iMediaY = (iScreenH - iMediaH) / 2
 
-		screen.setLabel(self.clickPrefix + "Title", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		if bShowTitle and szTitleText:
+			screen.setLabel(self.clickPrefix + "Title", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		return (iScreenW, iScreenH, iMediaX, iMediaY, iMediaW, iMediaH)
 
 
 
 	def placeExitButton(self, screen, iScreenW, iScreenH):
-		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iExitX = self._getTransportButtonX(iScreenW, 4)
 		screen.setImageButton(self.exitId, self.exitButtonPath, iExitX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# <!-- custom: (ChatGPT-5.2 Thinking) -->
@@ -112,29 +118,25 @@ class SevoPediaMediaPlayer:
 
 	# <!-- custom: useful to replay files with variants such as _ORDER or _SELECT civilization sounds that play a different variant on replay (e.g. "Yes", "Agreed", "Right Away" (imaginary examples)), or for convenience so we don't exit the screen to replay. Added with the very nice help of GPT-5.2-Codex thanks. -->
 	def placeReplayButton(self, screen, iScreenW, iScreenH):
-		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iReplayX = iExitX - (iGap + iSize) * 2
+		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iReplayX = self._getTransportButtonX(iScreenW, 2)
 		screen.setImageButton(self.replayId, self.replayButtonPath, iReplayX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
 	def placePrevNextButtons(self, screen, iScreenW, iScreenH):
-		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iReplayX = iExitX - (iGap + iSize) * 2
-		iPrevX = iReplayX - iGap - iSize
-		iNextX = iExitX + iGap + iSize
+		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iPrevX = self._getTransportButtonX(iScreenW, 1)
+		iNextX = self._getTransportButtonX(iScreenW, 5)
 		screen.setImageButton(self.prevId, self.prevButtonPath, iPrevX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setImageButton(self.nextId, self.nextButtonPath, iNextX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
 	def placeGroupSkipButtons(self, screen, iScreenW, iScreenH):
-		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iReplayX = iExitX - (iGap + iSize) * 2
-		iPrevX = iReplayX - iGap - iSize
-		iNextX = iExitX + iGap + iSize
-		iPrevGroupX = iPrevX - iGap - iSize
-		iNextGroupX = iNextX + iGap + iSize
+		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iPrevGroupX = self._getTransportButtonX(iScreenW, 0)
+		iNextGroupX = self._getTransportButtonX(iScreenW, 6)
 		screen.setImageButton(self.prevGroupId, self.prevGroupButtonPath, iPrevGroupX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setImageButton(self.nextGroupId, self.nextGroupButtonPath, iNextGroupX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -143,8 +145,8 @@ class SevoPediaMediaPlayer:
 	def placeFlipButton(self, screen, iScreenW, iScreenH):
 		if not self.flipButtonPath:
 			return
-		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
-		iFlipX = iExitX - iGap - iSize
+		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iFlipX = self._getTransportButtonX(iScreenW, 3)
 		screen.setImageButton(self.flipId, self.flipButtonPath, iFlipX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
@@ -152,9 +154,18 @@ class SevoPediaMediaPlayer:
 	def _getTransportLayout(self, iScreenW, iScreenH):
 		iSize = 64
 		iGap = 8
-		iExitX = iScreenW / 2 - iSize / 2
 		iBaseY = iScreenH - 74
-		return (iSize, iGap, iExitX, iBaseY)
+		return (iSize, iGap, iBaseY)
+
+
+
+	def _getTransportButtonX(self, iScreenW, iIndex):
+		iSize = 64
+		iGap = 8
+		iCount = 7
+		iTotalW = (iCount * iSize) + ((iCount - 1) * iGap)
+		iLeftX = iScreenW / 2 - iTotalW / 2
+		return iLeftX + iIndex * (iSize + iGap)
 
 
 
@@ -232,6 +243,73 @@ class SevoPediaMediaPlayer:
 			iRows += 1
 			i += 1
 		screen.updateListBox(self.queueListId)
+
+
+
+	def clearQueueList(self, screen):
+		try:
+			screen.deleteWidget(self.queuePanelId)
+		except:
+			pass
+		try:
+			screen.deleteWidget(self.queueListId)
+		except:
+			pass
+
+
+
+	def placeTvPanel(self, screen, iScreenW, iScreenH):
+		iPanelX = 20
+		iPanelY = 50
+		iPanelW = iScreenW - 320 - 60
+		iPanelH = iScreenH - 140
+		if iPanelW <= 200 or iPanelH <= 120:
+			iPanelX = 20
+			iPanelY = 50
+			iPanelW = iScreenW - 40
+			iPanelH = iScreenH - 140
+
+		try:
+			screen.deleteWidget(self.tvPanelId)
+		except:
+			pass
+
+		screen.addPanel(self.tvPanelId, "", "", True, False, iPanelX, iPanelY, iPanelW, iPanelH, PanelStyles.PANEL_STYLE_BLUE50)
+
+		iPad = 10
+		iBoxW = iPanelW - iPad * 2
+		iBoxH = iPanelH - iPad * 2
+		if iBoxW <= 0 or iBoxH <= 0:
+			return (iPanelX, iPanelY, iPanelW, iPanelH, iPanelX, iPanelY, iPanelW, iPanelH)
+
+		iMediaW = iBoxW
+		iMediaH = iMediaW * 2 / 3
+		if iMediaH > iBoxH:
+			iMediaH = iBoxH
+			iMediaW = iMediaH * 3 / 2
+		iMediaX = iPanelX + (iPanelW - iMediaW) / 2
+		iMediaY = iPanelY + (iPanelH - iMediaH) / 2
+		return (iPanelX, iPanelY, iPanelW, iPanelH, iMediaX, iMediaY, iMediaW, iMediaH)
+
+
+
+	def clearTvPanel(self, screen):
+		try:
+			screen.deleteWidget(self.tvPanelId)
+		except:
+			pass
+
+
+
+	def placePrevNextLabels(self, screen, iScreenW, iScreenH, szPrev, szNext):
+		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
+		iPrevX = self._getTransportButtonX(iScreenW, 1)
+		iNextX = self._getTransportButtonX(iScreenW, 5)
+		iLabelY = iBaseY - 26
+		if szPrev:
+			screen.setLabel(self.prevId + "Label", "Background", u"<font=3>" + unicode(szPrev) + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iPrevX + iSize / 2, iLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		if szNext:
+			screen.setLabel(self.nextId + "Label", "Background", u"<font=3>" + unicode(szNext) + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iNextX + iSize / 2, iLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -343,7 +421,18 @@ class SevoPediaMediaPlayer:
 	def placeTimerLabel(self, screen, iScreenW, iScreenH):
 		self.timerLabelX = 20
 		self.timerLabelY = iScreenH - 34
+		self.currentLabelX = self.timerLabelX + 80
+		self.currentLabelY = self.timerLabelY
 		self._updateTimerLabel()
+
+
+
+	def setCurrentLabel(self, screen, szLabel):
+		if not szLabel:
+			return
+		if self.currentLabelX <= 0:
+			return
+		screen.setLabel(self.currentLabelId, "Background", u"<font=3>" + unicode(szLabel) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.currentLabelX, self.currentLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

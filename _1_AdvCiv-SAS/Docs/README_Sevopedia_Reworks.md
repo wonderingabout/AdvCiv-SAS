@@ -190,7 +190,13 @@ The Sevopedia Media player screen is opened with audio from main menu being sile
 
 A play button allows to replay track without exiting the screen (useful for `_ORDER` or `_SELECT` Civilizations sounds for example as they replay variants for the same item).
 
-Also supports Previous Track and Next track buttons.
+Also supports Previous Track and Next track, Flip Movies/Music button, Fast Up and Fast Down to move to next grouping, timer (no end time detection as of now but resets successfully on track change), and a playlist on the right side (for non-bik files since these use fullscreen it seems) or on bottom in a more compact way (for nif, dds, etc. since they fit in the TV panel).
+
+So the common media playing logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
+
+<img src="../Images/sevopedia/0.810_sevopedia_media_player (1).JPG" alt="0.810_sevopedia_media_player (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.810_sevopedia_media_player (2).JPG" alt="0.810_sevopedia_media_player (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.810_sevopedia_media_player (3).JPG" alt="0.810_sevopedia_media_player (3).JPG" width="250"></img>
 
 ### example 0.91: Movies category (with audio support)
 
@@ -198,11 +204,8 @@ Added a Movies category in Sevopedia that lists movies (as of now Victories, Won
 
 Emoji-based Play button is added to Sevopedia Building, Project, Religions, and Eras Chart.
 
-Note: Common logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
-
-<img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.820_sevopedia_movies (1).JPG" alt="0.820_sevopedia_movies (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.820_sevopedia_movies (2).JPG" alt="0.820_sevopedia_movies (2).JPG" width="250"></img>
 
 ### example 0.92: Music category (~1750 audio scripts playable in Sevopedia)
 
@@ -232,12 +235,10 @@ The implementation still needs some minor polish, but it is as of now entirely f
 - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
 - in header add music id / total (like total 1759)
 
-<img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.820_sevopedia_music (3).JPG" alt="0.820_sevopedia_music (3).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.820_sevopedia_music (4).JPG" alt="0.820_sevopedia_music (4).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.820_sevopedia_music (5).JPG" alt="0.820_sevopedia_music (5).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.820_sevopedia_music (6).JPG" alt="0.820_sevopedia_music (6).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.830_sevopedia_music (1).JPG" alt="0.830_sevopedia_music (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.830_sevopedia_music (2).JPG" alt="0.830_sevopedia_music (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.830_sevopedia_music (3).JPG" alt="0.830_sevopedia_music (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 
