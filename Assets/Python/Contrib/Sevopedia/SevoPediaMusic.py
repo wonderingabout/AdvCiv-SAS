@@ -235,6 +235,7 @@ class SevoPediaMusic:
 		_, _, _, _, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.placeTvPanel(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
+		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
 		self.mediaPlayer.startTimer()
 
 		iEra = self.top.SAS_getMusicEra(iMusic)
@@ -249,8 +250,8 @@ class SevoPediaMusic:
 
 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
-		self.mediaPlayer.setFlipButton("SAS_EMOJI_TELEVISION")
-		self.mediaPlayer.placeFlipButton(screen, iScreenW, iScreenH)
+		self.mediaPlayer.setToggleButton("SAS_EMOJI_MUSICAL_NOTES")
+		self.mediaPlayer.placeToggleButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeGroupSkipButtons(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setReplayCallback(self.replayMusic)
@@ -258,7 +259,7 @@ class SevoPediaMusic:
 		self.mediaPlayer.setNextCallback(self.playNextMusic)
 		self.mediaPlayer.setPrevGroupCallback(self.playPrevMusicGroup)
 		self.mediaPlayer.setNextGroupCallback(self.playNextMusicGroup)
-		self.mediaPlayer.setFlipCallback(self.switchToMovies)
+		self.mediaPlayer.setToggleCallback(self.switchToMovies)
 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
 		self.SAS_setupPlayableMusic(iMusic)
 		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels)

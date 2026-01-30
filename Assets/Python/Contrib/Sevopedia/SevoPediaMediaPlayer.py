@@ -22,7 +22,7 @@ class SevoPediaMediaPlayer:
 		self.replayId = clickPrefix + "Replay"
 		self.prevId = clickPrefix + "Prev"
 		self.nextId = clickPrefix + "Next"
-		self.flipId = clickPrefix + "Flip"
+		self.toggleId = clickPrefix + "Toggle"
 		self.prevGroupId = clickPrefix + "PrevGroup"
 		self.nextGroupId = clickPrefix + "NextGroup"
 		self.timerLabelId = clickPrefix + "Timer"
@@ -45,8 +45,8 @@ class SevoPediaMediaPlayer:
 		self.nextCallback = None
 		self.prevGroupCallback = None
 		self.nextGroupCallback = None
-		self.flipButtonPath = None
-		self.flipCallback = None
+		self.toggleButtonPath = None
+		self.toggleCallback = None
 		self.screen = None
 		self.timerSeconds = 0
 		self.timerRemainder = 0.0
@@ -142,12 +142,12 @@ class SevoPediaMediaPlayer:
 
 
 
-	def placeFlipButton(self, screen, iScreenW, iScreenH):
-		if not self.flipButtonPath:
+	def placeToggleButton(self, screen, iScreenW, iScreenH):
+		if not self.toggleButtonPath:
 			return
 		iSize, iGap, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
 		iFlipX = self._getTransportButtonX(iScreenW, 3)
-		screen.setImageButton(self.flipId, self.flipButtonPath, iFlipX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setImageButton(self.toggleId, self.toggleButtonPath, iFlipX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -338,13 +338,13 @@ class SevoPediaMediaPlayer:
 
 
 
-	def setFlipButton(self, szArtInfoType):
-		self.flipButtonPath = ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath()
+	def setToggleButton(self, szArtInfoType):
+		self.toggleButtonPath = ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath()
 
 
 
-	def setFlipCallback(self, flipCallback):
-		self.flipCallback = flipCallback
+	def setToggleCallback(self, toggleCallback):
+		self.toggleCallback = toggleCallback
 
 
 
@@ -530,9 +530,9 @@ class SevoPediaMediaPlayer:
 				if self.nextGroupCallback is not None:
 					self.nextGroupCallback()
 				return True
-			if szName == self.flipId:
-				if self.flipCallback is not None:
-					self.flipCallback()
+			if szName == self.toggleId:
+				if self.toggleCallback is not None:
+					self.toggleCallback()
 				return True
 			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
 			if szName == self.exitId or szName.startswith(self.clickPrefix):

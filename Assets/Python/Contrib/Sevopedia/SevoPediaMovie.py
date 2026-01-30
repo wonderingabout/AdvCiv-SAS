@@ -152,6 +152,7 @@ class SevoPediaMovie:
 		else:
 			self.mediaPlayer.clearTvPanel(screen)
 		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
+		self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId))
 		self.mediaPlayer.startTimer()
 
 		if szMovieKind == "nif":
@@ -170,8 +171,8 @@ class SevoPediaMovie:
 
 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
-		self.mediaPlayer.setFlipButton("SAS_EMOJI_MUSICAL_NOTES")
-		self.mediaPlayer.placeFlipButton(screen, iScreenW, iScreenH)
+		self.mediaPlayer.setToggleButton("SAS_EMOJI_TELEVISION")
+		self.mediaPlayer.placeToggleButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.setReplayCallback(self.replayMovie)
 		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeGroupSkipButtons(screen, iScreenW, iScreenH)
@@ -179,11 +180,10 @@ class SevoPediaMovie:
 		self.mediaPlayer.setNextCallback(self.playNextMovie)
 		self.mediaPlayer.setPrevGroupCallback(self.playPrevMovieGroup)
 		self.mediaPlayer.setNextGroupCallback(self.playNextMovieGroup)
-		self.mediaPlayer.setFlipCallback(self.switchToMusic)
+		self.mediaPlayer.setToggleCallback(self.switchToMusic)
 
 		self.SAS_setupPlayableMovies(iMovieType, iMovieId)
 		if bUseFullScreenMovie:
-			self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId))
 			self.mediaPlayer.clearQueueList(screen)
 			szPrev, szNext = self.SAS_getAdjacentMovieLabels()
 			self.mediaPlayer.placePrevNextLabels(screen, iScreenW, iScreenH, szPrev, szNext)

@@ -190,7 +190,7 @@ The Sevopedia Media player screen is opened with audio from main menu being sile
 
 A play button allows to replay track without exiting the screen (useful for `_ORDER` or `_SELECT` Civilizations sounds for example as they replay variants for the same item).
 
-Also supports Previous Track and Next track, Flip Movies/Music button, Fast Up and Fast Down to move to next grouping, timer (no end time detection as of now but resets successfully on track change), and a playlist on the right side (for non-bik files since these use fullscreen it seems) or on bottom in a more compact way (for nif, dds, etc. since they fit in the TV panel).
+Also supports Previous Track and Next track, Toggle Movies/Music button, Fast Up and Fast Down to move to next grouping, timer (no end time detection as of now but resets successfully on track change), and a playlist on the right side (for non-bik files since these use fullscreen it seems) or on bottom in a more compact way (for nif, dds, etc. since they fit in the TV panel).
 
 So the common media playing logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
 
