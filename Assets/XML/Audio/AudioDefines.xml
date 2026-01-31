@@ -8523,7 +8523,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MILITARY_TRADITION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_MetalCasting</Filename>
+			<Filename>Sounds/Tech/Tech_MetalCasting</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9167,7 +9167,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MILITARY_TRADITION</SoundID>
-			<Filename>Sounds/Tech/Tech_MetalCasting</Filename>
+			<Filename>Sounds/Tech/Tech_MP_MetalCasting</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

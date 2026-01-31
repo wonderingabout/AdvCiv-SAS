@@ -107,7 +107,11 @@ bool CvDllTranslator::replaceOur(const CvWString& szKey, int iForm, CvWString& s
 
 bool CvDllTranslator::replaceCt(const CvWString& szKey, int iForm, CvWString& szReplacement)
 {
-	CvPlayer const& kPlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+	// <!-- custom: Check for NO_PLAYER to prevent crash during autoplay. See KI#102. (Claude code Opus 4.5) -->
+	PlayerTypes const eActivePlayer = GC.getGame().getActivePlayer();
+	if (eActivePlayer == NO_PLAYER)
+		return false;
+	CvPlayer const& kPlayer = GET_PLAYER(eActivePlayer);
 	if (szKey == L"[CT_NAME")
 	{
 		szReplacement = kPlayer.getName(iForm);

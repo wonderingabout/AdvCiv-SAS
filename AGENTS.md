@@ -188,4 +188,4 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 ### Docs
 
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
-- When adding doc entries in dev mode (most of the time), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers. Current rule of thumb: last stable is 5282, so 5283+ is beta/dev and should carry the prefix until the next stable release.
+- When adding doc entries in dev mode (most of the time), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers. Current rule of thumb: last stable is 5400, so 5401+ is beta/dev and should carry the prefix until the next stable release.

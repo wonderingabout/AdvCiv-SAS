@@ -1,3 +1,1133 @@
+commit bb7c8a99da650057fddfbc25382b46b5fa0c9e86
+Author: wonderingabout <hidden>
+Date:   2026-01-31 08:11:22 +0100
+
+fix base advciv crash at 332 related to CvCity::getProductionBarPercentages; update 48 civs DLL
+Fixed with the very nice help of Claude code Opus 4.5 thanks a lot. See KI#102.
+
+commit fe6866cda1461429f8d8ef3528c179e67615737a
+Author: wonderingabout <hidden>
+Date:   2026-01-30 14:29:48 +0100
+
+remove CIV4CityLSystem.xml; update docs
+- We had mistakenly imported the Warlords version of this file instead of the BTS one. Since the BTS one does not harcode any asset name, we don't need to reimport this file at all. Should fix the issue of building models not showing in map view as per player feedback in https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16914675
+
+Note: CIV4PlotLSystem.xml has been double-checked to minimally be based on the BTS version of this file, plus it uses assets like BONUS_GRAPES (or _WINE in Base AdvCiv) which are not compatible with our mod's new asset names. In short, this file doesn't need a change and should be fine (check if accurate).
+
+commit 0d3a9071b134a50af87abf3530788d1a1306d8c9
+Author: wonderingabout <hidden>
+Date:   2026-01-30 13:07:50 +0100
+
+add text panel, add buttons for civs and techs, and musical notes button redirect as fallback, in sevopedia media player
+
+commit bdf38de46f49607cb922e38cac7663dcbe975cba
+Author: wonderingabout <hidden>
+Date:   2026-01-30 12:38:03 +0100
+
+add nif in sevopedia media player leader entries
+
+commit 0ccd2d326531e86392923753a1b2f672361775f5
+Author: wonderingabout <hidden>
+Date:   2026-01-30 08:06:25 +0100
+
+change playlist from listbox to table in sevopedia media player
+
+commit 118ca10d88960f6c88cd425ae597e006ee2c751a
+Author: wonderingabout <hidden>
+Date:   2026-01-30 06:23:11 +0100
+
+replace Flip button with Toggle Button in sevopedia Movies
+
+commit 46790932822e0194b746f22590f61bf6b1dbda66
+Author: wonderingabout <hidden>
+Date:   2026-01-30 05:47:29 +0100
+
+add TV panel or a compact form for bik, in sevopedia media player
+
+commit 2d0b157265a6fead7fcd29b767564f51ba1eaa76
+Author: wonderingabout <hidden>
+Date:   2026-01-29 21:10:24 +0100
+
+beautify groupings in sevopedia media player
+
+commit 8662ed56678c0bf16b7ef23040845df22901167b
+Author: wonderingabout <hidden>
+Date:   2026-01-29 20:43:34 +0100
+
+add timer in sevopedia media player
+
+commit d2309b10188454e8f05d4e65e6902990f21526e2
+Author: wonderingabout <hidden>
+Date:   2026-01-29 20:28:46 +0100
+
+add fast up and fast down buttons in sevopedia media player
+
+commit 7580bd828bc0bfff5d02d927a7b3767fa08cc9d7
+Author: wonderingabout <hidden>
+Date:   2026-01-29 20:02:32 +0100
+
+add movies/music flip button in sevopedia media player
+
+commit e5b99b5c4beafc64b0522569a96b2522ba098544
+Author: wonderingabout <hidden>
+Date:   2026-01-29 19:41:18 +0100
+
+add queue list in sevopedia media player
+
+commit 177af35b51c38854d96b2b88ff58d8f50b084031
+Author: wonderingabout <hidden>
+Date:   2026-01-29 19:29:34 +0100
+
+add previous track and next track buttons in sevopedia media player
+
+commit 159bb04ccc65b70c249cfbe1c254df6cf34664a2
+Author: wonderingabout <hidden>
+Date:   2026-01-29 19:07:02 +0100
+
+Add Play and Eject buttons to Sevopedia Media Player
+
+commit 75ff2b87ed12321cb832c01aff78e40a184e99aa
+Author: wonderingabout <hidden>
+Date:   2026-01-29 08:07:15 +0100
+
+Refactor common Movies and Music logic to Sevopedia Media Player
+- Done with the very nice help of GPT-5.2-Codex thanks a lot!!
+
+commit d2e2b649298af276986bfa8990dc0da24f6450cc
+Author: wonderingabout <hidden>
+Date:   2026-01-29 07:04:23 +0100
+
+update docs
+
+commit 978e8252b37b85a8093cdfaba29c4aa84e14fd8a
+Author: wonderingabout <hidden>
+Date:   2026-01-28 21:13:37 +0100
+
+Revamp Main interface; fix Base AdvCiv bug of obsolete GP rate not displayed but counted on hover in GP bar
+A bit more changes than what we did here, but easier to take from the main changes guide directly:
+
+- (Requires AdvCiv-SAS 5384+) **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [Main interface rework](/README.md#main-interface-rework).
+- **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and (Requires AdvCiv-SAS 5384+) **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and (Requires AdvCiv-SAS 5361+) **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+- (Requires AdvCiv-SAS 5384+) **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit.
+
+Also in this commit:
+- Fixed Base AdvCiv bug: See KI#101: [101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation)
+- update docs
+
+Done with the very nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, Nano banana Pro (Gemini 3 Pro) (draft button), GPT-5.2 Thinking, and other AI helpers if any thanks.
+
+commit d2500dc40107815d6a0afef5b481b9d2073c1743
+Author: wonderingabout <hidden>
+Date:   2026-01-25 17:42:17 +0100
+
+(Fixed) Base AdvCiv major CvSelectionGroup::plot crash
+- Finally found and fixed the fairly rare but very nasty and annoying `CvSelectionGroup::plot` recurring and reproducible crash.
+- Fixed with the help of GPT-5.2-Codex and Claude code Opus 4.5 thanks a lot, as part of implementing Terrain Yield Changes, and committed just the fix separately.
+- See KI#100 ([100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash))
+
+commit beac43db401678c9f5b25557b797632aa0a56eb0
+Author: wonderingabout <hidden>
+Date:   2026-01-25 05:51:04 +0100
+
+Add new History Tab in the Info Screen; update 48 civs DLL
+- Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor).
+
+commit 5102770120052fdc9fdb9280d988cf0caecc26d6
+Author: wonderingabout <hidden>
+Date:   2026-01-23 21:15:47 +0100
+
+refactor: move common logic for in-category charts to sevopedia helpers
+Done with the help of Claude code Opus 4.5 thanks a lot :)
+
+commit 02bdeb35bb33f1bd1238ed80d58427611d89e6d6
+Author: wonderingabout <hidden>
+Date:   2026-01-23 20:50:32 +0100
+
+show script name or sound id in sevopedia music parsed items
+
+commit 2a4e1ecc12aef576c0f4bb21b7e79d7ea63b2b56
+Author: wonderingabout <hidden>
+Date:   2026-01-23 15:01:26 +0100
+
+make sevopedia civilization link to sevopedia music's corresponding entry
+- also add info that select or order civ sounds need to be replayed many times to hear all variants
+
+commit 7503091323be53b0d41737f2dd0589c9e43c8cbf
+Author: wonderingabout <hidden>
+Date:   2026-01-23 14:53:03 +0100
+
+Add civilizations parsing to sevopedia music
+- "Later on, added civilizations parsing as well similarly with buttons. Note: the same item can be replayed many times and has a different sound (i.e. multiple select and order sounds per civilization)"
+
+Done with the very nice help of GPT-5.2-Codex thanks a lot!!!
+
+commit c13f5a3c6132ab58824b3cae022e1c52f51143fd
+Author: wonderingabout <hidden>
+Date:   2026-01-23 13:59:37 +0100
+
+Make Play button in sevopedia civilizations, leaders redirect to corresponding 3D script first item
+- rename music groupings to TXT Keys instead of hardcoded strings
+- era chart redirects to first item in as of now ancient grouping
+
+commit 8c59cab63149f34da216f98d79cc4461f8f8a3d0
+Author: wonderingabout <hidden>
+Date:   2026-01-23 11:45:48 +0100
+
+make sevopedia music buttons redirect to corresponding category
+- order by xml order eras in sevopedia movies
+
+commit e653b9b2bb30e2a5a5b4e2b3bf64513e1faacb06
+Author: wonderingabout <hidden>
+Date:   2026-01-23 11:33:53 +0100
+
+make Era buttons redirect to Era Chart
+most but not the table as it seems not to work, other redirect fine and successfully now
+
+commit 06c01a7e582a90ebec2b9aed62511bd1824a27bc
+Author: wonderingabout <hidden>
+Date:   2026-01-23 11:19:19 +0100
+
+Add new XML field Button for eras
+- Add **new XML field** `<Button>` for eras, to cleanly display them in Sevopedia and ingame without having to hardcode the path. Change in [CIV4GameInfoSchema.xml](/Assets/XML/GameInfo/CIV4GameInfoSchema.xml), [CIV4EraInfos.xml](/Assets/XML/GameInfo/CIV4EraInfos.xml), [CvEraMovieScreen.py](/Assets/Python/Screens/CvEraMovieScreen.py). See [README: Button for eras](/README.md#button-for-eras).
+
+commit 42b5a7f4960216ac8033f4de2efff96266378ea4
+Author: wonderingabout <hidden>
+Date:   2026-01-23 06:32:01 +0100
+
+add Starting and Untradeable Techs Charts
+
+- Sevopedia Feature: replace "Units (Any Build)" with "Units (Remove)"
+
+commit 6facedf5ddfbb54107afb7833b092305649a83de
+Author: wonderingabout <hidden>
+Date:   2026-01-22 08:27:15 +0100
+
+improve mouse and keyboard behaviour when playing media
+- click on "OK" or Right-click to stop the media playing; press Escape or Enter key for main menu
+- fix ENTER key not allowing to click again on entries when revisting category
+
+commit 3d62f3ca63834384eeff68e5d2af74e51ea21810
+Author: wonderingabout <hidden>
+Date:   2026-01-22 06:28:21 +0100
+
+update docs
+
+commit b6956fe7a1930998833c81171d617becf28ea852
+Author: wonderingabout <hidden>
+Date:   2026-01-21 22:50:58 +0100
+
+fix base advciv bug of unallocated txt key; update docs
+- Fix Base AdvCiv bug: "<!-- custom: remove bug unwrapped in TEXT XML text <English>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 additional [NUM1:tile:tiles]</English>, moved to long comment instead; Long_Comments_XML.txt #272 -->", see KI#99
+
+commit f280d0781865781b391b474c5e8c1264c79d22fa
+Author: wonderingabout <hidden>
+Date:   2026-01-21 20:31:49 +0100
+
+remove gc and localText as parameters or local variables or such when not relevant
+Done with the help of ChatGPT-5.2 Thinking thanks a lot
+
+commit 2daca4bca34f8f9b8f65e8035245a4585a5a034b
+Author: wonderingabout <hidden>
+Date:   2026-01-21 18:53:23 +0100
+
+update docs
+
+commit 3ff6d3ceab273f5301ad4ceaa43be21bee5c696c
+Author: wonderingabout <hidden>
+Date:   2026-01-21 14:48:28 +0100
+
+fix missing leader music xml info fetched entries after the refactor
+Done with the help of ChatGPT-5.2 Thinking thanks a lot! :)
+
+commit 6c796d9df8fda427548ba240a8d864218b32267e
+Author: wonderingabout <hidden>
+Date:   2026-01-21 14:15:33 +0100
+
+move AI Personality Panel computation to SevoPediaLeaderAIPValues.py
+- done with the help of ChatGPT-5.2 Thinking thanks a lot!
+
+commit 0bb4e939b3f517f17567f80550abc1744e9bae35
+Author: wonderingabout <hidden>
+Date:   2026-01-21 12:37:20 +0100
+
+refactor and move sevopedia movie and music entries and grouping logic to sevopedia groupings
+- "<!-- custom: Movies + Music list-building helpers
+Goal: keep SevoPediaMain.py clean by moving clunky grouping/list assembly here.
+Note: These build "base lists" (flat item lists) and then add sections, mirroring
+how other categories are handled in SevoPediaMain + this module. (ChatGPT-5.2 Thinking) -->"
+
+commit 53469ab2618d1c9ef6f4e8ad673f6eff7a2ef17d
+Author: wonderingabout <hidden>
+Date:   2026-01-21 11:51:30 +0100
+
+refactor/perf opt: do not re-sort in sevopedia groupings
+- # <!-- custom: For grouping helpers that accept a prebuilt baseList, SevoPediaMain already applies BUG 'Sort Lists' ordering once via getSortedList()/getUnfilteredSortedList()." + "These helpers therefore preserve the incoming order and do not re-sort, avoiding redundant work when list grouping is enabled. (ChatGPT-5.2 Thinking) -->"
+
+commit 0dcd8437fd9fda8191c6185028ca3b141cf962ac
+Author: wonderingabout <hidden>
+Date:   2026-01-21 10:59:55 +0100
+
+move getBuildingType and getBuildingSortedList away from SevoPediaBuilding to SevoPediaMain
+- "moved away from SevoPediaBuilding as they are unused there and cleaner to centralize logic here, with the help of ChatGPT-5.2 Thinking thanks -->"
+
+commit b1773e07c6c53310fa6eff924813a4f6f5b3adf3
+Author: wonderingabout <hidden>
+Date:   2026-01-21 09:01:04 +0100
+
+move item grouping to _sevopedia_main_groupings.py
+with the very nice help of ChatGPT-5.2 Thinking thanks a lot
+
+commit f03be46689aa0cf637481efa00306a74582cfd12
+Author: wonderingabout <hidden>
+Date:   2026-01-21 07:06:01 +0100
+
+Optionally hide unit bar in city screen, fix Tech Advisor value 2 having same effect as 3
+- "optionally hide the unit plot list bar only while a city is selected (ChatGPT-5.2 Thinking)" + "This avoids overlap when the city build bar is configured to show extra rows."
+- fix Tech Advisor value 2 having same effect as 3, now is an intermediate tech advisor width, with the help of ChatGPT-5.2 Thinking thanks
+- Hide "Defense" text in the city screen for a quicker read in the city screen (on top right), now only displays the DEFENSE_CHAR (tower icon)
+
+commit b5edaf36160d1b77fb24fee4b197fe51cdfc2da6
+Author: wonderingabout <hidden>
+Date:   2026-01-21 05:43:23 +0100
+
+Anchor organizations (religions, corporations) to the left edge of the top right panel dynamically
+- "dynamically anchor to the left edge of the panel depending on its width instead of weirdly statically floating if width changes with the help of ChatGPT-5.2 Thinking thanks -->"
+- perf opt in CvMainInterface py file with the help of ChatGPT-5.2 Thinking too thanks
+- - **Hints**:: remove multiple copies of the same hint. Change in [CIV4Hints.xml](/Assets/XML/GameInfo/CIV4Hints.xml).
+
+commit c9f76b0ea6bfeb5ef48586c47ccf6f0a18d1b1b8
+Author: wonderingabout <hidden>
+Date:   2026-01-20 09:20:48 +0100
+
+Add new Sevopedia Music (~1750 scripts can be listened to in Sevopedia as of Now)
+- New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia).
+- Note: switched **De Gaulle** from Louis' music in Base AdvCiv to Base Civ4's Napoleon's music, and added an AdvCiv-SAS specific new music for Napoleon so each leader has its own specific music, see [KI#98](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon).
+- change Kingdom of Benin's civilization sounds from using Ethiopian's sounds to now using Mali's sounds (CivilizationSelectionSound and CivilizationActionSound)
+
+commit 91e02355dda0dc08cc4480d9e6721eae424b8c8f
+Author: wonderingabout <hidden>
+Date:   2026-01-19 05:43:39 +0100
+
+reduce SAS world sizes' size
+
+commit fedd1d40b55056539b38df66592fa2c47c5ecf68
+Author: wonderingabout <hidden>
+Date:   2026-01-19 05:28:00 +0100
+
+Add Sevopedia Movies with audio support
+- New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. Movies are played on a **new screen**. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-035-movies-category-with-audio-support).
+
+commit 0e20b8f04d1d7793166613b2f9dafb4af5730f4d
+Author: wonderingabout <hidden>
+Date:   2026-01-18 13:19:37 +0100
+
+add optional era buttons in Sevopedia Eras Chart
+
+commit 42c83a5ce877c430be16f45667ab0e3b69545941
+Author: wonderingabout <hidden>
+Date:   2026-01-18 12:02:55 +0100
+
+Cache (precompute) Improvement Weights (Leaders) Chart
+- add Water (Food), Water (Other) groupings
+- reorder in other orders than always alphabetically depending on the sevopedia entries
+
+commit 6886e4c7e43de9749a70b4ad01164d9c966f4a96
+Author: wonderingabout <hidden>
+Date:   2026-01-18 10:25:12 +0100
+
+Rework Sevopedia Improvements, add a new Improvement Weights (Leaders) Chart, Beautify, and other changes
+- Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+- Reorder groupings alphabetically in some sevopedia categories
+
+commit d12cdf8d7eff63dd45c3dac1a7f744aca865232f
+Author: wonderingabout <hidden>
+Date:   2026-01-17 14:06:33 +0100
+
+beautify and add new Civilopedia XML field in BuildInfos, and other changes
+- add FeatureStructs panels, with mod-agnostic blurbs (generated with the help of ChatGPT-5.2 Thinking)
+- Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+- then, also added a Build panel in sevopedia improvements, redirecting to the corresponding Sevopedia Builds page.
+
+commit 37caed0b06d2f14b9fa96b5c71cd8b53eb6940eb
+Author: wonderingabout <hidden>
+Date:   2026-01-17 09:40:16 +0100
+
+add Leaders count and % information in Sevopedia Civics and Religions
+
+commit 59643efc941f338d1f56bda181fa81630bcbfe21
+Author: wonderingabout <hidden>
+Date:   2026-01-17 08:24:24 +0100
+
+add ratio to largest in Sevopedia World Sizes
+
+commit 22723a30cca8cac2b364227937b12d02eb748b9d
+Author: wonderingabout <hidden>
+Date:   2026-01-16 23:36:21 +0100
+
+refactor sevopedia charts with the help of claude code opus 4.5 thanks a lot
+
+commit 67cdf2fade51d1c2ac59c1a6591d3a687064a829
+Author: wonderingabout <hidden>
+Date:   2026-01-16 19:42:35 +0100
+
+add leader buttons (clickable) in Sevopedia Traits' Charts (tunable)
+- Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a trait**, and **ranking for each trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+
+commit 46c5df431941616601060ef6953b56865e28bfd7
+Author: wonderingabout <hidden>
+Date:   2026-01-16 16:02:59 +0100
+
+cache once per session sevopedia traits tables
+- **Cache once per session precomputed** Sevopedia Traits' Tables before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+
+commit 78dbfab4b27d5b33f276a266a3c6a20b9a3c42d2
+Author: wonderingabout <hidden>
+Date:   2026-01-16 15:15:24 +0100
+
+add sortable trait tables in sevopedia traits, add statistics in leader panel's header
+- Sevopedia — Traits: New **Trait Tables**: 2 **sortable** tables showing how widespread **pairs are in a trait**, and **ranking for each trait combination**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-tables-and-other-changes).
+
+commit efa7dbfb6c5184208b056b9c6036c60267052102
+Author: wonderingabout <hidden>
+Date:   2026-01-16 12:52:21 +0100
+
+add Sevopedia Traits background panel + empty Statistics panel
+- Sevopedia — Traits: **Beautified**, and added a **new Background panel** with **mod-agnostic** blurbs. [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category).
+
+commit 44f109a5ab5e5df45059217c1538803ad66f232c
+Author: wonderingabout <hidden>
+Date:   2026-01-16 10:13:33 +0100
+
+replace old Base AdvCiv CONCEPT_TRAIT with WIDGET_PYTHON links, add links from Sevopedia Leader to Sevopedia Traits
+- Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using using the more efficient `WIDGET_PYTHON` similarly instead.
+- Also **add linking** to their **corresponding Sevopedia Traits entry**
+
+commit 7fa2d16180485baab50f6196b4d48eafbe7c9c24
+Author: wonderingabout <hidden>
+Date:   2026-01-15 23:28:56 +0100
+
+replace concept road/railroad links with sevopedia build road/railroad links
+
+commit 4a015ac5beceb9ecca4b38eccff5142a11940946
+Author: wonderingabout <hidden>
+Date:   2026-01-15 20:34:22 +0100
+
+Fix incorrect readme to WIGET_PYTHON 6798, add build entries to Sevopedia Index with buttons
+
+With the very nice help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot.
+
+commit 2b994644624cae9db20ae3b1249654367d196f3c
+Author: wonderingabout <hidden>
+Date:   2026-01-15 18:16:12 +0100
+
+revert to old index
+
+commit a44b7c699711e546cb2010fbb165653d8c072e6d
+Author: wonderingabout <hidden>
+Date:   2026-01-15 17:13:33 +0100
+
+update docs
+
+commit 0f715f76fcc615240ae1995a21d483e57926edd3
+Author: wonderingabout <hidden>
+Date:   2026-01-15 14:02:01 +0100
+
+add new Sevopedia Builds category following the WIDGET_PYTHON 6298 approch
+- Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Scrub Fallout"**, **"Build a Road"**, **"Build a Railroad"**, **"Create a Farm"**) distinct from the Sevopedia Improvements and a dedicated Builds page. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
+
+Note: as of now added to the index, but index link is not working atm, while other links in tech chooser or sevopedia feature or such redirect fine to sevopedia builds' corresponding entry.
+
+commit e84d79c0cfbc261879e9686450b13eb0d563b518
+Author: wonderingabout <hidden>
+Date:   2026-01-15 08:04:33 +0100
+
+fix Sevopedia Terrain's Hills' Improvements' formula
+- fixed the Hills' Improvements' RFC DOC mod's formula with the help of GPT-5.2-Codex so we display accurate improvements (check if accurate)
+
+commit 3eaae094a9b5dcb6f6a17cffc5f0fd27958e3ea8
+Author: wonderingabout <hidden>
+Date:   2026-01-15 07:44:16 +0100
+
+add Remove and Units (Any Build) panels in Sevopedia Features and Terrains
+- performance optimizations
+- update docs
+
+commit fb9054847f6ae68379383a1331e7296de5a6ae3d
+Author: wonderingabout <hidden>
+Date:   2026-01-15 05:34:20 +0100
+
+add Obsoletes With panel and reorder Sevopedia Unit, fix right click working but not left click for linking, and other changes
+
+commit d0c8fa479d1415e7bf00950a0ddb65ab9868582d
+Author: wonderingabout <hidden>
+Date:   2026-01-14 19:31:07 +0100
+
+Add more info in Sevopedia Techs' Enables panel, add new First to Discover panel
+- Sevopedia Techs: **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+- refactor/perf opt: remove redundant txt keys + unneeded python lists
+
+commit 4a72a7877ed256e0d7f7571c8facb7c17cd34b05
+Author: wonderingabout <hidden>
+Date:   2026-01-14 16:42:14 +0100
+
+Fixed Base AdvCiv issue of "Remove Jungle", "Remove Forest", and "Scrub Fallout" not redirecting to sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to sevopedia improvement corresponding page
+- **Worker builds** that **remove a feature** now **redirect to the corresponding Sevopedia Feature** page (e.g. "Remove Jungle" build redirects to the Jungle Feature page; similarly for "Remove Forest" and "Scrub Fallout"). Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**) using the by changing the **widget**'s behaviour, in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp). See [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
+
+commit 00689f2dafc70d0ca360fca2779055a4e0953bd6
+Author: wonderingabout <hidden>
+Date:   2026-01-14 14:09:33 +0100
+
+Add distinct buttons for Remove Forest and Remove Jungle, Beautify and add new Enables panel in Sevopedia Tech
+- Sevopedia — Techs: also **beautified** with a new **Enables** panel enriched with **more information**. See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+- **Remove Jungle** and **Remove Forest** builds now use distinct buttons. These are visible both in the **Technology Advisor** and (todo add) in **Sevopedia Techs' Enables** panel. See [README.md (Main Advisors reworks)](/README.md#main-advisors-reworks). + "Notably, it also features the new Remove Forest and Remove Jungle buttons (from the Middle-Earth mod thanks!)."
+
+commit 419e28e4b09e675f5dcf9f7a5f10e4b1a167adc9
+Author: wonderingabout <hidden>
+Date:   2026-01-14 12:09:08 +0100
+
+add new Obsoletes panel in Sevopedia Techs, with a thin RedX art (ChatGPT 5.2 for generation + Claude code Sonnet 4.5's help thanks)
+- Sevopedia — Techs: Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+
+And after that, added a new Obsoletes panel with the help of Claude code Sonnet 4.5, that notably shows a new thinner RedX art than in Civ4 (as it was too bold and hard to read at 64px) for any asset that has a button this tech obsoletes. ChatGPT 5.2 very impressively helped adding such a feature. See [README.md#redx-new-art-button](/README.md#redx-new-art-button).
+
+commit 8340dcb4d9276ae72f0d97c8a90f554ef55abb56
+Author: wonderingabout <hidden>
+Date:   2026-01-14 07:41:37 +0100
+
+(Fixed/Enhanced)Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated
+- fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
+
+commit d0360f3c4757a6b7a13181029bddd8fa2474ec3d
+Author: wonderingabout <hidden>
+Date:   2026-01-13 20:08:15 +0100
+
+Add Extra Slots and Extra Yields panels in Sevopedia Specialists
+- Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+
+commit 56f93e51f4be43ec91f7518fd7912eeb47cfc9b1
+Author: wonderingabout <hidden>
+Date:   2026-01-12 18:10:17 +0100
+
+make scrapping optional, and add extra units before scrapping gates for AIs
+- Add **extra units not to scrap beyond unit support costs** (we expect to lose a few during war; it is good to keep a few extra so we don't become weaker than our rivals) using a formula of `mult * (era + 1) + add` extra units.
+
+commit 8fb9a5bb93f12db06c5be9a9b1961ce72597f6d9
+Author: wonderingabout <hidden>
+Date:   2026-01-12 08:10:35 +0100
+
+merge into CvCityAI::SAS_AI_findBestFallbackUnit the common duplicated logic in CvCityAI::AI_chooseUnit and CvCity::doTurn
+
+Breakdown by GPT-5.2-Codex thanks a lot! :)
+
+Consolidated the fallback-unit selection logic into a shared helper and wired both CvCity::doTurn and CvCityAI::AI_chooseUnit to use it, so the decision path stays in one place while preserving the existing caps and siege gating.
+
+- Added the helper declaration in CvCityAI.h and implementation in CvCityAI.cpp, keeping the same scoring, UU inflation, and fallback tiers, with flags to control overall/cheapest fallback per caller.
+- Replaced the long loop in CvCity.cpp with a helper call and computed effective siege caps/allow flags to match the prior pre‑Renaissance logic.
+- Replaced the defender-replacement loop in CvCityAI.cpp with the helper call using the simplified siege gating and offense-only selection from the old block.
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+Co-authored-by: Claude Opus 4.5 <noreply@anthropic.com>
+
+commit 9bcb661f095665fd784be33fb0c0ffb0b2c0adc2
+Author: wonderingabout <hidden>
+Date:   2026-01-11 19:54:34 +0100
+
+update 48 civs DLL, change ancient maceman's obsolete tech to TECH_ANIMAL_HUSBANDRY
+- "Most importantly, this tech is on the Hunting path, so it as of now guarantees archers are available."
+- update docs
+
+commit 6c754448325bc01efaae9a5a290d0ffd90470cc9
+Author: wonderingabout <hidden>
+Date:   2026-01-11 19:43:19 +0100
+
+move up the ObsoleteTech XML unit field above PrereqTech
+- seems to work fine now, plus matches the pattern in building info
+
+commit 70a2966dbf65ebda41050521a6b4685000d02c00
+Author: wonderingabout <hidden>
+Date:   2026-01-11 19:25:49 +0100
+
+revert moving ObsoleteTech below TechTypes, remove old anti cheap units
+- was causing issues and didn't work, so reverted it to before TechTypes
+- remove the old anti cheap unit system: the ObsoleteTech one is more efficient and versatile, as well as cleaner and much tighter to do the same. Plus ingame we get even better results it seems (less ancient macemen) at a glance
+- change the ancient maceman's obsolete tech to an earlier one for hammer and military efficiency: "<!-- custom: this unit is useless especially soon, yet AIs often produce it; humans would have little to gain from stacking them past a certain point fairly early in the game, so make their ObsoleteTech sooner than when we unlock their upgrade (which is as of now the Axeman). By that new tech, we should have archers as a fallback, or should research its tech anyway. Thematically, this is around the time when we domesticate animals, so we no longer have to fight them, if that makes sense. Gameplay wise, we unlock slavery around that time,
+
+commit 0fcb14ed50094078539367be7de40884324d8a14
+Author: wonderingabout <hidden>
+Date:   2026-01-11 15:13:13 +0100
+
+update docs
+
+commit 6fc45fa0b9a13500a09ef0fce2229db9dbd123b3
+Author: wonderingabout <hidden>
+Date:   2026-01-11 14:19:02 +0100
+
+move ObsoleteTech below TechTypes
+
+commit 5a4bb213111efdd8ba82e4d036768e783fb5d95a
+Author: wonderingabout <hidden>
+Date:   2026-01-11 13:25:49 +0100
+
+update docs
+
+commit 044d26e918b6aa586807c6428fb770cb32f6324e
+Author: wonderingabout <hidden>
+Date:   2026-01-11 12:13:18 +0100
+
+Fix Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited
+
+After previous issue with exiting Sevopedia, this also fixes the Back Tab not leading back to last visited category when it was Hints or Index. See [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we had last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-had-last-visited).
+
+commit 6bd3873c838ed450d2757e790de56f4b4f3d6dcf
+Author: wonderingabout <hidden>
+Date:   2026-01-11 11:56:24 +0100
+
+(Improved) Heavily increase the importance of XML Unit Cost for scrapping priority
+- Heavily increase the importance of **XML Unit Cost (Hammers)** (reliable reflection of a unit's overall strength: e.g. A 4 Strength Trebuchet at 80 Hammers Cost is stronger than a 5 Strength Axeman at 35 Hammers) when deciding which unit to scrap first, and **reduce the importance of experience**: A 0 XP swordsman is more valuable than a 10 XP we will likely never upgrade. Also **account for map heaviness** (e.g. prioritize scrapping land units on archipelago, or galleys on pangea). Change in `CvPlayerAI::AI_disbandValue`.
+- add sas define to disable entirely the XML ObsoleteTech field: if you don't want to use this `ObsoleteTech` feature without having to tediously manually modify each entry one by one in XML, you can, similarly to how was done for unit XML terrain and feature modifiers in AdvCiv-SAS, disable them by toggling to 0 the corresponding SAS define in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)) (as of now `SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH`). If disabled (0), the value in XML will be ignored and forced to always NONE so you can easily reenable it in the future as you prefer.
+- add ObsoleteTech to units in XML
+
+commit 2046519feb48a2d3d519a6c144699f8e05b5f7c1
+Author: wonderingabout <hidden>
+Date:   2026-01-10 18:49:01 +0100
+
+Add w/h ratio in world sizes chart, adjust some world sizes' dimensions for a closer ratio to other world sizes
+- SAS24: 71x49  -> 71x50
+- SAS32: 83x58  -> 82x57
+- SAS40: 92x63  -> 91x64
+- SAS48: 102x71 -> 101x70
+
+commit 2f0b12f754908f7956136776ceb97dda93625b36
+Author: wonderingabout <hidden>
+Date:   2026-01-10 18:16:23 +0100
+
+Invert BUG Options for the Technology Advisor and the Religious Advisor so they are more accessible
+- **Inverted BUG Options** for the **Technology Advisor** and the **Religious Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+
+commit 21f67530d536c6d93b42cf1223237b34e1ca7d0a
+Author: wonderingabout <hidden>
+Date:   2026-01-10 12:48:54 +0100
+
+Fix Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)
+Was happening in AdvCiv-SAS for other categories last visited like charts too, or Hints or such in base advciv too. See KI#94.
+
+Co-authored-by: <GPT-Codex-5.2 codex@openai.com>
+
+commit a134450486e0104df9473d46017ebc6e4d7bc553
+Author: wonderingabout <hidden>
+Date:   2026-01-10 12:06:03 +0100
+
+Add new ObsoleteTech optional XML field for units
+- New **optional XML field**: `ObsoleteTech` **for units**: if set, this unit **can no longer be produced once we have discovered this tech** (e.g. Ancient Maceman (`UNIT_WARRIOR`) obsolete at `TECH_BRONZE_WORKING`). This XML field is **optional**: if **not set** (`<ObsoleteTech>NONE</ObsoleteTech>`, e.g. for the `UNIT_SETTLER`) or missing entirely (better **inter-mod portability**), a **fallback default of `NONE`** is provided anyway, so the unit is never obsolete, meaning no tech discovery will stop allowing to produce it (base AdvCiv/Civ4 behaviour). This new XML field allows to **avoid unit clutter in later eras** (no more **abherrent obsolete units in later eras** (e.g. Ancient Maceman produced in Medieval Era; Pikemen in Industrial Era)) being **produced** or shown in the **Production Chooser Bar**. **AI** becomes **naturally stronger** as a result of these changes. Additionally, this also helps set **clean scrapping rules** to computationally cheaply detect and remove old units for the AI's military compostion, or **further enhancements**. **Sevopedia** Blurbs with links fully implemented in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). See [README: New optional XML fields](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units). See also [KI#93](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping).
+
+Co-authored-by: <GPT-Codex-5.2 codex@openai.com>
+
+commit 78d91cee6e2aab84eda1b474ee48168d354091bb
+Author: wonderingabout <hidden>
+Date:   2026-01-10 07:07:13 +0100
+
+update docs
+
+commit 90019123753bbb974b1c7351db94a3e6862387fc
+Author: wonderingabout <hidden>
+Date:   2026-01-09 23:34:46 +0100
+
+reduce SAS48 dimensions
+fom 102 x 73 was a bit too big and not scaling as well with past ones.
+
+commit e8659a5e4c4afae41306dfc04e8ec62eeb77eb99
+Author: wonderingabout <hidden>
+Date:   2026-01-09 21:00:57 +0100
+
+Change from short to int the Found Value pipeline
+- **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), **not `short`**. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
+Co-authored-by: <GPT-Codex-5.2 codex@openai.com>
+
+commit c4ce1e7796c2404d7b67a24286fd8538e6658dd7
+Author: wonderingabout <hidden>
+Date:   2026-01-09 19:04:06 +0100
+
+further beautify sevopedia leader
+
+commit 0d426eaa1bb936a9dc7810409569e0eec4721892
+Author: wonderingabout <hidden>
+Date:   2026-01-09 16:22:57 +0100
+
+Add Sevopedia Eras Chart, Beautify Sevopedia Leader and Main, and other changes
+- **Beautify** Sevopedia Main: **Reorder categories** and **Change icon characters**. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+- Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability: change in [CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp).
+- Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+- Rename UnitCombats for concision or accuracy: “Recon Units” -> “Recon”; “Siege Weapons” -> “Siege”; “Helicopter Units” -> “Helicopters”; “Armored Units” -> “Armor”; “Naval Units” -> “Naval”; “Gunpowder Units” -> “Gun” (was inaccurate since gunpowder is no longer used in modern guns).
+
+commit 77dc1e64a73227b38707bd158950be2853cb1c95
+Author: wonderingabout <hidden>
+Date:   2026-01-08 20:32:01 +0100
+
+Add new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena), update 48 civs DLL, and other changes
+
+- **New World Sizes**: `SAS24`, `SAS32`, `SAS40`, `SAS48`, **bigger than Huge** (Recommended for about 24, 32, 40, 48 players). They are [modified versions of the XXL World mod](/README.md#about-the-xxl-world-mod)'s largest maps. Recommended DLL to play these is the [48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll) that is provided in AdvCiv-SAS. Also a new `Arena` World Size **smaller than Tiny**. See full World Sizes details in the **new Sevopedia W. Sizes category**.
+- Make the **Globe animation** (Globe.nif in [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml)) in "Play Now" use **real scaling** instead of demonstrative one, e.g. the new World Size Arena has a ratio to World Size Standard of 0.128, so its model only has 12.8% of the size of the standard-sized globe, and vice versa for sizes bigger than standard. This aims to provide a **better representation** of **real world size differences**. See the new Sevopedia W. Sizes Chart category.
+- Refactor Sevopedia Chart pages and/or such
+- Enhance Sevopedia World Sizes Chart with new/additional info (Ratio to Standard, Recommended DLL, etc.)
+- other related UI or such changes such as renaming World Sizes header so it includes a mention about DLL types, etc.
+- update 48 civs DLL
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+Co-authored-by: ChatGPT (GPT-5.2 Thinking) <chatgpt-gpt-5.2-thinking@advciv-sas.invalid>
+
+commit ba5517013b1d3c22afc3585901ed8d09862b0d87
+Author: wonderingabout <hidden>
+Date:   2026-01-08 00:36:14 +0100
+
+refactor sevopedia charts; possibly fix handicap and world size charts based on the working game speed chart
+- Gamespeed's calendar maintains the same in-theme reordering (e.g. 01 is always the first and 02 always the second), but handicap and game speed have their in theme order vary. Inter-theme war is sitll before the other themes.
+
+Not sure and i didn't check if it was the case before this commit, but while refactoring the issue emerged; fixed with the very nice help of chatgpt 5.2 thanks a lot.
+
+Also refactored them in this commit.
+
+Yep — this is the classic “unstable sort when lots of ties” problem in Civ4 tables.
+
+What’s happening (why it shuffles)
+When you sort by the icon column, every row inside a “theme” (same icon) has the exact same cell text (same icon token). Civ4’s table sort does not keep a stable order for ties, so tied rows can permute differently each time you toggle sorting.
+Your Game Speed chart avoids this by adding an invisible tie-breaker to the icon cell text, so even rows with the same icon still sort deterministically.
+
+The fix (replicate GameSpeed behavior)
+I updated Handicap and World Size to do the same:
+	- Remove the old control-char sort codes (1..31)
+	- Add the same zero-width unicode “digits” scheme used in GameSpeed
+	- Append an invisible key = (icon group + row index) to the icon cell text
+	- That keeps:
+		- grouping by icon/theme
+		- but makes every row’s icon-cell text unique → no more shuffling
+
+Co-authored-by: ChatGPT (GPT-5.2 Thinking) <chatgpt-gpt-5.2-thinking@advciv-sas.invalid>
+
+commit c521adea073f65408314f1244a432845ce6e687c
+Author: wonderingabout <hidden>
+Date:   2026-01-07 22:39:49 +0100
+
+Further compact and enhance game speed chart
+- Omit only m1 (January) because plain 2069 can be treated as 2069m1 in our display convention.
+- Keep m12 (December) because it is not equivalent to the next year.
+
+I updated the code comments accordingly (and added a short note about the year-0 zone being compact, so -> doesn’t bloat rows).
+
+Co-authored-by: ChatGPT (GPT-5.2 Thinking) <chatgpt-gpt-5.2-thinking@advciv-sas.invalid>
+
+commit 8ecf997835948891e8803c01bd110bbe3e7f5ff6
+Author: wonderingabout <hidden>
+Date:   2026-01-07 21:28:25 +0100
+
+make game speed chart's calendar rows more compact; refactor sevopedia main to remove redundance
+- Sevopedia Game Speed Chart:
+
+What it does (now, exactly):
+- Month suffix only when it adds info: m2..m11 (omits m1 and m12).
+- Era suffix is shown only once per game speed:
+	- First BC date shows BC, then never again in that speed.
+	- First AD date shows AD, then never again in that speed.
+- This applies to both the left start date and the right =... end date, even if the first AD appears as the end date of a BC segment.
+
+Co-authored-by: ChatGPT (GPT-5.2 Thinking) <chatgpt-gpt-5.2-thinking@advciv-sas.invalid>
+
+commit c81414cc080acf9f5a39485725b2ddba61b840c3
+Author: wonderingabout <hidden>
+Date:   2026-01-07 20:42:41 +0100
+
+add world sizes chart sevopedia category
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+
+commit 9fd0575c0c9e1e92d4b3d3aa2d7cf66683fed93b
+Author: wonderingabout <hidden>
+Date:   2026-01-07 18:57:52 +0100
+
+update docs
+DLL compiles and runs fine at a glance.
+
+commit c70b01c8a256d11d7be67cbd091fffda4d4cf9f4
+Author: wonderingabout <hidden>
+Date:   2026-01-07 18:12:56 +0100
+
+fix high years bug in sevopedia game speed chart with the help of chatgpt 5.2 thanks
+
+commit b9c21a28c81fe2cacbf97cf2b40fdc6fcea1d45f
+Author: wonderingabout <hidden>
+Date:   2026-01-07 17:39:05 +0100
+
+update docs
+- clean up done with the power of VS Code incrementially
+
+Note that somehow history changed with the new DLL (i recompiled it to be safe and test it), but even the old DLL has a different historical outcome.
+
+Maybe something similar to what happened when removing a 9000 char string created a different outcome.
+
+Different is not that significant anyway.
+I gave the diff cpp and h to chatgpt 5.2 who said nothing is out of order (me paraphrasing it) and that issue is most likely undefined behaviour or something similar.
+
+I also checked the diff quick with VS Code and nothing striking could explain this like a broken XML code comment or such, so pushing it as such since it seems mostly the same.
+
+commit 6901fd17969c00abada610fbfd2bdf6bf1fc01ea
+Author: wonderingabout <hidden>
+Date:   2026-01-07 13:48:32 +0100
+
+Fix base AdvCiv incorrect defaults for iExtraFreeOutsideUnits of 100 vs 0 at faster than marathon game speeds, plus added the XML fields (`iExtraFreeOutsideUnits`and, for exhaustiveness, `iUnitCostPercent`) when they were missing
+- **Fix base AdvCiv `iExtraFreeOutsideUnits` incorrect default bug:** Faster-than-Marathon speeds ended up with **100 extra free outside units** due to two issues: the `iExtraFreeOutsideUnits` XML tag was missing for those speeds, and the DLL fallback default for that tag was incorrectly set to **100** (Marathon explicitly had **1**). Fixed by changing the DLL default from 100 to **0**, and by adding the missing `iExtraFreeOutsideUnits` game-speed XML field with a value of **0** so nothing relies on defaults. Also added `iUnitCostPercent` in XML for exhaustiveness (value **100**) without changing its DLL default (**100**) since it was correct. Spotted thanks to the new Sevopedia Game Speed Chart. See: [KI#92](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart).
+
+commit fd1e7dda818350d7cb03f9f5d3546459bf9bfc0a
+Author: wonderingabout <hidden>
+Date:   2026-01-07 10:14:33 +0100
+
+Heavily simplify the handicaps + speeds charts with the heavy, replace camel's tga, add emojis in game speed chart
+- Heavily simplify the chart pages: basically i did nothing or almost xd only gave instructions and it planned everything itself or with my help if needed, and then GPT-5.2-Codex chipped in and helped solve remaining issues with my help too hehe xd; thank you so much to the both of you you did so well thanks!!
+- replace camel weirdly drawn tga from rfc doc's with the middle-earth mod's one, which matches the art used in the camel button and is prettier. Done with the very nice Game Font Editor (V0.6) for Civ 4 by Asaf: https://forums.civfanatics.com/resources/game-font-editor-v0-6-for-civ-4.17276/ thanks a lot!!
+- Add emoji and col 1 sorting similarly to how was done in handicap chart
+
+Co-authored-by: <GPT-Codex-5.2 codex@openai.com>
+Co-authored-by: <ChatGPT (GPT-5.2 Thinking) chatgpt-gpt-5.2-thinking@advciv-sas.invalid>
+
+commit 1f7c8fab22aa806a8ef821f7ad30901654d7cabc
+Author: wonderingabout <hidden>
+Date:   2026-01-06 16:32:47 +0100
+
+remvoe base AdCiv's iBaseGrowthThresholdPercent human modifier (now always 100), fix gmae speed slow and and very slow being clanky/overly/needlessly precise to now more gradual/clear gaps
+- `iBaseGrowthThresholdPercent` (base food required to grow a city): **Fixed at 100 on all handicaps.** Rationale: In base AdvCiv this value varies by difficulty to add a **human growth/expansion penalty** (and it can also shift early expansion pacing via settler cost logic tied to the initial growth threshold). Consequence: Removing this scaling makes **high handicaps** (e.g. Deity) **easier for the human player** (faster early growth/expansion than base AdvCiv), and makes **low handicaps** (e.g. Chieftain) **harder for the human player** (less of an early growth/expansion boost).
+- tweak and enhance sevopedia game speed chart's formatting
+- make slow and very slow game speeds more gradual
+
+commit bebac73dcf2c2aed5d100d39a4b9684f7c3a0c2f
+Author: wonderingabout <hidden>
+Date:   2026-01-06 11:13:47 +0100
+
+add SevoPediaGameSpeedChart.py: shows all game speed related info in a new category, and other changes
+- exposed related DLL getters to python: "<!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->".
+- **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"50kBC+2*10k=30kAD"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+- fix incorrect tail of the timeline in game speed very slow ending at 2116 AD instead of 2105 AD (spotted thanks to the new Game Speed Chart).
+- `iGPThresholdPercent` stay constant for the human and varies only for AI now: "<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs). So it’s +8 on Warlord, -8 on Prince. This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the “player penalty” side. (ChatGPT 5.2) -->"
+
+commit 506070bea1a30bc0a101ff62d13abc4b7c6011a2
+Author: wonderingabout <hidden>
+Date:   2026-01-05 21:55:22 +0100
+
+refactor sevopedia leader
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+Co-authored-by: ChatGPT (GPT-5.2 Thinking) <chatgpt-gpt-5.2-thinking@advciv-sas.invalid>
+
+commit aca192481508a3cac3e8812dc970aebc8675b874
+Author: wonderingabout <hidden>
+Date:   2026-01-05 15:37:39 +0100
+
+Heavily refactor and simplify Sevopedia Main so it is much easier to add, reorder, or modify or otherwise maintain categories + change default first opened sevopedia category
+- the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+
+commit 6fc9cd7a6f521d7a7ee86081547ca429fdf060d9
+Author: wonderingabout <hidden>
+Date:   2026-01-05 14:16:16 +0100
+
+move Sevopedia Index, now as a category (removed from Tabs), fix base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations
+- **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+- (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations. See KI#90.
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+
+commit 855d664a31b3cc60e519a6afab4bf847d09f6b84
+Author: wonderingabout <hidden>
+Date:   2026-01-05 10:08:26 +0100
+
+add New Game Speeds Nitro (165 / 33%), Turbo (250 / 50%), Slow (1500 / 300%), Very Slow (2000 / 400%); and other changes
+
+Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16904865
+
+Also in this commit:
+
+- **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields. Also **reordered** them in XML from fastest to slowest so they appear in this order in the **"Play Now"** Game Speed section.
+- overview and rebalance gamespeeds as well (e.g. increase GAMESPEED_QUICK's CULTURELEVEL_FLEDGLING from 6 to 7 (better rounding); reduce GAMESPEED_MARATHON's CULTURELEVEL_LEGENDARY from 100k to 90k (better scaling since legendary at normal is 45k andmarathon is as of now 200% of normal so this fixes what we overlooked before))
+- rename “Difficulty” → “Handicap” (matches Civ4 naming).
+
+- refactor Sevopedia Handicap Chart for perf opt and cleanliness wih the very nice and big help of chatgpt 5.2 thanks a lot :) Breakdown by CHatgpt 5.2 thanks :)
+
+You already did the big perf win: _cachedTable means the expensive “pull everything from CvHandicapInfo + build rows” work happens once per instance. The main remaining avoidable costs in your current version are small but real:
+
+- _getFieldIconText() rebuilds a huge icon_map dict every call (it is called once per output row when building data).
+- _drawTable() parses the <img=...> tag for every icon cell every time the page is drawn, just to rediscover the button path + sort code.
+- _drawTable() also re-wraps everything in <font=...> tags each draw.
+
+Below is a drop-in rewrite that keeps behavior the same, but:
+
+- moves all icon/button/glyph definitions into the one-time table build (nothing icon-related stays on self after caching),
+- precomputes the icon-column “(text, buttonPath)” tuple so _drawTable() does no tag parsing,
+- caches already font-wrapped cell strings so _drawTable() doesn’t do per-cell string building.
+
+commit d194577b3bf54364637817d767ccf607b5480325
+Author: wonderingabout <hidden>
+Date:   2026-01-04 21:19:13 +0100
+
+Beautify the Main menu's "Play Now" screens: remove the margins and reduce the radio buttons' vertical spacing
+- Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
+
+Partially addresses: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16904865
+
+commit e89473e1899aceb0d36f9b0e9f83240d0178608f
+Author: wonderingabout <hidden>
+Date:   2026-01-04 15:32:43 +0100
+
+add icons and icon sorting in the Handicap Chart
+- **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+
+commit a7c677fe62de0eece8d27feb5cae63540ccc5dca
+Author: wonderingabout <hidden>
+Date:   2026-01-04 09:47:13 +0100
+
+add handicap chart header icons
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+
+commit de6ad59ae18dbce211ca369035ea7b349bba3236
+Author: wonderingabout <hidden>
+Date:   2026-01-04 09:30:23 +0100
+
+expose handicap info getters to python; enhance and beautify sevoedia handicap chart
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+
+commit 55a2425f1e055eee2693a57d2e1a7f409d34fe5e
+Author: wonderingabout <hidden>
+Date:   2026-01-04 07:21:48 +0100
+
+add new Handicap Chart category
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+
+commit db46076793d6fbb45acae1fc1b113f373e4b425e
+Author: wonderingabout <hidden>
+Date:   2026-01-03 16:58:25 +0100
+
+update docs (GPT-Codex-5.2)
+
+Co-authored-by: GPT-Codex-5.2 <codex@openai.com>
+
+commit cc0c5d1e2908aa9bc099bb3266990838dfcee8e0
+Author: wonderingabout <hidden>
+Date:   2026-01-03 16:18:42 +0100
+
+fix victory screen's button height (GPT-Codex-5.2)
+
+commit 347e62f704df5e9b8db57f91df6fbb17253fab2f
+Author: wonderingabout <hidden>
+Date:   2026-01-03 15:36:55 +0100
+
+update docs
+
+commit 121d7739ae236798dd88c8bdb109241ccb18640c
+Author: wonderingabout <hidden>
+Date:   2026-01-03 11:58:57 +0100
+
+update docs
+
+commit f83dcc927d71fa7b61670bb2fa12fcd3f4bff2d3
+Author: wonderingabout <hidden>
+Date:   2026-01-03 11:24:49 +0100
+
+- GPT-Codex-5.2: (Improved) AI stack attack order — spend expendables first; Military Advisor: do not render buttons below the table
+- **AI stack attack order — spend expendables first:** AI stack attacks now prefer **bombard/collateral** and **low-effective-strength/low-XP** units first (once the stack commits to attack), preserving elite finishers. Rationale: economically efficient (older/weaker units cost upkeep but scale poorly) and strategically safer (keep high-value units for decisive blows or retreats). Change in `CvSelectionGroupAI::AI_getBestGroupAttacker`. Toggle via SAS defines for A/B testing. See [KI#89](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first).
+- "<!-- custom: below patch by claude opus 4.5 thanks to fix issue of buttons being shown beyond the last row. Pending issue: on scroll, the buttons do not scroll, only textual part does, but this allows to preserve the click to show position on map feature that i could not replicate with claude opus 4.5 or chatgpt 5.2's help. As this happens rarely and generally only in the late game, i believe it is a minor inconvenience vs the advantage of seeing buttons, so left as such as does not work too bad otherwise and is functional. -->"
+
+commit d8a03aaf84866268215a4c8cf964d9a8ab25ddf1
+Author: wonderingabout <hidden>
+Date:   2026-01-02 17:03:58 +0100
+
+Claude code Sonnet 4.5: Summarize code comments
+
+commit 8d9804971fa35265a5ba64874831d4db765101f5
+Author: wonderingabout <hidden>
+Date:   2026-01-02 13:16:35 +0100
+
+GPT-Codex-5.2: summarize some .py comments
+
+commit 6b0135ca12d140d406e2fb336560f5f97017b41d
+Author: wonderingabout <hidden>
+Date:   2026-01-02 06:54:34 +0100
+
+update docs
+
+commit 1f9b99fd955e07d83cd3984be22b61bad3bc4220
+Author: wonderingabout <hidden>
+Date:   2025-12-31 10:36:59 +0100
+
+performance optimization: cache to kTeam +/- kOwner or kPlayer in CvCityAI + update 48 civs DLL
+- "<!-- custom: use this pattern i found somewhere in the code, in case it is safer, and cache repetitive calls for performance optimization. Note: also cache GET_TEAM(getTeam()) to kTeam. Note 2: we had issues in the past in AdvCiv-SAS when caching these to a CvTeam cast (i don't know too much about these, check if accurate), that were solved using a CvTeamAI cast rather, so preferring this whenever it seems safe enough (check if accurate). I applied this to all GET_TEAM calls i spotted in this file +/- additional kOwner or kPlayer extra caching when needed, and after specifically testing this in autoplay, we get the exact same outcome vs before (t341 win, exact same score at scores it seems as well, so this also looks good to merge) -->"
+- update 48 civs DLL
+- update docs
+
+update docs
+
+fix search bar out of range upper scrolling, add info about CuCuGS and GPT-Codex, update docs
+- "<!-- custom: rebuild arrow-navigation selectable caches every time we rebuild the list (fixes stale indices / out-of-range) (chatgpt 5.2) -->"
+
+update docs
+
+update docs
+
+commit 3e072ae4096baea2eb9a2657ae47f3aae702f82e
+Author: wonderingabout <hidden>
+Date:   2025-12-31 09:44:53 +0100
+
+performance optimization: cache redundant computation (store per turn and player top cities' values `CvCityAI::AI_buildingValue`), with the help of chatgpt 5.2 thanks and other perf opts
+
+commit b5809dd518fc29ad0e92406a5f3ed4155bc5ebd6
+Author: wonderingabout <hidden>
+Date:   2025-12-30 16:36:43 +0100
+
+rename "Willem" back to "Willem van Oranje", update docs
+
+commit a728524ed6448ce6f07932069afbe23bbc9e61ec
+Author: wonderingabout <hidden>
+Date:   2025-12-30 15:30:19 +0100
+
+performance optimizations 2 CvMainInterface.py claude opus 4.5 thanks
+
+commit 79f376ba1c99faaa2899d6613711472d7d7b4816
+Author: wonderingabout <hidden>
+Date:   2025-12-30 15:15:39 +0100
+
+performance optimizations in CvMainInterface.py with the help of claude opus 4.5 thanks
+
+commit dfb0c8489442a6819dc4f8edb634b98596f93467
+Author: wonderingabout <hidden>
+Date:   2025-12-30 14:25:08 +0100
+
+(Tremendously Improved) AI always upgrading way too much units and not techning at all, sometimes for dozen turns
+
+commit f1309cd115130e60e3475fead43e07e21a2a3164
+Author: wonderingabout <hidden>
+Date:   2025-12-30 07:16:20 +0100
+
+fix external file bug mod help not opening in advciv-sas, update docs
+
+commit 9946feb2c08c7c0192f6c55a8cde2bfe704d1d69
+Author: wonderingabout <hidden>
+Date:   2025-12-29 20:07:13 +0100
+
+more victory screen performance optimizations + bugfixes
+
+commit a71a79bf4488463cc7b295254bbbe639167b35a0
+Author: wonderingabout <hidden>
+Date:   2025-12-29 20:00:12 +0100
+
+performance optimization, update docs
+
+commit f5214503d3344c43ce6c06a58ea11fc81db6b1ea
+Author: wonderingabout <hidden>
+Date:   2025-12-29 16:24:02 +0100
+
+further beautify the victory screen 3
+
+commit d510e08afa750d09daec822c466e7674c07c5fea
+Author: wonderingabout <hidden>
+Date:   2025-12-29 14:56:36 +0100
+
+further beautify the victory screen 2
+
+commit 2ac9b5b71d5836e0ec7e14e97a596b1c8b449dd7
+Author: wonderingabout <hidden>
+Date:   2025-12-29 13:58:56 +0100
+
+further beautify the victory screens: add more buttons/icons + rename Willem
+- rename "Willem van Oranje" to "Willem" (back to base AdvCiv's name if i'm not mistaken): was too long in the scoreboard.
+
+commit 2e1df7d43ecd49789bcab5607ba1620ff3a3f632
+Author: wonderingabout <hidden>
+Date:   2025-12-29 08:40:26 +0100
+
+add more buttons in the victory screen
+
+commit 8d11a290789cf9d1e57bbb66b64b90c5557b487e
+Author: wonderingabout <hidden>
+Date:   2025-12-29 08:30:35 +0100
+
+beautify the victory screen: add leader buttons/icons
+
+commit 20b6addfb7a7d4996092ddc37afb2610e18c2d04
+Author: wonderingabout <hidden>
+Date:   2025-12-29 06:13:52 +0100
+
+beautify the top cities part of the tab further, always show all rows in the stats tab's upper part
+
+commit edfcef1f0dcce971e7cbcba85361dd66a12b820c
+Author: wonderingabout <hidden>
+Date:   2025-12-29 00:00:17 +0100
+
+add a multilist and otherwise beautify the top cities (info screen)
+- update docs
+
+commit 46c09243a56b03493463f9f69fb01f6faaffb13a
+Author: wonderingabout <hidden>
+Date:   2025-12-28 10:44:47 +0100
+
+add leader buttons as image icons, and add the year information in the graph tab
+- also add missing ranking emojis in the human "value/rank" column if i'm not mistaken it is such a column.
+
+commit befbb28aa2ab7aedc89198dc7655404ca64c91be
+Author: wonderingabout <hidden>
+Date:   2025-12-28 09:32:28 +0100
+
+add medal emoji image as buttons, beautify the demographics tab further and update docs
+
+commit 0be5966414ecbe8a7c835b2c69f9e7d967e58ce5
+Author: wonderingabout <hidden>
+Date:   2025-12-28 07:31:20 +0100
+
+beautify and refactor the demographics tab (info screen) + update docs
+
+commit 7b044ab447bbfbe69e6d5ad5944efc4f95c31825
+Author: wonderingabout <hidden>
+Date:   2025-12-27 21:28:53 +0100
+
+add hourglass_not_done image as a button, further further beautify 2 the stats tab (info screen), update docs
+
+commit 884ddc0acc1d55f2c7df4bdca62b3c20011ce6a1
+Author: wonderingabout <hidden>
+Date:   2025-12-27 20:01:02 +0100
+
+further beautify the stats tab
+
+commit 92df58c1ad1e44d7186ed9729ee9c5e6a264d9af
+Author: wonderingabout <hidden>
+Date:   2025-12-27 19:17:24 +0100
+
+add buttons in the Statistics Tab (Info Screen) + update docs
+
+commit 172c871b753ff496578cebf9ae7aedc91650a174
+Author: wonderingabout <hidden>
+Date:   2025-12-27 18:06:53 +0100
+
+show the wonders' buttons, and move the move to city mechanic to the city column, in the Top 5 Cities / Wonders tab
+- in particular in the **Top 5 Cities / Wonders tab**, we now **show the Wonders' Buttons** (i.e. icons) in the first column, and the **click to move to city** mechanic is now in City column instead.
+
+commit cd1292fe3f8033d3442c7fd1d838b67070a44277
+Author: wonderingabout <hidden>
+Date:   2025-12-27 13:06:54 +0100
+
+refactor, upscale, and beautify the info screen (F9 key) + other changes
+- rename "USAmerican" to "US American".
+- rename "the people of Benin" (adjective) to "Edo": "After asking gemini 3 pro, it recommended "Edo" (as in "Edo people") and also suggested "Bini" (as in "Bini workers"). As it advised, i also thought independently beforehand that Beninese should be avoided since the modern Benin is not to be confused with the old Kingdom of Benin.". The old name was too long and not a real adjective to begin with anyway.
+
+commit 4295623ff153cb22d5e9b3e76441cc2b766dc83d
+Author: wonderingabout <hidden>
+Date:   2025-12-26 06:11:39 +0100
+
+Sheep is now Plains only (was Plains + Grass), Pig is now Forest (was Jungle)
+- Adjust some **animal Food Bonuses**' terrains/features for balance, accuracy, or thematic fit: **Sheep**: Grassland + Plains -> **Plains only** (Plains are weaker, Grassland food is overpowered and over-represented, real world population is mostly on savanna-like biomes and culturally closer to African, Western Asian, and Australian regions); **Pig** Jungle -> **Forest** (real world population is mostly around typical forest biomes, this helps counter-balance the Sheep removal from Grassland, and Jungle is stronger in AdvCiv-SAS (no inherent food-penalty) so it can accomodate this change).
+
+commit 09e0c5100e38b2fb580a959b5519df915247d277
+Author: wonderingabout <hidden>
+Date:   2025-12-26 03:33:35 +0100
+
+update docs
+
 commit 1b9d2c8d9eee565d2f5d7b5daba48514cb823234
 Author: wonderingabout <hidden>
 Date:   2025-12-25 17:12:44 +0100

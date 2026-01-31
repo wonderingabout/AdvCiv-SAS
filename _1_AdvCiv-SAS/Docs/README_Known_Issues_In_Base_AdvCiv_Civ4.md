@@ -135,6 +135,7 @@ hopefully helpful, thanks thanks,
 [99 - (Fixed) Base AdvCiv bug of K-Mod unwrapped in TEXT XML text](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#99---fixed-base-advciv-bug-of-k-mod-unwrapped-in-text-xml-text)  
 [100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash)  
 [101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation)  
+[102 - (Seemingly Fixed) Base AdvCiv crash related to CvCity::getProductionBarPercentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#102---seemingly-fixed-base-advciv-crash-related-to-cvcitygetproductionbarpercentages)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4101,3 +4102,13 @@ After adding +GB from obsoelte buildings with the help of GPT-5.2-Codex thanks, 
 Also added in the main interface's building list as part of adding it in AdvCiv-SAS for buildings.
 
 Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
+
+## 102 - (Seemingly Fixed) Base AdvCiv crash related to CvCity::getProductionBarPercentages
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1NFO6NeYgEF6GDZDWkMW8qXfSZNWQ72m7?usp=sharing).
+
+Running an autplay of 500 turns with the 48 civs DLL after generating the map, we get a crash at 332 semeingly related to `CvCity::getProductionBarPercentages`.
+
+After Claude code Opus 4.5 fixed it, the new DLL doesn't crash and game plays end to end so looks solved.
+
+See [commit/bb7c8a99da650057fddfbc25382b46b5fa0c9e86](https://github.com/wonderingabout/AdvCiv-SAS/commit/bb7c8a99da650057fddfbc25382b46b5fa0c9e86).

@@ -165,8 +165,8 @@ To create a git log based on past commits using a comand line, plus also anonymi
 
 ```shell
 # 1. Set your commit hashes here
-start=8d6bf6e0f61004e415aa3584e906fdb77275c1f8 # old (excluded): e.g. AdCiv-SAS 4986.
-end=1b9d2c8d9eee565d2f5d7b5daba48514cb823234   # last (included), e.g.: AdCiv-SAS 5256
+start=1b9d2c8d9eee565d2f5d7b5daba48514cb823234 # old (excluded): e.g. AdCiv-SAS 5256.
+end=bb7c8a99da650057fddfbc25382b46b5fa0c9e86   # last (included), e.g.: AdCiv-SAS 5400
 
 # 2. Run the command (uses the variables above)
 cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
@@ -249,10 +249,10 @@ git fetch origin
 
 # choose names
 # new tag
-TAG=5282
-SHA=1f9b99fd955e07d83cd3984be22b61bad3bc4220  # <- the TAG commit
-OLDNAME="AdvCiv-SAS 5240"                     # quote because of spaces
-BASE=b5ecf7a37ae7330c65384a4f880d20d344193230 # <- the OLDNAME commit
+TAG=5400
+SHA=bb7c8a99da650057fddfbc25382b46b5fa0c9e86  # <- the TAG commit
+OLDNAME="AdvCiv-SAS 5282"                     # quote because of spaces
+BASE=1f9b99fd955e07d83cd3984be22b61bad3bc4220 # <- the OLDNAME commit
 WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
 
 # replace the tag locally with correct date + message

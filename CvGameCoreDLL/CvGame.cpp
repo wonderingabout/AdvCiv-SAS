@@ -2918,25 +2918,30 @@ void CvGame::update()
 	startProfilingDLL(false);
 	PROFILE_BEGIN("CvGame::update");
 	// <advc.256> Based on C2C, originally mostly from Rise of Mankind, I think.
-	CvPlayer const& kActivePlayer = GET_PLAYER(getActivePlayer());
+	// <!-- custom: Check for NO_PLAYER to prevent crash during autoplay. See KI#102. (Claude code Opus 4.5) -->
+	PlayerTypes const eActivePlayer = getActivePlayer();
 	int iSuccessiveUpdates = 1;
-	if (getTurnSlice() > 0) // Wait for BUG initialization
+	if (eActivePlayer != NO_PLAYER)
 	{
-		// Needs to match the value range set in XML
-		int const iDefaultGraphicsUpdateRate = 12;
-		int iGraphicsUpdateRate = BUGOption::getValue("MainInterface__GraphicsUpdateRate",
-				iDefaultGraphicsUpdateRate);
-		if (iGraphicsUpdateRate <= 0)
-			iSuccessiveUpdates = 128; // Not quite infinite, but a lot in a row.
-		else iSuccessiveUpdates = iDefaultGraphicsUpdateRate / iGraphicsUpdateRate;
-	}
-	if (isGameMultiPlayer() || !kActivePlayer.isAlive())
-		iSuccessiveUpdates = 1;
-	if (kActivePlayer.isTurnActive() &&
-		(!kActivePlayer.isAutoMoves() ||
-		!kActivePlayer.isOption(PLAYEROPTION_QUICK_MOVES)))
-	{
-		iSuccessiveUpdates = 1;
+		CvPlayer const& kActivePlayer = GET_PLAYER(eActivePlayer);
+		if (getTurnSlice() > 0) // Wait for BUG initialization
+		{
+			// Needs to match the value range set in XML
+			int const iDefaultGraphicsUpdateRate = 12;
+			int iGraphicsUpdateRate = BUGOption::getValue("MainInterface__GraphicsUpdateRate",
+					iDefaultGraphicsUpdateRate);
+			if (iGraphicsUpdateRate <= 0)
+				iSuccessiveUpdates = 128; // Not quite infinite, but a lot in a row.
+			else iSuccessiveUpdates = iDefaultGraphicsUpdateRate / iGraphicsUpdateRate;
+		}
+		if (isGameMultiPlayer() || !kActivePlayer.isAlive())
+			iSuccessiveUpdates = 1;
+		if (kActivePlayer.isTurnActive() &&
+			(!kActivePlayer.isAutoMoves() ||
+			!kActivePlayer.isOption(PLAYEROPTION_QUICK_MOVES)))
+		{
+			iSuccessiveUpdates = 1;
+		}
 	}
 	if (gDLL->GetWorldBuilderMode() && !isInAdvancedStart()) // As in BtS
 		iSuccessiveUpdates = 0;

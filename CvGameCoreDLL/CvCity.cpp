@@ -1361,11 +1361,16 @@ bool CvCity::canBeSelected() const
 	if (eActiveTeam != NO_TEAM && getPlot().isInvestigate(eActiveTeam))
 		return true;
 
+	// <!-- custom: Check for NO_PLAYER to prevent crash during autoplay. See KI#102. (Claude code Opus 4.5) -->
+	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
+	if (eActivePlayer == NO_PLAYER)
+		return false;
+
 	FOR_EACH_ENUM(EspionageMission)
 	{
 		if (GC.getInfo(eLoopEspionageMission).isPassive() &&
 			GC.getInfo(eLoopEspionageMission).isInvestigateCity() &&
-			GET_PLAYER(kGame.getActivePlayer()).canDoEspionageMission(
+			GET_PLAYER(eActivePlayer).canDoEspionageMission(
 			eLoopEspionageMission, getOwner(), plot()))
 		{
 			return true;
