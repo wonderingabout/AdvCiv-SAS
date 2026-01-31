@@ -4111,4 +4111,4 @@ Running an autplay of 500 turns with the 48 civs DLL after generating the map, w
 
 After Claude code Opus 4.5 fixed it, the new DLL doesn't crash and game plays end to end so looks solved.
 
-See [commit/bb7c8a99da650057fddfbc25382b46b5fa0c9e86](https://github.com/wonderingabout/AdvCiv-SAS/commit/bb7c8a99da650057fddfbc25382b46b5fa0c9e86).
+See [commit/24cfc0803db7251f521f0b9b6df1c620109ae3a8](https://github.com/wonderingabout/AdvCiv-SAS/commit/24cfc0803db7251f521f0b9b6df1c620109ae3a8).

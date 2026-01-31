@@ -1,9 +1,11 @@
-commit bb7c8a99da650057fddfbc25382b46b5fa0c9e86
+commit 24cfc0803db7251f521f0b9b6df1c620109ae3a8
 Author: wonderingabout <hidden>
 Date:   2026-01-31 08:11:22 +0100
 
 fix base advciv crash at 332 related to CvCity::getProductionBarPercentages; update 48 civs DLL
-Fixed with the very nice help of Claude code Opus 4.5 thanks a lot. See KI#102.
+- Fixed with the very nice help of Claude code Opus 4.5 thanks a lot. See KI#102.
+- minor fix military tradition audio quote using the wrong variant of the metal casting audio quote; update docs
+Spotted thanks to the New Sevopedia Media Player
 
 commit fe6866cda1461429f8d8ef3528c179e67615737a
 Author: wonderingabout <hidden>
