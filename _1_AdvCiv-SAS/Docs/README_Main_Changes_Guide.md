@@ -13,7 +13,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 
 [Full code diff (very long)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#full-code-diff-very-long)  
 [Main Changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes)  
-&emsp;[Translations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#translations)  
+&emsp;[Not supported in AdvCiv-SAS](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#not-supported-in-advciv-sas)  
 &emsp;[Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)  
 &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations)  
 &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll)  
@@ -71,9 +71,9 @@ See [Full exhaustive changes (very long)](/README.md#full-exhaustive-very-long-a
 
 ## Main Changes
 
-### Translations
+### Not supported in AdvCiv-SAS
 
-- New or changed content in AdvCiv-SAS ships with English text only. If your game language isn’t English, those entries will still appear (in English).
+Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-AdvCiv-SAS scenarios. See [root README.md: Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas).
 
 ### Renaming
 

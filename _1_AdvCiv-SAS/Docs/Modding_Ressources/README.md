@@ -406,7 +406,7 @@ Done with the help of GPT-5.2 Thinking thanks:
 | `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                               | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
 | `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). | Land                                     | AdvCiv-SAS                           |
 | `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                            | Land                                     | BTS, AdvCiv-SAS                      |
-| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: Land, see description -->` | Other (old world/new world colonization); `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
+| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Other (old world/new world colonization); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
 | `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial).                                               | Other (debug/test map)                   | Base Civ4                            |
 | `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                   | Water                                    | Base Civ4, Warlords                  |
 | `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                   | Land                                     | Base Civ4, Warlords                  |
@@ -438,10 +438,12 @@ Done with the help of GPT-5.2 Thinking thanks:
 | `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     | BTS                                  |
 | `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   | BTS                                  |
 
-[1: The Complete Guide to Map Creation (image heavy) - CivFanatics](https://civfanatics.com/civ4/strategy/references/the-complete-guide-to-map-creation-image-heavy/)
-[2: scribd.com/document/597223574/AdvCiv-manual](https://www.scribd.com/document/597223574/AdvCiv-manual)
-[3: map-script-which-one-do-you-usually-play.471862](https://forums.civfanatics.com/threads/map-script-which-one-do-you-usually-play.471862/)
-[4: https://forums.civfanatics.com/threads/odd-scenarios.363992/](https://forums.civfanatics.com/threads/odd-scenarios.363992/)
+Sources (GPT-5.2 Thinking):
+
+- [1: The Complete Guide to Map Creation (image heavy) - CivFanatics](https://civfanatics.com/civ4/strategy/references/the-complete-guide-to-map-creation-image-heavy/)
+- [2: scribd.com/document/597223574/AdvCiv-manual](https://www.scribd.com/document/597223574/AdvCiv-manual)
+- [3: map-script-which-one-do-you-usually-play.471862](https://forums.civfanatics.com/threads/map-script-which-one-do-you-usually-play.471862/)
+- [4: https://forums.civfanatics.com/threads/odd-scenarios.363992/](https://forums.civfanatics.com/threads/odd-scenarios.363992/)
 
 ### old info
 
