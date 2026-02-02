@@ -136,6 +136,7 @@ hopefully helpful, thanks thanks,
 [100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash)  
 [101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation)  
 [102 - (Seemingly Fixed) Base AdvCiv crash related to CvCity::getProductionBarPercentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#102---seemingly-fixed-base-advciv-crash-related-to-cvcitygetproductionbarpercentages)  
+[103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#103---fixed-base-advciv-crash-variant-of-the-cvcitygetproductionbarpercentages-crash)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4114,3 +4115,50 @@ Running an autplay of 500 turns with the 48 civs DLL after generating the map, w
 After Claude code Opus 4.5 fixed it, the new DLL doesn't crash and game plays end to end so looks solved.
 
 See [commit/24cfc0803db7251f521f0b9b6df1c620109ae3a8](https://github.com/wonderingabout/AdvCiv-SAS/commit/24cfc0803db7251f521f0b9b6df1c620109ae3a8).
+
+## 103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1PuRQAE1_3TZUrH1y9I8yBncYpdJnkNhK?usp=sharing).
+
+After the previous KI#102 fix, it seems we have another CvCity::getProductionBarPercentages related crash variant at 361 now.
+
+However looking at stacks, it seems different from the previous one.
+
+T332 crash:
+
+```log
+STACK_TEXT:
+WARNING: Stack unwind information not available. Following frames may be wrong.
+0019f7ac 05f17743 00000061 00000067 0019f818 CvGameCoreDLL!CvCity::getProductionBarPercentages+0x4a2
+0019f7c4 05f7cc5f 00000001 00000000 0cb25b90 CvGameCoreDLL!CvPlayer::getCivilizationDescription+0x43
+0019f820 05f3cef4 3e08c430 0000000a 632211f0 CvGameCoreDLL!CvPlayerAI::AI_getGreeting+0x279df
+0019f8cc 06732570 00000000 00310031 77770000 CvGameCoreDLL!CvPlayer::getGlobeLayerColors+0x2dc4
+0019f900 00ffffbf 00000000 00000000 00000000 0x6732570
+00000000 00000000 00000000 00000000 00000000 Civ4BeyondSword!initCvPythonExtensions+0x9358df
+```
+
+T361 crash:
+
+```log
+STACK_TEXT:
+WARNING: Stack unwind information not available. Following frames may be wrong.
+0019f8d0 05e0f7ce 00000000 5c32ed00 5c32ed40 CvGameCoreDLL!CvCity::getProductionBarPercentages+0x498
+0019f8e4 05e358a3 00000002 00000002 ffffffff CvGameCoreDLL!CvCity::cheat+0x31ae
+0019f938 05e36399 0000000b 00012008 00000000 CvGameCoreDLL!CvPlayerRecord::getNumCitiesBuilt+0x17e3
+0019f98c 05e34373 51a61710 05e66c2c 0019f9f0 CvGameCoreDLL!CvPlayerRecord::getNumCitiesBuilt+0x22d9
+0019f994 05e66c2c 0019f9f0 0019f9dc 0677e600 CvGameCoreDLL!CvPlayerRecord::getNumCitiesBuilt+0x2b3
+0019f9a8 05fc629f 00000001 00000002 0019f9f0 CvGameCoreDLL!CvGame::selectAll+0x8c
+0019fa60 0624bc46 00000002 05fc7890 00000002 CvGameCoreDLL!CvPlayerAI::AI_getGreeting+0x31d8f
+0019fc48 0624be51 00000001 05fc9e1e 0678d1c8 CvGameCoreDLL!CvInitCore::getReady+0x18236
+0019fc9c 05f782df 0000006d 0678d564 0678d1c8 CvGameCoreDLL!CvInitCore::getReady+0x18441
+0019fd3c 05f453ec 00000000 00000001 05e6dd3c CvGameCoreDLL!CvPlayer::setTurnActive+0x4af
+0019feb8 006873e8 75f10d00 004d7356 011a488a CvGameCoreDLL!CvPlayer::changeGold+0x4bc
+0019ff70 75f0fcc9 002a9000 75f0fcb0 0019ffdc Civ4BeyondSword+0x2873e8
+0019ffcc 7762b56f 09fc81cb 00000000 0019ffec kernel32!BaseThreadInitThunk+0x19
+0019ffe4 776393e2 00000000 00000000 00fad2f0 ntdll!wcstombs+0x6f
+0019ffe8 00000000 00000000 00fad2f0 002a9000 ntdll!FinalExceptionHandlerPad50
+```
+
+Asked GPT-5.2-Codex to fix it, and then its solution was reviewed and made more compact with the very nice help too thanks a lot of Claude code Opus 4.5.
+
+Loading save file at turn 0 and autoplaying 500 turns in one go as was done the first time at map generation, no crash happens and game finishes successfully end to end at t500, so looks fixed.

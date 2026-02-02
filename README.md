@@ -603,7 +603,7 @@ Note 3: some features added such fields that were previously missing in Sevopedi
 
 Sometimes, rarely, the game crashes, generally mid-late game.
 
-Sometimes, these crashes are reproducible and indicate real bugs to ideally fix, but some other times just exiting the game and reloading a recent save file "fixes" it, as i noticed happening after i added some performance optimizations that should not have strictly not changed the game at all if i'm not mistaken, yet had a crash at turn 296 that didn't happen autoplaying with old DLL from save file turn 200 to turn 300.
+Sometimes, these crashes are reproducible and indicate real bugs to ideally fix, but some other times just exiting the game and reloading a recent save file "fixes" it, as i noticed happening after i added some performance optimizations that should not have strictly not changed the game at all, yet had a crash at turn 296 that didn't happen autoplaying with old DLL from save file turn 200 to turn 300.
 
 However, reloading this save file with my new DLL that supposedly had caused the crash since it was the only change vs old DLL that didn't, now we had no crash autoplaying successfully from turn 200 to 300. Yet, we still had however before that this crash when it was still a new game (turn 0) that we had autoplayed all the way to turn 200, saved, and then continued to go to turn 300 until it had crashed. So most likely exiting the game and reloading the game from save file turn 200 this time "fixed" the crash.
 

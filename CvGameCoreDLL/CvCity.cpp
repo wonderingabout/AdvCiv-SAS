@@ -12530,6 +12530,21 @@ bool CvCity::getProductionBarPercentages(std::vector<float>& afPercentages) cons
 	if (!canBeSelected())
 		return false;
 
+	// <!-- custom: Guard against corrupted order data causing out-of-bounds array access. See KI#103. (GPT-5.2-Codex + Claude code Opus 4.5) -->
+	CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
+	if (pOrderNode == NULL)
+		return false;
+	int const iData1 = pOrderNode->m_data.iData1;
+	switch (pOrderNode->m_data.eOrderType)
+	{
+	case ORDER_TRAIN:     if (iData1 < 0 || iData1 >= GC.getNumUnitInfos())     return false; break;
+	case ORDER_CONSTRUCT: if (iData1 < 0 || iData1 >= GC.getNumBuildingInfos()) return false; break;
+	case ORDER_CREATE:    if (iData1 < 0 || iData1 >= GC.getNumProjectInfos())  return false; break;
+	case ORDER_MAINTAIN:  break; // No array lookup needed for processes
+	default: return false;
+	}
+	// <!-- custom: End - Guard against corrupted order data causing out-of-bounds array access. See KI#103. (GPT-5.2-Codex + Claude code Opus 4.5) -->
+
 	if (!isProductionProcess())
 	{
 		afPercentages.resize(NUM_INFOBAR_TYPES, 0.0f);
