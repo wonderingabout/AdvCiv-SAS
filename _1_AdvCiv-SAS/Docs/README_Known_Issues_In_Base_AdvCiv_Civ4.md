@@ -1387,6 +1387,8 @@ Here are the things i changed:
 
 Update: now caching mapname is landheavy or mapname is navalheavy info as boolean only once per map load (new game, load save, etc if anymore we hopefully handle, see the new `CvGame::recomputeMapnameHeaviness` we added for details and their corresponding new `m_bLandHeavyMapname` and `m_bNavalHeavyMapname` (check if accurate as i don't know too much about these, done with the help of chatgpt 5). Seems to be behaving as intended though from quick testing in autoplay (as much land units in land maps with low naval units as intended, and many naval units in naval heavy maps, so hopefully safe enough or safe and working as intended i mean if i may say but check to be sure).
 
+Update 2: include more map types and change the way we evaluate this, see code for details
+
 ## 43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites, and other related changes
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1TTw-Ya5yHNh3iuXgGWw-9vw_E6ykdps8?usp=sharing).

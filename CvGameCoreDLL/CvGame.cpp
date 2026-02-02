@@ -274,34 +274,89 @@ void CvGame::setInitialItems()
 		regenerateMap(true); // </advc.tsl>
 }
 
-// <!-- custom: new helpers addition quite self explanatory xd, see also known issue as of now 42 for details as well, and also done with chatgpt 5's help and check if accurate too or most relevant or if there is a better way perhaps to do this; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too. -->
-// CvGame.cpp — the “braindead” recompute (just ==)
+// <!-- custom: new helpers, see also KI#42; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map during civ4 run time, as advised by chatgpt 5 too. (GPT-5.2-Codex (summarized)) -->
+// <!-- custom: CvGame.cpp - recompute from map script name, then starting-area distribution (else neutral). (GPT-5.2-Codex) -->
 void CvGame::recomputeMapnameHeaviness()
 {
-    const CvWString name = GC.getInitCore().getMapScriptName(); // whatever you already use
+	CvWString const szName = GC.getInitCore().getMapScriptName();
 
-    // land-heavy – your exact list
-    m_bLandHeavyMapname =
-        (name == L"Pangaea") ||
-        (name == L"Continents") ||
-        (name == L"Custom_Continents") ||
-        (name == L"Terra") ||
-        (name == L"Great_Plains") ||
-        (name == L"Highlands") ||
-        (name == L"Inland_Sea") ||
-        (name == L"Oasis") ||
-        (name == L"Fantasy_Realm") ||
-        (name == L"Balanced");
+	m_bLandHeavyMapname =
+		(szName == L"Fractal") ||
+		(szName == L"Hemispheres") ||
+		(szName == L"Pangaea") ||
+		(szName == L"PerfectMongoose") ||
+		(szName == L"Tectonics") ||
+		(szName == L"Terra") || // <!-- custom: empirically and based on map descriptions looks landHeavy -->
+		(szName == L"Balanced") ||
+		(szName == L"Continents") ||
+		(szName == L"Custom_Continents") ||
+		(szName == L"Fantasy_Realm") || // <!-- custom: empirically looks landHeavy -->
+		(szName == L"Great_Plains") ||
+		(szName == L"Highlands") ||
+		(szName == L"Ice_Age") ||
+		(szName == L"Inland_Sea") || // <!-- custom: empirically looks landHeavy -->
+		(szName == L"Maze") || // <!-- custom: empirically looks landHeavy -->
+		(szName == L"Lakes") ||
+		(szName == L"Oasis") ||
+		(szName == L"Team_Battleground") || // <!-- custom: empirically looks landHeavy -->
+		(szName == L"Tilted_Axis") ||
+		(szName == L"Arboria") ||
+		(szName == L"Boreal") ||
+		(szName == L"Donut") || // <!-- custom: empirically looks landHeavy -->
+		(szName == L"Earth2") ||
+		(szName == L"Global_Highlands") ||
+		(szName == L"Rainforest");
 
-    // naval-heavy – your exact list
-    m_bNavalHeavyMapname =
-        (name == L"Archipelago") ||
-        (name == L"Islands") ||
-        (name == L"Ring");
+	m_bNavalHeavyMapname =
+		(szName == L"Archipelago") ||
+		(szName == L"Islands");
 
-    // tie-break (just in case you add overlapping names later)
-    if (m_bLandHeavyMapname && m_bNavalHeavyMapname)
-        m_bLandHeavyMapname = false; // prefer naval if ambiguous
+	if (m_bLandHeavyMapname || m_bNavalHeavyMapname)
+		return;
+
+	std::map<int,int> aiAreaStarts;
+	int iMajorCivs = 0;
+	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+	{
+		CvPlot const* pStart = it->getStartingPlot();
+		if (pStart == NULL)
+			continue;
+		++iMajorCivs;
+		aiAreaStarts[pStart->getArea().getID()]++;
+	}
+	if (iMajorCivs > 1)
+	{
+		int iLargestAreaStartCount = 0;
+		for (std::map<int,int>::const_iterator it = aiAreaStarts.begin();
+			it != aiAreaStarts.end(); ++it)
+		{
+			if (it->second > iLargestAreaStartCount)
+				iLargestAreaStartCount = it->second;
+		}
+		int const iAreaCount = static_cast<int>(aiAreaStarts.size());
+		int const iDistinctAreaPercent = (iAreaCount * 100) / iMajorCivs;
+		int const iLargestAreaPercent = (iLargestAreaStartCount * 100) / iMajorCivs;
+		static const int iNavalHeavyStartAreaPercentMin =
+				GC.getDefineINT("SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT");
+		static const int iLandHeavyStartAreaPercentMin =
+				GC.getDefineINT("SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT");
+
+		if (iDistinctAreaPercent >= iNavalHeavyStartAreaPercentMin)
+		{
+			m_bNavalHeavyMapname = true;
+			m_bLandHeavyMapname = false;
+			return;
+		}
+		if (iLargestAreaPercent >= iLandHeavyStartAreaPercentMin)
+		{
+			m_bLandHeavyMapname = true;
+			m_bNavalHeavyMapname = false;
+			return;
+		}
+	}
+
+	m_bLandHeavyMapname = false;
+	m_bNavalHeavyMapname = false;
 }
 
 
@@ -8984,6 +9039,10 @@ void CvGame::read(FDataStreamBase* pStream)
 	// m_bPlayerOptionsSent not saved
 	pStream->Read(&m_bNukesValid);
 
+	// <!-- custom: map heaviness is persisted in saves; no recompute on load, only on new-game map generation. (GPT-5.2-Codex) -->
+	pStream->Read(&m_bLandHeavyMapname);
+	pStream->Read(&m_bNavalHeavyMapname);
+
 	pStream->Read((int*)&m_eHandicap);
 	pStream->Read((int*)&m_eAIHandicap); // advc.127
 	pStream->Read((int*)&m_ePausePlayer);
@@ -9157,10 +9216,10 @@ void CvGame::read(FDataStreamBase* pStream)
 	applyOptionEffects(); // advc.310
 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). Added with the help of chatgpt 5 thanks -->
 	// 5) Call sites (in CvGame.cpp) — recap
 	// After loading a save: end of CvGame::read(FDataStreamBase*)
-	recomputeMapnameHeaviness();
+	// Update: Now loaded from save (no recompute here). (GPT-5.2-Codex)
 }
 
 
@@ -9214,6 +9273,9 @@ void CvGame::write(FDataStreamBase* pStream)
 	pStream->Write(m_bHotPbemBetweenTurns);
 	// m_bPlayerOptionsSent not saved
 	pStream->Write(m_bNukesValid);
+
+	pStream->Write(m_bLandHeavyMapname);
+	pStream->Write(m_bNavalHeavyMapname);
 
 	pStream->Write(m_eHandicap);
 	pStream->Write(m_eAIHandicap); // advc.127

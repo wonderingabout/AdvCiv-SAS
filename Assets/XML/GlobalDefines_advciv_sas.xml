@@ -67,6 +67,16 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
+	<!-- custom: starting area thresholds based on starting-plot landmasses; higher means stricter. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT</DefineName>
+		<iDefineIntVal>66</iDefineIntVal>
+	</Define>
+
 
 
 	<!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.) instead of an alphabetical unordered very long list, as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
