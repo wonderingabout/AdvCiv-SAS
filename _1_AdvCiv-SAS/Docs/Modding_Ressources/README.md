@@ -38,7 +38,7 @@ Instead of:
 &emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
 [A few useful other links](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-other-links)  
 [In case UnitAIs info from link above is deleted someday, here is a copy here in case](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case)  
-[Find and select map type in the DLL](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#find-and-select-map-type-in-the-dll)  
+[Maps](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps)  
 [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)  
 [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)  
 [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)  
@@ -382,7 +382,7 @@ Great people AIs:
 For unit AIs that are correct in the OP, I didn't write anything.
 ```
 
-## Find and select map type in the DLL
+## Maps
 
 ### Locations
 
@@ -407,7 +407,7 @@ Done with the help of GPT-5.2 Thinking thanks:
 | `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). | Land                                     | AdvCiv-SAS                           |
 | `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                            | Land                                     | BTS, AdvCiv-SAS                      |
 | `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Other (old world/new world colonization); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
-| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial).                                               | Other (debug/test map)                   | Base Civ4                            |
+| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->` | Other (debug/test map); `<!-- custom: Land, see description -->` | Base Civ4, AdvCiv-SAS                |
 | `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                   | Water                                    | Base Civ4, Warlords                  |
 | `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                   | Land                                     | Base Civ4, Warlords                  |
 | `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                 | Land                                     | Base Civ4, Warlords                  |

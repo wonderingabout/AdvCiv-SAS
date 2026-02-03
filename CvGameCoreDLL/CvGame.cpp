@@ -287,6 +287,7 @@ void CvGame::recomputeMapnameHeaviness()
 		(szName == L"PerfectMongoose") ||
 		(szName == L"Tectonics") ||
 		(szName == L"Terra") || // <!-- custom: empirically and based on map descriptions looks landHeavy -->
+		(szName == L"aDebugMap") || // <!-- custom: empirically and based on code comments looks landHeavy -->
 		(szName == L"Balanced") ||
 		(szName == L"Continents") ||
 		(szName == L"Custom_Continents") ||

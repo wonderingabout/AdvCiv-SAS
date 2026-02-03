@@ -1,6 +1,6 @@
 # Install Civilization 4 Beyond the Sword and the AdvCiv-SAS mod
 
-To install and play this mod AdvCiv-SAS, you can follow the steps in this document/readme.
+To install and play this mod AdvCiv-SAS, you can follow the steps in this document.
 
 ## Menu
 
@@ -75,7 +75,15 @@ Finally, add a shortcut to your desktop which link is, for example for Steam:
 
 For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game), ready to use, (AdvCiv-SAS - Steam shortcut.lnk: see [Windows_shortcuts](/_1_AdvCiv-SAS/Windows_shortcuts/)). You can just move it to the desktop for your convenience.
 
-Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+Note: Make sure you run AdvCiv-SAS from the windows shortcut and not another way.
+
+<img src="../Images/misc_0.x/0.960_windows_shortcut_example.PNG" alt="0.960_windows_shortcut_example.PNG" width="250"></img>
+
+If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, then maybe other things could be missing as well, which could lead to unexpected errors or missing features. So it is recommended to run AdvCiv-SAS from a windows shortcut.
+
+<img src="../Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
+
+Note 2: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Middle-earth mod, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
 
 ## Version number
 
@@ -132,5 +140,3 @@ If you want to try/play other mods than AdvCiv-SAS or browse them (but you may a
 
 - CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website's civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/) or the [civfanatics website's civ4 modpacks downloads section](https://forums.civfanatics.com/resources/categories/civ4-modpacks.2/)
 - ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd) mod maybe as interesting maybe as AdvCiv)): [ModDB website (Civilization 4 Mods)](https://www.moddb.com/games/civilization-iv/mods).
-
-But i say it just for exhaustiveness, even though i am (quite) friendly i think, i prefer to stay alone and relax and do my own things, so i might get stressed if you contact me.. Still, if this project would help you reader or even those who don't read, i may be quite happy of it, especially as i contribute(d) to it.
