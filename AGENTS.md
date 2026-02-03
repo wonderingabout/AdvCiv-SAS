@@ -51,6 +51,10 @@ Our AdvCiv-SAS documentation is mostly located here:
 
 May help to find key documentation, additionally to doing a grep or such, indexes like `# advc.004y: Restored (comment out to remove traits)` refer to and provide key information about a change (grep the tag e.g. `004y` in the manual).
 
+Compile errors (e.g., for a "Release" build) at:
+
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Release\AdvCiv.log"
+
 ## File reading from a non-global link
 
 - If the user provides a link like [Civ4ScreenShot1511.JPG](Assets/Python/Screens/Civ4ScreenShot1511.JPG), or some other relative path, then since you know where our mod is ("C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), then you can infer and reconstruct the path from it without asking the user unless you are unable to, for example ""C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Screens\Civ4ScreenShot1511.JPG"

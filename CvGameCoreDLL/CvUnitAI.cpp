@@ -4439,11 +4439,16 @@ void CvUnitAI::AI_attackCityMove()
 		/*  Don't yet know if we'll actually target a Barbarian city, so it's hard to
 			decide on the proper size of the attack stack. But if there is nothing else
 			to attack, it's easy. */
-		bool bHuntOnlyBarbs = (bHuntBarbs &&
+		bool const bHuntOnlyBarbs = (bHuntBarbs &&
 				!GET_TEAM(getTeam()).AI_isSneakAttackReady() &&
 				GET_TEAM(getTeam()).getNumWars() <= 0);
-		if (!bHuntOnlyBarbs && iGroupSz >= AI_stackOfDoomExtra())
+		// <!-- custom: simple sanity check - require minimum stack size before considering "ready to attack". Prevents premature wars where small stacks advance then retreat ("weird back and forth"). See KI#104 (Claude code Opus 4.5) -->
+		static int const iMinStackSize = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
+		if (!bHuntOnlyBarbs && iGroupSz >= AI_stackOfDoomExtra() &&
+			iGroupSz >= iMinStackSize)
+		{
 			bReadyToAttack = true;
+		}
 		else if (bHuntOnlyBarbs &&
 			iGroupSz >= kOwner.AI_neededCityAttackersVsBarbarians() &&
 			// Don't send a giant stack. (Tbd.: Should perhaps split the group up then.)

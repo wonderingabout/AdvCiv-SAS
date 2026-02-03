@@ -1550,6 +1550,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. See KI#104 (GPT-5.2-Codex + Claude code Opus 4.5) -->
+	<Define>
+		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
+		<iDefineIntVal>9</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: whichever XML name is for the water food building class (in advciv-sas the harbor buildings give +1 food on water tile, adjust based on your building info xml to prioritize building this if low food and coastal if you want to) -->
 	<Define>
 		<DefineName>SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>

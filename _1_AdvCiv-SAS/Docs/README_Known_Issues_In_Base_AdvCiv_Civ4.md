@@ -137,6 +137,7 @@ hopefully helpful, thanks thanks,
 [101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation)  
 [102 - (Seemingly Fixed) Base AdvCiv crash related to CvCity::getProductionBarPercentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#102---seemingly-fixed-base-advciv-crash-related-to-cvcitygetproductionbarpercentages)  
 [103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#103---fixed-base-advciv-crash-variant-of-the-cvcitygetproductionbarpercentages-crash)  
+[104 - (Tremendously Improved) Base AdvCiv issue of the weird back and forth of declaring war, moving a stack, then withdrawing without attacking which is extremely inefficient](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4162,3 +4163,39 @@ WARNING: Stack unwind information not available. Following frames may be wrong.
 Asked GPT-5.2-Codex to fix it, and then its solution was reviewed and made more compact with the very nice help too thanks a lot of Claude code Opus 4.5.
 
 Loading save file at turn 0 and autoplaying 500 turns in one go as was done the first time at map generation, no crash happens and game finishes successfully end to end at t500, so looks fixed.
+
+## 104 - (Tremendously Improved) Base AdvCiv issue of the weird back and forth of declaring war, moving a stack, then withdrawing without attacking which is extremely inefficient
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1P8tAlR6Hj8d1OHpM5umX7rVjOBP_UhVz?usp=sharing).
+
+This was a nasty and long recurring base advciv issue, but now finally fixed or heavily reduced.
+
+Low number of units stacks are sensible to power swings and so a decision to attack one turn may quickly become bad if enemy produces one more unit. City defenses also influence this heavily in the early game.
+
+To avoid tedious and also add a nice sanity is to require a min stack size before advancing our war preparations.
+
+Done with the help of GPT-5.2-Codex and Claude code Opus 4.5. Change in `CvUnitAI::AI_attackCityMove`.
+
+Claude's explanation below thanks a lot!
+
+>Simple fix implemented: Added a minimum stack unit count requirement before AI can be "ready to attack" a city.
+>
+>CvUnitAI.cpp:4445-4451: Added check for SAS_MIN_ATTACK_CITY_STACK_UNITS
+>
+>- Stack must have at least 6 units (default) before bReadyToAttack can be true
+>- Without bReadyToAttack, the MOVE_DECLARE_WAR flag is not set
+>- Simple and targeted - doesn't rely on complex ratio calculations
+>
+>How it works:
+>
+>Before: Stack of 3 Gallic Swordsmen → bReadyToAttack = true → advances → declares war → retreats
+>
+>After:  Stack of 3 Gallic Swordsmen → iGroupSz (3) < iMinStackSize (6) → bReadyToAttack = false → waits for reinforcements
+>The fix is at the right level - it prevents the stack from being marked as "ready" until it has enough units, which means:
+>
+>No MOVE_DECLARE_WAR flag
+>No premature advance toward the city
+>AI keeps building units until the stack is big enough
+>You can tune SAS_MIN_ATTACK_CITY_STACK_UNITS to 7 if 6 feels too aggressive, or lower it if the AI becomes too passive. Please recompile and test.
+
+Empirically, a value of min size 7 delays it, but i thought a value of 9 is saner or safer and it fixes it it seems, at least should heavily reduce it i think (check ingame if accurate though).
