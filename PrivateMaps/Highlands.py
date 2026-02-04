@@ -17,6 +17,7 @@ import CvUtil
 import CvMapGeneratorUtil
 import random
 import sys
+from SAS_WorldSizes import *
 from math import sqrt
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
@@ -196,14 +197,7 @@ def getGridSize(argsList):
 		10: (45, 28),  # SAS48 (base 99x70 -> reduced)
 	}
 
-	# Convert WorldSizeTypes enum to int for lookup
-	iWorldSize = int(eWorldSize)
-
-	if iWorldSize in grid_sizes:
-		return grid_sizes[iWorldSize]
-	else:
-		# Fallback for any unknown world size: use largest known size
-		return grid_sizes[10]
+	return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 def minStartingDistanceModifier():
 	return -35
@@ -540,7 +534,7 @@ def assignStartingPlots():
 	# Obtain player numbers. (Account for possibility of Open slots!)
 	# <!-- custom: AdvCiv-SAS: Increased from 18 to 52 to support up to 48 civs (SAS48 world size) (Claude code Opus 4.5) -->
 	player_list = []
-	for plrCheckLoop in range(52):
+	for plrCheckLoop in range(sas_max_players()):
 		pPlayer = CyGlobalContext().getPlayer(plrCheckLoop)
 		if pPlayer and pPlayer.isEverAlive():
 			player_list.append(plrCheckLoop)

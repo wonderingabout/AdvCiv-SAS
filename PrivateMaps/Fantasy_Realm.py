@@ -17,6 +17,7 @@ import CvUtil
 import CvMapGeneratorUtil
 import random
 import sys
+from SAS_WorldSizes import *
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
@@ -118,11 +119,7 @@ def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	iWorldSize = int(eWorldSize)
-	if iWorldSize in grid_sizes:
-		return grid_sizes[iWorldSize]
-	else:
-		return grid_sizes[10]  # Fallback to largest size
+	return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 def minStartingDistanceModifier():
 	return -25
@@ -499,23 +496,8 @@ def addBonusType(argsList):
 	# size modifier is a fixed component based on world size
 	# <!-- custom: AdvCiv-SAS: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
 	sizekey = int(map.getWorldSize())
-	sizevalues = {
-		0:  1,   # ARENA
-		1:  1,   # DUEL
-		2:  1,   # TINY
-		3:  1,   # SMALL
-		4:  2,   # STANDARD
-		5:  2,   # LARGE
-		6:  3,   # HUGE
-		7:  4,   # SAS24
-		8:  5,   # SAS32
-		9:  6,   # SAS40
-		10: 7,   # SAS48
-	}
-	if sizekey in sizevalues:
-		sizemodifier = sizevalues[sizekey]
-	else:
-		sizemodifier = 7  # Fallback to largest
+	sizevalues = sas_default_sizevalues()
+	sizemodifier = sas_lookup_world_size(sizekey, sizevalues)
 	# playermodifier involves two layers of randomnity.
 	players = gc.getGame().countCivPlayersEverAlive()
 	plrcomponent1 = int(players / 3.0) # Bonus Method Fixed Component

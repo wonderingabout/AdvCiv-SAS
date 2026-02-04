@@ -12,6 +12,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 import sys
+from SAS_WorldSizes import *
 
 def getDescription():
 	"Description shown in the main menu"
@@ -42,11 +43,7 @@ def getGridSize(argsList):
 		return []
 	[eWorldSize] = argsList
 	# <!-- custom: AdvCiv-SAS: Convert enum to int for lookup, with fallback for unknown sizes (Claude code Opus 4.5) -->
-	iWorldSize = int(eWorldSize)
-	if iWorldSize in grid_sizes:
-		return grid_sizes[iWorldSize]
-	else:
-		return (5, 5)  # Fallback for any unknown world size
+	return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 def getWrapX(): return False
 def getWrapY(): return False
