@@ -10,7 +10,6 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# <!-- custom: AdvCiv-SAS: Modified to support additional world sizes (ARENA, SAS24, SAS32, SAS40, SAS48) (GPT-5.2-Codex) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -101,7 +100,7 @@ def isBonusIgnoreLatitude():
 
 def getGridSize(argsList):
 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
-	# <!-- custom: AdvCiv-SAS: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
+	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
 	grid_sizes = {
 		0:  (5, 3),    # ARENA
 		1:  (6, 4),    # DUEL
@@ -494,7 +493,7 @@ def addBonusType(argsList):
 
 	# determine number of bonuses to place (defined as count)
 	# size modifier is a fixed component based on world size
-	# <!-- custom: AdvCiv-SAS: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
+	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
 	sizekey = int(map.getWorldSize())
 	sizevalues = sas_default_sizevalues()
 	sizemodifier = sas_lookup_world_size(sizekey, sizevalues)

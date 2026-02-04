@@ -10,7 +10,6 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# <!-- custom: AdvCiv-SAS: Modified to support additional world sizes (ARENA, SAS24, SAS32, SAS40, SAS48) (Claude code Opus 4.5) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -171,7 +170,7 @@ def getBottomLatitude():
 
 def getGridSize(argsList):
 	"Reduce grid sizes by one level."
-	# # <!-- custom: AdvCiv-SAS: Added ARENA and SAS sizes (24, 32, 40, 48 players) (Claude code Opus 4.5) -->
+	# # <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) (Claude code Opus 4.5) -->
 	# Grid sizes are reduced from base sizes for the Highlands mountainous terrain
 	gc = CyGlobalContext()
 	map = CyMap()
@@ -221,7 +220,7 @@ def generatePlotTypes():
 
 	# Varying grains for hills/peaks per map size and Mountain Ranges setting.
 	# [clustered_grain, ridgelines_grain, scattered_grain]
-	# # <!-- custom: AdvCiv-SAS: Added ARENA and SAS sizes (24, 32, 40, 48 players) (Claude code Opus 4.5) -->
+	# # <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) (Claude code Opus 4.5) -->
 	worldsizes = {
 		0:  [3, 4, 5],  # ARENA
 		1:  [3, 4, 5],  # DUEL
@@ -532,7 +531,7 @@ def assignStartingPlots():
 	terrainPlains = gc.getInfoTypeForString("TERRAIN_PLAINS")
 
 	# Obtain player numbers. (Account for possibility of Open slots!)
-	# <!-- custom: AdvCiv-SAS: Increased from 18 to 52 to support up to 48 civs (SAS48 world size) (Claude code Opus 4.5) -->
+	# <!-- custom: Increased from 18 to 52 to support up to 48 civs (SAS48 world size) (Claude code Opus 4.5) -->
 	player_list = []
 	for plrCheckLoop in range(sas_max_players()):
 		pPlayer = CyGlobalContext().getPlayer(plrCheckLoop)

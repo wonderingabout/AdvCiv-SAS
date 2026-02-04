@@ -2,7 +2,7 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# <!-- custom: AdvCiv-SAS: Shared helpers for ARENA/SAS world sizes in map scripts. (GPT-5.2-Codex) -->
+# <!-- custom: Shared helpers for ARENA/SAS world sizes in map scripts. (GPT-5.2-Codex) -->
 
 
 

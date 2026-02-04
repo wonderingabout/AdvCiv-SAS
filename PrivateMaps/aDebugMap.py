@@ -3,7 +3,6 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# <!-- custom: AdvCiv-SAS: Modified to support additional world sizes (ARENA, SAS24, SAS32, SAS40, SAS48) (Claude code Opus 4.5) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -24,7 +23,7 @@ def isAdvancedMap():
 
 def getGridSize(argsList):
 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
-	# <!-- custom: AdvCiv-SAS: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility (Claude code Opus 4.5) -->
+	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility (Claude code Opus 4.5) -->
 	grid_sizes = {
 		0:  (5, 5),   # ARENA
 		1:  (5, 5),   # DUEL
@@ -42,7 +41,7 @@ def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	# <!-- custom: AdvCiv-SAS: Convert enum to int for lookup, with fallback for unknown sizes (Claude code Opus 4.5) -->
+	# <!-- custom: Convert enum to int for lookup, with fallback for unknown sizes (Claude code Opus 4.5) -->
 	return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 def getWrapX(): return False
