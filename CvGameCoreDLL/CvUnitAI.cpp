@@ -1050,6 +1050,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// so that workers in food-poor cities (many plains/tundra/snow) prefer farms over cottages/workshops
 	// on low-food terrains, even if current food surplus happens to be temporarily positive. (Claude code Opus 4.6) -->
 	int iBFCLowFoodScore = 0;
+	// <!-- custom: count farms already being built in BFC to avoid over-farming.
+	// When multiple workers evaluate simultaneously, each one sees low food and picks farm.
+	// By pre-crediting the food from in-progress farms, subsequent workers see a higher
+	// effective surplus and choose cottages/workshops instead. (Claude code Opus 4.6) -->
+	int iFarmsBeingBuiltInBFC = 0;
 
 	for (WorkablePlotIter itBFC(kCity); itBFC.hasNext(); ++itBFC)
 	{
@@ -1059,10 +1064,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		int iNatureFood = kBFCPlot.calculateNatureYield(YIELD_FOOD, getTeam());
 		// <!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
 		iBFCLowFoodScore += (iFoodConsumptionPerPop - iNatureFood);
+
+		if (kBFCPlot.getBuildProgress(eBuildFarm) > 0)
+			iFarmsBeingBuiltInBFC++;
 	}
 
 	static const int iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH");
 	bool const bCityLowFoodBFC = (iBFCLowFoodScore >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH);
+
+	// <!-- custom: adjusted food difference accounting for farms being built by other workers.
+	// Each in-progress farm will add iImprovementFarmFoodYieldChange food when completed,
+	// so pre-credit that to prevent multiple workers from all choosing farm. (Claude code Opus 4.6) -->
+	const int iAdjustedFoodDifference = iEstimatedCityFoodDifference + (iFarmsBeingBuiltInBFC * iImprovementFarmFoodYieldChange);
 
 	const int penaltyForOverwritingPlot = 300;
 
@@ -1345,7 +1358,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			if (eFeature == eFeatureFloodPlains)
 			{
 				// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-				if (iEstimatedCityFoodDifference >= 1)
+				if (iAdjustedFoodDifference >= 1)
 				{
 					// Floodplains: Great for cottages (high food + commerce potential)
 					// High food terrain = can afford cottage
@@ -1366,13 +1379,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				// <!-- custom: but in some rare cases farm on flood plains can be quite good.. if we can build it -->
 				else
 				{
-					// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case; note: see code comment at iEstimatedCityFoodDifference for details about food is production case -->
+					// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case; note: see code comment at iEstimatedCityFoodDifference for details -->
 					if (canBuild(kPlot, eBuildFarm))
 					{
 						eBestSupposedBuild = eBuildFarm;
 
 						// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-						iValue += 1700 + (100 * (-1 * iEstimatedCityFoodDifference));
+						iValue += 1700 + (100 * (-1 * iAdjustedFoodDifference));
 					}
 					// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
 					else if (canBuild(kPlot, eBuildCottage))
@@ -1394,7 +1407,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (kPlot.isHills())
 				{
 					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-					if (iEstimatedCityFoodDifference >= -1)
+					if (iAdjustedFoodDifference >= -1)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
@@ -1427,7 +1440,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							// <!-- custom: the windmill may be a fine alternative then, hopefully the food helps, that we'd get even on a hill, quite nice, yields are not too great, but at least city grows hopefully or doesn't stop growing too much (use what we can mindset xd if i may say at least for me and in this case) -->
 							eBestSupposedBuild = eBuildWindmill;
 
-							iValue += 1200 + (100 * (-1 * iEstimatedCityFoodDifference));
+							iValue += 1200 + (100 * (-1 * iAdjustedFoodDifference));
 						}
 						else if (canBuild(kPlot, eBuildMine))
 						{
@@ -1447,7 +1460,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				else
 				{
 					// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields -->
-					if (iEstimatedCityFoodDifference >= 2)
+					if (iAdjustedFoodDifference >= 2)
 					{
 						if (canBuild(kPlot, eBuildWorkshop))
 						{
@@ -1493,7 +1506,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							eBestSupposedBuild = eBuildFarm;
 
 							// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-							iValue += 1460 + (100 * (-1 * iEstimatedCityFoodDifference));
+							iValue += 1460 + (100 * (-1 * iAdjustedFoodDifference));
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
@@ -1516,7 +1529,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (kPlot.isHills())
 				{
 					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more -->
-					if (iEstimatedCityFoodDifference >= 0)
+					if (iAdjustedFoodDifference >= 0)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
@@ -1559,7 +1572,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
 				else
 				{
-					if (iEstimatedCityFoodDifference >= 3 && !bCityLowFoodBFC)
+					if (iAdjustedFoodDifference >= 3 && !bCityLowFoodBFC)
 					{
 						if (canBuild(kPlot, eBuildWorkshop))
 						{
@@ -1604,7 +1617,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							iValue += 900 + (100 * (-1 * iEstimatedCityFoodDifference));
+							iValue += 900 + (100 * (-1 * iAdjustedFoodDifference));
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
@@ -1653,7 +1666,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				{
 					// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more -->
 					// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
-					if (iEstimatedCityFoodDifference >= 3 && !bCityLowFoodBFC)
+					if (iAdjustedFoodDifference >= 3 && !bCityLowFoodBFC)
 					{
 						if (canBuild(kPlot, eBuildWorkshop))
 						{
@@ -1699,7 +1712,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							iValue += 500 + (100 * (-1 * iEstimatedCityFoodDifference));
+							iValue += 500 + (100 * (-1 * iAdjustedFoodDifference));
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
@@ -1722,7 +1735,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (kPlot.isHills())
 				{
 					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-					if (iEstimatedCityFoodDifference >= 4)
+					if (iAdjustedFoodDifference >= 4)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
@@ -1769,7 +1782,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (kPlot.isHills())
 				{
 					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-					if (iEstimatedCityFoodDifference >= 4)
+					if (iAdjustedFoodDifference >= 4)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
