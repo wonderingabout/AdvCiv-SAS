@@ -1031,11 +1031,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	int const iCityHealthCalculatedDifference = kCity.goodHealth() - kCity.badHealth();
 	int const iCityPopulation = kCity.getPopulation();
 
+	int const iFoodConsumptionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+
 	// <!-- custom: note: see also a slightly different implementation of this at variable iEffectiveFoodAfterBuiltHappy in as of now buildingvalue function in cvcityai.cpp file -->
 	// Specialists that actually cost population (and thus 'pull' 2 food each)
 	const int iNonFreeSpecialists = std::max(0, kCity.getSpecialistPopulation() - kCity.totalFreeSpecialists());
 	const int iAngryCitizens = kCity.angryPopulation();
-	const int iFoodConsumedBySpecialistOrAngryCitizens = (GC.getFOOD_CONSUMPTION_PER_POPULATION() * (iNonFreeSpecialists + iAngryCitizens));
+	const int iFoodConsumedBySpecialistOrAngryCitizens = (iFoodConsumptionPerPop * (iNonFreeSpecialists + iAngryCitizens));
 
 	const int iFoodSurplusCityHas = (kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(/*bFoodProduction=*/false));
 	// That looks solid! You’re doing exactly what we wanted:
@@ -1043,7 +1045,26 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// then “give it back” by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
 	const int iEstimatedCityFoodDifference = iFoodSurplusCityHas + iFoodConsumedBySpecialistOrAngryCitizens;
 
-	static const int penaltyForOverwritingPlot = 300;
+	// <!-- custom: BFC food environment score - similar to CitySiteEvaluator iLowFoodLocationCount logic.
+	// Measures how food-poor the city's workable tiles are structurally (terrain + feature + hill),
+	// so that workers in food-poor cities (many plains/tundra/snow) prefer farms over cottages/workshops
+	// on low-food terrains, even if current food surplus happens to be temporarily positive. (Claude code Opus 4.6) -->
+	int iBFCLowFoodScore = 0;
+
+	for (WorkablePlotIter itBFC(kCity); itBFC.hasNext(); ++itBFC)
+	{
+		CvPlot& kBFCPlot = *itBFC;
+		if (kBFCPlot.isWater() || itBFC.currID() == CITY_HOME_PLOT)
+			continue;
+		int iNatureFood = kBFCPlot.calculateNatureYield(YIELD_FOOD, getTeam());
+		// <!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
+		iBFCLowFoodScore += (iFoodConsumptionPerPop - iNatureFood);
+	}
+
+	static const int iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH");
+	bool const bCityLowFoodBFC = (iBFCLowFoodScore >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH);
+
+	const int penaltyForOverwritingPlot = 300;
 
 	// ===================================================
 	// PHASE 1: A single loop to find ALL valid candidate <!-- custom: plots --> and their values.
@@ -1324,7 +1345,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			if (eFeature == eFeatureFloodPlains)
 			{
 				// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-				if (iEstimatedCityFoodDifference >= 1 || kCity.isFoodProduction())
+				if (iEstimatedCityFoodDifference >= 1)
 				{
 					// Floodplains: Great for cottages (high food + commerce potential)
 					// High food terrain = can afford cottage
@@ -1346,7 +1367,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				else
 				{
 					// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case; note: see code comment at iEstimatedCityFoodDifference for details about food is production case -->
-					if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+					if (canBuild(kPlot, eBuildFarm))
 					{
 						eBestSupposedBuild = eBuildFarm;
 
@@ -1373,7 +1394,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (kPlot.isHills())
 				{
 					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-					if (iEstimatedCityFoodDifference >= -1 || kCity.isFoodProduction())
+					if (iEstimatedCityFoodDifference >= -1)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
@@ -1401,7 +1422,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: low food, can't be too picky if i may say in this case at least maybe-->
 					else
 					{
-						if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
+						if (canBuild(kPlot, eBuildWindmill))
 						{
 							// <!-- custom: the windmill may be a fine alternative then, hopefully the food helps, that we'd get even on a hill, quite nice, yields are not too great, but at least city grows hopefully or doesn't stop growing too much (use what we can mindset xd if i may say at least for me and in this case) -->
 							eBestSupposedBuild = eBuildWindmill;
@@ -1426,7 +1447,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				else
 				{
 					// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields -->
-					if (iEstimatedCityFoodDifference >= 2 || kCity.isFoodProduction())
+					if (iEstimatedCityFoodDifference >= 2)
 					{
 						if (canBuild(kPlot, eBuildWorkshop))
 						{
@@ -1467,7 +1488,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							iValue += 2000;
 						}
 						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+						else if (canBuild(kPlot, eBuildFarm))
 						{
 							eBestSupposedBuild = eBuildFarm;
 
@@ -1495,7 +1516,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (kPlot.isHills())
 				{
 					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more -->
-					if (iEstimatedCityFoodDifference >= 0 || kCity.isFoodProduction())
+					if (iEstimatedCityFoodDifference >= 0)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
@@ -1513,7 +1534,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: if low on food on a hill consider windmill with a higher priority -->
 					else
 					{
-						if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
+						if (canBuild(kPlot, eBuildWindmill))
 						{
 							// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
 							eBestSupposedBuild = eBuildWindmill;
@@ -1535,9 +1556,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					}
 				}
 				// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
+				// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
 				else
 				{
-					if (iEstimatedCityFoodDifference >= 3 || kCity.isFoodProduction())
+					if (iEstimatedCityFoodDifference >= 3 && !bCityLowFoodBFC)
 					{
 						if (canBuild(kPlot, eBuildWorkshop))
 						{
@@ -1569,7 +1591,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					else
 					{
 						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet -->
-						if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
+						// <!-- custom: but not in low-food BFC cities, where we want farm for food even over free workshops on low-food terrains (Claude code Opus 4.6) -->
+						if (bImprovementWorkshopCostsNoFood && !bCityLowFoodBFC && (canBuild(kPlot, eBuildWorkshop)))
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
@@ -1577,7 +1600,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							iValue += 1600;
 						}
 						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+						else if (canBuild(kPlot, eBuildFarm))
 						{
 							eBestSupposedBuild = eBuildFarm;
 
@@ -1629,7 +1652,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				else
 				{
 					// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more -->
-					if (iEstimatedCityFoodDifference >= 3 || kCity.isFoodProduction())
+					// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
+					if (iEstimatedCityFoodDifference >= 3 && !bCityLowFoodBFC)
 					{
 						if (canBuild(kPlot, eBuildWorkshop))
 						{
@@ -1662,7 +1686,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					else
 					{
 						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet -->
-						if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
+						// <!-- custom: but not in low-food BFC cities, where we want farm for food even over free workshops on low-food terrains (Claude code Opus 4.6) -->
+						if (bImprovementWorkshopCostsNoFood && !bCityLowFoodBFC && (canBuild(kPlot, eBuildWorkshop)))
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
@@ -1670,7 +1695,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							iValue += 1600;
 						}
 						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+						else if (canBuild(kPlot, eBuildFarm))
 						{
 							eBestSupposedBuild = eBuildFarm;
 
@@ -1697,7 +1722,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (kPlot.isHills())
 				{
 					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-					if (iEstimatedCityFoodDifference >= 4 || kCity.isFoodProduction())
+					if (iEstimatedCityFoodDifference >= 4)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
@@ -1744,7 +1769,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (kPlot.isHills())
 				{
 					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-					if (iEstimatedCityFoodDifference >= 4 || kCity.isFoodProduction())
+					if (iEstimatedCityFoodDifference >= 4)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
@@ -1762,7 +1787,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd -->
 					else
 					{
-						if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
+						if (canBuild(kPlot, eBuildWindmill))
 						{
 							// <!-- custom: if nothing better to do, grab what we can -->
 							eBestSupposedBuild = eBuildWindmill;

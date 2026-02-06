@@ -644,6 +644,15 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: if score is equal or higher than this, it means our city has a low food BFC. Used to decide as of now if farms should be more valuable in such cities. -->
+	<!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
+	<Define>
+		<DefineName>SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+
+
+
 	<Define>
 		<DefineName>SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1</DefineName>
 		<DefineTextVal>BONUS_COPPER</DefineTextVal>

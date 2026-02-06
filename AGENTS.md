@@ -92,16 +92,12 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 - Be more verbose when explaining rationales - it's important to capture the intent behind the change while summarizing. The "why" is critical, so preserve problem descriptions, observed behavior, and intended fixes more fully than other commentary.
 - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
 - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
-- When adding new comments, use the format `<!-- custom: ... (GPT-5.2-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
+- When adding new comments, use the format `<!-- custom: ... (GPT-5.3-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
 - Do not use `/*` or `"""` or `'''` or such docstrings or variants. Prefer `//` or `#` or similar so they are easierto manage/uncomment and less costly computationally. Keep existing ones as they are, as some `"""` docstrings seem functionally used in tests (do not modify these, only the new ones we create).
-- Add this suffix to any comment you edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` or similar depending on which model is doing the summarization.
-- When writing new code, do not use other credentials than our custom ones, e.g. no `// advc.`, as these help identify other maintainers than us. Keep old existing ones as much as possible for traceability unless clearly obsolete or not relevant anymore.
+- Add a suffix with your model name to your code comments; e.g., `(GPT-5.3-Codex (summarized)) -->`, `(Claude code Sonnet 4.5 (summarized)) -->`.
+- When writing new code, do not use other credentials than our custom ones, e.g. no `// advc.`, as they do not belong to us. Use `<!-- custom:` instead.
 - Do NOT commit changes without explicit user approval - wait for review at the end.
-- When committing, add a `Co-authored-by:` trailer with the model identifier unless the user requests otherwise.
-- When user feedback adds a new rule, update this file proactively.
-- Preserve all credits (ChatGPT, ChatGPT 5, ChatGPT 5.1, ChatGPT 5.2, ChatGPT o3, Gemini AI, Gemini 2.5 Pro, Gemini 3 Pro, Claude Sonnet 4.5, Claude AI)
-- Use suffix with your model name/credential: `(Claude code Sonnet 4.5 (summarized)) -->`
-- Preserv problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
+- Preserve problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
 - Pattern: Keep technical details and "why" verbose, remove conversational filler
 
 ## Comment Style Example
@@ -112,7 +108,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 // and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
 // Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
 // and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
-// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
+// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.3-Codex) -->
 ```
 
 ## Examples of Good Summarization
@@ -123,10 +119,10 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 # <!-- custom: use "is" not "==" when checking none as per ruff rule and chatgpt's answer and my idea too -->
 ```
 
-**After (GPT-5.2-Codex):**
+**After:**
 
 ```python
-# <!-- custom: use "is" not "==" when checking None (ruff). Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+# <!-- custom: use "is" not "==" when checking None (ruff). Credit: ChatGPT. (GPT-5.3-Codex (summarized)) -->
 ```
 
 **Before:**
@@ -135,10 +131,10 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 # <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for Sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
 ```
 
-**After (GPT-5.2-Codex):**
+**After:**
 
 ```python
-# <!-- custom: expand the screen like Foreign Advisor/Sevopedia so crowded player lists require less scrolling. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
+# <!-- custom: expand the screen like Foreign Advisor/Sevopedia so crowded player lists require less scrolling. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.3-Codex (summarized)) -->
 ```
 
 ## Coding Preferences
