@@ -169,34 +169,14 @@ def getBottomLatitude():
 		return -85
 
 def getGridSize(argsList):
-	"Reduce grid sizes by one level."
-	# # <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) (Claude code Opus 4.5) -->
-	# Grid sizes are reduced from base sizes for the Highlands mountainous terrain
-	gc = CyGlobalContext()
-	map = CyMap()
+	"Use a compact almost-all-land grid profile."
+	# <!-- custom: Reuse the Great Plains compact almost-all-land profile so Highlands is less oversized for player counts; this addresses overly wide early city spacing and keeps ARENA/SAS sizing centralized. (GPT-5.3-Codex) -->
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 
 	[eWorldSize] = argsList
-
-	# Build grid_sizes dict dynamically to handle any world size configuration
-	# These are scaled-down sizes for Highlands (mountainous = smaller playable area)
-	grid_sizes = {
-		0:  (6, 4),    # ARENA (base 14x10 -> reduced)
-		1:  (8, 5),    # DUEL (base 18x13 -> reduced)
-		2:  (10, 6),   # TINY (base 23x17 -> reduced)
-		3:  (13, 8),   # SMALL (base 30x22 -> reduced)
-		4:  (16, 10),  # STANDARD (base 39x28 -> reduced)
-		5:  (21, 13),  # LARGE (base 47x34 -> reduced)
-		6:  (26, 16),  # HUGE (base 60x42 -> reduced)
-		7:  (30, 19),  # SAS24 (base 70x49 -> reduced)
-		8:  (35, 22),  # SAS32 (base 80x56 -> reduced)
-		9:  (40, 25),  # SAS40 (base 90x63 -> reduced)
-		10: (45, 28),  # SAS48 (base 99x70 -> reduced)
-	}
-
-	return sas_lookup_world_size(eWorldSize, grid_sizes)
+	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
 
 def minStartingDistanceModifier():
 	return -35

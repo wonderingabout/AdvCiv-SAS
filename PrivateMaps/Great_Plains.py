@@ -79,25 +79,12 @@ def getGridSize(argsList):
 	# This map is almost 100% land with no ice.
 	# Sizes reduced MORE THAN two levels compared to global maps.
 	# Dimensions also pushed more toward being squarish.
-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices with fallback for compatibility. (GPT-5.2-Codex) -->
-	grid_sizes = {
-		0:  (4, 3),    # ARENA
-		1:  (5, 3),    # DUEL
-		2:  (6, 4),    # TINY
-		3:  (8, 6),    # SMALL
-		4:  (11, 8),   # STANDARD
-		5:  (14, 11),  # LARGE
-		6:  (18, 14),  # HUGE
-		7:  (22, 17),  # SAS24
-		8:  (26, 20),  # SAS32
-		9:  (30, 23),  # SAS40
-		10: (34, 26),  # SAS48
-	}
+	# <!-- custom: Keep Great Plains as the source compact almost-all-land profile via SAS_WorldSizes helper (same ARENA/SAS dimensions, centralized for reuse). (GPT-5.3-Codex) -->
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_lookup_world_size(eWorldSize, grid_sizes)
+	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
 
 def minStartingDistanceModifier():
 	return -25

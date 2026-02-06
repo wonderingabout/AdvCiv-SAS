@@ -99,26 +99,11 @@ def isBonusIgnoreLatitude():
 	return True
 
 def getGridSize(argsList):
-	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
-	grid_sizes = {
-		0:  (5, 3),    # ARENA
-		1:  (6, 4),    # DUEL
-		2:  (8, 5),    # TINY
-		3:  (10, 6),   # SMALL
-		4:  (13, 8),   # STANDARD
-		5:  (16, 10),  # LARGE
-		6:  (21, 13),  # HUGE
-		7:  (26, 16),  # SAS24
-		8:  (32, 20),  # SAS32
-		9:  (38, 24),  # SAS40
-		10: (44, 28),  # SAS48
-	}
-
+	"Because this map is almost entirely land, use a smaller grid to avoid overly wide city spacing."
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_lookup_world_size(eWorldSize, grid_sizes)
+	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
 
 def minStartingDistanceModifier():
 	return -25
