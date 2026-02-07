@@ -289,12 +289,12 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
-		<DefineTextVal>Fractal,Hemispheres,Pangaea,PerfectMongoose,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Lakes,Oasis,Team_Battleground,Tilted_Axis,Arboria,Boreal,Donut,Earth2,Global_Highlands,Rainforest</DefineTextVal>
+		<DefineTextVal>Fractal,Hemispheres,Pangaea,PerfectMongoose,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Oasis,Team_Battleground,Tilted_Axis,Arboria,Boreal,Donut,Earth2,Global_Highlands,Rainforest</DefineTextVal>
 	</Define>
 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND</DefineName>
-		<DefineTextVal>Great_Plains,Highlands,Fantasy_Realm,SAS_WorldSizes</DefineTextVal>
+		<DefineTextVal>Great_Plains,Highlands,Lakes,Fantasy_Realm,SAS_WorldSizes</DefineTextVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
