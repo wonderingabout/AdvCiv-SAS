@@ -169,8 +169,8 @@ def getBottomLatitude():
 		return -85
 
 def getGridSize(argsList):
-	"Use a compact almost-all-land grid profile."
-	# <!-- custom: Reuse the Great Plains compact almost-all-land profile so Highlands is less oversized for player counts; this addresses overly wide early city spacing and keeps ARENA/SAS sizing centralized. (GPT-5.3-Codex) -->
+	"Use the shared compact almost-all-land grid profile."
+	# <!-- custom: Shared almost-all-land profile now calibrates SAS24/32/40/48 from Huge baseline (18 players custom max) so Highlands keeps closer Huge-relative scale without a separate helper. (GPT-5.3-Codex) -->
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []

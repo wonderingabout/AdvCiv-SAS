@@ -1,3 +1,6 @@
+import math
+from CvPythonExtensions import CyGlobalContext
+
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
@@ -8,11 +11,17 @@
 
 SAS_WORLDSIZE_LARGEST = 10
 SAS_MAX_PLAYERS = 52
+SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
 
 
 
 def sas_max_players():
 	return SAS_MAX_PLAYERS
+
+
+
+def sas_huge_custom_max_players():
+	return SAS_HUGE_CUSTOM_MAX_PLAYERS
 
 
 
@@ -33,8 +42,8 @@ def sas_default_sizevalues():
 
 
 
+# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor (18x14) using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge. (GPT-5.3-Codex) -->
 def sas_compact_almost_all_land_grid_sizes():
-	# <!-- custom: Shared compact grid profile for almost entirely land maps where default city spacing is too wide (Great Plains baseline), including ARENA and SAS sizes. (GPT-5.3-Codex) -->
 	return {
 		0:  (4, 3),    # ARENA
 		1:  (5, 3),    # DUEL
@@ -43,16 +52,16 @@ def sas_compact_almost_all_land_grid_sizes():
 		4:  (11, 8),   # STANDARD
 		5:  (14, 11),  # LARGE
 		6:  (18, 14),  # HUGE
-		7:  (22, 17),  # SAS24
-		8:  (26, 20),  # SAS32
-		9:  (30, 23),  # SAS40
-		10: (34, 26),  # SAS48
 	}
 
 
 
 def sas_get_compact_almost_all_land_grid_size(eWorldSize):
-	return sas_lookup_world_size(eWorldSize, sas_compact_almost_all_land_grid_sizes())
+	return sas_lookup_world_size_with_calibrated_sas(
+		eWorldSize,
+		sas_compact_almost_all_land_grid_sizes(),
+		SAS_HUGE_CUSTOM_MAX_PLAYERS
+	)
 
 
 
@@ -64,14 +73,64 @@ def sas_lookup_world_size(eWorldSize, values):
 
 
 
+def sas_grid_ratio(iWidth, iHeight):
+	return float(iWidth) / float(max(1, iHeight))
+
+
+
+def sas_tiles_per_player(iWidth, iHeight, iMaxPlayers):
+	return float(iWidth * iHeight) / float(max(1, iMaxPlayers))
+
+
+def sas_world_default_players(iWorldSize, iFallbackPlayers):
+	gc = CyGlobalContext()
+	iWorld = int(iWorldSize)
+	if iWorld >= 0 and iWorld < gc.getNumWorldInfos():
+		return max(1, gc.getWorldInfo(iWorld).getDefaultPlayers())
+	return max(1, iFallbackPlayers)
+
+
+
+# <!-- custom: Helper for map-size tuning: keep anchor ratio and tiles-per-player roughly stable when extrapolating to larger player caps. Intended for script calibration by maintainers. (GPT-5.3-Codex) -->
+def sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorMaxPlayers, iTargetMaxPlayers):
+	fRatio = sas_grid_ratio(iAnchorWidth, iAnchorHeight)
+	fTilesPerPlayer = sas_tiles_per_player(iAnchorWidth, iAnchorHeight, iAnchorMaxPlayers)
+	fTargetTiles = fTilesPerPlayer * float(max(1, iTargetMaxPlayers))
+	iTargetHeight = max(1, int(math.sqrt(fTargetTiles / max(0.0001, fRatio)) + 0.5))
+	iTargetWidth = max(1, int((float(iTargetHeight) * fRatio) + 0.5))
+	return (iTargetWidth, iTargetHeight)
+
+
+
+# <!-- custom: For map-size calibration workflows, compute only the requested world size: base tiers return directly; SAS24/32/40/48 are calibrated on demand from the last base tier (usually Huge) and anchor max players. (GPT-5.3-Codex) -->
+def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, iAnchorMaxPlayers):
+	iWorldSize = int(eWorldSize)
+	if iWorldSize in base_grid_sizes:
+		return base_grid_sizes[iWorldSize]
+
+	iAnchorWorldSize = max(base_grid_sizes.keys())
+	if iWorldSize > iAnchorWorldSize and iWorldSize <= SAS_WORLDSIZE_LARGEST:
+		(iAnchorWidth, iAnchorHeight) = base_grid_sizes[iAnchorWorldSize]
+		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize, iAnchorMaxPlayers)
+		iTargetPlayers = sas_world_default_players(iWorldSize, 0)
+		return sas_calibrate_grid_from_anchor(
+			iAnchorWidth,
+			iAnchorHeight,
+			iAnchorPlayers,
+			iTargetPlayers
+		)
+	return base_grid_sizes[max(base_grid_sizes.keys())]
+
+
+
 # <!-- custom: our helpers actually appears to be a flat grass map that is almost land so kept as such as a playable map then -->
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR"
 
 
 
+# <!-- custom: If this helper is selected as a map script, use compact almost-all-land sizing to avoid oversized flat-grass starts. (GPT-5.3-Codex) -->
 def getGridSize(argsList):
-	# <!-- custom: If this helper is selected as a map script, use compact almost-all-land sizing to avoid oversized flat-grass starts. (GPT-5.3-Codex) -->
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList

@@ -74,8 +74,8 @@ def isClimateMap():
 def getGridSize(argsList):
 	# Override Grid Size function to make shorter than normal.
 	# Map widths unchanged. Height reduced (lands lost to polar ice)
-	# <!-- custom: Use integer world-size indices plus SAS fallback so ARENA/SAS sizes don't raise KeyError; keep Ice Age's short-height profile. (GPT-5.3-Codex) -->
-	grid_sizes = {
+	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; keep Ice Age short-height profile while deriving SAS tiers from the script's Huge anchor. (GPT-5.3-Codex) -->
+	base_grid_sizes = {
 		0:  (8, 3),    # ARENA
 		1:  (10, 4),   # DUEL
 		2:  (13, 5),   # TINY
@@ -83,16 +83,16 @@ def getGridSize(argsList):
 		4:  (21, 9),   # STANDARD
 		5:  (26, 11),  # LARGE
 		6:  (32, 13),  # HUGE
-		7:  (37, 15),  # SAS24
-		8:  (42, 17),  # SAS32
-		9:  (47, 19),  # SAS40
-		10: (52, 21),  # SAS48
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_lookup_world_size(eWorldSize, grid_sizes)
+	return sas_lookup_world_size_with_calibrated_sas(
+		eWorldSize,
+		base_grid_sizes,
+		SAS_HUGE_CUSTOM_MAX_PLAYERS
+	)
 
 # Subclass FractalWorld to alter min/max Sea Level.
 class IceAgeFractalWorld(CvMapGeneratorUtil.FractalWorld):
