@@ -274,43 +274,36 @@ void CvGame::setInitialItems()
 		regenerateMap(true); // </advc.tsl>
 }
 
+static bool SAS_isMapScriptListedInDefine(CvWString const& szMapScriptName, char const* szDefineName)
+{
+	CvString szMapName = CvString(szMapScriptName);
+	if (szMapName.empty())
+		return false;
+
+	CvString const szCsv = GC.getDefineSTRING(szDefineName);
+	std::vector<CvString> aszTokens;
+	szCsv.getTokens(",", aszTokens);
+	for (size_t i = 0; i < aszTokens.size(); i++)
+	{
+		if (aszTokens[i] == szMapName)
+			return true;
+	}
+	return false;
+}
+
 // <!-- custom: new helpers, see also KI#42; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map during civ4 run time, as advised by chatgpt 5 too. (GPT-5.2-Codex (summarized)) -->
-// <!-- custom: CvGame.cpp - recompute from map script name, then starting-area distribution (else neutral). (GPT-5.2-Codex) -->
 void CvGame::recomputeMapnameHeaviness()
 {
 	CvWString const szName = GC.getInitCore().getMapScriptName();
 
+	// <!-- custom: note: not static since we compute them only once -->
 	m_bLandHeavyMapname =
-		(szName == L"Fractal") ||
-		(szName == L"Hemispheres") ||
-		(szName == L"Pangaea") ||
-		(szName == L"PerfectMongoose") ||
-		(szName == L"Tectonics") ||
-		(szName == L"Terra") || // <!-- custom: empirically and based on map descriptions looks landHeavy -->
-		(szName == L"aDebugMap") || // <!-- custom: empirically and based on code comments looks landHeavy -->
-		(szName == L"Balanced") ||
-		(szName == L"Continents") ||
-		(szName == L"Custom_Continents") ||
-		(szName == L"Fantasy_Realm") || // <!-- custom: empirically looks landHeavy -->
-		(szName == L"Great_Plains") ||
-		(szName == L"Highlands") ||
-		(szName == L"Ice_Age") ||
-		(szName == L"Inland_Sea") || // <!-- custom: empirically looks landHeavy -->
-		(szName == L"Maze") || // <!-- custom: empirically looks landHeavy -->
-		(szName == L"Lakes") ||
-		(szName == L"Oasis") ||
-		(szName == L"Team_Battleground") || // <!-- custom: empirically looks landHeavy -->
-		(szName == L"Tilted_Axis") ||
-		(szName == L"Arboria") ||
-		(szName == L"Boreal") ||
-		(szName == L"Donut") || // <!-- custom: empirically looks landHeavy -->
-		(szName == L"Earth2") ||
-		(szName == L"Global_Highlands") ||
-		(szName == L"Rainforest");
+		SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND") ||
+		SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_LAND_HEAVY");
+	m_bNavalHeavyMapname = SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY");
 
-	m_bNavalHeavyMapname =
-		(szName == L"Archipelago") ||
-		(szName == L"Islands");
+	if (m_bLandHeavyMapname && m_bNavalHeavyMapname)
+		m_bNavalHeavyMapname = false;
 
 	if (m_bLandHeavyMapname || m_bNavalHeavyMapname)
 		return;

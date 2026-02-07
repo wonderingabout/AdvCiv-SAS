@@ -61,3 +61,18 @@ def sas_lookup_world_size(eWorldSize, values):
 	if iWorldSize in values:
 		return values[iWorldSize]
 	return values[SAS_WORLDSIZE_LARGEST]
+
+
+
+# <!-- custom: our helpers actually appears to be a flat grass map that is almost land so kept as such as a playable map then -->
+def getDescription():
+	return "TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR"
+
+
+
+def getGridSize(argsList):
+	# <!-- custom: If this helper is selected as a map script, use compact almost-all-land sizing to avoid oversized flat-grass starts. (GPT-5.3-Codex) -->
+	if (argsList[0] == -1): # (-1,) is passed to function on loads
+		return []
+	[eWorldSize] = argsList
+	return sas_get_compact_almost_all_land_grid_size(eWorldSize)

@@ -206,6 +206,13 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<TEXT>
+		<Tag>TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR</Tag>
+		<English>SAS world-size helper sandbox map: almost all land with mostly flat grass tiles.</English>
+	</TEXT>
+
+
+
+	<TEXT>
 		<Tag>TXT_KEY_BUILDINGS_ROM_291</Tag>
 		<English>Buildings</English>
 	</TEXT>
