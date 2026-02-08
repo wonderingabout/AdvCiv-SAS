@@ -382,6 +382,9 @@ class CvInfoScreen:
 		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
 		self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER = 5
 		self.iTopCitiesWonderButtonSize = 46
+		# <!-- custom: mirror Sevopedia multilist constants pattern (without shared module dependency). (GPT-5.3-Codex) -->
+		self.iTopCitiesWonderNumListsAutoCalculate = 1
+		self.iTopCitiesWonderColumnIndexAuto = 0
 		self.iTopCitiesWonderNumRows = 2
 		self.iTopCitiesWonderPanelMargin = 8
 		# <!-- custom: height adjustment for wonder panel (negative to reduce), added with claude opus 4.5's help thanks. -->
@@ -2577,7 +2580,7 @@ class CvInfoScreen:
 				iMultiListY + self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER,
 				iMultiListW - (2 * self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER),
 				iMultiListH - (2 * self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER),
-				1,  # numLists (1 for auto-calculate buttons per row)
+				self.iTopCitiesWonderNumListsAutoCalculate,
 				self.iTopCitiesWonderButtonSize,
 				self.iTopCitiesWonderButtonSize,
 				TableStyles.TABLE_STYLE_STANDARD)
@@ -2586,7 +2589,7 @@ class CvInfoScreen:
 			for iWonderLoop in range(aiTopCitiesNumWonders[iCityLoop]):
 				iBuildingID = aaiTopCitiesWonders[iCityLoop][iWonderLoop]
 				screen.appendMultiListButton(szMultiListName, gc.getBuildingInfo(iBuildingID).getButton(),
-					0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
+					self.iTopCitiesWonderColumnIndexAuto, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
 
 	def calculateTopCities(self):
 

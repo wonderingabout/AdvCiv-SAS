@@ -249,14 +249,13 @@ class SevoPediaTrait:
 		multiListY = self.Y_LEADERS + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = self.W_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = self.H_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_H
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		for iLeader in leadersWithTrait:
 			self.iLeader = iLeader
 			iCiv = leaderToCiv.get(iLeader, -1)
 			if iCiv == -1:
 				continue
-			screen.appendMultiListButton(rowListName, gc.getLeaderHeadInfo(iLeader).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, False)
+			screen.appendMultiListButton(rowListName, gc.getLeaderHeadInfo(iLeader).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, False)
 
 
 

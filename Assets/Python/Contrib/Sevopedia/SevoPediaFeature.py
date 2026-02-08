@@ -367,16 +367,10 @@ class SevoPediaFeature:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		#isButtonFound = False
 		iButtonIndex = 0
-
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 
 		# <!-- custom: handle feature(s) that is (are) impassable such as of now only the ice cap feature quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences, see code comments at sevopedia feature's placeUnitsImpassable -->
@@ -398,9 +392,7 @@ class SevoPediaFeature:
 					unitInfo.getFeaturePassableTech(iIce) != -1))
 				)
 				if can_cross_ice:
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 					iFeatureAttack = unitInfo.getFeatureAttackModifier(self.iFeature)
 					iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
@@ -429,9 +421,7 @@ class SevoPediaFeature:
 				isHasW3 = unitInfo.getFreePromotions(self.I_PROMOTION_WOODSMAN3)
 
 				if ((iFeatureAttack != 0) or (iFeatureDefense != 0) or isHasW1 or isHasW2 or isHasW3):
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 					if iFeatureAttack != 0 or iFeatureDefense != 0:
 						numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
@@ -469,9 +459,7 @@ class SevoPediaFeature:
 				iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
 
 				if iFeatureAttack != 0 or iFeatureDefense != 0:
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 					numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
 					extraCorrectionX = get_extra_correction_x(numTxt)
@@ -508,11 +496,7 @@ class SevoPediaFeature:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		iIce = self.I_FEATURE_ICE
 		if self.iFeature == iIce:
@@ -542,9 +526,7 @@ class SevoPediaFeature:
 				)
 
 				if land_or_air_blocked or sea_blocked:
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 		else:
 			info = gc.getFeatureInfo(self.iFeature)
@@ -563,9 +545,7 @@ class SevoPediaFeature:
 					not unitInfo.isCanMoveAllTerrain()
 				)
 				if blocked:
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 
 

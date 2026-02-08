@@ -174,16 +174,10 @@ class SevoPediaPromotion:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
-
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 
 		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
@@ -193,9 +187,7 @@ class SevoPediaPromotion:
 			
 			# Check if this unit has the current promotion as a free promotion
 			if unitInfo.getFreePromotions(self.iPromotion):
-				# Column index (always 0 when numLists=1)
-				columnIndex = 0
-				screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+				screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 				isButtonFound = True
 				#iButtonIndex += 1
@@ -231,16 +223,10 @@ class SevoPediaPromotion:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
-
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
@@ -250,9 +236,7 @@ class SevoPediaPromotion:
 			
 			# Check if this building grants the current promotion
 			if buildingInfo.getFreePromotion() == self.iPromotion:
-				# Column index (always 0 when numLists=1)
-				columnIndex = 0
-				screen.appendMultiListButton(rowListName, buildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+				screen.appendMultiListButton(rowListName, buildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 
 				isButtonFound = True
 				#iButtonIndex += 1

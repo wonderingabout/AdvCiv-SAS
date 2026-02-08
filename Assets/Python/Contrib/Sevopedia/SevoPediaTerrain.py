@@ -406,16 +406,10 @@ class SevoPediaTerrain:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		#isButtonFound = False
 		iButtonIndex = 0
-
-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 
 		iPeak = self.I_TERRAIN_PEAK
@@ -443,19 +437,17 @@ class SevoPediaTerrain:
 				)
 
 				if can_walk_on_peak:
-						# Column index (always 0 when numLists=1)
-						columnIndex = 0
-						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
-						iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
-						iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
+					iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
+					iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
 
-						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
-						extraCorrectionX = get_extra_correction_x(numTxt)
-						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+					extraCorrectionX = get_extra_correction_x(numTxt)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-						#isButtonFound = True
-						iButtonIndex += 1
+					#isButtonFound = True
+					iButtonIndex += 1
 
 		elif self.iTerrain == self.I_TERRAIN_HILL:
 			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such) -->
@@ -473,9 +465,7 @@ class SevoPediaTerrain:
 				isHasHM3 = unitInfo.getFreePromotions(self.I_PROMOTION_HILLS_MASTER3)
 
 				if ((iHillsAttack != 0) or (iHillsDefense != 0) or isHasHM1 or isHasHM2 or isHasHM3):
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 					if (iHillsAttack != 0 or iHillsDefense != 0):
 						numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
@@ -517,8 +507,7 @@ class SevoPediaTerrain:
 				isHasN = unitInfo.getFreePromotions(self.I_PROMOTION_NAVIGATOR)
 
 				if (unitInfo.isCanMoveAllTerrain() or ((unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA) and (not unitInfo.getTerrainImpassable(self.iTerrain)) and (unitInfo.getTerrainPassableTech(self.iTerrain) == -1)) or (iTerrainAttack != 0) or (iTerrainDefense != 0) or isHasN):
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 					if iTerrainAttack != 0 or iTerrainDefense != 0:
 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
@@ -544,9 +533,7 @@ class SevoPediaTerrain:
 				iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
 
 				if iTerrainAttack != 0 or iTerrainDefense != 0:
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
 					extraCorrectionX = get_extra_correction_x(numTxt)
@@ -581,11 +568,7 @@ class SevoPediaTerrain:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		iPeak = self.I_TERRAIN_PEAK
 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
@@ -612,9 +595,7 @@ class SevoPediaTerrain:
 				)
 
 				if blocked:
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 		elif self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN:
 			for iUnit in xrange(gc.getNumUnitInfos()):
@@ -626,8 +607,7 @@ class SevoPediaTerrain:
 				# <!-- custom: unitInfo.isCanMoveAllTerrain() returns too many units but (not unitInfo.isCanMoveAllTerrain()) does not, so unlike in placeRelevantUnits, wrap this unitInfo.isCanMoveAllTerrain() in placeUnitsImpassable in the domain sea check, ideally i would have wanted to check our xml by having a large permissive check, but the results are unreadable since almost all units have this (not unitInfo.isCanMoveAllTerrain()) that is true -->
 				if unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA:
 					if ((unitInfo.getTerrainImpassable(self.iTerrain) or (unitInfo.getTerrainPassableTech(self.iTerrain) != -1)) and (not unitInfo.isCanMoveAllTerrain())):
-						columnIndex = 0
-						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+						screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 		else:
 			# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure-->
@@ -647,9 +627,7 @@ class SevoPediaTerrain:
 					not unitInfo.isCanMoveAllTerrain()
 				)
 				if blocked:
-					# Column index (always 0 when numLists=1)
-					columnIndex = 0
-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 
 

@@ -38,6 +38,12 @@ HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
 HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
 # <!-- custom: when displaying only one row, adjust height to hide the 2nd row's buttons so it is prettier/clearer to read -->
 HIDE_SECOND_ROW_MULTI_LIST = - 4
+# Per documentation, the numLists parameter (7th) is actually number of columns
+# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+# Using 1 for auto-calculation of buttons per row
+SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE = 1
+# Column index (always 0 when numLists=1)
+SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO = 0
 
 
 

@@ -404,11 +404,7 @@ class SevoPediaBonus:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
@@ -417,9 +413,7 @@ class SevoPediaBonus:
 		for iTerrain in xrange(gc.getNumTerrainInfos()):
 			# Check if bonus can appear on this terrain
 			if gc.getBonusInfo(self.iBonus).isTerrain(iTerrain):
-				# Column index (always 0 when numLists=1)
-				columnIndex = 0
-				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
+				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
 
 				isButtonFound = True
 				#iButtonIndex += 1
@@ -456,11 +450,7 @@ class SevoPediaBonus:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
@@ -469,9 +459,7 @@ class SevoPediaBonus:
 		for iFeature in xrange(gc.getNumFeatureInfos()):
 			# Check if bonus can appear on this feature
 			if gc.getBonusInfo(self.iBonus).isFeature(iFeature):
-				# Column index (always 0 when numLists=1)
-				columnIndex = 0
-				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(iFeature).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(iFeature).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
 
 				isButtonFound = True
 				#iButtonIndex += 1
@@ -509,11 +497,7 @@ class SevoPediaBonus:
 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
-		# Per documentation, the numLists parameter (7th) is actually number of columns
-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		# Using 1 for auto-calculation of buttons per row
-		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
 		#iButtonIndex = 0
@@ -521,9 +505,7 @@ class SevoPediaBonus:
 		# <!-- custom: core logic provided with the help of chatgpt thanks. -->
 		for iTerrain in xrange(gc.getNumTerrainInfos()):
 			if gc.getBonusInfo(self.iBonus).isFeatureTerrain(iTerrain):
-				# Column index (always 0 when numLists=1)
-				columnIndex = 0
-				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
+				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
 
 				isButtonFound = True
 				#iButtonIndex += 1
