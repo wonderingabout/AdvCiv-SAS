@@ -10,13 +10,7 @@ from CvPythonExtensions import CyGlobalContext
 
 
 SAS_WORLDSIZE_LARGEST = 10
-SAS_MAX_PLAYERS = 52
 SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
-
-
-
-def sas_max_players():
-	return SAS_MAX_PLAYERS
 
 
 

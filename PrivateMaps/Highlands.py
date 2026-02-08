@@ -511,9 +511,9 @@ def assignStartingPlots():
 	terrainPlains = gc.getInfoTypeForString("TERRAIN_PLAINS")
 
 	# Obtain player numbers. (Account for possibility of Open slots!)
-	# <!-- custom: Increased from 18 to 52 to support up to 48 civs (SAS48 world size) (Claude code Opus 4.5) -->
+	# <!-- custom: Use live DLL max players so this scales automatically (e.g. 18/48/64 civ DLLs) without hardcoded caps. (GPT-5.3-Codex) -->
 	player_list = []
-	for plrCheckLoop in range(sas_max_players()):
+	for plrCheckLoop in range(gc.getMAX_CIV_PLAYERS()):
 		pPlayer = CyGlobalContext().getPlayer(plrCheckLoop)
 		if pPlayer and pPlayer.isEverAlive():
 			player_list.append(plrCheckLoop)

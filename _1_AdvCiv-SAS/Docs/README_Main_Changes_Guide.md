@@ -343,7 +343,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 ### Maps
 
 - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
-- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py).
+- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py).
 - (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
 - (Requires AdvCiv-SAS 5415+) Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
 
