@@ -608,7 +608,7 @@ def getBottomLatitude():
 
 def getGridSize(argsList):
 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
-	# <!-- custom: Use integer world-size indices plus SAS fallback for ARENA/SAS compatibility and to avoid KeyError on expanded world sizes. Inland Sea is land-heavy (not almost-all-land), so calibrate SAS24/32/40/48 close to Huge baseline geometry/economy (21x13 with up to 18 players): keep ratio near 21/13 and tiles-per-player near 273/18 to avoid oversized late tiers. (GPT-5.3-Codex) -->
+	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; Inland Sea is land-heavy (not almost-all-land), so derive SAS tiers from this script's Huge anchor instead of hardcoding them. (GPT-5.3-Codex) -->
 	grid_sizes = {
 		0:  (5, 3),    # ARENA
 		1:  (6, 4),    # DUEL
@@ -617,16 +617,16 @@ def getGridSize(argsList):
 		4:  (13, 8),   # STANDARD
 		5:  (16, 10),  # LARGE
 		6:  (21, 13),  # HUGE
-		7:  (24, 15),  # SAS24
-		8:  (28, 17),  # SAS32
-		9:  (31, 19),  # SAS40
-		10: (34, 21),  # SAS48
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_lookup_world_size(eWorldSize, grid_sizes)
+	return sas_lookup_world_size_with_calibrated_sas(
+		eWorldSize,
+		grid_sizes,
+		SAS_HUGE_CUSTOM_MAX_PLAYERS
+	)
 
 # Subclasses to fix the FRAC_POLAR zero row bugs.
 class ISFractalWorld(CvMapGeneratorUtil.FractalWorld):
