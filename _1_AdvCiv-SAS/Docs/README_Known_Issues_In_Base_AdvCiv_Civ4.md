@@ -1002,45 +1002,7 @@ This seems to fix the issue (see screenshots for details, as we specifically now
 
 ## 28 - (now fixed) Wallpaper of our mod's custom being stretched vertically while some of the top of the wallpaper is not shown at all, at 1920 x 1080 game resolution
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1-j9EHLeY7FzJ0iHZqBXIAOyOPfzJVC0t?usp=sharing).
-
-When adding our mod's custom wallpaper instead of default base advciv +/- civ4 one, one issue i encountered is that our image was stretched vertically, while some of the top of the image was entirely missing.
-
-Note: i have used ri mod's very useful civ4mainmenubg.nif in particular since they use static images like for their wallpaper in main menu at least, see [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)
-
-Note 2: in this example i am using a 1920 x 1080 image and game settings at 1920 x 1080 too. I assume a smaller or wider in this caseimage would be shrinked or stretched fine to fit the full screen, but when it comes to some portions of the image being ignored, it has nothing to do with the resolution itself (i.e 1024 x 1024 or 4096 x 2000 would be the same, but difference is aspect ratio (e.g. 16:9 vs 4:3 or such)), so i hope these instructions or feedback help use the optimal ratio i have found that works-functions well with civ4 engine or so it seems at least with this nif.
-
-Note 3: i recommend you save a copy of your original image file before trying any of these steps.
-
-So to solve this, through trial and error, i have found that creating fake pixels at the top and also at the bottom of the image seems to the trick well.
-
-Instead of explaining tediously how i found it which may make the explanation very complicated to follow, although i wouldn't mind to, here are the simple steps on how to modify you screenshot so that no part of the image is lost / not displayed ingame (or extremly close(r) to it.
-
-I'd also highly recommend again to see the screenshots in the google drive link of this known issue for intermediate steps illustration.
-
-So using Paint.NET for example in this explanation and as it is what i use too:
-
-1- First (i am using Paint.NET for example here) increase canvas size (not crop, not stretch, but canvas size, so that image stays the same, and new pixels appear additionally) and enable the option to not maintain aspect ratio (which actually maintains image ratio, just it also adds other new empty pixels in the image, so Paint.NET thinks image ratio as in full image ratio including the fake pixels has now changed and is no longer say 1920 x 1080 = 16:9 but something else 1920 x 1500 (fake example) is 1920 / 1500 = 1,28 (fake example just to illustrate), which is fine and as intended since the fake pixels won't be displayed in civ4 anyway).
-
-I have tried several sizes (see screenshots for examples of how it looks ingame), and i have found that through trial and error of various values, image seems to display best with a total (top + bottom) fake empty pixels height of 1440 - 1080 = 360.
-
-Spread these fake pixels evenly between top and bottom, so you have 360 / 2 = 180 fake empty pixels to add on top, and the same number at the bottom as well if i may say in this case at least...
-
-So back to the resize canvas, choose 1920 x (1080 + 180) = 1920 x 1260(and again untick/disable the maintain aspect ratio option).
-
-Then, move your image (the drawing/real image you want to see) to the bottom of the Paint.NET image, so the fake empty pixels that were on the bottom would now be on top (to do that ctrl+a then ctrl+x then ctrl+v then use bottom keyboard arrow, and when close to end/bottom edge, zoom a lot to align it perfectly).
-
-2- After that, we need to add the bottom fake pixels. To do that, redo again the resize canvas, but this time choose a resolution of 1920 x (1260 + 180) = 1920 x 1440, and also here as well untick/disable the maintain aspect ratio of Paint.NET resize canvas feature. Then finally save as .dds. If you are satisfied with the ingame result, i'd recommend restarting from your original image (in case you tinkered a bit with the values as i did, else may not be necessary) and do the same steps of this entire section (keep a backup of oyur original image as well in case or if needed), but save after all steps directly as .dds from your original image (say .jp to .dds directly), i am not sure, but maybe quality would be higher than compressing and recompressing a .dds voer and over while doing trial and error as i did. Again may or not change anything, but as a theoretical and to be safe if i may say in this case at least and to have best potential rendering in case it helps (again not sure but maybe it does or not), i'd recommend doing it cleanly again after you have found your dimensions that suit your image from your native image directly to .dds(in my case for example i use Paint.NET DXT1 with mipmaps (mimaps seems to have been recommended in some civfanatics forums or by chatgpt too xd if i remember it correctlywhen i (had?) started developping this mod a few months ago xd...) which seems to work-function fine (i don't know if it's best, but it seems to work well here or not too bad so maybe fine to do so but check to be sure in case there is better info or such))
-
-Note: at some values for some reason the screen may appear entirely white, i don't know why exactly if at all, but i have noticed slightly increasing the value or decreasing it solves it, so if say 1920 x 1440 causes an issues (imaginary but for example), try 1920 x 1442 or 1920 x 1438 etc and adjust based on your display or increase / decrease a bit more if still white screen, solved it for me when some values such as 1238,1232, 1250 didn't work-function i.e. also had the white screen weird issue but for example 1240 or 1236 worked-functionned fine and remember it correctly. I have again no idea why, just use a slightly higher or lower value like in my case 1236 while i was doing trial and error displays fine.
-
-Put the output .dds file where civ4mainmenubg.nif is (in our case as of now in [/Assets/Art/AdvCiv_SAS/Main_Menu/wallpaper/](/Assets/Art/AdvCiv_SAS/Main_Menu/wallpaper/)), as defined in `MAINMENU_SCENE_CLASSICAL` (main menu background) (and `MAINMENU_LOAD_CLASSICAL` (loading screen (e.g. loading a save file, loading a new map, etc.) background) in our case too in our mod) in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
-
-The result is the image appears no longer stretched at the top nor at the bottom part of the image vertically ingame, or if ever still, it should be extremely minimal.
-
-Note 4: i have noticed also we could create fake pixels on the sides too, although much less, as it seems approximately 1 or 2% (gross estimation) of our image is missing on the left and right side, but bit tedious, so for now i fixed the biggest issue, but ideally one may also try to add fake pixels (say 6-10 pixels on each side to try to see if a larger portion of the as of now 1920 x 1440 image is visible, so it would maybe be say 1926 x 1440 or 1930 x 1440 or more or less around although i didn't try it so this is just speculation on my end, but a tiny portion of the side of the image is not visible, maybe this would help as well or maybe not, ideally i'd try it someday too but not guaranteed may or may not do so)
-
-Again, screenshots of intermediate steps are also shown in the google drive link in this known issue number's section as well.
+See [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image).
 
 See also: [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files)
 

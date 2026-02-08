@@ -4245,8 +4245,7 @@ commit 9daa176dfca934644f8fc0db8ff9234ab583146b
 Author: wonderingabout <hidden>
 Date:   2025-07-24 15:43:13 +0200
 
-Change mod wallpaper (generated with Creator Nightcafe Studio then expanded with Pixelcut AI) thanks to chatgpt's suggestion and my promtp and thoughts too and its thoughts too too etc and my thoughts too too "too" xd, added thanks to ri mod's CIV4MainMenuBG.nif adjusted or not for advciv-sas
-- "As for how to replace default civ4 background, i used ri mod's CIV4MainMenuBG.nif and its related files, then just if i amy sayreplaced their duomo3.dds with our dds, now renamed to duomo3.dds as well, and updated the path to where our nif is, see `MAINMENU_SCENE_CLASSICAL` in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml) for details"
+Change mod wallpaper (generated with Creator Nightcafe Studio then expanded with Pixelcut AI and with the help of chatgpt thanks)
 
 commit 07b48542c9f1f7747970aa1f73d0a65555333f74
 Author: wonderingabout <hidden>
@@ -5544,7 +5543,7 @@ refactor and enhance Sevopedia categories (mostly building, unit, bonus/ressourc
 			- fixed paganism icon using DXTBmp and the GameFont .tga tutorial (see the main README.md for details)
 			- new panels in Sevopedia building thanks to Claude AI's big help and code and my adjustments too: placeFree, placeRequiredFor (from BuildingClassNeededs (for example forge needed in city to build colossus or eiffel tower), and PrereqBuildingClasses (for example 4+ based on map randforges are required for ironworks, or for example also 2+ christian temples required for christian cathedral)), place ExclusiveCivs (similar as in Sevopedia unit previously), placeObsoleteWith, enhanced the display of existing panels, in particular placeStats now has a grid like display, and shows the button (icon) of the great person (assuming it is one of the great people's types, else probably no button would be shown (if great person was a settler for example that it is possible indeed etc refer to civ4 docs or website or forums or other and such for more accurate info if need), placeRequires also fetches the requires in a similar way than in required for but for the building that requires them this time
 			- refactored and enhanced sevopediaunit too based on these changes and also thanks to Claude AI's big help and code and my adjustments too and while doing them(i.e. those in Sevopedia building too), with also enhanced display or fixed, and display updated as well to fit it, and new panels: placeFree (only promotions), place this unit modifiers, place other units modifiers, place Peak Hill (since they are plot types not terrains separated/distinguished in such a way even though/if they are in same panel or not) City Terrains Features
-			- add +% and double year time in Sevopedia unit's placestats (claude ai as well thanks and my promtps)
+			- add +% and double year time in Sevopedia unit's placestats (with the help of claude ai as well thanks)
 			- add text labels under buttons when needed/wanted that display info aobut the button (% num, "InC" for "In City", etc)
 			- reworked power_with dll messages in place special, in particular added info about power being clean or dirty or other changes
 			- add a DLL message about city defenses raise affecting all units even post renaissance and update docs about it (todo add exception about icbm?)

@@ -786,7 +786,7 @@ Created as part of AdvCiv-SAS improvements
 		<!-- custom: using same load screen than our main menu wallpaper because why not and tedious to do another one for short load time and also more consistent -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_LOAD_CLASSICAL</Type>
-			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/duomo3.dds</Path>
+			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/RingMainMenu.dds</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SLIDESHOW_LOAD_BTS</Type>
@@ -832,7 +832,7 @@ Created as part of AdvCiv-SAS improvements
 			<Type>MAINMENU_SCENE</Type>
 			<Path>Art/Interface/Main Menu/CIV4MainMenuBG.nif</Path>
 		</InterfaceArtInfo>
-		<!-- custom: replaced based on how ri mod does it (took their files and just replaced their duomo3.dds with our own renamed to duomo3.dds as well .dds wallpaper) -->
+		<!-- custom: replaced with the middle-earth mod's nif thanks, to have a static image (RingMainMenu.dds) instead of the animation (see also the corresponding .dds) -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SCENE_CLASSICAL</Type>
 			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/CIV4MainMenuBG.nif</Path>
