@@ -104,6 +104,7 @@ import BugData
 import BugUtil
 import InputUtil
 import types
+import SASDefineGuard
 # <advc.007b>
 import CvUtil
 import CvScreensInterface
@@ -664,6 +665,7 @@ def hookupPreGameStartEvent():
 	BugUtil.extend(preGameStart, "CvAppInterface", "preGameStart")
 
 def preGameStart(originalFunc):
+	SASDefineGuard.verify_or_raise("BugEventManager.preGameStart")
 	g_eventManager.fireEvent("PreGameStart")
 	originalFunc()
 

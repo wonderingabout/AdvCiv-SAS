@@ -6,6 +6,18 @@ Created as part of AdvCiv-SAS improvements
 -->
 <!-- custom: Long_Comments_XML.txt #131, #195 -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+	<!-- custom: launch guard int define checked at startup/load/Sevopedia entry to detect bad launch context quickly. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_LAUNCH_GUARD_TEST_INT</DefineName>
+		<iDefineIntVal>137531</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_LAUNCH_GUARD_TEST_STRING</DefineName>
+		<DefineTextVal>AdvCiv-SAS defines test string</DefineTextVal>
+	</Define>
+
+
+
 	<!-- custom: enable/disable to show trait icons (chars) before trait names in the Sevopedia leader Traits section. 0 is disabled (no icons), any other value e.g. 1 is enabled (shows icons like in the Traits category). -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>

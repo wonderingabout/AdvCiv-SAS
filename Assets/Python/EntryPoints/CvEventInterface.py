@@ -15,6 +15,7 @@
 # **********************************
 
 import BugEventManager
+import SASDefineGuard
 
 eventManager = BugEventManager.BugEventManager()
 
@@ -28,6 +29,9 @@ def getEventManager():
 def onEvent(argsList):
 	# Called when a game event happens - return 1 if the event was consumed.
 	#
+	tag = argsList[0]
+	if (tag == "OnLoad" or tag == "GameStart"):
+		SASDefineGuard.verify_or_raise("CvEventInterface.onEvent[%s]" % tag)
 	return getEventManager().handleEvent(argsList)
 
 def applyEvent(argsList):

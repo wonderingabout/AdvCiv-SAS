@@ -56,6 +56,7 @@ import BugUtil
 
 from _sevopedia_helpers import *
 import _sevopedia_main_groupings as SAS_MainGroupings
+import SASDefineGuard
 
 
 
@@ -560,6 +561,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.setPediaCommonWidgets()
 
 	def pediaShow(self):
+		SASDefineGuard.verify_or_raise("SevoPediaMain.pediaShow")
 		global g_TraitUtilInitDone
 		if not g_TraitUtilInitDone:
 			TraitUtil.init()

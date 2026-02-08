@@ -45,6 +45,7 @@ import CvScreenUtilsInterface
 import ScreenInput as PyScreenInput
 from CvScreenEnums import *
 from CvPythonExtensions import *
+import SASDefineGuard
 # K-Mod
 import BugOptionsScreen
 def showBugOptionsScreen(argsList=None):
@@ -293,6 +294,7 @@ bUsingSevopedia = False
 def createCivilopedia():
 	# Creates the correct Civilopedia based on an option.
 	#
+	SASDefineGuard.verify_or_raise("CvScreensInterface.createCivilopedia")
 	global pediaMainScreen
 	global bUsingSevopedia
 	if pediaMainScreen is None:
