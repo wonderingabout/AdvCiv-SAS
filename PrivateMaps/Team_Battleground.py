@@ -7,7 +7,6 @@
 #	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
 #-----------------------------------------------------------------------------
 #
-#
 # Ruff - Desert Bridge & Round Start
 #  Additional options added by Ruff_Hi from
 #        - Civilization Fanatics (http://forums.civfanatics.com/member.php?u=64034)
@@ -16,7 +15,10 @@
 #    - Left v Right with a desert land bridge
 #    - round with starting locations uniformly spread around the circle
 #    - donut - same as round but with water at the center
-
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 from CvPythonExtensions import *
 import CvUtil
