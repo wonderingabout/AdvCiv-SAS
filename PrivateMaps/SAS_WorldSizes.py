@@ -76,6 +76,7 @@ def sas_tiles_per_player(iWidth, iHeight, iMaxPlayers):
 	return float(iWidth * iHeight) / float(max(1, iMaxPlayers))
 
 
+
 def sas_world_default_players(iWorldSize, iFallbackPlayers):
 	gc = CyGlobalContext()
 	iWorld = int(iWorldSize)
