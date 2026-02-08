@@ -63,7 +63,7 @@ def sas_lookup_world_size(eWorldSize, values):
 	iWorldSize = int(eWorldSize)
 	if iWorldSize in values:
 		return values[iWorldSize]
-	return values[SAS_WORLDSIZE_LARGEST]
+	return values[max(values.keys())]
 
 
 
