@@ -437,7 +437,7 @@ Done with the help of GPT-5.2 Thinking thanks:
 | `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                             | Land                                     | BTS, AdvCiv-SAS                      |
 | `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                             | Land                                     | BTS, AdvCiv-SAS                      |
 | `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     | BTS, AdvCiv-SAS                      |
-| `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   | BTS                                  |
+| `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   | BTS, AdvCiv-SAS                      |
 
 Sources (GPT-5.2 Thinking):
 
