@@ -58,7 +58,7 @@ def getDescriptionBalance():#Balance : (at the bottom)"
 
 def isAdvancedMap():
 	"This map should not show up in simple mode"
-	# <!-- custom: keep this at 0 so BTG_Cross appears in Play Now single-player map list as well as Custom Game; return 1 would hide it from simple mode. (GPT-5.3-Codex) -->
+	# <!-- custom: keep this at 0 so BTG_Cross appears in Play Now/simple mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->
 	return 0
 
 def getNumCustomMapOptions():
