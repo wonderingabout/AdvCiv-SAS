@@ -50,7 +50,7 @@ hopefully helpful, thanks thanks,
 [30 - (Attemptingly fixed) AI workers not prioritizing bonuses to improve](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes)  
 [31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases)  
 [32 - (now seemingly fixed) Prioritize settling on coast when food environment is low](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-the-corinth-screenshot)  
-[33 - Tremendously improved/fixed/enhanced AI worker build/improvement logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitai_ai_bestcitybuild)  
+[33 - Tremendously improved/fixed/enhanced AI worker build/improvement logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild)  
 [34 - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production)  
 [35 - (Attemptingly fixed/addressed) AI building too many military naval units then gets invaded on land](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but)  
 [36 - (Attemptingly fixed/addressed) AI building settlers at critical time when war is likely](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well)  
@@ -138,6 +138,7 @@ hopefully helpful, thanks thanks,
 [102 - (Seemingly Fixed) Base AdvCiv crash related to CvCity::getProductionBarPercentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#102---seemingly-fixed-base-advciv-crash-related-to-cvcitygetproductionbarpercentages)  
 [103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#103---fixed-base-advciv-crash-variant-of-the-cvcitygetproductionbarpercentages-crash)  
 [104 - (Tremendously Improved) Base AdvCiv issue of the weird back and forth of declaring war, moving a stack, then withdrawing without attacking which is extremely inefficient](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient)  
+[105 - (Fixed) Base AdvCiv bug of most bonuses (e.g., Deer) sometimes not appearing at first Civ4 launch in some maps (e.g. Boreal)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4161,3 +4162,40 @@ Claude's explanation below thanks a lot!
 >You can tune SAS_MIN_ATTACK_CITY_STACK_UNITS to 7 if 6 feels too aggressive, or lower it if the AI becomes too passive. Please recompile and test.
 
 Empirically, a value of min size 7 delays it, but i thought a value of 9 is saner or safer and it fixes it it seems, at least should heavily reduce it i think (check ingame if accurate though).
+
+## 105 - (Fixed) Base AdvCiv bug of most bonuses (e.g., Deer) sometimes not appearing at first Civ4 launch in some maps (e.g. Boreal)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1kYbF_cDDP08-b8rKmU74r2y5o2NbxGpK?usp=sharing).
+
+After going to main menu and relaunching same map, bonuses would then weirdly appear though at this new generation. Also was not consistent at each civ4 launch it seems for some reason although i'm not sure.
+
+But it now looks seemingly reliably fixed with the help of GPT-5.3-Codex and Claude code Opus 4.6 thanks.
+
+GPT-5.3-Codex's explanation below:
+
+>Implemented a targeted fix for the first-run missing-bonuses issue in the two scripts that use fragile global fractal bonus placement:
+>
+>Boreal.py (line 25)
+>Boreal.py (line 107)
+>Boreal.py (line 124)
+>Boreal.py (line 603)
+>Arboria.py (line 24)
+>Arboria.py (line 106)
+>Arboria.py (line 123)
+>Arboria.py (line 327)
+>
+>What changed:
+>
+>1. Added module-level state for the bonus fractal (food, food_iW, food_iH).
+>2. Kept normal init in beforeGeneration(), but moved it into _initFoodFractal().
+>3. Added _ensureFoodFractal() that re-inits if:
+>	3.1) food is missing, or
+>	3.2) current map dimensions differ from the stored fractal dimensions.
+>4. Called _ensureFoodFractal() right before custom bonus placement in addBonusType().
+>
+>Why this should help:
+>
+>1. It removes dependence on callback timing/state on the very first generation after launch.
+>2. It prevents stale or wrong-dimension fractal use between generation passes/restarts.
+
+See [commit/](https://github.com/wonderingabout/AdvCiv-SAS/commit/).

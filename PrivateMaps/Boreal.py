@@ -22,6 +22,11 @@ from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizes import *
 
+# <!-- custom: Cache the bonus-placement fractal and its dimensions so addBonusType can verify first-launch initialization and rebuild when map size/state differs. This fixes the first-start missing-bonuses case where callback order can leave stale or uninitialized fractal data. See KI#105. (GPT-5.3-Codex) -->
+food = None
+food_iW = -1
+food_iH = -1
+
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_BOREAL_DESCR"
 
@@ -101,14 +106,32 @@ def minStartingDistanceModifier():
 	return -27
 
 def beforeGeneration():
+	_initFoodFractal()
+
+def _initFoodFractal():
 	gc = CyGlobalContext()
 	map = CyMap()
 	dice = gc.getGame().getMapRand()
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 	global food
+	global food_iW
+	global food_iH
 	food = CyFractal()
 	food.fracInit(iW, iH, 7, dice, 0, -1, -1)
+	food_iW = iW
+	food_iH = iH
+
+def _ensureFoodFractal():
+	map = CyMap()
+	iW = map.getGridWidth()
+	iH = map.getGridHeight()
+	global food
+	global food_iW
+	global food_iH
+	# <!-- custom: Recreate when missing or dimension-mismatched; bonus thresholds depend on this fractal and must match the active map grid. See KI#105. (GPT-5.3-Codex) -->
+	if food is None or food_iW != iW or food_iH != iH:
+		_initFoodFractal()
 		
 # Subclass
 class BorealFractalWorld(CvMapGeneratorUtil.FractalWorld):
@@ -579,7 +602,7 @@ def addBonusType(argsList):
 		# Generate resources
 		if (type_string in boreal):
 			print('---', type_string, '---')
-			global food
+			_ensureFoodFractal()
 			NiTextOut("Placing forest resources (Python Arboria) ...")
 			iWheatBottom1 = food.getHeightFromPercent(40)
 			iWheatTop1 = food.getHeightFromPercent(45)

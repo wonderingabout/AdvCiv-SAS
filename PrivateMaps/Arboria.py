@@ -21,6 +21,11 @@ from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizes import *
 
+# <!-- custom: Cache the bonus-placement fractal and its dimensions so addBonusType can validate first-launch state and rebuild if needed. This guards against first-start missing resources when fractal init timing/state is inconsistent. See KI#105. (GPT-5.3-Codex) -->
+food = None
+food_iW = -1
+food_iH = -1
+
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_ARBORIA_DESCR"
 
@@ -100,14 +105,32 @@ def getGridSize(argsList):
 	)
 
 def beforeGeneration():
+	_initFoodFractal()
+
+def _initFoodFractal():
 	gc = CyGlobalContext()
 	map = CyMap()
 	dice = gc.getGame().getMapRand()
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 	global food
+	global food_iW
+	global food_iH
 	food = CyFractal()
 	food.fracInit(iW, iH, 7, dice, 0, -1, -1)
+	food_iW = iW
+	food_iH = iH
+
+def _ensureFoodFractal():
+	map = CyMap()
+	iW = map.getGridWidth()
+	iH = map.getGridHeight()
+	global food
+	global food_iW
+	global food_iH
+	# <!-- custom: Reinitialize if missing or size-mismatched because resource band thresholds use this fractal and must match current grid dimensions. See KI#105. (GPT-5.3-Codex) -->
+	if food is None or food_iW != iW or food_iH != iH:
+		_initFoodFractal()
 		
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Arboria) ...")
@@ -303,7 +326,7 @@ def addBonusType(argsList):
 		# Generate resources
 		if (type_string in forest):
 			print('---', type_string, '---')
-			global food
+			_ensureFoodFractal()
 			NiTextOut("Placing forest resources (Python Arboria) ...")
 			iSilverBottom = food.getHeightFromPercent(10)
 			iSilverTop = food.getHeightFromPercent(15)
