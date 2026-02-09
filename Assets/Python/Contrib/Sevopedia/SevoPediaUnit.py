@@ -499,7 +499,7 @@ class SevoPediaUnit:
 			iModDefense = unitInfo.getUnitClassDefenseModifier(i)
 
 			if iModAttack != 0 or iModDefense != 0:
-# <!-- custom: as highlighted by chatgpt and provided now after asked by me that/who noticed too, the unit widget expects unit indexes, not unit class indexes, so fetching a corresponding index to this unit class index; then chatgpt also helped solve the unitClass button not displaying due to being generic now solved and with my help too and idea(s) -->
+				# <!-- custom: as highlighted by chatgpt and provided now after asked by me that/who noticed too, the unit widget expects unit indexes, not unit class indexes, so fetching a corresponding index to this unit class index; then chatgpt also helped solve the unitClass button not displaying due to being generic now solved and with my help too and idea(s) -->
 				# Find a representative unit from this class
 				unitClassInfo = gc.getUnitClassInfo(i)
 				iRepresentativeUnit = unitClassInfo.getDefaultUnitIndex()
@@ -522,7 +522,7 @@ class SevoPediaUnit:
 				iModCombat = unitInfo.getUnitCombatModifier(i)
 
 				if iModCombat != 0:
-# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case, our previous code was seemingly mistaken -->
+					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case, our previous code was seemingly mistaken -->
 					screen.appendMultiListButton(rowListName, gc.getUnitCombatInfo(i).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
 
 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)

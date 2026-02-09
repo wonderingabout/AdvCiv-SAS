@@ -325,6 +325,15 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT</DefineName>
 		<iDefineIntVal>66</iDefineIntVal>
 	</Define>
+	<!-- custom: Earth2 staged starts by player count: below AFRICA_MIN_PLAYERS populate only Europe and Asia (base-like), from AFRICA_MIN_PLAYERS also populate Africa, and from FULL_WORLD_MIN_PLAYERS populate the whole world (notably America + Australia too). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_EARTH2_STARTS_POPULATE_AFRICA_MIN_PLAYERS</DefineName>
+		<iDefineIntVal>16</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EARTH2_STARTS_POPULATE_FULL_WORLD_MIN_PLAYERS</DefineName>
+		<iDefineIntVal>32</iDefineIntVal>
+	</Define>
 
 
 

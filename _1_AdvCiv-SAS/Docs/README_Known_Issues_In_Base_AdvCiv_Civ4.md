@@ -4198,4 +4198,4 @@ GPT-5.3-Codex's explanation below:
 >1. It removes dependence on callback timing/state on the very first generation after launch.
 >2. It prevents stale or wrong-dimension fractal use between generation passes/restarts.
 
-See [commit/](https://github.com/wonderingabout/AdvCiv-SAS/commit/).
+See [commit/2addf7daebeadd1dac700f2df55090fe54121aa2](https://github.com/wonderingabout/AdvCiv-SAS/commit/2addf7daebeadd1dac700f2df55090fe54121aa2).
