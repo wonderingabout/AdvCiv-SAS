@@ -157,25 +157,23 @@ class ArboriaTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		map = CyMap()
 		iWidth = map.getGridWidth()
 		iHeight = map.getGridHeight()
+		terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+		terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
 		terrainData = [0]*(iWidth*iHeight)
 		for x in range(iWidth):
 			for y in range(iHeight):
 				iI = y*iWidth + x
-				terrain = self.generateTerrainAtPlot(x, y)
+				terrain = self.generateTerrainAtPlot(x, y, terrainGrass, terrainPlains)
 				terrainData[iI] = terrain
 		return terrainData
 
-	def generateTerrainAtPlot(self,iX,iY):
-		lat = self.getLatitudeAtPlot(iX,iY)
+	def generateTerrainAtPlot(self,iX,iY,terrainGrass,terrainPlains):
 		map = CyMap()
-		gc = CyGlobalContext()
 
 		if (map.plot(iX, iY).isWater()):
 			return map.plot(iX, iY).getTerrainType()
 
 		val = self.terrain.getHeight(iX, iY)
-		terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
-		terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
 		if val >= self.iGrassBottom:
 			terrainVal = terrainGrass
 		else:
@@ -296,6 +294,7 @@ def addBonusType(argsList):
 		if (type_string in forest):
 			print('---', type_string, '---')
 			NiTextOut("Placing forest resources (Python Arboria) ...")
+			featureForest = getInfoTypeOrFail("FEATURE_FOREST")
 			iSilverBottom = food.getHeightFromPercent(10)
 			iSilverTop = food.getHeightFromPercent(15)
 			iDeerBottom1 = food.getHeightFromPercent(24)
@@ -313,7 +312,7 @@ def addBonusType(argsList):
 					if pPlot.getBonusType(-1) == -1:
 						foodVal = food.getHeight(x,y)
 						if (type_string in deer):
-							if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isFlatlands():
+							if pPlot.getFeatureType() == featureForest and pPlot.isFlatlands():
 								if (foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3):
 									map.plot(x,y).setBonusType(iBonusType)
 						if (type_string in silver):
