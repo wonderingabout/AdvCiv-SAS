@@ -154,6 +154,10 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (5).JPG" alt="0.310_main_menu_simple_game (5).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (6).JPG" alt="0.310_main_menu_simple_game (6).JPG" width="250"></img>
 
+Also, edited minimally the .thm to increase the map description's text that was way too small (+/- 2 lines) with the very nice help of GPT-5.3-Codex thanks a lot, by adding `.Size_ViewMargin			=	GRectMargin(0,0,0,87);` in [Civ4Theme_Custom.thm](/Resource/Civ4Theme_Custom.thm) which now supports empirically up to 6 lines and preserves scroll support.
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.311_main_menu_simple_game_maps_description_lorem_ipsum.JPG" alt="0.311_main_menu_simple_game_maps_description_lorem_ipsum.JPG" width="250"></img>
+
 ## UI (Ingame)
 
 ### Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)

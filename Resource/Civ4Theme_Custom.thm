@@ -4570,6 +4570,11 @@ with GFC_Control_Edit
 		.Flag_NoBorder				=	GFlags(GEditCtrl, GFC_CF_EDIT_NOBORDER);
 		.Flag_History				=	GFlags(GEditCtrl, GFC_CF_EDIT_HISTORY_OFF);
 		.Flag_Select				=	GFlags(GEditCtrl, GFC_CF_EDIT_SELECT_HIDDEN);
+		// <!-- custom: Simple Game map-description text area tweak.
+		// This changes only the StaticEdit text viewport used by the description block (not the outer gray panel, map DDS, or list/table geometry).
+		// Value chosen empirically: 87 shows about 6 lines before scrolling (instead of 2 lines), while keeping scroll support.
+		// If future layout/fonts change, retune only this margin first to control visible line count without resizing the whole panel. (GPT-5.3-Codex) -->
+		.Size_ViewMargin			=	GRectMargin(0,0,0,87);
 	
 		.Size_Default				=	GSize(64,26);
 					
