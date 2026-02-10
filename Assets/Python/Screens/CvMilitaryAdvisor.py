@@ -131,7 +131,6 @@ class CvMilitaryAdvisor:
 		self.Y_MAP = self.Y_LEADERS + self.H_LEADERS + 15
 		# Map takes available width minus the text panel and a gap
 		self.W_MAP = self.X_TEXT - self.X_MAP - 14
-		self.H_MAP_MAX = self.H_TEXT
 		# <!-- custom: MAP_MARGIN refers to the panel border wrap, not an empty margin. (GPT-5.2-Codex (summarized)) -->
 		self.MAP_MARGIN = 20
 
@@ -145,6 +144,7 @@ class CvMilitaryAdvisor:
 		self.X_GREAT_GENERAL_BAR = 20
 		# Position: Screen Height - Bottom Panel - Bar Height - Padding
 		self.Y_GREAT_GENERAL_BAR = self.H_SCREEN - 55 - self.H_GREAT_GENERAL_BAR - 15
+		self.H_MAP_MAX = self.Y_GREAT_GENERAL_BAR - 10 - self.Y_MAP
 
 		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it doesn't work in many ingame py file (tech chooser, main interface for those i tried), so use safer pattern reliably rather -->
 		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
@@ -200,6 +200,7 @@ class CvMilitaryAdvisor:
 		if (self.H_MAP > self.H_MAP_MAX):
 			self.W_MAP = (self.H_MAP_MAX * CyMap().getGridWidth()) / CyMap().getGridHeight()
 			self.H_MAP = self.H_MAP_MAX
+		self.W_GREAT_GENERAL_BAR = self.W_MAP
 		screen.addPanel("", u"", "", False, False, self.X_MAP, self.Y_MAP, self.W_MAP, self.H_MAP, PanelStyles.PANEL_STYLE_MAIN)
 		screen.initMinimap(self.X_MAP + self.MAP_MARGIN, self.X_MAP + self.W_MAP - self.MAP_MARGIN, self.Y_MAP + self.MAP_MARGIN, self.Y_MAP + self.H_MAP - self.MAP_MARGIN, self.Z_CONTROLS)
 		screen.updateMinimapSection(False, False)
