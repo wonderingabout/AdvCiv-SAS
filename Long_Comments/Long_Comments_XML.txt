@@ -4811,3 +4811,15 @@ change from (translate to english with web browser or such) https://gforestshade
 			 period without events.
 			 Feature growth and resource discovery are not affected by this,
 			 those special events get adjusted to game length.
+
+===== \Assets\XML\Interface\CIV4WorldPickerInfos.xml =====
+----- Comment #357 -----
+
+<!-- custom: file imported from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Interface\CIV4WorldPickerInfos.xml as part of adding new world sizes in AdvCiv-SAs based on the XXL World Mod's approach with the help of GPT-Codex-5.2 thanks. -->
+<!-- custom: Globe.nif size scale factors: values after 'Random' are ratios to Standard (1.0).
+     Computed as (iGridWidth*iGridHeight) / StandardTiles from CIV4WorldInfo.xml.
+     This matches the Sevopedia 'Ratio to Standard' row (area ratio; no sqrt).
+     Note: if a map script overrides getGridSize(), the preview globe may not match perfectly.
+     IMPORTANT: the order of <Size> entries must match the WorldInfo order; if you reorder
+     CIV4WorldInfo.xml (e.g. to keep Arena first in the world-size list), reorder <Sizes> too. (ChatGPT-5.2 Thinking) -->
+<!-- custom: WorldPickerInfo blocks are kept alphabetical for file clarity, but this does not control full in-game map ordering (e.g. non-PrivateMaps entries). Keep DefaultWorldPicker as the first block so unknown/unmapped scripts fall back to the dark globe instead of bright decals. (GPT-5.3-Codex) -->
