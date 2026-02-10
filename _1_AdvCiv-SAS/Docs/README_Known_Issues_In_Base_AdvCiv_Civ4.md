@@ -4184,4 +4184,4 @@ The key practical distinction is:
 
 After applying this pattern in Boreal, Deer and other food bonuses now appear reliably on first Civ4 launch in tests.
 
-See [commit/](https://github.com/wonderingabout/AdvCiv-SAS/commit/).
+See [commit/accf8702ebf916e999fd07a56211e9aec98af9d7](https://github.com/wonderingabout/AdvCiv-SAS/commit/accf8702ebf916e999fd07a56211e9aec98af9d7).

@@ -20,6 +20,7 @@ from SAS_WorldSizes import *
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
+from SASUtils import getInfoTypeOrFail
 
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_GREAT_PLAINS_DESCR"
@@ -374,9 +375,9 @@ class GreatPlainsTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 
 		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 
-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		lat = iX/float(self.iWidth) # 0.0 = west
@@ -494,9 +495,9 @@ class GreatPlainsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.iRockyForestLevel = self.forests.getHeightFromPercent(self.iRockyForestPercent)
 		
 	def __initFeatureTypes(self):
-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
+		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
+		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		# 0.0 = bottom edge, 1.0 = top edge.
@@ -673,7 +674,7 @@ def addBonusType(argsList):
 				for x in range(herdLeft, herdRight):
 					# Fractalized placement of herds
 					pPlot = map.plot(x,y)
-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
+					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
 					herdVal = herds.getHeight(x,y)
 					if pPlot.getBonusType(-1) == -1 and ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)):
 						map.plot(x,y).setBonusType(iBonusType)
@@ -689,7 +690,7 @@ def addBonusType(argsList):
 				for x in range(herdLeft, herdRight):
 					# Fractalized placement of herds
 					pPlot = map.plot(x,y)
-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
+					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
 					herdVal = herds.getHeight(x,y)
 					if pPlot.getBonusType(-1) == -1 and ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)):
 						map.plot(x,y).setBonusType(iBonusType)
@@ -734,12 +735,12 @@ def addBonusType(argsList):
 				# First check the plot for an existing bonus.
 				pPlot = map.plot(x,y)
 				if pPlot.getBonusType(-1) != -1: continue # to next plot.
-				if pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
+				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
 				# Check plot type and features for eligibility.
 				if (pPlot.canHaveBonus(iBonusType, True) and unforced): pass
 				elif forceHills and pPlot.isHills(): pass
 				elif forceFlats and pPlot.isFlatlands(): pass
-				elif (type_string in rockyDyes) and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_DESERT") and pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST") and pPlot.isHills(): pass
+				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills(): pass
 				else: continue # to next plot.
 				# re-init regional plot membership tests for each pass.
 				plotInRockies = False
@@ -795,7 +796,7 @@ def addBonusType(argsList):
 			for x in range(right):
 				for y in range(top):
 					pPlot = map.plot(x,y)
-					if pPlot.getBonusType(-1) == -1 and pPlot.isFlatlands() and not pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"):
+					if pPlot.getBonusType(-1) == -1 and pPlot.isFlatlands() and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
 						corn.append([x,y])
 			while corncount > 0:
 				if corn == []: break # No eligible plots left!

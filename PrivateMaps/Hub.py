@@ -21,6 +21,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from CvMapGeneratorUtil import BonusBalancer
+from SASUtils import getInfoTypeOrFail
 
 balancer = BonusBalancer()
 bSuccessFlag = True
@@ -953,11 +954,11 @@ class HubTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.iIceBottom = self.center.getHeightFromPercent(self.iIceBottomPercent)
 		self.iTundraBottom = self.center.getHeightFromPercent(self.iTundraBottomPercent)
 
-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
+		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 
 	def generateTerrainAtPlot(self,iX,iY):
 		if (self.map.plot(iX, iY).isWater()):
@@ -1053,10 +1054,10 @@ class HubFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 
 	def __initFeatureTypes(self):
-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
+		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
+		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
+		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
 	
 	def addFeaturesAtPlot(self, iX, iY):
 		"adds any appropriate features at the plot (iX, iY) where (0,0) is in the SW"

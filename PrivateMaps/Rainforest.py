@@ -20,6 +20,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizes import *
+from SASUtils import getInfoTypeOrFail
 
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_RAINFOREST_DESCR"
@@ -178,9 +179,9 @@ class RainforestTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.iDesertEdge = self.desert.getHeightFromPercent(82)
 		self.iPlains = self.plains.getHeightFromPercent(95)
 
-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 
 	def generateTerrainAtPlot(self,iX,iY):
 		if (self.map.plot(iX, iY).isWater()):
@@ -239,10 +240,10 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 
 	def __initFeatureTypes(self):
-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
-		self.featureFlood = self.gc.getInfoTypeForString("FEATURE_FLOOD_PLAINS")
+		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
+		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+		self.featureFlood = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
 
 	def addFeaturesAtPlot(self, iX, iY):
 		pPlot = self.map.sPlot(iX, iY)
@@ -263,23 +264,23 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 				self.addJunglesAtPlot(pPlot, iX, iY)
 			
 	def addFloodAtPlot(self, pPlot, iX, iY):
-		if pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_DESERT"):
+		if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
 			pPlot.setFeatureType(self.featureFlood, -1)
 
 	def addOasisAtPlot(self, pPlot, iX, iY):
 		if not pPlot.isFreshWater():
-			if pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_DESERT"):
+			if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
 				if self.mapRand.get(25, "Add Feature PYTHON") == 23:
 					pPlot.setFeatureType(self.featureOasis, -1)
 	
 	def addJunglesAtPlot(self, pPlot, iX, iY):
 		# Warning: this version of JunglesAtPlot is using the forest fractal!
-		if pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_GRASS"):
+		if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
 			if (self.forests.getHeight(iX, iY) <= self.iJungleLevel):
 				pPlot.setFeatureType(self.featureJungle, -1)
 
 	def addForestsAtPlot(self, pPlot, iX, iY):
-		if pPlot.getTerrainType() != self.gc.getInfoTypeForString("TERRAIN_DESERT"):
+		if pPlot.getTerrainType() != getInfoTypeOrFail("TERRAIN_DESERT"):
 			if self.forests.getHeight(iX, iY) <= self.iForestLevel:
 				pPlot.setFeatureType(self.featureForest, -1)
 
@@ -321,7 +322,7 @@ def assignStartingPlots():
 	print "Number of players:", iPlayers
 	print "==="
 
-	terrainGrass = gc.getInfoTypeForString("TERRAIN_GRASS")
+	terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 
 	# Obtain player numbers. (Account for possibility of Open slots!)
 	player_list = []
@@ -607,7 +608,7 @@ def addBonusType(argsList):
 				for x in range(iW):
 					# Fractalized placement
 					pPlot = map.plot(x,y)
-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() != gc.getInfoTypeForString("FEATURE_JUNGLE"): continue
+					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() != getInfoTypeOrFail("FEATURE_JUNGLE"): continue
 					if pPlot.getBonusType(-1) == -1:
 						foodVal = food.getHeight(x,y)
 						if (type_string in banana):
@@ -655,10 +656,10 @@ def addBonusType(argsList):
 				# First check the plot for an existing bonus.
 				pPlot = map.plot(x,y)
 				if pPlot.getBonusType(-1) != -1: continue # to next plot.
-				if pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
+				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
 				# Check plot type and features for eligibility.
 				if forceHills and pPlot.isHills(): pass
-				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST")): pass
+				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")): pass
 				else: continue # to next plot.
 				# Finally we have run all the checks.
 				# 1. The plot has no bonus.

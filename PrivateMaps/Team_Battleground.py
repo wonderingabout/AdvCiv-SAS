@@ -34,6 +34,7 @@ from math import sqrt
 from math import cos
 from math import sin
 from math import radians
+from SASUtils import getInfoTypeOrFail
 
 #import BugUtil
 
@@ -147,9 +148,9 @@ def beforeGeneration():
 	team_index = 0
 	topVsBottomCheck = CyMap().getCustomMapOption(0)
 	if topVsBottomCheck == 1:
-		equator = CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT")
+		equator = getInfoTypeOrFail("TERRAIN_DESERT")
 	else:
-		equator = CyGlobalContext().getInfoTypeForString("TERRAIN_GRASS")
+		equator = getInfoTypeOrFail("TERRAIN_GRASS")
 	for teamCheckLoop in range(CyGlobalContext().getMAX_CIV_TEAMS()):
 		if CyGlobalContext().getTeam(teamCheckLoop).isEverAlive():
 			team_num.append(team_index)

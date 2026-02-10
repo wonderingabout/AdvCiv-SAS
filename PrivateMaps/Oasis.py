@@ -21,6 +21,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from CvMapGeneratorUtil import BonusBalancer
+from SASUtils import getInfoTypeOrFail
 
 balancer = BonusBalancer()
 
@@ -432,9 +433,9 @@ class OasisTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 
 		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 
-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		lat = iY/float(self.iHeight) # 0.0 = south edge, 1.0 = north edge
@@ -533,9 +534,9 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 		
 	def __initFeatureTypes(self):
-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
+		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
+		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		# 0.0 = bottom edge, 1.0 = top edge.
@@ -555,7 +556,7 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			# Jungles only in the deep south or in the Oasis!
 			if lat < 0.16:
 				self.addJunglesAtPlot(pPlot, iX, iY, lat)
-			elif lat > 0.32 and lat < 0.65 and (pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_GRASS")):
+			elif lat > 0.32 and lat < 0.65 and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS")):
 				pPlot.setFeatureType(self.featureJungle, -1)
 
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
@@ -563,7 +564,7 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			if lat > 0.71 or lat < 0.3:
 				self.addForestsAtPlot(pPlot, iX, iY, lat)
 
-		if pPlot.isFlatlands() and (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE) and (pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_DESERT")):
+		if pPlot.isFlatlands() and (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE) and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT")):
 			# Add more Oases!
 			if (lat < 0.71 and lat > 0.3) and self.mapRand.get(9, "Add Extra Oases PYTHON") == 0:
 				pPlot.setFeatureType(self.featureOasis, -1)
@@ -760,8 +761,8 @@ def addBonusType(argsList):
 				# Check plot type and features for eligibility.
 				if (pPlot.canHaveBonus(iBonusType, True) and unforced): pass
 				elif forceHills and pPlot.isHills(): pass
-				elif forceForest and pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST"): pass
-				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_GRASS") and pPlot.getFeatureType() == -1: pass
+				elif forceForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): pass
+				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1: pass
 				else: continue # to next plot.
 				# re-init regional plot membership tests for each pass.
 				plotInNorth = False

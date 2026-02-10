@@ -20,6 +20,7 @@ from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from CvMapGeneratorUtil import BonusBalancer
 from SAS_WorldSizes import *
+from SASUtils import getInfoTypeOrFail
 
 balancer = BonusBalancer()
 
@@ -246,9 +247,9 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.terrain.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iGrassBottom = self.terrain.getHeightFromPercent(12)
 
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		return None

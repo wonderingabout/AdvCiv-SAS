@@ -30,6 +30,7 @@ from CvMapGeneratorUtil import MultilayeredFractal
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizes import *
+from SASUtils import getInfoTypeOrFail
 
 #-----------------------------------------------------------------------------
 # User Editable Constants.
@@ -2077,11 +2078,11 @@ class R_TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 				self.mapRand, self.iFlags,
 				self.fracXExp, self.fracYExp)
 	
-	self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
-	self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-	self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
-	self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
-	self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+	self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+	self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+	self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
+	self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+	self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 #    
 #END class R_TettainGenerator
 #

@@ -49,6 +49,7 @@ import math
 import sys
 import time
 import os
+from SASUtils import getInfoTypeOrFail
 
 
 ##############################################################################
@@ -2993,7 +2994,7 @@ def ShuffleList(theList):
 
 def GetInfoType(string):
 	cgc = CyGlobalContext()
-	return cgc.getInfoTypeForString(string)
+	return getInfoTypeOrFail(string)
 
 
 def GetDistance(x, y, dx, dy):
@@ -4507,8 +4508,8 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		bonusInfo = gc.getBonusInfo(bonus.eBonus)
 		plotListLength = len(plotIndexList)
 		lastI = 0
-		fFloodPlains = gc.getInfoTypeForString("FEATURE_FLOOD_PLAINS")
-		fOasis       = gc.getInfoTypeForString("FEATURE_OASIS")
+		fFloodPlains = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
+		fOasis       = getInfoTypeOrFail("FEATURE_OASIS")
 		for i in range(startAtIndex, startAtIndex + plotListLength):
 			index = 0
 			lastI = i
@@ -4656,7 +4657,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		gc = CyGlobalContext()
 		bonusInfo = gc.getBonusInfo(eBonus)
 		#Here is the change from canHaveBonus. Forest does not block bonus
-		featureForest  = gc.getInfoTypeForString("FEATURE_FOREST")
+		featureForest  = getInfoTypeOrFail("FEATURE_FOREST")
 		requiresForest = bonusInfo.isFeature(featureForest)
 		plotIsForest   = plot.getFeatureType() == featureForest
 		#To avoid silk and spices on snow/tundra
@@ -5192,7 +5193,7 @@ class StartingPlotFinder:
 		bonusEnum = start.getBonusType(TeamTypes.NO_TEAM)
 		if bonusEnum != BonusTypes.NO_BONUS:
 			bonusInfo = gc.getBonusInfo(bonusEnum)
-			if bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_WONDER") or bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_RUSH") or bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_MODERN"):
+			if bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_WONDER") or bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_RUSH") or bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_MODERN"):
 				totalValue = int(float(totalValue) * mc.StrategicBonusCityValueBonus)
 			else:
 				totalValue = int(float(totalValue) * mc.OtherBonusCityValueBonus)
@@ -5561,7 +5562,7 @@ class StartingPlotFinder:
 							continue
 						if not bp.PlotCanHaveBonus(plot, bonusEnum, False, True):
 							continue
-					if bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_WONDER") or bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_RUSH") or bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_MODERN"):
+					if bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_WONDER") or bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_RUSH") or bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_MODERN"):
 						if not allowBonusWonderClass:
 							continue
 						else:
@@ -5691,39 +5692,39 @@ class StartingPlotFinder:
 				eHandicap = player.getHandicapType()
 				startPlot = player.getStartingPlot()
 				sPlot = StartPlot(startPlot.getX(),startPlot.getY(), 0)
-				if eHandicap == gc.getInfoTypeForString("HANDICAP_SETTLER"):
+				if eHandicap == getInfoTypeOrFail("HANDICAP_SETTLER"):
 					if mc.SettlerBonus > 0:
 						print "Human player at Settler difficulty, adding %d resources" % mc.SettlerBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.SettlerBonus, sPlot.isCoast())
-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_CHIEFTAIN"):
+				elif eHandicap == getInfoTypeOrFail("HANDICAP_CHIEFTAIN"):
 					if mc.ChieftainBonus > 0:
 						print "Human player at Chieftain difficulty, adding %d resources" % mc.ChieftainBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.ChieftainBonus, sPlot.isCoast())
-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_WARLORD"):
+				elif eHandicap == getInfoTypeOrFail("HANDICAP_WARLORD"):
 					if mc.WarlordBonus > 0:
 						print "Human player at Warlord difficulty, adding %d resources" % mc.WarlordBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.WarlordBonus, sPlot.isCoast())
-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_NOBLE"):
+				elif eHandicap == getInfoTypeOrFail("HANDICAP_NOBLE"):
 					if mc.NobleBonus > 0:
 						print "Human player at Noble difficulty, adding %d resources" % mc.NobleBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.NobleBonus, sPlot.isCoast())
-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_PRINCE"):
+				elif eHandicap == getInfoTypeOrFail("HANDICAP_PRINCE"):
 					if mc.PrinceBonus > 0:
 						print "Human player at Prince difficulty, adding %d resources" % mc.PrinceBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.PrinceBonus, sPlot.isCoast())
-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_MONARCH"):
+				elif eHandicap == getInfoTypeOrFail("HANDICAP_MONARCH"):
 					if mc.MonarchBonus > 0:
 						print "Human player at Monarch difficulty, adding %d resources" % mc.MonarchBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.MonarchBonus, sPlot.isCoast())
-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_EMPEROR"):
+				elif eHandicap == getInfoTypeOrFail("HANDICAP_EMPEROR"):
 					if mc.EmperorBonus > 0:
 						print "Human player at Emperor difficulty, adding %d resources" % mc.EmperorBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.EmperorBonus, sPlot.isCoast())
-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_IMMORTAL"):
+				elif eHandicap == getInfoTypeOrFail("HANDICAP_IMMORTAL"):
 					if mc.ImmortalBonus > 0:
 						print "Human player at Immortal difficulty, adding %d resources" % mc.ImmortalBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.ImmortalBonus, sPlot.isCoast())
-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_DEITY"):
+				elif eHandicap == getInfoTypeOrFail("HANDICAP_DEITY"):
 					if mc.DeityBonus > 0:
 						print "Human player at Deity Difficulty, adding %d resources" % mc.DeityBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.DeityBonus, sPlot.isCoast())
@@ -5989,7 +5990,7 @@ class StartingArea:
 				sPlot = CyMap().plot(self.plotList[m].x, self.plotList[m].y)
 				if sPlot.isWater():
 					raise ValueError, "Start plot is water!"
-				#sPlot.setImprovementType(gc.getInfoTypeForString("NO_IMPROVEMENT"))
+				#sPlot.setImprovementType(getInfoTypeOrFail("NO_IMPROVEMENT"))
 				# advc.001:
 				sPlot.setImprovementType(ImprovementTypes.NO_IMPROVEMENT)
 				playerID = self.playerList[n]
@@ -6434,13 +6435,13 @@ def generateTerrainTypes():
 	else:
 		em = e3
 	gc = CyGlobalContext()
-	iGrass  = gc.getInfoTypeForString("TERRAIN_GRASS")
-	iPlains = gc.getInfoTypeForString("TERRAIN_PLAINS")
-	iDesert = gc.getInfoTypeForString("TERRAIN_DESERT")
-	iTundra = gc.getInfoTypeForString("TERRAIN_TUNDRA")
-	iSnow   = gc.getInfoTypeForString("TERRAIN_SNOW")
-	iCoast  = gc.getInfoTypeForString("TERRAIN_COAST")
-	iOcean  = gc.getInfoTypeForString("TERRAIN_OCEAN")
+	iGrass  = getInfoTypeOrFail("TERRAIN_GRASS")
+	iPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+	iDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+	iTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+	iSnow   = getInfoTypeOrFail("TERRAIN_SNOW")
+	iCoast  = getInfoTypeOrFail("TERRAIN_COAST")
+	iOcean  = getInfoTypeOrFail("TERRAIN_OCEAN")
 	terrainTypes = [0] * em.length
 	for i in range(em.length):
 		if tm.tData[i] == mc.OCEAN:
@@ -6804,10 +6805,10 @@ def addFeatures():
 		cm = c3
 	else:
 		cm = c2
-	fForest      = gc.getInfoTypeForString("FEATURE_FOREST")
-	fJungle      = gc.getInfoTypeForString("FEATURE_JUNGLE")
-	fFloodPlains = gc.getInfoTypeForString("FEATURE_FLOOD_PLAINS")
-	fOasis       = gc.getInfoTypeForString("FEATURE_OASIS")
+	fForest      = getInfoTypeOrFail("FEATURE_FOREST")
+	fJungle      = getInfoTypeOrFail("FEATURE_JUNGLE")
+	fFloodPlains = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
+	fOasis       = getInfoTypeOrFail("FEATURE_OASIS")
 	FORESTLEAFY     = 0
 	FORESTEVERGREEN = 1
 	FORESTSNOWY     = 2
@@ -6887,7 +6888,7 @@ def addFeatures():
 						if tm.tData[i] == mc.GRASS:
 							tm.tData[i] = mc.PLAINS
 							# Terrain has already been set at this point; need to overwrite that.
-							plot.setTerrainType(gc.getInfoTypeForString("TERRAIN_PLAINS"), False, False)
+							plot.setTerrainType(getInfoTypeOrFail("TERRAIN_PLAINS"), False, False)
 					else: # </advc>
 						if setFeature(plot, fJungle, 0):
 							set = True
@@ -6934,7 +6935,7 @@ def setFeature(plot, feature, variety):
 def createIce():
 	gc = CyGlobalContext()
 	mmap = gc.getMap()
-	featureIce = gc.getInfoTypeForString("FEATURE_ICE")
+	featureIce = getInfoTypeOrFail("FEATURE_ICE")
 	if mc.ClimateSystem == 0:
 		cm = c3
 		iceTemp = 0.25

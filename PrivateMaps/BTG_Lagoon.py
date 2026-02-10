@@ -13,6 +13,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from CvMapGeneratorUtil import BonusBalancer
+from SASUtils import getInfoTypeOrFail
 from SAS_WorldSizes import *
 
 import random #2.25
@@ -20,7 +21,6 @@ import random #2.25
 
 
 balancer = BonusBalancer()
-isBTPon = False
 
 def getDescription():#The BTS description, used in general game setup, not the MapPreview screen in game from BTS
 	return "Modified BTG_Lagoon map from the Beyond the Game mod (by Penny). Adapted for AdvCiv-SAS: upscaled, non-AdvCiv options removed, and SAS48/high player counts supported."
@@ -149,24 +149,18 @@ def normalizeAddExtras():
 		balancer.normalizeAddExtras()
 		
 
-	if isBTPon:
-		if (CyMap().getCustomMapOption(8) == 1):
-			listToBalance = ["BONUS_LEAD"]
-			balancer.BTPnormalizeAddExtrasSpecific(listToBalance,5,2,100)				
-		
 	#BTG
 	# Moving from 4 to 8 because there are lots of tundras etc.
-	BTPForceResourceLand(100,True,CyGlobalContext().getInfoTypeForString("BONUS_OIL"),10,False,CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"))
-	BTPForceResourceLand(100,False,CyGlobalContext().getInfoTypeForString("BONUS_ALUMINUM"),10,True,CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+	BTPForceResourceLand(100,True,getInfoTypeOrFail("BONUS_OIL"),10,False,getInfoTypeOrFail("TERRAIN_DESERT"))
+	BTPForceResourceLand(100,False,getInfoTypeOrFail("BONUS_ALUMINUM"),10,True,getInfoTypeOrFail("TERRAIN_PLAINS"))
 		
 	if (CyMap().getCustomMapOption(1) >= 2):	
-		BTPForceEnrichFood(100,True,CyGlobalContext().getInfoTypeForString("BONUS_BANANA"),5,3,False,CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))	
-		BTPForceEnrichFood(100,True,CyGlobalContext().getInfoTypeForString("BONUS_PIG"),5,4,True,CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-		BTPForceEnrichFood(100,True,CyGlobalContext().getInfoTypeForString("BONUS_WHEAT"),7,5,True,CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))				
+		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_BANANA"),5,3,False,getInfoTypeOrFail("TERRAIN_PLAINS"))	
+		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_PIG"),5,4,True,getInfoTypeOrFail("TERRAIN_PLAINS"))
+		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_WHEAT"),7,5,True,getInfoTypeOrFail("TERRAIN_PLAINS"))				
 						
-	if isBTPon:
-		if (CyMap().getCustomMapOption(3) >= 1):	
-			doUUCenter()
+	if (CyMap().getCustomMapOption(3) >= 1):
+		doUUCenter()
 		
 	#End Map Specific		
 		
@@ -176,40 +170,34 @@ def normalizeAddExtras():
 def doUUCenter():
 	iExtraTile = 0
 	
-	#Center Unique	
-	if isBTPon and CyMap().getCustomMapOption(8) == 1:
-		BTPresourceFromCenter(2,3+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_AMBER"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-		BTPresourceFromCenter(1,2+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SULPHUR"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-	
-	
-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SALT"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_TEA"),CyGlobalContext().getInfoTypeForString("TERRAIN_GRASS"))
-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_OLIVES"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+	#Center Unique
+	# <!-- custom: AdvCiv-SAS has no BONUS_SALT/BONUS_TEA/BONUS_OLIVES; use supported luxuries instead. (GPT-5.3-Codex) -->
+	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 
 
 			
-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_MARBLE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_STONE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_MARBLE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_STONE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 	
-	BTPresourceFromCenter(2,7+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_WHALE"),CyGlobalContext().getInfoTypeForString("TERRAIN_COAST"))
+	BTPresourceFromCenter(2,7+iExtraTile,getInfoTypeOrFail("BONUS_WHALE"),getInfoTypeOrFail("TERRAIN_COAST"))
 
-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SILVER"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))			
-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_GEMS"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))			
-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_GOLD"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))	
+	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SILVER"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
+	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GEMSTONES"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
+	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GOLD"),getInfoTypeOrFail("TERRAIN_PLAINS"))	
 	
 	
-	#2.23 Ivory every two players rather than 3
-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_IVORY"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))		
+	#2.23 Elephants every two players rather than 3
+	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_ELEPHANTS"),getInfoTypeOrFail("TERRAIN_PLAINS"))		
 
-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_WINE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SILK"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SPICE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SUGAR"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_DYE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))		
-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_INCENSE"),CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"))
+	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_GRAPES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SILK"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SUGAR"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_DYE"),getInfoTypeOrFail("TERRAIN_PLAINS"))		
+	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_INCENSE"),getInfoTypeOrFail("TERRAIN_DESERT"))
 
-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_DEER"),CyGlobalContext().getInfoTypeForString("TERRAIN_TUNDRA"))				
-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_FUR"),CyGlobalContext().getInfoTypeForString("TERRAIN_TUNDRA"))						
+	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_DEER"),getInfoTypeOrFail("TERRAIN_TUNDRA"))				
+	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_FUR"),getInfoTypeOrFail("TERRAIN_TUNDRA"))						
 
 
 
@@ -219,12 +207,6 @@ def addBonusType(argsList):
 	[iBonusType] = argsList
 	gc = CyGlobalContext()
 	type_string = gc.getBonusInfo(iBonusType).getType()
-
-	if isBTPon:
-		if (CyMap().getCustomMapOption(8) == 1):#all excluded
-			if (type_string in balancer.newResourcesBTP):
-				return None
-			
 
 	if (CyMap().getCustomMapOption(1) >= 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
@@ -413,9 +395,9 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.terrain.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iGrassBottom = self.terrain.getHeightFromPercent(12)
 
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		return None
@@ -437,9 +419,9 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		val = self.terrain.getHeight(iX, iY)
 		iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
 		if iProba <= 3:
-			terrainVal = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+			terrainVal = getInfoTypeOrFail("TERRAIN_DESERT")
 		elif iProba <= 30:
-			terrainVal = self.gc.getInfoTypeForString("TERRAIN_PLAINS")				
+			terrainVal = getInfoTypeOrFail("TERRAIN_PLAINS")				
 		else:#then normal
 			if val >= self.iGrassBottom:
 				terrainVal = self.terrainGrass
@@ -459,17 +441,14 @@ def addRivers():#Lagoon 2.26 -- Adding this because it's direct after Generate p
 			if (x == 0 or y == 0 or x == CyMap().getGridWidth()-1 or y == CyMap().getGridHeight()-1):
 				if not (CyMap().getCustomMapOption(5) == 1 or CyMap().getCustomMapOption(5) == 2):#it's not nice when there is cylindrical wrap
 					p = CyMap().plot(x,y)
-					p.setTerrainType(CyGlobalContext().getInfoTypeForString("TERRAIN_TUNDRA"), True, True)
+					p.setTerrainType(getInfoTypeOrFail("TERRAIN_TUNDRA"), True, True)
 			if (x >= CyMap().getGridWidth()/2 -3 and x <= CyMap().getGridWidth()/2 +2 and y >= CyMap().getGridHeight()/2 -1 and y <= CyMap().getGridHeight()/2):
 				p = CyMap().plot(x,y)
 				iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")							
 				if (iProba < 75):
-					if isBTPon:				
-						p.setTerrainType(CyGlobalContext().getInfoTypeForString("TERRAIN_LAVA"), True, True)			
-					else:
-						p.setPlotType(PlotTypes.PLOT_PEAK,True,True)			
+					p.setPlotType(PlotTypes.PLOT_PEAK,True,True)
 				else:
-					p.setTerrainType(CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"), True, True)	
+					p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"), True, True)	
 					
 						
 	#Need to finish by doing normal rivers
@@ -507,10 +486,6 @@ def beforeGeneration():
 	iW = CyMap().getGridWidth()
 	iH = CyMap().getGridHeight()
 	
-	global isBTPon
-	# <!-- custom: BTG-only runtime hooks are disabled in AdvCiv-SAS; keep gameplay options in this script self-contained. (GPT-5.3-Codex) -->
-	isBTPon = False	
-				
 	# Choose a Template to be used for this game.
 	iPlayers = gc.getGame().countCivPlayersEverAlive()
 	iTemplateRoll = 0#Because only 1 template for each
@@ -666,13 +641,6 @@ def findStartingPlot(argsList):
 		
 	[playerID] = argsList
 	
-	if isBTPon:#2.22
-		iNumSpectators = CyGlobalContext().getGame().countCivPlayersEverSpectator()
-		if iNumSpectators > 0:
-			if playerID >= CyGlobalContext().getGame().countCivPlayersEverAlive():
-			#Because always the last player that get -1,-1 for starting plot. Also, don't foget first player is [0], that's why there is an "equal"
-				return -1
-	
 	global plotSuccess
 	global plotValue
 
@@ -716,10 +684,7 @@ def normalizeStartingPlotLocations():
 	dice = gc.getGame().getMapRand()	
 		
 	if (CyMap().getCustomMapOption(4) == 1):
-		if isBTPon :
-			BTPTopBottomTwoTeams(True)		
-		else:
-			BTPTopBottomTwoTeams(False)	
+		BTPTopBottomTwoTeams(False)
 	elif (CyMap().getCustomMapOption(4) == 2):
 		return
 	else:
@@ -1043,7 +1008,7 @@ def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType
 		for p in plotsboundariesSafe:
 			if (p.getBonusType(-1) == BonusTypes.NO_BONUS):
 				p.setTerrainType(iTerrainType,True,True)
-				#p.setTerrainType(CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"),True,True)#for debug
+				#p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"),True,True)#for debug
 				p.setBonusType(iResourceType)
 				p.setFeatureType(-1, -1)
 				break	

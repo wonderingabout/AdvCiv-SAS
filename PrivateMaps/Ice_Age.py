@@ -19,6 +19,7 @@ from SAS_WorldSizes import *
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
+from SASUtils import getInfoTypeOrFail
 
 # SIRIAN'S NOTES
 #
@@ -271,10 +272,10 @@ class IceAgeFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 
 	def __initFeatureTypes(self):
-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
+		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
+		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
+		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		"Ice Age specific function: returns a value in the range of 0.0 (temperate) to 0.6 (polar)"

@@ -78,6 +78,7 @@ import CvMapGeneratorUtil
 #import Popup as PyPopup
 #from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
+from SASUtils import getInfoTypeOrFail
 
 # advc.165:
 def getNumPlotsPercent(argsList):
@@ -934,14 +935,14 @@ class ClimateGenerator:
 		elif (self.climate == 3):                        # No ice
 			self.maxWindForce = self.mapWidth / 8
 		self.mapHeight = self.map.getGridHeight()
-		self.terrainDesert = gc.getInfoTypeForString("TERRAIN_DESERT")
-		self.terrainPlains = gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainIce = gc.getInfoTypeForString("TERRAIN_SNOW")
-		self.terrainTundra = gc.getInfoTypeForString("TERRAIN_TUNDRA")
-		self.terrainGrass = gc.getInfoTypeForString("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
+		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 		if (self.climate == 3):                        # No ice
-			self.terrainIce = gc.getInfoTypeForString("TERRAIN_TUNDRA")
-			self.terrainTundra = gc.getInfoTypeForString("TERRAIN_GRASS")
+			self.terrainIce = getInfoTypeOrFail("TERRAIN_TUNDRA")
+			self.terrainTundra = getInfoTypeOrFail("TERRAIN_GRASS")
 		self.terrain = [0] * (self.mapWidth*self.mapHeight)
 		self.moisture = [0] * (self.mapWidth*self.mapHeight)
 		self.dice = gc.getGame().getMapRand()
@@ -1635,9 +1636,9 @@ class riversFromSea:
 		nextI = nextY*self.width + nextX
 		if (self.canFlowFrom(plot,self.map.plot(nextX,nextY)) == False):
 			return
-		if (plot.getTerrainType() == CyGlobalContext().getInfoTypeForString("TERRAIN_SNOW") and self.dice.get(10,"Stop on ice") > 3):
+		if (plot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW") and self.dice.get(10,"Stop on ice") > 3):
 			return
-		flatDesert = (plot.getPlotType() == PlotTypes.PLOT_LAND) and (plot.getTerrainType() == CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"))
+		flatDesert = (plot.getPlotType() == PlotTypes.PLOT_LAND) and (plot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"))
 		#Prevent Uturns in rivers
 		turnThreshold = 13
 		if flatDesert:
