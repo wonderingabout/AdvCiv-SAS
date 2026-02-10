@@ -77,6 +77,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 ### Renaming
 
+- (Requires AdvCiv-SAS 5439+) "Play Now" → "Simple Game" Clearer, matches code name, better contrasts with "Custom Game", and same as in C2C mod.
 - "WFYABTA" → "We fear you are trading more than us." Same mechanic; the new text reflects that it’s about trading volume, not tech pace.
 - Fixed misleading event text such as "The forge has been destroyed" used even when building actually survives (e.g. "The forge has caught fire" instead).
 - "All Units" → "No UnitCombat" in the Military Advisor: was inaccurate: this does not list all units (e.g. military units such as swordsmen), but only `<Combat>NONE</Combat>` units (e.g. Worker, Workboat, Missionary).
@@ -262,8 +263,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
 ### UI (Main Menu)
 
 - Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
-- Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
-- Make the **Globe animation** (Globe.nif in [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml)) in "Play Now" use **real scaling** instead of demonstrative one, e.g. the new World Size Arena has a ratio to World Size Standard of 0.128, so its model only has 12.8% of the size of the standard-sized globe, and vice versa for sizes bigger than standard. This aims to provide a **better representation** of **real world size differences**. See the new Sevopedia W. Sizes Chart category.
+- Beautified the Main Menu's **Simple Game screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Simple Game rework)](/README.md#simple-game-rework).
+- Make the **Globe animation** (Globe.nif in [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml)) in Simple Game use **real scaling** instead of demonstrative one, e.g. the new World Size Arena has a ratio to World Size Standard of 0.128, so its model only has 12.8% of the size of the standard-sized globe, and vice versa for sizes bigger than standard. This aims to provide a **better representation** of **real world size differences**. See the new Sevopedia W. Sizes Chart category.
 
 ### UI (Common)
 
@@ -331,7 +332,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 - `GAMESPEED_MARATHON` **shortened** total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
 - **New Game Speeds**: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
 - **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
-- **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **"Play Now"** Game Speed section.
+- **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **Simple Game** Game Speed section.
 - **Fix base AdvCiv `iExtraFreeOutsideUnits` incorrect default bug:** Faster-than-Marathon speeds ended up with **100 extra free outside units** due to two issues: the `iExtraFreeOutsideUnits` XML tag was missing for those speeds, and the DLL fallback default for that tag was incorrectly set to **100** (Marathon explicitly had **1**). Fixed by changing the DLL default from 100 to **0**, and by adding the missing `iExtraFreeOutsideUnits` game-speed XML field with a value of **0** so nothing relies on defaults. Also added `iUnitCostPercent` in XML for exhaustiveness (value **100**) without changing its DLL default (**100**) since it was correct. Spotted thanks to the new Sevopedia Game Speed Chart. See: [KI#92](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart).
 - **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; on **Normal**, early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2105 AD** (**turn 500** on Normal). See full game speed details in the **new Sevopedia Speeds category**.
 
@@ -343,8 +344,10 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 
 ### Maps
 
-- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Play Now** and **Custom Game** lists. See [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists. See [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+- (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps. See [Root Readme (Maps)](/README.md#maps).
 - (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
 - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
 - (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py).
 - (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
@@ -458,7 +461,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 
 ### Events
 
-- The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
+- The standard new game mode (**Simple Game**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
 
 ### Culture
 

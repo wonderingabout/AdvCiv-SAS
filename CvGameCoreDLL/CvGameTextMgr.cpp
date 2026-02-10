@@ -6142,7 +6142,7 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
 	{
 		CvGame const& kGame = GC.getGame();
 		bool const bInGame = (getActivePlayer() != NO_PLAYER &&
-				// Important for Play Now screens
+				// Important for Simple Game screens
 				kGame.getHandicapType() != NO_HANDICAP);
 		int const iFreeCityCulture = (bInGame ?
 				kGame.freeCityCultureFromTrait(eTrait) :

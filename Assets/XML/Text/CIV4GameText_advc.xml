@@ -3586,20 +3586,6 @@
 		<Spanish>%s1:3_civ_adjective</Spanish>
 	</TEXT>
 
-	<!-- advc.002g -->
-	<!-- See CIV4ColorVals.xml for the available colors. PLAYER_GRAY is,
-		 apparently, also used for graying out Multiplayer when it's disabled
-		 through ModName.ini. -->
-	<!-- From Civ4GameTextInfos.xml: -->
-	<!-- Just removed the exclamation mark -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_MAIN_MENU_PLAY_NOW</Tag>
-		<English>Play Now</English>
-		<French>Jouer</French>
-		<German>Jetzt spielen</German>
-		<Italian>Gioca ora</Italian>
-		<Spanish>Jugar ya</Spanish>
-	</TEXT>
 	<!-- custom: Long_Comments_XML.txt #269 -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_MAIN_MENU_UPDATES</Tag>

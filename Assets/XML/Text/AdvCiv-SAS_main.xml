@@ -212,6 +212,20 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: rename "Play Now" to "Simple Game" (matches code name, and is as the C2C mod does for example too) -->
+	<!-- advc.002g -->
+	<!-- See CIV4ColorVals.xml for the available colors. PLAYER_GRAY is,
+		 apparently, also used for graying out Multiplayer when it's disabled
+		 through ModName.ini. -->
+	<!-- From Civ4GameTextInfos.xml: -->
+	<!-- Just removed the exclamation mark -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_MAIN_MENU_PLAY_NOW</Tag>
+		<English>Simple Game</English>
+	</TEXT>
+
+
+
 	<TEXT>
 		<Tag>TXT_KEY_BUILDINGS_ROM_291</Tag>
 		<English>Buildings</English>

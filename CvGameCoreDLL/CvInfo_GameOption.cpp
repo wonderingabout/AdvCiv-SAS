@@ -1604,8 +1604,8 @@ CvWString CvSeaLevelInfo::getDescriptionInternal() const
 {
 	CvInitCore const& kInitCore = GC.getInitCore();
 	if (kInitCore.getActivePlayer() == NO_PLAYER &&
-		/*	This distinguishes Custom Game from Play Now.
-			(Play Now doesn't have enough room for a recommendation,
+		/*	This distinguishes Custom Game from Simple Game.
+			(Simple Game doesn't have enough room for a recommendation,
 			and doesn't allow player counts to be adjusted.) */
 		kInitCore.getSlotStatus((PlayerTypes)0) == SS_OPEN)
 	{

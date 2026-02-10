@@ -2653,7 +2653,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 ===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
 ----- Comment #138 -----
 
-<!-- custom: reordered in reverse from fastest at top to slowest at bottom so they appear as such in the "Play Now" Game Speed section. -->
+<!-- custom: reordered in reverse from fastest at top to slowest at bottom so they appear as such in the Simple Game Game Speed section. -->
 <!-- custom: timeline readability rule
 	For early/midgame, prefer iMonthIncrement values that are whole years (divisible by 12),
 	ideally round 5/10-year steps (i.e., multiples of 60/120 months). This avoids awkward chart

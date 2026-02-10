@@ -100,9 +100,11 @@ def getNumPlotsPercent(argsList):
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_TECTONICS_DESCR"
 
+# <!-- custom: Simple Game visibility is controlled here (not only by CIV4WorldPickerInfos.xml):
+# return 1 keeps this map out of Simple Game and in advanced/custom-only lists. (GPT-5.3-Codex) -->
 def isAdvancedMap():
-	"This map should show up in simple mode"
-	return 0
+	"This map should not show up in simple mode"
+	return 1
 
 def isSeaLevelMap():
 	return 0

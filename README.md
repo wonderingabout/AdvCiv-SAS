@@ -29,7 +29,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [Main Changes Guide](/README.md#main-changes-guide)  
 [UI (Main Menu)](/README.md#ui-main-menu)  
 &emsp;[Home page](/README.md#home-page)  
-&emsp;["Play Now" rework](/README.md#play-now-rework)  
+&emsp;[Simple Game rework](/README.md#simple-game-rework)  
 [UI (Ingame)](/README.md#ui-ingame)  
 &emsp;[Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
@@ -57,7 +57,9 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [48 Civs DLL](/README.md#48-civs-dll)  
 &emsp;[How to use](/README.md#how-to-use)  
 &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
-[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
+[Maps](/README.md#maps)  
+&emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
+&emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
 [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
 [Long Comments Archive](/README.md#long-comments-archive)  
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
@@ -133,7 +135,7 @@ Edited the .thm files so the main menu's home page feels more modern and utlizes
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG" alt="0.300_main_menu_home (2).JPG" width="250"></img>
 
-### "Play Now" rework
+### Simple Game rework
 
 Edited the .thm as well. Was done with the help of GPT-5.2-Codex, based on C2C's implementation of tighter radio buttons. I also added some beautification to remove the header and more of the margins as well.
 
@@ -143,14 +145,14 @@ Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_
 
 Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge, as well as the `Arena` new World sizes (that are based on the XXL World's world sizes). See [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll).
 
-Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), see [Readme.md: New Maps (e.g., BTG_Cross)](/README.md#new-maps-eg-btg_cross-btg_lagoon)
+Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), new .dds for maps, etc. See [Readme.md: Maps](/README.md#maps).
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG" alt="0.310_main_menu_play_now (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (2).JPG" alt="0.310_main_menu_play_now (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (3).JPG" alt="0.310_main_menu_play_now (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (4).JPG" alt="0.310_main_menu_play_now (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (5).JPG" alt="0.310_main_menu_play_now (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (6).JPG" alt="0.310_main_menu_play_now (6).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG" alt="0.310_main_menu_simple_game (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (2).JPG" alt="0.310_main_menu_simple_game (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (3).JPG" alt="0.310_main_menu_simple_game (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (4).JPG" alt="0.310_main_menu_simple_game (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (5).JPG" alt="0.310_main_menu_simple_game (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (6).JPG" alt="0.310_main_menu_simple_game (6).JPG" width="250"></img>
 
 ## UI (Ingame)
 
@@ -528,15 +530,25 @@ Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Panga
 
 See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
 
-## New Maps (e.g., BTG_Cross, BTG_Lagoon)
+## Maps
 
-We have also added new maps, for example the  (based on the Beyond the Game 2.43 mod's version of it, and adjsuted for AdvCiv-SAS with the help of GPT-5.3-Codex: supports max players, SAS48 world size, removed unused options in AdvCiv-SAS, etc.).
+We have also added new maps, for example the (based on the Beyond the Game 2.43 mod's version of it, and adjusted for AdvCiv-SAS with the help of GPT-5.3-Codex: supports max players, SAS48 world size, removed unused options in AdvCiv-SAS, etc.).
 
-Some of them are selectable in the Play Now menu, while others only via Custom Game.
+Note: we also removed some non-essential maps from the Simple Game menu; they remain playable via Custom Game.
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (1).JPG" alt="0.320_new_maps_btg_cross_example (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (2).JPG" alt="0.320_new_maps_btg_cross_example (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (3).JPG" alt="0.320_new_maps_btg_cross_example (3).JPG" width="250"></img>
+### New Maps (e.g., BTG_Cross, BTG_Lagoon)
+
+Some of them are selectable in the Simple Game menu, while others only via Custom Game.
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG" alt="0.310_main_menu_simple_game (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (1).JPG" alt="0.3200_new_maps_btg_cross (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (2).JPG" alt="0.3200_new_maps_btg_cross (2).JPG" width="250"></img>
+
+### New .dds for maps in Simple Game
+
+As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds; some additional examples below:
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
 
 ## Change from short to int the Found value pipeline
 
