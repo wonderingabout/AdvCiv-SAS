@@ -4169,33 +4169,19 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 After going to main menu and relaunching same map, bonuses would then weirdly appear though at this new generation. Also was not consistent at each civ4 launch it seems for some reason although i'm not sure.
 
-But it now looks seemingly reliably fixed with the help of GPT-5.3-Codex and Claude code Opus 4.6 thanks.
+But it is reliably fixed with the help of GPT-5.3-Codex thanks.
 
-GPT-5.3-Codex's explanation below:
+Issue seemingly was that variables need to be local and not global.
 
->Implemented a targeted fix for the first-run missing-bonuses issue in the two scripts that use fragile global fractal bonus placement:
->
->Boreal.py (line 25)
->Boreal.py (line 107)
->Boreal.py (line 124)
->Boreal.py (line 603)
->Arboria.py (line 24)
->Arboria.py (line 106)
->Arboria.py (line 123)
->Arboria.py (line 327)
->
->What changed:
->
->1. Added module-level state for the bonus fractal (food, food_iW, food_iH).
->2. Kept normal init in beforeGeneration(), but moved it into _initFoodFractal().
->3. Added _ensureFoodFractal() that re-inits if:
->	3.1) food is missing, or
->	3.2) current map dimensions differ from the stored fractal dimensions.
->4. Called _ensureFoodFractal() right before custom bonus placement in addBonusType().
->
->Why this should help:
->
->1. It removes dependence on callback timing/state on the very first generation after launch.
->2. It prevents stale or wrong-dimension fractal use between generation passes/restarts.
+Current fix direction (validated on Boreal): keep only required persistent class state for `CvMapGeneratorUtil` inheritance (`self.map`, grid sizes, `self.mapRand`, and fractal objects), and move non-required lookups/derived values to function-local variables.
 
-See [commit/2addf7daebeadd1dac700f2df55090fe54121aa2](https://github.com/wonderingabout/AdvCiv-SAS/commit/2addf7daebeadd1dac700f2df55090fe54121aa2).
+This avoids stale or cross-call state that can survive generation steps and produce inconsistent first-launch resource placement.
+
+The key practical distinction is:
+
+- Keep persistent only what the base generator flow needs across method calls.
+- Recompute transient values locally in each method.
+
+After applying this pattern in Boreal, Deer and other food bonuses now appear reliably on first Civ4 launch in tests.
+
+See [commit/](https://github.com/wonderingabout/AdvCiv-SAS/commit/).

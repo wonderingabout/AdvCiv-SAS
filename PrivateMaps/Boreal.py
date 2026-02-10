@@ -10,8 +10,11 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
+# <!-- custom: KI#105 context: this script had first-launch bonus spawning instability (e.g. Deer missing). Keep generator state minimal and favor function-local handles where possible; only keep persistent class state required by CvMapGeneratorUtil base flow (map/grid/mapRand/fractals). See KI#105. (GPT-5.3-Codex) -->
+#
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import CvUtil
 import CvMapGeneratorUtil
 import random
@@ -21,11 +24,6 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizes import *
-
-# <!-- custom: Cache the bonus-placement fractal and its dimensions so addBonusType can verify first-launch initialization and rebuild when map size/state differs. This fixes the first-start missing-bonuses case where callback order can leave stale or uninitialized fractal data. See KI#105. (GPT-5.3-Codex) -->
-food = None
-food_iW = -1
-food_iH = -1
 
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_BOREAL_DESCR"
@@ -106,32 +104,14 @@ def minStartingDistanceModifier():
 	return -27
 
 def beforeGeneration():
-	_initFoodFractal()
-
-def _initFoodFractal():
 	gc = CyGlobalContext()
 	map = CyMap()
 	dice = gc.getGame().getMapRand()
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 	global food
-	global food_iW
-	global food_iH
 	food = CyFractal()
 	food.fracInit(iW, iH, 7, dice, 0, -1, -1)
-	food_iW = iW
-	food_iH = iH
-
-def _ensureFoodFractal():
-	map = CyMap()
-	iW = map.getGridWidth()
-	iH = map.getGridHeight()
-	global food
-	global food_iW
-	global food_iH
-	# <!-- custom: Recreate when missing or dimension-mismatched; bonus thresholds depend on this fractal and must match the active map grid. See KI#105. (GPT-5.3-Codex) -->
-	if food is None or food_iW != iW or food_iH != iH:
-		_initFoodFractal()
 		
 # Subclass
 class BorealFractalWorld(CvMapGeneratorUtil.FractalWorld):
@@ -190,53 +170,50 @@ def generatePlotTypes():
 # subclass TerrainGenerator to redefine everything. This is a regional map.
 class BorealTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	def __init__(self, fracXExp=-1, fracYExp=-1):
-		self.gc = CyGlobalContext()
+		# Keep only fractal objects as persistent state; other handles/params stay local.
 		self.map = CyMap()
-
 		self.iWidth = self.map.getGridWidth()
 		self.iHeight = self.map.getGridHeight()
-
-		self.mapRand = self.gc.getGame().getMapRand()
-
-		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
-
+		self.mapRand = CyGlobalContext().getGame().getMapRand()
 		self.ice=CyFractal()
 		self.plains=CyFractal()
-
-		self.fracXExp = fracXExp
-		self.fracYExp = fracYExp
-
-		self.initFractals()
+		self.initFractals(fracXExp, fracYExp)
 		
-	def initFractals(self):
-		self.ice.fracInit(self.iWidth, self.iHeight, 1, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		self.plains.fracInit(self.iWidth, self.iHeight, 4, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-
-		self.iIce = self.ice.getHeightFromPercent(86)
-		self.iIceEdge = self.plains.getHeightFromPercent(94)
-		self.iPlains = self.plains.getHeightFromPercent(21)
-
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+	def initFractals(self, fracXExp, fracYExp):
+		gc = CyGlobalContext()
+		map = CyMap()
+		mapRand = gc.getGame().getMapRand()
+		iWidth = map.getGridWidth()
+		iHeight = map.getGridHeight()
+		iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+		self.ice.fracInit(iWidth, iHeight, 1, mapRand, iFlags, fracXExp, fracYExp)
+		self.plains.fracInit(iWidth, iHeight, 4, mapRand, iFlags, fracXExp, fracYExp)
 
 	def generateTerrainAtPlot(self,iX,iY):
-		if (self.map.plot(iX, iY).isWater()):
-			return self.map.plot(iX, iY).getTerrainType()
+		map = CyMap()
+		gc = CyGlobalContext()
+		if (map.plot(iX, iY).isWater()):
+			return map.plot(iX, iY).getTerrainType()
 		else:
 			iceVal = self.ice.getHeight(iX, iY)
 			plainsVal = self.plains.getHeight(iX, iY)
-			if iceVal >= self.iIce:
-				terrainVal = self.terrainIce
-			elif plainsVal >= self.iIceEdge:
-				terrainVal = self.terrainIce
-			elif plainsVal <= self.iPlains:
-				terrainVal = self.terrainPlains
+			iIce = self.ice.getHeightFromPercent(86)
+			iIceEdge = self.plains.getHeightFromPercent(94)
+			iPlains = self.plains.getHeightFromPercent(21)
+			terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+			terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+			terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
+			if iceVal >= iIce:
+				terrainVal = terrainIce
+			elif plainsVal >= iIceEdge:
+				terrainVal = terrainIce
+			elif plainsVal <= iPlains:
+				terrainVal = terrainPlains
 			else:
-				terrainVal = self.terrainTundra
+				terrainVal = terrainTundra
 
 		if (terrainVal == TerrainTypes.NO_TERRAIN):
-			return self.map.plot(iX, iY).getTerrainType()
+			return map.plot(iX, iY).getTerrainType()
 
 		return terrainVal
 
@@ -248,58 +225,57 @@ def generateTerrainTypes():
 
 class BorealFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	def __init__(self, forest_grain=5, fracXExp=-1, fracYExp=-1):
-		self.gc = CyGlobalContext()
+		gc = CyGlobalContext()
 		self.map = CyMap()
-		self.mapRand = self.gc.getGame().getMapRand()
-		self.forests = CyFractal()
-		
-		self.iFlags = 0 
-
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
-		
-		self.forest_grain = forest_grain + self.gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
+		self.mapRand = gc.getGame().getMapRand()
+		# Keep only forest fractal as persistent state; everything else local.
+		self.forests = CyFractal()
 
-		self.fracXExp = fracXExp
-		self.fracYExp = fracYExp
+		iForestGrain = forest_grain + gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
 
-		self.__initFractals()
-		self.__initFeatureTypes()
+		self.__initFractals(iForestGrain, fracXExp, fracYExp)
 	
-	def __initFractals(self):
-		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		
-		self.iForestLevel1 = self.forests.getHeightFromPercent(90)
-		self.iForestLevel2 = self.forests.getHeightFromPercent(15)
-
-	def __initFeatureTypes(self):
-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+	def __initFractals(self, iForestGrain, fracXExp, fracYExp):
+		gc = CyGlobalContext()
+		map = CyMap()
+		mapRand = gc.getGame().getMapRand()
+		iGridW = map.getGridWidth()
+		iGridH = map.getGridHeight()
+		iFlags = 0
+		self.forests.fracInit(iGridW, iGridH, iForestGrain, mapRand, iFlags, fracXExp, fracYExp)
 
 	def addFeaturesAtPlot(self, iX, iY):
-		pPlot = self.map.sPlot(iX, iY)
+		gc = CyGlobalContext()
+		pPlot = CyMap().sPlot(iX, iY)
 		
 		if pPlot.isPeak() or pPlot.isWater(): pass
 		
 		else:
 			if pPlot.isRiverSide() and pPlot.isFlatlands():
-				if pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_SNOW"):
+				if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"):
 					print('Changing River Ice Plot to Tundra')
-					terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
+					terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
 					pPlot.setTerrainType(terrainTundra, true, true)
-				elif pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_TUNDRA"):
+				elif pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA"):
 					print('Changing River Tundra Plot to Plains')
-					terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+					terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
 					pPlot.setTerrainType(terrainPlains, true, true)
-				elif pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_PLAINS"):
+				elif pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"):
 					print('Changing River Plains Plot to Grass')
-					terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+					terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 					pPlot.setTerrainType(terrainGrass, true, true)
 			self.addForestsAtPlot(pPlot, iX, iY)
 
 	def addForestsAtPlot(self, pPlot, iX, iY):
-		if pPlot.getTerrainType() != self.gc.getInfoTypeForString("TERRAIN_SNOW"):
-			if self.forests.getHeight(iX, iY) <= self.iForestLevel1 and self.forests.getHeight(iX, iY) >= self.iForestLevel2:
-				pPlot.setFeatureType(self.featureForest, 2)
+		gc = CyGlobalContext()
+		iForestLevel1 = self.forests.getHeightFromPercent(90)
+		iForestLevel2 = self.forests.getHeightFromPercent(15)
+		featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+		if pPlot.getTerrainType() != getInfoTypeOrFail("TERRAIN_SNOW"):
+			if self.forests.getHeight(iX, iY) <= iForestLevel1 and self.forests.getHeight(iX, iY) >= iForestLevel2:
+				pPlot.setFeatureType(featureForest, 2)
 
 def addFeatures():
 	NiTextOut("Adding Features (Python Boreal) ...")
@@ -339,7 +315,7 @@ def assignStartingPlots():
 	print "Number of players:", iPlayers
 	print "==="
 
-	terrainTundra = gc.getInfoTypeForString("TERRAIN_TUNDRA")
+	terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
 
 	# Obtain player numbers. (Account for possibility of Open slots!)
 	player_list = []
@@ -602,7 +578,6 @@ def addBonusType(argsList):
 		# Generate resources
 		if (type_string in boreal):
 			print('---', type_string, '---')
-			_ensureFoodFractal()
 			NiTextOut("Placing forest resources (Python Arboria) ...")
 			iWheatBottom1 = food.getHeightFromPercent(40)
 			iWheatTop1 = food.getHeightFromPercent(45)
@@ -628,12 +603,12 @@ def addBonusType(argsList):
 					# Fractalized placement
 					pPlot = map.plot(x,y)
 					if pPlot.isWater() or pPlot.isPeak(): continue
-					if pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_GRASS"): continue
-					if pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_SNOW"): continue
+					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"): continue
+					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"): continue
 					if pPlot.getBonusType(-1) == -1:
 						foodVal = food.getHeight(x,y)
 						if (type_string in deer):
-							if pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST") and pPlot.isFlatlands():
+							if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isFlatlands():
 								if (foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3):
 									map.plot(x,y).setBonusType(iBonusType)
 						if (type_string in gems):
@@ -641,11 +616,11 @@ def addBonusType(argsList):
 								if (foodVal >= iGemsBottom1 and foodVal <= iGemsTop1) or (foodVal >= iGemsBottom2 and foodVal <= iGemsTop2):
 									map.plot(x,y).setBonusType(iBonusType)
 						if (type_string in wheat):
-							if pPlot.isFlatlands() and pPlot.getFeatureType() != gc.getInfoTypeForString("FEATURE_FOREST"):
+							if pPlot.isFlatlands() and pPlot.getFeatureType() != getInfoTypeOrFail("FEATURE_FOREST"):
 								if (foodVal >= iWheatBottom1 and foodVal <= iWheatTop1) or (foodVal >= iWheatBottom2 and foodVal <= iWheatTop2):
 									map.plot(x,y).setBonusType(iBonusType)
 						if (type_string in sheep):
-							if pPlot.getFeatureType() != gc.getInfoTypeForString("FEATURE_FOREST"):
+							if pPlot.getFeatureType() != getInfoTypeOrFail("FEATURE_FOREST"):
 								if (foodVal >= iSheepBottom1 and foodVal <= iSheepTop1) or (foodVal >= iSheepBottom2 and foodVal <= iSheepTop2):
 									map.plot(x,y).setBonusType(iBonusType)
 

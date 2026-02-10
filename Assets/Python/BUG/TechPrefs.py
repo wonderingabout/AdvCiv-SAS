@@ -79,43 +79,6 @@ class TechPrefs:
 			lTechs.sort()
 			self.lTechsByFlavor[iFlavor] = [ pTech for _, _, pTech in lTechs ]
 			self.lAllTechsByFlavor[iFlavor] = tuple(self.lTechsByFlavor[iFlavor])
-		
-##		print "---- Techs with Flavor ----"
-##		for pTech in self.mTechs.values():
-##			print "%2d: %s" % (pTech.iTech, pTech.getName())
-##		for iFlavor in range(NUM_FLAVORS):
-##			print "---- %d Techs with Flavor %s ----" % (len(self.lTechsByFlavor[iFlavor]), FLAVORS[iFlavor])
-##			for pTech in self.lTechsByFlavor[iFlavor]:
-##				print "%2d-%2d: %s" % (pTech.getFlavorValue(iFlavor), pTech.iTech, pTech.getName())
-		
-##		pOptics = self.getTech(gc.getInfoTypeForString("TECH_SAILING"))
-##		print pOptics
-##		pAstronomy = self.getTech(gc.getInfoTypeForString("TECH_ASTRONOMY"))
-##		print pAstronomy
-##		pPhysics = self.getTech(gc.getInfoTypeForString("TECH_PHYSICS"))
-##		print pPhysics
-##		pAstronomy.removeFromTree()
-##		print pOptics
-##		print pAstronomy
-##		print pPhysics
-##		
-##		self.removeKnownTechs()
-##		print self.getNextResearchableFlavorTech(FLAVOR_RELIGION)
-##		print self.getNextResearchableFlavorTech(FLAVOR_SCIENCE)
-##		print self.getNextResearchableFlavorTech(FLAVOR_GOLD)
-##		techs = set()
-##		techs.add(self.getTechStr("TECH_THE_WHEEL"))
-##		techs.add(self.getTechStr("TECH_MYSTICISM"))
-##		print self.getNextResearchableWithFlavorTech(FLAVOR_RELIGION, techs)
-##		print self.getNextResearchableWithFlavorTech(FLAVOR_SCIENCE, techs)
-##		print self.getNextResearchableWithFlavorTech(FLAVOR_GOLD, techs)
-##		techs.add(self.getTechStr("TECH_IRON_WORKING"))
-##		techs.add(self.getTechStr("TECH_IRON_POTTERY"))
-##		techs.add(self.getTechStr("TECH_MEDITATION"))
-##		print self.getNextResearchableWithFlavorTech(FLAVOR_RELIGION, techs)
-##		print self.getNextResearchableWithFlavorTech(FLAVOR_SCIENCE, techs)
-##		print self.getNextResearchableWithFlavorTech(FLAVOR_GOLD, techs)#
-
 
 	def getTech(self, iTech):
 		if iTech not in self.mTechs:

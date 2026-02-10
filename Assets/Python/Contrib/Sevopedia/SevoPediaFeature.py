@@ -10,6 +10,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
 

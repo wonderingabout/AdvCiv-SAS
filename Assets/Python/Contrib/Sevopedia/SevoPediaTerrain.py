@@ -8,6 +8,7 @@
 
 from CvPythonExtensions import *
 import CvUtil
+from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
 

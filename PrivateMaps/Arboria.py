@@ -10,8 +10,11 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
+# <!-- custom: KI#105 context: this script had first-launch bonus spawning instability (e.g. Deer missing). Keep generator state minimal and favor function-local handles where possible; only keep persistent class state required by CvMapGeneratorUtil base flow (map/grid/mapRand/fractals). See KI#105. (GPT-5.3-Codex) -->
+#
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import CvUtil
 import random
 import CvMapGeneratorUtil
@@ -20,11 +23,6 @@ from CvMapGeneratorUtil import HintedWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizes import *
-
-# <!-- custom: Cache the bonus-placement fractal and its dimensions so addBonusType can validate first-launch state and rebuild if needed. This guards against first-start missing resources when fractal init timing/state is inconsistent. See KI#105. (GPT-5.3-Codex) -->
-food = None
-food_iW = -1
-food_iH = -1
 
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_ARBORIA_DESCR"
@@ -105,32 +103,14 @@ def getGridSize(argsList):
 	)
 
 def beforeGeneration():
-	_initFoodFractal()
-
-def _initFoodFractal():
 	gc = CyGlobalContext()
 	map = CyMap()
 	dice = gc.getGame().getMapRand()
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 	global food
-	global food_iW
-	global food_iH
 	food = CyFractal()
 	food.fracInit(iW, iH, 7, dice, 0, -1, -1)
-	food_iW = iW
-	food_iH = iH
-
-def _ensureFoodFractal():
-	map = CyMap()
-	iW = map.getGridWidth()
-	iH = map.getGridHeight()
-	global food
-	global food_iW
-	global food_iH
-	# <!-- custom: Reinitialize if missing or size-mismatched because resource band thresholds use this fractal and must match current grid dimensions. See KI#105. (GPT-5.3-Codex) -->
-	if food is None or food_iW != iW or food_iH != iH:
-		_initFoodFractal()
 		
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Arboria) ...")
@@ -155,58 +135,54 @@ def generatePlotTypes():
 # subclass TerrainGenerator to create a lush grassland utopia.
 class ArboriaTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	def __init__(self, fracXExp=-1, fracYExp=-1, grain_amount=5):
-		self.gc = CyGlobalContext()
-		self.map = CyMap()
-
-		self.grain_amount = grain_amount + self.gc.getWorldInfo(self.map.getWorldSize()).getTerrainGrainChange()
-
-		self.iWidth = self.map.getGridWidth()
-		self.iHeight = self.map.getGridHeight()
-
-		self.mapRand = self.gc.getGame().getMapRand()
-
-		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
-
-		self.terrain=CyFractal()
-
-		self.fracXExp = fracXExp
-		self.fracYExp = fracYExp
-
-		self.initFractals()
+		# Keep only fractal state persistent; handles/derived values stay local.
+		self.terrain = CyFractal()
+		self.initFractals(grain_amount, fracXExp, fracYExp)
 		
-	def initFractals(self):
-		self.terrain.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+	def initFractals(self, grain_amount, fracXExp, fracYExp):
+		gc = CyGlobalContext()
+		map = CyMap()
+		iWidth = map.getGridWidth()
+		iHeight = map.getGridHeight()
+		mapRand = gc.getGame().getMapRand()
+		iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+		iGrain = grain_amount + gc.getWorldInfo(map.getWorldSize()).getTerrainGrainChange()
+		self.terrain.fracInit(iWidth, iHeight, iGrain, mapRand, iFlags, fracXExp, fracYExp)
 		self.iGrassBottom = self.terrain.getHeightFromPercent(12)
-
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		return None
 
 	def generateTerrain(self):		
-		terrainData = [0]*(self.iWidth*self.iHeight)
-		for x in range(self.iWidth):
-			for y in range(self.iHeight):
-				iI = y*self.iWidth + x
+		map = CyMap()
+		iWidth = map.getGridWidth()
+		iHeight = map.getGridHeight()
+		terrainData = [0]*(iWidth*iHeight)
+		for x in range(iWidth):
+			for y in range(iHeight):
+				iI = y*iWidth + x
 				terrain = self.generateTerrainAtPlot(x, y)
 				terrainData[iI] = terrain
 		return terrainData
 
 	def generateTerrainAtPlot(self,iX,iY):
 		lat = self.getLatitudeAtPlot(iX,iY)
+		map = CyMap()
+		gc = CyGlobalContext()
 
-		if (self.map.plot(iX, iY).isWater()):
-			return self.map.plot(iX, iY).getTerrainType()
+		if (map.plot(iX, iY).isWater()):
+			return map.plot(iX, iY).getTerrainType()
 
 		val = self.terrain.getHeight(iX, iY)
+		terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+		terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
 		if val >= self.iGrassBottom:
-			terrainVal = self.terrainGrass
+			terrainVal = terrainGrass
 		else:
-			terrainVal = self.terrainPlains
+			terrainVal = terrainPlains
 
 		if (terrainVal == TerrainTypes.NO_TERRAIN):
-			return self.map.plot(iX, iY).getTerrainType()
+			return map.plot(iX, iY).getTerrainType()
 
 		return terrainVal
 
@@ -218,34 +194,20 @@ def generateTerrainTypes():
 
 class ArboriaFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	def __init__(self, forest_grain=6, fracXExp=-1, fracYExp=-1):
-		self.gc = CyGlobalContext()
+		gc = CyGlobalContext()
 		self.map = CyMap()
-		self.mapRand = self.gc.getGame().getMapRand()
+		self.mapRand = gc.getGame().getMapRand()
 		self.forests = CyFractal()
 		
-		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
-
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
 		
-		self.forest_grain = forest_grain + self.gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
-
-		self.fracXExp = fracXExp
-		self.fracYExp = fracYExp
-
-		self.__initFractals()
-		self.__initFeatureTypes()
+		iForestGrain = forest_grain + gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
+		self.__initFractals(iForestGrain, fracXExp, fracYExp)
 	
-	def __initFractals(self):
-		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		
-		self.iJungleStart = self.forests.getHeightFromPercent(65)
-		self.iJungleStop = self.forests.getHeightFromPercent(69)
-		self.iForestStart = self.forests.getHeightFromPercent(29)
-		
-	def __initFeatureTypes(self):
-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+	def __initFractals(self, iForestGrain, fracXExp, fracYExp):
+		iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+		self.forests.fracInit(self.iGridW, self.iGridH, iForestGrain, self.mapRand, iFlags, fracXExp, fracYExp)
 	
 	def getLatitudeAtPlot(self, iX, iY):
 		return 50
@@ -268,15 +230,22 @@ class ArboriaFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	
 	def addJunglesAtPlot(self, pPlot, iX, iY, lat):
 		# Warning: this version of JunglesAtPlot is using the forest fractal!
-		if pPlot.canHaveFeature(self.featureJungle):
-			if (self.forests.getHeight(iX, iY) >= self.iJungleStart) and (self.forests.getHeight(iX, iY) <= self.iJungleStop):
-				pPlot.setFeatureType(self.featureJungle, -1)
+		gc = CyGlobalContext()
+		featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
+		iJungleStart = self.forests.getHeightFromPercent(65)
+		iJungleStop = self.forests.getHeightFromPercent(69)
+		if pPlot.canHaveFeature(featureJungle):
+			if (self.forests.getHeight(iX, iY) >= iJungleStart) and (self.forests.getHeight(iX, iY) <= iJungleStop):
+				pPlot.setFeatureType(featureJungle, -1)
 
 	def addForestsAtPlot(self, pPlot, iX, iY, lat, long):
 		# Deciduous trees everywhere.
-		if pPlot.canHaveFeature(self.featureForest):
-			if self.forests.getHeight(iX, iY) >= self.iForestStart:
-				pPlot.setFeatureType(self.featureForest, 0)
+		gc = CyGlobalContext()
+		featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+		iForestStart = self.forests.getHeightFromPercent(29)
+		if pPlot.canHaveFeature(featureForest):
+			if self.forests.getHeight(iX, iY) >= iForestStart:
+				pPlot.setFeatureType(featureForest, 0)
 
 def addFeatures():
 	global featuregen
@@ -326,7 +295,6 @@ def addBonusType(argsList):
 		# Generate resources
 		if (type_string in forest):
 			print('---', type_string, '---')
-			_ensureFoodFractal()
 			NiTextOut("Placing forest resources (Python Arboria) ...")
 			iSilverBottom = food.getHeightFromPercent(10)
 			iSilverTop = food.getHeightFromPercent(15)
@@ -345,7 +313,7 @@ def addBonusType(argsList):
 					if pPlot.getBonusType(-1) == -1:
 						foodVal = food.getHeight(x,y)
 						if (type_string in deer):
-							if pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST") and pPlot.isFlatlands():
+							if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isFlatlands():
 								if (foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3):
 									map.plot(x,y).setBonusType(iBonusType)
 						if (type_string in silver):

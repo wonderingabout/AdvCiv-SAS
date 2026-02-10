@@ -53,6 +53,7 @@ import UnitUpgradesGraph
 import TraitUtil
 import BugCore
 import BugUtil
+from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
 import _sevopedia_main_groupings as SAS_MainGroupings

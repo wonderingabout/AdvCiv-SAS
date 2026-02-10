@@ -24,6 +24,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from CvMapGeneratorUtil import BonusBalancer
+from SASUtils import getInfoTypeOrFail
 from SAS_WorldSizes import *
 
 balancer = BonusBalancer()
@@ -1156,12 +1157,12 @@ def normalizeAddExtras():
 
 	gc = CyGlobalContext()
 	map = CyMap()
-	oil = gc.getInfoTypeForString("BONUS_OIL")
-	alu = gc.getInfoTypeForString("BONUS_ALUMINUM")
-	ivory = gc.getInfoTypeForString("BONUS_IVORY")
-	gold = gc.getInfoTypeForString("BONUS_GOLD")
-	silver = gc.getInfoTypeForString("BONUS_SILVER")
-	gems = gc.getInfoTypeForString("BONUS_GEMS")
+	oil = getInfoTypeOrFail("BONUS_OIL")
+	alu = getInfoTypeOrFail("BONUS_ALUMINUM")
+	elephantsBonus = getInfoTypeOrFail("BONUS_ELEPHANTS")
+	gold = getInfoTypeOrFail("BONUS_GOLD")
+	silver = getInfoTypeOrFail("BONUS_SILVER")
+	gemstonesBonus = getInfoTypeOrFail("BONUS_GEMSTONES")
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
 
 	for i in range(0,gc.getMAX_CIV_PLAYERS()):
@@ -1193,13 +1194,13 @@ def normalizeAddExtras():
 					p = map.plot(startx+dx,starty+dy)
 					if ((dx != 0) or (dy != 0)) and (not p.isNone()) and (not p.isImpassable()) and (not p.isWater()):
 						plotsfurther.append(p)	
-						if p.getBonusType(-1) == ivory:
+						if p.getBonusType(-1) == elephantsBonus:
 							has_ivory = True
 						if p.getBonusType(-1) == gold:
 							has_precious = True
 						if p.getBonusType(-1) == silver:
 							has_precious = True
-						if p.getBonusType(-1) == gems:
+						if p.getBonusType(-1) == gemstonesBonus:
 							has_precious = True				
 							
 			for dx in range(-5,5):#1 notch closer than other maps
@@ -1224,7 +1225,7 @@ def normalizeAddExtras():
 					if not has_oil:
 						p = plotsclose[0]
 						p.setPlotType(PlotTypes.PLOT_LAND, True, True)
-						p.setTerrainType(gc.getInfoTypeForString("TERRAIN_GRASS"), True, True)
+						p.setTerrainType(getInfoTypeOrFail("TERRAIN_GRASS"), True, True)
 						p.setBonusType(oil)
 
 				if not has_alu:
@@ -1238,7 +1239,7 @@ def normalizeAddExtras():
 					if not has_alu:
 						p = plotsclose[0]
 						p.setPlotType(PlotTypes.PLOT_HILLS, True, True)
-						p.setTerrainType(gc.getInfoTypeForString("TERRAIN_GRASS"), True, True)
+						p.setTerrainType(getInfoTypeOrFail("TERRAIN_GRASS"), True, True)
 						p.setBonusType(alu)
 					
 			if (CyMap().getCustomMapOption(5) == 1):
@@ -1246,15 +1247,15 @@ def normalizeAddExtras():
 
 					random.shuffle(plotsfurther) 
 					for p in plotsfurther:
-						if (p.getBonusType(-1) == BonusTypes.NO_BONUS) and p.canHaveBonus(ivory, True):
-							p.setBonusType(ivory)
+						if (p.getBonusType(-1) == BonusTypes.NO_BONUS) and p.canHaveBonus(elephantsBonus, True):
+							p.setBonusType(elephantsBonus)
 							has_ivory = True
 							break
 					if not has_ivory:
 						p = plotsfurther[0]
 						p.setPlotType(PlotTypes.PLOT_LAND, True, True)
-						p.setTerrainType(gc.getInfoTypeForString("TERRAIN_GRASS"), True, True)
-						p.setBonusType(ivory)
+						p.setTerrainType(getInfoTypeOrFail("TERRAIN_GRASS"), True, True)
+						p.setBonusType(elephantsBonus)
 
 			if (CyMap().getCustomMapOption(6) == 1):
 				if not has_precious:
@@ -1268,7 +1269,7 @@ def normalizeAddExtras():
 					if not has_precious:
 						p = plotsboundaries[0]
 						p.setPlotType(PlotTypes.PLOT_LAND, True, True)
-						p.setTerrainType(gc.getInfoTypeForString("TERRAIN_DESERT"), True, True)
+						p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"), True, True)
 						p.setBonusType(silver)
 
 	if (CyMap().getCustomMapOption(1) == 3):
@@ -1278,10 +1279,10 @@ def normalizeAddExtras():
 		'''p = map.plot(map.getGridWidth()/2,map.getGridHeight()/2)
 		p.setBonusType(gold)'''
 	
-		pig = gc.getInfoTypeForString("BONUS_PIG")	
-		wheat = gc.getInfoTypeForString("BONUS_WHEAT")	
-		bronze = gc.getInfoTypeForString("BONUS_COPPER")	
-		corn = gc.getInfoTypeForString("BONUS_CORN")	
+		pig = getInfoTypeOrFail("BONUS_PIG")	
+		wheat = getInfoTypeOrFail("BONUS_WHEAT")	
+		bronze = getInfoTypeOrFail("BONUS_COPPER")	
+		corn = getInfoTypeOrFail("BONUS_CORN")	
 	
 		iW = map.getGridWidth()
 		iH = map.getGridHeight()
@@ -1324,7 +1325,7 @@ def normalizeAddExtras():
 					plotsrange.remove(p)
 					break		
 			for p in plotsrange:
-				p.setBonusType(gems)
+				p.setBonusType(gemstonesBonus)
 				plotsrange.remove(p)
 				break						
 
@@ -1340,11 +1341,11 @@ def normalizeAddExtras():
 		for iX in range(iW):
 			for iY in range(iH):
 				pPlot = map.plot(iX, iY)
-				if pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_DESERT") and pPlot.getBonusType(-1) == -1 and pPlot.getFeatureType() == -1:
+				if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getBonusType(-1) == -1 and pPlot.getFeatureType() == -1:
 					if CyMap().getCustomMapOption(11) == 1:
-						pPlot.setTerrainType(gc.getInfoTypeForString("TERRAIN_GRASS"), True, True)
+						pPlot.setTerrainType(getInfoTypeOrFail("TERRAIN_GRASS"), True, True)
 					else:#then it's 2, the marsh
-						pPlot.setTerrainType(gc.getInfoTypeForString("TERRAIN_MARSH"), True, True)	
+						pPlot.setTerrainType(getInfoTypeOrFail("TERRAIN_MARSH"), True, True)	
 						
 	return None
 
@@ -1478,5 +1479,3 @@ def mirrorizeMap():
 	
 def startHumansOnSameTile():
 	return False
-		
-		
