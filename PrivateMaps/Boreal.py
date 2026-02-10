@@ -39,39 +39,76 @@ def isSeaLevelMap():
 	return 0
 
 def getNumCustomMapOptions():
-	return 1
+	return 2
 
 def getNumHiddenCustomMapOptions():
 	return 1
 
 def getCustomMapOptionName(argsList):
-	translated_text = unicode(CyTranslator().getText("TXT_KEY_MAP_WORLD_WRAP", ()))
+	[iOption] = argsList
+	option_names = {
+		0: "Deer Percentage",
+		1: "TXT_KEY_MAP_WORLD_WRAP"
+	}
+	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 	
 def getNumCustomMapOptionValues(argsList):
-	return 3
+	[iOption] = argsList
+	option_values = {
+		0: 6,
+		1: 3
+	}
+	return option_values[iOption]
 	
 def getCustomMapOptionDescAt(argsList):
-	iSelection = argsList[1]
-	selection_names = ["TXT_KEY_MAP_WRAP_FLAT",
-	                   "TXT_KEY_MAP_WRAP_CYLINDER",
-	                   "TXT_KEY_MAP_WRAP_TOROID"]
-	translated_text = unicode(CyTranslator().getText(selection_names[iSelection], ()))
+	[iOption, iSelection] = argsList
+	selection_names = {
+		0: {
+			0: "0%",
+			1: "10%",
+			2: "25%",
+			3: "50%",
+			4: "75% (recommended)",
+			5: "100%"
+		},
+		1: {
+			0: "TXT_KEY_MAP_WRAP_FLAT",
+			1: "TXT_KEY_MAP_WRAP_CYLINDER",
+			2: "TXT_KEY_MAP_WRAP_TOROID"
+		}
+	}
+	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 	
 def getCustomMapOptionDefault(argsList):
-	return 0
+	[iOption] = argsList
+	option_defaults = {
+		0: 4, # 75%
+		1: 0
+	}
+	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
-	return false
+	[iOption] = argsList
+	option_random = {
+		0: false,
+		1: false
+	}
+	return option_random[iOption]
 
 def getWrapX():
 	map = CyMap()
-	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
+	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
 	
 def getWrapY():
 	map = CyMap()
-	return (map.getCustomMapOption(0) == 2)
+	return (map.getCustomMapOption(1) == 2)
+
+def getDeerPercent():
+	map = CyMap()
+	deer_percents = (0, 10, 25, 50, 75, 100)
+	return deer_percents[map.getCustomMapOption(0)]
 
 def getTopLatitude():
 	return 90
@@ -597,6 +634,7 @@ def addBonusType(argsList):
 			iDeerTop2 = food.getHeightFromPercent(52)
 			iDeerBottom3 = food.getHeightFromPercent(73)
 			iDeerTop3 = food.getHeightFromPercent(77)
+			iDeerPercent = getDeerPercent()
 
 			for y in range(iH):
 				for x in range(iW):
@@ -609,7 +647,9 @@ def addBonusType(argsList):
 						foodVal = food.getHeight(x,y)
 						if (type_string in deer):
 							if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isFlatlands():
-								if (foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3):
+								if iDeerPercent > 0 and ((foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3)):
+									if dice.get(100, "Boreal Deer Density PYTHON") >= iDeerPercent:
+										continue
 									map.plot(x,y).setBonusType(iBonusType)
 						if (type_string in gems):
 							if pPlot.isHills():
