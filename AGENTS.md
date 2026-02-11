@@ -163,6 +163,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
 - When adding guidance, include at least one simple code example so other agents can copy the pattern.
 - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+- Prefer `getInfoTypeOrFail("TAG")` (from `SASUtils`) over raw `gc.getInfoTypeForString("TAG")` whenever possible so bad XML tags fail loudly and early; this helped catch incorrect direction-string usage in Planet Generator (e.g., `"DIRECTION_NORTH"` lookup issue), which we stabilized by switching that case to, e.g., `DirectionTypes.DIRECTION_NORTH*` enum constants.
 - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
 - Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
 - Keep import burden on callers for Civ4-specific dependencies: helper functions should receive Civ4 objects (e.g. `gc`, `screen`, `CyGame()`) as parameters rather than importing them internally. This avoids circular dependencies. Standard Python modules (`re`, `math`, etc.) are fine to import directly in helpers since they're cached and always available.

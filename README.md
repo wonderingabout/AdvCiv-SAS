@@ -532,11 +532,13 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
 
 ## Maps
 
-We have also added new maps, for example the (based on the Beyond the Game 2.43 mod's version of it, and adjusted for AdvCiv-SAS with the help of GPT-5.3-Codex: supports max players, SAS48 world size, removed unused options in AdvCiv-SAS, etc.).
+### New Maps (e.g., BTG_Cross, BTG_Lagoon)
+
+We have also added new maps, for example the (based on the Beyond the Game 2.43 mod's version of it, and adjusted for AdvCiv-SAS with the help of GPT-5.3-Codex: supports max players, SAS48 world size, removed unused options in AdvCiv-SAS, etc.)
+
+Another example is the [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably world-size percentage scaling, removed unneeded options (map-size override and redundant resources choice), and bug fixes (including robust direction handling)).
 
 Note: we also removed some non-essential maps from the Simple Game menu; they remain playable via Custom Game.
-
-### New Maps (e.g., BTG_Cross, BTG_Lagoon)
 
 Some of them are selectable in the Simple Game menu, while others only via Custom Game.
 

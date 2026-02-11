@@ -817,3 +817,103 @@ and undoing it as it told me later solved the error. So i think or at least it s
 			# If revealed owner doesn’t match the message’s player (or coords missing), the city‑founded line is hidden.
 			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild” toggle for testing.
 			# -->
+
+===== \Assets\PrivateMaps\Planet_Generator_0_68.py =====
+----- Comment #14 -----
+
+"""
+Change log:
+
+v. 0.68
+- Coordinate system changed to circular for continent growth calculation (faster, not so blocky shapes)
+- Continents should no longer break in several big parts (except with "archipelago continents")
+- Bug fix: the lonely islands are all devoid of hills or mountains
+
+v. 0.67
+- Further improvements for mod map size support: now can understand completely customized sizes
+
+v. 0.66
+- Mod map size support
+
+v. 0.65
+- Many feature generation tweaks
+- More forests or jungle (jungle depends on temperature)
+- More flood plains on deserts
+- More oases, better oasis placement
+- Flood plain "Standard" generation options reduced to one
+- Desert maps should be more interesting now
+- Forests and jungle can start growing not only near water, but also near peaks which do not have many features around
+
+v. 0.64
+- Random float number bug fix
+
+v. 0.63
+- Bug fix: generation failure with high continent scattering and distribution around center
+
+v. 0.62
+- Resource normalization fix (it was disabled all the time!)
+
+v. 0.61
+- 4,5 island option bug fix
+
+v. 0.60
+- Continent scattering improved, all options thoroughly tested to produce good-looking maps.
+- TileBuilder code improved, to avoid continent jams.
+- Generation bug fixed. Hopefully, it will no longer stops at start (!).
+- Random (Standard:Rare/Common) flood option fixed.
+- New option: Map size. It is now possible to specify custom map size, up to 256×160. Because of this change, following options are modified:
+- Continent separation options expanded up to 10 tiles.
+- Distance from poles no longer depends on continent separation, and is always constant (3).
+- From now on, area for continent separation is excluded from ocean area when calculating ocean percentage. It means that selecting higher continent separation now will produce less land. This helps against continent jams.
+- Lonely island selection options improved, now it is possible to specify exact amount of islands (1-5), but they will be placed only if there is enough empty area in ocean.
+- Default lonely island option changed to 3 islands.
+- Default option of removing one-tile islands changed to "yes".
+- Humidity options tweaked, now "normal" is a little bit more wet.
+- Land near pole ice default value is now "sometimes" (i think that looks better)
+- Fixed typo in options
+
+v. 0.53
+- Desert tile changing into plains (if jungle nearby) chance reduced from 100% to 60%.
+- Rewritten continent scattering algorithm. Changed name from "Continent Islands" to "Continent Scattering", because, well, it's what it does.
+- Island separation now is the same as continent separation.
+
+v. 0.51
+- Continent islands option fix.
+
+v. 0.50
+- New options added: Land near pole ice, Continent islands, Lonely islands, Lonely island size, One tile islands allowed.
+
+v. 0.47
+- Smoother transition from jungle to desert/tundra.
+
+v. 0.46
+- Both Mac and Windows support in one file. Thanks AlanH for writing code for mac!
+
+v. 0.45
+- Oasis.
+
+v. 0.44
+- Fixed continent distribution bug for high continent count and huge map.
+- Added more ways how continents can be distributed: you can choose old rule with square on equator, two or three rows, circle. Even more, i added option Smart Selection, which will choose the best distribution method for selected continent count and map size.
+- Flood plains now have default "Standard" distribution, which makes them appear only on desert, some on tundra and only near fresh water.
+- Redefined what "natural" continent means. Now it is much more concentrated landmass with possible peninsulas or inland seas, not snake starting in the middle and ending near poles :)
+- New landmass generation templates added - Natural, Crab-like, Smooth sides, old natural renamed to Traveling Natural (because it travels a lot from starting square).
+- New "Smart Random for each continent" shape selection which almost ensures that you will have playable and unpredictable maps with different continent and map size selections
+- Added a lot of comments to script code
+Things to try out:
+- New Crab-like continent shape for Pangaea map
+
+v. 0.43
+- Tested with Warlords: works
+- [B]Emergency fix[/B]: Grid size function was rewritten incorrectly, making map height higher than width ;)
+
+v. 0.42
+- Last user choices are now remembered
+- Tested with Total Realism 2.0, Fall From Heavens 2.014, SevoMod 3.1
+- Modified hill intersection function (produces more hills close together)
+- Grid size function is now written correctly (compatible with "very huge" map size mode (if there is such in some mod))
+
+v. 0.41
+- Some adjustments for humidity
+- Fixed some mistakes in options
+"""

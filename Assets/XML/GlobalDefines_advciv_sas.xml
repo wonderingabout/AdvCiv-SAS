@@ -302,7 +302,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
-		<DefineTextVal>Fractal,Hemispheres,Pangaea,PerfectMongoose,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,Arboria,Wheel,Donut,Earth2,Global_Highlands,BTG_Cross</DefineTextVal>
+		<DefineTextVal>Fractal,Hemispheres,Pangaea,PerfectMongoose,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,Arboria,Wheel,Donut,Earth2,Global_Highlands,BTG_Cross,BTG_Lagoon,Planet_Generator_0_68</DefineTextVal>
 	</Define>
 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
 	<Define>
@@ -333,6 +333,11 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_EARTH2_STARTS_POPULATE_FULL_WORLD_MIN_PLAYERS</DefineName>
 		<iDefineIntVal>32</iDefineIntVal>
+	</Define>
+	<!-- custom: Planet Generator map script world-size scaling percent. 40 means use 40% of selected WorldInfo grid size before script-specific spacing safety checks. Keep in [1,100]. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_PLANET_GENERATOR_GRID_PERCENT</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 
 
