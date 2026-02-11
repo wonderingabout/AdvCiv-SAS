@@ -36,16 +36,16 @@ def sas_default_sizevalues():
 
 
 
-# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor (18x14) using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
+# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
 def sas_compact_almost_all_land_grid_sizes():
 	return {
-		0:  (4, 3),    # ARENA
-		1:  (5, 3),    # DUEL
-		2:  (6, 4),    # TINY
-		3:  (8, 6),    # SMALL
-		4:  (11, 8),   # STANDARD
-		5:  (14, 11),  # LARGE
-		6:  (18, 14),  # HUGE
+		0:  (2, 2),    # ARENA
+		1:  (3, 2),    # DUEL
+		2:  (4, 3),    # TINY
+		3:  (6, 4),    # SMALL
+		4:  (8, 6),    # STANDARD
+		5:  (11, 8),   # LARGE
+		6:  (15, 11),  # HUGE
 	}
 
 

@@ -546,11 +546,24 @@ Some of them are selectable in the Simple Game menu, while others only via Custo
 
 ### New .dds for maps in Simple Game
 
-As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds; some additional examples below:
+As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds, as a dark globe or inaccurate dds was not accurate or informative or immersive: adjusted a ratio in the the EXE of around 467 W x 377 H at 1080p, empirically with Paint.NET with a canvas size of 336 W x 256 H with empty bands to avoid overfill and preserve image ratio.
+
+This definitely feels like masonry but works and fun xd i guess after having tediously figured out the optimal or that fits quite well dimensions and way to do it xd then it only needs iterating.
+
+Trick: by having the view box in a water or snow zone you can edit it later and remove it easier when making the .dds. Maybe there is a better way but this works quite well. Some examples below:
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG" alt="0.3202_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG" alt="0.3202_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
 
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG" alt="0.3201_maps_simple_game (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG" alt="0.3201_maps_simple_game (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG" alt="0.3201_maps_simple_game (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG" alt="0.3201_maps_simple_game (6).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG" alt="0.3201_maps_simple_game (7).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
 
 ## Change from short to int the Found value pipeline
 

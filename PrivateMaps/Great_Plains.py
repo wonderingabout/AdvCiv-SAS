@@ -26,8 +26,8 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_GREAT_PLAINS_DESCR"
 
 def isAdvancedMap():
-	"This map should show up in simple mode"
-	return 0
+	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
+	return 1
 	
 def isClimateMap():
 	return 0

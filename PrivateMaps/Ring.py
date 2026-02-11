@@ -30,6 +30,10 @@ bUseDefaultStartPlacement = False
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_RING_DESCR"
 
+def isAdvancedMap():
+	# <!-- custom: show this map in Simple Game; keep available in Custom Game too. (GPT-5.3-Codex) -->
+	return 0
+
 def getNumCustomMapOptions():
 	"""
 	Number of different user-defined options for this map

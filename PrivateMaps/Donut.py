@@ -126,8 +126,8 @@ def addBonusType(argsList):
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isAdvancedMap():
-	"This map should not show up in simple mode"
-	return 1
+	# <!-- custom: show this map in Simple Game; keep available in Custom Game too. (GPT-5.3-Codex) -->
+	return 0
 
 def isClimateMap():
 	return 0
