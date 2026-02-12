@@ -38,6 +38,8 @@ def getCustomMapOptionName(argsList):
 		0:	"TXT_KEY_MAP_SCRIPT_LANDMASS_SIZE",
 		1:  "TXT_KEY_CONCEPT_RESOURCES"
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 
@@ -65,6 +67,8 @@ def getCustomMapOptionDescAt(argsList):
 			1: "TXT_KEY_MAP_BALANCED"
 			}
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 	

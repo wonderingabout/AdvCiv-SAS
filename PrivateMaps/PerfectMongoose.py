@@ -40,6 +40,7 @@
 ##
 
 from CvPythonExtensions import *
+from SAS_WorldSizes import *
 import CvUtil
 import CvMapGeneratorUtil
 
@@ -6198,6 +6199,8 @@ def getCustomMapOptionDescAt(argsList):
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			}
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 	# </advc>

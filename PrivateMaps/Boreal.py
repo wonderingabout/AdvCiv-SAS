@@ -51,6 +51,8 @@ def getCustomMapOptionName(argsList):
 		0: "Deer Percentage",
 		1: "TXT_KEY_MAP_WORLD_WRAP"
 	}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 	
@@ -60,6 +62,8 @@ def getNumCustomMapOptionValues(argsList):
 		0: 6,
 		1: 3
 	}
+	if not option_values.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_values[iOption]
 	
 def getCustomMapOptionDescAt(argsList):
@@ -79,6 +83,8 @@ def getCustomMapOptionDescAt(argsList):
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 		}
 	}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	if not selection_names[iOption].has_key(iSelection):
 		return u""
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
@@ -90,6 +96,8 @@ def getCustomMapOptionDefault(argsList):
 		0: 4, # 75%
 		1: 0
 	}
+	if not option_defaults.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
@@ -98,6 +106,8 @@ def isRandomCustomMapOption(argsList):
 		0: false,
 		1: false
 	}
+	if not option_random.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_random[iOption]
 
 def getWrapX():

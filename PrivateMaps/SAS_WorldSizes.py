@@ -11,6 +11,7 @@ from CvPythonExtensions import CyGlobalContext
 
 SAS_WORLDSIZE_LARGEST = 10
 SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
+SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
 
 
 
@@ -83,6 +84,15 @@ def sas_world_default_players(iWorldSize, iFallbackPlayers):
 	if iWorld >= 0 and iWorld < gc.getNumWorldInfos():
 		return max(1, gc.getWorldInfo(iWorld).getDefaultPlayers())
 	return max(1, iFallbackPlayers)
+
+
+def sas_warn_simple_game_stale_option_once(iOption, iRealCount):
+	# <!-- custom: Shared one-time warning for stale Simple Game custom-option cache indices (KI#106); keep implementation minimal with a single boolean flag. (GPT-5.3-Codex) -->
+	global SAS_SIMPLE_GAME_STALE_OPTION_WARNED
+	if SAS_SIMPLE_GAME_STALE_OPTION_WARNED:
+		return
+	SAS_SIMPLE_GAME_STALE_OPTION_WARNED = True
+	raise KeyError("Notice: if you started this map from Simple Game, you'll likely encounter a stale custom option index KeyError on next Simple Game launch. Workaround: press Esc key many times (or faster keep it pressed several seconds), or play Custom Game to avoid this issue entirely. See KI#106. (requested option %d, real options %d)" % (iOption, iRealCount))
 
 
 

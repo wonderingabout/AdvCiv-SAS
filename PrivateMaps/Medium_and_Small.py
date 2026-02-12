@@ -13,6 +13,7 @@
 # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
 
 from CvPythonExtensions import *
+from SAS_WorldSizes import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import FractalWorld
@@ -36,6 +37,8 @@ def getCustomMapOptionName(argsList):
 		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
 		2:	"TXT_KEY_MAP_SCRIPT_ISLAND_OVERLAP"
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 	
@@ -67,6 +70,8 @@ def getCustomMapOptionDescAt(argsList):
 			1: "TXT_KEY_MAP_SCRIPT_ISLANDS_MIXED_IN"
 			}
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 	

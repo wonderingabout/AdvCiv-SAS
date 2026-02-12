@@ -62,6 +62,8 @@ def getCustomMapOptionName(argsList):
 		4:	"Start Position",
 		5:	"TXT_KEY_MAP_WORLD_WRAP"
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 	
@@ -75,6 +77,8 @@ def getNumCustomMapOptionValues(argsList):
 		4:	3,
 		5:	3
 		}
+	if not option_values.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_values[iOption]
 	
 def getCustomMapOptionDescAt(argsList):
@@ -108,6 +112,8 @@ def getCustomMapOptionDescAt(argsList):
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			}			
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	if not selection_names[iOption].has_key(iSelection):
 		return u""
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
@@ -123,6 +129,8 @@ def getCustomMapOptionDefault(argsList):
 		4:	1,
 		5:	0
 		}
+	if not option_defaults.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
@@ -135,6 +143,8 @@ def isRandomCustomMapOption(argsList):
 		4:	false,
 		5:	false
 		}
+	if not option_random.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_random[iOption]
 
 def getWrapX():

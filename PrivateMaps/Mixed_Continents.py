@@ -33,6 +33,7 @@
 
 
 from CvPythonExtensions import *
+from SAS_WorldSizes import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
@@ -91,6 +92,8 @@ def getCustomMapOptionName(argsList):
 		#6:	"Reduce Desert",
 		#7:	"Add Plains",
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 
@@ -170,6 +173,8 @@ def getCustomMapOptionDescAt(argsList):
 		#	5: "75%"
 		#	}
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 
