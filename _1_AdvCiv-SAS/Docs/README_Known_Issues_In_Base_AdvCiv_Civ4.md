@@ -4185,3 +4185,11 @@ The key practical distinction is:
 After applying this pattern in Boreal, Deer and other food bonuses now appear reliably on first Civ4 launch in tests.
 
 See [commit/accf8702ebf916e999fd07a56211e9aec98af9d7](https://github.com/wonderingabout/AdvCiv-SAS/commit/accf8702ebf916e999fd07a56211e9aec98af9d7).
+
+## 106 - (Currently not Fixed) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/13kb0UBefgFoOKjN7qxpJDhqnNYXGCSTf?usp=sharing).
+
+Confirmed in base AdvCiv too by minimally adding BTG_Lagoon map only, so issue is not caused by any of our changes to Highlands or Boreal or such it seems.
+
+Currently not fixed.

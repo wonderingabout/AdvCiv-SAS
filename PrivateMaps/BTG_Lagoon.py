@@ -62,9 +62,6 @@ def getCustomMapOptionName(argsList):
 		4:	"Start Position",
 		5:	"TXT_KEY_MAP_WORLD_WRAP"
 		}
-	# <!-- custom: guard against stale/foreign option indices queried by Civ UI (e.g. 11) to avoid KeyError crashes. (GPT-5.3-Codex) -->
-	if not option_names.has_key(iOption):
-		return u""
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 	
@@ -78,8 +75,6 @@ def getNumCustomMapOptionValues(argsList):
 		4:	3,
 		5:	3
 		}
-	if not option_values.has_key(iOption):
-		return 1
 	return option_values[iOption]
 	
 def getCustomMapOptionDescAt(argsList):
@@ -113,8 +108,6 @@ def getCustomMapOptionDescAt(argsList):
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			}			
 		}
-	if not selection_names.has_key(iOption):
-		return u""
 	if not selection_names[iOption].has_key(iSelection):
 		return u""
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
@@ -130,8 +123,6 @@ def getCustomMapOptionDefault(argsList):
 		4:	1,
 		5:	0
 		}
-	if not option_defaults.has_key(iOption):
-		return 0
 	return option_defaults[iOption]
 
 def isRandomCustomMapOption(argsList):
@@ -144,8 +135,6 @@ def isRandomCustomMapOption(argsList):
 		4:	false,
 		5:	false
 		}
-	if not option_random.has_key(iOption):
-		return false
 	return option_random[iOption]
 
 def getWrapX():
