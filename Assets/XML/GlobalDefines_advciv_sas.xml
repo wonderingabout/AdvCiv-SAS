@@ -311,7 +311,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
-		<DefineTextVal>Archipelago,Islands,Tilted_Axis</DefineTextVal>
+		<DefineTextVal>Archipelago,Islands,Tilted_Axis,Equal_Islands_V2_beta</DefineTextVal>
 	</Define>
 
 

@@ -553,7 +553,7 @@ class BupUnit:
 		self.isHurt = pUnit.isHurt()
 		self.isPromotionReady = pUnit.isPromotionReady()
 
-		iLeaderPromo = gc.getInfoTypeForString('PROMOTION_LEADER')
+		iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
 		self.isLeadByGreatGeneral = iLeaderPromo != -1 and pUnit.isHasPromotion(iLeaderPromo)
 
 		self.DotStatus = self._getDotStatus()

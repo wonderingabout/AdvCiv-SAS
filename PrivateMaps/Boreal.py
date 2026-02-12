@@ -1,4 +1,4 @@
-#
+﻿#
 #	FILE:	 Boreal.py
 #	AUTHOR:  Bob Thomas (Sirian)
 #	PURPOSE: Regional map script - Boreal forest region / tundra.
@@ -308,15 +308,15 @@ class BorealFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		else:
 			if pPlot.isRiverSide() and pPlot.isFlatlands():
 				if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"):
-					print('Changing River Ice Plot to Tundra')
+					print("Changing River Ice Plot to Tundra")
 					terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
 					pPlot.setTerrainType(terrainTundra, true, true)
 				elif pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA"):
-					print('Changing River Tundra Plot to Plains')
+					print("Changing River Tundra Plot to Plains")
 					terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
 					pPlot.setTerrainType(terrainPlains, true, true)
 				elif pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"):
-					print('Changing River Plains Plot to Grass')
+					print("Changing River Plains Plot to Grass")
 					terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 					pPlot.setTerrainType(terrainGrass, true, true)
 			self.addForestsAtPlot(pPlot, iX, iY)
@@ -600,18 +600,18 @@ def normalizeAddExtras():
 # Sirian's "Sahara Regional Bonus Placement" system.
 
 # Init all bonuses. This is your master key.
-resourcesToEliminate = ('BONUS_SILK', 'BONUS_BANANA', 'BONUS_CORN', 
-						'BONUS_RICE', 'BONUS_PIG', 'BONUS_INCENSE', 
-						'BONUS_CLAM')
+resourcesToEliminate = ("BONUS_SILK", "BONUS_BANANA", "BONUS_MAIZE", 
+						"BONUS_RICE", "BONUS_PIG", "BONUS_INCENSE", 
+						"BONUS_MOLLUSCS")
 
-boreal = ('BONUS_GEMS', 'BONUS_DEER', 'BONUS_SHEEP', 'BONUS_WHEAT')
-gems = ('BONUS_GEMS')
-deer = ('BONUS_DEER')
-sheep = ('BONUS_SHEEP')
-wheat = ('BONUS_WHEAT')
+boreal = ("BONUS_GEMSTONES", "BONUS_DEER", "BONUS_SHEEP", "BONUS_WHEAT")
+gems = ("BONUS_GEMSTONES")
+deer = ("BONUS_DEER")
+sheep = ("BONUS_SHEEP")
+wheat = ("BONUS_WHEAT")
 
 def addBonusType(argsList):
-	print('*******')
+	print("*******")
 	[iBonusType] = argsList
 	gc = CyGlobalContext()
 	map = CyMap()
@@ -619,10 +619,10 @@ def addBonusType(argsList):
 	type_string = gc.getBonusInfo(iBonusType).getType()
 
 	if (type_string in resourcesToEliminate):
-		print('-NONE-', type_string, '-NONE-')
+		print("-NONE-", type_string, "-NONE-")
 		return None # These bonus types will not appear, at all.
 	elif not (type_string in boreal):
-		print('Default', type_string, 'Default')
+		print("Default", type_string, "Default")
 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
 	else: # Current bonus type is custom-handled. Assignments to follow.
 		iW = map.getGridWidth()
@@ -630,7 +630,7 @@ def addBonusType(argsList):
 
 		# Generate resources
 		if (type_string in boreal):
-			print('---', type_string, '---')
+			print("---", type_string, "---")
 			NiTextOut("Placing forest resources (Python Arboria) ...")
 			iWheatBottom1 = food.getHeightFromPercent(40)
 			iWheatTop1 = food.getHeightFromPercent(45)
@@ -681,3 +681,4 @@ def addBonusType(argsList):
 									map.plot(x,y).setBonusType(iBonusType)
 
 		return None
+

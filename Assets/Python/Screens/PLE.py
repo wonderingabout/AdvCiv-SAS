@@ -2277,7 +2277,7 @@ class PLE:
 		# Units led by a GG will get a star instead of a dot.
 		if (self.bShowGreatGeneralIndicator):
 			# is unit led by a GG?
-			#iLeaderPromo = gc.getInfoTypeForString('PROMOTION_LEADER')
+			#iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
 			#if (iLeaderPromo != -1 and pLoopUnit.isHasPromotion(iLeaderPromo)):
 			# advc: Replacing the above
 			if pLoopUnit.getLeaderUnitType() >= 0:

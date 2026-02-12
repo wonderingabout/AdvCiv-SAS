@@ -366,8 +366,8 @@ class AIAutoPlay :
 		benchmarkEndTime = time.clock()
 		timeElapsed = benchmarkEndTime - self.benchmarkStartTime	
 		popupInfo = PyPopup.PyPopup(game.getActivePlayer())
-		popupInfo.setHeaderString('Benchmark complete!') # advc: Put this in the header
-		popupInfo.setBodyString('Elapsed time: ' + str(timeElapsed) + ' seconds. turns: ' + str(self.numTurns))	
+		popupInfo.setHeaderString("Benchmark complete!") # advc: Put this in the header
+		popupInfo.setBodyString("Elapsed time: " + str(timeElapsed) + " seconds. turns: " + str(self.numTurns))	
 		popupInfo.launch(true, PopupStates.POPUPSTATE_QUEUED)
 	# </BM1>
 

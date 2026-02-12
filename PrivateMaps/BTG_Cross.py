@@ -1,4 +1,4 @@
-#
+﻿#
 #	FILE:	 Grid.py
 #	AUTHOR:  Axius
 #	CONTRIB: Bob Thomas (Sirian)
@@ -28,8 +28,8 @@ from SASUtils import getInfoTypeOrFail
 from SAS_WorldSizes import *
 
 balancer = BonusBalancer()
-balancer.resourcesToBalance = ('BONUS_ALUMINUM', 'BONUS_COPPER', 'BONUS_HORSE', 'BONUS_IRON', 'BONUS_OIL', 'BONUS_URANIUM')
-balancer.resourcesToEliminate = ('', )
+balancer.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_OIL", "BONUS_URANIUM")
+balancer.resourcesToEliminate = ("", )
 
 def getDescription():
 #	BugUtil.debug("Team_Battleground: getDescription")
@@ -1166,7 +1166,7 @@ def normalizeAddExtras():
 	elephantsBonus = getInfoTypeOrFail("BONUS_ELEPHANTS")
 	gold = getInfoTypeOrFail("BONUS_GOLD")
 	silver = getInfoTypeOrFail("BONUS_SILVER")
-	gemstonesBonus = getInfoTypeOrFail("BONUS_GEMSTONES")
+	gemstonesBonus = getInfoTypeOrFail("BONUS_GEMSTONESTONES")
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
 
 	for i in range(0,gc.getMAX_CIV_PLAYERS()):
@@ -1286,7 +1286,7 @@ def normalizeAddExtras():
 		pig = getInfoTypeOrFail("BONUS_PIG")	
 		wheat = getInfoTypeOrFail("BONUS_WHEAT")	
 		bronze = getInfoTypeOrFail("BONUS_COPPER")	
-		corn = getInfoTypeOrFail("BONUS_CORN")	
+		corn = getInfoTypeOrFail("BONUS_MAIZE")	
 	
 		iW = map.getGridWidth()
 		iH = map.getGridHeight()
@@ -1483,3 +1483,4 @@ def mirrorizeMap():
 	
 def startHumansOnSameTile():
 	return False
+

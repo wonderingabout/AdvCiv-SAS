@@ -1,4 +1,4 @@
-#
+﻿#
 #	FILE:	 Rainforest.py
 #	AUTHOR:  Bob Thomas (Sirian)
 #	PURPOSE: Regional map script - Tropical rainforest
@@ -554,19 +554,19 @@ def normalizeAddExtras():
 # Sirian's "Sahara Regional Bonus Placement" system.
 
 # Init all bonuses. This is your master key.
-resourcesToEliminate = ('BONUS_WHALE', 'BONUS_CLAM', 'BONUS_FISH', 'BONUS_CRAB')
+resourcesToEliminate = ("BONUS_WHALE", "BONUS_MOLLUSCS", "BONUS_FISH", "BONUS_CRAB")
 
-jungleFood = ('BONUS_BANANA', 'BONUS_PIG', 'BONUS_RICE')
-banana = ('BONUS_BANANA')
-pig = ('BONUS_PIG')
-rice = ('BONUS_RICE')
+jungleFood = ("BONUS_BANANA", "BONUS_PIG", "BONUS_RICE")
+banana = ("BONUS_BANANA")
+pig = ("BONUS_PIG")
+rice = ("BONUS_RICE")
 
-resourcesToForce = ('BONUS_FUR', 'BONUS_SILVER', 'BONUS_DEER')
-forcePlacementOnFlats = ('BONUS_FUR', 'BONUS_DEER')
-forcePlacementOnHills = ('BONUS_SILVER')
+resourcesToForce = ("BONUS_FUR", "BONUS_SILVER", "BONUS_DEER")
+forcePlacementOnFlats = ("BONUS_FUR", "BONUS_DEER")
+forcePlacementOnHills = ("BONUS_SILVER")
 
 def addBonusType(argsList):
-	print('*******')
+	print("*******")
 	[iBonusType] = argsList
 	gc = CyGlobalContext()
 	map = CyMap()
@@ -574,12 +574,12 @@ def addBonusType(argsList):
 	type_string = gc.getBonusInfo(iBonusType).getType()
 
 	if (type_string in resourcesToEliminate):
-		print('-NONE-', type_string, '-NONE-')
+		print("-NONE-", type_string, "-NONE-")
 		return None # These bonus types will not appear, at all.
 	elif not ((type_string in resourcesToForce) or (type_string in jungleFood)):
 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
 	else: # Current bonus type is custom-handled. Assignments to follow.
-		print('+++', type_string, '+++')
+		print("+++", type_string, "+++")
 		iW = map.getGridWidth()
 		iH = map.getGridHeight()
 
@@ -594,7 +594,7 @@ def addBonusType(argsList):
 		# Generate jungle food
 		# Note: any fractal assignment of bonuses, like this one, must come before determining the count for forced bonuses.
 		if (type_string in jungleFood):
-			print('---', type_string, '---')
+			print("---", type_string, "---")
 			global food
 			NiTextOut("Placing Jungle Food (Jungle Food - Python Rainforest) ...")
 			iRiceBottom = food.getHeightFromPercent(24)
@@ -678,3 +678,4 @@ def addBonusType(argsList):
 		# This bonus type is done.
 
 		return None
+

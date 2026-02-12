@@ -1,4 +1,4 @@
-#
+﻿#
 #	FILE:	 Arboria.py
 #	AUTHOR:  Bob Thomas (Sirian)
 #	PURPOSE: Global map script - Forest paradise - Primarily for MP
@@ -312,12 +312,12 @@ def normalizeAddExtras():
 # Sirian's "Sahara Regional Bonus Placement" system.
 
 # Init all bonuses. This is your master key.
-forest = ('BONUS_SILVER', 'BONUS_DEER')
-silver = ('BONUS_SILVER')
-deer = ('BONUS_DEER')
+forest = ("BONUS_SILVER", "BONUS_DEER")
+silver = ("BONUS_SILVER")
+deer = ("BONUS_DEER")
 
 def addBonusType(argsList):
-	print('*******')
+	print("*******")
 	[iBonusType] = argsList
 	gc = CyGlobalContext()
 	map = CyMap()
@@ -325,7 +325,7 @@ def addBonusType(argsList):
 	type_string = gc.getBonusInfo(iBonusType).getType()
 
 	if not (type_string in forest):
-		print('Default', type_string, 'Default')
+		print("Default", type_string, "Default")
 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
 	else: # Current bonus type is custom-handled. Assignments to follow.
 		iW = map.getGridWidth()
@@ -333,7 +333,7 @@ def addBonusType(argsList):
 
 		# Generate resources
 		if (type_string in forest):
-			print('---', type_string, '---')
+			print("---", type_string, "---")
 			NiTextOut("Placing forest resources (Python Arboria) ...")
 			featureForest = getInfoTypeOrFail("FEATURE_FOREST")
 			iDeerPercent = getDeerPercent()
@@ -365,3 +365,4 @@ def addBonusType(argsList):
 									map.plot(x,y).setBonusType(iBonusType)
 
 		return None
+

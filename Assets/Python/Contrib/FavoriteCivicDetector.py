@@ -313,7 +313,7 @@ class FavoriteCivicDetector:
 	def __init__(self, eventManager):
 		BugUtil.debug("FavoriteCivicDetector.__init__(). Resetting data and initing event manager.")
 		initHelpers()
-		eventManager.addEventHandler('BeginActivePlayerTurn', self.onBeginActivePlayerTurn)
+		eventManager.addEventHandler("BeginActivePlayerTurn", self.onBeginActivePlayerTurn)
 		eventManager.addEventHandler("GameStart", self.onGameStart)
 		eventManager.addEventHandler("OnLoad", self.onLoadGame)
 		eventManager.addEventHandler("OnPreSave", self.onPreSave)

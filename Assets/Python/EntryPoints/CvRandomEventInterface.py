@@ -991,7 +991,7 @@ def applySaltpeter(argsList):
 	placeLandmark(plot, sEventType, iFood, iProd, iComm, True, -1)
 	# EventSigns end
 		
-	iForest = gc.getInfoTypeForString('FEATURE_FOREST')
+	iForest = gc.getInfoTypeForString("FEATURE_FOREST")
 	
 	listPlots = []
 	for i in range(map.numPlots()):

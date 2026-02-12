@@ -1,4 +1,4 @@
-#
+﻿#
 #	FILE:	 Great_Plains.py
 #	AUTHOR:  Bob Thomas (Sirian)
 #	PURPOSE: Regional map script - Great Plains, North America
@@ -578,35 +578,35 @@ def normalizeAddExtras():
 # Sirian's "Sahara Regional Bonus Placement" system.
 
 # Init all bonuses. This is your master key.
-resourcesInRockies = ('BONUS_ALUMINUM', 'BONUS_FUR', 'BONUS_GOLD',
-                      'BONUS_SILVER', 'BONUS_SHEEP', 'BONUS_DEER',
-                      'BONUS_URANIUM', 'BONUS_HORSE', 'BONUS_DYE')
-resourcesInPlains = ('BONUS_HORSE', 'BONUS_GEMS', 'BONUS_SPICES')
-resourcesInEast = ('BONUS_CORN', 'BONUS_FUR', 'BONUS_DEER', 'BONUS_PIG',
-                   'BONUS_MARBLE', 'BONUS_SUGAR', 'BONUS_SPICES', 'BONUS_HORSE')
-resourcesInSW = ('BONUS_INCENSE', 'BONUS_SILVER')
-resourcesInNorth = ('BONUS_WHEAT', 'BONUS_WINE')
-resourcesInTexas = ('BONUS_OIL')
-resourcesInGulf = ('BONUS_CLAM', 'BONUS_FISH')
-buffalo = ('BONUS_COW')
-swCorn = ('BONUS_CORN')
-rockyDyes = ('BONUS_DYE')
+resourcesInRockies = ("BONUS_ALUMINUM", "BONUS_FUR", "BONUS_GOLD",
+                      "BONUS_SILVER", "BONUS_SHEEP", "BONUS_DEER",
+                      "BONUS_URANIUM", "BONUS_HORSE", "BONUS_DYE")
+resourcesInPlains = ("BONUS_HORSE", "BONUS_GEMSTONES", "BONUS_SPICES")
+resourcesInEast = ("BONUS_MAIZE", "BONUS_FUR", "BONUS_DEER", "BONUS_PIG",
+                   "BONUS_MARBLE", "BONUS_SUGAR", "BONUS_SPICES", "BONUS_HORSE")
+resourcesInSW = ("BONUS_INCENSE", "BONUS_SILVER")
+resourcesInNorth = ("BONUS_WHEAT", "BONUS_GRAPES")
+resourcesInTexas = ("BONUS_OIL")
+resourcesInGulf = ("BONUS_MOLLUSCS", "BONUS_FISH")
+buffalo = ("BONUS_CATTLE")
+swCorn = ("BONUS_MAIZE")
+rockyDyes = ("BONUS_DYE")
 
-resourcesToEliminate = ('BONUS_RICE', 'BONUS_WHALE', 'BONUS_SILK',
-                        'BONUS_BANANA', 'BONUS_IVORY')
-resourcesHandledByDefault = ('BONUS_IRON', 'BONUS_COPPER', 'BONUS_COAL', 'BONUS_STONE')
+resourcesToEliminate = ("BONUS_RICE", "BONUS_WHALE", "BONUS_SILK",
+                        "BONUS_BANANA", "BONUS_ELEPHANTS")
+resourcesHandledByDefault = ("BONUS_IRON", "BONUS_COPPER", "BONUS_COAL", "BONUS_STONE")
 
-resourcesToForce = ('BONUS_FUR', 'BONUS_GEMS', 'BONUS_SILVER',
-                    'BONUS_DEER', 'BONUS_SHEEP', 'BONUS_OIL',
-                    'BONUS_URANIUM', 'BONUS_SPICES', 'BONUS_DYE')
-forcePlacementOnFlats = ('BONUS_FUR', 'BONUS_DEER', 'BONUS_SPICES', 'BONUS_OIL')
-forcePlacementOnHills = ('BONUS_SHEEP', 'BONUS_SILVER', 'BONUS_GEMS', 'BONUS_URANIUM')
-forceRarity = ('BONUS_MARBLE', 'BONUS_GEMS', 'BONUS_DYE',
-               'BONUS_INCENSE', 'BONUS_SUGAR')
-forceAbundance = ('BONUS_SILVER', 'BONUS_FUR', 'BONUS_CORN',
-                  'BONUS_HORSE', 'BONUS_WHEAT')
-forceNoRarity = ('BONUS_ALUMINUM', 'BONUS_GOLD', 'BONUS_URANIUM',
-                 'BONUS_SHEEP', 'BONUS_DEER')
+resourcesToForce = ("BONUS_FUR", "BONUS_GEMSTONES", "BONUS_SILVER",
+                    "BONUS_DEER", "BONUS_SHEEP", "BONUS_OIL",
+                    "BONUS_URANIUM", "BONUS_SPICES", "BONUS_DYE")
+forcePlacementOnFlats = ("BONUS_FUR", "BONUS_DEER", "BONUS_SPICES", "BONUS_OIL")
+forcePlacementOnHills = ("BONUS_SHEEP", "BONUS_SILVER", "BONUS_GEMSTONES", "BONUS_URANIUM")
+forceRarity = ("BONUS_MARBLE", "BONUS_GEMSTONES", "BONUS_DYE",
+               "BONUS_INCENSE", "BONUS_SUGAR")
+forceAbundance = ("BONUS_SILVER", "BONUS_FUR", "BONUS_MAIZE",
+                  "BONUS_HORSE", "BONUS_WHEAT")
+forceNoRarity = ("BONUS_ALUMINUM", "BONUS_GOLD", "BONUS_URANIUM",
+                 "BONUS_SHEEP", "BONUS_DEER")
 
 def addBonusType(argsList):
 	[iBonusType] = argsList
@@ -1006,3 +1006,4 @@ def getRiverAltitude(argsList):
 	if y > 0.3 * iH:
 		return int((iW - x) * 0.38) - (y * 0.1)
 	return int(((iW - x) * 0.38) + (y * 0.1))
+

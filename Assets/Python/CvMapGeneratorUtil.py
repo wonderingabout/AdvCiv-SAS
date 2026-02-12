@@ -1553,9 +1553,9 @@ class BonusBalancer:
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 		
-		self.resourcesToBalance = ('BONUS_ALUMINUM', 'BONUS_COAL', 'BONUS_COPPER', 'BONUS_HORSE', 'BONUS_IRON', 'BONUS_OIL', 'BONUS_URANIUM')
+		self.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COAL", "BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_OIL", "BONUS_URANIUM")
 		# advc.108c: Don't eliminate Marble
-		self.resourcesToEliminate = ()#('BONUS_MARBLE', )
+		self.resourcesToEliminate = ()#("BONUS_MARBLE", )
 		
 	def isSkipBonus(self, iBonusType):
 		type_string = self.gc.getBonusInfo(iBonusType).getType()

@@ -30,8 +30,8 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_LAKES_DESCR"
 
 def isAdvancedMap():
-	"This map should show up in simple mode"
-	return 0
+	"This map should not show up in simple mode"
+	return 1
 
 def getNumCustomMapOptions():
 	return 2

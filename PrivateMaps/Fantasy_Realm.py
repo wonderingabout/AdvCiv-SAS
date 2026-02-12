@@ -1,4 +1,4 @@
-#
+﻿#
 #	FILE:	 Fantasy_Realm.py
 #	AUTHOR:  Bob Thomas (Sirian)
 #	PURPOSE: Regional map script - Fantastical terrain, X and Y Wrap
@@ -130,12 +130,12 @@ def beforeGeneration():
 		return
 	
 	# Set up "Crazy" resources.
-	food_list = ['BONUS_BANANA', 'BONUS_CORN', 'BONUS_PIG', 'BONUS_RICE', 'BONUS_SHEEP', 'BONUS_WHEAT']
-	luxury_list = ['BONUS_GEMS', 'BONUS_GOLD', 'BONUS_INCENSE', 'BONUS_SILK', 'BONUS_SILVER', 'BONUS_WINE']
-	strategic_list = ['BONUS_COPPER', 'BONUS_HORSE', 'BONUS_IRON', 'BONUS_IVORY', 'BONUS_MARBLE', 'BONUS_STONE']
-	late_list = ['BONUS_ALUMINUM', 'BONUS_COAL', 'BONUS_OIL', 'BONUS_URANIUM']
-	sea_list = ['BONUS_CLAM', 'BONUS_CRAB', 'BONUS_FISH', 'BONUS_WHALE']
-	leftovers_list = ['BONUS_DYE', 'BONUS_FUR', 'BONUS_SPICES', 'BONUS_SUGAR', 'BONUS_COW', 'BONUS_DEER']
+		food_list = ["BONUS_BANANA", "BONUS_MAIZE", "BONUS_PIG", "BONUS_RICE", "BONUS_SHEEP", "BONUS_WHEAT"]
+		luxury_list = ["BONUS_GEMSTONES", "BONUS_GOLD", "BONUS_INCENSE", "BONUS_SILK", "BONUS_SILVER", "BONUS_GRAPES"]
+		strategic_list = ["BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_ELEPHANTS", "BONUS_MARBLE", "BONUS_STONE"]
+		late_list = ["BONUS_ALUMINUM", "BONUS_COAL", "BONUS_OIL", "BONUS_URANIUM"]
+		sea_list = ["BONUS_MOLLUSCS", "BONUS_CRAB", "BONUS_FISH", "BONUS_WHALE"]
+		leftovers_list = ["BONUS_DYE", "BONUS_FUR", "BONUS_SPICES", "BONUS_SUGAR", "BONUS_CATTLE", "BONUS_DEER"]
 
 	# Choose the four "Crazy" resources.
 	gc = CyGlobalContext()
@@ -412,19 +412,19 @@ def addFeatures():
 	return 0
 
 # Init bonus lists.
-forcePlacementOnFlats = ('BONUS_GOLD', 'BONUS_SILVER', 'BONUS_COAL', 'BONUS_ALUMINUM')
-forcePlacementOnHills = ('BONUS_BANANA', 'BONUS_RICE', 'BONUS_SUGAR', 'BONUS_OIL')
-forcePlacementInFloodPlains = ('BONUS_INCENSE')
-forcePlacementInJungle = ('BONUS_HORSE', 'BONUS_WHEAT')
-forcePlacementInForest = ('BONUS_GOLD', 'BONUS_SILVER', 'BONUS_COAL', 'BONUS_ALUMINUM')
-forceNotInGrass = ('BONUS_COW', 'BONUS_CORN', 'BONUS_RICE', 'BONUS_PIG', 'BONUS_IVORY')
-forceNotInDesert = ('BONUS_OIL', 'BONUS_STONE', 'BONUS_IRON', 'BONUS_COPPER')
-forceNotInSnow = ('BONUS_SILVER', 'BONUS_DEER', 'BONUS_FUR')
-forceNotInPlains = ('BONUS_WINE', 'BONUS_SHEEP', 'BONUS_MARBLE', 'BONUS_IVORY')
-forceNotInJungle = ('BONUS_BANANA', 'BONUS_SUGAR', 'BONUS_DYE', 'BONUS_OIL', 'BONUS_GEMS')
-forceNotInForest = ('BONUS_DEER', 'BONUS_SILK', 'BONUS_SPICES', 'BONUS_URANIUM')
-forceNotInFreshWater = ('BONUS_RICE', 'BONUS_CORN', 'BONUS_WHEAT', 'BONUS_SUGAR')
-seaResources = ('BONUS_CLAM', 'BONUS_CRAB', 'BONUS_FISH', 'BONUS_WHALE')
+forcePlacementOnFlats = ("BONUS_GOLD", "BONUS_SILVER", "BONUS_COAL", "BONUS_ALUMINUM")
+forcePlacementOnHills = ("BONUS_BANANA", "BONUS_RICE", "BONUS_SUGAR", "BONUS_OIL")
+forcePlacementInFloodPlains = ("BONUS_INCENSE")
+forcePlacementInJungle = ("BONUS_HORSE", "BONUS_WHEAT")
+forcePlacementInForest = ("BONUS_GOLD", "BONUS_SILVER", "BONUS_COAL", "BONUS_ALUMINUM")
+forceNotInGrass = ("BONUS_CATTLE", "BONUS_MAIZE", "BONUS_RICE", "BONUS_PIG", "BONUS_ELEPHANTS")
+forceNotInDesert = ("BONUS_OIL", "BONUS_STONE", "BONUS_IRON", "BONUS_COPPER")
+forceNotInSnow = ("BONUS_SILVER", "BONUS_DEER", "BONUS_FUR")
+forceNotInPlains = ("BONUS_GRAPES", "BONUS_SHEEP", "BONUS_MARBLE", "BONUS_ELEPHANTS")
+forceNotInJungle = ("BONUS_BANANA", "BONUS_SUGAR", "BONUS_DYE", "BONUS_OIL", "BONUS_GEMSTONES")
+forceNotInForest = ("BONUS_DEER", "BONUS_SILK", "BONUS_SPICES", "BONUS_URANIUM")
+forceNotInFreshWater = ("BONUS_RICE", "BONUS_MAIZE", "BONUS_WHEAT", "BONUS_SUGAR")
+seaResources = ("BONUS_MOLLUSCS", "BONUS_CRAB", "BONUS_FISH", "BONUS_WHALE")
 
 def addBonusType(argsList):
 	[iBonusType] = argsList
@@ -597,3 +597,4 @@ def normalizeRemoveBadFeatures():
 
 def normalizeAddGoodTerrain():
 	return None
+
