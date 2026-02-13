@@ -6,13 +6,13 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework. New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Maps (e.g., `BTG_Cross`, `BTG_Lagoon`, etc.).
+Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+
+New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Longworld`).
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
-
-AdvCiv-SAS is now generally stable, but if issues were to arise such as bugs or such, i may not be too available to help, so your best bet may be to open a thread and ping me there rather (or reply in the discussion thread mentioned above), so that if i were not to reply, perhaps someone else would provide some solution or guidance maybe.
 
 Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
 
@@ -57,7 +57,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [48 Civs DLL](/README.md#48-civs-dll)  
 &emsp;[How to use](/README.md#how-to-use)  
 &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
-[Maps](/README.md#maps)  
+[Mapscripts](/README.md#mapscripts)  
 &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
 &emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
 [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
@@ -145,7 +145,7 @@ Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_
 
 Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge, as well as the `Arena` new World sizes (that are based on the XXL World's world sizes). See [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll).
 
-Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), new .dds for maps, etc. See [Readme.md: Maps](/README.md#maps).
+Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), new .dds for maps, etc. See [Readme.md: Mapscripts](/README.md#mapscripts).
 
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG" alt="0.310_main_menu_simple_game (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (2).JPG" alt="0.310_main_menu_simple_game (2).JPG" width="250"></img>
@@ -530,7 +530,19 @@ Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Panga
 
 See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
 
-## Maps
+## Mapscripts
+
+### AdvCiv-SAS original mapscripts (e.g., SAS_Longworld)
+
+We have added our own new mapscripts in AdvCiv-SAS, notably SAS_Longworld with the help of GPT-5.3-Codex thanks, which is based on [Ringworld3 v1.02](https://forums.civfanatics.com/threads/map-script-ringworld3.371831/) but with a heavily simplified code.
+
+>A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified.
+
+Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and player count.
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
 
 ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
 

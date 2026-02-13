@@ -38,7 +38,7 @@ Instead of:
 &emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
 [A few useful other links](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-other-links)  
 [In case UnitAIs info from link above is deleted someday, here is a copy here in case](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case)  
-[Maps](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps)  
+[Mapscripts](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts)  
 [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)  
 [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)  
 [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)  
@@ -382,7 +382,7 @@ Great people AIs:
 For unit AIs that are correct in the OP, I didn't write anything.
 ```
 
-## Maps
+## Mapscripts
 
 ### Locations
 

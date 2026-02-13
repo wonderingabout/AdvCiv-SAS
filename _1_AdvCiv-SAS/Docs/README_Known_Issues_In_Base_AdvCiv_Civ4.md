@@ -1338,7 +1338,7 @@ Update: see also related known issue as of nowwith extra very nice improvement(s
 
 Note: see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but)
 
-See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
 
 This is a major change as well.
 
