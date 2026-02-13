@@ -342,7 +342,7 @@
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
 			</Climates>
 			<WaterLevelDecals>
-				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/Equal_Islands_V2_beta_SAS48.dds</WaterLevelDecalPath>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/FLAT_Equal_Islands_V2_beta_SAS48.dds</WaterLevelDecalPath>
 			</WaterLevelDecals>
 			<WaterLevelGloss>
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
@@ -668,6 +668,33 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG01.dds</WaterLevelGlossPath> <!-- Low -->
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG02.dds</WaterLevelGlossPath> <!-- Medium -->
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG03.dds</WaterLevelGlossPath> <!-- High -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<WorldPickerInfo>
+			<MapName>Peirce</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Peirce/FLAT_Peirce.dds</WaterLevelDecalPath>
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
 		<WorldPickerInfo>

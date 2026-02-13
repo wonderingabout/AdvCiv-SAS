@@ -1166,7 +1166,7 @@ def normalizeAddExtras():
 	elephantsBonus = getInfoTypeOrFail("BONUS_ELEPHANTS")
 	gold = getInfoTypeOrFail("BONUS_GOLD")
 	silver = getInfoTypeOrFail("BONUS_SILVER")
-	gemstonesBonus = getInfoTypeOrFail("BONUS_GEMSTONESTONES")
+	gemstonesBonus = getInfoTypeOrFail("BONUS_GEMSTONES")
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
 
 	for i in range(0,gc.getMAX_CIV_PLAYERS()):
