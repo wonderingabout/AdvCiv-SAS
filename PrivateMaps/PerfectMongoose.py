@@ -6298,7 +6298,8 @@ def isRandomCustomMapOption(argsList):
 #
 
 def isAdvancedMap():
-	return False
+	# <!-- custom: Hide PerfectMongoose from Simple Game list for map-pool cleanup; keep available in Custom Game. (GPT-5.3-Codex) -->
+	return True
 
 def isClimateMap():
 	return False

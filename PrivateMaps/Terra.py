@@ -74,8 +74,8 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_TERRA_DESCR"
 
 def isAdvancedMap():
-	"This map should show up in simple mode"
-	return 0
+	# <!-- custom: Hide Terra from Simple Game list for map-pool cleanup; keep available in Custom Game. (GPT-5.3-Codex) -->
+	return 1
 
 def getNumCustomMapOptions():
 	return 2

@@ -55,7 +55,7 @@ featuresVarFractal = None
 # Fractal used to introduce random variations to feature types depending on their distance to the center of the disc.
 ### Peirce Options ###
 def getDescription():
-	return "Tidally locked quincuncial world with optional toroidal/no-wrap layout and multiple continent patterns. Based on Peirce by AuthorLPlate2. Modified for AdvCiv-SAS: world-size scaling, larger player-count compatibility, and script-fix updates."
+	return "Tidally locked quincuncial world with optional toroidal/no-wrap layout and multiple continent patterns. Based on Peirce by LPlate2. Modified for AdvCiv-SAS: world-size scaling, larger player-count compatibility, and script-fix updates."
 
 def getNumCustomMapOptions():
 	return 2
