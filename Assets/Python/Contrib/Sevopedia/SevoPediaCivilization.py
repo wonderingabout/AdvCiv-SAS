@@ -19,6 +19,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -36,7 +37,7 @@ class SevoPediaCivilization:
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
-		rowH = 110
+		rowH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_CIVILIZATION_PANE = self.top.X_PEDIA_PAGE
 		self.Y_CIVILIZATION_PANE = self.top.Y_PEDIA_PAGE
@@ -48,10 +49,10 @@ class SevoPediaCivilization:
 		self.Y_CITIES = self.Y_CIVILIZATION_PANE
 		self.H_CITIES = self.top.B_PEDIA_PAGE - self.Y_CITIES
 
-		# <!-- custom: Music panel (84px, right of Civilization Pane) -->
+		# <!-- custom: Music panel uses helper-computed one-button width, right of Civilization Pane. -->
 		self.X_MUSIC = self.X_CIVILIZATION_PANE + self.W_CIVILIZATION_PANE + self.MEDIUM_MARGIN
 		self.Y_MUSIC = self.Y_CIVILIZATION_PANE
-		self.W_MUSIC = 84
+		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_MUSIC = rowH
 
 		halfRowW = (self.top.R_PEDIA_PAGE - self.X_MUSIC - self.W_CITIES - (2 * self.MEDIUM_MARGIN)) / 2

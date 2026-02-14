@@ -130,7 +130,7 @@ class SevoPediaTrait:
 		self.BOTTOM_PANELS_H = 296
 
 		# Leaders panel - right side, full height
-		self.W_LEADERS = 282
+		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
 		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
 		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS

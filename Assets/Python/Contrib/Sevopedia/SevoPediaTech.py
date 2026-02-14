@@ -177,7 +177,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		# <!-- custom: SevopediaTech layout rework (starting-tech stats tables)
 		# Row 1: Tech Pane (left) | Requires | Leads To
-		# Row 2: First to D (84px) | Obsoletes (wide) | Music (84px)
+		# Row 2: First to D (one-button) | Obsoletes (wide) | Music (one-button)
 		# Row 3: Enables (full width)
 		# Row 4: Starting tech statistics (two tables: techs + combinations)
 		# Row 5: Special Abilities | Background
@@ -202,7 +202,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.Y_LEADS_TO = self.Y_TECH_PANE
 		self.H_LEADS_TO = self.H_TECH_PANE
 
-		self.W_LEADS_TO = 300
+		self.W_LEADS_TO = get_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.X_LEADS_TO = self.top.R_PEDIA_PAGE - self.W_LEADS_TO
 		self.X_REQUIRES = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
 		self.W_REQUIRES = self.X_LEADS_TO - self.MEDIUM_MARGIN - self.X_REQUIRES
@@ -211,21 +211,21 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			self.W_REQUIRES = 50
 
 		# Row 2: First to D | Tradeable | Obsoletes | Music
-		self.H_ROW = 110
+		self.H_ROW = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 		self.Y_FIRST_TO_DISCOVER = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
 		self.X_FIRST_TO_DISCOVER = self.X_TECH_PANE
 
-		self.W_FIRST_TO_DISCOVER = 84
+		self.W_FIRST_TO_DISCOVER = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_FIRST_TO_DISCOVER = self.H_ROW
 
 		# <!-- custom: Tradeable panel showing if tech can be traded (Claude Opus 4.5) -->
 		self.X_TRADEABLE = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
 		self.Y_TRADEABLE = self.Y_FIRST_TO_DISCOVER
-		self.W_TRADEABLE = 84
+		self.W_TRADEABLE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_TRADEABLE = self.H_ROW
 
 		self.Y_MUSIC = self.Y_FIRST_TO_DISCOVER
-		self.W_MUSIC = 84
+		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_MUSIC = self.H_ROW
 		self.X_MUSIC = self.top.R_PEDIA_PAGE - self.W_MUSIC
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
@@ -1145,7 +1145,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		listName = self.top.getNextWidgetName()
 
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
-
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 3, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

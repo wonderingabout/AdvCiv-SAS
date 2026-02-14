@@ -25,9 +25,11 @@ class SevoPediaTerrain:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
+		self.W_LEFT_COLUMN = get_panel_width_for_buttons(5, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+
 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
-		self.W_INFO_PANE = 330
+		self.W_INFO_PANE = self.W_LEFT_COLUMN
 		self.H_INFO_PANE = 120
 
 		self.W_ICON = 100
@@ -48,8 +50,8 @@ class SevoPediaTerrain:
 
 		self.X_FEATURES = self.X_INFO_PANE
 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
-		self.W_FEATURES = self.W_INFO_PANE
-		self.H_FEATURES = 110
+		self.W_FEATURES = self.W_LEFT_COLUMN
+		self.H_FEATURES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
 		self.Y_IMPROVEMENTS = self.Y_FEATURES
@@ -81,7 +83,7 @@ class SevoPediaTerrain:
 
 		self.X_SPECIAL = self.X_INFO_PANE
 		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
-		self.W_SPECIAL = self.W_INFO_PANE
+		self.W_SPECIAL = self.W_LEFT_COLUMN
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN

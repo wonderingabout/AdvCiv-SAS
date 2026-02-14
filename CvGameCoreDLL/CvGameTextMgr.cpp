@@ -9980,6 +9980,77 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	}
 
 	setBasicUnitHelp(szBuffer, eUnit, bCivilopediaText);
+	// <!-- custom: in unit Civilopedia text only, list all build-speed modifiers that can affect this builder-capable unit (from techs, civics, and buildings) as one concise comma-separated bullet, with %+d%% shown before each source link for quick scanning. (GPT-5.3-Codex) -->
+	if (bCivilopediaText && u.getWorkRate() > 0)
+	{
+		bool bCanBuild = false;
+		FOR_EACH_ENUM(Build)
+		{
+			if (u.getBuilds(eLoopBuild))
+			{
+				bCanBuild = true;
+				break;
+			}
+		}
+		if (bCanBuild)
+		{
+			CvWString szModifierList;
+			bool bFirstModifier = true;
+			FOR_EACH_ENUM(Tech)
+			{
+				int const iModifier = GC.getInfo(eLoopTech).getWorkerSpeedModifier();
+				if (iModifier != 0)
+				{
+					if (!bFirstModifier)
+						szModifierList.append(L", ");
+					CvWString szTechEntry = CvWString::format(
+							L"%+d%% %s <link=literal>%s</link>",
+							iModifier, gDLL->getText("TXT_KEY_WITH").GetCString(),
+							GC.getInfo(eLoopTech).getDescription());
+					szModifierList.append(szTechEntry);
+					bFirstModifier = false;
+				}
+			}
+			FOR_EACH_ENUM(Civic)
+			{
+				int const iModifier = GC.getInfo(eLoopCivic).getWorkerSpeedModifier();
+				if (iModifier != 0)
+				{
+					if (!bFirstModifier)
+						szModifierList.append(L", ");
+					CvWString szCivicEntry = CvWString::format(
+							L"%+d%% %s <link=literal>%s</link>",
+							iModifier, gDLL->getText("TXT_KEY_WITH").GetCString(),
+							GC.getInfo(eLoopCivic).getDescription());
+					szModifierList.append(szCivicEntry);
+					bFirstModifier = false;
+				}
+			}
+			FOR_EACH_ENUM(Building)
+			{
+				int const iModifier = GC.getInfo(eLoopBuilding).getWorkerSpeedModifier();
+				if (iModifier != 0)
+				{
+					if (!bFirstModifier)
+						szModifierList.append(L", ");
+					CvWString szBuildingEntry = CvWString::format(
+							L"%+d%% %s <link=literal>%s</link>",
+							iModifier, gDLL->getText("TXT_KEY_WITH").GetCString(),
+							GC.getInfo(eLoopBuilding).getDescription());
+					szModifierList.append(szBuildingEntry);
+					bFirstModifier = false;
+				}
+			}
+			if (!bFirstModifier)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(CvWString::format(L"%c%s: %s",
+						gDLL->getSymbolID(BULLET_CHAR),
+						gDLL->getText("TXT_KEY_PEDIA_UNIT_BUILD_SPEED_MODIFIERS").GetCString(),
+						szModifierList.GetCString()));
+			}
+		}
+	}
 	// advc.004g: Swapped so that BasicUnitHelp is printed before InstanceCostModifier
 	if (kUnitClass.getInstanceCostModifier() != 0)
 	{

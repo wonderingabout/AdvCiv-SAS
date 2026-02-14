@@ -92,14 +92,14 @@ class SevoPediaUnit:
 		# Row 3-4: Of Other Units panel (full width, 2 rows height)
 		# Row 5: Special | History -->
 
-		self.H_REQUIRES = 110
+		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		# Narrow panels width (same as SevoPediaBuilding's obsolete panel)
-		self.W_OBSOLETE_WITH = 84
-		self.W_CIVILIZATIONS = 84
+		self.W_OBSOLETE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+		self.W_CIVILIZATIONS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
-		# Small panels width - fits ~2 buttons with scroll if more (64px per button + padding)
-		self.W_SMALL_PANEL = 150
+		# Small panels width - fits 2 buttons with standard panel spacing.
+		self.W_SMALL_PANEL = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
 		# Row 1 left half: Requires | Obsolete With | Free Promotions
 		self.W_FREE_PROMOTIONS = self.W_SMALL_PANEL
@@ -108,7 +108,7 @@ class SevoPediaUnit:
 		self.X_REQUIRES = self.X_UNIT_PANE
 		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
-		self.H_REQUIRES = 110
+		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
 		self.Y_OBSOLETE_WITH = self.Y_REQUIRES

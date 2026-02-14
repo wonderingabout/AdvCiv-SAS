@@ -19,6 +19,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -39,7 +40,7 @@ class SevoPediaCorporation:
 		self.X_REQUIRES = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
 		self.Y_REQUIRES = self.Y_MAIN_PANE
 		self.W_REQUIRES = self.top.R_PEDIA_PAGE - self.X_REQUIRES
-		self.H_REQUIRES = 110
+		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
 		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + 10

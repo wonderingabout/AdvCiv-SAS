@@ -20,6 +20,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+from _sevopedia_helpers import *
 # <!-- custom: import to display chars before Traits -->
 import TraitUtil
 
@@ -79,7 +80,7 @@ class SevoPediaLeader:
 		self.CIV_MARGIN = 0
 		self.CIV_DISELEVATION = 38
 		
-		self.H_FAVORITES = 110
+		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 		self.N_AI_TABLE_NUM = 3
 
 		# <!-- custom: 2) (most) relative dimensions or positions then -->
@@ -100,11 +101,11 @@ class SevoPediaLeader:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-		# Music panel (84px, right of Favorites)
-		self.W_MUSIC = 84
+		# Music panel (helper-computed one-button width, right of Favorites)
+		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
 		self.X_FAVORITES = self.X_LEADERHEAD_PANE
-		# Reduce Favorites width to make room for Music panel (84px + margin)
+		# Reduce Favorites width to make room for Music panel (one-button width + margin)
 		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.W_MUSIC - (2 * self.SMALL_MARGIN)
 
 		self.X_MUSIC = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN

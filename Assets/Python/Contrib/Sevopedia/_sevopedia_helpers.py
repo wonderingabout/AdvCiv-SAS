@@ -17,10 +17,23 @@ localText = CyTranslator()
 
 
 
-#
 # <!-- custom: constants useful for numTxt under button placement in a grid-like manner, i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
 #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
 #HYPOTHESIZED_INTER_BUTTON_SPACING = 4
+# <!-- custom: "non-multilist panel" means simple horizontal panels where we place buttons directly
+# with attachImageButton/setImageButtonAt and compute width manually.
+# This is distinct from multilist panels (addMultiListControlGFC), which use their own layout
+# constants below (HYPOTHESIZED_MULTI_LIST_*). Keep these constant families separate. (GPT-5.3-Codex) -->
+# <!-- custom: edge padding is inferred from the classic 84px mini-panel that fits one 64px button:
+# 84 - 64 = 20 total horizontal slack, so 10px per side. This keeps computed panel widths aligned
+# with existing Sevopedia panel/button visuals. (GPT-5.3-Codex) -->
+HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING = 10
+HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING = 4
+# <!-- custom: shared standard height for Sevopedia single-row non-multilist panels. (GPT-5.3-Codex) -->
+NON_MULTILIST_PANEL_STANDARD_HEIGHT = 110
+# <!-- custom: backward-compatibility aliases for existing callers; prefer NON_MULTILIST names in new code. (GPT-5.3-Codex) -->
+HYPOTHESIZED_NORMAL_PANEL_EDGE_PADDING = HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING
+HYPOTHESIZED_NORMAL_PANEL_INTER_BUTTON_SPACING = HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING
 
 
 
@@ -30,12 +43,20 @@ MULTI_LIST_PANEL_OFFSET_X = 9
 MULTI_LIST_PANEL_OFFSET_Y = 36
 MULTI_LIST_PANEL_ADDITIONAL_W = -1 * (MULTI_LIST_PANEL_OFFSET_X * 2)
 MULTI_LIST_PANEL_ADDITIONAL_H = -1 * (MULTI_LIST_PANEL_OFFSET_Y)
-# <!-- custom: note: no HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING equivalent for multilists as this value is the same as PANEL_MULTILIST_OFFSET_X so using the real value rather; so we use instead PANEL_MULTILIST_OFFSET_X directly for example in get_multilist_max_buttons_per_row. -->
-HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
-# <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit -->
+# <!-- custom: trial symmetric multilist side insets (10/10), keeping inter-spacing at 2.
+# This keeps 4-button leader width at 282 and lets us verify if numTxt alignment remains stable. (GPT-5.3-Codex) -->
+HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING = 10
+HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING = 10
+# <!-- custom: backward-compat alias for existing placement code; maps to left edge padding. (GPT-5.3-Codex) -->
+HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING
+# <!-- custom: inter-button spacing in multilist math (also used by numTxt placement).
+# Verified by visual test: setting this to 3 made numTxt labels drift; 2 keeps labels aligned. (GPT-5.3-Codex) -->
 HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
 # <!-- custom: note: below line not yet tested. -->
 HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
+# <!-- custom: global numTxt horizontal nudge for multilist labels. With symmetric 10/10 side insets,
+# shifting labels 1px left visually re-centers most numTxt strings under buttons. (GPT-5.3-Codex) -->
+MULTILIST_NUMTXT_GLOBAL_X_ADJUST = -1
 # <!-- custom: when displaying only one row, adjust height to hide the 2nd row's buttons so it is prettier/clearer to read -->
 HIDE_SECOND_ROW_MULTI_LIST = - 4
 # Per documentation, the numLists parameter (7th) is actually number of columns
@@ -44,6 +65,31 @@ HIDE_SECOND_ROW_MULTI_LIST = - 4
 SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE = 1
 # Column index (always 0 when numLists=1)
 SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO = 0
+
+
+
+def get_multilist_panel_width_for_buttons(iNumButtons, iButtonSize, iLeftEdgePadding, iRightEdgePadding, iInterButtonSpacing):
+	# <!-- custom: width formula for a horizontal multilist panel:
+	# width = (n * buttonSize) + leftEdgePadding + rightEdgePadding + ((n - 1) * interSpacing)
+	# Example: n=4, button=64, left=10, right=10, spacing=2 => 256 + 20 + 6 = 282 px. (GPT-5.3-Codex) -->
+	if iNumButtons <= 0:
+		raise ValueError("get_multilist_panel_width_for_buttons requires iNumButtons > 0, got %d" % iNumButtons)
+	return (iNumButtons * iButtonSize) + iLeftEdgePadding + iRightEdgePadding + ((iNumButtons - 1) * iInterButtonSpacing)
+
+
+# <!-- custom: shared multilist width used by leader panels in Civic/Religion/Trait.
+# Kept as a compatibility constant; prefer get_multilist_panel_width_for_buttons in callers for easy n-button tuning. (GPT-5.3-Codex) -->
+MULTILIST_PANEL_WIDTH_4_BUTTONS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+
+
+def get_panel_width_for_buttons(iNumButtons, iButtonSize, iEdgePadding, iInterButtonSpacing):
+	# <!-- custom: width formula for a horizontal single-row button panel:
+	# width = (n * buttonSize) + (2 * edgePadding) + ((n - 1) * interSpacing)
+	# Example 1: n=1, button=64, edge=10, spacing=4 => 64 + 20 + 0 = 84 px.
+	# Example 2: n=4, button=64, edge=10, spacing=4 => 256 + 20 + 12 = 288 px. (GPT-5.3-Codex) -->
+	if iNumButtons <= 0:
+		raise ValueError("get_panel_width_for_buttons requires iNumButtons > 0, got %d" % iNumButtons)
+	return (iNumButtons * iButtonSize) + (2 * iEdgePadding) + ((iNumButtons - 1) * iInterButtonSpacing)
 
 
 
@@ -131,8 +177,10 @@ def get_leader_indexes_from_leader_types(leader_types):
 	return tuple(result)
 
 
+
 def get_excluded_leader_indexes(leader_types):
 	return get_leader_indexes_from_leader_types(leader_types)
+
 
 
 def get_real_leader_maps_and_count(excluded_leader_types):
@@ -159,6 +207,7 @@ def get_real_leader_maps_and_count(excluded_leader_types):
 	return leader_ids, leader_to_civ, num_real_leaders
 
 
+
 # <!-- custom: Build leaders header text with X/Y (Z%) (example "Leaders 12/53 (22%)") for any Sevopedia panel. (GPT-5.2-Codex (summarized)) -->
 def format_leaders_header_text(num_with, total, headerLabel):
 	percent = 0
@@ -170,6 +219,7 @@ def format_leaders_header_text(num_with, total, headerLabel):
 		total,
 		percent,
 	)
+
 
 
 # <!-- custom: Count leaders whose favorite type matches iFavoriteId; favoriteType is "RELIGION" or "CIVIC". (GPT-5.2-Codex) -->
@@ -217,6 +267,17 @@ def check_overlapping_keys_between_dicts(d1, d2):
 def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
 	if icon_size > icon_frame_size:
 		raise ValueError(u"[FATAL] icon_size=%d cannot be bigger/higher than icon_frame_size=%d, icon_size must fit within the frame, please adjust icon_size or icon_frame_size so that 0 < icon_size < icon_frame_size" % (icon_size, icon_frame_size))
+
+
+
+def get_feature_production_modifier_techs():
+	techModifiers = []
+	for iTech in xrange(gc.getNumTechInfos()):
+		iModifier = gc.getTechInfo(iTech).getFeatureProductionModifier()
+		if iModifier != 0:
+			techModifiers.append((iTech, iModifier))
+	return techModifiers
+
 
 
 # <!-- custom: added with the help of chatgpt 5.2 thanks to help separate Land features in sevopedia into as of now Land (Removable) and Land (Other) -->
@@ -325,7 +386,6 @@ def get_extra_correction_x_inbetween_buttons(button_size):
 
 
 
-
 def get_multilist_max_buttons_per_row(panelWidth, buttonsize):
 	totalButtonWidth = buttonsize + HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING
 
@@ -342,7 +402,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
 
 	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
-	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING) + MULTILIST_NUMTXT_GLOBAL_X_ADJUST
 
 	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful or not or yes or etc to do so -->
 	extraCorrectionY = -9

@@ -48,12 +48,17 @@ class SevoPediaBuild:
 
 		self.X_REQUIRES = self.X_BUILD_PANE + self.W_BUILD_PANE + self.MEDIUM_MARGIN
 		self.Y_REQUIRES = self.Y_BUILD_PANE
-		self.W_REQUIRES = 84
+		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_REQUIRES = self.H_BUILD_PANE
 
-		self.X_IMPROVEMENTS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.X_FEATURE_PRODUCTION = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.Y_FEATURE_PRODUCTION = self.Y_BUILD_PANE
+		self.W_FEATURE_PRODUCTION = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+		self.H_FEATURE_PRODUCTION = self.H_BUILD_PANE
+
+		self.X_IMPROVEMENTS = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + self.MEDIUM_MARGIN
 		self.Y_IMPROVEMENTS = self.Y_BUILD_PANE
-		self.W_IMPROVEMENTS = 84
+		self.W_IMPROVEMENTS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_IMPROVEMENTS = self.H_BUILD_PANE
 
 		self.X_UNITS_BUILD = self.X_IMPROVEMENTS + self.W_IMPROVEMENTS + self.MEDIUM_MARGIN
@@ -81,11 +86,24 @@ class SevoPediaBuild:
 		self.FEATURE_STRUCT_BUTTON_TOP_REL = self.H_FEATURE_STRUCTS - self.FEATURE_STRUCT_PANEL_HEADER_H - self.FEATURE_STRUCT_BUTTON_ROW_H - self.FEATURE_STRUCT_BUTTON_BOTTOM_MARGIN
 
 
+	def _getBuildFeatureProductionModifierTechs(self):
+		buildInfo = gc.getBuildInfo(self.iBuild)
+		bHasRemovalProduction = False
+		for iFeature in xrange(gc.getNumFeatureInfos()):
+			if buildInfo.getFeatureProduction(iFeature) > 0:
+				bHasRemovalProduction = True
+				break
+		if not bHasRemovalProduction:
+			return []
+		return get_feature_production_modifier_techs()
+
+
 	def interfaceScreen(self, iBuild):
 		self.iBuild = iBuild
 
 		self.placeBuildPane()
 		self.placeRequires()
+		self.placeFeatureProduction()
 		self.placeImprovements()
 		self.placeUnitsBuild()
 		self.placeFeatureStructs()
@@ -162,6 +180,25 @@ class SevoPediaBuild:
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
 			screen.addMultilineText(textName, szText, self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+	def placeFeatureProduction(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL", ()), "", False, True, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+
+		techModifiers = self._getBuildFeatureProductionModifierTechs()
+		if len(techModifiers) <= 0:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_FEATURE_PRODUCTION + (self.H_FEATURE_PRODUCTION / 2)
+			screen.addMultilineText(textName, szText, self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			return
+
+		for iTech, unused_iModifier in techModifiers:
+			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
 
 
 	def placeUnitsBuild(self):

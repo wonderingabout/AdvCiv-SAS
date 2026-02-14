@@ -2294,6 +2294,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>on remove</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL</Tag>
+		<English>iFeatureProduction</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BUILD</Tag>
 		<English>Build</English>
 	</TEXT>
@@ -2908,6 +2912,10 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE</Tag>
 		<English>May grant unit(s) on capture</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNIT_BUILD_SPEED_MODIFIERS</Tag>
+		<English>Build speed modifiers</English>
 	</TEXT>
 
 

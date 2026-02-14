@@ -39,9 +39,8 @@ class SevoPediaReligion:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: this 287 should be accurate according to my measurements for a 4 leaders panel but the screen.appendMultiListButton uses seemingly a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty. To solve this, reducing the width, while keeping in mind the correct value should be 287 for 4 leaders per row total width including margins -->
-		#self.W_LEADERS = 287
-		self.W_LEADERS = 282
+		# <!-- custom: multilist leaders panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
+		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
 		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
 		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
@@ -69,10 +68,10 @@ class SevoPediaReligion:
 		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN
 		self.Y_BUILDINGS = self.Y_RELIGION_PANE
 		self.W_BUILDINGS = self.W_LEFT_COLUMN - 84 - self.MEDIUM_MARGIN
-		self.H_BUILDINGS = 110
+		self.H_BUILDINGS = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
-		self.W_REQUIRES = 84
-		self.W_MOVIE = 84
+		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+		self.W_MOVIE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		self.X_UNITS = self.X_BUILDINGS

@@ -18,7 +18,7 @@ from SAS_WorldSizes import *
 gc = CyGlobalContext()
 
 def getDescription():
-	return "A map script that generates a single landmass filled with lots of freshwater and saltwater lakes, and a few extra rivers. Uploaded on CFC by SevenSpirits. In AdvCiv-SAS, we observed that unlike Lakes.py, this script really produces many lakes; we further adapted it for larger SAS world sizes and tighter grid sizing to reduce overly wide city spacing."
+	return "Generates a single landmass filled with lots of freshwater and saltwater lakes, and a few extra rivers. Uploaded on CFC by SevenSpirits. In AdvCiv-SAS, we observed that unlike Lakes.py, this script really produces many lakes; we further adapted it for larger SAS world sizes and tighter grid sizing to reduce overly wide city spacing."
 
 def isAdvancedMap():
 	"This map should show up in simple mode"

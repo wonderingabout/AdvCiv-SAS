@@ -71,9 +71,11 @@ class SevoPediaFeature:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
+		self.W_LEFT_COLUMN = get_panel_width_for_buttons(5, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+
 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
-		self.W_INFO_PANE = 330
+		self.W_INFO_PANE = self.W_LEFT_COLUMN
 		# <!-- custom: make some room for the new fields we added in placeSpecial and align display horizontally with placeSpecial, was 120 -->
 		self.H_INFO_PANE = 127
 
@@ -90,18 +92,23 @@ class SevoPediaFeature:
 
 		self.X_BUILD_REMOVES = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
 		self.Y_BUILD_REMOVES = self.Y_INFO_PANE
-		self.W_BUILD_REMOVES = 84
+		self.W_BUILD_REMOVES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_BUILD_REMOVES = self.H_INFO_PANE
 
-		self.X_UNITS_REMOVE = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
+		self.X_FEATURE_PRODUCTION = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
+		self.Y_FEATURE_PRODUCTION = self.Y_INFO_PANE
+		self.W_FEATURE_PRODUCTION = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+		self.H_FEATURE_PRODUCTION = self.H_INFO_PANE
+
+		self.X_UNITS_REMOVE = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + self.MEDIUM_MARGIN
 		self.Y_UNITS_REMOVE = self.Y_INFO_PANE
 		self.W_UNITS_REMOVE = self.top.R_PEDIA_PAGE - self.X_UNITS_REMOVE
 		self.H_UNITS_REMOVE = self.H_INFO_PANE
 
 		self.X_FEATURES = self.X_INFO_PANE
 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
-		self.W_FEATURES = self.W_INFO_PANE
-		self.H_FEATURES = 110
+		self.W_FEATURES = self.W_LEFT_COLUMN
+		self.H_FEATURES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
 		self.Y_IMPROVEMENTS = self.Y_FEATURES
@@ -127,7 +134,7 @@ class SevoPediaFeature:
 
 		self.X_SPECIAL = self.X_INFO_PANE
 		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
-		self.W_SPECIAL = self.W_INFO_PANE
+		self.W_SPECIAL = self.W_LEFT_COLUMN
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
@@ -158,6 +165,19 @@ class SevoPediaFeature:
 		self.placeSpecial()
 		self.placeHistory()
 
+
+
+	def _getRemovalBuildsWithProduction(self):
+		buildIds = []
+		for iBuild in xrange(gc.getNumBuildInfos()):
+			buildInfo = gc.getBuildInfo(iBuild)
+			if buildInfo.getImprovement() != -1:
+				continue
+			if not buildInfo.isFeatureRemove(self.iFeature):
+				continue
+			if buildInfo.getFeatureProduction(self.iFeature) > 0:
+				buildIds.append(iBuild)
+		return buildIds
 
 
 	def placeInfo(self):
@@ -230,6 +250,21 @@ class SevoPediaFeature:
 			screen.addMultilineText(textName, szText, self.X_BUILD_REMOVES + 7, yPanelCenter, self.W_BUILD_REMOVES - 14, self.H_BUILD_REMOVES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL", ()), "", False, True, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		techModifiers = get_feature_production_modifier_techs()
+		removalBuildsWithProduction = self._getRemovalBuildsWithProduction()
+		if len(techModifiers) > 0 and len(removalBuildsWithProduction) > 0:
+			for iTech, unused_iModifier in techModifiers:
+				screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+		else:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_FEATURE_PRODUCTION + (self.H_FEATURE_PRODUCTION / 2)
+			screen.addMultilineText(textName, szText, self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_REMOVE", ()), "", False, True, self.X_UNITS_REMOVE, self.Y_UNITS_REMOVE, self.W_UNITS_REMOVE, self.H_UNITS_REMOVE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 
@@ -274,27 +309,22 @@ class SevoPediaFeature:
 		info = gc.getFeatureInfo(self.iFeature)
 
 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
-		szSpecialText = info.getHelp()
-		szSpecialText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
+		szSpecialText = info.getHelp() + CyGameTextMgr().getFeatureHelp(self.iFeature, True)
+		baseLines = []
+		if szSpecialText.strip():
+			baseLines = szSpecialText.replace("\n\n", "\n").strip().split("\n")
 
-		for iBuild in xrange(gc.getNumBuildInfos()):
-			buildInfo = gc.getBuildInfo(iBuild)
+		removalBuildIds = self._getRemovalBuildsWithProduction()
+		removeProduction = 0
+		if len(removalBuildIds) > 0:
+			removeProduction = gc.getBuildInfo(removalBuildIds[0]).getFeatureProduction(self.iFeature)
 
-			# <!-- custom: since we already do the pre-checks at pre-load time, simply and directly fetch the first strictly positive (not taking into account negative values as they would be highly unusual and i wouldn't see their purpose at least in our mod, see the code at pre load for details) value -->
-			if buildInfo.isFeatureRemove(self.iFeature):
-				if szSpecialText.strip():
-					szSpecialText += u"\n"
+		extraLines = []
+		if removeProduction > 0:
+			bullet = localText.getText("[ICON_BULLET]", ())
+			extraLines.append(u"%s+%d%s %s" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ())))
 
-				# <!-- custom: check iProduction separately for cases such as feature fallout that have 0 iProduction; time details are now in Build pages. (GPT-5.2-Codex (summarized)) -->
-				removeProduction = buildInfo.getFeatureProduction(self.iFeature)
-				if removeProduction > 0:
-					bullet = localText.getText("[ICON_BULLET]", ())
-					szSpecialText += u"%s+%d%s %s" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ()))
-
-				# <!-- custom: all values should be the same, no need to continue after the first strictly positive iProduction. (GPT-5.2-Codex (summarized)) -->
-				break
-
-		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
+		szSpecialText = u"\n".join(baseLines + extraLines).strip()
 		screen.addMultilineText(text, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

@@ -37,9 +37,8 @@ class SevoPediaCivic:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: based on sevopediareligion's code (the placeLeaders function there that we added as well), see there for details and differences of implementation --> 
-		#self.W_LEADERS = 287
-		self.W_LEADERS = 282
+		# <!-- custom: multilist leaders panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
+		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
 		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
 		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
@@ -67,13 +66,13 @@ class SevoPediaCivic:
 
 		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN
 
-		self.W_REQUIRES = 84
+		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
 		self.W_SPECIAL = self.W_REMAINING_CENTER_SPACE - self.W_REQUIRES
 
 		self.X_REQUIRES = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
 
-		self.H_REQUIRES = 110
+		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.Y_REQUIRES = self.Y_CIVIC_PANE + self.H_CIVIC_PANE - self.H_REQUIRES
 
