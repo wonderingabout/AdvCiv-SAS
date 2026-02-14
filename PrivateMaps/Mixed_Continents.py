@@ -70,7 +70,7 @@ def getNumPlotsPercent(argsList):
 
 def isAdvancedMap():
 	"This map should not show up in simple mode"
-	return 0
+	return 1
 
 def getNumCustomMapOptions():
 	return 5 # advc.mxc

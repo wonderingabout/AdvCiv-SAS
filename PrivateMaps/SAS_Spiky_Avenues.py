@@ -132,7 +132,6 @@ def _build_layout():
 	if "sas_spiky_layout" in globals() and sas_spiky_layout is not None:
 		return sas_spiky_layout
 
-	gc = CyGlobalContext()
 	map_obj = CyMap()
 	iW = map_obj.getGridWidth()
 	iH = map_obj.getGridHeight()

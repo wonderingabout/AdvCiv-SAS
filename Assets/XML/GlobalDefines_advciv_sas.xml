@@ -298,21 +298,22 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accomodate for no water that causes too wide city spacing if not corrected for it) -->
 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
-		<DefineTextVal>Fractal,Hemispheres,Pangaea,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,SAS_Longworld,SAS_Spiky_Avenues,Arboria,Wheel,Donut,Earth2,Global_Highlands,BTG_Cross,BTG_Grid,BTG_Lagoon,Planet_Generator_0_68,Peirce</DefineTextVal>
+		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Spiky_Avenues,Tectonics,Terra,Wheel</DefineTextVal>
 	</Define>
+	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accomodate for no water that causes too wide city spacing if not corrected for it) -->
 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND</DefineName>
-		<DefineTextVal>Great_Plains,Highlands,Lakes,Fantasy_Realm,SAS_WorldSizes,Mirror,Oasis,Team_Battleground,Boreal,Rainforest</DefineTextVal>
+		<DefineTextVal>Boreal,Fantasy_Realm,Great_Plains,Highlands,Lakes,Mirror,Oasis,Rainforest,SAS_WorldSizes,Team_Battleground</DefineTextVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
-		<DefineTextVal>Archipelago,Islands,PerfectMongoose,Tilted_Axis,Equal_Islands_V2_beta</DefineTextVal>
+		<DefineTextVal>Archipelago,Equal_Islands_V2_beta,Islands,PerfectMongoose,Tilted_Axis</DefineTextVal>
 	</Define>
+
 
 
 
