@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
 
-New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Longworld`).
+New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Longworld`, `SAS_Spiky_Avenues`).
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
@@ -58,6 +58,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[How to use](/README.md#how-to-use)  
 &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
 [Mapscripts](/README.md#mapscripts)  
+&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Longworld, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld-sas_spiky_avenues)  
 &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
 &emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
 [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
@@ -532,7 +533,9 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
 
 ## Mapscripts
 
-### AdvCiv-SAS original mapscripts (e.g., SAS_Longworld)
+### AdvCiv-SAS original mapscripts (e.g., SAS_Longworld, SAS_Spiky_Avenues)
+
+#### SAS_Longworld
 
 We have added our own new mapscripts in AdvCiv-SAS, notably SAS_Longworld with the help of GPT-5.3-Codex thanks, which is based on [Ringworld3 v1.02](https://forums.civfanatics.com/threads/map-script-ringworld3.371831/) but with a heavily simplified code.
 
@@ -543,6 +546,16 @@ Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and pla
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
+
+#### SAS_Spiky_Avenues
+
+Similarly we also added our new original SAS_Spiky_Avenues mapscript with the help of GPT-5.3-Codex and Claude code Opus 4.6 thanks. We took some ideas from SAS_Longworld but with a different concept:
+
+>Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map.
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG" alt="0.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
 
 ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
 
@@ -566,8 +579,8 @@ This definitely feels like masonry but works and fun xd i guess after having ted
 
 Trick: by having the view box in a water or snow zone you can edit it later and remove it easier when making the .dds. Maybe there is a better way but this works quite well. Some examples below:
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG" alt="0.3202_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG" alt="0.3202_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (1).PNG" alt="0.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (2).PNG" alt="0.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
 
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>

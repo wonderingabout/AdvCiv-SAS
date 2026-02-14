@@ -14,7 +14,8 @@
       "WebFetch(domain:forums.civfanatics.com)",
       "Bash(dir:*)",
       "Bash(git -C \"c:/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier''s Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS\" diff --stat -- \"CvGameCoreDLL/*.cpp\" \"CvGameCoreDLL/*.h\")",
-      "Bash(git -C \"c:/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier''s Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS\" diff -- \"CvGameCoreDLL/*.cpp\" \"Assets/XML/*.xml\" \"Long_Comments/*.xml\")"
+      "Bash(git -C \"c:/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier''s Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS\" diff -- \"CvGameCoreDLL/*.cpp\" \"Assets/XML/*.xml\" \"Long_Comments/*.xml\")",
+      "Read(//c/Users/PC/Documents/My Games/beyond the sword/ScreenShots/**)"
     ]
   }
 }

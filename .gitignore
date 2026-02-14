@@ -22,8 +22,6 @@
 *.vcxproj.filters
 *.vcxproj.user
 *.opensdf
+__pycache__
 /Logs/
-/__pycache__/
-/tests/__pycache__/
-/Assets/Python/Contrib/Sevopedia/__pycache__/
 /Assets/CvGameCoreDLL_d.dll
