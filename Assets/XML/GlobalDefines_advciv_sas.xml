@@ -301,7 +301,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
-		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Spiky_Avenues,Tectonics,Terra,Wheel</DefineTextVal>
+		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Spiky_Avenues,Tectonics,Terra,Water,Wheel</DefineTextVal>
 	</Define>
 	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accomodate for no water that causes too wide city spacing if not corrected for it) -->
 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
@@ -325,6 +325,11 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT</DefineName>
 		<iDefineIntVal>66</iDefineIntVal>
+	</Define>
+	<!-- custom: Water.py mapscript has too many peak plots by default; this knob sets the kept peak percentage vs original (e.g., 25 = 25% of original peaks). The remainder stays under the script's normal non-peak logic (land/hills/water). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_WATER_MAP_PEAK_PERCENT_OF_BASE</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<!-- custom: Earth2 staged starts by player count: below AFRICA_MIN_PLAYERS populate only Europe and Asia (base-like), from AFRICA_MIN_PLAYERS also populate Africa, and from FULL_WORLD_MIN_PLAYERS populate the whole world (notably America + Australia too). (GPT-5.3-Codex) -->
 	<Define>

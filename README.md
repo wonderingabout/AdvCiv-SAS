@@ -592,6 +592,7 @@ Trick: by having the view box in a water or snow zone you can edit it later and 
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG" alt="0.3201_maps_simple_game (11).JPG" width="250"></img>
 
 ## Change from short to int the Found value pipeline
 
