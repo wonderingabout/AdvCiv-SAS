@@ -3261,6 +3261,289 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILDING_FILTER_WORLD</Tag>
 		<English>Show World Wonders Only</English>
 	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_EWUARE_1</Tag>
+		<English>I am [OUR_NAME], Oba of Benin. You enter my court, [CT_NAME]. Speak with respect, and we may prosper.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_EWUARE_1</Tag>
+		<English>Your words offend the throne, [CT_NAME]. Return when you can speak with honor.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_NO_PEACE_LEADER_EWUARE_1</Tag>
+		<English>Peace is not yet yours, [CT_NAME]. The debt between us remains unpaid.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_EWUARE_1</Tag>
+		<English>Welcome, [CT_NAME]. Benin remembers those who keep their word.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_EWUARE_1</Tag>
+		<English>You stand before me, [CT_NAME], yet you bring only trouble.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_EWUARE_1</Tag>
+		<English>You are in no position to refuse, [CT_NAME]. Send tribute, and keep your people safe.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_EWUARE_1</Tag>
+		<English>Tribute buys stability, [CT_NAME]. Pay, and we will have no quarrel.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_EWUARE_1</Tag>
+		<English>Even the mighty benefit from order, [CT_NAME]. Honor my court with tribute, and we both avoid wasteful war.</English>
+	</TEXT>
+
+
+
+	<!-- custom: Ireland civilization and leaders. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_IRELAND_DESC</Tag>
+		<English>Irish Empire</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_IRELAND_SHORT_DESC</Tag>
+		<English>Ireland</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_IRELAND_ADJECTIVE</Tag>
+		<English>Irish</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_GRACE_OMALLEY</Tag>
+		<English>Grace O'Malley</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_MICHAEL_COLLINS</Tag>
+		<English>Michael Collins</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM</Tag>
+		<English>Scriptorium</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN</Tag>
+		<English>Flying Column</English>
+	</TEXT>
+
+
+
+	<!-- custom: Ireland city list text keys. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DUBLIN_IRELAND</Tag>
+		<English>Dublin</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CORK_IRELAND</Tag>
+		<English>Cork</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_EMAIN_MACHA_IRELAND</Tag>
+		<English>Emain Macha</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_GALWAY_IRELAND</Tag>
+		<English>Galway</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_SWORDS_IRELAND</Tag>
+		<English>Swords</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_WATERFORD_IRELAND</Tag>
+		<English>Waterford</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_KILKENNY_IRELAND</Tag>
+		<English>Kilkenny</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_BELFAST_IRELAND</Tag>
+		<English>Belfast</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DERRY_IRELAND</Tag>
+		<English>Derry</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ARMAGH_IRELAND</Tag>
+		<English>Armagh</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CASHEL_IRELAND</Tag>
+		<English>Cashel</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CLONMACNOISE_IRELAND</Tag>
+		<English>Clonmacnoise</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_KELLS_IRELAND</Tag>
+		<English>Kells</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_GLENDALOUGH_IRELAND</Tag>
+		<English>Glendalough</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DOWNPATRICK_IRELAND</Tag>
+		<English>Downpatrick</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DROGHEDA_IRELAND</Tag>
+		<English>Drogheda</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_WEXFORD_IRELAND</Tag>
+		<English>Wexford</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_SLIGO_IRELAND</Tag>
+		<English>Sligo</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ATHLONE_IRELAND</Tag>
+		<English>Athlone</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DUNDALK_IRELAND</Tag>
+		<English>Dundalk</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ENNIS_IRELAND</Tag>
+		<English>Ennis</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_TRALEE_IRELAND</Tag>
+		<English>Tralee</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_KILLARNEY_IRELAND</Tag>
+		<English>Killarney</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CLONMEL_IRELAND</Tag>
+		<English>Clonmel</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_NAVAN_IRELAND</Tag>
+		<English>Navan</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_MULLINGAR_IRELAND</Tag>
+		<English>Mullingar</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_TULLAMORE_IRELAND</Tag>
+		<English>Tullamore</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CARLOW_IRELAND</Tag>
+		<English>Carlow</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_NEWRY_IRELAND</Tag>
+		<English>Newry</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_LETTERKENNY_IRELAND</Tag>
+		<English>Letterkenny</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DONEGAL_IRELAND</Tag>
+		<English>Donegal</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CASTLEBAR_IRELAND</Tag>
+		<English>Castlebar</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_BALLINA_IRELAND</Tag>
+		<English>Ballina</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_BRAY_IRELAND</Tag>
+		<English>Bray</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_SKERRIES_IRELAND</Tag>
+		<English>Skerries</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_YOUGHAL_IRELAND</Tag>
+		<English>Youghal</English>
+	</TEXT>
+
+
+
+	<!-- custom: Ireland and Ewuare diplomacy text hooks. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>Ahoy, [CT_NAME]. I am [OUR_NAME]. Speak your business, and be quick about it.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>I have heard enough from you, [CT_NAME]. Leave.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_NO_PEACE_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>No peace yet, [CT_NAME]. You have not earned it.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>Fair winds, [CT_NAME]. Your word has held.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>We have little to discuss, [CT_NAME]. Choose your next words carefully.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_GRACE_OMALLEY_1</Tag>
+		<English>You think me weak, [CT_NAME]? Then prove it. Pay, or face me.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_GRACE_OMALLEY_1</Tag>
+		<English>A fair tribute, [CT_NAME], and we avoid trouble.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_GRACE_OMALLEY_1</Tag>
+		<English>Pay for safe passage, [CT_NAME]. My ships are not charity.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>I am [OUR_NAME]. We will speak plainly, [CT_NAME]. State your purpose.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>Not now, [CT_NAME]. I have nothing to say to you.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_NO_PEACE_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>Peace comes when you stop forcing my hand, [CT_NAME].</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>Good to see you, [CT_NAME]. Keep it practical.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>Enough games, [CT_NAME]. You are making yourself a problem.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MICHAEL_COLLINS_1</Tag>
+		<English>Do not mistake patience for weakness, [CT_NAME]. Give what I ask.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MICHAEL_COLLINS_1</Tag>
+		<English>A contribution now, [CT_NAME], prevents trouble later.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
+		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
 		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>

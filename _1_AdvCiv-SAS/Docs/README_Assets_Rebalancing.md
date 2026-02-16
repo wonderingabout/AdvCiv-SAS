@@ -68,6 +68,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Holy Roman | Mysticism, Hunting | **Mysticism, Pottery** | Reads more like “Church + towns/guild/urban administration” than generic hunting, and unlocks their civ-specific building (Courthouse-based) sooner via the Pottery line. |
 | Inca | Agriculture, Mysticism | **Pottery, Mining** | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
 | India | Mysticism, Mining | **Mysticism, Mining** | Spiritual tradition + engineering; not an "amazing" pair. |
+| Ireland | / | **Fishing, Mysticism** | Maritime + monastic/cultural identity; balanced opener without Mining/Hunting spikes. |
 | Japan | Fishing, The Wheel | **Fishing, Hunting** | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
 | Khmer | Hunting, Mining | **Fishing, Hunting** | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
 | Korea | Mining, Mysticism | **Fishing, Mining** | Keeps Mining (the more distinctive “Korea-coded” pillar: metals/engineering), and adds Fishing to reflect a peninsula/coastal civilization with strong maritime/trade exposure—without implying an early religion-race start. |
@@ -93,8 +94,8 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Mining | 15 |
 | Pottery | 15 |
 | Hunting | 14 |
-| Fishing | 13 |
-| Mysticism | 13 |
+| Fishing | 14 |
+| Mysticism | 14 |
 
 #### Starting pair counts (canonicalized; order-insensitive)
 
@@ -109,12 +110,12 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Fishing + Mining    | 3     |
 | Hunting + Mysticism | 3     |
 | Hunting + Pottery   | 3     |
-| Fishing + Mysticism | 2     |
+| Fishing + Mysticism | 3     |
 
 **Sanity checks:**
 
-- Pair counts sum to **35** civs.  
-- Tech totals sum to **70** picks (5 techs × 14 each). ✅
+- Pair counts sum to **36** civs.  
+- Tech totals sum to **72** picks. ✅
 
 ## Leaders' traits rework
 
@@ -226,6 +227,7 @@ See below in the main table after changes as it includes the before values as we
 | Ewuare | Imperialist, Spiritual | **Spiritual, Industrious** | Benin’s strong court/ritual religion. Benin’s strength = urban works (walls/ditches), craft guilds, and court art; expansion via hegemony/tribute more than settler-style growth. Industrious captures that better than Imperialist. |
 | Frederick | Philosophical, Organized | **Philosophical, Creative** | Enlightenment/arts over bureaucracy. |
 | Gandhi | Spiritual, Philosophical | **Keep** | Canonical fit. |
+| Grace O'Malley | Financial, Aggressive | **Keep** | Maritime raider profile and commerce fit; keep as-is. |
 | Genghis Khan | Aggressive, Imperialist | **Keep** | Archetypal conqueror. |
 | Gilgamesh | Protective, Creative | **Keep** | Walls/city defense + epic/civic culture. |
 | Hammurabi | Organized, Aggressive | **Organized, Protective** | Lawgiver/city-builder; warfare largely pragmatic/defensive. |
@@ -240,6 +242,7 @@ See below in the main table after changes as it includes the before values as we
 | Lincoln | Philosophical, Charismatic | **Keep** | Moral/philosophical leadership + national unity. |
 | Louis XIV | Industrious, Creative | **Keep** | Palace/works + arts and culture. |
 | Mansa Musa | Spiritual, Financial | **Keep** | Pilgrimage/religion + trans-Saharan wealth. He was devout (Hajj, mosques), *and* a patron of learning (Timbuktu/Sankore). |
+| Michael Collins | Philosophical, Organized | **Keep** | Administrative/intelligence-state profile; keep as-is. |
 | Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more "Aggressive" than "cheap administration." Protective still captures internal security/defense posture. `<!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him -->` |
 | Mehmed | Expansive, Organized | **Imperialist, Aggressive** | Siege monster and serial conqueror (Constantinople, Balkans, Anatolia); "The Conqueror" leans warlike more than "efficient administration." |
 | Moctezuma | Aggressive, Spiritual | **Keep** | Militarism + ritual/faith. |
@@ -269,17 +272,17 @@ See below in the main table after changes as it includes the before values as we
 | Trait | Count |
 | --- | ---: |
 | Spiritual | 12 |
-| Aggressive | 12 |
+| Aggressive | 13 |
 | Imperialist | 12 |
 | Charismatic | 11 |
 | Industrious | 11 |
-| Organized | 11 |
-| Financial | 10 |
+| Organized | 12 |
+| Financial | 11 |
 | Protective | 10 |
-| Philosophical | 9 |
+| Philosophical | 10 |
 | Creative | 8 |
 
-Sanity: 53 leaders × 2 = 106 total assignments.
+Sanity: 55 leaders × 2 = 110 total assignments.
 
 #### new pairs total count
 

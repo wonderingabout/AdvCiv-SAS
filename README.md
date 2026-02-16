@@ -10,13 +10,15 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 
 
 New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
 
-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
 
-Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
+Also most importantly AIs like GPT Codex, GPT Thinking, ChatGPT, Claude code, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
 
 For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+
+<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
 
 ## Menu
 
@@ -791,12 +793,12 @@ After some more time using it, what i like the most is how really accurate and a
 
 After some more time using ChatGPT 5.2, i have been very imrpessed by ChatGPT 5.2's autonomy and plannfication abilities: this sentiment only grew stronger! Just based on a Sevopedia ingame screenshot showing it was too bold and thus hard to read at a glance, ChatGPT 5.2 took all measurements and provided me various prototypes and shapes, that are fully working after i converted them to .dds! Very impressive, useful and now implemented in our new Sevopedia tech (see [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)) and thanks a lot!!
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG" alt="chatgpt_5.2_red_x_new_art (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG" alt="chatgpt_5.2_red_x_new_art (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG" alt="chatgpt_5.2_red_x_new_art (3).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG" alt="chatgpt_5.2_red_x_new_art (4).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG" alt="chatgpt_5.2_red_x_new_art (5).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG" alt="chatgpt_5.2_red_x_new_art (6).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (1).PNG" alt="chatgpt_5_2_red_x_new_art (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (2).PNG" alt="chatgpt_5_2_red_x_new_art (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (3).PNG" alt="chatgpt_5_2_red_x_new_art (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (4).PNG" alt="chatgpt_5_2_red_x_new_art (4).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (5).PNG" alt="chatgpt_5_2_red_x_new_art (5).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (6).PNG" alt="chatgpt_5_2_red_x_new_art (6).PNG" width="250"></img>
 
 ### GPT-Codex (VS Code extension)
 
@@ -806,17 +808,27 @@ Note: see also [AGENTS.md](/AGENTS.md).
 
 Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories](/README.md#other-new-categories)).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (1).PNG" alt="codex_ gpt_5.2_handicaps_chart (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (2).PNG" alt="codex_ gpt_5.2_handicaps_chart (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (3).PNG" alt="codex_ gpt_5.2_handicaps_chart (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (1).PNG" alt="gpt_5_2_codex_handicaps_chart (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (2).PNG" alt="gpt_5_2_codex_handicaps_chart (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (3).PNG" alt="gpt_5_2_codex_handicaps_chart (3).PNG" width="250"></img>
 
 #### Long_Comments extracting
 
 GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG" alt="gpt_codex_summarizing (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG" alt="gpt_codex_summarizing (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG" alt="gpt_codex_summarizing (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (1).PNG" alt="gpt_5_2_codex_summarizing (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (2).PNG" alt="gpt_5_2_codex_summarizing (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (3).PNG" alt="gpt_5_2_codex_summarizing (3).PNG" width="250"></img>
+
+#### 5.3
+
+I used GPT-5.3-Codex for a lot of tasks too and so far it brought me a lot of satisfaction!
+
+Notably, i used it to add the new Civilization ireland with new leaders, assets, etc. Plan done with the help of GPT-5.2-Thinking to save tokens and think more too xd thanks.
+
+I made a YouTube demo to show how it works and how impressive and useful Codex can be. It is very autonomous, follows instructions very well, and code just worked (i only had to fix one bug of not adding comments in an art file, else it just worked). The recording with OBS is a bit laggy for some reason but it works smoothly in VS Code! Thanks a lot GPT-5.3-Codex :)
+
+<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
 
 ### Claude AI
 

@@ -1970,6 +1970,20 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
+			<SoundID>DIPLO_GRACE_OMALLEY_EARLY</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/music/sonican-highlands-sun-celtic-irish-scottish-music-loop-340334</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_MICHAEL_COLLINS_EARLY</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/music/kaazoom-cara-relaxing-celtic-irish-music-447794</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
 			<SoundID>DIPLO_AUGUSTUS_CAESAR_EARLY</SoundID>
 			<Filename>Sounds/Diplomacy/Caesar_Early</Filename>
 			<LoadType>STREAMED</LoadType>

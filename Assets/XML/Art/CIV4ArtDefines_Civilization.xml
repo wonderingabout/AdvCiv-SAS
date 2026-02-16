@@ -110,6 +110,12 @@
 			<bWhiteFlag>0</bWhiteFlag>
 		</CivilizationArtInfo>
 		<CivilizationArtInfo>
+			<Type>ART_DEF_CIVILIZATION_IRELAND</Type>
+			<Button>Art/AdvCiv_SAS/Civilizations/Irish_Empire/Ireland.dds</Button>
+			<Path>Art/AdvCiv_SAS/Civilizations/Irish_Empire/FlagDECAL_Ireland.dds</Path>
+			<bWhiteFlag>0</bWhiteFlag>
+		</CivilizationArtInfo>
+		<CivilizationArtInfo>
 			<Type>ART_DEF_CIVILIZATION_JAPAN</Type>
 			<Button>,Art/Interface/Buttons/Civilizations/Japan.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,3,6</Button>
 			<Path>Art/Interface/TeamColor/FlagDECAL_Dot.dds</Path>
@@ -119,6 +125,12 @@
 			<Type>ART_DEF_CIVILIZATION_KHMER</Type>
 			<Button>,Art/Interface/Buttons/Civilizations/Japan.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,4</Button>
 			<Path>Art/Interface/TeamColor/FlagDECAL_Khmer.dds</Path>
+			<bWhiteFlag>0</bWhiteFlag>
+		</CivilizationArtInfo>
+		<CivilizationArtInfo>
+			<Type>ART_DEF_CIVILIZATION_KINGDOM_OF_BENIN</Type>
+			<Button>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/Button_Nigerians.dds</Button>
+			<Path>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/FlagDECAL_Nigerians.dds</Path>
 			<bWhiteFlag>0</bWhiteFlag>
 		</CivilizationArtInfo>
 		<CivilizationArtInfo>
@@ -221,12 +233,6 @@
 			<Type>ART_DEF_CIVILIZATION_BARBARIAN</Type>
 			<Button>,Art/Interface/Buttons/Civilizations/Barbarian.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,4,5</Button>
 			<Path>Art/Interface/TeamColor/FlagDECAL_Skull.dds</Path>
-			<bWhiteFlag>0</bWhiteFlag>
-		</CivilizationArtInfo>
-		<CivilizationArtInfo>
-			<Type>ART_DEF_CIVILIZATION_KINGDOM_OF_BENIN</Type>
-			<Button>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/Button_Nigerians.dds</Button>
-			<Path>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/FlagDECAL_Nigerians.dds</Path>
 			<bWhiteFlag>0</bWhiteFlag>
 		</CivilizationArtInfo>
 	</CivilizationArtInfos>

@@ -430,7 +430,7 @@
 			<NoShaderNIF>art/LeaderHeads/Zara Yaqob/Zara_Yaqob_NONSHADER.nif</NoShaderNIF>
 			<BackgroundKFM>art/LeaderHeads/Zara Yaqob/Zara Yaqob_BG.kfm</BackgroundKFM>
 		</LeaderheadArtInfo>
-		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #4; Long_Comments_XML.txt #121; art import from HR mod from my memories of it i mean and from it being most likely as HR has the nigerian civilization with many related leaders as well -->
+		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #4; Long_Comments_XML.txt #121; art import from HR mod's nigerian civilization thanks -->
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_EWUARE</Type>
 			<Button>Art/AdvCiv_SAS/LeaderHeads/Ewuare/Button_Ewuare.dds</Button>
@@ -438,6 +438,24 @@
 			<KFM>Art/AdvCiv_SAS/LeaderHeads/Ewuare/nif/shaka.kfm</KFM>
 			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Ewuare/nif/shaka.nif</NoShaderNIF>
 			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Ewuare/nif/Shaka_BG.kfm</BackgroundKFM>
+		</LeaderheadArtInfo>
+		<!-- custom: (GPT-5.3-Codex). Leadrhead from [LH] Grace O'Malley on CFC uploaded by SaibotLieh thanks -->
+		<LeaderheadArtInfo>
+			<Type>ART_DEF_LEADER_GRACE_OMALLEY</Type>
+			<Button>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/Grace_OMalley.dds</Button>
+			<NIF>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm</KFM>
+			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John_II_NONSHADER.nif</NoShaderNIF>
+			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm</BackgroundKFM>
+		</LeaderheadArtInfo>
+		<!-- custom: (GPT-5.3-Codex). leadrhead from Michael John Collins on CFC uploaded by C.Roland thanks -->
+		<LeaderheadArtInfo>
+			<Type>ART_DEF_LEADER_MICHAEL_COLLINS</Type>
+			<Button>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/collinsbutton.dds</Button>
+			<NIF>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh.kfm</KFM>
+			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis_nonshader.nif</NoShaderNIF>
+			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.kfm</BackgroundKFM>
 		</LeaderheadArtInfo>
 	</LeaderheadArtInfos>
 </Civ4ArtDefines>
