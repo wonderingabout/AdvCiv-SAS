@@ -1542,14 +1542,12 @@
 			<iNoTechTradeThreshold>5</iNoTechTradeThreshold>
 			<iTechTradeKnownPercent>70</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>5</iMaxGoldTradePercent>
-			<!-- BBAI Victory Strategy -->
+			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 20/25/25/30/40 (140 total) with the help of GPT-5.2-Thinking thanks -->
 			<iCultureVictoryWeight>20</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>25</iSpaceVictoryWeight>
 			<iConquestVictoryWeight>25</iConquestVictoryWeight>
-			<!-- advc.005a: was 55 -->
-			<iDominationVictoryWeight>30</iDominationVictoryWeight>
-			<!-- advc.005a: was 25 -->
-			<iDiplomacyVictoryWeight>40</iDiplomacyVictoryWeight>
+			<iDominationVictoryWeight>35</iDominationVictoryWeight>
+			<iDiplomacyVictoryWeight>45</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>200</iMaxWarRand>
 			<iMaxWarNearbyPowerRatio>100</iMaxWarNearbyPowerRatio>
@@ -1959,13 +1957,11 @@
 			<iNoTechTradeThreshold>5</iNoTechTradeThreshold>
 			<iTechTradeKnownPercent>40</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>5</iMaxGoldTradePercent>
-			<!-- BBAI Victory Strategy -->
+			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 0/30/30/50/30 (140 total) with the help of GPT-5.2-Thinking thanks -->
 			<iCultureVictoryWeight>0</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>30</iSpaceVictoryWeight>
-			<iConquestVictoryWeight>30</iConquestVictoryWeight>
-			<!-- advc.005a: was 35 -->
-			<iDominationVictoryWeight>50</iDominationVictoryWeight>
-			<!-- advc.005a: was 55 -->
+			<iConquestVictoryWeight>35</iConquestVictoryWeight>
+			<iDominationVictoryWeight>55</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>30</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>100</iMaxWarRand>
@@ -6825,12 +6821,12 @@
 			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
 			<iMaxGoldPerTurnTradePercent>15</iMaxGoldPerTurnTradePercent>
-			<!-- BBAI Victory Strategy -->
+			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 10/35/35/15/45 (140 total) with the help of GPT-5.2-Thinking thanks -->
 			<iCultureVictoryWeight>10</iCultureVictoryWeight>
-			<iSpaceVictoryWeight>35</iSpaceVictoryWeight>
+			<iSpaceVictoryWeight>40</iSpaceVictoryWeight>
 			<iConquestVictoryWeight>35</iConquestVictoryWeight>
 			<iDominationVictoryWeight>15</iDominationVictoryWeight>
-			<iDiplomacyVictoryWeight>45</iDiplomacyVictoryWeight>
+			<iDiplomacyVictoryWeight>50</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>300</iMaxWarRand>
 			<iMaxWarNearbyPowerRatio>90</iMaxWarNearbyPowerRatio>
@@ -9411,11 +9407,9 @@
 			<iNoTechTradeThreshold>15</iNoTechTradeThreshold>
 			<iTechTradeKnownPercent>60</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>15</iMaxGoldTradePercent>
-			<!-- BBAI Victory Strategy -->
-			<iCultureVictoryWeight>25</iCultureVictoryWeight>
-			<!-- advc.005a: was 15 -->
+			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 25/25/35/35/20 (140 total) with the help of GPT-5.2-Thinking thanks -->
+			<iCultureVictoryWeight>35</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>25</iSpaceVictoryWeight>
-			<!-- advc.005a: was 55 -->
 			<iConquestVictoryWeight>35</iConquestVictoryWeight>
 			<iDominationVictoryWeight>35</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>20</iDiplomacyVictoryWeight>

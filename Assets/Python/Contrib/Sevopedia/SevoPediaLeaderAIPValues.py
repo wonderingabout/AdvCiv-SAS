@@ -7,6 +7,7 @@
 
 
 from CvPythonExtensions import *
+import sys
 
 from ai_utils_shared_with_civ4 import *
 from _sevopedia_helpers import *
@@ -49,38 +50,47 @@ PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
 
 def dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
 	# Dumps the leader cache to PythonDbg.log in a format that can be copy-pasted into a .py module file.
+	def emit(line):
+		sys.stdout.write("%s\n" % line)
 
 	leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories = leader_cache
+	leader_index_type_pairs = []
+	for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
+		leader_index_type_pairs.append("%d: %s" % (iLeader, leader_type))
+	leader_index_type_line = ", ".join(leader_index_type_pairs)
 
 	# BEGIN marker
-	print("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
-	print("")
+	emit("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
 
 	# Header with generation info
-	print("# Generated from in-game dump to PythonDbg.log")
-	print("# Copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
-	print("#")
-	print("# Generation info:")
-	print("#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos())
-	print("#   - Excluded leader types: %r" % (excluded_leader_types,))
-	print("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
-	print("#   - Raw XML field names: %s" % str(is_raw_xml_names))
-	print("")
+	emit("# Generated from in-game dump to PythonDbg.log")
+	emit("# Copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
+	emit("#")
+	emit("# Generation info:")
+	emit("#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos())
+	emit("#   - Excluded leader types: %r" % (excluded_leader_types,))
+	emit("#   - Leader index:type pairs: %s" % leader_index_type_line)
+	emit("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
+	emit("#   - Raw XML field names: %s" % str(is_raw_xml_names))
 
 	# The actual data
-	print("LEADERS_INFO_CACHED = %r" % (leaders_info_cached,))
-	print("")
-	print("AI_RIGHT_CATEGORIES = %r" % (ai_right_categories,))
-	print("")
-	print("AI_MIDDLE_CATEGORIES = %r" % (ai_middle_categories,))
-	print("")
-	print("AI_LEFT_CATEGORIES = %r" % (ai_left_categories,))
+	emit("LEADERS_INFO_CACHED = {")
+	for iLeader in sorted(leaders_info_cached.keys()):
+		emit("	%r: {" % iLeader)
+		leader_info_cached = leaders_info_cached[iLeader]
+		for cache_key in sorted(leader_info_cached.keys()):
+			emit("		%r: %r," % (cache_key, leader_info_cached[cache_key]))
+		emit("	},")
+	emit("}")
+	emit("AI_RIGHT_CATEGORIES = %r" % (ai_right_categories,))
+	emit("AI_MIDDLE_CATEGORIES = %r" % (ai_middle_categories,))
+	emit("AI_LEFT_CATEGORIES = %r" % (ai_left_categories,))
 
 	# END marker
-	print("")
-	print("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
+	emit("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
 
-	print("AI Personality Panel cache dumped to PythonDbg.log successfully.")
+	emit("AI Personality Panel cache dumped to PythonDbg.log successfully.")
 
 
 

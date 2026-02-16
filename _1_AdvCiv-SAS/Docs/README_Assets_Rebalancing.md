@@ -51,7 +51,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Civ | Old FreeTechs | New FreeTechs | Rationale |
 | --- | --- | --- | --- |
 | America | Fishing, Agriculture | **Fishing, Hunting** | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
-| Arabia | The Wheel, Mysticism | **Mysticism, Pottery** | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
+| Arabia | The Wheel, Mysticism | **Hunting, Mysticism** | Desert pastoral/tribal-warrior flavor + smooth path toward Animal Husbandry/camels; Mysticism preserves religion/culture identity (and your UB is university-based so no Pottery dependency). |
 | Aztec | Mysticism, Hunting | **Mining, Mysticism** | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
 | Babylon | Agriculture, The Wheel | **Pottery, Mysticism** | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry → Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
 | Byzantium | The Wheel, Mysticism | **Mysticism, Fishing** | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
@@ -61,16 +61,16 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Egypt | The Wheel, Agriculture | **Hunting, Pottery** | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
 | England | Fishing, Mining | **Fishing, Mining** | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
 | Ethiopia | Hunting, Mining | **Hunting, Mysticism** | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
-| Kingdom of Benin | / | **Mysticism, Fishing** | Coastal trade + religious courts; already balanced and flavorful. |
+| Kingdom of Benin | / | **Mysticism, Pottery** | Pottery anchors the “fortified/urban builder court-state” + supports your Impluvium/aqueduct line; Mysticism keeps the ritual/court legitimacy flavor (and avoids pushing them toward early bronze play). |
 | France | The Wheel, Agriculture | **Hunting, Pottery** | Aristocratic hunt + towns; replaces disallowed pair. |
 | Germany | Pottery, Mining | **Pottery, Mining** | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
-| Greece | Fishing, Hunting | **Fishing, Mysticism** | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Avoids Mining+Pottery/Hunting spikes. |
-| Holy Roman | Mysticism, Hunting | **Mysticism, Hunting** | Clerical legitimacy + levies; varied without Mining spikes. |
+| Greece | Fishing, Hunting | **Mining, Mysticism** | Keeps the “culture/religion” signal (temples/oracles/cults) while also pushing the Hoplite → Bronze/Iron line sooner via Mining; better matches “bronze + sacred polis” as a starter identity. |
+| Holy Roman | Mysticism, Hunting | **Mysticism, Pottery** | Reads more like “Church + towns/guild/urban administration” than generic hunting, and unlocks their civ-specific building (Courthouse-based) sooner via the Pottery line. |
 | Inca | Agriculture, Mysticism | **Pottery, Mining** | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
 | India | Mysticism, Mining | **Mysticism, Mining** | Spiritual tradition + engineering; not an "amazing" pair. |
 | Japan | Fishing, The Wheel | **Fishing, Hunting** | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
 | Khmer | Hunting, Mining | **Fishing, Hunting** | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
-| Korea | Mining, Mysticism | **Mining, Mysticism** | Metalwork/engineering + Confucian culture; solid, non-"amazing" pair. |
+| Korea | Mining, Mysticism | **Fishing, Mining** | Keeps Mining (the more distinctive “Korea-coded” pillar: metals/engineering), and adds Fishing to reflect a peninsula/coastal civilization with strong maritime/trade exposure—without implying an early religion-race start. |
 | Mali | The Wheel, Mining | **Hunting, Pottery** | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
 | Maya | Mining, Mysticism | **Mysticism, Pottery** | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
 | Mongol | The Wheel, Hunting | **Hunting, Mysticism** | Pastoral steppe with early horses: Hunting → Animal Husbandry → Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
@@ -90,26 +90,26 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 
 | Tech | Count |
 | --- | --- |
-| Fishing | 14 |
+| Mining | 15 |
+| Pottery | 15 |
 | Hunting | 14 |
-| Mysticism | 14 |
-| Pottery | 14 |
-| Mining | 14 |
+| Fishing | 13 |
+| Mysticism | 13 |
 
 #### Starting pair counts (canonicalized; order-insensitive)
 
-| Pair | Count |
-| --- | --- |
-| Mining + Mysticism | 4 |
-| Fishing + Hunting | 4 |
-| Fishing + Mysticism | 4 |
-| Fishing + Pottery | 4 |
-| Hunting + Mining | 4 |
-| Mining + Pottery | 4 |
-| Hunting + Pottery | 3 |
-| Mysticism + Pottery | 3 |
-| Hunting + Mysticism | 3 |
-| Fishing + Mining | 2 |
+| Pair                | Count |
+| ------------------- | ----- |
+| Fishing + Hunting   | 4     |
+| Fishing + Pottery   | 4     |
+| Hunting + Mining    | 4     |
+| Mysticism + Mining  | 4     |
+| Mysticism + Pottery | 4     |
+| Pottery + Mining    | 4     |
+| Fishing + Mining    | 3     |
+| Hunting + Mysticism | 3     |
+| Hunting + Pottery   | 3     |
+| Fishing + Mysticism | 2     |
 
 **Sanity checks:**
 

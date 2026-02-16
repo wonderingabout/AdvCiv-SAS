@@ -13165,12 +13165,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: was PROMOTION_AMPHIBIOUS -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
